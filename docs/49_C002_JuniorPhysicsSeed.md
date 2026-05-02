@@ -6,7 +6,9 @@
 
 本文件记录的不是正式 C002 完成证据。正式知识点节点应在教师录入或导入各版本教材、学科课程标准、近年当地中考/高考真题、校本试卷等资料后，从来源资料中提炼候选节点并经人工审核确定。
 
-当前 seed 仅是开发期 draft bootstrap，用于验证 C001 schema、层级关系、题目绑定、映射历史和来源追溯。它必须保持 `status = draft`，并带有 `source_basis = bootstrap_draft_not_authoritative` 标记；不得作为校本正式知识本体。
+当前 seed 仅是开发期 draft bootstrap，用于验证 C001 schema、层级关系、题目绑定、映射历史、来源追溯、测试筛选和组卷约束。它可以被测试题目绑定，但必须保持 `status = draft`，并带有 `source_basis = bootstrap_draft_not_authoritative` 标记；不得作为校本正式知识本体。
+
+正式资料录入并审核后，可以用来源提炼后的节点版本替换或更新这些草稿节点。替换时必须保留版本、状态和来源证据：草稿继续用于历史测试追溯，正式 `active` 节点进入生产流程。
 
 ## 1. 完成范围
 
@@ -38,6 +40,7 @@ $env:PGPASSWORD='postgres'
 - Seed 脚本连续执行两次后节点数量不重复。
 - 所有 bootstrap 节点保持 `draft`。
 - 所有 bootstrap 节点带有非权威来源标记。
+- Bootstrap 节点可用于测试题目绑定，但不得作为正式来源提炼完成证据。
 - L1/L2/L3 节点数量与 seed 文件一致。
 - 所有 L2/L3 节点都有 `parent_id`。
 - Parent-child edge 数量与 seed 文件一致。

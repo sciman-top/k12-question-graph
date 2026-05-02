@@ -55,10 +55,11 @@ $env:PGPASSWORD='<local-password>'
 .\tools\run-c002-seed-validation.ps1
 ```
 
-This is not the formal C002 completion gate. It only keeps the non-authoritative
+This is not the formal C002 completion gate. It keeps the non-authoritative
 draft bootstrap data idempotent and marked as `draft` until teachers import
 textbooks, curriculum standards, and recent local exam papers for source-derived
-review.
+review. Draft nodes may be used by API/UI/regression tests, but production flows
+must wait for source-derived `active` knowledge nodes.
 
 Roadmap dependency guard:
 
