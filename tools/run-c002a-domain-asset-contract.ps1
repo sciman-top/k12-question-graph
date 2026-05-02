@@ -133,7 +133,7 @@ where n.nspname = 'public'
 begin;
 with source_asset as (
   insert into domain_asset_versions (
-    asset_type, stable_id, version, display_name, status, authority, effective_scope, source_evidence, metadata
+    asset_type, stable_id, version, display_name, status, authority, effective_scope, source_evidence, metadata, created_at, updated_at
   )
   values (
     'knowledge_node',
@@ -144,12 +144,14 @@ with source_asset as (
     'bootstrap',
     '{"subject":"physics","stage":"junior_middle_school"}',
     '{"source":"contract_test"}',
-    '{"mode":"draft"}'
+    '{"mode":"draft"}',
+    now(),
+    now()
   )
   returning id
 ), target_asset as (
   insert into domain_asset_versions (
-    asset_type, stable_id, version, display_name, status, authority, effective_scope, source_evidence, metadata
+    asset_type, stable_id, version, display_name, status, authority, effective_scope, source_evidence, metadata, created_at, updated_at
   )
   values (
     'knowledge_node',
@@ -160,12 +162,14 @@ with source_asset as (
     'source_derived',
     '{"subject":"physics","stage":"junior_middle_school"}',
     '{"source":"contract_test"}',
-    '{"mode":"formal_candidate"}'
+    '{"mode":"formal_candidate"}',
+    now(),
+    now()
   )
   returning id
 ), migration as (
   insert into domain_asset_migrations (
-    migration_key, status, from_asset_version_id, to_asset_version_id, impact_report, rollback_snapshot, created_by
+    migration_key, status, from_asset_version_id, to_asset_version_id, impact_report, rollback_snapshot, created_by, created_at
   )
   select
     '$scenarioKey',
@@ -174,12 +178,13 @@ with source_asset as (
     target_asset.id,
     '{"auto_migrated":1,"pending_review":0}',
     '{"snapshot":"contract"}',
-    'contract'
+    'contract',
+    now()
   from source_asset, target_asset
   returning id, from_asset_version_id, to_asset_version_id
 )
 insert into domain_asset_mappings (
-  source_asset_version_id, target_asset_version_id, mapping_type, confidence, review_status, auto_applied, evidence, migration_id
+  source_asset_version_id, target_asset_version_id, mapping_type, confidence, review_status, auto_applied, evidence, migration_id, created_at
 )
 select
   from_asset_version_id,
@@ -189,7 +194,8 @@ select
   'auto_applied',
   true,
   '{"reason":"high_confidence_low_impact_contract"}',
-  id
+  id,
+  now()
 from migration;
 rollback;
 "@

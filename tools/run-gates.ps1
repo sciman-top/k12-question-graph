@@ -33,6 +33,37 @@ function Invoke-GateStep([string] $Name, [scriptblock] $Script) {
     }
 }
 
+function Get-FreeTcpPort {
+    $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Parse('127.0.0.1'), 0)
+    try {
+        $listener.Start()
+        return $listener.LocalEndpoint.Port
+    }
+    finally {
+        $listener.Stop()
+    }
+}
+
+function Wait-ApiReady([System.Diagnostics.Process] $Process, [string] $ApiUrl, [string] $LogErr) {
+    for ($i = 0; $i -lt 30; $i++) {
+        if ($Process.HasExited) {
+            throw "API exited before ready on $ApiUrl; see $LogErr"
+        }
+
+        try {
+            $health = Invoke-RestMethod -Uri "$ApiUrl/health/ready" -TimeoutSec 2
+            if ($health.status -eq 'ok') {
+                return
+            }
+        }
+        catch {
+            Start-Sleep -Seconds 1
+        }
+    }
+
+    throw "API did not become ready on $ApiUrl"
+}
+
 Push-Location $repoRoot
 try {
     Invoke-GateStep 'backend build' {
@@ -171,7 +202,7 @@ try {
             throw "DatabasePassword or PGPASSWORD is required for API upload smoke"
         }
 
-        $port = 5282
+        $port = Get-FreeTcpPort
         $apiUrl = "http://127.0.0.1:$port"
         $logOut = Join-Path $repoRoot 'docs\evidence\b001-gate-api.out.log'
         $logErr = Join-Path $repoRoot 'docs\evidence\b001-gate-api.err.log'
@@ -179,20 +210,7 @@ try {
         $env:KQG_CONNECTION_STRING = "Host=$DatabaseHost;Port=$DatabasePort;Database=$DatabaseName;Username=$DatabaseUser;Password=$DatabasePassword"
         $process = Start-Process -FilePath dotnet -ArgumentList @('run','--project','apps\api\K12QuestionGraph.Api.csproj','--urls',$apiUrl) -PassThru -WindowStyle Hidden -RedirectStandardOutput $logOut -RedirectStandardError $logErr
         try {
-            $ready = $false
-            for ($i = 0; $i -lt 30; $i++) {
-                try {
-                    $health = Invoke-RestMethod -Uri "$apiUrl/health/ready" -TimeoutSec 2
-                    if ($health.status -eq 'ok') {
-                        $ready = $true
-                        break
-                    }
-                }
-                catch {
-                    Start-Sleep -Seconds 1
-                }
-            }
-            if (-not $ready) { throw "API did not become ready on $apiUrl" }
+            Wait-ApiReady -Process $process -ApiUrl $apiUrl -LogErr $logErr
 
             $sample = Join-Path $env:TEMP 'kqg-b001-gate-upload.txt'
             Set-Content -LiteralPath $sample -Value "B001 duplicate upload gate sample $([Guid]::NewGuid())" -Encoding UTF8
@@ -222,7 +240,7 @@ try {
             throw "DatabasePassword or PGPASSWORD is required for API source preview smoke"
         }
 
-        $port = 5283
+        $port = Get-FreeTcpPort
         $apiUrl = "http://127.0.0.1:$port"
         $logOut = Join-Path $repoRoot 'docs\evidence\b003-gate-api.out.log'
         $logErr = Join-Path $repoRoot 'docs\evidence\b003-gate-api.err.log'
@@ -230,20 +248,7 @@ try {
         $env:KQG_CONNECTION_STRING = "Host=$DatabaseHost;Port=$DatabasePort;Database=$DatabaseName;Username=$DatabaseUser;Password=$DatabasePassword"
         $process = Start-Process -FilePath dotnet -ArgumentList @('run','--project','apps\api\K12QuestionGraph.Api.csproj','--urls',$apiUrl) -PassThru -WindowStyle Hidden -RedirectStandardOutput $logOut -RedirectStandardError $logErr
         try {
-            $ready = $false
-            for ($i = 0; $i -lt 30; $i++) {
-                try {
-                    $health = Invoke-RestMethod -Uri "$apiUrl/health/ready" -TimeoutSec 2
-                    if ($health.status -eq 'ok') {
-                        $ready = $true
-                        break
-                    }
-                }
-                catch {
-                    Start-Sleep -Seconds 1
-                }
-            }
-            if (-not $ready) { throw "API did not become ready on $apiUrl" }
+            Wait-ApiReady -Process $process -ApiUrl $apiUrl -LogErr $logErr
 
             $sample = Join-Path $env:TEMP 'kqg-b003-gate-upload.txt'
             Set-Content -LiteralPath $sample -Value "B003 source preview gate sample $([Guid]::NewGuid())" -Encoding UTF8
@@ -287,7 +292,7 @@ try {
             throw "DatabasePassword or PGPASSWORD is required for API question save smoke"
         }
 
-        $port = 5284
+        $port = Get-FreeTcpPort
         $apiUrl = "http://127.0.0.1:$port"
         $logOut = Join-Path $repoRoot 'docs\evidence\b005-gate-api.out.log'
         $logErr = Join-Path $repoRoot 'docs\evidence\b005-gate-api.err.log'
@@ -295,20 +300,7 @@ try {
         $env:KQG_CONNECTION_STRING = "Host=$DatabaseHost;Port=$DatabasePort;Database=$DatabaseName;Username=$DatabaseUser;Password=$DatabasePassword"
         $process = Start-Process -FilePath dotnet -ArgumentList @('run','--project','apps\api\K12QuestionGraph.Api.csproj','--urls',$apiUrl) -PassThru -WindowStyle Hidden -RedirectStandardOutput $logOut -RedirectStandardError $logErr
         try {
-            $ready = $false
-            for ($i = 0; $i -lt 30; $i++) {
-                try {
-                    $health = Invoke-RestMethod -Uri "$apiUrl/health/ready" -TimeoutSec 2
-                    if ($health.status -eq 'ok') {
-                        $ready = $true
-                        break
-                    }
-                }
-                catch {
-                    Start-Sleep -Seconds 1
-                }
-            }
-            if (-not $ready) { throw "API did not become ready on $apiUrl" }
+            Wait-ApiReady -Process $process -ApiUrl $apiUrl -LogErr $logErr
 
             $sample = Join-Path $env:TEMP 'kqg-b005-gate-upload.txt'
             Set-Content -LiteralPath $sample -Value "B005 question save gate sample $([Guid]::NewGuid())" -Encoding UTF8
@@ -369,7 +361,7 @@ try {
             throw "DatabasePassword or PGPASSWORD is required for API question source smoke"
         }
 
-        $port = 5285
+        $port = Get-FreeTcpPort
         $apiUrl = "http://127.0.0.1:$port"
         $logOut = Join-Path $repoRoot 'docs\evidence\b006-gate-api.out.log'
         $logErr = Join-Path $repoRoot 'docs\evidence\b006-gate-api.err.log'
@@ -377,20 +369,7 @@ try {
         $env:KQG_CONNECTION_STRING = "Host=$DatabaseHost;Port=$DatabasePort;Database=$DatabaseName;Username=$DatabaseUser;Password=$DatabasePassword"
         $process = Start-Process -FilePath dotnet -ArgumentList @('run','--project','apps\api\K12QuestionGraph.Api.csproj','--urls',$apiUrl) -PassThru -WindowStyle Hidden -RedirectStandardOutput $logOut -RedirectStandardError $logErr
         try {
-            $ready = $false
-            for ($i = 0; $i -lt 30; $i++) {
-                try {
-                    $health = Invoke-RestMethod -Uri "$apiUrl/health/ready" -TimeoutSec 2
-                    if ($health.status -eq 'ok') {
-                        $ready = $true
-                        break
-                    }
-                }
-                catch {
-                    Start-Sleep -Seconds 1
-                }
-            }
-            if (-not $ready) { throw "API did not become ready on $apiUrl" }
+            Wait-ApiReady -Process $process -ApiUrl $apiUrl -LogErr $logErr
 
             $sample = Join-Path $env:TEMP 'kqg-b006-gate-upload.txt'
             Set-Content -LiteralPath $sample -Value "B006 source review gate sample $([Guid]::NewGuid())" -Encoding UTF8
