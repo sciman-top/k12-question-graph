@@ -7,5 +7,6 @@ public interface IFileStore
         string originalFileName,
         string? contentType,
         long sizeBytes,
+        SourceDocumentMetadata sourceMetadata,
         CancellationToken cancellationToken);
 }

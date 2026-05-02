@@ -9,6 +9,10 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
 
     public DbSet<FileAsset> FileAssets => Set<FileAsset>();
 
+    public DbSet<SourceDocument> SourceDocuments => Set<SourceDocument>();
+
+    public DbSet<SourceRegion> SourceRegions => Set<SourceRegion>();
+
     public DbSet<ImportJob> ImportJobs => Set<ImportJob>();
 
     public DbSet<AIJob> AIJobs => Set<AIJob>();
@@ -19,17 +23,34 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
 
     public DbSet<QuestionItem> QuestionItems => Set<QuestionItem>();
 
+    public DbSet<KnowledgeNode> KnowledgeNodes => Set<KnowledgeNode>();
+
+    public DbSet<KnowledgeEdge> KnowledgeEdges => Set<KnowledgeEdge>();
+
+    public DbSet<KnowledgeMapping> KnowledgeMappings => Set<KnowledgeMapping>();
+
+    public DbSet<QuestionBlock> QuestionBlocks => Set<QuestionBlock>();
+
+    public DbSet<QuestionAsset> QuestionAssets => Set<QuestionAsset>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasPostgresExtension("pgcrypto");
 
         ConfigureTeacherPreference(modelBuilder.Entity<TeacherPreference>());
         ConfigureFileAsset(modelBuilder.Entity<FileAsset>());
+        ConfigureSourceDocument(modelBuilder.Entity<SourceDocument>());
+        ConfigureSourceRegion(modelBuilder.Entity<SourceRegion>());
         ConfigureImportJob(modelBuilder.Entity<ImportJob>());
         ConfigureAIJob(modelBuilder.Entity<AIJob>());
         ConfigureReviewQueueItem(modelBuilder.Entity<ReviewQueueItem>());
         ConfigureBackupJob(modelBuilder.Entity<BackupJob>());
         ConfigureQuestionItem(modelBuilder.Entity<QuestionItem>());
+        ConfigureKnowledgeNode(modelBuilder.Entity<KnowledgeNode>());
+        ConfigureKnowledgeEdge(modelBuilder.Entity<KnowledgeEdge>());
+        ConfigureKnowledgeMapping(modelBuilder.Entity<KnowledgeMapping>());
+        ConfigureQuestionBlock(modelBuilder.Entity<QuestionBlock>());
+        ConfigureQuestionAsset(modelBuilder.Entity<QuestionAsset>());
     }
 
     private static void ConfigureTeacherPreference(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TeacherPreference> entity)
@@ -48,6 +69,7 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
         entity.ToTable("file_assets");
         entity.HasKey(x => x.Id);
         entity.HasIndex(x => x.Sha256);
+        entity.HasIndex(x => new { x.Sha256, x.SizeBytes }).IsUnique();
         entity.HasIndex(x => new { x.StorageScope, x.RelativePath }).IsUnique();
         entity.Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
         entity.Property(x => x.OriginalFileName).HasMaxLength(260).IsRequired();
@@ -56,6 +78,42 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
         entity.Property(x => x.ContentType).HasMaxLength(128).HasDefaultValue("application/octet-stream");
         entity.Property(x => x.Sha256).HasMaxLength(64).IsRequired();
         entity.Property(x => x.SourceMetadata).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+    }
+
+    private static void ConfigureSourceDocument(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<SourceDocument> entity)
+    {
+        entity.ToTable("source_documents");
+        entity.HasKey(x => x.Id);
+        entity.HasIndex(x => x.FileAssetId);
+        entity.HasIndex(x => x.SourceType);
+        entity.HasIndex(x => x.OwnerScope);
+        entity.HasIndex(x => x.ContainsStudentPii);
+        entity.Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
+        entity.Property(x => x.SourceType).HasMaxLength(64).HasDefaultValue("unknown");
+        entity.Property(x => x.SourceTitle).HasMaxLength(260).HasDefaultValue(string.Empty);
+        entity.Property(x => x.OwnerScope).HasMaxLength(64).HasDefaultValue("teacher_private");
+        entity.Property(x => x.LicenseOrPermission).HasMaxLength(256).HasDefaultValue("unknown");
+        entity.Property(x => x.AnonymizationStatus).HasMaxLength(64).HasDefaultValue("not_applicable");
+        entity.HasOne<FileAsset>().WithMany().HasForeignKey(x => x.FileAssetId).OnDelete(DeleteBehavior.Restrict);
+        entity.ToTable(x => x.HasCheckConstraint("ck_source_documents_anonymization_status", "anonymization_status in ('none','anonymized','synthetic','not_applicable')"));
+    }
+
+    private static void ConfigureSourceRegion(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<SourceRegion> entity)
+    {
+        entity.ToTable("source_regions");
+        entity.HasKey(x => x.Id);
+        entity.HasIndex(x => new { x.SourceDocumentId, x.PageNumber });
+        entity.Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
+        entity.Property(x => x.CoordinateUnit).HasMaxLength(32).HasDefaultValue("percent");
+        entity.Property(x => x.ScreenshotRelativePath).HasMaxLength(512);
+        entity.Property(x => x.RegionType).HasMaxLength(64).HasDefaultValue("preview");
+        entity.HasOne<SourceDocument>().WithMany().HasForeignKey(x => x.SourceDocumentId).OnDelete(DeleteBehavior.Cascade);
+        entity.ToTable(x =>
+        {
+            x.HasCheckConstraint("ck_source_regions_page_number", "page_number >= 1");
+            x.HasCheckConstraint("ck_source_regions_bbox", "x >= 0 and y >= 0 and width > 0 and height > 0");
+            x.HasCheckConstraint("ck_source_regions_coordinate_unit", "coordinate_unit in ('pixel','point','percent')");
+        });
     }
 
     private static void ConfigureImportJob(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<ImportJob> entity)
@@ -132,6 +190,101 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
         entity.Property(x => x.Blocks).HasColumnType("jsonb").HasDefaultValueSql("'[]'::jsonb");
         entity.Property(x => x.CustomFields).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
         entity.Property(x => x.QualitySignals).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.HasOne<KnowledgeNode>().WithMany().HasForeignKey(x => x.PrimaryKnowledgeId).OnDelete(DeleteBehavior.SetNull);
         entity.ToTable(x => x.HasCheckConstraint("ck_question_items_status", "status in ('draft','pending_review','usable','recommended','needs_improvement','paused','retired')"));
+    }
+
+    private static void ConfigureKnowledgeNode(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<KnowledgeNode> entity)
+    {
+        entity.ToTable("knowledge_nodes");
+        entity.HasKey(x => x.Id);
+        entity.HasIndex(x => new { x.Subject, x.Stage, x.Code, x.Version }).IsUnique();
+        entity.HasIndex(x => new { x.Subject, x.Stage, x.Level });
+        entity.HasIndex(x => x.ParentId);
+        entity.Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
+        entity.Property(x => x.Subject).HasMaxLength(64).HasDefaultValue("physics");
+        entity.Property(x => x.Stage).HasMaxLength(64).HasDefaultValue("junior_middle_school");
+        entity.Property(x => x.Code).HasMaxLength(128).IsRequired();
+        entity.Property(x => x.Title).HasMaxLength(256).IsRequired();
+        entity.Property(x => x.NodeType).HasMaxLength(64).HasDefaultValue("concept");
+        entity.Property(x => x.Status).HasMaxLength(32).HasDefaultValue(KnowledgeStatuses.Draft);
+        entity.Property(x => x.Metadata).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.HasOne<KnowledgeNode>().WithMany().HasForeignKey(x => x.ParentId).OnDelete(DeleteBehavior.Restrict);
+        entity.ToTable(x =>
+        {
+            x.HasCheckConstraint("ck_knowledge_nodes_level", "level >= 1");
+            x.HasCheckConstraint("ck_knowledge_nodes_version", "version >= 1");
+            x.HasCheckConstraint("ck_knowledge_nodes_status", "status in ('draft','active','deprecated','retired')");
+        });
+    }
+
+    private static void ConfigureKnowledgeEdge(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<KnowledgeEdge> entity)
+    {
+        entity.ToTable("knowledge_edges");
+        entity.HasKey(x => x.Id);
+        entity.HasIndex(x => new { x.SourceNodeId, x.TargetNodeId, x.EdgeType, x.Version }).IsUnique();
+        entity.HasIndex(x => x.TargetNodeId);
+        entity.Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
+        entity.Property(x => x.EdgeType).HasMaxLength(64).HasDefaultValue(KnowledgeEdgeTypes.ParentChild);
+        entity.Property(x => x.Metadata).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.HasOne<KnowledgeNode>().WithMany().HasForeignKey(x => x.SourceNodeId).OnDelete(DeleteBehavior.Restrict);
+        entity.HasOne<KnowledgeNode>().WithMany().HasForeignKey(x => x.TargetNodeId).OnDelete(DeleteBehavior.Restrict);
+        entity.ToTable(x =>
+        {
+            x.HasCheckConstraint("ck_knowledge_edges_not_self", "source_node_id <> target_node_id");
+            x.HasCheckConstraint("ck_knowledge_edges_version", "version >= 1");
+            x.HasCheckConstraint("ck_knowledge_edges_type", "edge_type in ('parent_child','prerequisite','related')");
+        });
+    }
+
+    private static void ConfigureKnowledgeMapping(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<KnowledgeMapping> entity)
+    {
+        entity.ToTable("knowledge_mappings");
+        entity.HasKey(x => x.Id);
+        entity.HasIndex(x => new { x.QuestionItemId, x.KnowledgeNodeId, x.Version }).IsUnique();
+        entity.HasIndex(x => x.KnowledgeNodeId);
+        entity.HasIndex(x => x.MappingSource);
+        entity.Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
+        entity.Property(x => x.MappingSource).HasMaxLength(64).HasDefaultValue(KnowledgeMappingSources.Manual);
+        entity.Property(x => x.Evidence).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.HasOne<QuestionItem>().WithMany().HasForeignKey(x => x.QuestionItemId).OnDelete(DeleteBehavior.Cascade);
+        entity.HasOne<KnowledgeNode>().WithMany().HasForeignKey(x => x.KnowledgeNodeId).OnDelete(DeleteBehavior.Restrict);
+        entity.ToTable(x =>
+        {
+            x.HasCheckConstraint("ck_knowledge_mappings_confidence", "confidence is null or (confidence >= 0 and confidence <= 1)");
+            x.HasCheckConstraint("ck_knowledge_mappings_version", "version >= 1");
+            x.HasCheckConstraint("ck_knowledge_mappings_source", "mapping_source in ('manual','import','ai_suggested')");
+        });
+    }
+
+    private static void ConfigureQuestionBlock(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<QuestionBlock> entity)
+    {
+        entity.ToTable("question_blocks");
+        entity.HasKey(x => x.Id);
+        entity.HasIndex(x => new { x.QuestionItemId, x.SortOrder });
+        entity.HasIndex(x => x.BlockType);
+        entity.HasIndex(x => x.SourceRegionId);
+        entity.Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
+        entity.Property(x => x.BlockType).HasMaxLength(64).HasDefaultValue("text");
+        entity.Property(x => x.Content).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.HasOne<QuestionItem>().WithMany().HasForeignKey(x => x.QuestionItemId).OnDelete(DeleteBehavior.Cascade);
+        entity.HasOne<SourceRegion>().WithMany().HasForeignKey(x => x.SourceRegionId).OnDelete(DeleteBehavior.Restrict);
+        entity.ToTable(x => x.HasCheckConstraint("ck_question_blocks_sort_order", "sort_order >= 0"));
+    }
+
+    private static void ConfigureQuestionAsset(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<QuestionAsset> entity)
+    {
+        entity.ToTable("question_assets");
+        entity.HasKey(x => x.Id);
+        entity.HasIndex(x => x.QuestionItemId);
+        entity.HasIndex(x => x.FileAssetId);
+        entity.HasIndex(x => x.SourceRegionId);
+        entity.Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
+        entity.Property(x => x.AssetType).HasMaxLength(64).HasDefaultValue("image");
+        entity.Property(x => x.Purpose).HasMaxLength(128).HasDefaultValue("question_content");
+        entity.Property(x => x.Metadata).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.HasOne<QuestionItem>().WithMany().HasForeignKey(x => x.QuestionItemId).OnDelete(DeleteBehavior.Cascade);
+        entity.HasOne<FileAsset>().WithMany().HasForeignKey(x => x.FileAssetId).OnDelete(DeleteBehavior.Restrict);
+        entity.HasOne<SourceRegion>().WithMany().HasForeignKey(x => x.SourceRegionId).OnDelete(DeleteBehavior.Restrict);
     }
 }

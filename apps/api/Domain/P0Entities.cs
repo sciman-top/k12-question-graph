@@ -36,6 +36,28 @@ public static class QuestionStatuses
     public const string Retired = "retired";
 }
 
+public static class KnowledgeStatuses
+{
+    public const string Draft = "draft";
+    public const string Active = "active";
+    public const string Deprecated = "deprecated";
+    public const string Retired = "retired";
+}
+
+public static class KnowledgeEdgeTypes
+{
+    public const string ParentChild = "parent_child";
+    public const string Prerequisite = "prerequisite";
+    public const string Related = "related";
+}
+
+public static class KnowledgeMappingSources
+{
+    public const string Manual = "manual";
+    public const string Import = "import";
+    public const string AiSuggested = "ai_suggested";
+}
+
 public sealed class TeacherPreference
 {
     public Guid Id { get; set; }
@@ -68,6 +90,56 @@ public sealed class FileAsset
     public long SizeBytes { get; set; }
 
     public string SourceMetadata { get; set; } = "{}";
+
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class SourceDocument
+{
+    public Guid Id { get; set; }
+
+    public Guid FileAssetId { get; set; }
+
+    public string SourceType { get; set; } = "unknown";
+
+    public string SourceTitle { get; set; } = string.Empty;
+
+    public string OwnerScope { get; set; } = "teacher_private";
+
+    public string LicenseOrPermission { get; set; } = "unknown";
+
+    public bool SharingAllowed { get; set; }
+
+    public bool ContainsStudentPii { get; set; }
+
+    public string AnonymizationStatus { get; set; } = "not_applicable";
+
+    public bool ExternalAiAllowed { get; set; }
+
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class SourceRegion
+{
+    public Guid Id { get; set; }
+
+    public Guid SourceDocumentId { get; set; }
+
+    public int PageNumber { get; set; } = 1;
+
+    public decimal X { get; set; }
+
+    public decimal Y { get; set; }
+
+    public decimal Width { get; set; }
+
+    public decimal Height { get; set; }
+
+    public string CoordinateUnit { get; set; } = "percent";
+
+    public string? ScreenshotRelativePath { get; set; }
+
+    public string RegionType { get; set; } = "preview";
 
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 }
@@ -197,4 +269,107 @@ public sealed class QuestionItem
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class KnowledgeNode
+{
+    public Guid Id { get; set; }
+
+    public string Subject { get; set; } = "physics";
+
+    public string Stage { get; set; } = "junior_middle_school";
+
+    public string Code { get; set; } = string.Empty;
+
+    public string Title { get; set; } = string.Empty;
+
+    public string NodeType { get; set; } = "concept";
+
+    public int Level { get; set; } = 1;
+
+    public string Status { get; set; } = KnowledgeStatuses.Draft;
+
+    public int Version { get; set; } = 1;
+
+    public Guid? ParentId { get; set; }
+
+    public string Metadata { get; set; } = "{}";
+
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+
+    public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class KnowledgeEdge
+{
+    public Guid Id { get; set; }
+
+    public Guid SourceNodeId { get; set; }
+
+    public Guid TargetNodeId { get; set; }
+
+    public string EdgeType { get; set; } = KnowledgeEdgeTypes.ParentChild;
+
+    public int Version { get; set; } = 1;
+
+    public string Metadata { get; set; } = "{}";
+
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class KnowledgeMapping
+{
+    public Guid Id { get; set; }
+
+    public Guid QuestionItemId { get; set; }
+
+    public Guid KnowledgeNodeId { get; set; }
+
+    public string MappingSource { get; set; } = KnowledgeMappingSources.Manual;
+
+    public bool IsPrimary { get; set; }
+
+    public decimal? Confidence { get; set; }
+
+    public int Version { get; set; } = 1;
+
+    public string Evidence { get; set; } = "{}";
+
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class QuestionBlock
+{
+    public Guid Id { get; set; }
+
+    public Guid QuestionItemId { get; set; }
+
+    public string BlockType { get; set; } = "text";
+
+    public int SortOrder { get; set; }
+
+    public string Content { get; set; } = "{}";
+
+    public Guid? SourceRegionId { get; set; }
+
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class QuestionAsset
+{
+    public Guid Id { get; set; }
+
+    public Guid QuestionItemId { get; set; }
+
+    public Guid? FileAssetId { get; set; }
+
+    public Guid? SourceRegionId { get; set; }
+
+    public string AssetType { get; set; } = "image";
+
+    public string Purpose { get; set; } = "question_content";
+
+    public string Metadata { get; set; } = "{}";
+
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 }

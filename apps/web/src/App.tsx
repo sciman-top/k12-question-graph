@@ -1,8 +1,10 @@
+import { useMemo, useState } from 'react'
 import {
   Alert,
   Badge,
   Button,
   ConfigProvider,
+  Divider,
   Layout,
   Progress,
   Space,
@@ -15,7 +17,11 @@ import {
   FileSearchOutlined,
   FileTextOutlined,
   InboxOutlined,
+  LinkOutlined,
+  MergeCellsOutlined,
   SafetyCertificateOutlined,
+  SplitCellsOutlined,
+  UndoOutlined,
 } from '@ant-design/icons'
 import './App.css'
 
@@ -53,7 +59,112 @@ const jobStates = [
   { label: 'retry_waiting', value: 0 },
 ]
 
+const initialSegments = [
+  {
+    id: 'q-01',
+    title: '第 1 题',
+    page: '第 1 页',
+    region: 'x10 y12 w62 h18',
+    asset: '',
+  },
+  {
+    id: 'q-02',
+    title: '第 2 题上半部分',
+    page: '第 1-2 页',
+    region: 'x8 y76 w70 h20',
+    asset: '',
+  },
+  {
+    id: 'q-03',
+    title: '第 2 题下半部分',
+    page: '第 2 页',
+    region: 'x8 y6 w70 h24',
+    asset: '',
+  },
+]
+
+const sharedAssets = ['图 A：滑轮组示意图', '图 B：电路图', '表 1：实验数据']
+
 function App() {
+  const [segments, setSegments] = useState(initialSegments)
+  const [selectedIds, setSelectedIds] = useState<string[]>(['q-02', 'q-03'])
+  const [selectedAsset, setSelectedAsset] = useState(sharedAssets[0])
+  const [actionLog, setActionLog] = useState<string[]>([])
+
+  const selectedSegments = useMemo(
+    () => segments.filter((segment) => selectedIds.includes(segment.id)),
+    [segments, selectedIds],
+  )
+
+  const appendLog = (message: string) => {
+    setActionLog((current) => [message, ...current].slice(0, 5))
+  }
+
+  const toggleSegment = (id: string) => {
+    setSelectedIds((current) =>
+      current.includes(id) ? current.filter((item) => item !== id) : [...current, id],
+    )
+  }
+
+  const mergeSelected = () => {
+    if (selectedSegments.length < 2) {
+      return
+    }
+
+    const merged = {
+      id: `q-${Date.now()}`,
+      title: `${selectedSegments[0].title} 合并题`,
+      page: selectedSegments.map((segment) => segment.page).join(' / '),
+      region: selectedSegments.map((segment) => segment.region).join(' + '),
+      asset: selectedSegments.find((segment) => segment.asset)?.asset ?? '',
+    }
+    const selected = new Set(selectedIds)
+    setSegments((current) => [merged, ...current.filter((segment) => !selected.has(segment.id))])
+    setSelectedIds([merged.id])
+    appendLog(`已合并 ${selectedSegments.length} 个片段为 ${merged.title}`)
+  }
+
+  const splitSelected = () => {
+    if (selectedSegments.length !== 1) {
+      return
+    }
+
+    const [target] = selectedSegments
+    const split = [
+      { ...target, id: `${target.id}-a`, title: `${target.title} A`, region: `${target.region} 上半` },
+      { ...target, id: `${target.id}-b`, title: `${target.title} B`, region: `${target.region} 下半` },
+    ]
+    setSegments((current) =>
+      current.flatMap((segment) => (segment.id === target.id ? split : [segment])),
+    )
+    setSelectedIds(split.map((segment) => segment.id))
+    appendLog(`已拆分 ${target.title}`)
+  }
+
+  const associateAsset = () => {
+    if (selectedIds.length === 0) {
+      return
+    }
+
+    const selected = new Set(selectedIds)
+    setSegments((current) =>
+      current.map((segment) =>
+        selected.has(segment.id) ? { ...segment, asset: selectedAsset } : segment,
+      ),
+    )
+    appendLog(`已关联 ${selectedAsset} 到 ${selectedIds.length} 个片段`)
+  }
+
+  const takeoverFailure = (action: string) => {
+    appendLog(`失败接管：${action}`)
+  }
+
+  const undoLast = () => {
+    setSegments(initialSegments)
+    setSelectedIds(['q-02', 'q-03'])
+    setActionLog((current) => [`已撤销：${current[0] ?? '最近操作'}`, ...current.slice(1)])
+  }
+
   return (
     <ConfigProvider
       theme={{
@@ -136,6 +247,164 @@ function App() {
                   <strong>{state.value}</strong>
                 </div>
               ))}
+            </div>
+          </section>
+
+          <section className="review-panel" aria-label="导入确认" data-flow="manual-review">
+            <div className="panel-heading">
+              <div>
+                <Typography.Title level={2}>导入确认</Typography.Title>
+                <Typography.Text type="secondary">
+                  处理跨页、误切和共用题图，只记录必要修正。
+                </Typography.Text>
+              </div>
+              <Tag color="green">B004</Tag>
+            </div>
+
+            <div className="review-workspace">
+              <div className="page-preview" aria-label="来源页预览">
+                <div className="page-sheet">
+                  <span className="page-number">第 1 页</span>
+                  <button
+                    className="source-region region-a"
+                    type="button"
+                    onClick={() => toggleSegment('q-01')}
+                  >
+                    第 1 题
+                  </button>
+                  <button
+                    className="source-region region-b"
+                    type="button"
+                    onClick={() => toggleSegment('q-02')}
+                  >
+                    第 2 题上
+                  </button>
+                </div>
+                <div className="page-sheet">
+                  <span className="page-number">第 2 页</span>
+                  <button
+                    className="source-region region-c"
+                    type="button"
+                    onClick={() => toggleSegment('q-03')}
+                  >
+                    第 2 题下
+                  </button>
+                </div>
+              </div>
+
+              <div className="review-queue">
+                <div className="review-toolbar" aria-label="人工确认操作">
+                  <Button
+                    icon={<MergeCellsOutlined />}
+                    onClick={mergeSelected}
+                    disabled={selectedSegments.length < 2}
+                    data-action="merge"
+                  >
+                    合并
+                  </Button>
+                  <Button
+                    icon={<SplitCellsOutlined />}
+                    onClick={splitSelected}
+                    disabled={selectedSegments.length !== 1}
+                    data-action="split"
+                  >
+                    拆分
+                  </Button>
+                  <select
+                    value={selectedAsset}
+                    onChange={(event) => setSelectedAsset(event.target.value)}
+                    aria-label="共用题图"
+                  >
+                    {sharedAssets.map((asset) => (
+                      <option key={asset} value={asset}>
+                        {asset}
+                      </option>
+                    ))}
+                  </select>
+                  <Button
+                    icon={<LinkOutlined />}
+                    onClick={associateAsset}
+                    disabled={selectedIds.length === 0}
+                    data-action="associate"
+                  >
+                    关联
+                  </Button>
+                  <Button icon={<UndoOutlined />} onClick={undoLast} data-action="undo">
+                    撤销
+                  </Button>
+                </div>
+
+                <div className="segment-list" aria-label="题目片段">
+                  {segments.map((segment) => {
+                    const active = selectedIds.includes(segment.id)
+                    return (
+                      <button
+                        type="button"
+                        className={active ? 'segment-row active' : 'segment-row'}
+                        key={segment.id}
+                        onClick={() => toggleSegment(segment.id)}
+                      >
+                        <span>
+                          <strong>{segment.title}</strong>
+                          <small>
+                            {segment.page} · {segment.region}
+                          </small>
+                        </span>
+                        <Tag color={segment.asset ? 'green' : undefined}>
+                          {segment.asset || '未关联题图'}
+                        </Tag>
+                      </button>
+                    )
+                  })}
+                </div>
+
+                <Divider />
+
+                <div className="revision-log" aria-label="修订记录">
+                  <Typography.Text type="secondary">修订记录</Typography.Text>
+                  {actionLog.length === 0 ? (
+                    <Typography.Text>暂无修正</Typography.Text>
+                  ) : (
+                    actionLog.map((item) => <Typography.Text key={item}>{item}</Typography.Text>)
+                  )}
+                </div>
+
+                <div
+                  className="failure-takeover"
+                  aria-label="失败接管"
+                  data-flow="failure-takeover"
+                >
+                  <Alert
+                    showIcon
+                    type="warning"
+                    message="Adapter 失败可人工接管"
+                    description="保留原始文件、SourceRegion 和 diagnostics，教师继续处理当前导入。"
+                  />
+                  <div className="diagnostics-row">
+                    <Tag>adapter_failed</Tag>
+                    <Typography.Text type="secondary">
+                      stderr: layout block parse timeout
+                    </Typography.Text>
+                  </div>
+                  <div className="takeover-actions">
+                    <Button onClick={() => takeoverFailure('框选区域')} data-action="manual-box">
+                      框选
+                    </Button>
+                    <Button onClick={splitSelected} data-action="takeover-split">
+                      拆分
+                    </Button>
+                    <Button onClick={mergeSelected} data-action="takeover-merge">
+                      合并
+                    </Button>
+                    <Button onClick={() => takeoverFailure('跳过当前页')} data-action="skip-page">
+                      跳过
+                    </Button>
+                    <Button onClick={() => takeoverFailure('重跑 Adapter')} data-action="rerun-adapter">
+                      重跑
+                    </Button>
+                  </div>
+                </div>
+              </div>
             </div>
           </section>
 

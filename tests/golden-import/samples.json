@@ -1,0 +1,42 @@
+[
+  {
+    "id": "shared-image",
+    "title": "共用题图样本",
+    "content": "Synthetic shared image question sample.",
+    "questionType": "single_choice",
+    "blocks": ["text", "image", "option", "answer", "solution"],
+    "assetType": "image"
+  },
+  {
+    "id": "cross-page",
+    "title": "跨页题样本",
+    "content": "Synthetic cross-page question sample.",
+    "questionType": "short_answer",
+    "blocks": ["text", "sub_question", "answer", "solution"],
+    "assetType": "image"
+  },
+  {
+    "id": "formula-dense",
+    "title": "公式密集样本",
+    "content": "Synthetic formula dense question sample. F=ma, W=Fs, p=F/S.",
+    "questionType": "calculation",
+    "blocks": ["text", "formula", "formula", "answer", "solution"],
+    "assetType": "formula"
+  },
+  {
+    "id": "scanned",
+    "title": "扫描版样本",
+    "content": "Synthetic scanned document placeholder.",
+    "questionType": "single_choice",
+    "blocks": ["text", "image", "answer", "solution"],
+    "assetType": "image"
+  },
+  {
+    "id": "answer-split",
+    "title": "答案解析分离样本",
+    "content": "Synthetic answer and solution split sample.",
+    "questionType": "short_answer",
+    "blocks": ["text", "answer", "solution"],
+    "assetType": "table"
+  }
+]

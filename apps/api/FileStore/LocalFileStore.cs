@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using System.Text.Json;
 using K12QuestionGraph.Api.Data;
 using K12QuestionGraph.Api.Domain;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,7 @@ public sealed class LocalFileStore(KqgDbContext dbContext, IOptions<KqgPathsOpti
         string originalFileName,
         string? contentType,
         long sizeBytes,
+        SourceDocumentMetadata sourceMetadata,
         CancellationToken cancellationToken)
     {
         var paths = pathsOptions.Value;
@@ -42,6 +44,16 @@ public sealed class LocalFileStore(KqgDbContext dbContext, IOptions<KqgPathsOpti
         var absoluteDirectory = Path.Combine(paths.FileStoreRoot, shard);
         var absolutePath = Path.Combine(paths.FileStoreRoot, relativePath);
 
+        var normalizedSourceMetadata = Normalize(sourceMetadata);
+        var existingByHash = await dbContext.FileAssets
+            .FirstOrDefaultAsync(x => x.StorageScope == "original" && x.Sha256 == sha256 && x.SizeBytes == sizeBytes, cancellationToken);
+        if (existingByHash is not null)
+        {
+            File.Delete(tempPath);
+            var sourceDocument = await AddSourceDocumentAsync(existingByHash.Id, normalizedSourceMetadata, cancellationToken);
+            return ToResponse(existingByHash, isDuplicate: true, duplicateOfFileAssetId: existingByHash.Id, sourceDocument);
+        }
+
         Directory.CreateDirectory(absoluteDirectory);
         if (!File.Exists(absolutePath))
         {
@@ -56,7 +68,8 @@ public sealed class LocalFileStore(KqgDbContext dbContext, IOptions<KqgPathsOpti
             .FirstOrDefaultAsync(x => x.StorageScope == "original" && x.RelativePath == relativePath, cancellationToken);
         if (existing is not null)
         {
-            return ToResponse(existing);
+            var sourceDocument = await AddSourceDocumentAsync(existing.Id, normalizedSourceMetadata, cancellationToken);
+            return ToResponse(existing, isDuplicate: true, duplicateOfFileAssetId: existing.Id, sourceDocument);
         }
 
         var asset = new FileAsset
@@ -67,16 +80,117 @@ public sealed class LocalFileStore(KqgDbContext dbContext, IOptions<KqgPathsOpti
             ContentType = string.IsNullOrWhiteSpace(contentType) ? "application/octet-stream" : contentType,
             Sha256 = sha256,
             SizeBytes = sizeBytes,
-            SourceMetadata = "{}"
+            SourceMetadata = JsonSerializer.Serialize(new
+            {
+                normalizedSourceMetadata.SourceType,
+                normalizedSourceMetadata.SourceTitle,
+                normalizedSourceMetadata.OwnerScope,
+                normalizedSourceMetadata.LicenseOrPermission,
+                normalizedSourceMetadata.SharingAllowed,
+                normalizedSourceMetadata.ContainsStudentPii,
+                normalizedSourceMetadata.AnonymizationStatus
+            })
         };
 
         dbContext.FileAssets.Add(asset);
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return ToResponse(asset);
+        var createdSourceDocument = await AddSourceDocumentAsync(asset.Id, normalizedSourceMetadata, cancellationToken);
+
+        return ToResponse(asset, isDuplicate: false, duplicateOfFileAssetId: null, createdSourceDocument);
     }
 
-    private static FileAssetResponse ToResponse(FileAsset asset)
+    private async Task<SourceDocument> AddSourceDocumentAsync(
+        Guid fileAssetId,
+        SourceDocumentMetadata metadata,
+        CancellationToken cancellationToken)
+    {
+        var normalized = Normalize(metadata);
+        var sourceDocument = new SourceDocument
+        {
+            FileAssetId = fileAssetId,
+            SourceType = normalized.SourceType,
+            SourceTitle = normalized.SourceTitle,
+            OwnerScope = normalized.OwnerScope,
+            LicenseOrPermission = normalized.LicenseOrPermission,
+            SharingAllowed = normalized.SharingAllowed,
+            ContainsStudentPii = normalized.ContainsStudentPii,
+            AnonymizationStatus = normalized.AnonymizationStatus,
+            ExternalAiAllowed = ComputeExternalAiAllowed(normalized)
+        };
+
+        dbContext.SourceDocuments.Add(sourceDocument);
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return sourceDocument;
+    }
+
+    private static SourceDocumentMetadata Normalize(SourceDocumentMetadata metadata)
+    {
+        var sourceType = NormalizeToken(metadata.SourceType, "unknown");
+        var sourceTitle = string.IsNullOrWhiteSpace(metadata.SourceTitle) ? "untitled source" : metadata.SourceTitle.Trim();
+        var ownerScope = NormalizeToken(metadata.OwnerScope, "teacher_private");
+        var license = string.IsNullOrWhiteSpace(metadata.LicenseOrPermission) ? "unknown" : metadata.LicenseOrPermission.Trim();
+        var anonymizationStatus = NormalizeToken(metadata.AnonymizationStatus, "not_applicable");
+        var allowedAnonymization = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "none",
+            "anonymized",
+            "synthetic",
+            "not_applicable"
+        };
+
+        if (!allowedAnonymization.Contains(anonymizationStatus))
+        {
+            anonymizationStatus = "not_applicable";
+        }
+
+        var sharingAllowed = metadata.SharingAllowed && !string.Equals(sourceType, "unknown", StringComparison.OrdinalIgnoreCase);
+        if (metadata.ContainsStudentPii && anonymizationStatus is not ("anonymized" or "synthetic"))
+        {
+            sharingAllowed = false;
+        }
+
+        return metadata with
+        {
+            SourceType = sourceType,
+            SourceTitle = sourceTitle,
+            OwnerScope = ownerScope,
+            LicenseOrPermission = license,
+            SharingAllowed = sharingAllowed,
+            AnonymizationStatus = anonymizationStatus
+        };
+    }
+
+    private static string NormalizeToken(string value, string fallback)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return fallback;
+        }
+
+        return value.Trim().ToLowerInvariant().Replace('-', '_').Replace(' ', '_');
+    }
+
+    private static bool ComputeExternalAiAllowed(SourceDocumentMetadata metadata)
+    {
+        if (string.Equals(metadata.SourceType, "unknown", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        if (metadata.ContainsStudentPii && metadata.AnonymizationStatus is not ("anonymized" or "synthetic"))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static FileAssetResponse ToResponse(
+        FileAsset asset,
+        bool isDuplicate,
+        Guid? duplicateOfFileAssetId,
+        SourceDocument sourceDocument)
     {
         return new FileAssetResponse(
             asset.Id,
@@ -85,6 +199,19 @@ public sealed class LocalFileStore(KqgDbContext dbContext, IOptions<KqgPathsOpti
             asset.StorageScope,
             asset.ContentType,
             asset.Sha256,
-            asset.SizeBytes);
+            asset.SizeBytes,
+            isDuplicate,
+            duplicateOfFileAssetId,
+            new SourceDocumentResponse(
+                sourceDocument.Id,
+                sourceDocument.FileAssetId,
+                sourceDocument.SourceType,
+                sourceDocument.SourceTitle,
+                sourceDocument.OwnerScope,
+                sourceDocument.LicenseOrPermission,
+                sourceDocument.SharingAllowed,
+                sourceDocument.ContainsStudentPii,
+                sourceDocument.AnonymizationStatus,
+                sourceDocument.ExternalAiAllowed));
     }
 }

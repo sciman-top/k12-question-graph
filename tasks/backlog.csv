@@ -12,15 +12,15 @@ A008,P0,运维,建立日志配置健康检查,高,已完成,A002,健康检查覆
 A009,P0,备份恢复,建立基础备份脚本与 manifest,高,已完成,A005,backup manifest 包含数据库占位 文件仓库清单 配置 sha256 且校验失败不报成功,tools/backup.ps1 + tools/verify-backup.ps1
 A010,P0,质量门禁,建立测试框架与统一 gate,高,已完成,A002;A003;A007;A009,后端 前端 worker 至少各有 smoke test 且文档/schema/config/CSV 解析纳入门禁,tools/run-gates.ps1
 A011,P0,证据回滚,建立 P0 证据包与回滚入口,高,已完成,A010,证据目录记录 P0 gate 命令 退出码 关键输出 gate_na 且 README 指向真实启动 门禁 回滚入口,tools/run-gates.ps1 + evidence directory check
-B001,P1,试题入库,文件上传 hash 去重 文件元数据入库,高,未开始,A005;A011,相同文件重复上传可识别且不复制大文件 并记录来源授权传播限制和PII脱敏状态,upload duplicate smoke + source metadata query
-B002,P1,文档解析,Docling/OpenXML/PaddleOCR Adapter 草案,高,未开始,A007,Adapter 返回 DocumentModel PageModel LayoutBlock AdapterDiagnostic 且记录版本/hash/耗时/警告,adapter contract test
-B003,P1,来源定位,页面预览与 SourceRegion 坐标模型,高,未开始,B002,页面预览显示页码且 SourceRegion 保存页码 bbox 截图路径 坐标单位,sample document preview
-B004,P1,人工确认,人工切题 合并 拆分 题图关联界面,高,未开始,B003,教师可合并跨页题 拆分误切题 关联共用题图且操作可撤销或有修订记录,UI flow test
-B004A,P1,人工接管,人工接管失败路径,高,未开始,B004,AI/OCR/Adapter 失败后教师仍可框选 拆分 合并 跳过 重跑且原始文件 失败原因 diagnostics 不丢失,failed import sample + manual takeover UI flow
-B005,P1,题目模型,QuestionItem QuestionBlock Asset 保存,高,未开始,B004A,题干 选项 小问 答案 解析 图片 公式 表格可结构化保存且可回看来源,save question API test
-B006,P1,来源回看,原始来源回看,高,未开始,B005,题目详情能打开来源文件页码和区域截图且缺失时给明确错误,manual UI check + API test
-B007,P1,回归样本,导入黄金样本与回归测试,高,未开始,B006,至少含共用题图 跨页题 公式密集 扫描版 答案解析分离样本且导入流程可复跑,tools/run-import-golden.ps1
-B008,P1,非现场流程,P1 非现场流程验收,高,未开始,B007,代理场景可完成上传 预览 修正异常 保存题目 回看来源并记录确认项数量 失败接管步骤 估算总耗时 不要求真实教师现场验收,P1 proxy scenario walkthrough + tools/run-import-golden.ps1
+B001,P1,试题入库,文件上传 hash 去重 文件元数据入库,高,已完成,A005;A011,相同文件重复上传可识别且不复制大文件 并记录来源授权传播限制和PII脱敏状态,tools/run-gates.ps1 b001 duplicate upload smoke + source_documents query
+B002,P1,文档解析,Docling/OpenXML/PaddleOCR Adapter 草案,高,已完成,A007,Adapter 返回 DocumentModel PageModel LayoutBlock AdapterDiagnostic 且记录版本/hash/耗时/警告,tools/run-gates.ps1 b002 adapter contract smoke
+B003,P1,来源定位,页面预览与 SourceRegion 坐标模型,高,已完成,B002,页面预览显示页码且 SourceRegion 保存页码 bbox 截图路径 坐标单位,tools/run-gates.ps1 b003 source preview smoke
+B004,P1,人工确认,人工切题 合并 拆分 题图关联界面,高,已完成,B003,教师可合并跨页题 拆分误切题 关联共用题图且操作可撤销或有修订记录,tools/run-gates.ps1 b004 manual review ui contract + frontend build/lint
+B004A,P1,人工接管,人工接管失败路径,高,已完成,B004,AI/OCR/Adapter 失败后教师仍可框选 拆分 合并 跳过 重跑且原始文件 失败原因 diagnostics 不丢失,tools/run-gates.ps1 b004a failure takeover ui contract
+B005,P1,题目模型,QuestionItem QuestionBlock Asset 保存,高,已完成,B004A,题干 选项 小问 答案 解析 图片 公式 表格可结构化保存且可回看来源,tools/run-gates.ps1 b005 save question api smoke
+B006,P1,来源回看,原始来源回看,高,已完成,B005,题目详情能打开来源文件页码和区域截图且缺失时给明确错误,tools/run-gates.ps1 b006 question source review smoke
+B007,P1,回归样本,导入黄金样本与回归测试,高,已完成,B006,至少含共用题图 跨页题 公式密集 扫描版 答案解析分离样本且导入流程可复跑,tools/run-gates.ps1 b007 golden import regression + tools/run-import-golden.ps1
+B008,P1,非现场流程,P1 非现场流程验收,高,已完成,B007,代理场景可完成上传 预览 修正异常 保存题目 回看来源并记录确认项数量 失败接管步骤 估算总耗时 不要求真实教师现场验收,tools/run-gates.ps1 b008 p1 proxy scenario + tools/run-p1-proxy-scenario.ps1
 C001,P2,知识本体,KnowledgeNode Edge Mapping 模型,中,暂缓,B008,P1 验收后再实现知识本体核心表与版本字段,contract test
 C002,P2,知识本体,初中物理 L1-L3 知识点初始化,中,暂缓,C001,知识点可绑定题目且映射变更不破坏历史来源,seed validation
 D001,P3,AI,AI Provider 抽象与 ModelRouter,中,暂缓,B008,P1 验收前只保留 schema 不接真实模型,contract test
