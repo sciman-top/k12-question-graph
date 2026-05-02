@@ -290,6 +290,7 @@
 - C002A 动态领域资产契约。已完成：`DomainAssetVersion`、`DomainAssetMapping`、`DomainAssetMigration` 已落库，支持 version/status/source/mapping/migration/rollback、dry-run 自动建议与人工审核状态，并纳入 `tools/run-c002a-domain-asset-contract.ps1`。
 - C002B draft -> formal 替换映射。已完成 dry-run contract：支持等价、拆分、合并、上位、下位、废弃、重命名；高置信度、低影响、可回滚的一对一映射进入 `auto_applied`，其余进入 `pending_review`，由 `tools/run-c002b-replacement-mapping-contract.ps1` 验证。
 - C002C 标签/标注/索引迁移。已完成 dry-run contract：题目主知识点、副知识点、标签、搜索索引、组卷约束、学情指标和回归 fixture 可生成迁移影响报告；自动更新、人工审核和历史学情冻结由 `tools/run-c002c-migration-impact-contract.ps1` 验证。
+- C002D source-derived candidate admission。已完成 dry-run contract：候选正式知识资产必须引用已准入教材、课程标准、当地考试资料，保持 `candidate/pending_review`，禁止直接 `active`，并接入 C002B/C002C 替换和影响计划。
 - C003 公式、实验、方法、易错点。
 - C004 教材章节映射。
 - C005 地区考点映射。

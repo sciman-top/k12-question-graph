@@ -1,0 +1,92 @@
+{
+  "schemaVersion": "source-derived-ontology-admission.v0.1",
+  "planId": "C002D_SAMPLE_SOURCE_DERIVED_ADMISSION",
+  "mode": "dry_run",
+  "subject": "physics",
+  "stage": "junior_middle_school",
+  "sourceManifest": "configs/knowledge/source-material-manifest.example.json",
+  "candidateVersion": "junior-physics-source-derived-candidate-v1",
+  "activationStatus": "candidate",
+  "minimumSourceTypes": ["textbook", "curriculum_standard", "local_exam_paper"],
+  "candidateAssets": [
+    {
+      "stableId": "PHY-JH-MECH-MOTION-SPEED-FORMAL",
+      "assetType": "knowledge_node",
+      "level": 3,
+      "displayName": "速度概念与计算",
+      "status": "candidate",
+      "authority": "source_derived",
+      "sourceEvidence": [
+        {
+          "materialId": "textbook-001",
+          "page": "REPLACE_WITH_PAGE_OR_SECTION",
+          "evidenceType": "chapter_or_concept"
+        },
+        {
+          "materialId": "curriculum-001",
+          "page": "REPLACE_WITH_PAGE_OR_SECTION",
+          "evidenceType": "curriculum_requirement"
+        },
+        {
+          "materialId": "local-exam-001",
+          "page": "REPLACE_WITH_PAGE_OR_SECTION",
+          "evidenceType": "exam_usage"
+        }
+      ],
+      "reviewStatus": "pending_review"
+    },
+    {
+      "stableId": "PHY-JH-ELEC-OHM-CONCEPT",
+      "assetType": "knowledge_node",
+      "level": 3,
+      "displayName": "欧姆定律概念",
+      "status": "candidate",
+      "authority": "source_derived",
+      "sourceEvidence": [
+        {
+          "materialId": "textbook-001",
+          "page": "REPLACE_WITH_PAGE_OR_SECTION",
+          "evidenceType": "chapter_or_concept"
+        },
+        {
+          "materialId": "curriculum-001",
+          "page": "REPLACE_WITH_PAGE_OR_SECTION",
+          "evidenceType": "curriculum_requirement"
+        }
+      ],
+      "reviewStatus": "pending_review"
+    },
+    {
+      "stableId": "PHY-JH-ELEC-OHM-CALCULATION",
+      "assetType": "knowledge_node",
+      "level": 3,
+      "displayName": "欧姆定律计算",
+      "status": "candidate",
+      "authority": "source_derived",
+      "sourceEvidence": [
+        {
+          "materialId": "textbook-001",
+          "page": "REPLACE_WITH_PAGE_OR_SECTION",
+          "evidenceType": "worked_example"
+        },
+        {
+          "materialId": "local-exam-001",
+          "page": "REPLACE_WITH_PAGE_OR_SECTION",
+          "evidenceType": "exam_usage"
+        }
+      ],
+      "reviewStatus": "pending_review"
+    }
+  ],
+  "guards": {
+    "forbidActiveStatus": true,
+    "requireSourceEvidence": true,
+    "requireTeacherReviewBeforeActivation": true,
+    "forbidRepoLocalPath": true,
+    "forbidUnanonymizedStudentPii": true
+  },
+  "outputs": {
+    "replacementPlan": "configs/domain-assets/c002b-draft-formal-mapping.sample.json",
+    "impactPlan": "configs/domain-assets/c002c-migration-impact.sample.json"
+  }
+}

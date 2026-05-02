@@ -23,8 +23,8 @@ The gate also covers `b001 duplicate upload smoke`, `b002 adapter contract smoke
 `b007 golden import regression`, `b008 p1 proxy scenario`,
 `roadmap dependency guard`, `c002 source material admission guard`,
 `c001 knowledge ontology contract`, `c002a domain asset contract`,
-`c002b replacement mapping contract`, `c002c migration impact contract`, and
-`c002 junior physics draft bootstrap guard`.
+`c002b replacement mapping contract`, `c002c migration impact contract`,
+`c002d source-derived admission contract`, and `c002 junior physics draft bootstrap guard`.
 It starts temporary
 API processes for API smoke steps, so `PGPASSWORD` must match the local PostgreSQL
 password.
@@ -81,6 +81,16 @@ C002C migration impact contract:
 This validates the dry-run impact report for question bindings, tags, search
 indexes, assembly constraints, analysis metrics, and fixtures. Historical
 analysis metrics are frozen instead of rewritten automatically.
+
+C002D source-derived admission contract:
+
+```powershell
+.\tools\run-c002d-source-derived-admission-contract.ps1
+```
+
+This validates that source-derived ontology candidates cite admitted source
+materials, remain `candidate`, require teacher review before activation, and
+feed the C002B/C002C dry-run replacement and impact plans.
 
 C002 junior physics draft bootstrap guard:
 
