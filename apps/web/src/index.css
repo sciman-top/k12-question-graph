@@ -1,0 +1,27 @@
+:root {
+  --page-bg: #f5f7f4;
+  --ink: #19251f;
+  --muted: #61706a;
+  --line: #dfe6df;
+  --accent: #23705a;
+  --accent-soft: #e5f1ec;
+  color: var(--ink);
+  background: var(--page-bg);
+  font-family: "Noto Sans SC", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  min-width: 320px;
+  margin: 0;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}

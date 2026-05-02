@@ -1,10 +1,10 @@
 id,phase,category,task,priority,status,depends_on,acceptance,verification
-A000,P0,准入预检,P0 准入预检与决策锁定,高,未开始,,记录 .NET Node Python PostgreSQL 版本 数据目录 Windows Service content root BackgroundService lease/retry/idempotency 文档门禁,dotnet --info + node --version + python --version + PostgreSQL version query + doc gates
-A000A,P0,契约收口,P0 编码前契约收口,高,未开始,A000,API DTO 错误码 幂等 OpenAPI snapshot 数据库 constraints/indexes/status transition threat model RPO/RTO UX 状态 学生数据合规辖区 外部AI边界 黄金样本目录规则已落文档且 locked_by 命名一致,doc consistency search + sensitive boundary search + CSV/JSON/YAML gates
-A001,P0,基础工程,创建 monorepo 目录结构,高,未开始,A000A,apps/api apps/web workers/document tools tests 存在且 README 指向真实启动入口,rg --files
-A002,P0,后端,创建 ASP.NET Core API 项目,高,未开始,A001,API 可启动且 /health 正常并区分程序目录和数据目录,dotnet build + health request
-A003,P0,前端,创建 React + TypeScript + Vite + Ant Design 前端,高,未开始,A001,Web UI 可启动且首页只保留普通教师高频入口,npm run build + browser smoke
-A004,P0,数据库,配置 PostgreSQL 与 EF Core migrations,高,未开始,A002,能连接 PostgreSQL 且初始 migration 包含核心 P0 表,dotnet ef database update + migration smoke
+A000,P0,准入预检,P0 准入预检与决策锁定,高,已完成,,记录 .NET Node Python PostgreSQL 版本 数据目录 Windows Service content root BackgroundService lease/retry/idempotency 文档门禁,dotnet --info + node --version + python --version + PostgreSQL version query + doc gates
+A000A,P0,契约收口,P0 编码前契约收口,高,已完成,A000,API DTO 错误码 幂等 OpenAPI snapshot 数据库 constraints/indexes/status transition threat model RPO/RTO UX 状态 学生数据合规辖区 外部AI边界 黄金样本目录规则已落文档且 locked_by 命名一致,doc consistency search + sensitive boundary search + CSV/JSON/YAML gates
+A001,P0,基础工程,创建 monorepo 目录结构,高,已完成,A000A,apps/api apps/web workers/document tools tests 存在且 README 指向真实启动入口,rg --files
+A002,P0,后端,创建 ASP.NET Core API 项目,高,已完成,A001,API 可启动且 /health 正常并区分程序目录和数据目录,dotnet build + health request
+A003,P0,前端,创建 React + TypeScript + Vite + Ant Design 前端,高,已完成,A001,Web UI 可启动且首页只保留普通教师高频入口,npm run build + browser smoke
+A004,P0,数据库,配置 PostgreSQL 与 EF Core migrations,高,阻塞,A002,能连接 PostgreSQL 且初始 migration 包含核心 P0 表,dotnet ef database update + migration smoke
 A005,P0,文件仓库,实现 FileStore 与 FileAsset 模型,高,未开始,A004,上传文件进入配置的数据目录且数据库只保存元数据不保存大文件,upload smoke + file_assets query
 A006,P0,任务系统,实现 ImportJob 状态机,高,未开始,A005,上传后创建 ImportJob 且 queued/running/succeeded/failed/cancelled/retry_waiting 状态可追踪,API job query + state transition tests
 A007,P0,Worker,建立 Python Worker 调用协议,中,未开始,A006,API 可用 job_id 和 file path 调用 worker 占位且失败不丢 FileAsset/ImportJob,worker smoke + API integration test

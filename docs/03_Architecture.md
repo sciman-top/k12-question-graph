@@ -112,7 +112,8 @@ locked_by
 locked_until
 attempt_count
 max_attempts
-last_error
+last_error_code
+last_error_message
 created_at/started_at/finished_at
 created_by
 ```
