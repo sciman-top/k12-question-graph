@@ -23,7 +23,8 @@ The gate also covers `b001 duplicate upload smoke`, `b002 adapter contract smoke
 `b007 golden import regression`, `b008 p1 proxy scenario`,
 `roadmap dependency guard`, `c002 source material admission guard`,
 `c001 knowledge ontology contract`, `c002a domain asset contract`,
-`c002b replacement mapping contract`, and `c002 junior physics draft bootstrap guard`.
+`c002b replacement mapping contract`, `c002c migration impact contract`, and
+`c002 junior physics draft bootstrap guard`.
 It starts temporary
 API processes for API smoke steps, so `PGPASSWORD` must match the local PostgreSQL
 password.
@@ -70,6 +71,16 @@ This validates draft -> formal mapping decisions without touching the database.
 Only high-confidence, low-impact, reversible `equivalent` or `renamed` mappings
 can be auto-applied; split/merge/broader/narrower/deprecated or higher-impact
 changes stay in `pending_review`.
+
+C002C migration impact contract:
+
+```powershell
+.\tools\run-c002c-migration-impact-contract.ps1
+```
+
+This validates the dry-run impact report for question bindings, tags, search
+indexes, assembly constraints, analysis metrics, and fixtures. Historical
+analysis metrics are frozen instead of rewritten automatically.
 
 C002 junior physics draft bootstrap guard:
 

@@ -1,0 +1,89 @@
+{
+  "schemaVersion": "domain-asset-migration-impact.v0.1",
+  "planId": "C002C_SAMPLE_IMPACT_REPORT",
+  "mode": "dry_run",
+  "replacementPlanId": "C002B_SAMPLE_DRAFT_TO_FORMAL",
+  "sourceVersion": "junior-physics-draft-v1",
+  "targetVersion": "junior-physics-source-derived-candidate-v1",
+  "autoApplyPolicy": {
+    "allowedDecisions": ["auto_apply"],
+    "requireRollbackSnapshot": true,
+    "maxImpactLevel": "low",
+    "forbidHistoricalAnalysisRewrite": true
+  },
+  "impacts": [
+    {
+      "impactType": "question_primary_knowledge",
+      "assetStableId": "PHY-JH-MECH-MOTION-SPEED",
+      "affectedCount": 18,
+      "mappingDecision": "auto_apply",
+      "action": "update_binding",
+      "requiresReview": false,
+      "rollbackKey": "question_primary_knowledge:PHY-JH-MECH-MOTION-SPEED"
+    },
+    {
+      "impactType": "question_secondary_knowledge",
+      "assetStableId": "PHY-JH-ELEC-OHM-LAW",
+      "affectedCount": 11,
+      "mappingDecision": "pending_review",
+      "action": "hold_for_review",
+      "requiresReview": true,
+      "rollbackKey": "question_secondary_knowledge:PHY-JH-ELEC-OHM-LAW"
+    },
+    {
+      "impactType": "tag_binding",
+      "assetStableId": "PHY-JH-THERMAL-TEMPERATURE",
+      "affectedCount": 9,
+      "mappingDecision": "auto_apply",
+      "action": "update_binding",
+      "requiresReview": false,
+      "rollbackKey": "tag_binding:PHY-JH-THERMAL-TEMPERATURE"
+    },
+    {
+      "impactType": "search_index",
+      "assetStableId": "PHY-JH-MECH-MOTION-SPEED",
+      "affectedCount": 22,
+      "mappingDecision": "auto_apply",
+      "action": "rebuild_derived_index",
+      "requiresReview": false,
+      "rollbackKey": "search_index:PHY-JH-MECH-MOTION-SPEED"
+    },
+    {
+      "impactType": "assembly_constraint",
+      "assetStableId": "PHY-JH-OPTICS-LENS",
+      "affectedCount": 5,
+      "mappingDecision": "pending_review",
+      "action": "hold_for_review",
+      "requiresReview": true,
+      "rollbackKey": "assembly_constraint:PHY-JH-OPTICS-LENS"
+    },
+    {
+      "impactType": "analysis_metric",
+      "assetStableId": "PHY-JH-ELEC-OHM-LAW",
+      "affectedCount": 3,
+      "mappingDecision": "pending_review",
+      "action": "freeze_historical_snapshot",
+      "requiresReview": true,
+      "rollbackKey": "analysis_metric:PHY-JH-ELEC-OHM-LAW"
+    },
+    {
+      "impactType": "fixture_expected_mapping",
+      "assetStableId": "PHY-JH-THERMAL-TEMPERATURE",
+      "affectedCount": 4,
+      "mappingDecision": "auto_apply",
+      "action": "update_fixture_expectation",
+      "requiresReview": false,
+      "rollbackKey": "fixture_expected_mapping:PHY-JH-THERMAL-TEMPERATURE"
+    }
+  ],
+  "summary": {
+    "autoApplyCount": 53,
+    "pendingReviewCount": 19,
+    "frozenHistoricalReports": 3,
+    "rollbackSnapshotRequired": true
+  },
+  "rollback": {
+    "snapshotRequired": true,
+    "restoreStrategy": "restore previous bindings, tags, derived indexes, assembly constraints, and fixture expectations from migration snapshot"
+  }
+}
