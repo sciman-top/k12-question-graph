@@ -285,7 +285,7 @@
 
 ## C · P2 知识本体
 
-- C001 KnowledgeNode/Edge/Mapping 模型。
+- C001 KnowledgeNode/Edge/Mapping 模型。已完成：核心表、版本字段、QuestionItem 主知识点 FK、schema contract gate。
 - C002 初中物理 L1-L3 知识点初始化。
 - C003 公式、实验、方法、易错点。
 - C004 教材章节映射。

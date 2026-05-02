@@ -19,8 +19,9 @@ $env:PGPASSWORD='<local-password>'
 
 The gate also covers `b001 duplicate upload smoke`, `b002 adapter contract smoke`,
 `b003 source preview smoke`, `b004/b004a UI contracts`, and
-`b005 save question api smoke`, `b006 question source review smoke`, and
-`b007 golden import regression`, and `b008 p1 proxy scenario`. It starts temporary
+`b005 save question api smoke`, `b006 question source review smoke`,
+`b007 golden import regression`, `b008 p1 proxy scenario`, and
+`c001 knowledge ontology contract`. It starts temporary
 API processes for API smoke steps, so `PGPASSWORD` must match the local PostgreSQL
 password.
 
@@ -36,6 +37,13 @@ P1 proxy scenario:
 ```powershell
 $env:PGPASSWORD='<local-password>'
 .\tools\run-p1-proxy-scenario.ps1
+```
+
+C001 knowledge ontology contract:
+
+```powershell
+$env:PGPASSWORD='<local-password>'
+.\tools\run-c001-contract.ps1
 ```
 
 Backup:

@@ -21,7 +21,7 @@ B005,P1,题目模型,QuestionItem QuestionBlock Asset 保存,高,已完成,B004A
 B006,P1,来源回看,原始来源回看,高,已完成,B005,题目详情能打开来源文件页码和区域截图且缺失时给明确错误,tools/run-gates.ps1 b006 question source review smoke
 B007,P1,回归样本,导入黄金样本与回归测试,高,已完成,B006,至少含共用题图 跨页题 公式密集 扫描版 答案解析分离样本且导入流程可复跑,tools/run-gates.ps1 b007 golden import regression + tools/run-import-golden.ps1
 B008,P1,非现场流程,P1 非现场流程验收,高,已完成,B007,代理场景可完成上传 预览 修正异常 保存题目 回看来源并记录确认项数量 失败接管步骤 估算总耗时 不要求真实教师现场验收,tools/run-gates.ps1 b008 p1 proxy scenario + tools/run-p1-proxy-scenario.ps1
-C001,P2,知识本体,KnowledgeNode Edge Mapping 模型,中,暂缓,B008,P1 验收后再实现知识本体核心表与版本字段,contract test
+C001,P2,知识本体,KnowledgeNode Edge Mapping 模型,中,已完成,B008,KnowledgeNode KnowledgeEdge KnowledgeMapping 核心表与版本字段已落库且 QuestionItem 可绑定主知识点,tools/run-gates.ps1 c001 knowledge ontology contract + tools/run-c001-contract.ps1
 C002,P2,知识本体,初中物理 L1-L3 知识点初始化,中,暂缓,C001,知识点可绑定题目且映射变更不破坏历史来源,seed validation
 D001,P3,AI,AI Provider 抽象与 ModelRouter,中,暂缓,B008,P1 验收前只保留 schema 不接真实模型,contract test
 D002,P3,AI,AIJob AIResult 成本日志,中,暂缓,D001,每个 AI 结果记录 prompt/schema/model/cost/confidence,AI job test
