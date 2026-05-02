@@ -21,7 +21,8 @@ The gate also covers `b001 duplicate upload smoke`, `b002 adapter contract smoke
 `b003 source preview smoke`, `b004/b004a UI contracts`, and
 `b005 save question api smoke`, `b006 question source review smoke`,
 `b007 golden import regression`, `b008 p1 proxy scenario`,
-`c001 knowledge ontology contract`, and `c002 junior physics draft bootstrap guard`.
+`roadmap dependency guard`, `c001 knowledge ontology contract`, and
+`c002 junior physics draft bootstrap guard`.
 It starts temporary
 API processes for API smoke steps, so `PGPASSWORD` must match the local PostgreSQL
 password.
@@ -58,6 +59,14 @@ This is not the formal C002 completion gate. It only keeps the non-authoritative
 draft bootstrap data idempotent and marked as `draft` until teachers import
 textbooks, curriculum standards, and recent local exam papers for source-derived
 review.
+
+Roadmap dependency guard:
+
+```powershell
+.\tools\run-roadmap-guard.ps1
+```
+
+This blocks P3+ task completion while formal C002 remains `暂缓`.
 
 Backup:
 
