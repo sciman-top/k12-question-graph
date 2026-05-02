@@ -29,11 +29,13 @@
 - API P0 DTO、错误码、幂等、分页和 OpenAPI snapshot 规则已写入文档。
 - 数据库 P0 constraints、indexes、status transition、soft delete 和 seed 策略已写入文档。
 - P0/P1 threat model、备份 RPO/RTO、UX 状态清单和黄金样本目录规则已写入文档。
+- 学生数据/合规辖区、外部 AI 数据传输边界、fixture 合成/匿名化策略和题库来源版权记录规则已写入文档。
 - `locked_by`/`locked_until` 命名在架构、ADR 和数据库文档中一致。
 
 验证：
 
 - 文档一致性检索。
+- 敏感信息边界检索。
 - CSV/JSON/YAML 解析门禁。
 
 ### A001 创建 monorepo 目录结构
@@ -181,10 +183,12 @@
 
 - 相同文件重复上传可识别。
 - 重复上传不复制大文件。
+- SourceDocument 记录来源类型、授权/传播限制、是否含学生 PII 和脱敏状态。
 
 验证：
 
 - 上传同一文件两次。
+- 查询 SourceDocument 来源与隐私字段。
 
 ### B002 Docling/OpenXML/PaddleOCR Adapter 草案
 

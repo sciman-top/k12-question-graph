@@ -89,7 +89,25 @@ SharedMaterial
 └── linked_questions: [Q12, Q13, Q14]
 ```
 
-## 6. 自定义字段
+## 6. SourceDocument 来源与授权字段
+
+题库原始资料可能有版权、传播和隐私边界。P1 起 SourceDocument 至少记录：
+
+| 字段 | 说明 |
+|---|---|
+| source_type | 教师原创/校本试卷/真题/教材/网络/商业资料/未知 |
+| source_title | 原始资料标题或可读名称 |
+| owner_scope | personal/school/department/public/unknown |
+| license_or_permission | 授权、购买、公开来源或未知 |
+| sharing_allowed | 是否允许校级共享或导出传播 |
+| contains_student_pii | 是否含学生姓名、学号、成绩等 |
+| anonymization_status | none/anonymized/synthetic/not_applicable |
+| retention_class | formal/ordinary/temporary/archive |
+| evidence_file_asset_id | 原文件或授权证明引用 |
+
+未知来源默认只能个人使用，不进入校级共享和公开导出。
+
+## 7. 自定义字段
 
 自定义字段使用定义表 + JSONB 值：
 
@@ -108,6 +126,6 @@ CustomFieldDefinition
 
 不要让用户直接改数据库字段。
 
-## 7. 标签治理
+## 8. 标签治理
 
 标签分为：系统标签、学校标签、学科标签、个人标签。个人标签默认不进入校级统计。标签修改支持新增、改名、合并、停用、迁移、别名、版本化。

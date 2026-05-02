@@ -1,16 +1,16 @@
 # 参考来源清单
 
 - .NET releases and support: https://learn.microsoft.com/en-us/dotnet/core/releases-and-support
+- Microsoft .NET and .NET Core lifecycle: https://learn.microsoft.com/en-us/lifecycle/products/microsoft-net-and-net-core
 - .NET 10 overview: https://learn.microsoft.com/dotnet/core/whats-new/dotnet-10/overview
 - EF Core 10 release notes: https://learn.microsoft.com/ef/core/what-is-new/ef-core-10.0/whatsnew
 - EF Core releases and planning: https://learn.microsoft.com/ef/core/what-is-new/#stable-releases
 - ASP.NET Core hosted services: https://learn.microsoft.com/aspnet/core/fundamentals/host/hosted-services?view=aspnetcore-10.0
 - ASP.NET Core Windows Service hosting: https://learn.microsoft.com/aspnet/core/host-and-deploy/windows-service?view=aspnetcore-10.0
-- OpenAI Structured Outputs: https://developers.openai.com/api/docs/guides/structured-outputs
-- OpenAI Prompt Caching: https://developers.openai.com/api/docs/guides/prompt-caching
-- OpenAI Batch API: https://developers.openai.com/api/docs/guides/batch
-- OpenAI Cost Optimization: https://developers.openai.com/api/docs/guides/cost-optimization
-- OpenAI latest model API guidance: https://developers.openai.com/api/docs/guides/latest-model
+- OpenAI Structured Outputs: https://platform.openai.com/docs/guides/structured-outputs
+- OpenAI Prompt Caching: https://platform.openai.com/docs/guides/prompt-caching
+- OpenAI Batch API: https://platform.openai.com/docs/guides/batch
+- OpenAI Evals API: https://platform.openai.com/docs/api-reference/evals/create
 - ASP.NET Core documentation: https://learn.microsoft.com/en-us/aspnet/core/
 - Open XML SDK: https://learn.microsoft.com/en-us/office/open-xml/open-xml-sdk
 - OfficeMath / OMML: https://learn.microsoft.com/en-us/dotnet/api/documentformat.openxml.math.officemath
@@ -18,7 +18,8 @@
 - Vite getting started: https://vite.dev/guide/
 - Ant Design React introduction: https://ant.design/docs/react/introduce/
 - TanStack Query React overview: https://tanstack.com/query/latest/docs/react/overview
-- React Router: https://reactrouter.com/
+- React Router: https://reactrouter.com/_docs/home
+- PostgreSQL current documentation: https://www.postgresql.org/docs/current/
 - PostgreSQL pg_dump: https://www.postgresql.org/docs/current/app-pgdump.html
 - PostgreSQL PITR/WAL: https://www.postgresql.org/docs/current/continuous-archiving.html
 - PostgreSQL JSON types: https://www.postgresql.org/docs/current/datatype-json.html
@@ -41,8 +42,14 @@
 - 1EdTech CASE: https://www.1edtech.org/standards/case
 - 1EdTech OneRoster: https://www.1edtech.org/standards/oneroster
 - 1EdTech Caliper: https://www.1edtech.org/standards/caliper
+- US Department of Education FERPA student privacy FAQ: https://studentprivacy.ed.gov/index.php/frequently-asked-questions
+- US Department of Education PII for education records: https://studentprivacy.ed.gov/content/personally-identifiable-information-education-records
+- FTC COPPA Rule: https://www.ftc.gov/legal-library/browse/rules/childrens-online-privacy-protection-rule-coppa
+- FTC COPPA business guidance: https://www.ftc.gov/business-guidance/resources/childrens-online-privacy-protection-rule-not-just-kids-sites
+- China NPC Personal Information Protection Law overview: https://www.npc.gov.cn/npc/c2/c30834/202108/t20210824_313198.html
 - Moodle: https://moodle.org/
 - Moodle GitHub: https://github.com/moodle/moodle
+- Moodle import questions: https://docs.moodle.org/en/Import_questions
 - Open edX: https://openedx.org/
 - Open edX platform GitHub: https://github.com/openedx/edx-platform
 - TAO Testing: https://www.taotesting.com/

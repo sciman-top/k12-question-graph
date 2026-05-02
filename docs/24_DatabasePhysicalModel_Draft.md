@@ -180,7 +180,23 @@ index(source_document_id, page_number)
 
 坐标必须明确单位；截图缺失时不得静默显示空白，API 必须返回明确错误。
 
-### 8.4 Soft delete
+### 8.4 SourceDocument 来源与隐私约束
+
+```text
+source_documents.source_type NOT NULL
+source_documents.owner_scope NOT NULL
+source_documents.sharing_allowed NOT NULL default false
+source_documents.contains_student_pii NOT NULL default false
+source_documents.anonymization_status in none, anonymized, synthetic, not_applicable
+source_documents.license_or_permission NOT NULL default 'unknown'
+index(source_type)
+index(owner_scope)
+index(contains_student_pii)
+```
+
+未知来源或含真实学生 PII 且未匿名化的资料，应用层默认禁止校级共享、公开导出和外部 AI 调用。
+
+### 8.5 Soft delete
 
 核心表使用 `is_deleted` 时，默认查询必须排除已删除记录。物理删除只允许发生在：
 
@@ -191,7 +207,7 @@ index(source_document_id, page_number)
 管理员高风险确认
 ```
 
-### 8.5 Migration 与 seed
+### 8.6 Migration 与 seed
 
 - P0 migration 必须可在空库创建。
 - P0 seed 只放系统必需默认值：管理员占位、默认教师偏好、默认题型/状态、默认存储策略。

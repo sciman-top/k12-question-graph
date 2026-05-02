@@ -30,6 +30,7 @@ AI 推荐保留当前 P0-P6 大方向，但调整顺序和验收口径：
 交付：
 
 - P0 准入预检：.NET/Node/Python/PostgreSQL 版本、数据目录、Windows Service/content root、BackgroundService job 约束、文档门禁。
+- A000A 编码前契约收口：API/DB/状态机/威胁模型/备份 RPO-RTO/UX 状态、学生数据合规边界、外部 AI 传输边界和黄金样本脱敏策略。
 - Monorepo 结构：`apps/api`、`apps/web`、`workers/document`、`tools`、`tests`。
 - ASP.NET Core / .NET 10 API，可启动、健康检查、基础配置。
 - React + TypeScript + Vite + Ant Design 前端，可打开教师首页骨架。

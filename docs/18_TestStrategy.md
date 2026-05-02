@@ -17,6 +17,8 @@
 | 恢复演练 | 备份包恢复、WinPE 拷贝方案、hash 校验 |
 | UX 验收 | 普通教师完成导入/组卷/成绩导入耗时 |
 | 安全测试 | 权限越权、上传文件、备份访问 |
+| 隐私/合规测试 | fixture、日志、prompt、备份 manifest 不含真实学生 PII、API key 或数据库密码 |
+| 可访问性/可理解性测试 | 表单错误、任务状态、导入异常和确认队列可被清晰理解，键盘和屏幕阅读器不被关键流程阻断 |
 | 文档一致性测试 | README、路线图、任务清单、schema、配置是否互相矛盾 |
 
 ## 3. 黄金样本集
@@ -60,6 +62,8 @@ privacy_and_license.md
 
 `invalid/` 用于验证失败接管路径，例如损坏文件、类型不支持、页图缺失、Adapter 超时。
 
+黄金样本默认只能使用合成、公开授权或充分匿名化资料。不得把真实学生姓名、学号、班级、成绩表或含学生身份的 prompt 放入仓库；如确需使用真实校本试卷原件，必须在 `privacy_and_license.md` 记录来源、授权、传播限制、脱敏方式和清理责任人。
+
 ## 4. 验收指标
 
 | 场景 | 指标 |
@@ -82,6 +86,7 @@ build: backend build + frontend build + worker syntax/import check
 test: backend unit tests + frontend unit tests + worker unit tests
 contract/invariant: JSON Schema 可解析 + API contract snapshot + migration 可创建
 hotspot: upload/import job/file store/backup manifest 黄金路径测试
+privacy: fixture/log/prompt/backup manifest 敏感信息检查
 ```
 
 如果某个子项目尚未创建，必须在当次报告中按 `gate_na` 写明原因、替代验证、证据位置和过期条件。不能因为项目刚开始就跳过硬门禁。
