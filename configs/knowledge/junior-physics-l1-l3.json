@@ -1,0 +1,75 @@
+{
+  "seedId": "C002_JUNIOR_PHYSICS_V1",
+  "subject": "physics",
+  "stage": "junior_middle_school",
+  "version": 1,
+  "nodes": [
+    { "code": "PHY-JH-MECH", "title": "力学", "level": 1, "nodeType": "module", "parentCode": null, "aliases": ["运动和力"] },
+    { "code": "PHY-JH-THERMAL", "title": "热学", "level": 1, "nodeType": "module", "parentCode": null, "aliases": ["热现象"] },
+    { "code": "PHY-JH-OPTICS", "title": "光学", "level": 1, "nodeType": "module", "parentCode": null, "aliases": ["光现象"] },
+    { "code": "PHY-JH-ELECTRICITY", "title": "电学", "level": 1, "nodeType": "module", "parentCode": null, "aliases": ["电路与电磁"] },
+    { "code": "PHY-JH-METHOD", "title": "实验与科学方法", "level": 1, "nodeType": "module", "parentCode": null, "aliases": ["探究方法"] },
+
+    { "code": "PHY-JH-MECH-MOTION", "title": "机械运动", "level": 2, "nodeType": "topic", "parentCode": "PHY-JH-MECH", "aliases": ["运动描述"] },
+    { "code": "PHY-JH-MECH-FORCE", "title": "力与运动", "level": 2, "nodeType": "topic", "parentCode": "PHY-JH-MECH", "aliases": ["相互作用"] },
+    { "code": "PHY-JH-MECH-PRESSURE", "title": "压强与浮力", "level": 2, "nodeType": "topic", "parentCode": "PHY-JH-MECH", "aliases": ["压力压强浮力"] },
+    { "code": "PHY-JH-MECH-WORK", "title": "功和机械能", "level": 2, "nodeType": "topic", "parentCode": "PHY-JH-MECH", "aliases": ["功率和机械能"] },
+    { "code": "PHY-JH-MECH-MACHINE", "title": "简单机械", "level": 2, "nodeType": "topic", "parentCode": "PHY-JH-MECH", "aliases": ["杠杆滑轮"] },
+
+    { "code": "PHY-JH-THERMAL-TEMP", "title": "温度与物态变化", "level": 2, "nodeType": "topic", "parentCode": "PHY-JH-THERMAL", "aliases": ["温度物态"] },
+    { "code": "PHY-JH-THERMAL-HEAT", "title": "内能与热量", "level": 2, "nodeType": "topic", "parentCode": "PHY-JH-THERMAL", "aliases": ["内能比热容"] },
+    { "code": "PHY-JH-THERMAL-ENGINE", "title": "热机与能量转化", "level": 2, "nodeType": "topic", "parentCode": "PHY-JH-THERMAL", "aliases": ["热机效率"] },
+
+    { "code": "PHY-JH-OPTICS-PROPAGATION", "title": "光的传播与反射", "level": 2, "nodeType": "topic", "parentCode": "PHY-JH-OPTICS", "aliases": ["光沿直线传播", "反射"] },
+    { "code": "PHY-JH-OPTICS-REFRACTION", "title": "折射与透镜", "level": 2, "nodeType": "topic", "parentCode": "PHY-JH-OPTICS", "aliases": ["凸透镜成像"] },
+    { "code": "PHY-JH-OPTICS-COLOR", "title": "光的色散与颜色", "level": 2, "nodeType": "topic", "parentCode": "PHY-JH-OPTICS", "aliases": ["色散"] },
+
+    { "code": "PHY-JH-ELEC-CIRCUIT", "title": "电路基础", "level": 2, "nodeType": "topic", "parentCode": "PHY-JH-ELECTRICITY", "aliases": ["串并联电路"] },
+    { "code": "PHY-JH-ELEC-OHM", "title": "电流电压电阻与欧姆定律", "level": 2, "nodeType": "topic", "parentCode": "PHY-JH-ELECTRICITY", "aliases": ["欧姆定律"] },
+    { "code": "PHY-JH-ELEC-POWER", "title": "电功和电功率", "level": 2, "nodeType": "topic", "parentCode": "PHY-JH-ELECTRICITY", "aliases": ["电能电功率"] },
+    { "code": "PHY-JH-ELEC-MAGNETISM", "title": "磁现象与电磁应用", "level": 2, "nodeType": "topic", "parentCode": "PHY-JH-ELECTRICITY", "aliases": ["电磁感应", "电动机"] },
+
+    { "code": "PHY-JH-METHOD-MEASURE", "title": "测量与误差", "level": 2, "nodeType": "topic", "parentCode": "PHY-JH-METHOD", "aliases": ["物理测量"] },
+    { "code": "PHY-JH-METHOD-INQUIRY", "title": "控制变量与实验探究", "level": 2, "nodeType": "topic", "parentCode": "PHY-JH-METHOD", "aliases": ["控制变量法"] },
+
+    { "code": "PHY-JH-MECH-MOTION-SPEED", "title": "速度与平均速度", "level": 3, "nodeType": "concept", "parentCode": "PHY-JH-MECH-MOTION", "aliases": ["v=s/t"], "formulas": ["v=s/t"] },
+    { "code": "PHY-JH-MECH-MOTION-GRAPH", "title": "路程-时间图像", "level": 3, "nodeType": "representation", "parentCode": "PHY-JH-MECH-MOTION", "aliases": ["s-t图像"] },
+    { "code": "PHY-JH-MECH-FORCE-NEWTON1", "title": "牛顿第一定律与惯性", "level": 3, "nodeType": "law", "parentCode": "PHY-JH-MECH-FORCE", "aliases": ["惯性"] },
+    { "code": "PHY-JH-MECH-FORCE-BALANCE", "title": "二力平衡", "level": 3, "nodeType": "law", "parentCode": "PHY-JH-MECH-FORCE", "aliases": ["平衡力"] },
+    { "code": "PHY-JH-MECH-FORCE-FRICTION", "title": "摩擦力", "level": 3, "nodeType": "concept", "parentCode": "PHY-JH-MECH-FORCE", "aliases": ["滑动摩擦"] },
+    { "code": "PHY-JH-MECH-PRESSURE-SOLID", "title": "固体压强", "level": 3, "nodeType": "concept", "parentCode": "PHY-JH-MECH-PRESSURE", "aliases": ["p=F/S"], "formulas": ["p=F/S"] },
+    { "code": "PHY-JH-MECH-PRESSURE-LIQUID", "title": "液体压强", "level": 3, "nodeType": "law", "parentCode": "PHY-JH-MECH-PRESSURE", "aliases": ["p=rho gh"], "formulas": ["p=rho gh"] },
+    { "code": "PHY-JH-MECH-PRESSURE-BUOYANCY", "title": "浮力与阿基米德原理", "level": 3, "nodeType": "law", "parentCode": "PHY-JH-MECH-PRESSURE", "aliases": ["F浮=rho液gV排"], "formulas": ["F_b=rho*g*V_displaced"] },
+    { "code": "PHY-JH-MECH-WORK-WORK", "title": "功", "level": 3, "nodeType": "concept", "parentCode": "PHY-JH-MECH-WORK", "aliases": ["W=Fs"], "formulas": ["W=F*s"] },
+    { "code": "PHY-JH-MECH-WORK-POWER", "title": "功率", "level": 3, "nodeType": "concept", "parentCode": "PHY-JH-MECH-WORK", "aliases": ["P=W/t"], "formulas": ["P=W/t"] },
+    { "code": "PHY-JH-MECH-WORK-ENERGY", "title": "动能和势能", "level": 3, "nodeType": "concept", "parentCode": "PHY-JH-MECH-WORK", "aliases": ["机械能"] },
+    { "code": "PHY-JH-MECH-MACHINE-LEVER", "title": "杠杆平衡条件", "level": 3, "nodeType": "law", "parentCode": "PHY-JH-MECH-MACHINE", "aliases": ["F1L1=F2L2"], "formulas": ["F1*L1=F2*L2"] },
+    { "code": "PHY-JH-MECH-MACHINE-PULLEY", "title": "滑轮与机械效率", "level": 3, "nodeType": "concept", "parentCode": "PHY-JH-MECH-MACHINE", "aliases": ["机械效率"], "formulas": ["eta=W_useful/W_total"] },
+
+    { "code": "PHY-JH-THERMAL-TEMP-CHANGE", "title": "熔化凝固汽化液化升华凝华", "level": 3, "nodeType": "concept", "parentCode": "PHY-JH-THERMAL-TEMP", "aliases": ["物态变化"] },
+    { "code": "PHY-JH-THERMAL-TEMP-THERMOMETER", "title": "温度计使用与读数", "level": 3, "nodeType": "method", "parentCode": "PHY-JH-THERMAL-TEMP", "aliases": ["温度测量"] },
+    { "code": "PHY-JH-THERMAL-HEAT-SPECIFIC", "title": "比热容", "level": 3, "nodeType": "concept", "parentCode": "PHY-JH-THERMAL-HEAT", "aliases": ["Q=cmΔt"], "formulas": ["Q=c*m*delta_t"] },
+    { "code": "PHY-JH-THERMAL-HEAT-TRANSFER", "title": "热传递与热平衡", "level": 3, "nodeType": "concept", "parentCode": "PHY-JH-THERMAL-HEAT", "aliases": ["吸热放热"] },
+    { "code": "PHY-JH-THERMAL-ENGINE-EFFICIENCY", "title": "燃料热值与热机效率", "level": 3, "nodeType": "concept", "parentCode": "PHY-JH-THERMAL-ENGINE", "aliases": ["q=mQ", "效率"] },
+
+    { "code": "PHY-JH-OPTICS-PROPAGATION-LINEAR", "title": "光沿直线传播", "level": 3, "nodeType": "law", "parentCode": "PHY-JH-OPTICS-PROPAGATION", "aliases": ["小孔成像", "影子"] },
+    { "code": "PHY-JH-OPTICS-PROPAGATION-REFLECTION", "title": "光的反射定律与平面镜成像", "level": 3, "nodeType": "law", "parentCode": "PHY-JH-OPTICS-PROPAGATION", "aliases": ["反射角等于入射角"] },
+    { "code": "PHY-JH-OPTICS-REFRACTION-LAW", "title": "光的折射现象", "level": 3, "nodeType": "law", "parentCode": "PHY-JH-OPTICS-REFRACTION", "aliases": ["折射"] },
+    { "code": "PHY-JH-OPTICS-REFRACTION-LENS", "title": "凸透镜成像规律", "level": 3, "nodeType": "law", "parentCode": "PHY-JH-OPTICS-REFRACTION", "aliases": ["透镜成像"] },
+    { "code": "PHY-JH-OPTICS-COLOR-DISPERSION", "title": "光的色散和物体颜色", "level": 3, "nodeType": "concept", "parentCode": "PHY-JH-OPTICS-COLOR", "aliases": ["白光色散"] },
+
+    { "code": "PHY-JH-ELEC-CIRCUIT-SERIES-PARALLEL", "title": "串联与并联电路", "level": 3, "nodeType": "concept", "parentCode": "PHY-JH-ELEC-CIRCUIT", "aliases": ["串并联"] },
+    { "code": "PHY-JH-ELEC-CIRCUIT-METER", "title": "电流表电压表使用", "level": 3, "nodeType": "method", "parentCode": "PHY-JH-ELEC-CIRCUIT", "aliases": ["电表连接"] },
+    { "code": "PHY-JH-ELEC-OHM-LAW", "title": "欧姆定律", "level": 3, "nodeType": "law", "parentCode": "PHY-JH-ELEC-OHM", "aliases": ["I=U/R"], "formulas": ["I=U/R"] },
+    { "code": "PHY-JH-ELEC-OHM-RESISTANCE", "title": "影响电阻大小的因素", "level": 3, "nodeType": "concept", "parentCode": "PHY-JH-ELEC-OHM", "aliases": ["电阻因素"] },
+    { "code": "PHY-JH-ELEC-POWER-ELECTRIC-WORK", "title": "电功", "level": 3, "nodeType": "concept", "parentCode": "PHY-JH-ELEC-POWER", "aliases": ["W=UIt"], "formulas": ["W=U*I*t"] },
+    { "code": "PHY-JH-ELEC-POWER-ELECTRIC-POWER", "title": "电功率", "level": 3, "nodeType": "concept", "parentCode": "PHY-JH-ELEC-POWER", "aliases": ["P=UI"], "formulas": ["P=U*I"] },
+    { "code": "PHY-JH-ELEC-MAGNETISM-FIELD", "title": "磁场与磁感线", "level": 3, "nodeType": "concept", "parentCode": "PHY-JH-ELEC-MAGNETISM", "aliases": ["磁场方向"] },
+    { "code": "PHY-JH-ELEC-MAGNETISM-APPLICATION", "title": "电磁铁电动机发电机", "level": 3, "nodeType": "concept", "parentCode": "PHY-JH-ELEC-MAGNETISM", "aliases": ["电磁应用"] },
+
+    { "code": "PHY-JH-METHOD-MEASURE-READING", "title": "估读、量程和分度值", "level": 3, "nodeType": "method", "parentCode": "PHY-JH-METHOD-MEASURE", "aliases": ["读数规则"] },
+    { "code": "PHY-JH-METHOD-MEASURE-DENSITY", "title": "密度测量", "level": 3, "nodeType": "experiment", "parentCode": "PHY-JH-METHOD-MEASURE", "aliases": ["测密度"], "formulas": ["rho=m/V"] },
+    { "code": "PHY-JH-METHOD-INQUIRY-CONTROL", "title": "控制变量法", "level": 3, "nodeType": "method", "parentCode": "PHY-JH-METHOD-INQUIRY", "aliases": ["变量控制"] },
+    { "code": "PHY-JH-METHOD-INQUIRY-CONVERSION", "title": "转换法与等效替代法", "level": 3, "nodeType": "method", "parentCode": "PHY-JH-METHOD-INQUIRY", "aliases": ["转换法", "等效替代"] }
+  ]
+}
