@@ -21,7 +21,7 @@ The gate also covers `b001 duplicate upload smoke`, `b002 adapter contract smoke
 `b003 source preview smoke`, `b004/b004a UI contracts`, and
 `b005 save question api smoke`, `b006 question source review smoke`,
 `b007 golden import regression`, `b008 p1 proxy scenario`,
-`c001 knowledge ontology contract`, and `c002 junior physics seed validation`.
+`c001 knowledge ontology contract`, and `c002 junior physics draft bootstrap guard`.
 It starts temporary
 API processes for API smoke steps, so `PGPASSWORD` must match the local PostgreSQL
 password.
@@ -47,12 +47,17 @@ $env:PGPASSWORD='<local-password>'
 .\tools\run-c001-contract.ps1
 ```
 
-C002 junior physics seed validation:
+C002 junior physics draft bootstrap guard:
 
 ```powershell
 $env:PGPASSWORD='<local-password>'
 .\tools\run-c002-seed-validation.ps1
 ```
+
+This is not the formal C002 completion gate. It only keeps the non-authoritative
+draft bootstrap data idempotent and marked as `draft` until teachers import
+textbooks, curriculum standards, and recent local exam papers for source-derived
+review.
 
 Backup:
 

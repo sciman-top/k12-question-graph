@@ -52,6 +52,8 @@ try {
     foreach ($node in ($seed.nodes | Sort-Object level, code)) {
         $metadata = [ordered]@{
             seed_id = $seed.seedId
+            source_basis = 'bootstrap_draft_not_authoritative'
+            requires_source_review = $true
             aliases = @($node.aliases)
             formulas = @($node.formulas)
         } | ConvertTo-Json -Compress
@@ -71,7 +73,7 @@ insert into knowledge_nodes (
   $(ConvertTo-SqlLiteral $node.title),
   $(ConvertTo-SqlLiteral $node.nodeType),
   $($node.level),
-  'active',
+  'draft',
   $($seed.version),
   $parentExpression,
   $(ConvertTo-SqlLiteral $metadata)::jsonb,

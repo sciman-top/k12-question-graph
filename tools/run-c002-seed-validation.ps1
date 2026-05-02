@@ -91,6 +91,16 @@ try {
         throw "seeded child nodes missing parent"
     }
 
+    $nonDraftNodes = [int](Invoke-Scalar "select count(*) from knowledge_nodes where metadata->>'seed_id' = $(ConvertTo-SqlLiteral $seed.seedId) and status <> 'draft';")
+    if ($nonDraftNodes -ne 0) {
+        throw "C002 bootstrap nodes must remain draft until source-derived review"
+    }
+
+    $missingSourceBasis = [int](Invoke-Scalar "select count(*) from knowledge_nodes where metadata->>'seed_id' = $(ConvertTo-SqlLiteral $seed.seedId) and metadata->>'source_basis' <> 'bootstrap_draft_not_authoritative';")
+    if ($missingSourceBasis -ne 0) {
+        throw "C002 bootstrap nodes missing non-authoritative source basis marker"
+    }
+
     $edgeCount = [int](Invoke-Scalar "select count(*) from knowledge_edges where metadata->>'seed_id' = $(ConvertTo-SqlLiteral $seed.seedId) and edge_type = 'parent_child';")
     if ($edgeCount -ne $expectedEdges) {
         throw "expected $expectedEdges seeded parent edges, got $edgeCount"
@@ -213,6 +223,8 @@ end
         l2 = $l2Count
         l3 = $l3Count
         parentChildEdges = $edgeCount
+        nodeStatus = 'draft'
+        sourceBasis = 'bootstrap_draft_not_authoritative'
         questionBindingSmoke = 'pass'
         mappingHistorySmoke = 'pass'
     } | ConvertTo-Json
