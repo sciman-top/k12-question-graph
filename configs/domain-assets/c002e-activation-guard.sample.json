@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "source-derived-ontology-activation-guard.v0.1",
+  "planId": "C002E_SAMPLE_ACTIVATION_GUARD",
+  "mode": "dry_run",
+  "admissionPlanId": "C002D_SAMPLE_SOURCE_DERIVED_ADMISSION",
+  "replacementPlanId": "C002B_SAMPLE_DRAFT_TO_FORMAL",
+  "impactPlanId": "C002C_SAMPLE_IMPACT_REPORT",
+  "targetStatus": "active",
+  "activationAllowed": false,
+  "blockers": [
+    {
+      "blockerId": "teacher_review_pending",
+      "severity": "hard",
+      "reason": "Candidate assets are still pending teacher or备课组 review."
+    },
+    {
+      "blockerId": "pending_review_mappings",
+      "severity": "hard",
+      "reason": "Split/narrower/deprecated mappings still require human decisions."
+    },
+    {
+      "blockerId": "historical_analysis_frozen_not_approved",
+      "severity": "hard",
+      "reason": "Historical analysis snapshots were frozen and require explicit acceptance before activation."
+    }
+  ],
+  "requiredBeforeActivation": {
+    "allCandidateAssetsReviewed": true,
+    "pendingReviewMappings": 0,
+    "pendingReviewImpacts": 0,
+    "rollbackSnapshotReady": true,
+    "sourceEvidenceComplete": true,
+    "activationApprovedBy": "REPLACE_WITH_TEACHER_OR_GROUP"
+  },
+  "dryRunEvidence": {
+    "candidateAssets": 3,
+    "pendingReviewMappings": 4,
+    "pendingReviewImpacts": 19,
+    "frozenHistoricalReports": 3,
+    "autoApplyImpacts": 53,
+    "rollbackSnapshotRequired": true
+  }
+}

@@ -158,6 +158,10 @@ try {
         .\tools\run-c002d-source-derived-admission-contract.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'c002e activation guard contract' {
+        .\tools\run-c002e-activation-guard-contract.ps1 | Write-Host
+    }
+
     Invoke-GateStep 'c002 junior physics draft bootstrap guard' {
         .\tools\run-c002-seed-validation.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin | Write-Host
     }
