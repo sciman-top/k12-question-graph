@@ -4,14 +4,14 @@ A000A,P0,契约收口,P0 编码前契约收口,高,已完成,A000,API DTO 错误
 A001,P0,基础工程,创建 monorepo 目录结构,高,已完成,A000A,apps/api apps/web workers/document tools tests 存在且 README 指向真实启动入口,rg --files
 A002,P0,后端,创建 ASP.NET Core API 项目,高,已完成,A001,API 可启动且 /health 正常并区分程序目录和数据目录,dotnet build + health request
 A003,P0,前端,创建 React + TypeScript + Vite + Ant Design 前端,高,已完成,A001,Web UI 可启动且首页只保留普通教师高频入口,npm run build + browser smoke
-A004,P0,数据库,配置 PostgreSQL 与 EF Core migrations,高,阻塞,A002,能连接 PostgreSQL 且初始 migration 包含核心 P0 表,dotnet ef database update + migration smoke
-A005,P0,文件仓库,实现 FileStore 与 FileAsset 模型,高,未开始,A004,上传文件进入配置的数据目录且数据库只保存元数据不保存大文件,upload smoke + file_assets query
-A006,P0,任务系统,实现 ImportJob 状态机,高,未开始,A005,上传后创建 ImportJob 且 queued/running/succeeded/failed/cancelled/retry_waiting 状态可追踪,API job query + state transition tests
-A007,P0,Worker,建立 Python Worker 调用协议,中,未开始,A006,API 可用 job_id 和 file path 调用 worker 占位且失败不丢 FileAsset/ImportJob,worker smoke + API integration test
-A008,P0,运维,建立日志配置健康检查,高,未开始,A002,健康检查覆盖 API 数据库 文件仓库 worker 占位且目录不可写会失败,/health + bad-config test
-A009,P0,备份恢复,建立基础备份脚本与 manifest,高,未开始,A005,backup manifest 包含数据库占位 文件仓库清单 配置 sha256 且校验失败不报成功,tools/backup.ps1 + tools/verify-backup.ps1
-A010,P0,质量门禁,建立测试框架与统一 gate,高,未开始,A002;A003;A007;A009,后端 前端 worker 至少各有 smoke test 且文档/schema/config/CSV 解析纳入门禁,tools/run-gates.ps1
-A011,P0,证据回滚,建立 P0 证据包与回滚入口,高,未开始,A010,证据目录记录 P0 gate 命令 退出码 关键输出 gate_na 且 README 指向真实启动 门禁 回滚入口,tools/run-gates.ps1 + evidence directory check
+A004,P0,数据库,配置 PostgreSQL 与 EF Core migrations,高,已完成,A002,能连接 PostgreSQL 且初始 migration 包含核心 P0 表,dotnet ef database update + migration smoke
+A005,P0,文件仓库,实现 FileStore 与 FileAsset 模型,高,已完成,A004,上传文件进入配置的数据目录且数据库只保存元数据不保存大文件,upload smoke + file_assets query
+A006,P0,任务系统,实现 ImportJob 状态机,高,已完成,A005,上传后创建 ImportJob 且 queued/running/succeeded/failed/cancelled/retry_waiting 状态可追踪,API job query + state transition tests
+A007,P0,Worker,建立 Python Worker 调用协议,中,已完成,A006,API 可用 job_id 和 file path 调用 worker 占位且失败不丢 FileAsset/ImportJob,worker smoke + API integration test
+A008,P0,运维,建立日志配置健康检查,高,已完成,A002,健康检查覆盖 API 数据库 文件仓库 worker 占位且目录不可写会失败,/health + bad-config test
+A009,P0,备份恢复,建立基础备份脚本与 manifest,高,已完成,A005,backup manifest 包含数据库占位 文件仓库清单 配置 sha256 且校验失败不报成功,tools/backup.ps1 + tools/verify-backup.ps1
+A010,P0,质量门禁,建立测试框架与统一 gate,高,已完成,A002;A003;A007;A009,后端 前端 worker 至少各有 smoke test 且文档/schema/config/CSV 解析纳入门禁,tools/run-gates.ps1
+A011,P0,证据回滚,建立 P0 证据包与回滚入口,高,已完成,A010,证据目录记录 P0 gate 命令 退出码 关键输出 gate_na 且 README 指向真实启动 门禁 回滚入口,tools/run-gates.ps1 + evidence directory check
 B001,P1,试题入库,文件上传 hash 去重 文件元数据入库,高,未开始,A005;A011,相同文件重复上传可识别且不复制大文件 并记录来源授权传播限制和PII脱敏状态,upload duplicate smoke + source metadata query
 B002,P1,文档解析,Docling/OpenXML/PaddleOCR Adapter 草案,高,未开始,A007,Adapter 返回 DocumentModel PageModel LayoutBlock AdapterDiagnostic 且记录版本/hash/耗时/警告,adapter contract test
 B003,P1,来源定位,页面预览与 SourceRegion 坐标模型,高,未开始,B002,页面预览显示页码且 SourceRegion 保存页码 bbox 截图路径 坐标单位,sample document preview

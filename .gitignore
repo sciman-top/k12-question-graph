@@ -58,7 +58,6 @@ database_backups/
 file_store/
 cache/
 exports/
-docs/evidence/
 backups/
 *.bak
 *.dump

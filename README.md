@@ -4,11 +4,39 @@
 
 ## 当前仓库状态
 
-本仓当前是**编码前设计包**：已有产品、架构、schema、配置、runbook、任务清单与 Mermaid 图；尚未创建实际 ASP.NET Core、React、PostgreSQL migration 或 Python Worker 代码。
+本仓已从**编码前设计包**进入 P0 工程骨架阶段：已有产品、架构、schema、配置、runbook、任务清单、ASP.NET Core API、React/Vite/Ant Design 前端、PostgreSQL/EF Core migration、Python Worker 占位、FileStore、ImportJob、health、backup 和统一 gate。
 
 2026-05-02 外部资料复核后的判断：最高原则、默认技术栈、模块化单体架构和 P0/P1 纵切路线保持正确；需要在进入编码前先完成 P0 准入预检，锁定 SDK/runtime、PostgreSQL 版本、数据目录、Windows Service/content root 约束、BackgroundService job lease/retry 规则、学生数据/合规辖区边界和文档门禁。
 
-下一步最小可执行里程碑是 P0 的工程骨架与第一个“上传文件 -> 创建 ImportJob -> 持久化元数据 -> 生成备份 manifest”纵切闭环。
+当前 P0 已打通“上传文件 -> 创建 ImportJob -> 持久化元数据 -> Python Worker 占位 -> health -> backup manifest -> unified gate”纵切闭环。
+
+## 当前启动与门禁
+
+API:
+
+```powershell
+$env:KQG_CONNECTION_STRING='Host=127.0.0.1;Port=5432;Database=k12_question_graph;Username=postgres;Password=<local-password>'
+dotnet run --project apps\api\K12QuestionGraph.Api.csproj --urls http://127.0.0.1:5275
+```
+
+Web:
+
+```powershell
+cd apps\web
+npm run dev -- --host 127.0.0.1
+```
+
+统一 gate:
+
+```powershell
+$env:PGPASSWORD='<local-password>'
+.\tools\run-gates.ps1
+```
+
+证据与回滚入口：
+
+- `docs/evidence/P0_EVIDENCE_2026-05-02.md`
+- `docs/evidence/P0_ROLLBACK_2026-05-02.md`
 
 ## 最高硬约束
 
