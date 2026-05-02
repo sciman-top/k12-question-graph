@@ -1,0 +1,153 @@
+{
+  "schemaVersion": "domain-asset-replacement-plan.v0.1",
+  "planId": "C002B_SAMPLE_DRAFT_TO_FORMAL",
+  "mode": "dry_run",
+  "assetType": "knowledge_node",
+  "fromVersion": "junior-physics-draft-v1",
+  "toVersion": "junior-physics-source-derived-candidate-v1",
+  "assets": [
+    {
+      "stableId": "PHY-JH-MECH-MOTION-SPEED",
+      "version": 1,
+      "status": "draft",
+      "authority": "bootstrap",
+      "displayName": "速度"
+    },
+    {
+      "stableId": "PHY-JH-MECH-MOTION-SPEED-FORMAL",
+      "version": 1,
+      "status": "candidate",
+      "authority": "source_derived",
+      "displayName": "速度概念与计算"
+    },
+    {
+      "stableId": "PHY-JH-ELEC-OHM-LAW",
+      "version": 1,
+      "status": "draft",
+      "authority": "bootstrap",
+      "displayName": "欧姆定律"
+    },
+    {
+      "stableId": "PHY-JH-ELEC-OHM-CONCEPT",
+      "version": 1,
+      "status": "candidate",
+      "authority": "source_derived",
+      "displayName": "欧姆定律概念"
+    },
+    {
+      "stableId": "PHY-JH-ELEC-OHM-CALCULATION",
+      "version": 1,
+      "status": "candidate",
+      "authority": "source_derived",
+      "displayName": "欧姆定律计算"
+    },
+    {
+      "stableId": "PHY-JH-OPTICS-LENS",
+      "version": 1,
+      "status": "draft",
+      "authority": "bootstrap",
+      "displayName": "透镜"
+    },
+    {
+      "stableId": "PHY-JH-OPTICS-CONVEX-LENS",
+      "version": 1,
+      "status": "candidate",
+      "authority": "source_derived",
+      "displayName": "凸透镜成像"
+    },
+    {
+      "stableId": "PHY-JH-THERMAL-TEMPERATURE",
+      "version": 1,
+      "status": "draft",
+      "authority": "bootstrap",
+      "displayName": "温度"
+    },
+    {
+      "stableId": "PHY-JH-THERMAL-TEMPERATURE-FORMAL",
+      "version": 1,
+      "status": "candidate",
+      "authority": "source_derived",
+      "displayName": "温度与温度计"
+    },
+    {
+      "stableId": "PHY-JH-METHOD-OLD",
+      "version": 1,
+      "status": "draft",
+      "authority": "bootstrap",
+      "displayName": "旧方法标签"
+    }
+  ],
+  "mappings": [
+    {
+      "sourceStableId": "PHY-JH-MECH-MOTION-SPEED",
+      "targetStableId": "PHY-JH-MECH-MOTION-SPEED-FORMAL",
+      "mappingType": "equivalent",
+      "confidence": 0.99,
+      "impactLevel": "low",
+      "reversible": true,
+      "expectedDecision": "auto_apply",
+      "reason": "Same teaching boundary after source review."
+    },
+    {
+      "sourceStableId": "PHY-JH-ELEC-OHM-LAW",
+      "targetStableId": "PHY-JH-ELEC-OHM-CONCEPT",
+      "mappingType": "split",
+      "confidence": 0.91,
+      "impactLevel": "high",
+      "reversible": true,
+      "expectedDecision": "pending_review",
+      "reason": "Draft node splits into concept and calculation nodes."
+    },
+    {
+      "sourceStableId": "PHY-JH-ELEC-OHM-LAW",
+      "targetStableId": "PHY-JH-ELEC-OHM-CALCULATION",
+      "mappingType": "split",
+      "confidence": 0.89,
+      "impactLevel": "high",
+      "reversible": true,
+      "expectedDecision": "pending_review",
+      "reason": "Split mapping can change question binding and assembly constraints."
+    },
+    {
+      "sourceStableId": "PHY-JH-OPTICS-LENS",
+      "targetStableId": "PHY-JH-OPTICS-CONVEX-LENS",
+      "mappingType": "narrower",
+      "confidence": 0.86,
+      "impactLevel": "medium",
+      "reversible": true,
+      "expectedDecision": "pending_review",
+      "reason": "Narrower target may not cover all historical lens questions."
+    },
+    {
+      "sourceStableId": "PHY-JH-THERMAL-TEMPERATURE",
+      "targetStableId": "PHY-JH-THERMAL-TEMPERATURE-FORMAL",
+      "mappingType": "renamed",
+      "confidence": 0.97,
+      "impactLevel": "low",
+      "reversible": true,
+      "expectedDecision": "auto_apply",
+      "reason": "Name changed but scope remains stable."
+    },
+    {
+      "sourceStableId": "PHY-JH-METHOD-OLD",
+      "targetStableId": "PHY-JH-METHOD-OLD",
+      "mappingType": "deprecated",
+      "confidence": 0.94,
+      "impactLevel": "medium",
+      "reversible": true,
+      "expectedDecision": "pending_review",
+      "reason": "Deprecation can affect historical labels and reports."
+    }
+  ],
+  "impact": {
+    "questionBindings": 42,
+    "tagBindings": 9,
+    "assemblyConstraints": 5,
+    "analysisReports": 3,
+    "fixtures": 4
+  },
+  "rollback": {
+    "snapshotRequired": true,
+    "restoreStrategy": "restore previous mapping rows and rebuild derived indexes"
+  }
+}

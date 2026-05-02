@@ -288,7 +288,7 @@
 - C001 KnowledgeNode/Edge/Mapping 模型。已完成：核心表、版本字段、QuestionItem 主知识点 FK、schema contract gate。
 - C002 初中物理 L1-L3 知识点初始化。分为 draft/test 与 formal/production 两层：当前非权威 draft bootstrap 可用于测试绑定、筛选、组卷约束和映射历史验证；正式知识点必须在教师录入各版本教材、学科课程标准、近年当地中考/高考真题等资料后，从来源提炼并审核。来源资料准入见 `docs/50_C002_SourceMaterialAdmission.md`。
 - C002A 动态领域资产契约。已完成：`DomainAssetVersion`、`DomainAssetMapping`、`DomainAssetMigration` 已落库，支持 version/status/source/mapping/migration/rollback、dry-run 自动建议与人工审核状态，并纳入 `tools/run-c002a-domain-asset-contract.ps1`。
-- C002B draft -> formal 替换映射：支持等价、拆分、合并、上位、下位、废弃、重命名；规则和 AI 先自动生成建议，少量低置信度或高影响项由人工审核。
+- C002B draft -> formal 替换映射。已完成 dry-run contract：支持等价、拆分、合并、上位、下位、废弃、重命名；高置信度、低影响、可回滚的一对一映射进入 `auto_applied`，其余进入 `pending_review`，由 `tools/run-c002b-replacement-mapping-contract.ps1` 验证。
 - C002C 标签/标注/索引迁移：题目主知识点、副知识点、标签、筛选索引、组卷约束、学情指标和回归 fixture 可按迁移报告批量更新并回滚。
 - C003 公式、实验、方法、易错点。
 - C004 教材章节映射。
