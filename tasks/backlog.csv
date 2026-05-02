@@ -22,8 +22,9 @@ B006,P1,来源回看,原始来源回看,高,已完成,B005,题目详情能打开
 B007,P1,回归样本,导入黄金样本与回归测试,高,已完成,B006,至少含共用题图 跨页题 公式密集 扫描版 答案解析分离样本且导入流程可复跑,tools/run-gates.ps1 b007 golden import regression + tools/run-import-golden.ps1
 B008,P1,非现场流程,P1 非现场流程验收,高,已完成,B007,代理场景可完成上传 预览 修正异常 保存题目 回看来源并记录确认项数量 失败接管步骤 估算总耗时 不要求真实教师现场验收,tools/run-gates.ps1 b008 p1 proxy scenario + tools/run-p1-proxy-scenario.ps1
 C001,P2,知识本体,KnowledgeNode Edge Mapping 模型,中,已完成,B008,KnowledgeNode KnowledgeEdge KnowledgeMapping 核心表与版本字段已落库且 QuestionItem 可绑定主知识点,tools/run-gates.ps1 c001 knowledge ontology contract + tools/run-c001-contract.ps1
-C002,P2,知识本体,初中物理 L1-L3 知识点初始化,中,暂缓,C001,教师录入各版本教材 学科课程标准 近年当地中考高考真题等资料后 从来源提炼并审核 L1-L3 知识点 当前仅保留非权威 draft bootstrap guard,source-derived seed validation + tools/run-c002-seed-validation.ps1 draft guard
-D001,P3,AI,AI Provider 抽象与 ModelRouter,中,暂缓,C002,C002 来源提炼知识体系完成前只保留 schema/接口规划 不接真实模型 不进入实现,contract test + tools/run-roadmap-guard.ps1
+C002A,P2,动态资产,动态领域资产契约,高,已完成,C001,DomainAssetVersion DomainAssetMapping DomainAssetMigration 已落库并支持 version status source mapping migration rollback dry-run 自动建议与人工审核状态,tools/run-gates.ps1 c002a domain asset contract + tools/run-c002a-domain-asset-contract.ps1
+C002,P2,知识本体,初中物理 L1-L3 知识点初始化,中,暂缓,C002A,教师录入各版本教材 学科课程标准 近年当地中考高考真题等资料后 从来源提炼并审核 L1-L3 知识点 当前 draft bootstrap 可用于测试 但正式激活必须有版本 替换 迁移 回滚证据,source-derived seed validation + tools/run-c002-seed-validation.ps1 draft guard + migration report guard
+D001,P3,AI,AI Provider 抽象与 ModelRouter,中,暂缓,C002,C002 正式完成前允许 draft/test 模式实现 schema 接口 Evals 成本日志 人工审核和迁移建议 不得把 draft 知识点或真实模型输出标记为生产正式完成,contract test + tools/run-roadmap-guard.ps1
 D002,P3,AI,AIJob AIResult 成本日志,中,暂缓,D001,每个 AI 结果记录 prompt/schema/model/cost/confidence,AI job test
 D003,P3,AI,Structured Outputs 与 Evals 接入,中,暂缓,D002,结构化输出可校验且黄金样本 eval 可复跑,eval smoke
 E001,P4,组卷导出,题库检索和题目卡片,中,暂缓,D003,教师能按知识点题型难度来源筛题,UI/API test

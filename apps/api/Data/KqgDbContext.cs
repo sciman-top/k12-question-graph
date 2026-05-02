@@ -29,6 +29,12 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
 
     public DbSet<KnowledgeMapping> KnowledgeMappings => Set<KnowledgeMapping>();
 
+    public DbSet<DomainAssetVersion> DomainAssetVersions => Set<DomainAssetVersion>();
+
+    public DbSet<DomainAssetMapping> DomainAssetMappings => Set<DomainAssetMapping>();
+
+    public DbSet<DomainAssetMigration> DomainAssetMigrations => Set<DomainAssetMigration>();
+
     public DbSet<QuestionBlock> QuestionBlocks => Set<QuestionBlock>();
 
     public DbSet<QuestionAsset> QuestionAssets => Set<QuestionAsset>();
@@ -49,6 +55,9 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
         ConfigureKnowledgeNode(modelBuilder.Entity<KnowledgeNode>());
         ConfigureKnowledgeEdge(modelBuilder.Entity<KnowledgeEdge>());
         ConfigureKnowledgeMapping(modelBuilder.Entity<KnowledgeMapping>());
+        ConfigureDomainAssetVersion(modelBuilder.Entity<DomainAssetVersion>());
+        ConfigureDomainAssetMapping(modelBuilder.Entity<DomainAssetMapping>());
+        ConfigureDomainAssetMigration(modelBuilder.Entity<DomainAssetMigration>());
         ConfigureQuestionBlock(modelBuilder.Entity<QuestionBlock>());
         ConfigureQuestionAsset(modelBuilder.Entity<QuestionAsset>());
     }
@@ -214,7 +223,7 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
         {
             x.HasCheckConstraint("ck_knowledge_nodes_level", "level >= 1");
             x.HasCheckConstraint("ck_knowledge_nodes_version", "version >= 1");
-            x.HasCheckConstraint("ck_knowledge_nodes_status", "status in ('draft','active','deprecated','retired')");
+            x.HasCheckConstraint("ck_knowledge_nodes_status", "status in ('draft','candidate','reviewed','active','deprecated','merged','superseded')");
         });
     }
 
@@ -254,6 +263,78 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
             x.HasCheckConstraint("ck_knowledge_mappings_confidence", "confidence is null or (confidence >= 0 and confidence <= 1)");
             x.HasCheckConstraint("ck_knowledge_mappings_version", "version >= 1");
             x.HasCheckConstraint("ck_knowledge_mappings_source", "mapping_source in ('manual','import','ai_suggested')");
+        });
+    }
+
+    private static void ConfigureDomainAssetVersion(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<DomainAssetVersion> entity)
+    {
+        entity.ToTable("domain_asset_versions");
+        entity.HasKey(x => x.Id);
+        entity.HasIndex(x => new { x.AssetType, x.StableId, x.Version }).IsUnique();
+        entity.HasIndex(x => new { x.AssetType, x.Status });
+        entity.HasIndex(x => x.Authority);
+        entity.Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
+        entity.Property(x => x.AssetType).HasMaxLength(64).IsRequired();
+        entity.Property(x => x.StableId).HasMaxLength(160).IsRequired();
+        entity.Property(x => x.DisplayName).HasMaxLength(256).IsRequired();
+        entity.Property(x => x.Status).HasMaxLength(32).HasDefaultValue(DomainAssetStatuses.Draft);
+        entity.Property(x => x.Authority).HasMaxLength(64).HasDefaultValue(DomainAssetAuthorities.Bootstrap);
+        entity.Property(x => x.EffectiveScope).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.Property(x => x.SourceEvidence).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.Property(x => x.Metadata).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.ToTable(x =>
+        {
+            x.HasCheckConstraint("ck_domain_asset_versions_version", "version >= 1");
+            x.HasCheckConstraint("ck_domain_asset_versions_status", "status in ('draft','candidate','reviewed','active','deprecated','merged','superseded')");
+            x.HasCheckConstraint("ck_domain_asset_versions_authority", "authority in ('bootstrap','source_derived','school_approved','policy')");
+        });
+    }
+
+    private static void ConfigureDomainAssetMapping(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<DomainAssetMapping> entity)
+    {
+        entity.ToTable("domain_asset_mappings");
+        entity.HasKey(x => x.Id);
+        entity.HasIndex(x => new { x.SourceAssetVersionId, x.TargetAssetVersionId, x.MappingType }).IsUnique();
+        entity.HasIndex(x => x.TargetAssetVersionId);
+        entity.HasIndex(x => x.ReviewStatus);
+        entity.HasIndex(x => x.MigrationId);
+        entity.Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
+        entity.Property(x => x.MappingType).HasMaxLength(64).HasDefaultValue(DomainAssetMappingTypes.Equivalent);
+        entity.Property(x => x.ReviewStatus).HasMaxLength(64).HasDefaultValue(DomainAssetReviewStatuses.PendingReview);
+        entity.Property(x => x.Evidence).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.HasOne<DomainAssetVersion>().WithMany().HasForeignKey(x => x.SourceAssetVersionId).OnDelete(DeleteBehavior.Restrict);
+        entity.HasOne<DomainAssetVersion>().WithMany().HasForeignKey(x => x.TargetAssetVersionId).OnDelete(DeleteBehavior.Restrict);
+        entity.HasOne<DomainAssetMigration>().WithMany().HasForeignKey(x => x.MigrationId).OnDelete(DeleteBehavior.SetNull);
+        entity.ToTable(x =>
+        {
+            x.HasCheckConstraint("ck_domain_asset_mappings_not_self", "source_asset_version_id <> target_asset_version_id");
+            x.HasCheckConstraint("ck_domain_asset_mappings_confidence", "confidence >= 0 and confidence <= 1");
+            x.HasCheckConstraint("ck_domain_asset_mappings_type", "mapping_type in ('equivalent','split','merge','broader','narrower','renamed','deprecated')");
+            x.HasCheckConstraint("ck_domain_asset_mappings_review_status", "review_status in ('auto_applied','pending_review','approved','rejected')");
+            x.HasCheckConstraint("ck_domain_asset_mappings_auto_review", "(auto_applied = false) or (review_status = 'auto_applied')");
+        });
+    }
+
+    private static void ConfigureDomainAssetMigration(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<DomainAssetMigration> entity)
+    {
+        entity.ToTable("domain_asset_migrations");
+        entity.HasKey(x => x.Id);
+        entity.HasIndex(x => x.MigrationKey).IsUnique();
+        entity.HasIndex(x => x.Status);
+        entity.HasIndex(x => x.FromAssetVersionId);
+        entity.HasIndex(x => x.ToAssetVersionId);
+        entity.Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
+        entity.Property(x => x.MigrationKey).HasMaxLength(160).IsRequired();
+        entity.Property(x => x.Status).HasMaxLength(64).HasDefaultValue(DomainAssetMigrationStatuses.Draft);
+        entity.Property(x => x.ImpactReport).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.Property(x => x.RollbackSnapshot).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.Property(x => x.CreatedBy).HasMaxLength(128).HasDefaultValue("system");
+        entity.HasOne<DomainAssetVersion>().WithMany().HasForeignKey(x => x.FromAssetVersionId).OnDelete(DeleteBehavior.Restrict);
+        entity.HasOne<DomainAssetVersion>().WithMany().HasForeignKey(x => x.ToAssetVersionId).OnDelete(DeleteBehavior.Restrict);
+        entity.ToTable(x =>
+        {
+            x.HasCheckConstraint("ck_domain_asset_migrations_status", "status in ('draft','dry_run','pending_review','applied','rolled_back','rejected')");
+            x.HasCheckConstraint("ck_domain_asset_migrations_not_self", "from_asset_version_id is null or to_asset_version_id is null or from_asset_version_id <> to_asset_version_id");
         });
     }
 

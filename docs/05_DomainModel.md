@@ -37,6 +37,9 @@ FeedbackEvent            教师修改反馈事件
 FileAsset                文件资产
 BackupJob                备份任务
 TeacherPreference        教师偏好
+DomainAssetVersion       动态领域资产版本
+DomainAssetMapping       资产替换/拆分/合并/废弃映射
+DomainAssetMigration     资产迁移任务与影响报告
 ```
 
 ## 3. QuestionItem 字段草案
@@ -129,3 +132,33 @@ CustomFieldDefinition
 ## 8. 标签治理
 
 标签分为：系统标签、学校标签、学科标签、个人标签。个人标签默认不进入校级统计。标签修改支持新增、改名、合并、停用、迁移、别名、版本化。
+
+## 9. 动态领域资产
+
+凡是会随学科、地区、年份、教材、课程标准、考试口径、教师习惯、AI 模型或学校政策变化的对象，都不能只做静态 enum 或散乱字符串。至少包括：
+
+- 知识点本体、知识边和知识映射。
+- 教材版本、章节目录、课程标准节点、地区考点。
+- 题型体系、难度层级、能力维度、标签体系、自定义字段。
+- 答案、解析、rubric、评分细则。
+- 组卷规则、细目表模板、导出模板。
+- AI prompt/schema/model routing policy。
+- 文档解析 pipeline、adapter 配置、分析指标、隐私和保留策略。
+
+动态领域资产必须记录：
+
+| 字段 | 说明 |
+|---|---|
+| asset_type | knowledge_node/tag/question_type/rubric/assembly_policy 等 |
+| stable_id | 跨版本稳定标识 |
+| version | 资产版本 |
+| status | draft/candidate/reviewed/active/deprecated/merged/superseded |
+| authority | bootstrap/source_derived/school_approved/policy |
+| effective_scope | 学科、学段、地区、学校、班级或时间范围 |
+| source_evidence | 来源文档、页码、hash、审核记录或 policy 文件 |
+| replacement_mapping | 等价、拆分、合并、上位/下位、废弃、重命名 |
+| confidence | 规则/AI/人工映射置信度 |
+| review_status | auto_applied/pending_review/approved/rejected |
+| migration_report_id | 影响数量、自动更新项、需人工确认项和回滚入口 |
+
+规则和 AI 可以先做自动匹配、替换和迁移建议，目标是减少教师维护工作。自动化只能处理高置信度、低影响、可回滚的变更；影响历史成绩、正式组卷、校级统计或一拆多/多合一的变更必须保留人工审核。

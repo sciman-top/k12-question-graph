@@ -39,9 +39,12 @@ public static class QuestionStatuses
 public static class KnowledgeStatuses
 {
     public const string Draft = "draft";
+    public const string Candidate = "candidate";
+    public const string Reviewed = "reviewed";
     public const string Active = "active";
     public const string Deprecated = "deprecated";
-    public const string Retired = "retired";
+    public const string Merged = "merged";
+    public const string Superseded = "superseded";
 }
 
 public static class KnowledgeEdgeTypes
@@ -56,6 +59,54 @@ public static class KnowledgeMappingSources
     public const string Manual = "manual";
     public const string Import = "import";
     public const string AiSuggested = "ai_suggested";
+}
+
+public static class DomainAssetStatuses
+{
+    public const string Draft = "draft";
+    public const string Candidate = "candidate";
+    public const string Reviewed = "reviewed";
+    public const string Active = "active";
+    public const string Deprecated = "deprecated";
+    public const string Merged = "merged";
+    public const string Superseded = "superseded";
+}
+
+public static class DomainAssetAuthorities
+{
+    public const string Bootstrap = "bootstrap";
+    public const string SourceDerived = "source_derived";
+    public const string SchoolApproved = "school_approved";
+    public const string Policy = "policy";
+}
+
+public static class DomainAssetMappingTypes
+{
+    public const string Equivalent = "equivalent";
+    public const string Split = "split";
+    public const string Merge = "merge";
+    public const string Broader = "broader";
+    public const string Narrower = "narrower";
+    public const string Renamed = "renamed";
+    public const string Deprecated = "deprecated";
+}
+
+public static class DomainAssetReviewStatuses
+{
+    public const string AutoApplied = "auto_applied";
+    public const string PendingReview = "pending_review";
+    public const string Approved = "approved";
+    public const string Rejected = "rejected";
+}
+
+public static class DomainAssetMigrationStatuses
+{
+    public const string Draft = "draft";
+    public const string DryRun = "dry_run";
+    public const string PendingReview = "pending_review";
+    public const string Applied = "applied";
+    public const string RolledBack = "rolled_back";
+    public const string Rejected = "rejected";
 }
 
 public sealed class TeacherPreference
@@ -336,6 +387,83 @@ public sealed class KnowledgeMapping
     public string Evidence { get; set; } = "{}";
 
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class DomainAssetVersion
+{
+    public Guid Id { get; set; }
+
+    public string AssetType { get; set; } = string.Empty;
+
+    public string StableId { get; set; } = string.Empty;
+
+    public int Version { get; set; } = 1;
+
+    public string DisplayName { get; set; } = string.Empty;
+
+    public string Status { get; set; } = DomainAssetStatuses.Draft;
+
+    public string Authority { get; set; } = DomainAssetAuthorities.Bootstrap;
+
+    public string EffectiveScope { get; set; } = "{}";
+
+    public string SourceEvidence { get; set; } = "{}";
+
+    public string Metadata { get; set; } = "{}";
+
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+
+    public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class DomainAssetMapping
+{
+    public Guid Id { get; set; }
+
+    public Guid SourceAssetVersionId { get; set; }
+
+    public Guid TargetAssetVersionId { get; set; }
+
+    public string MappingType { get; set; } = DomainAssetMappingTypes.Equivalent;
+
+    public decimal Confidence { get; set; }
+
+    public string ReviewStatus { get; set; } = DomainAssetReviewStatuses.PendingReview;
+
+    public bool AutoApplied { get; set; }
+
+    public string Evidence { get; set; } = "{}";
+
+    public Guid? MigrationId { get; set; }
+
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+
+    public DateTimeOffset? ReviewedAt { get; set; }
+}
+
+public sealed class DomainAssetMigration
+{
+    public Guid Id { get; set; }
+
+    public string MigrationKey { get; set; } = string.Empty;
+
+    public string Status { get; set; } = DomainAssetMigrationStatuses.Draft;
+
+    public Guid? FromAssetVersionId { get; set; }
+
+    public Guid? ToAssetVersionId { get; set; }
+
+    public string ImpactReport { get; set; } = "{}";
+
+    public string RollbackSnapshot { get; set; } = "{}";
+
+    public string CreatedBy { get; set; } = "system";
+
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+
+    public DateTimeOffset? AppliedAt { get; set; }
+
+    public DateTimeOffset? RolledBackAt { get; set; }
 }
 
 public sealed class QuestionBlock

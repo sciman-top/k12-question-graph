@@ -22,7 +22,7 @@ The gate also covers `b001 duplicate upload smoke`, `b002 adapter contract smoke
 `b005 save question api smoke`, `b006 question source review smoke`,
 `b007 golden import regression`, `b008 p1 proxy scenario`,
 `roadmap dependency guard`, `c002 source material admission guard`,
-`c001 knowledge ontology contract`, and
+`c001 knowledge ontology contract`, `c002a domain asset contract`, and
 `c002 junior physics draft bootstrap guard`.
 It starts temporary
 API processes for API smoke steps, so `PGPASSWORD` must match the local PostgreSQL
@@ -49,6 +49,17 @@ $env:PGPASSWORD='<local-password>'
 .\tools\run-c001-contract.ps1
 ```
 
+C002A domain asset contract:
+
+```powershell
+$env:PGPASSWORD='<local-password>'
+.\tools\run-c002a-domain-asset-contract.ps1
+```
+
+This verifies versioned domain asset tables, replacement mapping constraints,
+dry-run migration reports, rollback snapshots, and non-destructive auto-apply
+semantics for high-confidence low-impact mappings.
+
 C002 junior physics draft bootstrap guard:
 
 ```powershell
@@ -68,7 +79,9 @@ Roadmap dependency guard:
 .\tools\run-roadmap-guard.ps1
 ```
 
-This blocks P3+ task completion while formal C002 remains `暂缓`.
+This blocks production P3+ completion while formal C002 remains `暂缓`.
+Draft/test work is allowed when it stays behind schema, Evals, cost logging,
+manual review, migration suggestions, and non-production evidence.
 
 C002 source material admission guard:
 

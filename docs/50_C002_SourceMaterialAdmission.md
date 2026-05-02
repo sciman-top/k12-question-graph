@@ -6,6 +6,8 @@
 
 当前 `configs/knowledge/junior-physics-l1-l3.json` 只是 draft bootstrap，可用于 API/UI/回归测试，不作为正式校本知识本体。
 
+系统开发不需要等待正式 C002 全部定稿。draft bootstrap 可作为动态领域资产的测试版本，用来推进题库、组卷、AI schema、Evals、标签、索引和迁移链路。正式生产激活仍必须满足本文件的来源资料准入、人工审核、影响报告和回滚要求。
+
 ## 2. 来源资料准入
 
 正式提炼前，每份资料必须记录：
@@ -44,7 +46,9 @@ configs/knowledge/source-material-manifest.local.json
 录入来源资料 manifest
 -> 校验授权、PII、hash、路径
 -> 从教材/课标/真题提取候选 L1-L3 节点
--> 与 draft bootstrap 对齐、合并、删除或重命名
+-> 用规则/AI 与 draft bootstrap 对齐，生成等价、拆分、合并、上位、下位、废弃、重命名建议
+-> 自动应用高置信度、低影响的一对一映射
+-> 将低置信度、高影响、一拆多、多合一或影响历史学情口径的映射交给教师/备课组审核
 -> 教师/备课组审核关键节点
 -> 生成 source-derived version
 -> 将审核通过节点标记为 active
@@ -52,6 +56,14 @@ configs/knowledge/source-material-manifest.local.json
 ```
 
 正式版本不得覆盖草稿历史。用 `version/status/metadata` 表达来源证据和状态迁移。
+
+迁移报告至少记录：
+
+- 被替换、拆分、合并、废弃的 draft 节点。
+- 自动迁移的题目绑定、标签、筛选索引、组卷约束和回归 fixture 数量。
+- 进入人工审核的映射数量与原因。
+- 影响历史试卷、学情报告和导出结果的范围。
+- 回滚入口和迁移前快照。
 
 ## 5. 验证
 
