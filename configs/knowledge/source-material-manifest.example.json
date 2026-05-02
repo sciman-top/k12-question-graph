@@ -1,0 +1,61 @@
+{
+  "manifestVersion": "knowledge-source-materials.v1",
+  "purpose": "C002 source-derived junior physics ontology review",
+  "subject": "physics",
+  "stage": "junior_middle_school",
+  "region": "REPLACE_WITH_PROVINCE_OR_CITY",
+  "reviewOwner": "REPLACE_WITH_TEACHER_OR_GROUP",
+  "materials": [
+    {
+      "materialId": "textbook-001",
+      "sourceType": "textbook",
+      "title": "REPLACE_WITH_TEXTBOOK_TITLE",
+      "publisherOrAuthority": "REPLACE_WITH_PUBLISHER",
+      "editionOrVersion": "REPLACE_WITH_EDITION",
+      "year": 2026,
+      "gradeOrScope": "grade_8",
+      "localPath": "D:/KQG_Data/source_materials/textbook-001.pdf",
+      "sha256": "REPLACE_WITH_64_HEX_SHA256",
+      "licenseOrPermission": "REPLACE_WITH_AUTHORIZATION_STATUS",
+      "sharingAllowed": false,
+      "containsStudentPii": false,
+      "anonymizationStatus": "not_applicable",
+      "mayUseForKnowledgeExtraction": true,
+      "notes": "Textbook files stay outside git."
+    },
+    {
+      "materialId": "curriculum-001",
+      "sourceType": "curriculum_standard",
+      "title": "REPLACE_WITH_STANDARD_TITLE",
+      "publisherOrAuthority": "REPLACE_WITH_AUTHORITY",
+      "editionOrVersion": "REPLACE_WITH_VERSION",
+      "year": 2026,
+      "gradeOrScope": "junior_middle_school",
+      "localPath": "D:/KQG_Data/source_materials/curriculum-001.pdf",
+      "sha256": "REPLACE_WITH_64_HEX_SHA256",
+      "licenseOrPermission": "REPLACE_WITH_PUBLIC_OR_AUTHORIZED_STATUS",
+      "sharingAllowed": false,
+      "containsStudentPii": false,
+      "anonymizationStatus": "not_applicable",
+      "mayUseForKnowledgeExtraction": true,
+      "notes": "Curriculum standard is a mapping source, not the ontology trunk."
+    },
+    {
+      "materialId": "local-exam-001",
+      "sourceType": "local_exam_paper",
+      "title": "REPLACE_WITH_LOCAL_EXAM_TITLE",
+      "publisherOrAuthority": "REPLACE_WITH_REGION_OR_ORGANIZATION",
+      "editionOrVersion": "REPLACE_WITH_EXAM_YEAR_OR_SESSION",
+      "year": 2026,
+      "gradeOrScope": "grade_9",
+      "localPath": "D:/KQG_Data/source_materials/local-exam-001.pdf",
+      "sha256": "REPLACE_WITH_64_HEX_SHA256",
+      "licenseOrPermission": "REPLACE_WITH_AUTHORIZATION_STATUS",
+      "sharingAllowed": false,
+      "containsStudentPii": false,
+      "anonymizationStatus": "not_applicable",
+      "mayUseForKnowledgeExtraction": true,
+      "notes": "Use local exam papers only when source and permission are recorded."
+    }
+  ]
+}

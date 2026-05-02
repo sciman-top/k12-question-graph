@@ -21,7 +21,8 @@ The gate also covers `b001 duplicate upload smoke`, `b002 adapter contract smoke
 `b003 source preview smoke`, `b004/b004a UI contracts`, and
 `b005 save question api smoke`, `b006 question source review smoke`,
 `b007 golden import regression`, `b008 p1 proxy scenario`,
-`roadmap dependency guard`, `c001 knowledge ontology contract`, and
+`roadmap dependency guard`, `c002 source material admission guard`,
+`c001 knowledge ontology contract`, and
 `c002 junior physics draft bootstrap guard`.
 It starts temporary
 API processes for API smoke steps, so `PGPASSWORD` must match the local PostgreSQL
@@ -68,6 +69,15 @@ Roadmap dependency guard:
 ```
 
 This blocks P3+ task completion while formal C002 remains `暂缓`.
+
+C002 source material admission guard:
+
+```powershell
+.\tools\run-c002-source-material-guard.ps1
+```
+
+This validates the source material manifest template and ensures real textbook,
+curriculum standard, and local exam files stay outside git.
 
 Backup:
 

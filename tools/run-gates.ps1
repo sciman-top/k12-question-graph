@@ -128,6 +128,10 @@ try {
         .\tools\run-roadmap-guard.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'c002 source material admission guard' {
+        .\tools\run-c002-source-material-guard.ps1 | Write-Host
+    }
+
     Invoke-GateStep 'database smoke' {
         $psql = Join-Path $PgBin 'psql.exe'
         & $psql -h $DatabaseHost -p $DatabasePort -U $DatabaseUser -d $DatabaseName -c "select count(*) from information_schema.tables where table_schema='public';" | Write-Host
