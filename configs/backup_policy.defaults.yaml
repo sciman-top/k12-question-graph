@@ -1,0 +1,19 @@
+version: 0.1
+targets:
+  local_primary: "D:\\KQG_Backups"
+  network_share: null
+schedules:
+  database_dump_daily: "02:00"
+  file_store_incremental_daily: "02:30"
+  full_backup_weekly: "Sunday 03:00"
+  cold_archive_monthly: "FirstSunday 04:00"
+retention:
+  daily: 30
+  weekly: 12
+  monthly: 24
+safety:
+  create_upgrade_restore_point: true
+  verify_after_backup: true
+  generate_manifest: true
+  generate_checksums: true
+  no_mirror_delete_to_network_share: true

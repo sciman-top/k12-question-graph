@@ -1,0 +1,16 @@
+erDiagram
+  QUESTION_ITEM ||--o{ QUESTION_BLOCK : has
+  QUESTION_ITEM ||--o{ QUESTION_ASSET : uses
+  QUESTION_ITEM ||--o{ KNOWLEDGE_MAPPING : maps
+  QUESTION_ITEM ||--o{ SOURCE_REGION : from
+  QUESTION_ITEM ||--o{ FEEDBACK_EVENT : receives
+  SOURCE_DOCUMENT ||--o{ SOURCE_REGION : contains
+  KNOWLEDGE_NODE ||--o{ KNOWLEDGE_EDGE : relates
+  PAPER ||--o{ PAPER_SECTION : has
+  PAPER_SECTION ||--o{ PAPER_QUESTION : contains
+  QUESTION_ITEM ||--o{ PAPER_QUESTION : selected
+  EXAM ||--o{ ITEM_SCORE : records
+  QUESTION_ITEM ||--o{ ITEM_SCORE : scored
+  AI_JOB ||--o{ AI_RESULT : outputs
+  AI_RESULT ||--o{ REVIEW_QUEUE_ITEM : may_require
+  USER ||--o{ TEACHER_PREFERENCE : has

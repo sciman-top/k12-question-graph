@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "KnowledgeMappingSuggestion",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "source_type",
+    "source_id",
+    "suggestions",
+    "review_required",
+    "reason"
+  ],
+  "properties": {
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "question",
+        "textbook_chapter",
+        "curriculum_standard",
+        "region_exam_point"
+      ]
+    },
+    "source_id": {
+      "type": "string"
+    },
+    "suggestions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "knowledge_id",
+          "name",
+          "mapping_type",
+          "weight",
+          "confidence"
+        ],
+        "properties": {
+          "knowledge_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "mapping_type": {
+            "type": "string",
+            "enum": [
+              "primary",
+              "secondary",
+              "prerequisite",
+              "extension",
+              "method",
+              "misconception"
+            ]
+          },
+          "weight": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        }
+      }
+    },
+    "review_required": {
+      "type": "boolean"
+    },
+    "reason": {
+      "type": "string"
+    }
+  }
+}

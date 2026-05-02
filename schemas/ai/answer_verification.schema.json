@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AnswerVerificationResult",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "question_id",
+    "extracted_answer",
+    "independent_answer",
+    "consistency",
+    "risk_level",
+    "issues",
+    "confidence",
+    "review_required"
+  ],
+  "properties": {
+    "question_id": {
+      "type": "string"
+    },
+    "extracted_answer": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "independent_answer": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "consistency": {
+      "type": "string",
+      "enum": [
+        "consistent",
+        "minor_difference",
+        "conflict",
+        "unknown"
+      ]
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "type",
+          "description"
+        ],
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "review_required": {
+      "type": "boolean"
+    }
+  }
+}

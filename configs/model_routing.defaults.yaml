@@ -1,0 +1,61 @@
+version: 0.1
+modes:
+  low_cost:
+    description: "本地工具和小模型优先，强模型只处理高风险异常。"
+  balanced:
+    description: "默认模式，兼顾准确率和成本。"
+  high_accuracy:
+    description: "正式试卷、答案校验、重要导入使用。"
+routes:
+  file_dedup:
+    handler: rule
+  ordinary_ocr:
+    handler: local_ocr
+    tool: paddleocr
+  document_layout:
+    handler: local_document_parser
+    tool: docling
+  question_extraction:
+    handler: llm
+    model_tier: medium
+    structured_output_schema: schemas/ai/question_extraction.schema.json
+    require_human_review_below_confidence: 0.85
+  knowledge_tagging:
+    handler: llm
+    model_tier: small_or_medium
+    batchable: true
+    require_human_review_below_confidence: 0.8
+  natural_language_paper_request:
+    handler: llm
+    model_tier: medium
+    structured_output_schema: schemas/ai/natural_language_paper_request.schema.json
+  answer_verification:
+    handler: llm
+    model_tier: medium_or_strong
+    require_review_for: [formal_exam, high_value_question]
+  export_preflight:
+    handler: rule_then_llm_if_needed
+cost_controls:
+  cache_by_input_hash: true
+  use_batch_for_bulk_tasks: true
+  use_prompt_caching_prefix: true
+  log_all_costs: true
+  record_cached_tokens: true
+  stable_prompt_prefix_items:
+    - task_policy
+    - junior_physics_question_types
+    - knowledge_schema
+    - output_json_schema
+    - confidence_rubric
+  dynamic_prompt_suffix_items:
+    - source_page_content
+    - question_candidate
+    - teacher_context
+p0_p1_boundary:
+  allow_real_model_calls: false
+  allowed_handlers:
+    - rule
+    - local_ocr
+    - local_document_parser
+    - stub_llm
+  reason: "P0/P1 先验证工程和人工确认闭环，真实模型调用进入 P3。"

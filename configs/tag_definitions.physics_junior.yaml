@@ -1,0 +1,20 @@
+version: 0.1
+system_tags:
+  usage_status:
+    type: single_select
+    values: [推荐, 可用, 需优化, 暂停使用, 弃用]
+  main_use:
+    type: single_select
+    values: [新授, 巩固, 复习, 检测, 拔高]
+  suitable_scenarios:
+    type: multi_select
+    values: [课堂练习, 课后作业, 单元复习, 期中期末, 中考一轮, 中考二轮, 中考模拟, 讲评]
+  quality_grade:
+    type: single_select
+    values: [A, B, C, D]
+  issue_tags:
+    type: multi_select
+    values: [题干啰嗦, 图不清, 条件不充分, 答案有争议, 解析不佳, 疑似超纲, 重复, 公式损坏]
+  error_cause:
+    type: multi_select
+    values: [概念错误, 审题错误, 公式错误, 计算错误, 单位错误, 图像读数错误, 实验理解错误]

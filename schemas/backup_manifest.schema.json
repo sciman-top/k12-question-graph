@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "KQGBackupManifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "backup_id",
+    "backup_time",
+    "app_version",
+    "database_version",
+    "backup_type",
+    "includes",
+    "files",
+    "checksums"
+  ],
+  "properties": {
+    "backup_id": {
+      "type": "string"
+    },
+    "backup_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "app_version": {
+      "type": "string"
+    },
+    "database_version": {
+      "type": "string"
+    },
+    "backup_type": {
+      "type": "string",
+      "enum": [
+        "lightweight",
+        "full",
+        "cold_archive",
+        "emergency"
+      ]
+    },
+    "includes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "path",
+          "size",
+          "sha256"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "size": {
+            "type": "integer"
+          },
+          "sha256": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "checksums": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    }
+  }
+}

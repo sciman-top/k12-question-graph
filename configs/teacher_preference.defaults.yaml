@@ -1,0 +1,13 @@
+version: 0.1
+defaults:
+  subject: 初中物理
+  grade: 八年级
+  ai_mode: balanced
+  export_template: A4标准试卷
+  score_import_template: 默认小题分模板
+  simple_mode: true
+  paper_generation:
+    exclude_recently_used_days: 90
+    difficulty: 标准
+    show_system_understanding: true
+    allow_one_click_replace: true

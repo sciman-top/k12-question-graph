@@ -1,0 +1,53 @@
+# 参考来源清单
+
+- .NET releases and support: https://learn.microsoft.com/en-us/dotnet/core/releases-and-support
+- .NET 10 overview: https://learn.microsoft.com/dotnet/core/whats-new/dotnet-10/overview
+- EF Core 10 release notes: https://learn.microsoft.com/ef/core/what-is-new/ef-core-10.0/whatsnew
+- EF Core releases and planning: https://learn.microsoft.com/ef/core/what-is-new/#stable-releases
+- ASP.NET Core hosted services: https://learn.microsoft.com/aspnet/core/fundamentals/host/hosted-services?view=aspnetcore-10.0
+- ASP.NET Core Windows Service hosting: https://learn.microsoft.com/aspnet/core/host-and-deploy/windows-service?view=aspnetcore-10.0
+- OpenAI Structured Outputs: https://developers.openai.com/api/docs/guides/structured-outputs
+- OpenAI Prompt Caching: https://developers.openai.com/api/docs/guides/prompt-caching
+- OpenAI Batch API: https://developers.openai.com/api/docs/guides/batch
+- OpenAI Cost Optimization: https://developers.openai.com/api/docs/guides/cost-optimization
+- OpenAI latest model API guidance: https://developers.openai.com/api/docs/guides/latest-model
+- ASP.NET Core documentation: https://learn.microsoft.com/en-us/aspnet/core/
+- Open XML SDK: https://learn.microsoft.com/en-us/office/open-xml/open-xml-sdk
+- OfficeMath / OMML: https://learn.microsoft.com/en-us/dotnet/api/documentformat.openxml.math.officemath
+- React TypeScript guide: https://react.dev/learn/typescript
+- Vite getting started: https://vite.dev/guide/
+- Ant Design React introduction: https://ant.design/docs/react/introduce/
+- TanStack Query React overview: https://tanstack.com/query/latest/docs/react/overview
+- React Router: https://reactrouter.com/
+- PostgreSQL pg_dump: https://www.postgresql.org/docs/current/app-pgdump.html
+- PostgreSQL PITR/WAL: https://www.postgresql.org/docs/current/continuous-archiving.html
+- PostgreSQL JSON types: https://www.postgresql.org/docs/current/datatype-json.html
+- PostgreSQL Full Text Search: https://www.postgresql.org/docs/current/textsearch.html
+- PostgreSQL pg_trgm: https://www.postgresql.org/docs/current/pgtrgm.html
+- pgvector: https://github.com/pgvector/pgvector
+- Docling: https://docling-project.github.io/docling/
+- Docling DocumentConverter: https://docling-project.github.io/docling/reference/document_converter/
+- Docling OCR/table example: https://docling-project.github.io/docling/examples/full_page_ocr/
+- PaddleOCR: https://github.com/PaddlePaddle/PaddleOCR
+- PaddleOCR PP-Structure: https://paddlepaddle.github.io/PaddleOCR/main/en/version3.x/algorithm/PP-StructureV3/PP-StructureV3.html
+- Pandoc Manual: https://pandoc.org/MANUAL.html
+- KaTeX: https://katex.org/
+- MathJax: https://docs.mathjax.org/
+- OCRmyPDF optimizer: https://ocrmypdf.readthedocs.io/en/latest/optimizer.html
+- Robocopy: https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/robocopy
+- Windows PE: https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/winpe-intro
+- PowerShell Register-ScheduledTask: https://learn.microsoft.com/en-us/powershell/module/scheduledtasks/register-scheduledtask
+- 1EdTech QTI: https://www.1edtech.org/standards/qti
+- 1EdTech CASE: https://www.1edtech.org/standards/case
+- 1EdTech OneRoster: https://www.1edtech.org/standards/oneroster
+- 1EdTech Caliper: https://www.1edtech.org/standards/caliper
+- Moodle: https://moodle.org/
+- Moodle GitHub: https://github.com/moodle/moodle
+- Open edX: https://openedx.org/
+- Open edX platform GitHub: https://github.com/openedx/edx-platform
+- TAO Testing: https://www.taotesting.com/
+- Paperless-ngx: https://github.com/paperless-ngx/paperless-ngx
+- OWASP ASVS: https://owasp.org/www-project-application-security-verification-standard/
+- OWASP AISVS: https://owasp.org/www-project-artificial-intelligence-security-verification-standard-aisvs-docs/
+- NIST AI RMF: https://www.nist.gov/itl/ai-risk-management-framework
+- WCAG: https://www.w3.org/WAI/standards-guidelines/wcag/

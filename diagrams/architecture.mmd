@@ -1,0 +1,15 @@
+flowchart TB
+  UI[浏览器 Web UI] --> API[ASP.NET Core API]
+  API --> PG[(PostgreSQL\nJSONB/FTS/pgvector)]
+  API --> FS[(File Store)]
+  API --> JS[PostgreSQL Job Store\nImportJob/AIJob/BackupJob]
+  API --> BG[ASP.NET Core BackgroundService]
+  BG --> JS
+  BG --> DW[Python Document Worker Adapter\nDocling/PaddleOCR/OpenXML]
+  BG --> AW[AI Adapter\nStructured Outputs/Model Router]
+  BG --> EW[Export Adapter\nWord/PDF/Image]
+  BG --> BW[Backup & Storage Script Adapter]
+  AW --> PG
+  DW --> FS
+  EW --> FS
+  BW --> BACKUP[(Backups / Network Share)]

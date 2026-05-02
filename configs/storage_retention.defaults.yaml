@@ -1,0 +1,23 @@
+version: 0.1
+retention:
+  uploaded_unprocessed:
+    remind_after_days: 30
+    recycle_after_days: 90
+  ordinary_original_after_confirmed:
+    archive_after_days: 90
+    cleanup_candidate_after_days: 180
+  official_exam_or_textbook_or_standard:
+    keep: permanent
+  temporary_export:
+    keep_days: 90
+  ocr_intermediate:
+    keep_days: 30
+  failed_task_context:
+    keep_days: 30
+  recycle_bin:
+    keep_days: 30
+cleanup_rules:
+  require_backup_before_delete: true
+  require_question_level_evidence: true
+  never_delete_if_review_pending: true
+  never_delete_high_value_sources: true

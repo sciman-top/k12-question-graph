@@ -1,0 +1,38 @@
+id,phase,category,task,priority,status,depends_on,acceptance,verification
+A000,P0,准入预检,P0 准入预检与决策锁定,高,未开始,,记录 .NET Node Python PostgreSQL 版本 数据目录 Windows Service content root BackgroundService lease/retry/idempotency 文档门禁,dotnet --info + node --version + python --version + PostgreSQL version query + doc gates
+A000A,P0,契约收口,P0 编码前契约收口,高,未开始,A000,API DTO 错误码 幂等 OpenAPI snapshot 数据库 constraints/indexes/status transition threat model RPO/RTO UX 状态 黄金样本目录规则已落文档且 locked_by 命名一致,doc consistency search + CSV/JSON/YAML gates
+A001,P0,基础工程,创建 monorepo 目录结构,高,未开始,A000A,apps/api apps/web workers/document tools tests 存在且 README 指向真实启动入口,rg --files
+A002,P0,后端,创建 ASP.NET Core API 项目,高,未开始,A001,API 可启动且 /health 正常并区分程序目录和数据目录,dotnet build + health request
+A003,P0,前端,创建 React + TypeScript + Vite + Ant Design 前端,高,未开始,A001,Web UI 可启动且首页只保留普通教师高频入口,npm run build + browser smoke
+A004,P0,数据库,配置 PostgreSQL 与 EF Core migrations,高,未开始,A002,能连接 PostgreSQL 且初始 migration 包含核心 P0 表,dotnet ef database update + migration smoke
+A005,P0,文件仓库,实现 FileStore 与 FileAsset 模型,高,未开始,A004,上传文件进入配置的数据目录且数据库只保存元数据不保存大文件,upload smoke + file_assets query
+A006,P0,任务系统,实现 ImportJob 状态机,高,未开始,A005,上传后创建 ImportJob 且 queued/running/succeeded/failed/cancelled/retry_waiting 状态可追踪,API job query + state transition tests
+A007,P0,Worker,建立 Python Worker 调用协议,中,未开始,A006,API 可用 job_id 和 file path 调用 worker 占位且失败不丢 FileAsset/ImportJob,worker smoke + API integration test
+A008,P0,运维,建立日志配置健康检查,高,未开始,A002,健康检查覆盖 API 数据库 文件仓库 worker 占位且目录不可写会失败,/health + bad-config test
+A009,P0,备份恢复,建立基础备份脚本与 manifest,高,未开始,A005,backup manifest 包含数据库占位 文件仓库清单 配置 sha256 且校验失败不报成功,tools/backup.ps1 + tools/verify-backup.ps1
+A010,P0,质量门禁,建立测试框架与统一 gate,高,未开始,A002;A003;A007;A009,后端 前端 worker 至少各有 smoke test 且文档/schema/config/CSV 解析纳入门禁,tools/run-gates.ps1
+A011,P0,证据回滚,建立 P0 证据包与回滚入口,高,未开始,A010,证据目录记录 P0 gate 命令 退出码 关键输出 gate_na 且 README 指向真实启动 门禁 回滚入口,tools/run-gates.ps1 + evidence directory check
+B001,P1,试题入库,文件上传 hash 去重 文件元数据入库,高,未开始,A005;A011,相同文件重复上传可识别且不复制大文件,upload duplicate smoke
+B002,P1,文档解析,Docling/OpenXML/PaddleOCR Adapter 草案,高,未开始,A007,Adapter 返回 DocumentModel PageModel LayoutBlock AdapterDiagnostic 且记录版本/hash/耗时/警告,adapter contract test
+B003,P1,来源定位,页面预览与 SourceRegion 坐标模型,高,未开始,B002,页面预览显示页码且 SourceRegion 保存页码 bbox 截图路径 坐标单位,sample document preview
+B004,P1,人工确认,人工切题 合并 拆分 题图关联界面,高,未开始,B003,教师可合并跨页题 拆分误切题 关联共用题图且操作可撤销或有修订记录,UI flow test
+B004A,P1,人工接管,人工接管失败路径,高,未开始,B004,AI/OCR/Adapter 失败后教师仍可框选 拆分 合并 跳过 重跑且原始文件 失败原因 diagnostics 不丢失,failed import sample + manual takeover UI flow
+B005,P1,题目模型,QuestionItem QuestionBlock Asset 保存,高,未开始,B004A,题干 选项 小问 答案 解析 图片 公式 表格可结构化保存且可回看来源,save question API test
+B006,P1,来源回看,原始来源回看,高,未开始,B005,题目详情能打开来源文件页码和区域截图且缺失时给明确错误,manual UI check + API test
+B007,P1,回归样本,导入黄金样本与回归测试,高,未开始,B006,至少含共用题图 跨页题 公式密集 扫描版 答案解析分离样本且导入流程可复跑,tools/run-import-golden.ps1
+B008,P1,非现场流程,P1 非现场流程验收,高,未开始,B007,代理场景可完成上传 预览 修正异常 保存题目 回看来源并记录确认项数量 失败接管步骤 估算总耗时 不要求真实教师现场验收,P1 proxy scenario walkthrough + tools/run-import-golden.ps1
+C001,P2,知识本体,KnowledgeNode Edge Mapping 模型,中,暂缓,B008,P1 验收后再实现知识本体核心表与版本字段,contract test
+C002,P2,知识本体,初中物理 L1-L3 知识点初始化,中,暂缓,C001,知识点可绑定题目且映射变更不破坏历史来源,seed validation
+D001,P3,AI,AI Provider 抽象与 ModelRouter,中,暂缓,B008,P1 验收前只保留 schema 不接真实模型,contract test
+D002,P3,AI,AIJob AIResult 成本日志,中,暂缓,D001,每个 AI 结果记录 prompt/schema/model/cost/confidence,AI job test
+D003,P3,AI,Structured Outputs 与 Evals 接入,中,暂缓,D002,结构化输出可校验且黄金样本 eval 可复跑,eval smoke
+E001,P4,组卷导出,题库检索和题目卡片,中,暂缓,D003,教师能按知识点题型难度来源筛题,UI/API test
+E002,P4,组卷导出,自然语言组卷系统理解页面,中,暂缓,E001,教师能看到系统理解和细目表草稿,UI flow test
+E003,P4,组卷导出,一键换题与撤销,中,暂缓,E002,换题保持知识点题型难度分值约束且可撤销,scenario test
+E004,P4,组卷导出,Word/PDF 导出 MVP,中,暂缓,E003,Word/WPS 可打开且公式题图表格不丢失,export golden test
+F001,P5,成绩学情,学生班级考试模型,中,暂缓,E004,支持班级考试成绩基本实体且不暴露学生端,model test
+F002,P5,成绩学情,Excel 字段映射导入,中,暂缓,F001,常见 Excel 模板首次确认后可复用且异常集中提示,import mapping test
+F003,P5,成绩学情,得分率知识点分析,中,暂缓,F002,可输出班级得分率区分度知识点掌握摘要,analysis test
+G001,P6,运维,自动备份到本机与共享目录,中,暂缓,F003,备份包通过 manifest/hash 校验且主程序不可用时脚本仍可运行,backup restore drill
+G002,P6,运维,缓存清理与存储看板,中,暂缓,G001,管理员能看到存储占用并执行安全清理,storage UI/API test
+G003,P6,运维,WinPE 应急拷贝脚本生成,中,暂缓,G001,可生成离线恢复说明和应急拷贝脚本,recovery runbook check

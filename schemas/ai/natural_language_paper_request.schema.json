@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "NaturalLanguagePaperRequestParse",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "system_understanding",
+    "paper_type",
+    "subject",
+    "grade",
+    "textbook_version",
+    "scope",
+    "total_score",
+    "difficulty_target",
+    "question_type_plan",
+    "constraints",
+    "review_questions"
+  ],
+  "properties": {
+    "system_understanding": {
+      "type": "string"
+    },
+    "paper_type": {
+      "type": "string"
+    },
+    "subject": {
+      "type": "string"
+    },
+    "grade": {
+      "type": "string"
+    },
+    "textbook_version": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "scope": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "total_score": {
+      "type": "integer"
+    },
+    "difficulty_target": {
+      "type": "string"
+    },
+    "question_type_plan": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "question_type",
+          "count",
+          "score"
+        ],
+        "properties": {
+          "question_type": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer"
+          },
+          "score": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "review_questions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

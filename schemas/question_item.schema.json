@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "QuestionItemSnapshot",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "id",
+    "subject",
+    "stage",
+    "question_type",
+    "blocks",
+    "status",
+    "knowledge_mappings"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "subject": {
+      "type": "string"
+    },
+    "stage": {
+      "type": "string"
+    },
+    "grade": {
+      "type": "string"
+    },
+    "question_type": {
+      "type": "string"
+    },
+    "blocks": {
+      "type": "array"
+    },
+    "answer": {
+      "type": [
+        "string",
+        "object",
+        "null"
+      ]
+    },
+    "solution": {
+      "type": [
+        "string",
+        "object",
+        "null"
+      ]
+    },
+    "status": {
+      "type": "string"
+    },
+    "knowledge_mappings": {
+      "type": "array"
+    },
+    "source_regions": {
+      "type": "array"
+    },
+    "custom_fields": {
+      "type": "object"
+    }
+  }
+}
