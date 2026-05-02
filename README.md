@@ -1,14 +1,14 @@
-# 校本题谱：AI 原生校本题库与学情诊断平台 · 编码前文档包
+# 校本题谱：AI 原生校本题库与学情诊断平台
 
-本文件包用于交给本地 Codex CLI / AI Coding Agent 继续编码实现。当前包的目的不是“把所有未来功能一次做完”，而是把**最高约束、MVP 范围、架构、数据模型、AI 流程、UX 原则、备份灾备、测试策略、实施任务**固定下来。
+本仓用于本地 Codex CLI / AI Coding Agent 持续编码实现。当前目标不是“把所有未来功能一次做完”，而是按可验证小步闭环，把教师 Word/Excel 工作流迁移成可检索、可复用、可导出、可分析、可恢复的校本题库系统。
 
 ## 当前仓库状态
 
-本仓已从**编码前设计包**进入 P0 工程骨架阶段：已有产品、架构、schema、配置、runbook、任务清单、ASP.NET Core API、React/Vite/Ant Design 前端、PostgreSQL/EF Core migration、Python Worker 占位、FileStore、ImportJob、health、backup 和统一 gate。
+本仓已从**编码前设计包**进入可运行实现阶段：已有产品、架构、schema、配置、runbook、任务清单、ASP.NET Core API、React/Vite/Ant Design 前端、PostgreSQL/EF Core migration、Python Worker 占位、FileStore、ImportJob、health、backup 和统一 gate。
 
 2026-05-02 外部资料复核后的判断：最高原则、默认技术栈、模块化单体架构和 P0/P1 纵切路线保持正确；需要在进入编码前先完成 P0 准入预检，锁定 SDK/runtime、PostgreSQL 版本、数据目录、Windows Service/content root 约束、BackgroundService job lease/retry 规则、学生数据/合规辖区边界和文档门禁。
 
-当前 P0 已打通“上传文件 -> 创建 ImportJob -> 持久化元数据 -> Python Worker 占位 -> health -> backup manifest -> unified gate”纵切闭环。
+当前 P0/P1 已打通“上传文件 -> 创建 ImportJob -> 持久化元数据 -> Python Worker 占位 -> 页面预览/人工确认/来源回看 -> health -> backup manifest -> unified gate”纵切闭环。P2 已完成 C001、C002A-C002F 的动态领域资产合同：draft bootstrap 可用于测试，source-derived 正式资产必须经过来源准入、映射 dry-run、迁移影响报告、候选审核和 active 激活 guard。
 
 ## 当前启动与门禁
 
@@ -32,6 +32,14 @@ npm run dev -- --host 127.0.0.1
 $env:PGPASSWORD='<local-password>'
 .\tools\run-gates.ps1
 ```
+
+无数据库密码时的 C002 动态资产 dry-run:
+
+```powershell
+.\tools\run-c002-dry-run-suite.ps1
+```
+
+该命令验证 source material admission、draft -> formal replacement mapping、migration impact、candidate admission 和 activation guard，不连接数据库、不写生产数据。完整数据库 contract 仍需要 `PGPASSWORD` 并运行 `tools/run-gates.ps1`。
 
 证据与回滚入口：
 
@@ -63,7 +71,7 @@ v0.1 聚焦：
 4. Word/PDF/图片试卷导入。
 5. AI + 人工异常确认的试题入库。
 6. 题图、公式、表格、多模态内容保留。
-7. 稳定的物理知识点本体，课标/教材/地区考点为映射层。
+7. 可版本化、可替换、可追溯的物理知识体系，课标/教材/地区考点为映射层。
 8. 题库检索、自然语言组卷、一键换题、Word/PDF 导出。
 9. Excel 成绩导入、小题分映射、基础学情分析。
 10. 自动备份、缓存清理、恢复包、WinPE 应急恢复方案。
@@ -72,11 +80,11 @@ v0.1 聚焦：
 
 ## 推荐实现顺序
 
-先按 `docs/19_Roadmap.md` 与 `tasks/backlog.csv` 执行。不要先实现高级功能。先完成 `A000 P0 准入预检`，再打通 P0/P1 的最小纵切闭环：
+先按 `docs/19_Roadmap.md` 与 `tasks/backlog.csv` 执行。不要先实现高级功能。P0/P1 已完成；当前推进 C002 动态资产链路和后续 draft/test 模式能力，生产正式 C002 仍需真实来源资料和人工审核。
 
 ```text
-P0: 打开应用 → 登录占位 → 上传文件 → 创建 ImportJob → 写数据库 → 文件入仓 → 备份 manifest
-P1: 上传试卷 → 文档解析/OCR 占位 → 页面预览 → 异常确认队列 → 单题入库 → 来源回看
+P0/P1: 打开应用 → 上传文件 → 创建 ImportJob → 写数据库 → 文件入仓 → 页面预览 → 人工确认 → 单题入库 → 来源回看 → 备份 manifest
+P2/C002 draft-test: draft 知识点 → 替换映射 dry-run → 迁移影响报告 → candidate admission → active guard
 ```
 
 完整 v0.1 闭环仍是：
@@ -106,14 +114,13 @@ tests/      自动化测试与黄金样本
 
 ## 当前运行入口
 
-当前仍处于 P0 骨架前期：
-
 - `apps/api`: 已提供 `dotnet run --project apps/api`，健康检查为 `http://localhost:5275/health`。
 - `apps/web`: 已提供 `npm run dev --prefix apps/web`。
-- `workers/document`: A007 后提供 worker smoke entry。
-- `tools/run-gates.ps1`: A010 后成为统一门禁入口。
+- `workers/document`: 提供 worker smoke entry。
+- `tools/run-gates.ps1`: 统一门禁入口。
+- `tools/run-c002-dry-run-suite.ps1`: 无数据库的 C002 动态资产 dry-run 入口。
 
-在这些任务完成前，真实可执行入口是文档门禁：
+快速文档/配置门禁：
 
 ```powershell
 python -c "import csv; list(csv.DictReader(open('tasks/backlog.csv', encoding='utf-8-sig'))); print('csv ok')"
