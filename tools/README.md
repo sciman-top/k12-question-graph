@@ -30,6 +30,16 @@ It starts temporary
 API processes for API smoke steps, so `PGPASSWORD` must match the local PostgreSQL
 password.
 
+C002 dynamic assets dry-run suite:
+
+```powershell
+.\tools\run-c002-dry-run-suite.ps1
+```
+
+This runs source material admission, replacement mapping, migration impact,
+candidate admission, and activation guard contracts without requiring database
+access. It does not replace full gate database checks.
+
 Golden import regression:
 
 ```powershell
