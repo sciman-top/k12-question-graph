@@ -54,6 +54,8 @@ C002 active 前必须先完成 C002S 正式化前审查闭环：抽样核对 201
 
 真实导入是中风险持久化动作，执行顺序固定为：确认 `git status`、设置正确 `PGPASSWORD/KQG_CONNECTION_STRING`、先运行 dry-run、执行备份或至少生成可恢复 manifest、再运行 `tools/import-c002-source-materials.ps1 -Apply`。若数据库密码缺失或不匹配，导入必须停在 dry-run 和任务更新层，不得绕过来源证据链直接导入候选知识点。
 
+P5 已在 draft/test 模式完成 F001-F003：学生/班级/考试模型、synthetic Excel 字段映射导入、得分率、区分度和知识点掌握摘要均已通过合同门禁。当前 F003 只写 `docs/evidence/f003-knowledge-mastery-analysis-report.json` 和临时 summary，不写正式历史学情，不使用真实学生数据。
+
 ## P0 · 工程骨架与最小上传纵切
 
 目标：证明技术栈、数据路径、任务路径、文件路径和备份路径能在 Windows 本机/LAN 场景跑通。
