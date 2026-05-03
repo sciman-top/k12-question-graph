@@ -40,7 +40,7 @@ AI 推荐保留当前 P0-P6 大方向，但调整顺序和验收口径：
 
 来源资料采用双证据链：ChatGPT Web 或其他外部 AI 可以先把 PDF 提炼成结构化候选表，但这些结果只能导入为 `candidate/pending_review/productionEligible=false`；本项目必须同时通过来源资料工作台上传原始 PDF/docx/image，保存 `sha256/sourceType/region/year/page/question evidence` 后，才能核验、映射、影响评估并进入 `reviewed/active`。
 
-截至 2026-05-03，`D:\CODE\k12-question-graph\广州中考` 已完成 C002J 真实来源资料导入：课程标准 1 份、教材 3 份、广州中考年报 10 份、广州中考真题/答案/解析 19 份，共 33 个 PDF，已进入 `SourceDocument/FileAsset` 证据层，真实 `material_batch_key` 为 `guangzhou_physics_2016_2025`。C002K 也已把 `c002-k12-question-graph-candidate-csvs\cleaned` 中的候选资产写入候选 DB：92 个 `candidate` 动态资产、55 条 `pending_review` 映射、1 个 `pending_review` migration 计划和 1 个审核队列项。正式 C002 仍不得标记为完成或 active，必须等人工审核、影响确认、回滚快照和 active guard 全部通过。
+截至 2026-05-03，`D:\CODE\k12-question-graph\广州中考` 已完成 C002J 真实来源资料导入：课程标准 1 份、教材 3 份、广州中考年报 10 份、广州中考真题/答案/解析 19 份，共 33 个 PDF，已进入 `SourceDocument/FileAsset` 证据层，真实 `material_batch_key` 为 `guangzhou_physics_2016_2025`。C002K 也已把旧 `c002-k12-question-graph-candidate-csvs\cleaned` 候选资产写入候选 DB：92 个 `candidate` 动态资产、55 条 `pending_review` 映射、1 个 `pending_review` migration 计划和 1 个审核队列项。后续 `guangzhou-physics-full-research-package-2016-2025\csv` 提供了更完整的 C003 研究包数据，`tools/prepare-c002-candidate-csvs.ps1` 可把它转换成既有 C002 candidate import 输入，用于替换旧残缺候选数据；转换后的数据仍只能保持 `candidate/pending_review/productionEligible=false`，DB 写入必须先通过 source hash 对齐 dry-run、备份 manifest 和 active guard。正式 C002 仍不得标记为完成或 active，必须等人工审核、影响确认、回滚快照和 active guard 全部通过。
 
 C002 的“正式完成”定义为：初中物理 L1-L3 知识体系 v1 已通过来源证据、人工审核、映射影响、回滚快照和 active guard，成为当前生产默认版本。它不表示永久冻结。后续教材、课标、考情或教师修正都应进入新的 `candidate` 版本，通过 `equivalent/split/merge/broader/narrower/renamed/deprecated` 映射、影响报告、审核和回滚快照后，再切换 active；旧 active 版本继续保留用于历史题目、旧卷复现、学情解释和回滚。
 

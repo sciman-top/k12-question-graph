@@ -50,6 +50,7 @@ C002 candidate CSV cleanup:
 
 ```powershell
 .\tools\prepare-c002-candidate-csvs.ps1
+.\tools\prepare-c002-candidate-csvs.ps1 -InputDir 'guangzhou-physics-full-research-package-2016-2025\csv' -OutputDir 'c002-k12-question-graph-candidate-csvs\cleaned'
 ```
 
 This validates and normalizes ChatGPT Web extracted candidate CSVs from
@@ -57,6 +58,12 @@ This validates and normalizes ChatGPT Web extracted candidate CSVs from
 `c002-k12-question-graph-candidate-csvs\cleaned`, and keeps all rows as
 `pending_review` and non-production. The cleaned files are input for the later
 C002K candidate DB import, not formal activation evidence by themselves.
+When the input directory contains `c003-source-material.csv`, the same command
+also accepts the complete Guangzhou physics C003 full research package and
+converts `c003-*full` files into the existing C002 candidate import shape. This
+is a candidate-data replacement path only; it still requires source hash
+alignment, human review, impact confirmation, rollback evidence, and active
+guard before any production activation.
 
 C002 real source material import:
 

@@ -49,10 +49,11 @@ C002 候选资料与真实来源资料入口：
 
 ```powershell
 .\tools\prepare-c002-candidate-csvs.ps1
+.\tools\prepare-c002-candidate-csvs.ps1 -InputDir 'guangzhou-physics-full-research-package-2016-2025\csv' -OutputDir 'c002-k12-question-graph-candidate-csvs\cleaned'
 .\tools\import-c002-source-materials.ps1 -SourceRoot 'D:\CODE\k12-question-graph\广州中考'
 ```
 
-`prepare-c002-candidate-csvs.ps1` 只清洗 ChatGPT Web 提炼出的候选 CSV，输出 `c002-k12-question-graph-candidate-csvs\cleaned`，不写库、不激活正式资产。`import-c002-source-materials.ps1` 默认只 dry-run；真实导入必须先设置正确 `PGPASSWORD/KQG_CONNECTION_STRING` 并保留备份证据，再用 `-Apply -StartApi` 把原始 PDF 导入 `SourceDocument/FileAsset` 证据层。
+`prepare-c002-candidate-csvs.ps1` 只清洗候选 CSV，输出 `c002-k12-question-graph-candidate-csvs\cleaned`，不写库、不激活正式资产。默认兼容旧 `c002-*` 候选包；当输入目录包含 `c003-source-material.csv` 时，会自动把 `guangzhou-physics-full-research-package-2016-2025\csv` 的完整 `c003-*full` 数据转换成既有 C002 candidate import 格式，继续保持 `candidate/pending_review/productionEligible=false`。`import-c002-source-materials.ps1` 默认只 dry-run；真实导入必须先设置正确 `PGPASSWORD/KQG_CONNECTION_STRING` 并保留备份证据，再用 `-Apply -StartApi` 把原始 PDF 导入 `SourceDocument/FileAsset` 证据层。
 
 候选数据写库入口：
 

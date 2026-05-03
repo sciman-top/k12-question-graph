@@ -18,6 +18,29 @@ CSV_FILES = [
     "c002-textbook-chapter.csv",
 ]
 
+C003_FILE_MAP = {
+    "c002-asset-mapping.csv": "c003-asset-mapping.csv",
+    "c002-curriculum-standard.csv": "c003-curriculum-standard-full.csv",
+    "c002-exam-point.csv": "c003-exam-point-full.csv",
+    "c002-formal-knowledge.csv": "c003-knowledge-node-full.csv",
+    "c002-processing-summary.csv": "c003-processing-summary.csv",
+    "c002-textbook-chapter.csv": "c003-textbook-node-full.csv",
+}
+
+EXTERNAL_AI_HEADERS = [
+    "candidate_id",
+    "task_type",
+    "source_files",
+    "prompt_version",
+    "model",
+    "raw_output_ref",
+    "structured_summary",
+    "confidence",
+    "review_status",
+    "production_eligible",
+    "notes",
+]
+
 
 def read_csv(path):
     with path.open("r", encoding="utf-8-sig", newline="") as handle:
@@ -145,6 +168,57 @@ def material_manifest(source_names):
     }, mapping
 
 
+def normalize_c003_source_type(source_type):
+    if source_type == "exam_year_report":
+        return "exam_analysis_report"
+    if source_type == "answer_or_solution":
+        return "local_exam_paper"
+    return source_type or "unknown"
+
+
+def c003_material_manifest(source_rows):
+    materials = []
+    mapping = {}
+    for row in source_rows:
+        material_id = row["source_material_id"].strip()
+        source_file = row["source_file"].strip()
+        source_type = normalize_c003_source_type(row.get("source_type", "").strip())
+        mapping[material_id] = material_id
+        materials.append(
+            {
+                "materialId": material_id,
+                "originalFileName": source_file,
+                "sourceType": source_type,
+                "title": Path(source_file).stem,
+                "publisherOrAuthority": row.get("publisher_or_authority", "") or "pending_source_workbench_review",
+                "editionOrVersion": row.get("version", "") or "pending_source_workbench_review",
+                "year": int(row["year"]) if row.get("year", "").strip().isdigit() else None,
+                "region": row.get("region", ""),
+                "gradeOrScope": row.get("stage", "junior_middle_school"),
+                "localPath": f"D:/KQG_Data/source_materials/staging/{source_file}",
+                "sha256": "RESOLVED_FROM_IMPORTED_SOURCE_DOCUMENT",
+                "licenseOrPermission": "pending_source_workbench_review",
+                "sharingAllowed": False,
+                "containsStudentPii": False,
+                "anonymizationStatus": "not_applicable",
+                "mayUseForKnowledgeExtraction": source_type in {"textbook", "curriculum_standard", "local_exam_paper"},
+                "mayUseForExamPointExtraction": source_type in {"local_exam_paper", "exam_analysis_report"},
+                "mayUseForTrendAnalysis": source_type in {"local_exam_paper", "exam_analysis_report"},
+                "notes": row.get("notes", "Generated from C003 full research package source inventory."),
+            }
+        )
+
+    return {
+        "manifestVersion": "knowledge-source-materials.v1",
+        "purpose": "C002 source-derived junior physics ontology candidate import from C003 full research package",
+        "subject": "physics",
+        "stage": "junior_middle_school",
+        "region": "Guangzhou",
+        "reviewOwner": "pending_teacher_or_group_review",
+        "materials": materials,
+    }, mapping
+
+
 def replace_material_refs(value, material_ids):
     refs = []
     for item in split_multi(value):
@@ -193,6 +267,63 @@ def clean_mappings(rows):
             row["rollback_required"] = "true"
             changed_related.append(row["mapping_id"])
     return changed_related
+
+
+def ensure_curriculum_refs(cleaned):
+    curriculum_rows, curriculum_headers = cleaned["c002-curriculum-standard.csv"]
+    knowledge_rows, _knowledge_headers = cleaned["c002-formal-knowledge.csv"]
+    existing = {row["stable_id"] for row in curriculum_rows}
+    added = []
+    for row in knowledge_rows:
+        for ref in split_multi(row.get("curriculum_refs", "")):
+            if ref in existing or not re.fullmatch(r"CS-C003-\d+", ref):
+                continue
+            parent_row = {
+                "stable_id": ref,
+                "parent_stable_id": "",
+                "title": row.get("title", ref),
+                "subject": row.get("subject", "physics"),
+                "stage": row.get("stage", "junior_middle_school"),
+                "standard_version": "2022年版2025年修订",
+                "authority": "教育部",
+                "standard_section": f"四-课程内容-{ref.removeprefix('CS-C003-')}",
+                "requirement_type": "content_group",
+                "behavior_verb": "",
+                "ability_dimensions": "",
+                "source_material_ids": row.get("source_material_ids", ""),
+                "evidence_locations": row.get("evidence_locations", ""),
+                "knowledge_stable_ids": row.get("stable_id", ""),
+                "review_status": "pending_review",
+                "production_eligible": "false",
+                "notes": "generated candidate parent curriculum row from C003 knowledge curriculum_refs; requires human review",
+            }
+            curriculum_rows.append({header: parent_row.get(header, "") for header in curriculum_headers})
+            existing.add(ref)
+            added.append(ref)
+    return added
+
+
+def read_candidate_inputs(input_dir):
+    if (input_dir / "c003-source-material.csv").exists():
+        all_rows = {}
+        for output_name, input_name in C003_FILE_MAP.items():
+            path = input_dir / input_name
+            if not path.exists():
+                raise FileNotFoundError(path)
+            all_rows[output_name] = read_csv(path)
+        all_rows["c002-external-ai-candidate.csv"] = ([], EXTERNAL_AI_HEADERS)
+        source_rows, _headers = read_csv(input_dir / "c003-source-material.csv")
+        manifest, material_ids = c003_material_manifest(source_rows)
+        return all_rows, manifest, material_ids, "c003_full_research_package"
+
+    all_rows = {}
+    for name in CSV_FILES:
+        path = input_dir / name
+        if not path.exists():
+            raise FileNotFoundError(path)
+        all_rows[name] = read_csv(path)
+    manifest, material_ids = material_manifest(collect_source_names(all_rows))
+    return all_rows, manifest, material_ids, "c002_candidate_package"
 
 
 def build_trend_rows(mapping_rows):
@@ -307,7 +438,9 @@ def report_text(stats, issues):
         "",
         "## Fixes Applied",
         "",
+        f"- Input package profile: {stats['input_profile']}",
         f"- Cleared curriculum `parent_stable_id` values that pointed to knowledge IDs: {stats['curriculum_parent_fixes']}",
+        f"- Generated missing C003 parent curriculum rows from knowledge refs: {stats['generated_curriculum_parent_rows']}",
         f"- Converted `mapping_type=related` to `broader` with notes and pending review: {stats['related_mapping_fixes']}",
         f"- Generated trend summary rows for dangling `trend_summary` mappings: {stats['trend_summary_rows']}",
         f"- Generated source material manifest entries: {stats['manifest_materials']}",
@@ -343,14 +476,7 @@ def main():
         shutil.rmtree(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    all_rows = {}
-    for name in CSV_FILES:
-        path = input_dir / name
-        if not path.exists():
-            raise FileNotFoundError(path)
-        all_rows[name] = read_csv(path)
-
-    manifest, material_ids = material_manifest(collect_source_names(all_rows))
+    all_rows, manifest, material_ids, input_profile = read_candidate_inputs(input_dir)
 
     cleaned = {}
     curriculum_parent_fixes = []
@@ -367,9 +493,10 @@ def main():
             related_mapping_fixes = clean_mappings(rows)
         cleaned[name] = (rows, headers)
 
+    generated_curriculum_parent_rows = ensure_curriculum_refs(cleaned)
+
     trend_rows, trend_headers = build_trend_rows(cleaned["c002-asset-mapping.csv"][0])
-    if trend_rows:
-        cleaned["c002-trend-summary.csv"] = (trend_rows, trend_headers)
+    cleaned["c002-trend-summary.csv"] = (trend_rows, trend_headers)
 
     for name, (rows, headers) in cleaned.items():
         write_csv(output_dir / name, rows, headers)
@@ -380,7 +507,9 @@ def main():
     issues = validate(cleaned)
     stats = {
         "generated_files": sorted([path.name for path in output_dir.glob("*")]),
+        "input_profile": input_profile,
         "curriculum_parent_fixes": len(curriculum_parent_fixes),
+        "generated_curriculum_parent_rows": len(generated_curriculum_parent_rows),
         "related_mapping_fixes": len(related_mapping_fixes),
         "trend_summary_rows": len(trend_rows),
         "manifest_materials": len(manifest["materials"]),

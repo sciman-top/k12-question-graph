@@ -67,6 +67,7 @@ backups/
 *.zip
 *.7z
 *.rar
+c002-k12-question-graph-candidate-csvs/
 
 # Real C002 source materials and local manifests stay outside git.
 configs/knowledge/source-material-manifest.local.json
