@@ -308,7 +308,8 @@
 - C002P 分层模型路由预算门禁。暂缓：已先落 `tools/run-c002p-model-budget-guard.ps1` 预检查，固化 L0-L4 默认模型、reasoning、升级目标、dry-run token 上限、L4 数量上限、cache key 和 full extraction 人工预算确认；完整 C002P 仍等待 C002N chunk/cache 与 C002O schema/eval 产出真实 token 估算后再标记完成。
 - C002Q0 真实模型调用与 outer subagent 编排 readiness。暂缓：在不启用项目内生产真实模型的前提下，先定义外层 AI runner/subagent 编排合同，要求批次 manifest 记录模型角色、reasoning、预算、sample rate、输入/输出 artifact、evidence anchor、cache hit、no active write 和人工审核边界；subagent 只作为外层并行执行与复核方式，不成为项目运行时依赖。
 - C002Q 小批量 AI extract dry-run。暂缓：只用少量课标、教材、年报、真题 chunk 跑分层提炼，输出新的 `candidate/pending_review/production_eligible=false` batch，记录模型、reasoning、token、成本和缓存命中，不覆盖 C002K；执行前必须通过 C002Q0 编排 readiness。
-- C002 正式知识点初始化。暂缓：只有 C002L 报告的 hard blockers 清零后，才能把候选 v1 切成 `active` 并把 C002 标记为已完成。完成后旧版本仍保留用于历史题目、旧卷、学情解释和回滚。
+- C002S 广州物理正式化前审查闭环。暂缓：抽样核对 2016-2025 每年 2-3 道题的原卷、答案、年报页码、考点、知识点、教材/课标映射；把 210 条年报页码/指标质量问题清零；再跑 candidate DB dry-run、备份 manifest、审核队列 readiness 和 active guard。未通过前只能保持 `candidate/pending_review/production_eligible=false`。
+- C002 正式知识点初始化。暂缓：只有 C002S、C002L 报告的 hard blockers 清零后，才能把候选 v1 切成 `active` 并把 C002 标记为已完成。完成后旧版本仍保留用于历史题目、旧卷、学情解释和回滚。
 - C002R 知识体系版本治理与便捷修订闭环。暂缓到 C002 v1 active 后：面向教材、课标、中考趋势或教师修正的后续修改，新建 candidate 版本，使用 `equivalent/split/merge/broader/narrower/renamed/deprecated` 映射，生成影响报告和 rollback snapshot，经审核后切换 active。
 - C003 公式、实验、方法、易错点。
 - C004 教材章节映射。
