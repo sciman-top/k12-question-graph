@@ -26,6 +26,7 @@ The gate also covers `b001 duplicate upload smoke`, `b002 adapter contract smoke
 `c002b replacement mapping contract`, `c002c migration impact contract`,
 `c002d source-derived admission contract`, `c002e activation guard contract`,
 `c002h mapping review workbench contract`,
+`local-first ai consumption guard`,
 `c002 junior physics draft bootstrap guard`, and
 `d001 model router draft-test contract`, and
 `d002 ai job cost contract`, and

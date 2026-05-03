@@ -302,7 +302,8 @@
 - C002K C002 cleaned candidate 自动导入 candidate DB。已完成：以 `c002-k12-question-graph-candidate-csvs\cleaned` 为输入，写入 92 个候选动态资产、55 条 `pending_review` 映射、1 个 `pending_review` migration 计划和 1 个 `c002_candidate_import` 审核队列项。所有资产保持 `candidate`，所有映射保持 `pending_review/auto_applied=false`，`active` 数量为 0；正式 C002 仍需人工审核、影响确认和激活 guard。
 - C002L 候选审核与激活前检查合同。已完成：`tools/run-c002l-candidate-review-readiness.ps1` 从真实 DB 读取 C002K 批次，报告候选资产、待审映射、migration、审核队列、来源 hash、rollback snapshot 和 active guard 阻断原因。该合同明确 C002 完成是“可治理的 v1 active 当前默认版本”，不是永久冻结；后续修改必须新建候选版本并通过映射、影响报告、审核、回滚和 active 切换。
 - C002M 候选审核 apply/rollback 合同。已完成：`tools/run-c002m-candidate-review-apply-contract.ps1` 从真实候选批次生成 `approve/reject/keep_pending` 审核决策合同，要求批准/驳回必须有 `reviewReason`，真实 apply 必须提供决策文件，默认只 dry-run；合同包含 asset、mapping、migration 的回滚口径，并持续禁止 active 激活。
-- C002N 来源 chunk/extraction cache。暂缓：对 33 个来源文件做页级文本/OCR/块类型/hash/页码/来源定位和去重缓存，不调用外部 AI；这是控制 token 和保证复跑一致性的前置任务。
+- C002N0 本地优先 AI 消耗削减审查。已完成：`docs/67_LocalFirstAIConsumptionReductionReview.md` 明确文件 hash、来源 metadata、CSV/JSON/YAML/schema、SQL、导入幂等、active guard、chunk/cache、token 预算和中文显示 guard 都应本地 100% 覆盖；外部 AI 只处理语义提炼、复杂映射和高风险仲裁。`tools/run-local-first-ai-guard.ps1` 已纳入 full gate。
+- C002N 来源 chunk/extraction cache。暂缓：对 33 个来源文件做页级文本/OCR/块类型/hash/页码/来源定位和去重缓存，不调用外部 AI，报告摘要和失败原因默认中文；这是控制 token 和保证复跑一致性的前置任务。
 - C002O 大模型提炼 schema + eval golden sample。暂缓：定义候选知识点、课标条目、教材章节、考点、趋势摘要和映射建议的结构化输出 schema，小样本 eval 先验证字段、边界和 `pending_review` 口径。
 - C002P 分层模型路由预算门禁。暂缓：把 L0 本地、L1 低成本筛查、L2 结构化提炼、L3 体系合并、L4 高风险仲裁的模型/reasoning/预算/缓存/升级规则固化为配置和 gate，超预算 fail closed。
 - C002Q 小批量 AI extract dry-run。暂缓：只用少量课标、教材、年报、真题 chunk 跑分层提炼，输出新的 `candidate/pending_review/production_eligible=false` batch，记录模型、reasoning、token、成本和缓存命中，不覆盖 C002K。

@@ -7,19 +7,26 @@
 ## 2. 处理层级
 
 ```text
-规则/本地算法
-→ 本地 OCR/文档解析
-→ 小模型
-→ 中模型
-→ 强模型
+L0 规则/本地算法/SQL/schema/hash/cache
+→ L0 本地 OCR/文档解析
+→ L1 低成本模型筛查异常
+→ L2 中模型结构化提炼
+→ L3 中强模型合并与复杂映射
+→ L4 强模型高风险仲裁
 → 人工确认
 ```
+
+L0 不调用外部 AI。能由 CSV parser、JSON/YAML/schema、SQL、hash、regex、diff、chunk cache、active guard 或中文显示 guard 判断的环节，必须先由本地工具 100% 覆盖。
 
 ## 3. 任务路由
 
 | 任务 | 默认策略 |
 |---|---|
 | 文件去重 | hash 规则 |
+| 来源 metadata 初筛 | 文件名/目录/年份规则 + 人工修正 |
+| CSV/Excel 字段、枚举、重复 ID、外键 | parser/schema/SQL |
+| C002 chunk/cache | 本地抽取、页码、chunk hash、去重 |
+| UI/报告中文显示 | 展示层 label map + local-first guard |
 | 总分/题号连续检查 | 程序规则 |
 | 普通 OCR | 本地 OCR |
 | 版面初解析 | Docling/PaddleOCR |
@@ -116,6 +123,8 @@ teacher_modified
 7. 低价值任务不用强模型。
 8. 人工已经标记的结果不再重复让 AI 判断。
 9. 任务级显示预计成本：低/中/高。
+10. C002N/O/P 在默认路径不调用外部 AI；C002Q 才允许小批量 dry-run，且必须先通过 C002N0/C002N/C002O/C002P。
+11. 教师可见界面、报告摘要、导入/导出结果和失败原因默认中文；内部英文枚举只用于 contract 和存储。
 
 ## 6. 教师可见界面
 

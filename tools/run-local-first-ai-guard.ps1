@@ -38,7 +38,7 @@ try {
         'queued: ''排队中''',
         'single_choice: ''单选题''',
         'draft_test: ''草稿测试''',
-        'productionEligible=false'
+        '不进入生产'
     )) {
         if (-not $app.Contains($pattern)) {
             throw "web Chinese display mapping missing pattern: $pattern"

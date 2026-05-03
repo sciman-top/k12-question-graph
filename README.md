@@ -12,7 +12,7 @@
 
 `C002` 标记为正式完成时，只表示初中物理知识体系 v1 已成为当前生产默认版本，不表示永久冻结。后续修改必须走新候选版本、映射、影响报告、审核、回滚快照和 active 切换，旧版本保留给历史题目、旧卷和学情解释。
 
-大模型提炼候选体系要先走本地 chunk/hash/cache、schema/eval、模型路由预算和小批量 dry-run，不直接把 33 个 PDF 全量送入高强模型。真实输出仍只能进入 `candidate/pending_review`，不得直接 active。
+大模型提炼候选体系要先走本地优先审查、chunk/hash/cache、schema/eval、模型路由预算和小批量 dry-run，不直接把 33 个 PDF 全量送入高强模型。文件 hash、来源 metadata、CSV/JSON/YAML/schema、SQL、导入幂等、active guard、chunk cache、token 预算和中文显示 guard 都应先由本地工具 100% 覆盖；真实模型输出仍只能进入 `candidate/pending_review`，不得直接 active。
 
 ## 当前启动与门禁
 
@@ -153,6 +153,7 @@ tests/      自动化测试与黄金样本
 - `tools/import-c002-candidate-assets.ps1`: C002 cleaned candidate DB dry-run / apply 入口。
 - `tools/run-c002l-candidate-review-readiness.ps1`: C002 candidate review readiness / active blocker 报告入口。
 - `tools/run-c002m-candidate-review-apply-contract.ps1`: C002 candidate review decision apply/rollback 合同入口。
+- `tools/run-local-first-ai-guard.ps1`: 本地优先 AI 消耗削减与中文显示 guard。
 
 快速文档/配置门禁：
 

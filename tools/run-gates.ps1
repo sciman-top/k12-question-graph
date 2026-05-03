@@ -159,6 +159,10 @@ try {
         .\tools\run-roadmap-guard.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'local-first ai consumption guard' {
+        .\tools\run-local-first-ai-guard.ps1 | Write-Host
+    }
+
     Invoke-GateStep 'c002 source material admission guard' {
         .\tools\run-c002-source-material-guard.ps1 | Write-Host
     }

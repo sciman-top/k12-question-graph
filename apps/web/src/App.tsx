@@ -239,7 +239,7 @@ const initialPaperUnderstanding = {
   reviewQuestions: [
     '是否需要限定教材版本或章节范围？',
     '是否需要排除最近已练过的题目？',
-    '是否确认使用 draft_test 细目表继续生成试卷草稿？',
+    '是否确认使用草稿测试细目表继续生成试卷草稿？',
   ],
 }
 
@@ -390,10 +390,10 @@ function App() {
           <section className="status-panel" aria-label="系统状态">
             <div className="status-strip">
               <div>
-                <Typography.Text type="secondary">ImportJob</Typography.Text>
+                <Typography.Text type="secondary">导入任务</Typography.Text>
                 <Typography.Title level={3}>0</Typography.Title>
               </div>
-              <Badge status="processing" text="API /health ready" />
+              <Badge status="processing" text="服务已就绪" />
             </div>
 
             <Alert
@@ -424,7 +424,7 @@ function App() {
               <div>
                 <Typography.Title level={2}>题库检索</Typography.Title>
                 <Typography.Text type="secondary">
-                  draft_test 先验证题卡筛选合同，正式知识点激活后再进入生产筛题。
+                  草稿测试先验证题卡筛选合同，正式知识点激活后再进入生产筛题。
                 </Typography.Text>
               </div>
               <Button icon={<SearchOutlined />}>检索</Button>
@@ -441,7 +441,7 @@ function App() {
                 0.4-0.7
               </button>
               <button className="filter-chip" data-filter="source" type="button">
-                synthetic
+                示例来源
               </button>
             </div>
 
@@ -453,10 +453,10 @@ function App() {
                     <small>{card.knowledge}</small>
                   </span>
                   <span className="question-meta">
-                    <Tag>{card.type}</Tag>
+                    <Tag>{labelFor(card.type)}</Tag>
                     <Tag>{card.difficulty}</Tag>
-                    <Tag>{card.source}</Tag>
-                    <Tag color="green">{card.status}</Tag>
+                    <Tag>{labelFor(card.source)}</Tag>
+                    <Tag color="green">{labelFor(card.status)}</Tag>
                   </span>
                 </button>
               ))}
@@ -472,12 +472,12 @@ function App() {
               <div>
                 <Typography.Title level={2}>自然语言组卷</Typography.Title>
                 <Typography.Text type="secondary">
-                  先展示系统理解和细目表草稿，draft_test 不写生产组卷口径。
+                  先展示系统理解和细目表草稿，草稿测试不写生产组卷口径。
                 </Typography.Text>
               </div>
               <Space size="small" wrap>
                 <Tag color="green">{paperUnderstanding.mode}</Tag>
-                <Tag>productionEligible=false</Tag>
+                <Tag data-contract="productionEligible=false">不进入生产</Tag>
               </Space>
             </div>
 
@@ -525,11 +525,11 @@ function App() {
                 <div className="blueprint-table" data-contract="blueprint-draft">
                   {paperUnderstanding.blueprint.map((row) => (
                     <div className="blueprint-row" key={row.questionType}>
-                      <strong>{row.questionType}</strong>
+                      <strong>{labelFor(row.questionType)}</strong>
                       <span>{row.count} 题</span>
                       <span>{row.score} 分</span>
-                      <Tag>{row.assetStatus}</Tag>
-                      <Tag color="orange">{row.reviewStatus}</Tag>
+                      <Tag>{labelFor(row.assetStatus)}</Tag>
+                      <Tag color="orange">{labelFor(row.reviewStatus)}</Tag>
                     </div>
                   ))}
                 </div>
@@ -552,7 +552,7 @@ function App() {
               <div>
                 <Typography.Title level={2}>来源资料工作台</Typography.Title>
                 <Typography.Text type="secondary">
-                  同一上传链路按资料类型分组，ChatGPT Web 初提炼只作为 candidate。
+                  同一上传链路按资料类型分组，外部 AI（含 ChatGPT Web）初提炼只作为候选数据。
                 </Typography.Text>
               </div>
               <Space size="small" wrap>
@@ -583,7 +583,7 @@ function App() {
                     <select defaultValue="local_exam_paper" aria-label="资料类型">
                       {sourceMaterialTypes.map((item) => (
                         <option key={item.type} value={item.type}>
-                          {item.type}
+                          {item.title}
                         </option>
                       ))}
                     </select>
@@ -602,10 +602,10 @@ function App() {
                   </label>
                 </div>
                 <div className="source-permission-row">
-                  <Tag>mayUseForKnowledgeExtraction</Tag>
-                  <Tag>mayUseForExamPointExtraction</Tag>
-                  <Tag>mayUseForTrendAnalysis</Tag>
-                  <Tag>productionEligible=false</Tag>
+                  <Tag>可用于知识点提炼</Tag>
+                  <Tag>可用于考点提炼</Tag>
+                  <Tag>可用于趋势分析</Tag>
+                  <Tag data-contract="productionEligible=false">不进入生产</Tag>
                 </div>
                 <Button icon={<CloudUploadOutlined />} data-action="upload-source-material">
                   上传来源资料
@@ -618,10 +618,10 @@ function App() {
                     <span>
                       <strong>{item.title}</strong>
                       <small>
-                        {item.sourceType} · {item.region} · {item.year}
+                        {labelFor(item.sourceType)} · {item.region} · {item.year}
                       </small>
                     </span>
-                    <Tag color="green">{item.status}</Tag>
+                    <Tag color="green">{labelFor(item.status)}</Tag>
                   </div>
                 ))}
               </div>
@@ -755,13 +755,13 @@ function App() {
                   <Alert
                     showIcon
                     type="warning"
-                    message="Adapter 失败可人工接管"
-                    description="保留原始文件、SourceRegion 和 diagnostics，教师继续处理当前导入。"
+                    message="解析器失败可人工接管"
+                    description="保留原始文件、来源区域和诊断信息，教师继续处理当前导入。"
                   />
                   <div className="diagnostics-row">
-                    <Tag>adapter_failed</Tag>
+                    <Tag data-diagnostic="adapter_failed">解析器失败</Tag>
                     <Typography.Text type="secondary">
-                      stderr: layout block parse timeout
+                      诊断：版面块解析超时
                     </Typography.Text>
                   </div>
                   <div className="takeover-actions">
@@ -777,7 +777,7 @@ function App() {
                     <Button onClick={() => takeoverFailure('跳过当前页')} data-action="skip-page">
                       跳过
                     </Button>
-                    <Button onClick={() => takeoverFailure('重跑 Adapter')} data-action="rerun-adapter">
+                    <Button onClick={() => takeoverFailure('重跑解析器')} data-action="rerun-adapter">
                       重跑
                     </Button>
                   </div>

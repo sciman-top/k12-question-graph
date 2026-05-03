@@ -9,7 +9,7 @@
 采用成本优先、质量兜底。这里的“最佳”指稳定路由策略最佳，不指某个模型名永久最佳；模型名只是当前可用性、价格和质量下的默认映射。
 
 ```text
-规则/脚本/SQL
+规则/脚本/SQL/schema/hash/cache/中文显示 guard
 -> gpt-5.4-mini 批量初筛
 -> gpt-5.3-codex 工程导入和复杂映射
 -> gpt-5.4 高风险复核
@@ -20,10 +20,11 @@
 稳定决策顺序：
 
 1. 能由 CSV parser、JSON Schema、SQL、hash、diff 或 gate 判断的，先用确定性工具 100% 检查。
-2. 批量低风险内容只用低成本模型做初筛，并把失败样本、低置信度样本和异常类别收敛出来。
-3. 需要结合来源、映射、迁移影响、导入脚本或回滚脚本的任务，使用中强模型抽样或逐项复核。
-4. 影响正式激活、长期学情口径、跨学科资产模型或不可轻易回滚的事项，才升级到强模型或最高档模型。
-5. 模型输出不得替代来源证据、schema gate、migration impact、人工审核和 rollback evidence。
+2. 能由本地 chunk/cache、页码、题号、来源 hash、枚举映射和中文展示层 label 判断的，不调用外部 AI。
+3. 批量低风险内容只用低成本模型做初筛，并把失败样本、低置信度样本和异常类别收敛出来。
+4. 需要结合来源、映射、迁移影响、导入脚本或回滚脚本的任务，使用中强模型抽样或逐项复核。
+5. 影响正式激活、长期学情口径、跨学科资产模型或不可轻易回滚的事项，才升级到强模型或最高档模型。
+6. 模型输出不得替代来源证据、schema gate、migration impact、人工审核和 rollback evidence。
 
 当前模型名可以随技术变化替换，但替换必须保持这些角色不变：`bulk_prefilter_model`、`engineering_review_model`、`high_risk_review_model`、`highest_risk_decision_model`。
 
@@ -31,6 +32,7 @@
 
 | 任务 | 当前推荐模型 | 默认检查/抽样 | 何时升级 |
 | --- | --- | --- | --- |
+| 文件 hash、来源 metadata、CSV/JSON/YAML/schema、SQL、导入幂等、中文显示 guard | 不用外部 AI | 本地工具 100% | 只有本地失败原因需要解释时才给低成本模型看失败样本 |
 | CSV 字段、枚举、重复 ID、空来源字段检查 | `gpt-5.4-mini` | 脚本 100%；AI 只看失败样本 | 错误原因不清，升 `gpt-5.3-codex` |
 | ChatGPT Web 候选表批量初筛 | `gpt-5.4-mini` | 低风险行 5%-10%；低置信度/异常行 100% | 出现体系混淆，升 `gpt-5.3-codex` |
 | 大批量机械清洗、拆文件、改列名 | `gpt-5.3-codex-spark` | 变更 diff/gate 100%；语义行不自动改 | 需要语义判断时，升 `gpt-5.4-mini` 或 `gpt-5.3-codex` |
