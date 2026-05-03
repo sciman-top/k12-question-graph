@@ -85,6 +85,20 @@ is a candidate-data replacement path only; it still requires source hash
 alignment, human review, impact confirmation, rollback evidence, and active
 guard before any production activation.
 
+C003 quality-review overlay:
+
+```powershell
+.\tools\merge-c003-quality-review-package.ps1 -Force
+```
+
+This overlays `guangzhou-physics-full-research-package-2016-2025\quality-review-complete-csv-package`
+onto the complete C003 CSV package and writes the merged candidate package to
+`D:\KQG_Data\candidate_packages\c003-merged-quality-review-2016-2025`.
+The overlay preserves core ontology and mapping CSVs from the full package,
+then applies the reviewed question, answer, year-report, source, and quality
+issue evidence tables. It does not write the database and does not activate
+C002.
+
 C002 real source material import:
 
 ```powershell
@@ -153,13 +167,16 @@ C002S formalization precheck:
 .\tools\run-c002s-formalization-precheck.ps1
 ```
 
-This reads the complete Guangzhou physics C003 candidate CSV package, samples
+This reads the complete Guangzhou physics C003 candidate CSV package. When
+`quality-review-complete-csv-package` exists, it first creates the merged
+overlay package through `merge-c003-quality-review-package.ps1`, then samples
 three questions per year for 2016-2025, checks exam stem, answer source,
 year-report page anchor, exam point, knowledge point, curriculum, and textbook
 references, then writes
 `docs/evidence/c002s-formalization-precheck-report.json`. The current expected
-state is `blocked`: sample evidence passes, but 210 year-report page/metric
-quality issues remain open, so production activation must stay blocked.
+C002S state is `pass`: sample evidence passes and 210 year-report page/metric
+quality issues are resolved. Production activation still stays blocked until
+C002L/C002M review blockers and active guard are cleared.
 
 C002 candidate DB import:
 

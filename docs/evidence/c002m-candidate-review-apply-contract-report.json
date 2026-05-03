@@ -1,6 +1,6 @@
 {
   "status": "pass",
-  "checkedAt": "2026-05-03T15:10:54.221765+00:00",
+  "checkedAt": "2026-05-03T17:37:08.378124+00:00",
   "task": "C002M",
   "importKey": "c002_candidate_import_guangzhou_physics_2016_2025_v1",
   "mode": "dry_run",
@@ -17,10 +17,10 @@
     ]
   },
   "before": {
-    "candidateAssets": 92,
+    "candidateAssets": 452,
     "reviewedAssets": 0,
     "activeAssets": 0,
-    "pendingMappings": 55,
+    "pendingMappings": 400,
     "approvedMappings": 0,
     "rejectedMappings": 0,
     "autoAppliedMappings": 0,
@@ -30,10 +30,10 @@
     "openReviewItems": 1
   },
   "after": {
-    "candidateAssets": 92,
+    "candidateAssets": 452,
     "reviewedAssets": 0,
     "activeAssets": 0,
-    "pendingMappings": 55,
+    "pendingMappings": 400,
     "approvedMappings": 0,
     "rejectedMappings": 0,
     "autoAppliedMappings": 0,

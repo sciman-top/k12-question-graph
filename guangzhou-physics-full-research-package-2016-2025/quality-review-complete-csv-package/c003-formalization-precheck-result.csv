@@ -1,0 +1,11 @@
+﻿metric,value
+sampleFailures,0
+qualityIssuesOpenForProduction,0
+productionActivationAllowed,true
+issueRows,210
+evidenceRows,210
+observationRows,210
+evidenceRowsMissingRequiredFields,0
+observationRowsContainingManualPlaceholder,0
+suspiciousEarlyPageRows,0
+note,local CSV precheck only; not external PowerShell C002S script; metrics absent in year report are explicitly marked as confirmed unavailable

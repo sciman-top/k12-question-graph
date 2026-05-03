@@ -50,10 +50,11 @@ C002 候选资料与真实来源资料入口：
 ```powershell
 .\tools\prepare-c002-candidate-csvs.ps1
 .\tools\prepare-c002-candidate-csvs.ps1 -InputDir 'guangzhou-physics-full-research-package-2016-2025\csv' -OutputDir 'c002-k12-question-graph-candidate-csvs\cleaned'
+.\tools\merge-c003-quality-review-package.ps1 -Force
 .\tools\import-c002-source-materials.ps1 -SourceRoot 'D:\CODE\k12-question-graph\广州中考'
 ```
 
-`prepare-c002-candidate-csvs.ps1` 只清洗候选 CSV，输出 `c002-k12-question-graph-candidate-csvs\cleaned`，不写库、不激活正式资产。默认兼容旧 `c002-*` 候选包；当输入目录包含 `c003-source-material.csv` 时，会自动把 `guangzhou-physics-full-research-package-2016-2025\csv` 的完整 `c003-*full` 数据转换成既有 C002 candidate import 格式，继续保持 `candidate/pending_review/productionEligible=false`。`import-c002-source-materials.ps1` 默认只 dry-run；真实导入必须先设置正确 `PGPASSWORD/KQG_CONNECTION_STRING` 并保留备份证据，再用 `-Apply -StartApi` 把原始 PDF 导入 `SourceDocument/FileAsset` 证据层。
+`prepare-c002-candidate-csvs.ps1` 只清洗候选 CSV，输出 cleaned candidate 输入，不写库、不激活正式资产。默认兼容旧 `c002-*` 候选包；当输入目录包含 `c003-source-material.csv` 时，会自动把完整 `c003-*full` 数据转换成既有 C002 candidate import 格式，继续保持 `candidate/pending_review/productionEligible=false`。`merge-c003-quality-review-package.ps1` 会把完整 C003 CSV 包与 `quality-review-complete-csv-package` 合并到 `D:\KQG_Data\candidate_packages\c003-merged-quality-review-2016-2025`，用于复跑 C002S 和生成新 candidate 输入。`import-c002-source-materials.ps1` 默认只 dry-run；真实导入必须先设置正确 `PGPASSWORD/KQG_CONNECTION_STRING` 并保留备份证据，再用 `-Apply -StartApi` 把原始 PDF 导入 `SourceDocument/FileAsset` 证据层。
 
 候选数据写库入口：
 
@@ -166,7 +167,8 @@ tests/      自动化测试与黄金样本
 - `tools/run-c002p-model-budget-guard.ps1`: C002P L0-L4 模型、reasoning、预算和 fail-closed guard。
 - `tools/run-c002q0-outer-ai-readiness.ps1`: C002Q0 真实模型调用与 outer subagent 编排 readiness guard。
 - `tools/run-c002q-ai-extract-dry-run.ps1`: C002Q 小批量 AI extract contract dry-run guard。
-- `tools/run-c002s-formalization-precheck.ps1`: C002S 正式化前抽样核对和质量问题阻断 guard。
+- `tools/merge-c003-quality-review-package.ps1`: C003 完整包与质量复核完成包 overlay 合并入口。
+- `tools/run-c002s-formalization-precheck.ps1`: C002S 正式化前抽样核对和质量问题阻断 guard，默认自动使用质量复核 overlay。
 
 快速文档/配置门禁：
 

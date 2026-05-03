@@ -1,6 +1,6 @@
 {
   "status": "pass",
-  "checkedAt": "2026-05-03T15:10:53.500937+00:00",
+  "checkedAt": "2026-05-03T17:37:07.851543+00:00",
   "task": "C002L",
   "importKey": "c002_candidate_import_guangzhou_physics_2016_2025_v1",
   "materialBatchKey": "guangzhou_physics_2016_2025",
@@ -24,10 +24,10 @@
     ]
   },
   "counts": {
-    "candidateAssets": 92,
+    "candidateAssets": 452,
     "reviewedImportedAssets": 0,
     "activeImportedAssets": 0,
-    "pendingReviewMappings": 55,
+    "pendingReviewMappings": 400,
     "autoAppliedMappings": 0,
     "pendingReviewMigrations": 1,
     "rollbackSnapshots": 1,
@@ -36,14 +36,14 @@
     "sourceDocumentsWithSha256": 33
   },
   "assetsByType": {
-    "curriculum_standard_item": 24,
-    "exam_point": 16,
-    "knowledge_point": 24,
-    "textbook_chapter": 25,
+    "curriculum_standard_item": 138,
+    "exam_point": 63,
+    "knowledge_point": 106,
+    "textbook_chapter": 142,
     "trend_summary": 3
   },
   "mappingsByType": {
-    "broader": 48,
+    "broader": 393,
     "equivalent": 7
   },
   "sourcesByType": {
@@ -56,13 +56,13 @@
     {
       "blockerId": "candidate_assets_pending_review",
       "severity": "hard",
-      "count": 92,
+      "count": 452,
       "nextAction": "review candidate assets and mark approved/rejected before active activation"
     },
     {
       "blockerId": "pending_review_mappings",
       "severity": "hard",
-      "count": 55,
+      "count": 400,
       "nextAction": "approve/reject or revise mapping edges before active activation"
     },
     {

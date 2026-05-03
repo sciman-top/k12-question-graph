@@ -1,12 +1,12 @@
 {
-  "status": "dry_run",
-  "checkedAt": "2026-05-03T13:59:12.973496+00:00",
+  "status": "applied",
+  "checkedAt": "2026-05-03T17:33:14.741928+00:00",
   "task": "C002K",
   "importKey": "c002_candidate_import_guangzhou_physics_2016_2025_v1",
   "materialBatchKey": "guangzhou_physics_2016_2025",
-  "inputRoot": "c002-k12-question-graph-candidate-csvs\\cleaned",
-  "apply": false,
-  "backupManifest": "",
+  "inputRoot": "D:\\KQG_Data\\candidate_packages\\c002-cleaned-from-quality-review",
+  "apply": true,
+  "backupManifest": "D:\\KQG_Backups\\20260504-013307\\manifest.json",
   "summary": {
     "assets": 360,
     "mappings": 345,
@@ -42,8 +42,8 @@
     "activeDomainAssetVersions": 0
   },
   "after": {
-    "domainAssetVersions": 92,
-    "domainAssetMappings": 55,
+    "domainAssetVersions": 452,
+    "domainAssetMappings": 400,
     "domainAssetMigrations": 1,
     "reviewQueueItems": 1,
     "activeDomainAssetVersions": 0
@@ -454,5 +454,7 @@
   "protectedExistingAssets": [],
   "productionActivationAllowed": false,
   "candidateOnly": true,
-  "reportHash": "3c3ace25bd3719863f6b128aaaf7e94ef5c2783c3bdb7cbc0aba7dc9a0f3b786"
+  "reportHash": "7a11d945751391f3d3650490b4cf30d149359362fb60d5afefc47258e50bff3e",
+  "migrationId": "0dc2c308-9006-4311-88b5-893b4ca0a515",
+  "reviewQueueItemId": "88ae94fc-4245-4380-a1bf-b12258b9e001"
 }

@@ -1,8 +1,8 @@
 # AGENTS.md - K12 Question Graph Project Rules
 
-**承接来源**: `GlobalUser/AGENTS.md v9.49`
+**承接来源**: `GlobalUser/AGENTS.md v9.50`
 **适用范围**: `D:\CODE\k12-question-graph`
-**最后更新**: 2026-05-02
+**最后更新**: 2026-05-04
 
 ## 1. 项目定位与当前状态
 
@@ -14,7 +14,7 @@
 
 - 已初始化 Git；`main` 跟踪 `origin/main`。每轮变更前必须检查 `git status --short --branch`，若已有脏改动，先区分用户改动与本轮改动。
 - 当前已有 API、Web、Worker、PostgreSQL/EF Core migrations、FileStore、backup、统一 gate、P1 导入闭环、P2 动态资产合同、P3 draft/test AI 合同和 P4 draft/test 题库检索合同。
-- `C002` 正式知识体系仍为 `暂缓`，但这不得阻断系统能力搭建；所有依赖动态元素的任务都应先以 `draft/test`、`candidate`、`pending_review`、`productionEligible=false` 的方式推进，正式数据录入、映射审核和 active 激活后再切换生产口径。
+- `C002` 正式知识体系仍为 `暂缓`，但这不得阻断系统能力搭建；C002S 质量复核阻断已可通过，当前 blocker 转移到候选资产、映射、migration 和 review queue 的人工审核与 active guard。所有依赖动态元素的任务都应先以 `draft/test`、`candidate`、`pending_review`、`productionEligible=false` 的方式推进，正式数据录入、映射审核和 active 激活后再切换生产口径。
 - 下一最小可执行里程碑按 `tasks/backlog.csv` 顺序推进，优先补齐完整 v0.1 系统闭环；不要因为知识点、标签、题型、难度、模板、评分规则、组织权限、隐私策略等动态元素未来会变化而停工。
 
 ## A. 仓库事实与范围边界
@@ -142,7 +142,7 @@ C002 正式完成前，draft bootstrap 可用于 API/UI/回归测试、组卷约
 python -c "import csv; list(csv.DictReader(open('tasks/backlog.csv', encoding='utf-8-sig'))); print('csv ok')"
 python -c "import json, pathlib; [json.loads(p.read_text(encoding='utf-8')) for p in pathlib.Path('schemas').rglob('*.json')]; print('json ok')"
 python -c "import pathlib, yaml; [yaml.safe_load(p.read_text(encoding='utf-8')) for p in pathlib.Path('configs').rglob('*.yaml')]; print('yaml ok')"
-rg -n "GlobalUser/.*v9.49|A000|A000A|P0|P1" AGENTS.md CLAUDE.md GEMINI.md README.md docs/19_Roadmap.md docs/20_TaskBreakdown.md tasks/backlog.csv
+rg -n "GlobalUser/.*v9.50|A000|A000A|P0|P1" AGENTS.md CLAUDE.md GEMINI.md README.md docs/19_Roadmap.md docs/20_TaskBreakdown.md tasks/backlog.csv
 ```
 
 若 `yaml` 模块不存在，不要安装依赖作为规则修改的副作用；记录 `gate_na`，并用 `rg --files configs -g "*.yaml"` 与 UTF-8 读取作为替代证据。

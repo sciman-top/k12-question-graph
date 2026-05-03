@@ -167,6 +167,13 @@ def main() -> int:
     require(len(quality_issues) == args.expected_quality_issues, f"expected {args.expected_quality_issues} C003 quality issues, got {len(quality_issues)}")
     require(len(sample_results) == len(SAMPLE_YEARS) * args.sample_per_year, "unexpected C002S sample size")
 
+    if blockers:
+        summary_result = "抽样来源核对通过，但年报页码/指标质量问题仍未清零，正式 C002 active 必须继续阻断。"
+        summary_next = "逐条关闭 c003-quality-issue-registry.csv 中的 pending_review 问题，再运行 candidate DB dry-run、backup manifest、C002L readiness 和 active guard。"
+    else:
+        summary_result = "抽样来源核对通过，210 条年报页码/指标质量问题已清零，C002S 正式化前审查通过。"
+        summary_next = "继续运行 candidate DB dry-run、backup manifest、C002L readiness、C002M 审核决策和 active guard；未完成审核前仍不得直接 active。"
+
     report = OrderedDict(
         [
             ("status", "pass" if not blockers else "blocked"),
@@ -187,8 +194,8 @@ def main() -> int:
                 OrderedDict(
                     [
                         ("title", "C002S 广州物理正式化前审查闭环报告"),
-                        ("result", "抽样来源核对通过，但年报页码/指标质量问题仍未清零，正式 C002 active 必须继续阻断。"),
-                        ("next", "逐条关闭 c003-quality-issue-registry.csv 中的 pending_review 问题，再运行 candidate DB dry-run、backup manifest、C002L readiness 和 active guard。"),
+                        ("result", summary_result),
+                        ("next", summary_next),
                     ]
                 ),
             ),
