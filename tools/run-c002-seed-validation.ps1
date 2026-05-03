@@ -10,6 +10,8 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+. (Join-Path $PSScriptRoot 'database-env.ps1')
+$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword
 $resolvedSeedPath = (Resolve-Path -LiteralPath (Join-Path $repoRoot $SeedPath)).Path
 
 if ([string]::IsNullOrWhiteSpace($DatabasePassword)) {

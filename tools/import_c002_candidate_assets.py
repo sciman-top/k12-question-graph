@@ -212,17 +212,30 @@ def build_external_candidates(input_root: pathlib.Path, manifest: dict[str, dict
     return candidates, missing_materials
 
 
-def build_mappings(input_root: pathlib.Path, asset_keys: set[tuple[str, str]]) -> list[dict[str, Any]]:
+def build_mappings(input_root: pathlib.Path, asset_keys: set[tuple[str, str]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     mappings: list[dict[str, Any]] = []
+    skipped_external_source_mappings: list[dict[str, Any]] = []
     for row in read_csv(input_root / "c002-asset-mapping.csv"):
         source_type = row["source_asset_type"].strip()
         target_type = row["target_asset_type"].strip()
         source_key = (source_type, row["source_stable_id"].strip())
         target_key = (target_type, row["target_stable_id"].strip())
-        if source_key not in asset_keys:
-            raise ValueError(f"mapping source asset missing: {row['mapping_id']} -> {source_type}:{source_key[1]}")
         if target_key not in asset_keys:
             raise ValueError(f"mapping target asset missing: {row['mapping_id']} -> {target_type}:{target_key[1]}")
+        if source_key not in asset_keys:
+            if source_type not in ASSET_FILES:
+                skipped_external_source_mappings.append(
+                    {
+                        "mappingId": row["mapping_id"],
+                        "sourceAssetType": source_type,
+                        "sourceStableId": source_key[1],
+                        "targetAssetType": target_type,
+                        "targetStableId": target_key[1],
+                        "impactScope": row.get("impact_scope", ""),
+                    }
+                )
+                continue
+            raise ValueError(f"mapping source asset missing: {row['mapping_id']} -> {source_type}:{source_key[1]}")
         if row.get("review_status", "").strip() != "pending_review":
             raise ValueError(f"mapping must stay pending_review: {row['mapping_id']}")
         if parse_bool(row.get("auto_apply_allowed", "false")):
@@ -246,7 +259,7 @@ def build_mappings(input_root: pathlib.Path, asset_keys: set[tuple[str, str]]) -
                 },
             }
         )
-    return mappings
+    return mappings, skipped_external_source_mappings
 
 
 def get_existing_assets(conn: psycopg.Connection, assets: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -431,7 +444,7 @@ def main() -> int:
         assets, missing_asset_materials = build_assets(input_root, manifest, source_documents_by_name)
         external_candidates, missing_external_materials = build_external_candidates(input_root, manifest, source_documents_by_name)
         asset_keys = {(asset["asset_type"], asset["stable_id"]) for asset in assets}
-        mappings = build_mappings(input_root, asset_keys)
+        mappings, skipped_external_source_mappings = build_mappings(input_root, asset_keys)
 
         missing_materials = sorted(set(missing_asset_materials + missing_external_materials))
         existing_assets = get_existing_assets(conn, assets)
@@ -445,6 +458,9 @@ def main() -> int:
             "missingSourceMaterialIds": len(missing_materials),
             "assetTypes": dict(Counter(asset["asset_type"] for asset in assets)),
             "mappingTypes": dict(Counter(mapping["mapping_type"] for mapping in mappings)),
+            "skippedExternalSourceMappings": len(skipped_external_source_mappings),
+            "skippedExternalSourceMappingTypes": dict(Counter(item["sourceAssetType"] for item in skipped_external_source_mappings)),
+            "skippedExternalSourceImpactScopes": dict(Counter(item["impactScope"] for item in skipped_external_source_mappings)),
         }
         before = current_counts(conn)
 
@@ -461,6 +477,7 @@ def main() -> int:
             "before": before,
             "after": before,
             "missingSourceMaterialIds": missing_materials,
+            "skippedExternalSourceMappings": skipped_external_source_mappings[:50],
             "protectedExistingAssets": protected_existing,
             "productionActivationAllowed": False,
             "candidateOnly": True,

@@ -9,6 +9,8 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+. (Join-Path $PSScriptRoot 'database-env.ps1')
+$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword
 
 if ([string]::IsNullOrWhiteSpace($DatabasePassword)) {
     throw "DatabasePassword or PGPASSWORD is required for D002 AI job cost contract"

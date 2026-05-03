@@ -82,6 +82,49 @@ QUESTION_REPAIRS = {
 }
 
 
+QUESTION_REFERENCE_REPAIRS = {
+    "QPHY-C003-2024-17": {
+        "primary_knowledge_id": "KPHY-C003-046",
+        "secondary_knowledge_ids": "KPHY-C003-044;KPHY-C003-045;KPHY-C003-064;KPHY-C003-065",
+        "primary_exam_point_id": "EPHY-C003-044",
+        "secondary_exam_point_ids": "",
+        "curriculum_item_ids": "CS-C003-2-4-2;CS-C003-2-4-3;CS-C003-3-4-3;CS-C003-4-1-7;CS-C003-4-2-9",
+        "ability_dimensions": "实验探究;规范作图;信息提取;科学推理",
+        "confidence": "0.82",
+        "mapping_knowledge_target": "KPHY-C003-046",
+        "mapping_exam_target": "EPHY-C003-044",
+        "note": "knowledge and curriculum refs repaired from source exam PDF",
+    },
+    "QPHY-C003-2025-14": {
+        "primary_knowledge_id": "KPHY-C003-031",
+        "secondary_knowledge_ids": "KPHY-C003-100;KPHY-C003-102",
+        "primary_exam_point_id": "EPHY-C003-046",
+        "secondary_exam_point_ids": "EPHY-C003-013;EPHY-C003-040",
+        "curriculum_item_ids": "CS-C003-2-2-6;CS-C003-4-2-5;CS-C003-5-2",
+        "ability_dimensions": "模型建构;跨学科应用;科学推理",
+        "confidence": "0.86",
+        "mapping_knowledge_target": "KPHY-C003-031",
+        "mapping_exam_target": "EPHY-C003-046",
+        "note": "knowledge and curriculum refs repaired from source exam PDF",
+    },
+}
+
+
+MODULE_CURRICULUM_REF_REPAIRS = {
+    "KPHY-C003-001": "CS-C003-1-1;CS-C003-1-2;CS-C003-1-3",
+    "KPHY-C003-020": "CS-C003-2-1;CS-C003-2-2;CS-C003-2-3;CS-C003-2-4",
+    "KPHY-C003-050": "CS-C003-3-1;CS-C003-3-2;CS-C003-3-3;CS-C003-3-4",
+    "KPHY-C003-080": "CS-C003-4-1;CS-C003-4-2",
+    "KPHY-C003-100": "CS-C003-5-1;CS-C003-5-2;CS-C003-5-3",
+}
+
+
+EXAM_POINT_KNOWLEDGE_REPAIRS = {
+    "EPHY-C003-044": "KPHY-C003-044;KPHY-C003-045;KPHY-C003-046;KPHY-C003-064;KPHY-C003-065",
+    "EPHY-C003-046": "KPHY-C003-031;KPHY-C003-100;KPHY-C003-102",
+}
+
+
 EXAM_TEXT_NAMES = {
     "2016": "2016广州中考.txt",
     "2017": "2017广州中考.txt",
@@ -123,6 +166,13 @@ def append_note(row: dict[str, str], note: str) -> None:
     if note in existing:
         return
     row["notes"] = f"{existing}; {note}" if existing else note
+
+
+def set_value(row: dict[str, str], key: str, value: str) -> bool:
+    if row.get(key, "") == value:
+        return False
+    row[key] = value
+    return True
 
 
 def run_pdftotext(pdf: Path, output: Path) -> None:
@@ -248,6 +298,103 @@ def repair_question_rows(csv_root: Path, exam_texts: dict[str, Path]) -> dict[st
         "subquestionRowsRepaired": sum(1 for row in sub_rows if "stem and primary mapping repaired" in row.get("notes", "")),
         "evidenceRowsRepaired": sum(1 for row in evidence_rows if "question stem repaired" in row.get("notes", "")),
         "mappingRowsRepaired": sum(1 for row in mapping_rows if "target repaired after source exam PDF stem correction" in row.get("notes", "")),
+    }
+
+
+def repair_reference_rows(csv_root: Path) -> dict[str, int]:
+    question_rows, question_headers = read_csv(csv_root / "c003-question-item-full.csv")
+    sub_rows, sub_headers = read_csv(csv_root / "c003-subquestion-item-full.csv")
+    mapping_rows, mapping_headers = read_csv(csv_root / "c003-asset-mapping.csv")
+    knowledge_rows, knowledge_headers = read_csv(csv_root / "c003-knowledge-node-full.csv")
+    exam_rows, exam_headers = read_csv(csv_root / "c003-exam-point-full.csv")
+
+    question_rows_changed = 0
+    subquestion_rows_changed = 0
+    mapping_rows_changed = 0
+    knowledge_rows_changed = 0
+    exam_rows_changed = 0
+
+    question_repairs = QUESTION_REFERENCE_REPAIRS
+    question_fields = [
+        "primary_knowledge_id",
+        "secondary_knowledge_ids",
+        "primary_exam_point_id",
+        "secondary_exam_point_ids",
+        "curriculum_item_ids",
+        "ability_dimensions",
+        "confidence",
+    ]
+    for row in question_rows:
+        repair = question_repairs.get(row["question_id"])
+        if repair is None:
+            continue
+        changed = False
+        for field in question_fields:
+            changed = set_value(row, field, repair[field]) or changed
+        append_note(row, repair["note"])
+        if changed:
+            question_rows_changed += 1
+
+    for row in sub_rows:
+        repair = question_repairs.get(row["question_id"])
+        if repair is None:
+            continue
+        changed = False
+        for field in ("primary_knowledge_id", "primary_exam_point_id", "ability_dimensions", "confidence"):
+            changed = set_value(row, field, repair[field]) or changed
+        append_note(row, repair["note"])
+        if changed:
+            subquestion_rows_changed += 1
+
+    for row in mapping_rows:
+        repair = question_repairs.get(row["source_stable_id"])
+        if repair is None:
+            continue
+        target = ""
+        if row["target_asset_type"] == "knowledge_point":
+            target = repair["mapping_knowledge_target"]
+        elif row["target_asset_type"] == "exam_point":
+            target = repair["mapping_exam_target"]
+        if not target:
+            continue
+        changed = set_value(row, "target_stable_id", target)
+        append_note(row, repair["note"])
+        if changed:
+            mapping_rows_changed += 1
+
+    for row in knowledge_rows:
+        refs = MODULE_CURRICULUM_REF_REPAIRS.get(row["stable_id"])
+        if refs is None:
+            continue
+        changed = set_value(row, "curriculum_refs", refs)
+        append_note(row, "module curriculum refs repaired to existing standard rows")
+        if changed:
+            knowledge_rows_changed += 1
+
+    for row in exam_rows:
+        knowledge_ids = EXAM_POINT_KNOWLEDGE_REPAIRS.get(row["stable_id"])
+        if knowledge_ids is None:
+            continue
+        changed = set_value(row, "knowledge_stable_ids", knowledge_ids)
+        append_note(row, "exam point knowledge refs repaired from source exam PDF")
+        if changed:
+            exam_rows_changed += 1
+
+    write_csv(csv_root / "c003-question-item-full.csv", question_rows, question_headers)
+    write_csv(csv_root / "c003-subquestion-item-full.csv", sub_rows, sub_headers)
+    write_csv(csv_root / "c003-asset-mapping.csv", mapping_rows, mapping_headers)
+    write_csv(csv_root / "c003-knowledge-node-full.csv", knowledge_rows, knowledge_headers)
+    write_csv(csv_root / "c003-exam-point-full.csv", exam_rows, exam_headers)
+
+    return {
+        "questionRowsChanged": question_rows_changed,
+        "subquestionRowsChanged": subquestion_rows_changed,
+        "mappingRowsChanged": mapping_rows_changed,
+        "knowledgeRowsChanged": knowledge_rows_changed,
+        "examPointRowsChanged": exam_rows_changed,
+        "questionRowsVerified": len(QUESTION_REFERENCE_REPAIRS),
+        "knowledgeRowsVerified": len(MODULE_CURRICULUM_REF_REPAIRS),
+        "examPointRowsVerified": len(EXAM_POINT_KNOWLEDGE_REPAIRS),
     }
 
 
@@ -424,6 +571,7 @@ def main() -> int:
     pages_by_year = ensure_year_report_texts(Path(args.year_report_root), cache_root / "year-report-text")
 
     question_summary = repair_question_rows(csv_root, exam_texts)
+    reference_summary = repair_reference_rows(csv_root)
     year_report_summary = repair_year_report_rows(csv_root, pages_by_year)
     update_processing_summary(csv_root)
 
@@ -434,6 +582,7 @@ def main() -> int:
         "candidateOnly": True,
         "productionActivationAllowed": False,
         "questionSummary": question_summary,
+        "referenceSummary": reference_summary,
         "yearReportSummary": year_report_summary,
     }
     report_path = Path(args.report_path)

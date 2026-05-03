@@ -10,6 +10,8 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+. (Join-Path $PSScriptRoot 'database-env.ps1')
+$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword
 $samplesPath = Join-Path $repoRoot 'tests\golden-import\samples.json'
 $samples = Get-Content -LiteralPath $samplesPath -Raw | ConvertFrom-Json
 if ([string]::IsNullOrWhiteSpace($DatabasePassword)) {

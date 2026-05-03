@@ -1,6 +1,6 @@
 {
   "status": "pass",
-  "checkedAt": "2026-05-03T13:18:19.093250+00:00",
+  "checkedAt": "2026-05-03T13:26:24.369592+00:00",
   "csvRoot": "guangzhou-physics-full-research-package-2016-2025\\csv",
   "candidateOnly": true,
   "productionActivationAllowed": false,
@@ -9,6 +9,16 @@
     "subquestionRowsRepaired": 13,
     "evidenceRowsRepaired": 13,
     "mappingRowsRepaired": 26
+  },
+  "referenceSummary": {
+    "questionRowsChanged": 2,
+    "subquestionRowsChanged": 0,
+    "mappingRowsChanged": 0,
+    "knowledgeRowsChanged": 1,
+    "examPointRowsChanged": 0,
+    "questionRowsVerified": 2,
+    "knowledgeRowsVerified": 5,
+    "examPointRowsVerified": 2
   },
   "yearReportSummary": {
     "yearReportRowsLocated": 205,

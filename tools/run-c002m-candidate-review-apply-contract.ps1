@@ -14,6 +14,9 @@ param(
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 $scriptPath = Join-Path $PSScriptRoot 'c002m_candidate_review_apply_contract.py'
+. (Join-Path $PSScriptRoot 'database-env.ps1')
+$ConnectionString = Resolve-KqgConnectionString -ConnectionString $ConnectionString
+$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword
 
 function ConvertTo-PsycopgConnectionString([string] $Value) {
     if ([string]::IsNullOrWhiteSpace($Value) -or -not $Value.Contains(';')) {

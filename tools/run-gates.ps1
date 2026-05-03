@@ -10,6 +10,8 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+. (Join-Path $PSScriptRoot 'database-env.ps1')
+$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword
 $results = New-Object System.Collections.Generic.List[object]
 
 function Invoke-GateStep([string] $Name, [scriptblock] $Script) {

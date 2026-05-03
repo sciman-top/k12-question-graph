@@ -7,16 +7,32 @@ foreach ($row in $rows) {
     $byId[$row.id] = $row
 }
 
-foreach ($requiredId in @('C002', 'D001', 'D002', 'D003')) {
+foreach ($requiredId in @('C002', 'C002P', 'C002Q0', 'C002Q', 'D001', 'D002', 'D003')) {
     if (-not $byId.ContainsKey($requiredId)) {
         throw "missing backlog task: $requiredId"
     }
 }
 
 $c002 = $byId['C002']
+$c002q0 = $byId['C002Q0']
+$c002q = $byId['C002Q']
 $d001 = $byId['D001']
 if ($d001.depends_on -eq 'C002') {
     throw "D001 must not depend on formal C002; use the dynamic asset draft/test gate such as C002H"
+}
+
+if ($c002q0.depends_on -ne 'C002P') {
+    throw "C002Q0 must depend on C002P model budget guard"
+}
+
+if ($c002q.depends_on -ne 'C002Q0') {
+    throw "C002Q must depend on C002Q0 orchestration readiness"
+}
+
+foreach ($pattern in @('subagent', '外层', '真实模型', 'no_active_write', '运行时依赖')) {
+    if ($c002q0.acceptance -notmatch $pattern) {
+        throw "C002Q0 acceptance missing orchestration boundary: $pattern"
+    }
 }
 
 if ($c002.status -ne '已完成') {

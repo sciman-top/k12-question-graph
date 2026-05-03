@@ -1,6 +1,6 @@
 {
   "status": "dry_run",
-  "checkedAt": "2026-05-03T11:24:19.418815+00:00",
+  "checkedAt": "2026-05-03T13:59:12.973496+00:00",
   "task": "C002K",
   "importKey": "c002_candidate_import_guangzhou_physics_2016_2025_v1",
   "materialBatchKey": "guangzhou_physics_2016_2025",
@@ -8,22 +8,30 @@
   "apply": false,
   "backupManifest": "",
   "summary": {
-    "assets": 92,
-    "mappings": 55,
-    "externalAiCandidates": 24,
-    "sourceManifestMaterials": 20,
+    "assets": 360,
+    "mappings": 345,
+    "externalAiCandidates": 0,
+    "sourceManifestMaterials": 33,
     "resolvedSourceDocuments": 33,
     "missingSourceMaterialIds": 0,
     "assetTypes": {
-      "knowledge_point": 24,
-      "curriculum_standard_item": 24,
-      "exam_point": 16,
-      "textbook_chapter": 25,
-      "trend_summary": 3
+      "knowledge_point": 82,
+      "curriculum_standard_item": 114,
+      "exam_point": 47,
+      "textbook_chapter": 117
     },
     "mappingTypes": {
-      "broader": 48,
-      "equivalent": 7
+      "broader": 345
+    },
+    "skippedExternalSourceMappings": 630,
+    "skippedExternalSourceMappingTypes": {
+      "question": 420,
+      "year_report_observation": 210
+    },
+    "skippedExternalSourceImpactScopes": {
+      "question_to_exam_point": 210,
+      "question_to_knowledge": 210,
+      "year_report_to_exam_point": 210
     }
   },
   "before": {
@@ -41,8 +49,410 @@
     "activeDomainAssetVersions": 0
   },
   "missingSourceMaterialIds": [],
+  "skippedExternalSourceMappings": [
+    {
+      "mappingId": "MAP-C003-00346",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-01",
+      "targetAssetType": "exam_point",
+      "targetStableId": "EPHY-C003-001",
+      "impactScope": "question_to_exam_point"
+    },
+    {
+      "mappingId": "MAP-C003-00347",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-01",
+      "targetAssetType": "knowledge_point",
+      "targetStableId": "KPHY-C003-025",
+      "impactScope": "question_to_knowledge"
+    },
+    {
+      "mappingId": "MAP-C003-00348",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-02",
+      "targetAssetType": "exam_point",
+      "targetStableId": "EPHY-C003-003",
+      "impactScope": "question_to_exam_point"
+    },
+    {
+      "mappingId": "MAP-C003-00349",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-02",
+      "targetAssetType": "knowledge_point",
+      "targetStableId": "KPHY-C003-037",
+      "impactScope": "question_to_knowledge"
+    },
+    {
+      "mappingId": "MAP-C003-00350",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-03",
+      "targetAssetType": "exam_point",
+      "targetStableId": "EPHY-C003-011",
+      "impactScope": "question_to_exam_point"
+    },
+    {
+      "mappingId": "MAP-C003-00351",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-03",
+      "targetAssetType": "knowledge_point",
+      "targetStableId": "KPHY-C003-017",
+      "impactScope": "question_to_knowledge"
+    },
+    {
+      "mappingId": "MAP-C003-00352",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-04",
+      "targetAssetType": "exam_point",
+      "targetStableId": "EPHY-C003-011",
+      "impactScope": "question_to_exam_point"
+    },
+    {
+      "mappingId": "MAP-C003-00353",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-04",
+      "targetAssetType": "knowledge_point",
+      "targetStableId": "KPHY-C003-017",
+      "impactScope": "question_to_knowledge"
+    },
+    {
+      "mappingId": "MAP-C003-00354",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-05",
+      "targetAssetType": "exam_point",
+      "targetStableId": "EPHY-C003-031",
+      "impactScope": "question_to_exam_point"
+    },
+    {
+      "mappingId": "MAP-C003-00355",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-05",
+      "targetAssetType": "knowledge_point",
+      "targetStableId": "KPHY-C003-065",
+      "impactScope": "question_to_knowledge"
+    },
+    {
+      "mappingId": "MAP-C003-00356",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-06",
+      "targetAssetType": "exam_point",
+      "targetStableId": "EPHY-C003-012",
+      "impactScope": "question_to_exam_point"
+    },
+    {
+      "mappingId": "MAP-C003-00357",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-06",
+      "targetAssetType": "knowledge_point",
+      "targetStableId": "KPHY-C003-043",
+      "impactScope": "question_to_knowledge"
+    },
+    {
+      "mappingId": "MAP-C003-00358",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-07",
+      "targetAssetType": "exam_point",
+      "targetStableId": "EPHY-C003-008",
+      "impactScope": "question_to_exam_point"
+    },
+    {
+      "mappingId": "MAP-C003-00359",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-07",
+      "targetAssetType": "knowledge_point",
+      "targetStableId": "KPHY-C003-059",
+      "impactScope": "question_to_knowledge"
+    },
+    {
+      "mappingId": "MAP-C003-00360",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-08",
+      "targetAssetType": "exam_point",
+      "targetStableId": "EPHY-C003-005",
+      "impactScope": "question_to_exam_point"
+    },
+    {
+      "mappingId": "MAP-C003-00361",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-08",
+      "targetAssetType": "knowledge_point",
+      "targetStableId": "KPHY-C003-005",
+      "impactScope": "question_to_knowledge"
+    },
+    {
+      "mappingId": "MAP-C003-00362",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-09",
+      "targetAssetType": "exam_point",
+      "targetStableId": "EPHY-C003-002",
+      "impactScope": "question_to_exam_point"
+    },
+    {
+      "mappingId": "MAP-C003-00363",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-09",
+      "targetAssetType": "knowledge_point",
+      "targetStableId": "KPHY-C003-026",
+      "impactScope": "question_to_knowledge"
+    },
+    {
+      "mappingId": "MAP-C003-00364",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-10",
+      "targetAssetType": "exam_point",
+      "targetStableId": "EPHY-C003-015",
+      "impactScope": "question_to_exam_point"
+    },
+    {
+      "mappingId": "MAP-C003-00365",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-10",
+      "targetAssetType": "knowledge_point",
+      "targetStableId": "KPHY-C003-027",
+      "impactScope": "question_to_knowledge"
+    },
+    {
+      "mappingId": "MAP-C003-00366",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-11",
+      "targetAssetType": "exam_point",
+      "targetStableId": "EPHY-C003-014",
+      "impactScope": "question_to_exam_point"
+    },
+    {
+      "mappingId": "MAP-C003-00367",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-11",
+      "targetAssetType": "knowledge_point",
+      "targetStableId": "KPHY-C003-027",
+      "impactScope": "question_to_knowledge"
+    },
+    {
+      "mappingId": "MAP-C003-00368",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-12",
+      "targetAssetType": "exam_point",
+      "targetStableId": "EPHY-C003-006",
+      "impactScope": "question_to_exam_point"
+    },
+    {
+      "mappingId": "MAP-C003-00369",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-12",
+      "targetAssetType": "knowledge_point",
+      "targetStableId": "KPHY-C003-004",
+      "impactScope": "question_to_knowledge"
+    },
+    {
+      "mappingId": "MAP-C003-00370",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-13",
+      "targetAssetType": "exam_point",
+      "targetStableId": "EPHY-C003-025",
+      "impactScope": "question_to_exam_point"
+    },
+    {
+      "mappingId": "MAP-C003-00371",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-13",
+      "targetAssetType": "knowledge_point",
+      "targetStableId": "KPHY-C003-040",
+      "impactScope": "question_to_knowledge"
+    },
+    {
+      "mappingId": "MAP-C003-00372",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-14",
+      "targetAssetType": "exam_point",
+      "targetStableId": "EPHY-C003-005",
+      "impactScope": "question_to_exam_point"
+    },
+    {
+      "mappingId": "MAP-C003-00373",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-14",
+      "targetAssetType": "knowledge_point",
+      "targetStableId": "KPHY-C003-005",
+      "impactScope": "question_to_knowledge"
+    },
+    {
+      "mappingId": "MAP-C003-00374",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-15",
+      "targetAssetType": "exam_point",
+      "targetStableId": "EPHY-C003-014",
+      "impactScope": "question_to_exam_point"
+    },
+    {
+      "mappingId": "MAP-C003-00375",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-15",
+      "targetAssetType": "knowledge_point",
+      "targetStableId": "KPHY-C003-027",
+      "impactScope": "question_to_knowledge"
+    },
+    {
+      "mappingId": "MAP-C003-00376",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-16",
+      "targetAssetType": "exam_point",
+      "targetStableId": "EPHY-C003-017",
+      "impactScope": "question_to_exam_point"
+    },
+    {
+      "mappingId": "MAP-C003-00377",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-16",
+      "targetAssetType": "knowledge_point",
+      "targetStableId": "KPHY-C003-055",
+      "impactScope": "question_to_knowledge"
+    },
+    {
+      "mappingId": "MAP-C003-00378",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-17",
+      "targetAssetType": "exam_point",
+      "targetStableId": "EPHY-C003-011",
+      "impactScope": "question_to_exam_point"
+    },
+    {
+      "mappingId": "MAP-C003-00379",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-17",
+      "targetAssetType": "knowledge_point",
+      "targetStableId": "KPHY-C003-017",
+      "impactScope": "question_to_knowledge"
+    },
+    {
+      "mappingId": "MAP-C003-00380",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-18",
+      "targetAssetType": "exam_point",
+      "targetStableId": "EPHY-C003-020",
+      "impactScope": "question_to_exam_point"
+    },
+    {
+      "mappingId": "MAP-C003-00381",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-18",
+      "targetAssetType": "knowledge_point",
+      "targetStableId": "KPHY-C003-032",
+      "impactScope": "question_to_knowledge"
+    },
+    {
+      "mappingId": "MAP-C003-00382",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-19",
+      "targetAssetType": "exam_point",
+      "targetStableId": "EPHY-C003-040",
+      "impactScope": "question_to_exam_point"
+    },
+    {
+      "mappingId": "MAP-C003-00383",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-19",
+      "targetAssetType": "knowledge_point",
+      "targetStableId": "KPHY-C003-084",
+      "impactScope": "question_to_knowledge"
+    },
+    {
+      "mappingId": "MAP-C003-00384",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-20",
+      "targetAssetType": "exam_point",
+      "targetStableId": "EPHY-C003-040",
+      "impactScope": "question_to_exam_point"
+    },
+    {
+      "mappingId": "MAP-C003-00385",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-20",
+      "targetAssetType": "knowledge_point",
+      "targetStableId": "KPHY-C003-084",
+      "impactScope": "question_to_knowledge"
+    },
+    {
+      "mappingId": "MAP-C003-00386",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-21",
+      "targetAssetType": "exam_point",
+      "targetStableId": "EPHY-C003-032",
+      "impactScope": "question_to_exam_point"
+    },
+    {
+      "mappingId": "MAP-C003-00387",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-21",
+      "targetAssetType": "knowledge_point",
+      "targetStableId": "KPHY-C003-081",
+      "impactScope": "question_to_knowledge"
+    },
+    {
+      "mappingId": "MAP-C003-00388",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-22",
+      "targetAssetType": "exam_point",
+      "targetStableId": "EPHY-C003-032",
+      "impactScope": "question_to_exam_point"
+    },
+    {
+      "mappingId": "MAP-C003-00389",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-22",
+      "targetAssetType": "knowledge_point",
+      "targetStableId": "KPHY-C003-081",
+      "impactScope": "question_to_knowledge"
+    },
+    {
+      "mappingId": "MAP-C003-00390",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-23",
+      "targetAssetType": "exam_point",
+      "targetStableId": "EPHY-C003-040",
+      "impactScope": "question_to_exam_point"
+    },
+    {
+      "mappingId": "MAP-C003-00391",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-23",
+      "targetAssetType": "knowledge_point",
+      "targetStableId": "KPHY-C003-084",
+      "impactScope": "question_to_knowledge"
+    },
+    {
+      "mappingId": "MAP-C003-00392",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-24",
+      "targetAssetType": "exam_point",
+      "targetStableId": "EPHY-C003-018",
+      "impactScope": "question_to_exam_point"
+    },
+    {
+      "mappingId": "MAP-C003-00393",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2016-24",
+      "targetAssetType": "knowledge_point",
+      "targetStableId": "KPHY-C003-053",
+      "impactScope": "question_to_knowledge"
+    },
+    {
+      "mappingId": "MAP-C003-00394",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2017-01",
+      "targetAssetType": "exam_point",
+      "targetStableId": "EPHY-C003-001",
+      "impactScope": "question_to_exam_point"
+    },
+    {
+      "mappingId": "MAP-C003-00395",
+      "sourceAssetType": "question",
+      "sourceStableId": "QPHY-C003-2017-01",
+      "targetAssetType": "knowledge_point",
+      "targetStableId": "KPHY-C003-014",
+      "impactScope": "question_to_knowledge"
+    }
+  ],
   "protectedExistingAssets": [],
   "productionActivationAllowed": false,
   "candidateOnly": true,
-  "reportHash": "6fa118f36df17530d759f537dda9e2f276a17590384212bea27ca16c86f96e2b"
+  "reportHash": "3c3ace25bd3719863f6b128aaaf7e94ef5c2783c3bdb7cbc0aba7dc9a0f3b786"
 }
