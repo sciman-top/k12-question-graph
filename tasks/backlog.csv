@@ -29,7 +29,7 @@ C002D,P2,动态资产,source-derived candidate admission dry-run,高,已完成,C
 C002E,P2,动态资产,source-derived active activation guard,高,已完成,C002D,候选正式资产进入 active 前必须无待审候选 无 pending_review 映射 无 pending_review 影响 历史学情冻结已确认 且有回滚快照,tools/run-gates.ps1 c002e activation guard contract + tools/run-c002e-activation-guard-contract.ps1
 C002F,P2,动态资产,C002 动态资产 dry-run suite,高,已完成,C002E,无数据库密码时可一键验证 source admission replacement mapping migration impact candidate admission activation guard 且不允许生产激活,tools/run-c002-dry-run-suite.ps1
 C002,P2,知识本体,初中物理 L1-L3 知识点初始化,中,暂缓,C002F,教师录入各版本教材 学科课程标准 近年当地中考高考真题等资料后 从来源提炼并审核 L1-L3 知识点 当前 draft bootstrap 可用于测试 但正式激活必须有版本 替换 迁移 回滚证据,source-derived seed validation + tools/run-c002-seed-validation.ps1 draft guard + migration report guard
-D001,P3,AI,AI Provider 抽象与 ModelRouter,中,暂缓,C002,C002 正式完成前允许 draft/test 模式实现 schema 接口 Evals 成本日志 人工审核和迁移建议 不得把 draft 知识点或真实模型输出标记为生产正式完成,contract test + tools/run-roadmap-guard.ps1
+D001,P3,AI,AI Provider 抽象与 ModelRouter,中,已完成,C002,C002 正式完成前仅以 draft/test 模式完成 Provider 抽象和 ModelRouter 合同 真实模型调用禁用 LLM 任务路由到 stub_llm 并要求人工审核 不得把 draft 知识点或真实模型输出标记为生产正式完成,tools/run-d001-model-router-contract.ps1 + tools/run-roadmap-guard.ps1
 D002,P3,AI,AIJob AIResult 成本日志,中,暂缓,D001,每个 AI 结果记录 prompt/schema/model/cost/confidence,AI job test
 D003,P3,AI,Structured Outputs 与 Evals 接入,中,暂缓,D002,结构化输出可校验且黄金样本 eval 可复跑,eval smoke
 E001,P4,组卷导出,题库检索和题目卡片,中,暂缓,D003,教师能按知识点题型难度来源筛题,UI/API test

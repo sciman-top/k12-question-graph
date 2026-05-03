@@ -1,3 +1,4 @@
+using K12QuestionGraph.Api.Ai;
 using K12QuestionGraph.Api.Data;
 using K12QuestionGraph.Api.Domain;
 using K12QuestionGraph.Api.FileStore;
@@ -12,12 +13,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 builder.Services.Configure<KqgPathsOptions>(builder.Configuration.GetSection("KqgPaths"));
 builder.Services.Configure<PythonWorkerOptions>(builder.Configuration.GetSection("PythonWorker"));
+builder.Services.Configure<AiRoutingOptions>(builder.Configuration.GetSection("AiRouting"));
 builder.Services.AddDbContext<KqgDbContext>(options =>
     options
         .UseNpgsql(builder.Configuration.GetKqgConnectionString())
         .UseSnakeCaseNamingConvention());
 builder.Services.AddScoped<IFileStore, LocalFileStore>();
 builder.Services.AddScoped<IDocumentWorkerClient, DocumentWorkerClient>();
+builder.Services.AddSingleton<IAiModelRouter, AiModelRouter>();
+builder.Services.AddSingleton<IAiProvider, StubAiProvider>();
 
 var app = builder.Build();
 
@@ -87,6 +91,25 @@ app.MapGet("/health/ready", async (
     return ready ? Results.Ok(response) : Results.Json(response, statusCode: StatusCodes.Status503ServiceUnavailable);
 })
 .WithName("ReadinessHealth");
+
+app.MapPost("/internal/ai/model-route", (AiRouteRequest request, IAiModelRouter router) =>
+{
+    try
+    {
+        return Results.Ok(router.Route(request));
+    }
+    catch (AiRouteException exception)
+    {
+        return Results.BadRequest(new { error = exception.Message });
+    }
+})
+.WithName("RouteAiModel");
+
+app.MapGet("/internal/ai/providers", (IEnumerable<IAiProvider> providers) =>
+{
+    return Results.Ok(providers.Select(x => new AiProviderInfo(x.ProviderId, x.SupportsRealModelCalls)));
+})
+.WithName("ListAiProviders");
 
 app.MapPost("/files", async (HttpRequest request, IFileStore fileStore, CancellationToken cancellationToken) =>
 {

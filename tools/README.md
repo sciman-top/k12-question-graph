@@ -25,7 +25,8 @@ The gate also covers `b001 duplicate upload smoke`, `b002 adapter contract smoke
 `c001 knowledge ontology contract`, `c002a domain asset contract`,
 `c002b replacement mapping contract`, `c002c migration impact contract`,
 `c002d source-derived admission contract`, `c002e activation guard contract`,
-and `c002 junior physics draft bootstrap guard`.
+`c002 junior physics draft bootstrap guard`, and
+`d001 model router draft-test contract`.
 It starts temporary
 API processes for API smoke steps, so `PGPASSWORD` must match the local PostgreSQL
 password.
@@ -125,6 +126,17 @@ draft bootstrap data idempotent and marked as `draft` until teachers import
 textbooks, curriculum standards, and recent local exam papers for source-derived
 review. Draft nodes may be used by API/UI/regression tests, but production flows
 must wait for source-derived `active` knowledge nodes.
+
+D001 ModelRouter draft/test contract:
+
+```powershell
+.\tools\run-d001-model-router-contract.ps1
+```
+
+This starts a temporary API process and validates that real model calls remain
+disabled, LLM tasks route to `stub_llm`, structured output schemas exist,
+draft/domain-asset routes are not production eligible, and unknown AI tasks are
+rejected. It does not call any external AI provider.
 
 Roadmap dependency guard:
 
