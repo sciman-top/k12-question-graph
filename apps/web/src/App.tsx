@@ -19,6 +19,7 @@ import {
   InboxOutlined,
   LinkOutlined,
   MergeCellsOutlined,
+  SearchOutlined,
   SafetyCertificateOutlined,
   SplitCellsOutlined,
   UndoOutlined,
@@ -84,6 +85,27 @@ const initialSegments = [
 ]
 
 const sharedAssets = ['图 A：滑轮组示意图', '图 B：电路图', '表 1：实验数据']
+
+const questionCards = [
+  {
+    id: 'draft_test-card-001',
+    title: '关于惯性的说法，下列哪项正确？',
+    knowledge: '牛顿第一定律与惯性',
+    type: 'single_choice',
+    difficulty: '0.62',
+    source: 'synthetic',
+    status: 'draft_test',
+  },
+  {
+    id: 'draft_test-card-002',
+    title: '速度与平均速度计算',
+    knowledge: '速度与平均速度',
+    type: 'calculation',
+    difficulty: '0.55',
+    source: 'golden',
+    status: 'draft_test',
+  },
+]
 
 function App() {
   const [segments, setSegments] = useState(initialSegments)
@@ -246,6 +268,50 @@ function App() {
                   />
                   <strong>{state.value}</strong>
                 </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="question-panel" aria-label="题库检索" data-flow="question-search">
+            <div className="panel-heading">
+              <div>
+                <Typography.Title level={2}>题库检索</Typography.Title>
+                <Typography.Text type="secondary">
+                  draft_test 先验证题卡筛选合同，正式知识点激活后再进入生产筛题。
+                </Typography.Text>
+              </div>
+              <Button icon={<SearchOutlined />}>检索</Button>
+            </div>
+
+            <div className="filter-row" aria-label="筛选条件">
+              <button className="filter-chip" data-filter="knowledge" type="button">
+                惯性
+              </button>
+              <button className="filter-chip" data-filter="question-type" type="button">
+                单选题
+              </button>
+              <button className="filter-chip" data-filter="difficulty" type="button">
+                0.4-0.7
+              </button>
+              <button className="filter-chip" data-filter="source" type="button">
+                synthetic
+              </button>
+            </div>
+
+            <div className="question-card-list" aria-label="题目卡片">
+              {questionCards.map((card) => (
+                <button className="question-card" data-card="question-card" key={card.id} type="button">
+                  <span>
+                    <strong>{card.title}</strong>
+                    <small>{card.knowledge}</small>
+                  </span>
+                  <span className="question-meta">
+                    <Tag>{card.type}</Tag>
+                    <Tag>{card.difficulty}</Tag>
+                    <Tag>{card.source}</Tag>
+                    <Tag color="green">{card.status}</Tag>
+                  </span>
+                </button>
               ))}
             </div>
           </section>

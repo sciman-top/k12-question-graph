@@ -45,6 +45,7 @@
 
 .primary-panel,
 .status-panel,
+.question-panel,
 .review-panel,
 .guardrail-panel {
   border: 1px solid var(--line);
@@ -136,6 +137,74 @@
 
 .status-panel {
   padding: 22px;
+}
+
+.question-panel {
+  grid-column: 1 / -1;
+  padding: 24px;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.filter-chip {
+  min-height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+  padding: 0 12px;
+  font-weight: 700;
+}
+
+.filter-chip:focus-visible,
+.filter-chip:hover {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.question-card-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.question-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  width: 100%;
+  min-height: 74px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+  padding: 14px;
+  text-align: left;
+}
+
+.question-card span:first-child {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.question-card small {
+  color: var(--muted);
+}
+
+.question-meta {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
 .status-strip {

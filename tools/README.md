@@ -29,7 +29,8 @@ The gate also covers `b001 duplicate upload smoke`, `b002 adapter contract smoke
 `c002 junior physics draft bootstrap guard`, and
 `d001 model router draft-test contract`, and
 `d002 ai job cost contract`, and
-`d003 structured output eval contract`.
+`d003 structured output eval contract`, and
+`e001 question search ui/api contracts`.
 It starts temporary
 API processes for API smoke steps, so `PGPASSWORD` must match the local PostgreSQL
 password.
@@ -183,6 +184,17 @@ D003 structured output eval contract:
 This validates draft/test golden smoke fixtures against the AI structured output
 schemas without calling external AI providers. It keeps all eval cases
 `pending_review`, non-production, and repeatable.
+
+E001 question search contract:
+
+```powershell
+$env:PGPASSWORD='<local-password>'
+.\tools\run-e001-question-search-contract.ps1
+```
+
+This validates draft/test question-card search by knowledge point, question type,
+difficulty range, and source type. The response remains non-production while
+formal C002 source-derived knowledge assets are pending.
 
 C002 source material admission guard:
 

@@ -213,6 +213,27 @@ try {
         .\tools\run-d003-structured-output-eval.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'e001 question search ui contract' {
+        $app = Get-Content -LiteralPath 'apps\web\src\App.tsx' -Raw
+        foreach ($pattern in @(
+            'data-flow="question-search"',
+            'data-filter="knowledge"',
+            'data-filter="question-type"',
+            'data-filter="difficulty"',
+            'data-filter="source"',
+            'data-card="question-card"',
+            'draft_test'
+        )) {
+            if (-not $app.Contains($pattern)) {
+                throw "missing E001 UI contract marker: $pattern"
+            }
+        }
+    }
+
+    Invoke-GateStep 'e001 question search api contract' {
+        .\tools\run-e001-question-search-contract.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin -FileStoreRoot $FileStoreRoot | Write-Host
+    }
+
     Invoke-GateStep 'b001 duplicate upload smoke' {
         if ([string]::IsNullOrWhiteSpace($DatabasePassword)) {
             throw "DatabasePassword or PGPASSWORD is required for API upload smoke"

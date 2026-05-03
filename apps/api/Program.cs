@@ -392,6 +392,22 @@ app.MapPost("/questions", async (
         return Results.BadRequest(new { error = validationError });
     }
 
+    if (request.DifficultyEstimated is < 0 or > 1)
+    {
+        return Results.BadRequest(new { error = "invalid_difficulty_estimated" });
+    }
+
+    if (request.PrimaryKnowledgeId.HasValue)
+    {
+        var primaryKnowledgeExists = await dbContext.KnowledgeNodes
+            .AsNoTracking()
+            .AnyAsync(x => x.Id == request.PrimaryKnowledgeId.Value, cancellationToken);
+        if (!primaryKnowledgeExists)
+        {
+            return Results.Conflict(new { error = "primary_knowledge_missing" });
+        }
+    }
+
     var sourceRegionIds = request.Blocks
         .Select(x => x.SourceRegionId)
         .Concat(request.Assets.Select(x => x.SourceRegionId))
@@ -438,7 +454,9 @@ app.MapPost("/questions", async (
         Grade = string.IsNullOrWhiteSpace(request.Grade) ? null : request.Grade.Trim(),
         QuestionType = string.IsNullOrWhiteSpace(request.QuestionType) ? null : NormalizeToken(request.QuestionType, "unknown"),
         DefaultScore = request.DefaultScore,
+        DifficultyEstimated = request.DifficultyEstimated,
         Status = string.IsNullOrWhiteSpace(request.Status) ? QuestionStatuses.Draft : NormalizeToken(request.Status, QuestionStatuses.Draft),
+        PrimaryKnowledgeId = request.PrimaryKnowledgeId,
         Blocks = SerializeJson(request.Blocks.Select((block, index) => new
         {
             type = NormalizeToken(block.BlockType, "text"),
@@ -486,6 +504,176 @@ app.MapPost("/questions", async (
     return Results.Created($"/questions/{item.Id}", QuestionResponse.From(item, blocks, assets));
 })
 .WithName("CreateQuestion");
+
+app.MapGet("/questions", async (
+    string? subject,
+    string? stage,
+    string? grade,
+    string? questionType,
+    string? status,
+    Guid? primaryKnowledgeId,
+    double? difficultyMin,
+    double? difficultyMax,
+    string? sourceType,
+    int? limit,
+    KqgDbContext dbContext,
+    CancellationToken cancellationToken) =>
+{
+    var query = dbContext.QuestionItems.AsNoTracking().AsQueryable();
+
+    if (!string.IsNullOrWhiteSpace(subject))
+    {
+        var value = NormalizeToken(subject, "physics");
+        query = query.Where(x => x.Subject == value);
+    }
+
+    if (!string.IsNullOrWhiteSpace(stage))
+    {
+        var value = NormalizeToken(stage, "junior_middle_school");
+        query = query.Where(x => x.Stage == value);
+    }
+
+    if (!string.IsNullOrWhiteSpace(grade))
+    {
+        var value = grade.Trim();
+        query = query.Where(x => x.Grade == value);
+    }
+
+    if (!string.IsNullOrWhiteSpace(questionType))
+    {
+        var value = NormalizeToken(questionType, "unknown");
+        query = query.Where(x => x.QuestionType == value);
+    }
+
+    if (!string.IsNullOrWhiteSpace(status))
+    {
+        var value = NormalizeToken(status, QuestionStatuses.Draft);
+        query = query.Where(x => x.Status == value);
+    }
+
+    if (primaryKnowledgeId.HasValue)
+    {
+        query = query.Where(x => x.PrimaryKnowledgeId == primaryKnowledgeId.Value);
+    }
+
+    if (difficultyMin.HasValue)
+    {
+        query = query.Where(x => x.DifficultyEstimated != null && x.DifficultyEstimated >= difficultyMin.Value);
+    }
+
+    if (difficultyMax.HasValue)
+    {
+        query = query.Where(x => x.DifficultyEstimated != null && x.DifficultyEstimated <= difficultyMax.Value);
+    }
+
+    if (!string.IsNullOrWhiteSpace(sourceType))
+    {
+        var value = NormalizeToken(sourceType, "unknown");
+        var blockQuestionIds =
+            from block in dbContext.QuestionBlocks.AsNoTracking()
+            where block.SourceRegionId != null
+            join region in dbContext.SourceRegions.AsNoTracking() on block.SourceRegionId!.Value equals region.Id
+            join document in dbContext.SourceDocuments.AsNoTracking() on region.SourceDocumentId equals document.Id
+            where document.SourceType == value
+            select block.QuestionItemId;
+        var assetQuestionIds =
+            from asset in dbContext.QuestionAssets.AsNoTracking()
+            where asset.SourceRegionId != null
+            join region in dbContext.SourceRegions.AsNoTracking() on asset.SourceRegionId!.Value equals region.Id
+            join document in dbContext.SourceDocuments.AsNoTracking() on region.SourceDocumentId equals document.Id
+            where document.SourceType == value
+            select asset.QuestionItemId;
+        var sourceQuestionIds = blockQuestionIds.Concat(assetQuestionIds).Distinct();
+        query = query.Where(x => sourceQuestionIds.Contains(x.Id));
+    }
+
+    var pageSize = Math.Clamp(limit ?? 20, 1, 50);
+    var total = await query.CountAsync(cancellationToken);
+    var items = await query
+        .OrderByDescending(x => x.UpdatedAt)
+        .ThenByDescending(x => x.CreatedAt)
+        .Take(pageSize)
+        .ToListAsync(cancellationToken);
+
+    var questionIds = items.Select(x => x.Id).ToArray();
+    var blocks = await dbContext.QuestionBlocks
+        .AsNoTracking()
+        .Where(x => questionIds.Contains(x.QuestionItemId))
+        .OrderBy(x => x.SortOrder)
+        .ToListAsync(cancellationToken);
+    var assets = await dbContext.QuestionAssets
+        .AsNoTracking()
+        .Where(x => questionIds.Contains(x.QuestionItemId))
+        .ToListAsync(cancellationToken);
+
+    var primaryKnowledgeIds = items
+        .Select(x => x.PrimaryKnowledgeId)
+        .Where(x => x.HasValue)
+        .Select(x => x!.Value)
+        .Distinct()
+        .ToArray();
+    var knowledgeById = await dbContext.KnowledgeNodes
+        .AsNoTracking()
+        .Where(x => primaryKnowledgeIds.Contains(x.Id))
+        .ToDictionaryAsync(x => x.Id, cancellationToken);
+
+    var sourceRows = await (
+        from block in dbContext.QuestionBlocks.AsNoTracking()
+        where questionIds.Contains(block.QuestionItemId) && block.SourceRegionId != null
+        join region in dbContext.SourceRegions.AsNoTracking() on block.SourceRegionId!.Value equals region.Id
+        join document in dbContext.SourceDocuments.AsNoTracking() on region.SourceDocumentId equals document.Id
+        select new { block.QuestionItemId, document.SourceTitle, document.SourceType }
+    ).Concat(
+        from asset in dbContext.QuestionAssets.AsNoTracking()
+        where questionIds.Contains(asset.QuestionItemId) && asset.SourceRegionId != null
+        join region in dbContext.SourceRegions.AsNoTracking() on asset.SourceRegionId!.Value equals region.Id
+        join document in dbContext.SourceDocuments.AsNoTracking() on region.SourceDocumentId equals document.Id
+        select new { asset.QuestionItemId, document.SourceTitle, document.SourceType }
+    ).ToListAsync(cancellationToken);
+
+    var blockByQuestionId = blocks.GroupBy(x => x.QuestionItemId).ToDictionary(x => x.Key, x => x.ToArray());
+    var assetCountByQuestionId = assets.GroupBy(x => x.QuestionItemId).ToDictionary(x => x.Key, x => x.Count());
+    var sourceByQuestionId = sourceRows
+        .GroupBy(x => x.QuestionItemId)
+        .ToDictionary(
+            x => x.Key,
+            x => new SourceSummaryResponse(
+                x.Select(row => row.SourceTitle).Where(value => !string.IsNullOrWhiteSpace(value)).Distinct().ToArray(),
+                x.Select(row => row.SourceType).Where(value => !string.IsNullOrWhiteSpace(value)).Distinct().ToArray()));
+
+    var cards = items.Select(item =>
+    {
+        blockByQuestionId.TryGetValue(item.Id, out var itemBlocks);
+        assetCountByQuestionId.TryGetValue(item.Id, out var assetCount);
+        sourceByQuestionId.TryGetValue(item.Id, out var sourceSummary);
+        var primaryKnowledge = item.PrimaryKnowledgeId.HasValue && knowledgeById.TryGetValue(item.PrimaryKnowledgeId.Value, out var node)
+            ? KnowledgeNodeCardResponse.From(node)
+            : null;
+
+        return new QuestionCardResponse(
+            item.Id,
+            item.Subject,
+            item.Stage,
+            item.Grade,
+            item.QuestionType,
+            item.DefaultScore,
+            item.DifficultyEstimated,
+            item.Status,
+            primaryKnowledge,
+            GetQuestionPreview(itemBlocks ?? []),
+            itemBlocks?.Length ?? 0,
+            assetCount,
+            sourceSummary ?? new SourceSummaryResponse([], []));
+    }).ToArray();
+
+    return Results.Ok(new QuestionSearchResponse(
+        Mode: "draft_test",
+        ProductionEligible: false,
+        Total: total,
+        Limit: pageSize,
+        Items: cards));
+})
+.WithName("SearchQuestionCards");
 
 app.MapGet("/questions/{id:guid}", async (Guid id, KqgDbContext dbContext, CancellationToken cancellationToken) =>
 {
@@ -770,6 +958,45 @@ static string Sha256Hex(string value)
     return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(value))).ToLowerInvariant();
 }
 
+static string GetQuestionPreview(IReadOnlyList<QuestionBlock> blocks)
+{
+    foreach (var block in blocks.OrderBy(x => x.SortOrder))
+    {
+        var preview = GetBlockPreview(block);
+        if (!string.IsNullOrWhiteSpace(preview))
+        {
+            return preview.Length <= 120 ? preview : string.Concat(preview.AsSpan(0, 120), "...");
+        }
+    }
+
+    return string.Empty;
+}
+
+static string GetBlockPreview(QuestionBlock block)
+{
+    try
+    {
+        using var document = JsonDocument.Parse(block.Content);
+        var root = document.RootElement;
+        if (root.ValueKind == JsonValueKind.Object)
+        {
+            foreach (var propertyName in new[] { "text", "answer", "latex", "label" })
+            {
+                if (root.TryGetProperty(propertyName, out var property) && property.ValueKind == JsonValueKind.String)
+                {
+                    return property.GetString() ?? string.Empty;
+                }
+            }
+        }
+
+        return root.ToString();
+    }
+    catch (JsonException)
+    {
+        return block.Content;
+    }
+}
+
 static AiJobResponse ToAiJobResponse(AIJob job)
 {
     return new AiJobResponse(
@@ -959,7 +1186,9 @@ public sealed record QuestionCreateRequest(
     string? Grade,
     string? QuestionType,
     decimal? DefaultScore,
+    double? DifficultyEstimated,
     string? Status,
+    Guid? PrimaryKnowledgeId,
     IReadOnlyList<QuestionBlockCreateRequest> Blocks,
     IReadOnlyList<QuestionAssetCreateRequest> Assets,
     JsonElement? Answer,
@@ -1049,6 +1278,50 @@ public sealed record QuestionAssetResponse(
 }
 
 public sealed record QuestionSourceReviewResponse(Guid QuestionItemId, IReadOnlyList<QuestionSourceRegionResponse> SourceRegions);
+
+public sealed record QuestionSearchResponse(
+    string Mode,
+    bool ProductionEligible,
+    int Total,
+    int Limit,
+    IReadOnlyList<QuestionCardResponse> Items);
+
+public sealed record QuestionCardResponse(
+    Guid Id,
+    string Subject,
+    string Stage,
+    string? Grade,
+    string? QuestionType,
+    decimal? DefaultScore,
+    double? DifficultyEstimated,
+    string Status,
+    KnowledgeNodeCardResponse? PrimaryKnowledge,
+    string Preview,
+    int BlockCount,
+    int AssetCount,
+    SourceSummaryResponse Sources);
+
+public sealed record KnowledgeNodeCardResponse(
+    Guid Id,
+    string Code,
+    string Title,
+    int Level,
+    string Status,
+    int Version)
+{
+    public static KnowledgeNodeCardResponse From(KnowledgeNode node)
+    {
+        return new KnowledgeNodeCardResponse(
+            node.Id,
+            node.Code,
+            node.Title,
+            node.Level,
+            node.Status,
+            node.Version);
+    }
+}
+
+public sealed record SourceSummaryResponse(IReadOnlyList<string> Titles, IReadOnlyList<string> Types);
 
 public sealed record QuestionSourceRegionResponse(
     Guid Id,
