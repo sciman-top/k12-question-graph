@@ -137,6 +137,60 @@ cost_controls:
     - source_page_content
     - question_candidate
     - teacher_context
+local_first_contract:
+  no_external_ai:
+    - file_hash_dedup
+    - source_material_metadata_parse
+    - csv_excel_schema_validation
+    - json_yaml_schema_validation
+    - candidate_import_idempotency
+    - active_activation_guard
+    - c002_chunk_hash_cache
+    - token_budget_estimation
+    - chinese_user_output_guard
+  c002_extraction_layers:
+    L0:
+      name: local_deterministic_extraction
+      external_ai_allowed: false
+      reasoning_effort: none
+      responsibilities:
+        - page_text_or_placeholder_extract
+        - source_id_page_location_anchor
+        - chunk_hash_dedup_cache
+        - local_regex_year_question_score_checks
+        - chinese_report_summary
+    L1:
+      name: low_cost_prefilter
+      external_ai_allowed: true
+      reasoning_effort: low
+      input_policy: abnormal_or_low_confidence_chunks_only
+    L2:
+      name: structured_candidate_extraction
+      external_ai_allowed: true
+      reasoning_effort: medium
+      input_policy: necessary_chunks_with_schema_and_source_anchors
+    L3:
+      name: taxonomy_merge_and_mapping_review
+      external_ai_allowed: true
+      reasoning_effort: medium_or_high
+      input_policy: mapping_conflicts_and_split_merge_cases
+    L4:
+      name: high_risk_arbitration
+      external_ai_allowed: true
+      reasoning_effort: high_or_extra_high
+      input_policy: disputed_activation_or_long_term_policy_only
+  chinese_user_outputs:
+    required_for:
+      - teacher_ui
+      - import_reports
+      - review_queue_summaries
+      - export_file_names
+      - gate_failure_summaries
+    internal_english_allowed_for:
+      - database_enums
+      - api_contract_fields
+      - json_schema_fields
+      - data_contract_markers
 p0_p1_boundary:
   allow_real_model_calls: false
   real_model_calls_enable_condition: "P3+ 仍需显式开启 allow_real_model_calls，并同时满足正式动态资产 guard、AIJob 成本日志、人工审核、rollback/evidence gate。"

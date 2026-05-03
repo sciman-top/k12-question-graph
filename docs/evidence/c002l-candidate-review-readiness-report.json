@@ -1,0 +1,90 @@
+{
+  "status": "pass",
+  "checkedAt": "2026-05-03T11:50:57.094691+00:00",
+  "task": "C002L",
+  "importKey": "c002_candidate_import_guangzhou_physics_2016_2025_v1",
+  "materialBatchKey": "guangzhou_physics_2016_2025",
+  "activationAllowed": false,
+  "formalCompletionDefinition": {
+    "meaning": "C002 complete means junior physics ontology v1 is active and governed, not permanently frozen.",
+    "requires": [
+      "source evidence complete",
+      "candidate assets reviewed",
+      "mapping decisions reviewed",
+      "impact report accepted",
+      "rollback snapshot present",
+      "active guard passed"
+    ],
+    "futureChanges": "Create a new candidate version, mapping plan, impact report, review decision, rollback snapshot, then switch active through guard.",
+    "oldVersionsRemainFor": [
+      "historical questions",
+      "old papers",
+      "learning analytics explanations",
+      "rollback"
+    ]
+  },
+  "counts": {
+    "candidateAssets": 92,
+    "reviewedImportedAssets": 0,
+    "activeImportedAssets": 0,
+    "pendingReviewMappings": 55,
+    "autoAppliedMappings": 0,
+    "pendingReviewMigrations": 1,
+    "rollbackSnapshots": 1,
+    "openReviewQueueItems": 1,
+    "sourceDocuments": 33,
+    "sourceDocumentsWithSha256": 33
+  },
+  "assetsByType": {
+    "curriculum_standard_item": 24,
+    "exam_point": 16,
+    "knowledge_point": 24,
+    "textbook_chapter": 25,
+    "trend_summary": 3
+  },
+  "mappingsByType": {
+    "broader": 48,
+    "equivalent": 7
+  },
+  "sourcesByType": {
+    "curriculum_standard": 1,
+    "exam_analysis_report": 10,
+    "local_exam_paper": 19,
+    "textbook": 3
+  },
+  "blockers": [
+    {
+      "blockerId": "candidate_assets_pending_review",
+      "severity": "hard",
+      "count": 92,
+      "nextAction": "review candidate assets and mark approved/rejected before active activation"
+    },
+    {
+      "blockerId": "pending_review_mappings",
+      "severity": "hard",
+      "count": 55,
+      "nextAction": "approve/reject or revise mapping edges before active activation"
+    },
+    {
+      "blockerId": "migration_plan_pending_review",
+      "severity": "hard",
+      "count": 1,
+      "nextAction": "review impact report and rollback snapshot before active activation"
+    },
+    {
+      "blockerId": "review_queue_open",
+      "severity": "hard",
+      "count": 1,
+      "nextAction": "close review queue item with explicit decision evidence"
+    }
+  ],
+  "requiredBeforeActivation": {
+    "candidateAssets": 0,
+    "pendingReviewMappings": 0,
+    "pendingReviewMigrations": 0,
+    "openReviewQueueItems": 0,
+    "activeImportedAssetsBeforeGuard": 0,
+    "sourceDocumentsEqualSha256Count": true,
+    "rollbackSnapshotReady": true
+  }
+}

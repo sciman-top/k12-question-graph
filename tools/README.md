@@ -103,6 +103,30 @@ This writes only `candidate` domain assets, `pending_review` mappings, a
 `pending_review` migration plan, and one review queue item. It must leave
 `active` domain assets at zero for this batch.
 
+C002 candidate review readiness:
+
+```powershell
+$env:PGPASSWORD='<local-password>'
+.\tools\run-c002l-candidate-review-readiness.ps1
+```
+
+This reads the imported C002 candidate batch and reports remaining activation
+blockers. It does not approve or activate data. C002 completion means a governed
+v1 active default version, not a permanent freeze; future changes must enter as
+new candidate versions with mapping, impact, review, rollback, and active guard.
+
+C002 candidate review apply contract:
+
+```powershell
+$env:PGPASSWORD='<local-password>'
+.\tools\run-c002m-candidate-review-apply-contract.ps1
+```
+
+The default mode is dry-run. It generates and validates an approve/reject/
+keep-pending decision contract from the real C002 candidate batch, requires
+review reasons for approve/reject decisions, and records rollback expectations.
+Real apply requires an explicit decision file and still must not activate C002.
+
 Golden import regression:
 
 ```powershell

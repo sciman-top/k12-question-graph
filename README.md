@@ -10,6 +10,10 @@
 
 当前 P0/P1 已打通“上传文件 -> 创建 ImportJob -> 持久化元数据 -> Python Worker 占位 -> 页面预览/人工确认/来源回看 -> health -> backup manifest -> unified gate”纵切闭环。P2 已完成 C001、C002A-C002K：draft bootstrap 可用于测试，广州中考 33 份原始来源资料已进入 `SourceDocument/FileAsset` 证据层，cleaned candidate 已进入 `candidate/pending_review` 动态资产和审核队列；正式 C002 仍必须经过人工审核、影响确认、回滚快照和 active guard。P3 已在 draft/test 模式完成 D001-D003：真实模型调用仍禁用，LLM 路由只进入 `stub_llm`、成本日志和结构化输出 eval smoke，结果保持人工审核边界。P4 已开始 E001 draft/test 题库检索和题目卡片合同，生产筛题仍等待正式 C002。
 
+`C002` 标记为正式完成时，只表示初中物理知识体系 v1 已成为当前生产默认版本，不表示永久冻结。后续修改必须走新候选版本、映射、影响报告、审核、回滚快照和 active 切换，旧版本保留给历史题目、旧卷和学情解释。
+
+大模型提炼候选体系要先走本地 chunk/hash/cache、schema/eval、模型路由预算和小批量 dry-run，不直接把 33 个 PDF 全量送入高强模型。真实输出仍只能进入 `candidate/pending_review`，不得直接 active。
+
 ## 当前启动与门禁
 
 API:
@@ -147,6 +151,8 @@ tests/      自动化测试与黄金样本
 - `tools/prepare-c002-candidate-csvs.ps1`: C002 ChatGPT Web 候选 CSV 清洗和预检入口。
 - `tools/import-c002-source-materials.ps1`: C002 原始来源资料 dry-run / evidence-layer 导入入口。
 - `tools/import-c002-candidate-assets.ps1`: C002 cleaned candidate DB dry-run / apply 入口。
+- `tools/run-c002l-candidate-review-readiness.ps1`: C002 candidate review readiness / active blocker 报告入口。
+- `tools/run-c002m-candidate-review-apply-contract.ps1`: C002 candidate review decision apply/rollback 合同入口。
 
 快速文档/配置门禁：
 

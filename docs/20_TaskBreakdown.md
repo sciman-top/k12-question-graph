@@ -300,6 +300,14 @@
 - C002I 来源资料工作台 MVP。已完成 API/UI/gate 合同：同一上传链路按教材、课程标准、当地真题、考情年报、校本资料和教师原创分组，记录必需/强烈建议/可选状态、`region/year/gradeOrScope/editionOrVersion/materialBatchKey`、三类用途许可、hash 和列表；ChatGPT Web 初提炼结果只作为 `candidate`，必须与本项目上传 PDF 的来源证据交叉核验后才可进入 `reviewed/active`。
 - C002J 广州中考真实来源资料导入证据层。已完成：`D:\CODE\k12-question-graph\广州中考` 下 33 个 PDF 已在备份预检查后通过 `tools/import-c002-source-materials.ps1 -Apply -StartApi` 导入 `SourceDocument/FileAsset`。验收证据是 `material_batch_key=guangzhou_physics_2016_2025` 下课程标准 1、教材 3、广州中考年报 10、广州中考真题/答案/解析 19，全部关联非空 sha256；本任务未激活正式知识点，也未导入候选资产。
 - C002K C002 cleaned candidate 自动导入 candidate DB。已完成：以 `c002-k12-question-graph-candidate-csvs\cleaned` 为输入，写入 92 个候选动态资产、55 条 `pending_review` 映射、1 个 `pending_review` migration 计划和 1 个 `c002_candidate_import` 审核队列项。所有资产保持 `candidate`，所有映射保持 `pending_review/auto_applied=false`，`active` 数量为 0；正式 C002 仍需人工审核、影响确认和激活 guard。
+- C002L 候选审核与激活前检查合同。已完成：`tools/run-c002l-candidate-review-readiness.ps1` 从真实 DB 读取 C002K 批次，报告候选资产、待审映射、migration、审核队列、来源 hash、rollback snapshot 和 active guard 阻断原因。该合同明确 C002 完成是“可治理的 v1 active 当前默认版本”，不是永久冻结；后续修改必须新建候选版本并通过映射、影响报告、审核、回滚和 active 切换。
+- C002M 候选审核 apply/rollback 合同。已完成：`tools/run-c002m-candidate-review-apply-contract.ps1` 从真实候选批次生成 `approve/reject/keep_pending` 审核决策合同，要求批准/驳回必须有 `reviewReason`，真实 apply 必须提供决策文件，默认只 dry-run；合同包含 asset、mapping、migration 的回滚口径，并持续禁止 active 激活。
+- C002N 来源 chunk/extraction cache。暂缓：对 33 个来源文件做页级文本/OCR/块类型/hash/页码/来源定位和去重缓存，不调用外部 AI；这是控制 token 和保证复跑一致性的前置任务。
+- C002O 大模型提炼 schema + eval golden sample。暂缓：定义候选知识点、课标条目、教材章节、考点、趋势摘要和映射建议的结构化输出 schema，小样本 eval 先验证字段、边界和 `pending_review` 口径。
+- C002P 分层模型路由预算门禁。暂缓：把 L0 本地、L1 低成本筛查、L2 结构化提炼、L3 体系合并、L4 高风险仲裁的模型/reasoning/预算/缓存/升级规则固化为配置和 gate，超预算 fail closed。
+- C002Q 小批量 AI extract dry-run。暂缓：只用少量课标、教材、年报、真题 chunk 跑分层提炼，输出新的 `candidate/pending_review/production_eligible=false` batch，记录模型、reasoning、token、成本和缓存命中，不覆盖 C002K。
+- C002 正式知识点初始化。暂缓：只有 C002L 报告的 hard blockers 清零后，才能把候选 v1 切成 `active` 并把 C002 标记为已完成。完成后旧版本仍保留用于历史题目、旧卷、学情解释和回滚。
+- C002R 知识体系版本治理与便捷修订闭环。暂缓到 C002 v1 active 后：面向教材、课标、中考趋势或教师修正的后续修改，新建 candidate 版本，使用 `equivalent/split/merge/broader/narrower/renamed/deprecated` 映射，生成影响报告和 rollback snapshot，经审核后切换 active。
 - C003 公式、实验、方法、易错点。
 - C004 教材章节映射。
 - C005 地区考点映射。

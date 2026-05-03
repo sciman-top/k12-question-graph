@@ -42,6 +42,10 @@ AI 推荐保留当前 P0-P6 大方向，但调整顺序和验收口径：
 
 截至 2026-05-03，`D:\CODE\k12-question-graph\广州中考` 已完成 C002J 真实来源资料导入：课程标准 1 份、教材 3 份、广州中考年报 10 份、广州中考真题/答案/解析 19 份，共 33 个 PDF，已进入 `SourceDocument/FileAsset` 证据层，真实 `material_batch_key` 为 `guangzhou_physics_2016_2025`。C002K 也已把 `c002-k12-question-graph-candidate-csvs\cleaned` 中的候选资产写入候选 DB：92 个 `candidate` 动态资产、55 条 `pending_review` 映射、1 个 `pending_review` migration 计划和 1 个审核队列项。正式 C002 仍不得标记为完成或 active，必须等人工审核、影响确认、回滚快照和 active guard 全部通过。
 
+C002 的“正式完成”定义为：初中物理 L1-L3 知识体系 v1 已通过来源证据、人工审核、映射影响、回滚快照和 active guard，成为当前生产默认版本。它不表示永久冻结。后续教材、课标、考情或教师修正都应进入新的 `candidate` 版本，通过 `equivalent/split/merge/broader/narrower/renamed/deprecated` 映射、影响报告、审核和回滚快照后，再切换 active；旧 active 版本继续保留用于历史题目、旧卷复现、学情解释和回滚。
+
+大模型提炼候选体系不得直接全量读取 33 个 PDF 后生成正式知识体系。执行顺序必须是 C002N-C002Q：先本地 chunk/hash/cache，再定义结构化 schema 和 eval，再配置分层模型路由预算门禁，最后只做小批量 AI extract dry-run。分层策略为 L0 本地抽取不调用模型，L1 低成本筛查用低 reasoning，L2 结构化初提炼用 medium reasoning，L3 体系合并/冲突判断用 medium/high reasoning，L4 高风险仲裁才允许强模型 high/extra high。所有输出必须保持 `candidate/pending_review/production_eligible=false`，并记录模型、reasoning、token、成本、缓存和来源证据。
+
 真实导入是中风险持久化动作，执行顺序固定为：确认 `git status`、设置正确 `PGPASSWORD/KQG_CONNECTION_STRING`、先运行 dry-run、执行备份或至少生成可恢复 manifest、再运行 `tools/import-c002-source-materials.ps1 -Apply`。若数据库密码缺失或不匹配，导入必须停在 dry-run 和任务更新层，不得绕过来源证据链直接导入候选知识点。
 
 ## P0 · 工程骨架与最小上传纵切

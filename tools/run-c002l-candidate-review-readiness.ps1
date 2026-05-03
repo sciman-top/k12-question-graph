@@ -1,9 +1,7 @@
 param(
-    [string] $InputRoot = 'c002-k12-question-graph-candidate-csvs\cleaned',
+    [string] $ImportKey = 'c002_candidate_import_guangzhou_physics_2016_2025_v1',
     [string] $MaterialBatchKey = 'guangzhou_physics_2016_2025',
-    [string] $ReportPath = 'docs\evidence\c002-candidate-import-report.json',
-    [string] $BackupManifest = '',
-    [switch] $Apply,
+    [string] $ReportPath = 'docs\evidence\c002l-candidate-review-readiness-report.json',
     [string] $DatabaseName = 'k12_question_graph',
     [string] $DatabaseUser = 'postgres',
     [string] $DatabaseHost = '127.0.0.1',
@@ -14,7 +12,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
-$scriptPath = Join-Path $PSScriptRoot 'import_c002_candidate_assets.py'
+$scriptPath = Join-Path $PSScriptRoot 'c002l_candidate_review_readiness.py'
 
 function ConvertTo-PsycopgConnectionString([string] $Value) {
     if ([string]::IsNullOrWhiteSpace($Value) -or -not $Value.Contains(';')) {
@@ -59,27 +57,11 @@ else {
     $ConnectionString = ConvertTo-PsycopgConnectionString $ConnectionString
 }
 
-$args = @(
-    $scriptPath,
-    '--input-root', $InputRoot,
-    '--material-batch-key', $MaterialBatchKey,
-    '--report-path', $ReportPath,
-    '--connection-string', $ConnectionString
-)
-
-if ($Apply) {
-    $args += '--apply'
-}
-
-if (-not [string]::IsNullOrWhiteSpace($BackupManifest)) {
-    $args += @('--backup-manifest', $BackupManifest)
-}
-
 Push-Location $repoRoot
 try {
-    python @args
+    python $scriptPath --connection-string $ConnectionString --import-key $ImportKey --material-batch-key $MaterialBatchKey --report-path $ReportPath
     if ($LASTEXITCODE -ne 0) {
-        throw "candidate import failed with exit code $LASTEXITCODE"
+        throw "C002L readiness contract failed with exit code $LASTEXITCODE"
     }
 }
 finally {

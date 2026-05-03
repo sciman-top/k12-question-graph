@@ -1,12 +1,12 @@
 {
-  "status": "applied",
-  "checkedAt": "2026-05-03T11:07:51.229540+00:00",
+  "status": "dry_run",
+  "checkedAt": "2026-05-03T11:24:19.418815+00:00",
   "task": "C002K",
   "importKey": "c002_candidate_import_guangzhou_physics_2016_2025_v1",
   "materialBatchKey": "guangzhou_physics_2016_2025",
   "inputRoot": "c002-k12-question-graph-candidate-csvs\\cleaned",
-  "apply": true,
-  "backupManifest": "D:\\KQG_Backups\\20260503-190726\\manifest.json",
+  "apply": false,
+  "backupManifest": "",
   "summary": {
     "assets": 92,
     "mappings": 55,
@@ -44,7 +44,5 @@
   "protectedExistingAssets": [],
   "productionActivationAllowed": false,
   "candidateOnly": true,
-  "reportHash": "4cc35f3fc8f73969167d5d7d697274729bb2e63b70b3ebb7e1b081768a27bdcc",
-  "migrationId": "0dc2c308-9006-4311-88b5-893b4ca0a515",
-  "reviewQueueItemId": "88ae94fc-4245-4380-a1bf-b12258b9e001"
+  "reportHash": "6fa118f36df17530d759f537dda9e2f276a17590384212bea27ca16c86f96e2b"
 }

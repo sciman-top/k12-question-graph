@@ -201,6 +201,14 @@ try {
         .\tools\run-c002i-source-material-workbench-contract.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword | Write-Host
     }
 
+    Invoke-GateStep 'c002l candidate review readiness contract' {
+        .\tools\run-c002l-candidate-review-readiness.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword | Write-Host
+    }
+
+    Invoke-GateStep 'c002m candidate review apply contract' {
+        .\tools\run-c002m-candidate-review-apply-contract.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword | Write-Host
+    }
+
     Invoke-GateStep 'c002 junior physics draft bootstrap guard' {
         .\tools\run-c002-seed-validation.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin | Write-Host
     }

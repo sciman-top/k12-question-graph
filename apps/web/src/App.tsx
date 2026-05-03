@@ -55,10 +55,10 @@ const teacherActions = [
 ]
 
 const jobStates = [
-  { label: 'queued', value: 0 },
-  { label: 'running', value: 0 },
-  { label: 'failed', value: 0 },
-  { label: 'retry_waiting', value: 0 },
+  { state: 'queued', label: '排队中', value: 0 },
+  { state: 'running', label: '处理中', value: 0 },
+  { state: 'failed', label: '失败', value: 0 },
+  { state: 'retry_waiting', label: '等待重试', value: 0 },
 ]
 
 const initialSegments = [
@@ -107,6 +107,39 @@ const questionCards = [
     status: 'draft_test',
   },
 ]
+
+const displayText = {
+  queued: '排队中',
+  running: '处理中',
+  failed: '失败',
+  retry_waiting: '等待重试',
+  single_choice: '单选题',
+  calculation: '计算题',
+  experiment: '实验题',
+  short_answer: '简答题',
+  synthetic: '示例来源',
+  golden: '黄金样本',
+  draft_test: '草稿测试',
+  draft_dynamic_asset: '草稿动态资产',
+  pending_review: '待审核',
+  unit_practice: '单元练习',
+  physics: '物理',
+  grade_8: '八年级',
+  medium: '中等',
+  medium_hard: '中等偏难',
+  textbook: '教材',
+  curriculum_standard: '课程标准',
+  local_exam_paper: '当地真题',
+  exam_analysis_report: '考情年报',
+  school_paper: '校本资料',
+  teacher_original: '教师原创',
+  uploaded_metadata: '已记录元数据',
+} as const
+
+type DisplayKey = keyof typeof displayText
+
+const labelFor = (value: string) =>
+  value in displayText ? displayText[value as DisplayKey] : value
 
 const sourceMaterialTypes = [
   {

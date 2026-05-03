@@ -1,0 +1,55 @@
+{
+  "status": "pass",
+  "checkedAt": "2026-05-03T11:50:57.564950+00:00",
+  "task": "C002M",
+  "importKey": "c002_candidate_import_guangzhou_physics_2016_2025_v1",
+  "mode": "dry_run",
+  "applied": false,
+  "decisionSource": "generated_sample_contract",
+  "decisionCoverage": {
+    "assetDecisions": 3,
+    "mappingDecisions": 3,
+    "migrationDecision": 1,
+    "coveredDecisionTypes": [
+      "approve",
+      "keep_pending",
+      "reject"
+    ]
+  },
+  "before": {
+    "candidateAssets": 92,
+    "reviewedAssets": 0,
+    "activeAssets": 0,
+    "pendingMappings": 55,
+    "approvedMappings": 0,
+    "rejectedMappings": 0,
+    "autoAppliedMappings": 0,
+    "pendingMigrations": 1,
+    "appliedMigrations": 0,
+    "rejectedMigrations": 0,
+    "openReviewItems": 1
+  },
+  "after": {
+    "candidateAssets": 92,
+    "reviewedAssets": 0,
+    "activeAssets": 0,
+    "pendingMappings": 55,
+    "approvedMappings": 0,
+    "rejectedMappings": 0,
+    "autoAppliedMappings": 0,
+    "pendingMigrations": 1,
+    "appliedMigrations": 0,
+    "rejectedMigrations": 0,
+    "openReviewItems": 1
+  },
+  "validationErrors": [],
+  "blockers": [],
+  "activeActivationAllowed": false,
+  "rollbackContract": {
+    "requiresBackupManifestBeforeRealApply": true,
+    "assetRollback": "restore status and metadata from backup snapshot or previous report before active guard",
+    "mappingRollback": "restore review_status auto_applied evidence reviewed_at from backup snapshot",
+    "migrationRollback": "restore status impact_report rollback_snapshot from backup snapshot",
+    "reviewQueueRollback": "reopen c002_candidate_import review item if decisions are reverted"
+  }
+}
