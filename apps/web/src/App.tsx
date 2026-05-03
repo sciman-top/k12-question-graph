@@ -108,6 +108,63 @@ const questionCards = [
   },
 ]
 
+const sourceMaterialTypes = [
+  {
+    type: 'textbook',
+    title: '教材',
+    requirement: '必需',
+    use: '教材章节体系、章节到知识点映射',
+  },
+  {
+    type: 'curriculum_standard',
+    title: '课程标准',
+    requirement: '必需',
+    use: '课标条目、能力要求、知识要求',
+  },
+  {
+    type: 'local_exam_paper',
+    title: '当地真题',
+    requirement: '必需',
+    use: '考点、题型、分值、地区命题口径',
+  },
+  {
+    type: 'exam_analysis_report',
+    title: '考情年报',
+    requirement: '强烈建议',
+    use: '高频考点、趋势、易错点、权重',
+  },
+  {
+    type: 'school_paper',
+    title: '校本资料',
+    requirement: '可选',
+    use: '校本重点、教师经验、校本题库',
+  },
+]
+
+const sourceMaterialUploads = [
+  {
+    title: '2025 本地中考物理真题.pdf',
+    sourceType: 'local_exam_paper',
+    region: '本地',
+    year: '2025',
+    status: 'uploaded_metadata',
+  },
+  {
+    title: '义务教育物理课程标准.pdf',
+    sourceType: 'curriculum_standard',
+    region: '全国',
+    year: '2022',
+    status: 'uploaded_metadata',
+  },
+  {
+    title: '2025 本地物理考情年报.pdf',
+    sourceType: 'exam_analysis_report',
+    region: '本地',
+    year: '2025',
+    status: 'uploaded_metadata',
+  },
+]
+
 const initialPaperRequest =
   '八年级物理，牛顿第一定律与惯性，单选 5 题、计算 2 题、实验 1 题，总分 30 分，难度中等'
 
@@ -449,6 +506,91 @@ function App() {
                     <Typography.Text key={item}>{item}</Typography.Text>
                   ))}
                 </div>
+              </div>
+            </div>
+          </section>
+
+          <section
+            className="source-material-panel"
+            aria-label="来源资料工作台"
+            data-flow="source-material-workbench"
+          >
+            <div className="panel-heading">
+              <div>
+                <Typography.Title level={2}>来源资料工作台</Typography.Title>
+                <Typography.Text type="secondary">
+                  同一上传链路按资料类型分组，ChatGPT Web 初提炼只作为 candidate。
+                </Typography.Text>
+              </div>
+              <Space size="small" wrap>
+                <Tag color="green">C002I</Tag>
+                <Tag data-contract="dual-evidence-chain">双证据链</Tag>
+              </Space>
+            </div>
+
+            <div className="source-material-workspace">
+              <div className="source-type-grid" data-contract="source-type-groups">
+                {sourceMaterialTypes.map((item) => (
+                  <button className="source-type-card" key={item.type} type="button">
+                    <span>
+                      <strong>{item.title}</strong>
+                      <small>{item.use}</small>
+                    </span>
+                    <Tag color={item.requirement === '必需' ? 'red' : item.requirement === '可选' ? undefined : 'orange'}>
+                      {item.requirement}
+                    </Tag>
+                  </button>
+                ))}
+              </div>
+
+              <div className="source-upload-form" data-contract="source-material-metadata">
+                <div className="source-form-grid">
+                  <label>
+                    资料类型
+                    <select defaultValue="local_exam_paper" aria-label="资料类型">
+                      {sourceMaterialTypes.map((item) => (
+                        <option key={item.type} value={item.type}>
+                          {item.type}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    地区
+                    <Input defaultValue="本地" aria-label="地区" />
+                  </label>
+                  <label>
+                    年份
+                    <Input defaultValue="2025" aria-label="年份" />
+                  </label>
+                  <label>
+                    批次
+                    <Input defaultValue="local-physics-2015-2025" aria-label="批次" />
+                  </label>
+                </div>
+                <div className="source-permission-row">
+                  <Tag>mayUseForKnowledgeExtraction</Tag>
+                  <Tag>mayUseForExamPointExtraction</Tag>
+                  <Tag>mayUseForTrendAnalysis</Tag>
+                  <Tag>productionEligible=false</Tag>
+                </div>
+                <Button icon={<CloudUploadOutlined />} data-action="upload-source-material">
+                  上传来源资料
+                </Button>
+              </div>
+
+              <div className="source-material-list" data-contract="source-material-list">
+                {sourceMaterialUploads.map((item) => (
+                  <div className="source-material-row" key={item.title}>
+                    <span>
+                      <strong>{item.title}</strong>
+                      <small>
+                        {item.sourceType} · {item.region} · {item.year}
+                      </small>
+                    </span>
+                    <Tag color="green">{item.status}</Tag>
+                  </div>
+                ))}
               </div>
             </div>
           </section>

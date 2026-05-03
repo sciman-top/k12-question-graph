@@ -17,31 +17,55 @@ public sealed record SourceDocumentResponse(
     Guid FileAssetId,
     string SourceType,
     string SourceTitle,
+    string Region,
+    int? Year,
+    string GradeOrScope,
+    string EditionOrVersion,
+    string MaterialBatchKey,
     string OwnerScope,
     string LicenseOrPermission,
     bool SharingAllowed,
     bool ContainsStudentPii,
     string AnonymizationStatus,
-    bool ExternalAiAllowed);
+    bool ExternalAiAllowed,
+    bool MayUseForKnowledgeExtraction,
+    bool MayUseForExamPointExtraction,
+    bool MayUseForTrendAnalysis);
 
 public sealed record SourceDocumentMetadata(
     string SourceType,
     string SourceTitle,
+    string Region,
+    int? Year,
+    string GradeOrScope,
+    string EditionOrVersion,
+    string MaterialBatchKey,
     string OwnerScope,
     string LicenseOrPermission,
     bool SharingAllowed,
     bool ContainsStudentPii,
-    string AnonymizationStatus)
+    string AnonymizationStatus,
+    bool MayUseForKnowledgeExtraction,
+    bool MayUseForExamPointExtraction,
+    bool MayUseForTrendAnalysis)
 {
     public static SourceDocumentMetadata Defaults(string originalFileName)
     {
         return new SourceDocumentMetadata(
             SourceType: "unknown",
             SourceTitle: originalFileName,
+            Region: string.Empty,
+            Year: null,
+            GradeOrScope: string.Empty,
+            EditionOrVersion: string.Empty,
+            MaterialBatchKey: string.Empty,
             OwnerScope: "teacher_private",
             LicenseOrPermission: "unknown",
             SharingAllowed: false,
             ContainsStudentPii: false,
-            AnonymizationStatus: "not_applicable");
+            AnonymizationStatus: "not_applicable",
+            MayUseForKnowledgeExtraction: false,
+            MayUseForExamPointExtraction: false,
+            MayUseForTrendAnalysis: false);
     }
 }

@@ -31,7 +31,12 @@ foreach ($material in $materials) {
     Assert-Condition (-not $materialById.ContainsKey($material.materialId)) "duplicate materialId: $($material.materialId)"
     Assert-Condition ($material.localPath -notmatch '(?i)D:/CODE|D:\\CODE|configs/|docs/|sources/') "material localPath must stay outside repo: $($material.materialId)"
     Assert-Condition (-not ($material.containsStudentPii -and $material.anonymizationStatus -notin @('anonymized','synthetic'))) "material contains unhandled PII: $($material.materialId)"
-    Assert-Condition ($material.mayUseForKnowledgeExtraction -eq $true) "material not approved for extraction: $($material.materialId)"
+    if ($material.sourceType -in @('textbook', 'curriculum_standard')) {
+        Assert-Condition ($material.mayUseForKnowledgeExtraction -eq $true) "material not approved for knowledge extraction: $($material.materialId)"
+    }
+    if ($material.sourceType -in @('local_exam_paper', 'exam_analysis_report')) {
+        Assert-Condition ($material.mayUseForExamPointExtraction -eq $true) "material not approved for exam point extraction: $($material.materialId)"
+    }
     $materialById[$material.materialId] = $material
 }
 

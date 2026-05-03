@@ -47,6 +47,7 @@
 .status-panel,
 .question-panel,
 .paper-request-panel,
+.source-material-panel,
 .review-panel,
 .guardrail-panel {
   border: 1px solid var(--line);
@@ -146,6 +147,11 @@
 }
 
 .paper-request-panel {
+  grid-column: 1 / -1;
+  padding: 24px;
+}
+
+.source-material-panel {
   grid-column: 1 / -1;
   padding: 24px;
 }
@@ -282,6 +288,100 @@
 .review-questions {
   border-left: 3px solid var(--accent);
   padding-left: 12px;
+}
+
+.source-material-workspace {
+  display: grid;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.source-type-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.source-type-card {
+  display: grid;
+  align-content: space-between;
+  gap: 12px;
+  min-height: 136px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+  padding: 12px;
+  text-align: left;
+}
+
+.source-type-card span,
+.source-material-row span {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.source-type-card small,
+.source-material-row small {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.source-upload-form {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  padding: 14px;
+}
+
+.source-form-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.source-form-grid label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.source-form-grid select {
+  min-height: 32px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+  padding: 4px 8px;
+}
+
+.source-permission-row,
+.source-material-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.source-material-list {
+  display: grid;
+}
+
+.source-material-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 58px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  padding: 10px 12px;
 }
 
 .status-strip {
@@ -500,7 +600,9 @@
   }
 
   .paper-summary,
-  .blueprint-row {
+  .blueprint-row,
+  .source-type-grid,
+  .source-form-grid {
     grid-template-columns: 1fr;
   }
 

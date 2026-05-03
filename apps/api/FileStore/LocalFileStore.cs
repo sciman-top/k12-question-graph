@@ -84,11 +84,19 @@ public sealed class LocalFileStore(KqgDbContext dbContext, IOptions<KqgPathsOpti
             {
                 normalizedSourceMetadata.SourceType,
                 normalizedSourceMetadata.SourceTitle,
+                normalizedSourceMetadata.Region,
+                normalizedSourceMetadata.Year,
+                normalizedSourceMetadata.GradeOrScope,
+                normalizedSourceMetadata.EditionOrVersion,
+                normalizedSourceMetadata.MaterialBatchKey,
                 normalizedSourceMetadata.OwnerScope,
                 normalizedSourceMetadata.LicenseOrPermission,
                 normalizedSourceMetadata.SharingAllowed,
                 normalizedSourceMetadata.ContainsStudentPii,
-                normalizedSourceMetadata.AnonymizationStatus
+                normalizedSourceMetadata.AnonymizationStatus,
+                normalizedSourceMetadata.MayUseForKnowledgeExtraction,
+                normalizedSourceMetadata.MayUseForExamPointExtraction,
+                normalizedSourceMetadata.MayUseForTrendAnalysis
             })
         };
 
@@ -111,12 +119,20 @@ public sealed class LocalFileStore(KqgDbContext dbContext, IOptions<KqgPathsOpti
             FileAssetId = fileAssetId,
             SourceType = normalized.SourceType,
             SourceTitle = normalized.SourceTitle,
+            Region = normalized.Region,
+            Year = normalized.Year,
+            GradeOrScope = normalized.GradeOrScope,
+            EditionOrVersion = normalized.EditionOrVersion,
+            MaterialBatchKey = normalized.MaterialBatchKey,
             OwnerScope = normalized.OwnerScope,
             LicenseOrPermission = normalized.LicenseOrPermission,
             SharingAllowed = normalized.SharingAllowed,
             ContainsStudentPii = normalized.ContainsStudentPii,
             AnonymizationStatus = normalized.AnonymizationStatus,
-            ExternalAiAllowed = ComputeExternalAiAllowed(normalized)
+            ExternalAiAllowed = ComputeExternalAiAllowed(normalized),
+            MayUseForKnowledgeExtraction = normalized.MayUseForKnowledgeExtraction,
+            MayUseForExamPointExtraction = normalized.MayUseForExamPointExtraction,
+            MayUseForTrendAnalysis = normalized.MayUseForTrendAnalysis
         };
 
         dbContext.SourceDocuments.Add(sourceDocument);
@@ -128,6 +144,10 @@ public sealed class LocalFileStore(KqgDbContext dbContext, IOptions<KqgPathsOpti
     {
         var sourceType = NormalizeToken(metadata.SourceType, "unknown");
         var sourceTitle = string.IsNullOrWhiteSpace(metadata.SourceTitle) ? "untitled source" : metadata.SourceTitle.Trim();
+        var region = string.IsNullOrWhiteSpace(metadata.Region) ? string.Empty : metadata.Region.Trim();
+        var gradeOrScope = string.IsNullOrWhiteSpace(metadata.GradeOrScope) ? string.Empty : metadata.GradeOrScope.Trim();
+        var editionOrVersion = string.IsNullOrWhiteSpace(metadata.EditionOrVersion) ? string.Empty : metadata.EditionOrVersion.Trim();
+        var materialBatchKey = NormalizeToken(metadata.MaterialBatchKey, string.Empty);
         var ownerScope = NormalizeToken(metadata.OwnerScope, "teacher_private");
         var license = string.IsNullOrWhiteSpace(metadata.LicenseOrPermission) ? "unknown" : metadata.LicenseOrPermission.Trim();
         var anonymizationStatus = NormalizeToken(metadata.AnonymizationStatus, "not_applicable");
@@ -154,6 +174,10 @@ public sealed class LocalFileStore(KqgDbContext dbContext, IOptions<KqgPathsOpti
         {
             SourceType = sourceType,
             SourceTitle = sourceTitle,
+            Region = region,
+            GradeOrScope = gradeOrScope,
+            EditionOrVersion = editionOrVersion,
+            MaterialBatchKey = materialBatchKey,
             OwnerScope = ownerScope,
             LicenseOrPermission = license,
             SharingAllowed = sharingAllowed,
@@ -207,11 +231,19 @@ public sealed class LocalFileStore(KqgDbContext dbContext, IOptions<KqgPathsOpti
                 sourceDocument.FileAssetId,
                 sourceDocument.SourceType,
                 sourceDocument.SourceTitle,
+                sourceDocument.Region,
+                sourceDocument.Year,
+                sourceDocument.GradeOrScope,
+                sourceDocument.EditionOrVersion,
+                sourceDocument.MaterialBatchKey,
                 sourceDocument.OwnerScope,
                 sourceDocument.LicenseOrPermission,
                 sourceDocument.SharingAllowed,
                 sourceDocument.ContainsStudentPii,
                 sourceDocument.AnonymizationStatus,
-                sourceDocument.ExternalAiAllowed));
+                sourceDocument.ExternalAiAllowed,
+                sourceDocument.MayUseForKnowledgeExtraction,
+                sourceDocument.MayUseForExamPointExtraction,
+                sourceDocument.MayUseForTrendAnalysis));
     }
 }

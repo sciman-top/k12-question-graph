@@ -38,6 +38,8 @@ AI 推荐保留当前 P0-P6 大方向，但调整顺序和验收口径：
 
 阶段准入不要求所有动态资产已正式 `active`。当正式资产缺失时，准入条件解释为“已有足够 draft/test fixture、sample config、schema 和 guard 支撑本阶段系统能力验证”；退出条件解释为“draft/test 系统能力通过 gate，生产激活仍由单独任务控制”。
 
+来源资料采用双证据链：ChatGPT Web 或其他外部 AI 可以先把 PDF 提炼成结构化候选表，但这些结果只能导入为 `candidate/pending_review/productionEligible=false`；本项目必须同时通过来源资料工作台上传原始 PDF/docx/image，保存 `sha256/sourceType/region/year/page/question evidence` 后，才能核验、映射、影响评估并进入 `reviewed/active`。
+
 ## P0 · 工程骨架与最小上传纵切
 
 目标：证明技术栈、数据路径、任务路径、文件路径和备份路径能在 Windows 本机/LAN 场景跑通。

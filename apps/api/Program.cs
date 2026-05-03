@@ -229,6 +229,40 @@ app.MapPost("/files", async (HttpRequest request, IFileStore fileStore, Cancella
 .DisableAntiforgery()
 .WithName("UploadFile");
 
+app.MapGet("/source-documents", async (
+    string? sourceType,
+    string? materialBatchKey,
+    KqgDbContext dbContext,
+    CancellationToken cancellationToken) =>
+{
+    var query =
+        from document in dbContext.SourceDocuments.AsNoTracking()
+        join file in dbContext.FileAssets.AsNoTracking() on document.FileAssetId equals file.Id
+        select new { document, file };
+
+    if (!string.IsNullOrWhiteSpace(sourceType))
+    {
+        var value = NormalizeToken(sourceType, "unknown");
+        query = query.Where(x => x.document.SourceType == value);
+    }
+
+    if (!string.IsNullOrWhiteSpace(materialBatchKey))
+    {
+        var value = NormalizeToken(materialBatchKey, string.Empty);
+        query = query.Where(x => x.document.MaterialBatchKey == value);
+    }
+
+    var rows = await query
+        .OrderByDescending(x => x.document.CreatedAt)
+        .Take(100)
+        .ToListAsync(cancellationToken);
+
+    return Results.Ok(new SourceMaterialListResponse(
+        Mode: "source_material_workbench_mvp",
+        Items: rows.Select(x => SourceMaterialResponse.From(x.document, x.file)).ToArray()));
+})
+.WithName("ListSourceDocuments");
+
 app.MapPost("/imports", async (HttpRequest request, IFileStore fileStore, KqgDbContext dbContext, CancellationToken cancellationToken) =>
 {
     var form = await request.ReadFormAsync(cancellationToken);
@@ -928,11 +962,19 @@ static SourceDocumentMetadata SourceMetadataFromForm(IFormCollection form, strin
     {
         SourceType = FormValue(form, "sourceType", defaults.SourceType),
         SourceTitle = FormValue(form, "sourceTitle", defaults.SourceTitle),
+        Region = FormValue(form, "region", defaults.Region),
+        Year = FormInt(form, "year", defaults.Year),
+        GradeOrScope = FormValue(form, "gradeOrScope", defaults.GradeOrScope),
+        EditionOrVersion = FormValue(form, "editionOrVersion", defaults.EditionOrVersion),
+        MaterialBatchKey = FormValue(form, "materialBatchKey", defaults.MaterialBatchKey),
         OwnerScope = FormValue(form, "ownerScope", defaults.OwnerScope),
         LicenseOrPermission = FormValue(form, "licenseOrPermission", defaults.LicenseOrPermission),
         SharingAllowed = FormBool(form, "sharingAllowed", defaults.SharingAllowed),
         ContainsStudentPii = FormBool(form, "containsStudentPii", defaults.ContainsStudentPii),
-        AnonymizationStatus = FormValue(form, "anonymizationStatus", defaults.AnonymizationStatus)
+        AnonymizationStatus = FormValue(form, "anonymizationStatus", defaults.AnonymizationStatus),
+        MayUseForKnowledgeExtraction = FormBool(form, "mayUseForKnowledgeExtraction", defaults.MayUseForKnowledgeExtraction),
+        MayUseForExamPointExtraction = FormBool(form, "mayUseForExamPointExtraction", defaults.MayUseForExamPointExtraction),
+        MayUseForTrendAnalysis = FormBool(form, "mayUseForTrendAnalysis", defaults.MayUseForTrendAnalysis)
     };
 }
 
@@ -946,6 +988,13 @@ static string FormValue(IFormCollection form, string key, string fallback)
 static bool FormBool(IFormCollection form, string key, bool fallback)
 {
     return form.TryGetValue(key, out var value) && bool.TryParse(value.ToString(), out var parsed)
+        ? parsed
+        : fallback;
+}
+
+static int? FormInt(IFormCollection form, string key, int? fallback)
+{
+    return form.TryGetValue(key, out var value) && int.TryParse(value.ToString(), out var parsed)
         ? parsed
         : fallback;
 }
@@ -1258,6 +1307,58 @@ public sealed record SourceRegionResponse(
 public sealed record SourcePreviewPageResponse(int PageNumber, IReadOnlyList<SourceRegionResponse> Regions);
 
 public sealed record SourceDocumentPreviewResponse(Guid SourceDocumentId, IReadOnlyList<SourcePreviewPageResponse> Pages);
+
+public sealed record SourceMaterialListResponse(
+    string Mode,
+    IReadOnlyList<SourceMaterialResponse> Items);
+
+public sealed record SourceMaterialResponse(
+    Guid Id,
+    Guid FileAssetId,
+    string SourceType,
+    string SourceTitle,
+    string Region,
+    int? Year,
+    string GradeOrScope,
+    string EditionOrVersion,
+    string MaterialBatchKey,
+    string LicenseOrPermission,
+    bool ContainsStudentPii,
+    string AnonymizationStatus,
+    bool ExternalAiAllowed,
+    bool MayUseForKnowledgeExtraction,
+    bool MayUseForExamPointExtraction,
+    bool MayUseForTrendAnalysis,
+    string OriginalFileName,
+    string RelativePath,
+    string Sha256,
+    long SizeBytes)
+{
+    public static SourceMaterialResponse From(SourceDocument document, FileAsset file)
+    {
+        return new SourceMaterialResponse(
+            document.Id,
+            document.FileAssetId,
+            document.SourceType,
+            document.SourceTitle,
+            document.Region,
+            document.Year,
+            document.GradeOrScope,
+            document.EditionOrVersion,
+            document.MaterialBatchKey,
+            document.LicenseOrPermission,
+            document.ContainsStudentPii,
+            document.AnonymizationStatus,
+            document.ExternalAiAllowed,
+            document.MayUseForKnowledgeExtraction,
+            document.MayUseForExamPointExtraction,
+            document.MayUseForTrendAnalysis,
+            file.OriginalFileName,
+            file.RelativePath,
+            file.Sha256,
+            file.SizeBytes);
+    }
+}
 
 public sealed record QuestionCreateRequest(
     string Subject,

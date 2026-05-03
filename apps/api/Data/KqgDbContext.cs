@@ -95,11 +95,16 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
         entity.HasKey(x => x.Id);
         entity.HasIndex(x => x.FileAssetId);
         entity.HasIndex(x => x.SourceType);
+        entity.HasIndex(x => new { x.SourceType, x.Region, x.Year });
         entity.HasIndex(x => x.OwnerScope);
         entity.HasIndex(x => x.ContainsStudentPii);
         entity.Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
         entity.Property(x => x.SourceType).HasMaxLength(64).HasDefaultValue("unknown");
         entity.Property(x => x.SourceTitle).HasMaxLength(260).HasDefaultValue(string.Empty);
+        entity.Property(x => x.Region).HasMaxLength(128).HasDefaultValue(string.Empty);
+        entity.Property(x => x.GradeOrScope).HasMaxLength(128).HasDefaultValue(string.Empty);
+        entity.Property(x => x.EditionOrVersion).HasMaxLength(128).HasDefaultValue(string.Empty);
+        entity.Property(x => x.MaterialBatchKey).HasMaxLength(160).HasDefaultValue(string.Empty);
         entity.Property(x => x.OwnerScope).HasMaxLength(64).HasDefaultValue("teacher_private");
         entity.Property(x => x.LicenseOrPermission).HasMaxLength(256).HasDefaultValue("unknown");
         entity.Property(x => x.AnonymizationStatus).HasMaxLength(64).HasDefaultValue("not_applicable");

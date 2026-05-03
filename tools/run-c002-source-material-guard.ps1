@@ -27,9 +27,9 @@ foreach ($requiredType in $requiredTypes) {
     }
 }
 
-$allowedTypes = @('textbook', 'curriculum_standard', 'local_exam_paper', 'school_paper', 'teacher_original', 'region_exam_point')
+$allowedTypes = @('textbook', 'curriculum_standard', 'local_exam_paper', 'exam_analysis_report', 'school_paper', 'teacher_original', 'region_exam_point')
 foreach ($material in $materials) {
-    foreach ($field in @('materialId', 'sourceType', 'title', 'publisherOrAuthority', 'year', 'localPath', 'sha256', 'licenseOrPermission', 'containsStudentPii', 'anonymizationStatus', 'mayUseForKnowledgeExtraction')) {
+    foreach ($field in @('materialId', 'sourceType', 'title', 'publisherOrAuthority', 'year', 'region', 'localPath', 'sha256', 'licenseOrPermission', 'containsStudentPii', 'anonymizationStatus', 'mayUseForKnowledgeExtraction', 'mayUseForExamPointExtraction', 'mayUseForTrendAnalysis')) {
         if (-not ($material.PSObject.Properties.Name -contains $field)) {
             throw "material $($material.materialId) missing field: $field"
         }
@@ -51,13 +51,26 @@ foreach ($material in $materials) {
         throw "material $($material.materialId) contains PII without anonymization"
     }
 
-    if ($material.mayUseForKnowledgeExtraction -ne $true) {
+    if ($material.sourceType -in @('textbook', 'curriculum_standard') -and $material.mayUseForKnowledgeExtraction -ne $true) {
         throw "material $($material.materialId) is not approved for knowledge extraction"
+    }
+
+    if ($material.sourceType -in @('local_exam_paper', 'exam_analysis_report') -and $material.mayUseForExamPointExtraction -ne $true) {
+        throw "material $($material.materialId) is not approved for exam point extraction"
     }
 }
 
 $gitignore = Get-Content -LiteralPath (Join-Path $repoRoot '.gitignore') -Raw
-foreach ($pattern in @('configs/knowledge/source-material-manifest.local.json', 'sources/knowledge-materials/')) {
+foreach ($pattern in @(
+    'configs/knowledge/source-material-manifest.local.json',
+    'configs/knowledge/c002-formal-knowledge.local.csv',
+    'configs/knowledge/c002-exam-point.local.csv',
+    'configs/knowledge/c002-textbook-chapter.local.csv',
+    'configs/knowledge/c002-curriculum-standard.local.csv',
+    'configs/knowledge/c002-asset-mapping.local.csv',
+    'configs/knowledge/c002-external-ai-candidate.local.csv',
+    'sources/knowledge-materials/'
+)) {
     if (-not $gitignore.Contains($pattern)) {
         throw ".gitignore missing C002 source material guard pattern: $pattern"
     }
@@ -68,5 +81,6 @@ foreach ($pattern in @('configs/knowledge/source-material-manifest.local.json', 
     manifest = $ManifestPath
     materialCount = $materials.Count
     requiredTypes = $requiredTypes
+    optionalTypes = @('exam_analysis_report', 'school_paper', 'teacher_original')
     realFilesMustStayOutsideGit = $true
 } | ConvertTo-Json

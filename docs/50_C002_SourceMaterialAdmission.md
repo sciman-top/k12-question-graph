@@ -12,13 +12,14 @@
 
 正式提炼前，每份资料必须记录：
 
-- `sourceType`: `textbook`、`curriculum_standard`、`local_exam_paper`、`school_paper`、`teacher_original` 或 `region_exam_point`。
+- `sourceType`: `textbook`、`curriculum_standard`、`local_exam_paper`、`exam_analysis_report`、`school_paper`、`teacher_original` 或 `region_exam_point`。
 - `title`、`publisherOrAuthority`、`editionOrVersion`、`year`、`gradeOrScope`。
+- `region`、`materialBatchKey`: 用于区分地区口径和资料批次。
 - `localPath`: 指向 `D:\KQG_Data\source_materials\` 或等价数据目录，不能指向仓库内文件。
 - `sha256`: 原文件 hash。
 - `licenseOrPermission`: 授权、公开来源、校内许可或未知状态。
 - `containsStudentPii` 与 `anonymizationStatus`。
-- `mayUseForKnowledgeExtraction`: 是否允许用于知识点提炼。
+- `mayUseForKnowledgeExtraction`、`mayUseForExamPointExtraction`、`mayUseForTrendAnalysis`: 是否允许用于知识点、考点和趋势提炼。
 
 真实教材、真题、校本试卷原件不得提交到 Git。真实本地 manifest 使用：
 
@@ -34,6 +35,16 @@ configs/knowledge/source-material-manifest.local.json
 configs/knowledge/c002-formal-knowledge-template.csv
 ```
 
+其他候选资产与外部 AI 初提炼模板：
+
+```text
+configs/knowledge/c002-exam-point-template.csv
+configs/knowledge/c002-textbook-chapter-template.csv
+configs/knowledge/c002-curriculum-standard-template.csv
+configs/knowledge/c002-asset-mapping-template.csv
+configs/knowledge/c002-external-ai-candidate-template.csv
+```
+
 真实填写版应放在数据目录或本地忽略文件中，例如：
 
 ```text
@@ -47,6 +58,8 @@ D:\KQG_Data\source_materials\staging\c002-formal-knowledge.local.csv
 - 一个教材版本或教材目录资料。
 - 一个学科课程标准资料。
 - 一个近年当地中考/高考真题或区域考试资料。
+- 考情总结/年报不是最低必需，但强烈建议录入，用于考点权重、趋势和易错点核验。
+- 校本资料、教师原创资料和教辅资料可选，不应阻断正式最低资料集。
 
 若缺任一类，C002 只能保持 `暂缓`，draft bootstrap 仍只能用于测试。
 

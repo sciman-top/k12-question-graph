@@ -71,4 +71,9 @@ backups/
 # Real C002 source materials and local manifests stay outside git.
 configs/knowledge/source-material-manifest.local.json
 configs/knowledge/c002-formal-knowledge.local.csv
+configs/knowledge/c002-exam-point.local.csv
+configs/knowledge/c002-textbook-chapter.local.csv
+configs/knowledge/c002-curriculum-standard.local.csv
+configs/knowledge/c002-asset-mapping.local.csv
+configs/knowledge/c002-external-ai-candidate.local.csv
 sources/knowledge-materials/

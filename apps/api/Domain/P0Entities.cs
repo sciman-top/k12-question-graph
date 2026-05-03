@@ -155,6 +155,16 @@ public sealed class SourceDocument
 
     public string SourceTitle { get; set; } = string.Empty;
 
+    public string Region { get; set; } = string.Empty;
+
+    public int? Year { get; set; }
+
+    public string GradeOrScope { get; set; } = string.Empty;
+
+    public string EditionOrVersion { get; set; } = string.Empty;
+
+    public string MaterialBatchKey { get; set; } = string.Empty;
+
     public string OwnerScope { get; set; } = "teacher_private";
 
     public string LicenseOrPermission { get; set; } = "unknown";
@@ -166,6 +176,12 @@ public sealed class SourceDocument
     public string AnonymizationStatus { get; set; } = "not_applicable";
 
     public bool ExternalAiAllowed { get; set; }
+
+    public bool MayUseForKnowledgeExtraction { get; set; }
+
+    public bool MayUseForExamPointExtraction { get; set; }
+
+    public bool MayUseForTrendAnalysis { get; set; }
 
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 }

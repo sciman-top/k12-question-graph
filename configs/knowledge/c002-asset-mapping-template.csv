@@ -1,0 +1,4 @@
+mapping_id,source_asset_type,source_stable_id,target_asset_type,target_stable_id,mapping_type,confidence,source_material_ids,evidence_locations,impact_scope,review_status,auto_apply_allowed,rollback_required,notes
+MAP-C002-001,textbook_chapter,TBPHY-001-01,knowledge_point,KPHY-FORMAL-MECH-001-01,equivalent,0.82,textbook-001,REPLACE_WITH_PAGE_RANGE,question_binding;search_index,pending_review,false,true,Chapter-to-knowledge mapping.
+MAP-C002-002,curriculum_standard_item,CSPHY-001,knowledge_point,KPHY-FORMAL-MECH-001-01,broader,0.76,curriculum-001,REPLACE_WITH_SECTION,assembly_constraint;analysis_metric,pending_review,false,true,Standard-to-knowledge mapping.
+MAP-C002-003,exam_point,EPHY-LOCAL-001,knowledge_point,KPHY-FORMAL-MECH-001-01-01,narrower,0.74,local-exam-001;exam-report-001,REPLACE_WITH_QUESTION_OR_PAGE,question_tag;paper_blueprint,pending_review,false,true,Exam-point-to-knowledge mapping can be many-to-many.

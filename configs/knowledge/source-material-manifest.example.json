@@ -13,6 +13,7 @@
       "publisherOrAuthority": "REPLACE_WITH_PUBLISHER",
       "editionOrVersion": "REPLACE_WITH_EDITION",
       "year": 2026,
+      "region": "REPLACE_WITH_PROVINCE_OR_CITY",
       "gradeOrScope": "grade_8",
       "localPath": "D:/KQG_Data/source_materials/textbook-001.pdf",
       "sha256": "REPLACE_WITH_64_HEX_SHA256",
@@ -21,6 +22,8 @@
       "containsStudentPii": false,
       "anonymizationStatus": "not_applicable",
       "mayUseForKnowledgeExtraction": true,
+      "mayUseForExamPointExtraction": false,
+      "mayUseForTrendAnalysis": false,
       "notes": "Textbook files stay outside git."
     },
     {
@@ -30,6 +33,7 @@
       "publisherOrAuthority": "REPLACE_WITH_AUTHORITY",
       "editionOrVersion": "REPLACE_WITH_VERSION",
       "year": 2026,
+      "region": "REPLACE_WITH_PROVINCE_OR_CITY",
       "gradeOrScope": "junior_middle_school",
       "localPath": "D:/KQG_Data/source_materials/curriculum-001.pdf",
       "sha256": "REPLACE_WITH_64_HEX_SHA256",
@@ -38,6 +42,8 @@
       "containsStudentPii": false,
       "anonymizationStatus": "not_applicable",
       "mayUseForKnowledgeExtraction": true,
+      "mayUseForExamPointExtraction": false,
+      "mayUseForTrendAnalysis": false,
       "notes": "Curriculum standard is a mapping source, not the ontology trunk."
     },
     {
@@ -47,6 +53,7 @@
       "publisherOrAuthority": "REPLACE_WITH_REGION_OR_ORGANIZATION",
       "editionOrVersion": "REPLACE_WITH_EXAM_YEAR_OR_SESSION",
       "year": 2026,
+      "region": "REPLACE_WITH_PROVINCE_OR_CITY",
       "gradeOrScope": "grade_9",
       "localPath": "D:/KQG_Data/source_materials/local-exam-001.pdf",
       "sha256": "REPLACE_WITH_64_HEX_SHA256",
@@ -55,7 +62,29 @@
       "containsStudentPii": false,
       "anonymizationStatus": "not_applicable",
       "mayUseForKnowledgeExtraction": true,
+      "mayUseForExamPointExtraction": true,
+      "mayUseForTrendAnalysis": true,
       "notes": "Use local exam papers only when source and permission are recorded."
+    },
+    {
+      "materialId": "exam-report-001",
+      "sourceType": "exam_analysis_report",
+      "title": "REPLACE_WITH_EXAM_ANALYSIS_REPORT_TITLE",
+      "publisherOrAuthority": "REPLACE_WITH_REGION_OR_ORGANIZATION",
+      "editionOrVersion": "REPLACE_WITH_REPORT_YEAR_OR_SESSION",
+      "year": 2026,
+      "region": "REPLACE_WITH_PROVINCE_OR_CITY",
+      "gradeOrScope": "grade_9",
+      "localPath": "D:/KQG_Data/source_materials/exam-report-001.pdf",
+      "sha256": "REPLACE_WITH_64_HEX_SHA256",
+      "licenseOrPermission": "REPLACE_WITH_AUTHORIZATION_STATUS",
+      "sharingAllowed": false,
+      "containsStudentPii": false,
+      "anonymizationStatus": "not_applicable",
+      "mayUseForKnowledgeExtraction": false,
+      "mayUseForExamPointExtraction": true,
+      "mayUseForTrendAnalysis": true,
+      "notes": "Exam analysis reports are recommended for local trend and exam-point weight extraction."
     }
   ]
 }
