@@ -285,6 +285,17 @@ docs/79_TeacherCandidateReviewAndActivationGuide.md
 These define what teachers should review, the minimum sampling rules, the
 approval form, and the exact operation process before a subject goes active.
 
+Subject activation workbench UI contract:
+
+```powershell
+.\tools\run-subject-activation-workbench-ui-contract.ps1
+```
+
+The Web workbench is the teacher-facing simplification layer for the same
+process. It must keep teachers on review/confirmation actions and must not
+expose a direct activation script button. The contract is included in
+`tools/run-gates.ps1`; see `docs/80_SubjectActivationWorkbenchV0.md`.
+
 Golden import regression:
 
 ```powershell

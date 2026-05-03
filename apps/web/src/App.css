@@ -47,6 +47,7 @@
 .status-panel,
 .question-panel,
 .paper-request-panel,
+.activation-panel,
 .source-material-panel,
 .review-panel,
 .guardrail-panel {
@@ -152,6 +153,11 @@
 }
 
 .source-material-panel {
+  grid-column: 1 / -1;
+  padding: 24px;
+}
+
+.activation-panel {
   grid-column: 1 / -1;
   padding: 24px;
 }
@@ -483,6 +489,143 @@
   padding: 10px 12px;
 }
 
+.activation-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.activation-summary > div {
+  display: grid;
+  align-content: center;
+  gap: 4px;
+  min-height: 104px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  padding: 14px;
+}
+
+.activation-summary strong {
+  color: var(--ink);
+  font-size: 24px;
+  line-height: 1.1;
+}
+
+.activation-summary small {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.activation-flow {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.activation-step {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  align-content: start;
+  gap: 10px;
+  min-height: 146px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  padding: 12px;
+}
+
+.activation-step .ant-tag {
+  grid-column: 2;
+  width: fit-content;
+  margin-inline-end: 0;
+}
+
+.activation-step-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 18px;
+}
+
+.activation-step span:nth-child(2) {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.activation-step strong {
+  color: var(--ink);
+}
+
+.activation-step small {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.activation-review {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.38fr) minmax(0, 0.62fr);
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.activation-review-copy,
+.activation-review-list {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  padding: 14px;
+}
+
+.activation-review-copy h3.ant-typography {
+  margin: 0 0 8px;
+  color: var(--ink);
+  font-size: 18px;
+}
+
+.activation-review-list {
+  display: grid;
+  gap: 8px;
+}
+
+.activation-review-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 54px;
+  border-bottom: 1px solid var(--line);
+}
+
+.activation-review-row:last-child {
+  border-bottom: 0;
+}
+
+.activation-review-row span {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.activation-review-row small {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.activation-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0;
+}
+
 .status-strip {
   margin-bottom: 18px;
 }
@@ -702,6 +845,9 @@
 
   .paper-summary,
   .blueprint-row,
+  .activation-summary,
+  .activation-flow,
+  .activation-review,
   .source-type-grid,
   .source-form-grid {
     grid-template-columns: 1fr;

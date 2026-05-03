@@ -14,12 +14,17 @@ import {
 } from 'antd'
 import {
   BarChartOutlined,
+  CheckCircleOutlined,
   CloudUploadOutlined,
+  ClockCircleOutlined,
+  ExclamationCircleOutlined,
   FileSearchOutlined,
   FileTextOutlined,
+  FolderOpenOutlined,
   InboxOutlined,
   LinkOutlined,
   MergeCellsOutlined,
+  ReadOutlined,
   SearchOutlined,
   SafetyCertificateOutlined,
   SplitCellsOutlined,
@@ -197,6 +202,58 @@ const sourceMaterialUploads = [
     year: '2025',
     status: 'uploaded_metadata',
   },
+]
+
+const activationOverview = {
+  subject: '初中物理',
+  region: '广州',
+  yearRange: '2016-2025',
+  lifecycle: '正式可用',
+  activeAssets: 452,
+  approvedMappings: 400,
+  blockers: 0,
+  backupStatus: '已备份',
+}
+
+const activationSteps = [
+  {
+    title: '资料批次',
+    status: '已完成',
+    description: '来源文件、hash 和导入批次已记录',
+    icon: <FolderOpenOutlined />,
+  },
+  {
+    title: '候选结果',
+    status: '已完成',
+    description: '系统整理知识点、教材、课标、考点和映射',
+    icon: <FileSearchOutlined />,
+  },
+  {
+    title: '教师复核',
+    status: '已完成',
+    description: '只检查明显错误和高影响映射',
+    icon: <ReadOutlined />,
+  },
+  {
+    title: '激活前检查',
+    status: '已通过',
+    description: '无阻断问题，备份和回滚入口已准备',
+    icon: <SafetyCertificateOutlined />,
+  },
+  {
+    title: '正式启用',
+    status: '已完成',
+    description: '本批内容可用于当前生产默认版本',
+    icon: <CheckCircleOutlined />,
+  },
+]
+
+const activationReviewItems = [
+  { label: '知识点', count: 82, action: '抽样看层级和命名' },
+  { label: '教材章节', count: 117, action: '看章节归属是否明显错位' },
+  { label: '课标条目', count: 114, action: '看表述和知识点是否匹配' },
+  { label: '广州考点', count: 47, action: '看是否符合本地中考口径' },
+  { label: '映射关系', count: 975, action: '重点看一拆多、多合一和低置信度项' },
 ]
 
 const initialPaperRequest =
@@ -473,7 +530,7 @@ function App() {
             <Alert
               showIcon
               type="info"
-              message="等待 P1 导入样本"
+              title="等待 P1 导入样本"
               description="当前只验证工程骨架和任务状态，不接真实 AI，不使用真实学生数据。"
             />
 
@@ -578,7 +635,7 @@ function App() {
                 <Alert
                   showIcon
                   type="info"
-                  message="系统理解"
+                  title="系统理解"
                   description={paperUnderstanding.systemUnderstanding}
                 />
                 <div className="paper-summary">
@@ -835,6 +892,109 @@ function App() {
             </div>
           </section>
 
+          <section
+            className="activation-panel"
+            aria-label="学科激活工作台"
+            data-flow="subject-activation-workbench"
+          >
+            <div className="panel-heading">
+              <div>
+                <Typography.Title level={2}>学科激活</Typography.Title>
+                <Typography.Text type="secondary">
+                  教师只做复核和确认；脚本、备份、证据和回滚由系统处理。
+                </Typography.Text>
+              </div>
+              <Space size="small" wrap>
+                <Tag color="green" data-contract="activation-state">
+                  {activationOverview.lifecycle}
+                </Tag>
+                <Tag data-contract="no-direct-activation">不在教师端直接激活</Tag>
+              </Space>
+            </div>
+
+            <div className="activation-summary" data-contract="activation-readiness">
+              <div>
+                <Typography.Text type="secondary">学科</Typography.Text>
+                <strong>{activationOverview.subject}</strong>
+                <small>
+                  {activationOverview.region} · {activationOverview.yearRange}
+                </small>
+              </div>
+              <div>
+                <Typography.Text type="secondary">正式资产</Typography.Text>
+                <strong>{activationOverview.activeAssets}</strong>
+                <small>知识点、教材、课标、考点等</small>
+              </div>
+              <div>
+                <Typography.Text type="secondary">已确认映射</Typography.Text>
+                <strong>{activationOverview.approvedMappings}</strong>
+                <small>可追溯、可回滚</small>
+              </div>
+              <div>
+                <Typography.Text type="secondary">阻断问题</Typography.Text>
+                <strong>{activationOverview.blockers}</strong>
+                <small>{activationOverview.backupStatus}</small>
+              </div>
+            </div>
+
+            <div className="activation-flow" aria-label="激活进度">
+              {activationSteps.map((step) => (
+                <div className="activation-step" key={step.title}>
+                  <span className="activation-step-icon">{step.icon}</span>
+                  <span>
+                    <strong>{step.title}</strong>
+                    <small>{step.description}</small>
+                  </span>
+                  <Tag color="green">{step.status}</Tag>
+                </div>
+              ))}
+            </div>
+
+            <div className="activation-review" data-contract="teacher-review">
+              <div className="activation-review-copy">
+                <Typography.Title level={3}>教师需要做什么</Typography.Title>
+                <Typography.Text>
+                  不需要看脚本。只检查候选结果是否有明显错误；没有问题就提交复核结论。
+                </Typography.Text>
+              </div>
+              <div className="activation-review-list">
+                {activationReviewItems.map((item) => (
+                  <div className="activation-review-row" key={item.label}>
+                    <span>
+                      <strong>{item.label}</strong>
+                      <small>{item.action}</small>
+                    </span>
+                    <Tag>{item.count}</Tag>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="activation-actions" data-contract="role-split">
+              <Button icon={<ReadOutlined />} data-action="open-candidate-review">
+                开始复核
+              </Button>
+              <Button icon={<CheckCircleOutlined />} data-action="open-activation-approval">
+                查看确认表
+              </Button>
+              <Button icon={<FileTextOutlined />} data-action="open-activation-evidence">
+                查看证据
+              </Button>
+              <Button icon={<ClockCircleOutlined />} data-action="open-rollback-summary">
+                查看回滚
+              </Button>
+            </div>
+
+            <Alert
+              showIcon
+              type="warning"
+              icon={<ExclamationCircleOutlined />}
+              title="正式激活只给管理员"
+              description="普通教师侧不执行激活脚本；管理员确认前必须看到备份、阻断项、复核结论和回滚说明。"
+              data-contract="rollback-ready"
+            />
+          </section>
+
           <section className="review-panel" aria-label="导入确认" data-flow="manual-review">
             <div className="panel-heading">
               <div>
@@ -962,7 +1122,7 @@ function App() {
                   <Alert
                     showIcon
                     type="warning"
-                    message="解析器失败可人工接管"
+                    title="解析器失败可人工接管"
                     description="保留原始文件、来源区域和诊断信息，教师继续处理当前导入。"
                   />
                   <div className="diagnostics-row">

@@ -251,6 +251,10 @@ try {
         .\tools\run-teacher-activation-template-guard.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'subject activation workbench ui contract' {
+        .\tools\run-subject-activation-workbench-ui-contract.ps1 | Write-Host
+    }
+
     Invoke-GateStep 'c002 junior physics draft bootstrap guard' {
         .\tools\run-c002-seed-validation.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin | Write-Host
     }

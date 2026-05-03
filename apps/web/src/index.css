@@ -5,6 +5,8 @@
   --line: #dfe6df;
   --accent: #23705a;
   --accent-soft: #e5f1ec;
+  --warning: #9f5b14;
+  --warning-soft: #fff4df;
   color: var(--ink);
   background: var(--page-bg);
   font-family: "Noto Sans SC", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
