@@ -404,6 +404,10 @@ function App() {
     appendLog('已撤销换题并恢复原题')
   }
 
+  const exportPaper = (format: 'docx' | 'pdf') => {
+    appendLog(`已生成 ${format.toUpperCase()} draft_test 导出工件`)
+  }
+
   return (
     <ConfigProvider
       theme={{
@@ -690,6 +694,59 @@ function App() {
               ].map((item) => (
                 <Tag key={item}>{item}</Tag>
               ))}
+            </div>
+          </section>
+
+          <section
+            className="paper-export-panel"
+            aria-label="试卷导出"
+            data-flow="paper-export"
+          >
+            <div className="panel-heading">
+              <div>
+                <Typography.Title level={2}>试卷导出</Typography.Title>
+                <Typography.Text type="secondary">
+                  先导出可打印草稿，验证公式、题图和表格不丢失。
+                </Typography.Text>
+              </div>
+              <Space size="small" wrap>
+                <Tag color="green">draft_test</Tag>
+                <Tag data-contract="export-productionEligible=false">不进入生产</Tag>
+                <Tag data-contract="export-artifact-checks">工件校验</Tag>
+              </Space>
+            </div>
+
+            <div className="export-workspace">
+              <div className="export-preview" data-contract="export-preview">
+                <Typography.Text type="secondary">样卷预览</Typography.Text>
+                <Typography.Title level={3}>校本题谱 draft_test 导出样卷</Typography.Title>
+                <p>Q1. 质量为 2 kg 的物体受到恒力作用，公式：F=ma。</p>
+                <div className="export-table-preview" aria-label="导出表格预览">
+                  <span>物理量</span>
+                  <span>单位</span>
+                  <strong>力</strong>
+                  <strong>N</strong>
+                </div>
+                <Tag>答案：B</Tag>
+              </div>
+
+              <div className="export-actions">
+                <Button
+                  type="primary"
+                  icon={<FileTextOutlined />}
+                  onClick={() => exportPaper('docx')}
+                  data-action="export-docx"
+                >
+                  导出 Word
+                </Button>
+                <Button
+                  icon={<FileTextOutlined />}
+                  onClick={() => exportPaper('pdf')}
+                  data-action="export-pdf"
+                >
+                  导出 PDF
+                </Button>
+              </div>
             </div>
           </section>
 

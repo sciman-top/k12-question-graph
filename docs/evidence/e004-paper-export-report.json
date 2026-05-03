@@ -1,0 +1,29 @@
+{
+  "status": "pass",
+  "task": "E004",
+  "mode": "draft_test",
+  "productionEligible": false,
+  "formalC002Required": false,
+  "outputRoot": "tmp\\e004-paper-export",
+  "docxPath": "tmp\\e004-paper-export\\kqg-e004-draft-test-paper.docx",
+  "pdfPath": "tmp\\e004-paper-export\\kqg-e004-draft-test-paper.pdf",
+  "manifestPath": "tmp\\e004-paper-export\\kqg-e004-draft-test-paper.manifest.json",
+  "docxChecks": {
+    "hasDocumentXml": true,
+    "hasFormulaText": true,
+    "hasFigureMedia": true,
+    "hasTable": true,
+    "hasAnswer": true,
+    "mediaCount": 1
+  },
+  "pdfChecks": {
+    "hasPdfHeader": true,
+    "hasEof": true,
+    "hasFormulaText": true
+  },
+  "summaryChinese": {
+    "title": "E004 Word/PDF 导出 MVP 报告",
+    "result": "通过",
+    "boundary": "draft/test 导出，不依赖正式 C002，不声明生产试卷口径。"
+  }
+}

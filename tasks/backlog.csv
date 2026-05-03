@@ -50,7 +50,7 @@ D003,P3,AI,Structured Outputs 与 Evals 接入,中,已完成,D002,draft/test sch
 E001,P4,组卷导出,题库检索和题目卡片,中,已完成,D003,draft/test 模式下教师可按 draft 知识点 题型 难度 来源筛题并获得题卡 preview 主知识点 来源摘要 block asset 计数 正式生产筛题仍等待 C002 source-derived active,tools/run-e001-question-search-contract.ps1 + frontend build/lint + tools/run-roadmap-guard.ps1
 E002,P4,组卷导出,自然语言组卷系统理解页面,中,已完成,E001,draft/test 模式下教师能看到系统理解和细目表草稿 使用 synthetic 需求与 draft 动态资产 不等待正式 C002 active 不写生产组卷口径,tools/run-e002-paper-request-contract.ps1 + frontend build/lint + tools/run-roadmap-guard.ps1
 E003,P4,组卷导出,一键换题与撤销,中,已完成,E002,draft/test 模式下换题保持知识点题型难度分值约束且可撤销 约束来自可迁移动态资产 正式资产变化后通过映射影响报告更新,tools/run-e003-question-replacement-contract.ps1 + docs/74_E003_QuestionReplacementUndo.md + tools/run-gates.ps1
-E004,P4,组卷导出,Word/PDF 导出 MVP,中,暂缓,E003,draft/test 模式下可导出 synthetic/draft 试卷 Word/WPS 可打开且公式题图表格不丢失 不要求正式题库或正式知识点激活,export golden test + tools/run-roadmap-guard.ps1
+E004,P4,组卷导出,Word/PDF 导出 MVP,中,已完成,E003,draft/test 模式下可导出 synthetic/draft 试卷 Word/WPS 可打开且公式题图表格不丢失 不要求正式题库或正式知识点激活,tools/run-e004-paper-export-contract.ps1 + docs/75_E004_PaperExportMvp.md + tools/run-gates.ps1
 F001,P5,成绩学情,学生班级考试模型,中,暂缓,E004,draft/test 模式下支持学生班级考试基本实体 使用 synthetic 学生与班级 fixture 不使用真实学生数据 不暴露学生端,model test + privacy fixture guard
 F002,P5,成绩学情,Excel 字段映射导入,中,暂缓,F001,draft/test 模式下 synthetic Excel 模板可导入 字段映射可保存复用 异常集中提示 字段模板作为动态资产可迁移,import mapping test + synthetic fixture
 F003,P5,成绩学情,得分率知识点分析,中,暂缓,F002,draft/test 模式下可输出班级得分率区分度知识点掌握摘要 正式知识点标签能力维度未激活前不改写正式历史学情,analysis test + no production analytics guard

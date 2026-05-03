@@ -38,7 +38,8 @@ The gate also covers `b001 duplicate upload smoke`, `b002 adapter contract smoke
 `d002 ai job cost contract`, and
 `d003 structured output eval contract`, and
 `e001 question search ui/api contracts`, `e002 paper request contract`, and
-`e003 question replacement undo contract`.
+`e003 question replacement undo contract`, and
+`e004 paper export contract`.
 It starts temporary
 API processes for API smoke steps, so `PGPASSWORD` must match the local PostgreSQL
 password.
@@ -364,6 +365,16 @@ E003 question replacement undo contract:
 This validates one-click replacement and undo in `draft_test` mode. Replacement
 keeps the same knowledge point, question type, similar difficulty, and score,
 excludes duplicate/recently used questions, and returns an undo snapshot.
+
+E004 paper export contract:
+
+```powershell
+.\tools\run-e004-paper-export-contract.ps1
+```
+
+This validates `draft_test` Word/PDF export artifacts without requiring formal
+C002 activation. It checks the generated DOCX/PDF manifest, formula text, figure
+media, table content, frontend export controls, and non-production boundary.
 
 C002 source material admission guard:
 

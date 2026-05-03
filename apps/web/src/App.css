@@ -328,6 +328,67 @@
   margin-top: 12px;
 }
 
+.export-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 168px;
+  gap: 14px;
+  align-items: stretch;
+  margin-top: 20px;
+}
+
+.export-preview {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  padding: 16px;
+}
+
+.export-preview h3 {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.export-preview p {
+  margin: 0;
+  color: var(--ink);
+  line-height: 1.6;
+}
+
+.export-actions {
+  display: grid;
+  align-content: center;
+  gap: 10px;
+}
+
+.export-table-preview {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 112px));
+  width: fit-content;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.export-table-preview span,
+.export-table-preview strong {
+  min-height: 34px;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 7px 10px;
+}
+
+.export-table-preview span:nth-child(2n),
+.export-table-preview strong:nth-child(2n) {
+  border-right: 0;
+}
+
+.export-table-preview strong:nth-last-child(-n + 2) {
+  border-bottom: 0;
+}
+
 .source-material-workspace {
   display: grid;
   gap: 16px;
@@ -634,6 +695,7 @@
   .review-workspace,
   .paper-request-workspace,
   .replacement-workspace,
+  .export-workspace,
   .page-preview {
     grid-template-columns: 1fr;
   }
