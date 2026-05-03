@@ -14,7 +14,9 @@ C002A 将“动态领域资产”从规则落到数据库和 gate。知识点、
 
 ## 3. 自动化与人工审核边界
 
-规则和 AI 可以先自动生成映射、替换和迁移建议。高置信度、低影响、可回滚的一对一映射可进入 `auto_applied`；一拆多、多合一、低置信度、高影响、影响历史学情口径或生产组卷规则的变更必须进入 `pending_review`。
+规则和 AI 可以先自动生成映射、替换和迁移建议。高置信度、低影响、可回滚的一对一映射可进入 `auto_applied`；一对多、多对一、多对多、低置信度、高影响、影响历史学情口径或生产组卷规则的变更必须进入 `pending_review`。
+
+`domain_asset_mappings` 的一行表示一条 source asset version 到 target asset version 的有向边。多对多映射通过同一个 `migration_id` 或同一份 dry-run plan 下的多条边表达，而不是压缩成不可解释的字符串。任何多对多集合都必须在 `impact_report` 中说明业务含义、受影响对象、自动迁移边界、人工审核项和 rollback snapshot。
 
 ## 4. 验证
 

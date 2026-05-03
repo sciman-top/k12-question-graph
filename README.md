@@ -85,6 +85,7 @@ v0.1 聚焦：
 ```text
 P0/P1: 打开应用 → 上传文件 → 创建 ImportJob → 写数据库 → 文件入仓 → 页面预览 → 人工确认 → 单题入库 → 来源回看 → 备份 manifest
 P2/C002 draft-test: draft 知识点 → 替换映射 dry-run → 迁移影响报告 → candidate admission → active guard
+P2/C002 dynamic contract: dynamic elements → one-to-one/one-to-many/many-to-one/many-to-many mapping → review/impact/rollback
 P3/D001 draft-test: AI task → ModelRouter → rule/stub_llm → schema/prompt version → human review guard
 ```
 
@@ -135,6 +136,7 @@ python -c "import pathlib, yaml; [yaml.safe_load(p.read_text(encoding='utf-8')) 
 - `docs/02_MVP_Scope_and_ScopeControl.md`：v0.1 范围与后置边界。
 - `docs/25_FeatureAdmissionCriteria.md`：新功能准入卡。
 - `docs/28_FunctionScopeReview.md`：功能保留、修改、增加、后置与不进 v0.1 的裁决。
+- `docs/58_DynamicEvolvableElements.md`：必须动态化的参数、数据、标签、模板、规则和映射基数清单。
 
 ## 编码原则
 
