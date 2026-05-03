@@ -2,6 +2,7 @@ param(
     [string] $ImportKey = 'c002_candidate_import_guangzhou_physics_2016_2025_v1',
     [string] $MaterialBatchKey = 'guangzhou_physics_2016_2025',
     [string] $ReportPath = 'docs\evidence\c002l-candidate-review-readiness-report.json',
+    [int] $ExpectedSourceDocumentCount = 33,
     [string] $DatabaseName = 'k12_question_graph',
     [string] $DatabaseUser = 'postgres',
     [string] $DatabaseHost = '127.0.0.1',
@@ -62,7 +63,7 @@ else {
 
 Push-Location $repoRoot
 try {
-    python $scriptPath --connection-string $ConnectionString --import-key $ImportKey --material-batch-key $MaterialBatchKey --report-path $ReportPath
+    python $scriptPath --connection-string $ConnectionString --import-key $ImportKey --material-batch-key $MaterialBatchKey --report-path $ReportPath --expected-source-document-count $ExpectedSourceDocumentCount
     if ($LASTEXITCODE -ne 0) {
         throw "C002L readiness contract failed with exit code $LASTEXITCODE"
     }

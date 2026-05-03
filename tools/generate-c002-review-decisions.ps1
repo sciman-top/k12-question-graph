@@ -3,6 +3,7 @@ param(
     [string] $MaterialBatchKey = 'guangzhou_physics_2016_2025',
     [string] $Output = 'docs\evidence\c002-review-decisions.generated.json',
     [string] $Policy = 'approve_source_aligned_internal_candidates',
+    [int] $ExpectedSourceDocumentCount = 33,
     [string] $DatabaseName = 'k12_question_graph',
     [string] $DatabaseUser = 'postgres',
     [string] $DatabaseHost = '127.0.0.1',
@@ -63,7 +64,7 @@ else {
 
 Push-Location $repoRoot
 try {
-    python $scriptPath --connection-string $ConnectionString --import-key $ImportKey --material-batch-key $MaterialBatchKey --output $Output --policy $Policy
+    python $scriptPath --connection-string $ConnectionString --import-key $ImportKey --material-batch-key $MaterialBatchKey --output $Output --policy $Policy --expected-source-document-count $ExpectedSourceDocumentCount
     if ($LASTEXITCODE -ne 0) {
         throw "generate C002 review decisions failed with exit code $LASTEXITCODE"
     }

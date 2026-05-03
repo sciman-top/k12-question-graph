@@ -259,6 +259,21 @@ the reviewed Guangzhou physics C002 batch to `active` after source hashes,
 review decisions, mappings, migration state, review queue, and rollback evidence
 are clean. It is idempotent after activation.
 
+Generic subject activation pipeline:
+
+```powershell
+.\tools\run-domain-asset-activation.ps1 `
+  -ImportKey '<subject_candidate_import_key>' `
+  -MaterialBatchKey '<source_material_batch_key>' `
+  -EvidencePrefix '<subject>-activation' `
+  -ExpectedSourceDocumentCount 0
+```
+
+This is the preferred entrypoint for future subjects. It orchestrates readiness,
+optional review-decision generation/application, active dry-run, backup,
+activation, and final idempotency evidence. See
+`docs/78_SubjectDomainAssetActivationRunbook.md`.
+
 Golden import regression:
 
 ```powershell

@@ -106,7 +106,7 @@ def counts(conn: psycopg.Connection, import_key: str, material_batch_key: str) -
     }
 
 
-def build_blockers(current: dict[str, int], backup_manifest: str, apply: bool) -> list[str]:
+def build_blockers(current: dict[str, int], backup_manifest: str, apply: bool, expected_source_document_count: int) -> list[str]:
     blockers: list[str] = []
     if current["totalAssets"] == 0:
         blockers.append("imported_assets_missing")
@@ -124,7 +124,12 @@ def build_blockers(current: dict[str, int], backup_manifest: str, apply: bool) -
         blockers.append("approved_dry_run_migration_missing")
     if current["openReviewItems"] != 0:
         blockers.append("review_queue_open")
-    if current["sourceDocuments"] != 33 or current["sourceDocumentsWithSha256"] != 33:
+    source_count_ok = (
+        current["sourceDocuments"] > 0
+        and current["sourceDocuments"] == current["sourceDocumentsWithSha256"]
+        and (expected_source_document_count <= 0 or current["sourceDocuments"] == expected_source_document_count)
+    )
+    if not source_count_ok:
         blockers.append("source_evidence_incomplete")
     if current["rollbackSnapshots"] < 1:
         blockers.append("rollback_snapshot_missing")
@@ -141,7 +146,7 @@ def apply_active_switch(conn: psycopg.Connection, import_key: str, backup_manife
     activation = {
         "decision": "activate",
         "activatedAt": datetime.now(timezone.utc).isoformat(),
-        "activationGuard": "C002N",
+        "activationGuard": "C002T",
         "backupManifest": backup_manifest,
         "rollbackMode": "restore database from backup manifest or set imported active assets back to reviewed before downstream production use",
     }
@@ -178,12 +183,13 @@ def main() -> int:
     parser.add_argument("--material-batch-key", required=True)
     parser.add_argument("--backup-manifest", default="")
     parser.add_argument("--report-path", default="docs/evidence/c002t-active-switch-report.json")
+    parser.add_argument("--expected-source-document-count", type=int, default=33)
     parser.add_argument("--apply", action="store_true")
     args = parser.parse_args()
 
     with psycopg.connect(args.connection_string, row_factory=dict_row) as conn:
         before = counts(conn, args.import_key, args.material_batch_key)
-        blockers = build_blockers(before, args.backup_manifest, args.apply)
+        blockers = build_blockers(before, args.backup_manifest, args.apply, args.expected_source_document_count)
         already_active = before["activeAssets"] == before["totalAssets"] and before["totalAssets"] > 0
         applied = False
 

@@ -3,6 +3,7 @@ param(
     [string] $MaterialBatchKey = 'guangzhou_physics_2016_2025',
     [string] $BackupManifest = '',
     [string] $ReportPath = 'docs\evidence\c002t-active-switch-report.json',
+    [int] $ExpectedSourceDocumentCount = 33,
     [switch] $Apply,
     [string] $DatabaseName = 'k12_question_graph',
     [string] $DatabaseUser = 'postgres',
@@ -67,7 +68,8 @@ $args = @(
     '--connection-string', $ConnectionString,
     '--import-key', $ImportKey,
     '--material-batch-key', $MaterialBatchKey,
-    '--report-path', $ReportPath
+    '--report-path', $ReportPath,
+    '--expected-source-document-count', $ExpectedSourceDocumentCount
 )
 
 if (-not [string]::IsNullOrWhiteSpace($BackupManifest)) {

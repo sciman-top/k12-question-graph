@@ -31,6 +31,7 @@ def main() -> int:
     parser.add_argument("--import-key", required=True)
     parser.add_argument("--material-batch-key", required=True)
     parser.add_argument("--report-path", default="docs/evidence/c002l-candidate-review-readiness-report.json")
+    parser.add_argument("--expected-source-document-count", type=int, default=33)
     args = parser.parse_args()
 
     with psycopg.connect(args.connection_string, row_factory=dict_row) as conn:
@@ -306,7 +307,14 @@ def main() -> int:
     if total_imported_assets < 1:
         report["status"] = "fail"
         report["error"] = "imported_assets_missing"
-    if source_documents != 33 or source_documents_with_hash != 33:
+    expected_source_documents = args.expected_source_document_count
+    source_count_ok = (
+        source_documents > 0
+        and source_documents == source_documents_with_hash
+        and (expected_source_documents <= 0 or source_documents == expected_source_documents)
+    )
+
+    if not source_count_ok:
         report["status"] = "fail"
         report["error"] = "source_document_count_mismatch"
     if active_imported_assets > 0 and not formal_activation_complete:

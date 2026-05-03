@@ -22,6 +22,7 @@ def main() -> int:
     parser.add_argument("--material-batch-key", default="guangzhou_physics_2016_2025")
     parser.add_argument("--output", default="docs/evidence/c002-review-decisions.generated.json")
     parser.add_argument("--policy", default="approve_source_aligned_internal_candidates")
+    parser.add_argument("--expected-source-document-count", type=int, default=33)
     args = parser.parse_args()
 
     with psycopg.connect(args.connection_string, row_factory=dict_row) as conn:
@@ -85,6 +86,8 @@ def main() -> int:
         blockers.append("source_documents_missing")
     if int(source_counts["source_documents"]) != int(source_counts["source_documents_with_hash"]):
         blockers.append("source_hash_incomplete")
+    if args.expected_source_document_count > 0 and int(source_counts["source_documents"]) != args.expected_source_document_count:
+        blockers.append("source_document_count_mismatch")
     if int(active_assets) > 0:
         blockers.append("active_assets_already_present")
     if int(pending_migration) != 1:
@@ -106,8 +109,8 @@ def main() -> int:
         return 2
 
     reason = (
-        "Approved by source-aligned C002 quality-review overlay policy: source documents have sha256 coverage, "
-        "C002S quality blockers are cleared, records remain candidate/reviewed only, and active switch is still guarded separately."
+        "Approved by source-aligned quality-review policy: source documents have sha256 coverage, "
+        "quality blockers are cleared, records remain candidate/reviewed only, and active switch is still guarded separately."
     )
     payload = {
         "status": "generated",

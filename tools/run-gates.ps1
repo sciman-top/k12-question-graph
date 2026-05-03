@@ -243,6 +243,10 @@ try {
         .\tools\run-c002t-active-switch.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword | Write-Host
     }
 
+    Invoke-GateStep 'generic domain asset activation pipeline guard' {
+        .\tools\run-domain-asset-activation.ps1 -ImportKey 'c002_candidate_import_guangzhou_physics_2016_2025_v1' -MaterialBatchKey 'guangzhou_physics_2016_2025' -EvidencePrefix 'c002-domain-activation-pipeline' -ExpectedSourceDocumentCount 33 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword | Write-Host
+    }
+
     Invoke-GateStep 'c002 junior physics draft bootstrap guard' {
         .\tools\run-c002-seed-validation.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin | Write-Host
     }
