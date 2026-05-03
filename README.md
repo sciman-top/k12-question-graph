@@ -80,7 +80,7 @@ v0.1 聚焦：
 
 ## 推荐实现顺序
 
-先按 `docs/19_Roadmap.md` 与 `tasks/backlog.csv` 执行。不要先实现高级功能。P0/P1 已完成；当前推进 C002 动态资产链路和后续 draft/test 模式能力，生产正式 C002 仍需真实来源资料和人工审核。
+先按 `docs/19_Roadmap.md` 与 `tasks/backlog.csv` 执行。P0/P1 已完成；当前继续把 v0.1 完整系统能力搭起来。知识点、标签、题型、难度、组卷规则、导出模板、Excel 映射、AI prompt/schema/model routing、分析指标、组织权限和隐私策略等动态元素都不得写死，但它们的可变性也不得阻断开发：先用 draft/test、synthetic fixture、sample config 或少量临时资料完成系统能力，正式资料以后再录入、映射、审核、激活。
 
 ```text
 P0/P1: 打开应用 → 上传文件 → 创建 ImportJob → 写数据库 → 文件入仓 → 页面预览 → 人工确认 → 单题入库 → 来源回看 → 备份 manifest
@@ -140,6 +140,7 @@ python -c "import pathlib, yaml; [yaml.safe_load(p.read_text(encoding='utf-8')) 
 - `docs/25_FeatureAdmissionCriteria.md`：新功能准入卡。
 - `docs/28_FunctionScopeReview.md`：功能保留、修改、增加、后置与不进 v0.1 的裁决。
 - `docs/58_DynamicEvolvableElements.md`：必须动态化的参数、数据、标签、模板、规则和映射基数清单。
+- `docs/19_Roadmap.md`：动态元素不停工原则和 draft/test 先搭系统的阶段口径。
 
 ## 编码原则
 

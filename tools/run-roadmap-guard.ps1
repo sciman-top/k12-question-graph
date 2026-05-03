@@ -38,6 +38,7 @@ if ($c002.acceptance -notmatch '教师录入|导入|来源|教材|课程标准|�
     status = 'pass'
     c002Status = $c002.status
     d001DependsOn = $d001.depends_on
-    p3ProductionBlockedUntilFormalC002 = ($c002.status -ne '已完成')
-    p3DraftTestAllowed = $true
+    productionDynamicAssetsBlockedUntilFormalC002 = ($c002.status -ne '已完成')
+    draftTestSystemBuildAllowed = $true
+    noStopPolicy = 'dynamic assets may use draft/test fixtures while production activation remains blocked'
 } | ConvertTo-Json
