@@ -5,6 +5,8 @@ using K12QuestionGraph.Api.FileStore;
 using K12QuestionGraph.Api.ImportJobs;
 using K12QuestionGraph.Api.Workers;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -110,6 +112,94 @@ app.MapGet("/internal/ai/providers", (IEnumerable<IAiProvider> providers) =>
     return Results.Ok(providers.Select(x => new AiProviderInfo(x.ProviderId, x.SupportsRealModelCalls)));
 })
 .WithName("ListAiProviders");
+
+app.MapPost("/internal/ai/jobs/stub", async (
+    AiJobCreateRequest request,
+    IAiModelRouter router,
+    IEnumerable<IAiProvider> providers,
+    KqgDbContext dbContext,
+    CancellationToken cancellationToken) =>
+{
+    if (string.IsNullOrWhiteSpace(request.InputJson))
+    {
+        return Results.BadRequest(new { error = "missing_input_json" });
+    }
+
+    AiRouteDecision route;
+    try
+    {
+        route = router.Route(new AiRouteRequest(request.TaskType, request.Mode, request.AssetStatus, request.ExpectedConfidence));
+    }
+    catch (AiRouteException exception)
+    {
+        return Results.BadRequest(new { error = exception.Message });
+    }
+
+    if (route.AllowRealModelCalls)
+    {
+        return Results.Conflict(new { error = "real_model_calls_not_allowed_in_draft_test" });
+    }
+
+    var provider = providers.FirstOrDefault(x => x.ProviderId == route.Provider);
+    if (provider is null)
+    {
+        return Results.BadRequest(new { error = "ai_provider_not_registered", provider = route.Provider });
+    }
+
+    if (provider.SupportsRealModelCalls)
+    {
+        return Results.Conflict(new { error = "real_model_provider_not_allowed_in_draft_test" });
+    }
+
+    var inputHash = Sha256Hex(request.InputJson);
+    var idempotencyKey = string.IsNullOrWhiteSpace(request.IdempotencyKey)
+        ? $"ai:{route.TaskType}:{route.RoutingVersion}:{route.PromptVersion}:{route.SchemaVersion}:{inputHash}"
+        : request.IdempotencyKey.Trim();
+
+    var existing = await dbContext.AIJobs
+        .AsNoTracking()
+        .FirstOrDefaultAsync(x => x.IdempotencyKey == idempotencyKey, cancellationToken);
+    if (existing is not null)
+    {
+        return Results.Ok(ToAiJobResponse(existing));
+    }
+
+    var providerResult = await provider.CompleteStructuredAsync(
+        new AiProviderRequest(route.TaskType, route.PromptVersion, route.SchemaVersion, inputHash, request.InputJson),
+        cancellationToken);
+
+    var job = new AIJob
+    {
+        JobType = route.TaskType,
+        Status = JobStatuses.Succeeded,
+        IdempotencyKey = idempotencyKey,
+        ModelRoute = route.Handler,
+        ModelProvider = providerResult.ProviderId,
+        ModelName = providerResult.ModelName,
+        RoutingVersion = route.RoutingVersion,
+        PromptVersion = providerResult.PromptVersion,
+        SchemaVersion = providerResult.SchemaVersion,
+        InputHash = inputHash,
+        EstimatedCost = 0,
+        ActualCost = providerResult.Cost,
+        Confidence = (double)providerResult.Confidence,
+        InputTokens = providerResult.InputTokens,
+        OutputTokens = providerResult.OutputTokens,
+        CachedTokens = providerResult.CachedTokens,
+        LatencyMs = providerResult.LatencyMs,
+        ReviewStatus = providerResult.ReviewStatus,
+        TeacherModified = false,
+        Input = request.InputJson,
+        Result = providerResult.OutputJson,
+        FinishedAt = DateTimeOffset.UtcNow
+    };
+
+    dbContext.AIJobs.Add(job);
+    await dbContext.SaveChangesAsync(cancellationToken);
+
+    return Results.Created($"/internal/ai/jobs/{job.Id}", ToAiJobResponse(job));
+})
+.WithName("CreateStubAiJob");
 
 app.MapPost("/files", async (HttpRequest request, IFileStore fileStore, CancellationToken cancellationToken) =>
 {
@@ -673,6 +763,39 @@ static string NormalizeToken(string value, string fallback)
 static string SerializeJson<T>(T value)
 {
     return JsonSerializer.Serialize(value, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+}
+
+static string Sha256Hex(string value)
+{
+    return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(value))).ToLowerInvariant();
+}
+
+static AiJobResponse ToAiJobResponse(AIJob job)
+{
+    return new AiJobResponse(
+        job.Id,
+        job.JobType,
+        job.Status,
+        job.IdempotencyKey,
+        job.ModelRoute,
+        job.ModelProvider,
+        job.ModelName,
+        job.RoutingVersion,
+        job.PromptVersion,
+        job.SchemaVersion,
+        job.InputHash,
+        job.EstimatedCost,
+        job.ActualCost,
+        job.Confidence,
+        job.InputTokens,
+        job.OutputTokens,
+        job.CachedTokens,
+        job.LatencyMs,
+        job.ReviewStatus,
+        job.TeacherModified,
+        job.Result,
+        job.CreatedAt,
+        job.FinishedAt);
 }
 
 static string? ValidateQuestionCreateRequest(QuestionCreateRequest request)

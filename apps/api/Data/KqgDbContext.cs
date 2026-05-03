@@ -153,11 +153,23 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
         entity.Property(x => x.Status).HasMaxLength(32).HasDefaultValue(JobStatuses.Queued);
         entity.Property(x => x.IdempotencyKey).HasMaxLength(160).IsRequired();
         entity.Property(x => x.ModelRoute).HasMaxLength(128);
+        entity.Property(x => x.ModelProvider).HasMaxLength(64);
+        entity.Property(x => x.ModelName).HasMaxLength(128);
+        entity.Property(x => x.RoutingVersion).HasMaxLength(64);
         entity.Property(x => x.PromptVersion).HasMaxLength(64);
         entity.Property(x => x.SchemaVersion).HasMaxLength(64);
+        entity.Property(x => x.InputHash).HasMaxLength(128);
+        entity.Property(x => x.ReviewStatus).HasMaxLength(32).HasDefaultValue(ReviewStatuses.Open);
         entity.Property(x => x.Input).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
         entity.Property(x => x.Result).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
-        entity.ToTable(x => x.HasCheckConstraint("ck_ai_jobs_status", "status in ('queued','running','succeeded','failed','cancelled','retry_waiting')"));
+        entity.ToTable(x =>
+        {
+            x.HasCheckConstraint("ck_ai_jobs_status", "status in ('queued','running','succeeded','failed','cancelled','retry_waiting')");
+            x.HasCheckConstraint("ck_ai_jobs_confidence", "confidence is null or (confidence >= 0 and confidence <= 1)");
+            x.HasCheckConstraint("ck_ai_jobs_costs", "(estimated_cost is null or estimated_cost >= 0) and (actual_cost is null or actual_cost >= 0)");
+            x.HasCheckConstraint("ck_ai_jobs_tokens", "(input_tokens is null or input_tokens >= 0) and (output_tokens is null or output_tokens >= 0) and (cached_tokens is null or cached_tokens >= 0)");
+            x.HasCheckConstraint("ck_ai_jobs_review_status", "review_status in ('open','resolved','dismissed','pending_review')");
+        });
     }
 
     private static void ConfigureReviewQueueItem(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<ReviewQueueItem> entity)

@@ -238,15 +238,35 @@ public sealed class AIJob
 
     public string? ModelRoute { get; set; }
 
+    public string? ModelProvider { get; set; }
+
+    public string? ModelName { get; set; }
+
+    public string? RoutingVersion { get; set; }
+
     public string? PromptVersion { get; set; }
 
     public string? SchemaVersion { get; set; }
+
+    public string? InputHash { get; set; }
 
     public decimal? EstimatedCost { get; set; }
 
     public decimal? ActualCost { get; set; }
 
     public double? Confidence { get; set; }
+
+    public int? InputTokens { get; set; }
+
+    public int? OutputTokens { get; set; }
+
+    public int? CachedTokens { get; set; }
+
+    public int? LatencyMs { get; set; }
+
+    public string ReviewStatus { get; set; } = ReviewStatuses.Open;
+
+    public bool TeacherModified { get; set; }
 
     public string Input { get; set; } = "{}";
 

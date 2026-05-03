@@ -27,7 +27,8 @@ The gate also covers `b001 duplicate upload smoke`, `b002 adapter contract smoke
 `c002d source-derived admission contract`, `c002e activation guard contract`,
 `c002h mapping review workbench contract`,
 `c002 junior physics draft bootstrap guard`, and
-`d001 model router draft-test contract`.
+`d001 model router draft-test contract`, and
+`d002 ai job cost contract`.
 It starts temporary
 API processes for API smoke steps, so `PGPASSWORD` must match the local PostgreSQL
 password.
@@ -159,6 +160,18 @@ Roadmap dependency guard:
 This blocks production P3+ completion while formal C002 remains `暂缓`.
 Draft/test work is allowed when it stays behind schema, Evals, cost logging,
 manual review, migration suggestions, and non-production evidence.
+
+D002 AI job cost contract:
+
+```powershell
+$env:PGPASSWORD='<local-password>'
+.\tools\run-d002-ai-job-cost-contract.ps1
+```
+
+This applies the D002 migration and validates that a synthetic stub AI task
+records provider, model, routing version, prompt/schema versions, input hash,
+tokens, cached tokens, zero stub cost, latency, confidence, review status, and
+idempotency without calling any external AI provider.
 
 C002 source material admission guard:
 
