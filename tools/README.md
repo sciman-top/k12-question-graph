@@ -45,6 +45,64 @@ This runs source material admission, replacement mapping, migration impact,
 candidate admission, and activation guard contracts without requiring database
 access. It does not replace full gate database checks.
 
+C002 candidate CSV cleanup:
+
+```powershell
+.\tools\prepare-c002-candidate-csvs.ps1
+```
+
+This validates and normalizes ChatGPT Web extracted candidate CSVs from
+`c002-k12-question-graph-candidate-csvs`, writes the cleaned package under
+`c002-k12-question-graph-candidate-csvs\cleaned`, and keeps all rows as
+`pending_review` and non-production. The cleaned files are input for the later
+C002K candidate DB import, not formal activation evidence by themselves.
+
+C002 real source material import:
+
+```powershell
+.\tools\import-c002-source-materials.ps1 -SourceRoot 'D:\CODE\k12-question-graph\广州中考'
+```
+
+The default mode is dry-run only and writes
+`docs/evidence/c002-source-material-import-report.json`. It classifies local PDF
+materials and reports the intended `sourceType`, `materialBatchKey`, and
+source-use flags without writing the database.
+
+Persistent import requires a valid local database password and should be run
+after a backup check:
+
+```powershell
+$env:PGPASSWORD='<local-password>'
+$env:KQG_CONNECTION_STRING='Host=127.0.0.1;Port=5432;Database=k12_question_graph;Username=postgres;Password=<local-password>'
+.\tools\import-c002-source-materials.ps1 -SourceRoot 'D:\CODE\k12-question-graph\广州中考' -Apply -StartApi
+```
+
+This uploads the original files through the API into `SourceDocument/FileAsset`
+evidence only. It must not mark C002 formal knowledge as complete and must not
+activate candidate assets.
+
+C002 candidate DB import:
+
+```powershell
+$env:PGPASSWORD='<local-password>'
+.\tools\import-c002-candidate-assets.ps1
+```
+
+The default mode is dry-run. It validates cleaned CSVs, source hash alignment,
+mapping references, and active/reviewed overwrite guards.
+
+Persistent candidate import requires a backup manifest:
+
+```powershell
+$env:PGPASSWORD='<local-password>'
+.\tools\backup.ps1
+.\tools\import-c002-candidate-assets.ps1 -Apply -BackupManifest 'D:\KQG_Backups\<timestamp>\manifest.json'
+```
+
+This writes only `candidate` domain assets, `pending_review` mappings, a
+`pending_review` migration plan, and one review queue item. It must leave
+`active` domain assets at zero for this batch.
+
 Golden import regression:
 
 ```powershell

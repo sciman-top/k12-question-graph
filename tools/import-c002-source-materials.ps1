@@ -10,7 +10,7 @@ param(
     [int] $DatabasePort = 5432,
     [string] $DatabasePassword = $env:PGPASSWORD,
     [string] $FileStoreRoot = 'D:\KQG_Data\file_store',
-    [string] $MaterialBatchKey = 'guangzhou-physics-2016-2025',
+    [string] $MaterialBatchKey = 'guangzhou_physics_2016_2025',
     [string] $ReportPath = 'docs\evidence\c002-source-material-import-report.json'
 )
 
@@ -221,6 +221,7 @@ try {
                 sourceDocumentId = $response.sourceDocument.id
                 fileAssetId = $response.id
                 sha256 = $response.sha256
+                materialBatchKey = $response.sourceDocument.materialBatchKey
                 isDuplicate = $response.isDuplicate
             })
         }

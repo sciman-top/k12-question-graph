@@ -1,0 +1,21 @@
+{
+  "status": "pass",
+  "checkedAt": "2026-05-03T11:01:09.6573039Z",
+  "task": "C002J",
+  "materialBatchKey": "guangzhou_physics_2016_2025",
+  "backupManifest": "D:\\KQG_Backups\\20260503-185808\\manifest.json",
+  "sourceDocumentCount": 33,
+  "sourceDocumentsWithSha256": 33,
+  "bySourceType": {
+    "curriculum_standard": 1,
+    "exam_analysis_report": 10,
+    "local_exam_paper": 19,
+    "textbook": 3
+  },
+  "candidateDomainAssetsImported": 0,
+  "formalC002Activated": false,
+  "notes": [
+    "Original source PDFs imported into SourceDocument/FileAsset evidence layer only.",
+    "Candidate dynamic assets remain for C002K and must stay pending_review/non-production when imported."
+  ]
+}

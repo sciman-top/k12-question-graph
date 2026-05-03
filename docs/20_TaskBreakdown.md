@@ -298,6 +298,8 @@
 - C002G 动态变化对象清单与映射基数。已完成文档合同：明确知识点、教材/课标/考点、题型、标签、rubric、组卷规则、AI prompt/schema/model routing、解析 pipeline、分析指标、导出模板、Excel 映射、组织权限和隐私策略都必须动态化；映射必须兼容一对一、一对多、多对一和多对多，多对多用同一 migration/plan 下的多条 mapping 边表达并进入人工审核。
 - C002H 映射审核工作台预处理。已完成 dry-run contract：定义 pending review 队列、筛选、排序、旧/新对象并排视图、映射边、来源证据、影响预览、回滚预览、审核历史、快捷操作、批量确认边界、迁移组和 audit snapshot，后续 UI/API 必须按该合同实现。
 - C002I 来源资料工作台 MVP。已完成 API/UI/gate 合同：同一上传链路按教材、课程标准、当地真题、考情年报、校本资料和教师原创分组，记录必需/强烈建议/可选状态、`region/year/gradeOrScope/editionOrVersion/materialBatchKey`、三类用途许可、hash 和列表；ChatGPT Web 初提炼结果只作为 `candidate`，必须与本项目上传 PDF 的来源证据交叉核验后才可进入 `reviewed/active`。
+- C002J 广州中考真实来源资料导入证据层。已完成：`D:\CODE\k12-question-graph\广州中考` 下 33 个 PDF 已在备份预检查后通过 `tools/import-c002-source-materials.ps1 -Apply -StartApi` 导入 `SourceDocument/FileAsset`。验收证据是 `material_batch_key=guangzhou_physics_2016_2025` 下课程标准 1、教材 3、广州中考年报 10、广州中考真题/答案/解析 19，全部关联非空 sha256；本任务未激活正式知识点，也未导入候选资产。
+- C002K C002 cleaned candidate 自动导入 candidate DB。已完成：以 `c002-k12-question-graph-candidate-csvs\cleaned` 为输入，写入 92 个候选动态资产、55 条 `pending_review` 映射、1 个 `pending_review` migration 计划和 1 个 `c002_candidate_import` 审核队列项。所有资产保持 `candidate`，所有映射保持 `pending_review/auto_applied=false`，`active` 数量为 0；正式 C002 仍需人工审核、影响确认和激活 guard。
 - C003 公式、实验、方法、易错点。
 - C004 教材章节映射。
 - C005 地区考点映射。

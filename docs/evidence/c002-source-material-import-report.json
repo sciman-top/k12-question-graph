@@ -1,8 +1,8 @@
 {
-  "status": "dry_run",
+  "status": "uploaded",
   "sourceRoot": "D:\\CODE\\k12-question-graph\\广州中考",
   "materialBatchKey": "guangzhou-physics-2016-2025",
-  "apiUrl": "",
+  "apiUrl": "http://127.0.0.1:5489",
   "fileCount": 33,
   "bySourceType": [
     {
@@ -651,5 +651,270 @@
       "mayUseForTrendAnalysis": true
     }
   ],
-  "uploaded": []
+  "uploaded": [
+    {
+      "path": "D:\\CODE\\k12-question-graph\\广州中考\\《义务教育物理课程标准·日常修订版》(2022年版2025年修订).pdf",
+      "sourceType": "curriculum_standard",
+      "sourceDocumentId": "3796b4d9-3293-4b9b-99f5-2f6953064d49",
+      "fileAssetId": "4c82e40f-8245-4442-9b0a-9c6427438190",
+      "sha256": "a992f3c0028ff9e8b230ddef031bd6e9d224df46239a26b0a7125b560d834064",
+      "isDuplicate": false
+    },
+    {
+      "path": "D:\\CODE\\k12-question-graph\\广州中考\\初中物理教材（人教版）\\物理教材八上（2024人教）.pdf",
+      "sourceType": "textbook",
+      "sourceDocumentId": "59f88fb9-191c-4df0-92ee-e7c4d5389c5b",
+      "fileAssetId": "6892a855-3128-4cb0-99cb-44c5f2d6cd94",
+      "sha256": "6c551bd86328b84b8a181d1da437e3b92e9fa2b469ce12d65cc75aa29ef0922b",
+      "isDuplicate": false
+    },
+    {
+      "path": "D:\\CODE\\k12-question-graph\\广州中考\\初中物理教材（人教版）\\物理教材八下（2024人教）.pdf",
+      "sourceType": "textbook",
+      "sourceDocumentId": "dfa4993b-db66-4900-870d-38a9095c6d93",
+      "fileAssetId": "7eb3508b-85d2-4bd9-96fb-71fbaf9ff79d",
+      "sha256": "b68839e93194bdd91d0a3ce1ef8ef4134b8b8b0d1b7fc82f05efc0defeb6fe52",
+      "isDuplicate": false
+    },
+    {
+      "path": "D:\\CODE\\k12-question-graph\\广州中考\\初中物理教材（人教版）\\物理教材九全（2025秋.人教）.pdf",
+      "sourceType": "textbook",
+      "sourceDocumentId": "f437151f-ff95-4156-b8df-1214b2bc45b2",
+      "fileAssetId": "992364bf-6b27-45eb-8118-4abc83b34a73",
+      "sha256": "55eb16b9e87e5ab28c7a041cd02826ff0ab70ce647460f638ff3a84af698e605",
+      "isDuplicate": false
+    },
+    {
+      "path": "D:\\CODE\\k12-question-graph\\广州中考\\广州中考年报\\2016广州中考年报.pdf",
+      "sourceType": "exam_analysis_report",
+      "sourceDocumentId": "f9705f91-49d2-4863-93b8-c1b6b1cf5c1f",
+      "fileAssetId": "cde580a2-3de6-4ec3-83c3-e0b881dda710",
+      "sha256": "15e9d00bf1fe5a3a21419e58e45b99cd5b500321c72034f09e3b6c11881ae10c",
+      "isDuplicate": false
+    },
+    {
+      "path": "D:\\CODE\\k12-question-graph\\广州中考\\广州中考年报\\2017广州中考年报.pdf",
+      "sourceType": "exam_analysis_report",
+      "sourceDocumentId": "5a9abcc5-9a53-4944-9b02-4baa0cfe7cda",
+      "fileAssetId": "dd416aa2-d6dd-4963-8537-ea86b3210ab5",
+      "sha256": "625a8ede241011338ed88543a787750d20512bef72253debbaf2104e77f91a65",
+      "isDuplicate": false
+    },
+    {
+      "path": "D:\\CODE\\k12-question-graph\\广州中考\\广州中考年报\\2018广州中考年报.pdf",
+      "sourceType": "exam_analysis_report",
+      "sourceDocumentId": "cbeeae3e-6e56-46c2-be20-c132cbc84a36",
+      "fileAssetId": "9c30b117-b1f0-43e1-bd3c-13c05655c0b4",
+      "sha256": "654d6433c1fdc18eec875a4253ade44ca6558561c6565adf2ac2d272337ad1f3",
+      "isDuplicate": false
+    },
+    {
+      "path": "D:\\CODE\\k12-question-graph\\广州中考\\广州中考年报\\2019广州中考年报.pdf",
+      "sourceType": "exam_analysis_report",
+      "sourceDocumentId": "5c57d5aa-9f41-46d9-8ac3-4c3fb63fa2a7",
+      "fileAssetId": "29da8918-2b17-4bbd-a22e-4009df5fbfb2",
+      "sha256": "ec37a5ee6ffa550fc57eae2d3b9c51ef642dd808bf74a37c2751091b6db84f01",
+      "isDuplicate": false
+    },
+    {
+      "path": "D:\\CODE\\k12-question-graph\\广州中考\\广州中考年报\\2020广州中考年报.pdf",
+      "sourceType": "exam_analysis_report",
+      "sourceDocumentId": "86177e89-45dc-4f33-a5d0-b16f59764da9",
+      "fileAssetId": "9099664b-315e-4247-910a-aefe515b83b6",
+      "sha256": "95f18f3ec6434f074f37a4396ed621a72dc6473fae5121d736099aebd48f3c1d",
+      "isDuplicate": false
+    },
+    {
+      "path": "D:\\CODE\\k12-question-graph\\广州中考\\广州中考年报\\2021广州中考年报.pdf",
+      "sourceType": "exam_analysis_report",
+      "sourceDocumentId": "0d2a2dd1-2c85-4ff9-b06b-fa2beb9cee39",
+      "fileAssetId": "2e2f343f-d456-4b6e-aae7-2647447814ec",
+      "sha256": "18c3e88851b24578b96e657c927a9c3baaa7ad807fb9942c6140496b02d90853",
+      "isDuplicate": false
+    },
+    {
+      "path": "D:\\CODE\\k12-question-graph\\广州中考\\广州中考年报\\2022广州中考年报.pdf",
+      "sourceType": "exam_analysis_report",
+      "sourceDocumentId": "32d93960-11ed-41ea-8b89-b310d0efb524",
+      "fileAssetId": "6d39214e-0110-45d0-a89e-e484557dca53",
+      "sha256": "b06d7c64a422852eb14c42b8d7ee434fc28f97f3a93964da340fd1283f1e7116",
+      "isDuplicate": false
+    },
+    {
+      "path": "D:\\CODE\\k12-question-graph\\广州中考\\广州中考年报\\2023广州中考年报.pdf",
+      "sourceType": "exam_analysis_report",
+      "sourceDocumentId": "e4856c25-37d2-4f8d-a0b3-05405bfe4a9f",
+      "fileAssetId": "15b97551-1af2-4fdd-ab19-cc1ef18ffe56",
+      "sha256": "4d5885aa9f2dadead754d7f5124b6cd7535bc3cddc9bce53fcc6dbcdc913ecc7",
+      "isDuplicate": false
+    },
+    {
+      "path": "D:\\CODE\\k12-question-graph\\广州中考\\广州中考年报\\2024广州中考年报.pdf",
+      "sourceType": "exam_analysis_report",
+      "sourceDocumentId": "79ee9e91-220c-4d33-890a-1df15bd537c8",
+      "fileAssetId": "b81bb0bc-6038-45a9-b5fe-0a65c0c0f035",
+      "sha256": "509224044bc1ed8b7bbce9dda011c19e33a273e4033661a76792ce89c94fe07f",
+      "isDuplicate": false
+    },
+    {
+      "path": "D:\\CODE\\k12-question-graph\\广州中考\\广州中考年报\\2025广州中考年报.pdf",
+      "sourceType": "exam_analysis_report",
+      "sourceDocumentId": "78545951-02e8-4350-9470-20ed0f2babd8",
+      "fileAssetId": "0adea369-7a2e-43ad-9ae4-05ff47a7bac7",
+      "sha256": "122fb00ee53e975eeeb9068a76a694747ccb5d23d89bb459a29d4c50de4a7c6f",
+      "isDuplicate": false
+    },
+    {
+      "path": "D:\\CODE\\k12-question-graph\\广州中考\\广州中考真题\\2016广州中考.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceDocumentId": "bced0159-4568-4814-ba9d-82f19fbf0493",
+      "fileAssetId": "2da2e0a8-7a55-40c1-bf0e-bbcf95e05373",
+      "sha256": "377de2f0a5c7c8a35bff908ac5a4527b671702ac4265bf9d9728e531ae541cee",
+      "isDuplicate": false
+    },
+    {
+      "path": "D:\\CODE\\k12-question-graph\\广州中考\\广州中考真题\\2016广州中考答案.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceDocumentId": "12db801b-1d62-4693-a311-d0ea60f18425",
+      "fileAssetId": "c5cfb269-01af-499c-80d8-782e573d11e6",
+      "sha256": "fadc6107c2acaaf95de050f4693864a9fffcac71e456bf30a1f4593047ab408b",
+      "isDuplicate": false
+    },
+    {
+      "path": "D:\\CODE\\k12-question-graph\\广州中考\\广州中考真题\\2017广州中考.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceDocumentId": "a2972de8-f2d2-4f96-baff-63038be89150",
+      "fileAssetId": "d16bce71-5349-460e-81b8-f502e006a1ef",
+      "sha256": "3f419b1779ebec02f74c694966924a2931611f3525d3d17701946bb63abfc4fa",
+      "isDuplicate": false
+    },
+    {
+      "path": "D:\\CODE\\k12-question-graph\\广州中考\\广州中考真题\\2017广州中考答案.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceDocumentId": "abb7abf4-623a-4338-b04e-ce5fe07c47f0",
+      "fileAssetId": "196e456e-54b1-456e-8f0c-276ca44fee74",
+      "sha256": "f87c3cb8ed02969137ba916184045052ec3efecbd6331dd1d192fe52de67d207",
+      "isDuplicate": false
+    },
+    {
+      "path": "D:\\CODE\\k12-question-graph\\广州中考\\广州中考真题\\2018广州中考.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceDocumentId": "82b67da3-8ab8-493f-abc3-61428e00d74f",
+      "fileAssetId": "9efd2ab4-c218-4062-9823-bf307a4413fc",
+      "sha256": "c4feff77379271fbea32404b1ab3952800ff305639c8af446fa1c8c68a2fc794",
+      "isDuplicate": false
+    },
+    {
+      "path": "D:\\CODE\\k12-question-graph\\广州中考\\广州中考真题\\2018广州中考答案.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceDocumentId": "c7c2b85f-9139-475d-8431-1e1cfdd9e981",
+      "fileAssetId": "b1abfac2-12fe-40af-b297-7c2a22ceb468",
+      "sha256": "40b1a15e8b70c44e862eabf265cbe4d63062151742a126133388d31a4b666ed6",
+      "isDuplicate": false
+    },
+    {
+      "path": "D:\\CODE\\k12-question-graph\\广州中考\\广州中考真题\\2019广州中考.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceDocumentId": "e6394de7-0bb3-462f-801a-d762fa3e08ca",
+      "fileAssetId": "3ad1a80c-a833-4093-8e9f-fa0411faa6be",
+      "sha256": "85dd476db8eacd837f7a4590bac7c795ef5cf53f68a1c68a08f279e7d1731dba",
+      "isDuplicate": false
+    },
+    {
+      "path": "D:\\CODE\\k12-question-graph\\广州中考\\广州中考真题\\2019广州中考答案.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceDocumentId": "d81871d7-f631-4d77-aac4-b54d01473026",
+      "fileAssetId": "4aa37a00-03ba-4391-9104-3c0b6eadda80",
+      "sha256": "b4dfdef844f45be070eaf3db88961ede314eca829493b70e0ddbe17631c1d116",
+      "isDuplicate": false
+    },
+    {
+      "path": "D:\\CODE\\k12-question-graph\\广州中考\\广州中考真题\\2020广州中考（含答案）.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceDocumentId": "fe71fada-ea61-4b68-a6f5-79efeccb78a1",
+      "fileAssetId": "9cfcdd29-45a4-40ce-85c1-2fc0ff1b9058",
+      "sha256": "03b67dc46d0e37377d0ac076638e6d34b42305c8f2824489da3f664fe53875db",
+      "isDuplicate": false
+    },
+    {
+      "path": "D:\\CODE\\k12-question-graph\\广州中考\\广州中考真题\\2021广州中考-参考答案.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceDocumentId": "389ac111-52c5-4a10-a340-fd03bffb2b39",
+      "fileAssetId": "3995d74c-8e04-4235-8191-9eeaac1d8411",
+      "sha256": "e157ab8a16233acd68000299b427f814687035ec1b76384f69f1cf446ed04578",
+      "isDuplicate": false
+    },
+    {
+      "path": "D:\\CODE\\k12-question-graph\\广州中考\\广州中考真题\\2021广州中考.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceDocumentId": "83e3e461-318b-4293-9fc4-63ddf9c5d0cf",
+      "fileAssetId": "ae9ada40-8cbe-4a8d-bd7b-b067b99273c0",
+      "sha256": "d4abb8aa48663b772abb1ee5b15935b065b8931af47bd3c62d89bdef1f83989c",
+      "isDuplicate": false
+    },
+    {
+      "path": "D:\\CODE\\k12-question-graph\\广州中考\\广州中考真题\\2022广州中考-参考答案.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceDocumentId": "f05ae8ba-3891-4ce0-b265-a1b61a1b76bf",
+      "fileAssetId": "8a6a2dbe-9fa5-4bfe-a6d6-e8539a777199",
+      "sha256": "519a730083d49f576effa9f9d099c0f2731022ff94bc80bbe5e64713d2016120",
+      "isDuplicate": false
+    },
+    {
+      "path": "D:\\CODE\\k12-question-graph\\广州中考\\广州中考真题\\2022广州中考.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceDocumentId": "dba28439-acdc-44e5-9eac-5325a4aec896",
+      "fileAssetId": "6c2e3660-0c2e-4017-a224-1e2e69aaa93e",
+      "sha256": "66c5959ae3db3fa2d521b234d371c5fa05ef84763ffc1a5a9ed8bd9adce16101",
+      "isDuplicate": false
+    },
+    {
+      "path": "D:\\CODE\\k12-question-graph\\广州中考\\广州中考真题\\2023广州中考_参考答案.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceDocumentId": "8a7a5534-97e7-47ac-8f92-60ad70446ec1",
+      "fileAssetId": "d2fdb940-f494-404e-aa28-f892ccb0d2e8",
+      "sha256": "f7c33a3e4525912de855f34e1d40e2853aa228da6d5f74be91f0627520c7d36a",
+      "isDuplicate": false
+    },
+    {
+      "path": "D:\\CODE\\k12-question-graph\\广州中考\\广州中考真题\\2023广州中考.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceDocumentId": "65468c7b-aec5-42c0-a60e-f59e9ed8e093",
+      "fileAssetId": "bb9c9cf6-7d54-4a9d-955c-e0334c247818",
+      "sha256": "9422eb3c0542eeea3526717364de15288d74788c4a1348f64ff012233338acdc",
+      "isDuplicate": false
+    },
+    {
+      "path": "D:\\CODE\\k12-question-graph\\广州中考\\广州中考真题\\2024广州中考.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceDocumentId": "c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389",
+      "fileAssetId": "7b2baec8-9fa7-43ce-9b83-584eff23def6",
+      "sha256": "f6a3a77585343e30722ef5e09cda58795fa752e2d86c74d0dda3c89e159311ef",
+      "isDuplicate": false
+    },
+    {
+      "path": "D:\\CODE\\k12-question-graph\\广州中考\\广州中考真题\\2024广州中考（解析版）.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceDocumentId": "90465a2a-9664-4a85-b40b-2bf3e194c8b5",
+      "fileAssetId": "9d4cd728-90ed-4973-937d-699c3b65f0c1",
+      "sha256": "5b588bd2ed97be333da83a1f50031fe7f3adf66c8532506a481c97ed09adda95",
+      "isDuplicate": false
+    },
+    {
+      "path": "D:\\CODE\\k12-question-graph\\广州中考\\广州中考真题\\2025广州中考.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceDocumentId": "e7930641-b925-4f00-96d7-3b900949c083",
+      "fileAssetId": "9b3bf589-a1ee-4757-97e6-2aa5aa99932f",
+      "sha256": "26c8aabc95cd2ffa67ed2ea873f13c9f2cb15d8e576ca2e4d4281f00f63e0fbe",
+      "isDuplicate": false
+    },
+    {
+      "path": "D:\\CODE\\k12-question-graph\\广州中考\\广州中考真题\\2025广州中考（解析版）.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceDocumentId": "e04bc785-61b5-43d5-af7d-8f794b99549d",
+      "fileAssetId": "48647b5d-44b7-460f-b256-78a7b9cd31bb",
+      "sha256": "22cc26e89bae766f1c6d9dc4497d9dcfa7a52467cdb48856c831f076805f8202",
+      "isDuplicate": false
+    }
+  ]
 }

@@ -1,0 +1,50 @@
+{
+  "status": "applied",
+  "checkedAt": "2026-05-03T11:07:51.229540+00:00",
+  "task": "C002K",
+  "importKey": "c002_candidate_import_guangzhou_physics_2016_2025_v1",
+  "materialBatchKey": "guangzhou_physics_2016_2025",
+  "inputRoot": "c002-k12-question-graph-candidate-csvs\\cleaned",
+  "apply": true,
+  "backupManifest": "D:\\KQG_Backups\\20260503-190726\\manifest.json",
+  "summary": {
+    "assets": 92,
+    "mappings": 55,
+    "externalAiCandidates": 24,
+    "sourceManifestMaterials": 20,
+    "resolvedSourceDocuments": 33,
+    "missingSourceMaterialIds": 0,
+    "assetTypes": {
+      "knowledge_point": 24,
+      "curriculum_standard_item": 24,
+      "exam_point": 16,
+      "textbook_chapter": 25,
+      "trend_summary": 3
+    },
+    "mappingTypes": {
+      "broader": 48,
+      "equivalent": 7
+    }
+  },
+  "before": {
+    "domainAssetVersions": 92,
+    "domainAssetMappings": 55,
+    "domainAssetMigrations": 1,
+    "reviewQueueItems": 1,
+    "activeDomainAssetVersions": 0
+  },
+  "after": {
+    "domainAssetVersions": 92,
+    "domainAssetMappings": 55,
+    "domainAssetMigrations": 1,
+    "reviewQueueItems": 1,
+    "activeDomainAssetVersions": 0
+  },
+  "missingSourceMaterialIds": [],
+  "protectedExistingAssets": [],
+  "productionActivationAllowed": false,
+  "candidateOnly": true,
+  "reportHash": "4cc35f3fc8f73969167d5d7d697274729bb2e63b70b3ebb7e1b081768a27bdcc",
+  "migrationId": "0dc2c308-9006-4311-88b5-893b4ca0a515",
+  "reviewQueueItemId": "88ae94fc-4245-4380-a1bf-b12258b9e001"
+}

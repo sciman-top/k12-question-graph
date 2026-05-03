@@ -40,6 +40,10 @@ AI 推荐保留当前 P0-P6 大方向，但调整顺序和验收口径：
 
 来源资料采用双证据链：ChatGPT Web 或其他外部 AI 可以先把 PDF 提炼成结构化候选表，但这些结果只能导入为 `candidate/pending_review/productionEligible=false`；本项目必须同时通过来源资料工作台上传原始 PDF/docx/image，保存 `sha256/sourceType/region/year/page/question evidence` 后，才能核验、映射、影响评估并进入 `reviewed/active`。
 
+截至 2026-05-03，`D:\CODE\k12-question-graph\广州中考` 已完成 C002J 真实来源资料导入：课程标准 1 份、教材 3 份、广州中考年报 10 份、广州中考真题/答案/解析 19 份，共 33 个 PDF，已进入 `SourceDocument/FileAsset` 证据层，真实 `material_batch_key` 为 `guangzhou_physics_2016_2025`。C002K 也已把 `c002-k12-question-graph-candidate-csvs\cleaned` 中的候选资产写入候选 DB：92 个 `candidate` 动态资产、55 条 `pending_review` 映射、1 个 `pending_review` migration 计划和 1 个审核队列项。正式 C002 仍不得标记为完成或 active，必须等人工审核、影响确认、回滚快照和 active guard 全部通过。
+
+真实导入是中风险持久化动作，执行顺序固定为：确认 `git status`、设置正确 `PGPASSWORD/KQG_CONNECTION_STRING`、先运行 dry-run、执行备份或至少生成可恢复 manifest、再运行 `tools/import-c002-source-materials.ps1 -Apply`。若数据库密码缺失或不匹配，导入必须停在 dry-run 和任务更新层，不得绕过来源证据链直接导入候选知识点。
+
 ## P0 · 工程骨架与最小上传纵切
 
 目标：证明技术栈、数据路径、任务路径、文件路径和备份路径能在 Windows 本机/LAN 场景跑通。
@@ -103,6 +107,8 @@ AI 推荐保留当前 P0-P6 大方向，但调整顺序和验收口径：
 - 版本快照与影响分析。
 - draft -> formal 替换映射、自动迁移建议、人工审核和回滚报告。
 - 动态变化对象清单和映射基数合同，覆盖一对一、一对多、多对一、多对多。
+- 真实来源资料导入证据层：教材、课程标准、当地真题、考情年报先进入 `SourceDocument/FileAsset`，候选表只能引用这些 hash 后继续。
+- 候选数据自动导入：只写入 candidate/review queue/mapping/impact report，不写 active，不改变生产统计口径。
 
 验收：
 
