@@ -40,10 +40,21 @@ The gate also covers `b001 duplicate upload smoke`, `b002 adapter contract smoke
 `e001 question search ui/api contracts`, `e002 paper request contract`, and
 `e003 question replacement undo contract`, and
 `e004 paper export contract`, and
-`f001 assessment model contract`.
+`f001 assessment model contract`, and
+`f002 score import contract`.
 It starts temporary
 API processes for API smoke steps, so `PGPASSWORD` must match the local PostgreSQL
 password.
+
+F002 score import contract:
+
+```powershell
+.\tools\run-f002-score-import-contract.ps1
+```
+
+This validates synthetic `.xlsx` score import, reusable field mapping,
+centralized row errors, database score import tables, no PII, and the
+non-production boundary.
 
 C002 dynamic assets dry-run suite:
 

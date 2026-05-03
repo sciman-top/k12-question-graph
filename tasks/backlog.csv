@@ -52,7 +52,7 @@ E002,P4,组卷导出,自然语言组卷系统理解页面,中,已完成,E001,dra
 E003,P4,组卷导出,一键换题与撤销,中,已完成,E002,draft/test 模式下换题保持知识点题型难度分值约束且可撤销 约束来自可迁移动态资产 正式资产变化后通过映射影响报告更新,tools/run-e003-question-replacement-contract.ps1 + docs/74_E003_QuestionReplacementUndo.md + tools/run-gates.ps1
 E004,P4,组卷导出,Word/PDF 导出 MVP,中,已完成,E003,draft/test 模式下可导出 synthetic/draft 试卷 Word/WPS 可打开且公式题图表格不丢失 不要求正式题库或正式知识点激活,tools/run-e004-paper-export-contract.ps1 + docs/75_E004_PaperExportMvp.md + tools/run-gates.ps1
 F001,P5,成绩学情,学生班级考试模型,中,已完成,E004,draft/test 模式下支持学生班级考试基本实体 使用 synthetic 学生与班级 fixture 不使用真实学生数据 不暴露学生端,tools/run-f001-assessment-model-contract.ps1 + docs/76_F001_AssessmentModel.md + tools/run-gates.ps1
-F002,P5,成绩学情,Excel 字段映射导入,中,暂缓,F001,draft/test 模式下 synthetic Excel 模板可导入 字段映射可保存复用 异常集中提示 字段模板作为动态资产可迁移,import mapping test + synthetic fixture
+F002,P5,成绩学情,Excel 字段映射导入,中,已完成,F001,draft/test 模式下 synthetic Excel 模板可导入 字段映射可保存复用 异常集中提示 字段模板作为动态资产可迁移,tools/run-f002-score-import-contract.ps1 + docs/77_F002_ScoreImportMapping.md + tools/run-gates.ps1
 F003,P5,成绩学情,得分率知识点分析,中,暂缓,F002,draft/test 模式下可输出班级得分率区分度知识点掌握摘要 正式知识点标签能力维度未激活前不改写正式历史学情,analysis test + no production analytics guard
 G001,P6,运维,自动备份到本机与共享目录,中,暂缓,F003,draft/test 模式下备份包通过 manifest/hash 校验且主程序不可用时脚本仍可运行 共享目录路径作为动态配置可修改,backup restore drill
 G002,P6,运维,缓存清理与存储看板,中,暂缓,G001,draft/test 模式下管理员能看到存储占用并执行安全清理 保留配置化目录和回滚证据,storage UI/API test

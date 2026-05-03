@@ -21,6 +21,14 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
 
     public DbSet<AssessmentEnrollment> AssessmentEnrollments => Set<AssessmentEnrollment>();
 
+    public DbSet<ScoreImportTemplate> ScoreImportTemplates => Set<ScoreImportTemplate>();
+
+    public DbSet<ScoreImportBatch> ScoreImportBatches => Set<ScoreImportBatch>();
+
+    public DbSet<ScoreRecord> ScoreRecords => Set<ScoreRecord>();
+
+    public DbSet<ItemScore> ItemScores => Set<ItemScore>();
+
     public DbSet<ImportJob> ImportJobs => Set<ImportJob>();
 
     public DbSet<AIJob> AIJobs => Set<AIJob>();
@@ -59,6 +67,10 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
         ConfigureClassGroup(modelBuilder.Entity<ClassGroup>());
         ConfigureAssessment(modelBuilder.Entity<Assessment>());
         ConfigureAssessmentEnrollment(modelBuilder.Entity<AssessmentEnrollment>());
+        ConfigureScoreImportTemplate(modelBuilder.Entity<ScoreImportTemplate>());
+        ConfigureScoreImportBatch(modelBuilder.Entity<ScoreImportBatch>());
+        ConfigureScoreRecord(modelBuilder.Entity<ScoreRecord>());
+        ConfigureItemScore(modelBuilder.Entity<ItemScore>());
         ConfigureImportJob(modelBuilder.Entity<ImportJob>());
         ConfigureAIJob(modelBuilder.Entity<AIJob>());
         ConfigureReviewQueueItem(modelBuilder.Entity<ReviewQueueItem>());
@@ -232,6 +244,87 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
             x.HasCheckConstraint("ck_assessment_enrollments_status", "status in ('enrolled','excluded','absent')");
             x.HasCheckConstraint("ck_assessment_enrollments_pii_guard", "contains_student_pii = false");
         });
+    }
+
+    private static void ConfigureScoreImportTemplate(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<ScoreImportTemplate> entity)
+    {
+        entity.ToTable("score_import_templates");
+        entity.HasKey(x => x.Id);
+        entity.HasIndex(x => new { x.TemplateKey, x.Version }).IsUnique();
+        entity.HasIndex(x => x.ReviewStatus);
+        entity.Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
+        entity.Property(x => x.TemplateKey).HasMaxLength(160).IsRequired();
+        entity.Property(x => x.DisplayName).HasMaxLength(256).IsRequired();
+        entity.Property(x => x.Mode).HasMaxLength(32).HasDefaultValue("draft_test");
+        entity.Property(x => x.ReviewStatus).HasMaxLength(64).HasDefaultValue(DomainAssetReviewStatuses.PendingReview);
+        entity.Property(x => x.FieldMapping).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.Property(x => x.MigrationPolicy).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.ToTable(x =>
+        {
+            x.HasCheckConstraint("ck_score_import_templates_version", "version >= 1");
+            x.HasCheckConstraint("ck_score_import_templates_mode", "mode in ('draft_test','production')");
+            x.HasCheckConstraint("ck_score_import_templates_review_status", "review_status in ('auto_applied','pending_review','approved','rejected')");
+            x.HasCheckConstraint("ck_score_import_templates_production_guard", "(production_eligible = false and mode = 'draft_test') or (production_eligible = true and mode = 'production')");
+        });
+    }
+
+    private static void ConfigureScoreImportBatch(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<ScoreImportBatch> entity)
+    {
+        entity.ToTable("score_import_batches");
+        entity.HasKey(x => x.Id);
+        entity.HasIndex(x => new { x.AssessmentId, x.Status });
+        entity.HasIndex(x => x.TemplateId);
+        entity.HasIndex(x => x.ContainsStudentPii);
+        entity.Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
+        entity.Property(x => x.Mode).HasMaxLength(32).HasDefaultValue("draft_test");
+        entity.Property(x => x.Status).HasMaxLength(32).HasDefaultValue(ScoreImportStatuses.Draft);
+        entity.Property(x => x.SourceFileName).HasMaxLength(260).HasDefaultValue(string.Empty);
+        entity.Property(x => x.ErrorSummary).HasColumnType("jsonb").HasDefaultValueSql("'[]'::jsonb");
+        entity.Property(x => x.Metadata).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.HasOne<Assessment>().WithMany().HasForeignKey(x => x.AssessmentId).OnDelete(DeleteBehavior.Cascade);
+        entity.HasOne<ScoreImportTemplate>().WithMany().HasForeignKey(x => x.TemplateId).OnDelete(DeleteBehavior.Restrict);
+        entity.ToTable(x =>
+        {
+            x.HasCheckConstraint("ck_score_import_batches_mode", "mode in ('draft_test','production')");
+            x.HasCheckConstraint("ck_score_import_batches_status", "status in ('draft','imported','failed','archived')");
+            x.HasCheckConstraint("ck_score_import_batches_counts", "row_count >= 0 and imported_count >= 0 and error_count >= 0 and row_count >= imported_count and row_count >= error_count");
+            x.HasCheckConstraint("ck_score_import_batches_pii_guard", "contains_student_pii = false");
+            x.HasCheckConstraint("ck_score_import_batches_production_guard", "(production_eligible = false and mode = 'draft_test') or (production_eligible = true and mode = 'production')");
+        });
+    }
+
+    private static void ConfigureScoreRecord(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<ScoreRecord> entity)
+    {
+        entity.ToTable("score_records");
+        entity.HasKey(x => x.Id);
+        entity.HasIndex(x => new { x.AssessmentId, x.StudentId }).IsUnique();
+        entity.HasIndex(x => x.ImportBatchId);
+        entity.Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
+        entity.Property(x => x.StudentKey).HasMaxLength(160).IsRequired();
+        entity.Property(x => x.Status).HasMaxLength(32).HasDefaultValue("imported");
+        entity.Property(x => x.RawRow).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.HasOne<Assessment>().WithMany().HasForeignKey(x => x.AssessmentId).OnDelete(DeleteBehavior.Cascade);
+        entity.HasOne<Student>().WithMany().HasForeignKey(x => x.StudentId).OnDelete(DeleteBehavior.Restrict);
+        entity.HasOne<ScoreImportBatch>().WithMany().HasForeignKey(x => x.ImportBatchId).OnDelete(DeleteBehavior.Cascade);
+        entity.ToTable(x =>
+        {
+            x.HasCheckConstraint("ck_score_records_status", "status in ('imported','excluded','invalid')");
+            x.HasCheckConstraint("ck_score_records_scores", "(total_score is null or total_score >= 0) and (max_score is null or max_score >= 0) and (total_score is null or max_score is null or total_score <= max_score)");
+            x.HasCheckConstraint("ck_score_records_pii_guard", "contains_student_pii = false");
+        });
+    }
+
+    private static void ConfigureItemScore(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<ItemScore> entity)
+    {
+        entity.ToTable("item_scores");
+        entity.HasKey(x => x.Id);
+        entity.HasIndex(x => new { x.ScoreRecordId, x.QuestionNo }).IsUnique();
+        entity.Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
+        entity.Property(x => x.QuestionNo).HasMaxLength(64).IsRequired();
+        entity.Property(x => x.FieldName).HasMaxLength(128).IsRequired();
+        entity.Property(x => x.Metadata).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.HasOne<ScoreRecord>().WithMany().HasForeignKey(x => x.ScoreRecordId).OnDelete(DeleteBehavior.Cascade);
+        entity.ToTable(x => x.HasCheckConstraint("ck_item_scores_scores", "score >= 0 and max_score >= 0 and score <= max_score"));
     }
 
     private static void ConfigureImportJob(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<ImportJob> entity)

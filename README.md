@@ -8,7 +8,7 @@
 
 2026-05-02 外部资料复核后的判断：最高原则、默认技术栈、模块化单体架构和 P0/P1 纵切路线保持正确；需要在进入编码前先完成 P0 准入预检，锁定 SDK/runtime、PostgreSQL 版本、数据目录、Windows Service/content root 约束、BackgroundService job lease/retry 规则、学生数据/合规辖区边界和文档门禁。
 
-当前 P0/P1 已打通“上传文件 -> 创建 ImportJob -> 持久化元数据 -> Python Worker 占位 -> 页面预览/人工确认/来源回看 -> health -> backup manifest -> unified gate”纵切闭环。P2 已完成 C001、C002A-C002Q：draft bootstrap 可用于测试，广州中考 33 份原始来源资料已进入 `SourceDocument/FileAsset` 证据层，cleaned candidate 已进入 `candidate/pending_review` 动态资产和审核队列，来源 PDF 已完成本地 chunk/hash/cache 证据层，候选提炼 schema/eval 已验证，分层模型路由预算门禁已证明 full extraction 必须人工预算确认，outer AI runner/subagent 编排 readiness 已证明不启用项目内生产真实模型、不写 active、不引入运行时 subagent 依赖，小批量 AI extract contract dry-run 已生成候选输出、模型层级、token/cost/cache 证据且不覆盖 C002K；正式 C002 仍必须经过人工审核、影响确认、回滚快照和 active guard。P3 已在 draft/test 模式完成 D001-D003：真实模型调用仍禁用，LLM 路由只进入 `stub_llm`、成本日志和结构化输出 eval smoke，结果保持人工审核边界。P4 已完成 E001-E004 draft/test：题库检索、自然语言组卷理解、一键换题与撤销、Word/PDF 导出 MVP 合同均不等待正式 C002。P5 已完成 F001 draft/test 学生、班级、考试和报名基础模型；不使用真实学生数据，不暴露学生端。
+当前 P0/P1 已打通“上传文件 -> 创建 ImportJob -> 持久化元数据 -> Python Worker 占位 -> 页面预览/人工确认/来源回看 -> health -> backup manifest -> unified gate”纵切闭环。P2 已完成 C001、C002A-C002Q：draft bootstrap 可用于测试，广州中考 33 份原始来源资料已进入 `SourceDocument/FileAsset` 证据层，cleaned candidate 已进入 `candidate/pending_review` 动态资产和审核队列，来源 PDF 已完成本地 chunk/hash/cache 证据层，候选提炼 schema/eval 已验证，分层模型路由预算门禁已证明 full extraction 必须人工预算确认，outer AI runner/subagent 编排 readiness 已证明不启用项目内生产真实模型、不写 active、不引入运行时 subagent 依赖，小批量 AI extract contract dry-run 已生成候选输出、模型层级、token/cost/cache 证据且不覆盖 C002K；正式 C002 仍必须经过人工审核、影响确认、回滚快照和 active guard。P3 已在 draft/test 模式完成 D001-D003：真实模型调用仍禁用，LLM 路由只进入 `stub_llm`、成本日志和结构化输出 eval smoke，结果保持人工审核边界。P4 已完成 E001-E004 draft/test：题库检索、自然语言组卷理解、一键换题与撤销、Word/PDF 导出 MVP 合同均不等待正式 C002。P5 已完成 F001-F002 draft/test：学生、班级、考试、报名、Excel 字段映射导入和异常行提示均使用 synthetic fixture；不使用真实学生数据，不暴露学生端，不写正式学情口径。
 
 `C002` 标记为正式完成时，只表示初中物理知识体系 v1 已成为当前生产默认版本，不表示永久冻结。后续修改必须走新候选版本、映射、影响报告、审核、回滚快照和 active 切换，旧版本保留给历史题目、旧卷和学情解释。
 
@@ -112,7 +112,7 @@ P2/C002 draft-test: draft 知识点 → 替换映射 dry-run → 迁移影响报
 P2/C002 dynamic contract: dynamic elements → one-to-one/one-to-many/many-to-one/many-to-many mapping → review workbench → impact/rollback
 P3/D001-D003 draft-test: AI task → ModelRouter → rule/stub_llm → schema/prompt/model/cost log → structured output eval → human review guard
 P4/E001-E004 draft-test: question search → paper request understanding → replace question → undo snapshot → export Word/PDF → non-production guard
-P5/F001 draft-test: synthetic student → class group → assessment → enrollment → privacy guard → no student portal
+P5/F001-F002 draft-test: synthetic student → class group → assessment → enrollment → Excel score mapping → row errors → privacy guard → no student portal
 ```
 
 完整 v0.1 闭环仍是：
@@ -154,6 +154,7 @@ tests/      自动化测试与黄金样本
 - `tools/run-e003-question-replacement-contract.ps1`: E003 draft/test 一键换题与撤销合同。
 - `tools/run-e004-paper-export-contract.ps1`: E004 draft/test Word/PDF 导出 MVP 合同。
 - `tools/run-f001-assessment-model-contract.ps1`: F001 draft/test 学生、班级、考试和报名模型合同。
+- `tools/run-f002-score-import-contract.ps1`: F002 draft/test synthetic Excel 字段映射导入合同。
 - `tools/prepare-c002-candidate-csvs.ps1`: C002 ChatGPT Web 候选 CSV 清洗和预检入口。
 - `tools/import-c002-source-materials.ps1`: C002 原始来源资料 dry-run / evidence-layer 导入入口。
 - `tools/import-c002-candidate-assets.ps1`: C002 cleaned candidate DB dry-run / apply 入口。

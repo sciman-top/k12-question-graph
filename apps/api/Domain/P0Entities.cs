@@ -117,6 +117,14 @@ public static class AssessmentStatuses
     public const string Archived = "archived";
 }
 
+public static class ScoreImportStatuses
+{
+    public const string Draft = "draft";
+    public const string Imported = "imported";
+    public const string Failed = "failed";
+    public const string Archived = "archived";
+}
+
 public sealed class TeacherPreference
 {
     public Guid Id { get; set; }
@@ -329,6 +337,112 @@ public sealed class AssessmentEnrollment
     public bool ContainsStudentPii { get; set; }
 
     public string ScoreSummary { get; set; } = "{}";
+
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class ScoreImportTemplate
+{
+    public Guid Id { get; set; }
+
+    public string TemplateKey { get; set; } = string.Empty;
+
+    public string DisplayName { get; set; } = string.Empty;
+
+    public int Version { get; set; } = 1;
+
+    public string Mode { get; set; } = "draft_test";
+
+    public bool ProductionEligible { get; set; }
+
+    public bool SyntheticFixture { get; set; }
+
+    public string ReviewStatus { get; set; } = DomainAssetReviewStatuses.PendingReview;
+
+    public string FieldMapping { get; set; } = "{}";
+
+    public string MigrationPolicy { get; set; } = "{}";
+
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+
+    public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class ScoreImportBatch
+{
+    public Guid Id { get; set; }
+
+    public Guid AssessmentId { get; set; }
+
+    public Guid TemplateId { get; set; }
+
+    public string Mode { get; set; } = "draft_test";
+
+    public string Status { get; set; } = ScoreImportStatuses.Draft;
+
+    public string SourceFileName { get; set; } = string.Empty;
+
+    public bool ProductionEligible { get; set; }
+
+    public bool SyntheticFixture { get; set; }
+
+    public bool ContainsStudentPii { get; set; }
+
+    public int RowCount { get; set; }
+
+    public int ImportedCount { get; set; }
+
+    public int ErrorCount { get; set; }
+
+    public string ErrorSummary { get; set; } = "[]";
+
+    public string Metadata { get; set; } = "{}";
+
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class ScoreRecord
+{
+    public Guid Id { get; set; }
+
+    public Guid AssessmentId { get; set; }
+
+    public Guid StudentId { get; set; }
+
+    public Guid ImportBatchId { get; set; }
+
+    public string StudentKey { get; set; } = string.Empty;
+
+    public decimal? TotalScore { get; set; }
+
+    public decimal? MaxScore { get; set; }
+
+    public string Status { get; set; } = "imported";
+
+    public bool SyntheticFixture { get; set; }
+
+    public bool ContainsStudentPii { get; set; }
+
+    public string RawRow { get; set; } = "{}";
+
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class ItemScore
+{
+    public Guid Id { get; set; }
+
+    public Guid ScoreRecordId { get; set; }
+
+    public string QuestionNo { get; set; } = string.Empty;
+
+    public string FieldName { get; set; } = string.Empty;
+
+    public decimal Score { get; set; }
+
+    public decimal MaxScore { get; set; }
+
+    public string Metadata { get; set; } = "{}";
 
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 }

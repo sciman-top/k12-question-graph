@@ -1,0 +1,85 @@
+{
+  "status": "pass",
+  "task": "F002",
+  "mode": "draft_test",
+  "productionEligible": false,
+  "realStudentDataUsed": false,
+  "workbookPath": "tmp\\f002-score-import\\f002-synthetic-score-template.xlsx",
+  "mappingPath": "tmp\\f002-score-import\\f002-score-field-mapping.json",
+  "rowCount": 3,
+  "importedCount": 2,
+  "errorCount": 1,
+  "importedRows": [
+    {
+      "rowNumber": 2,
+      "studentKey": "syn-student-001",
+      "totalScore": 8.0,
+      "items": {
+        "q1": 3.0,
+        "q2": 5.0
+      },
+      "raw": {
+        "student_key": "syn-student-001",
+        "display_code": "SYN-001",
+        "total_score": "8",
+        "q1_score": "3",
+        "q2_score": "5"
+      }
+    },
+    {
+      "rowNumber": 3,
+      "studentKey": "syn-student-002",
+      "totalScore": 6.0,
+      "items": {
+        "q1": 2.0,
+        "q2": 4.0
+      },
+      "raw": {
+        "student_key": "syn-student-002",
+        "display_code": "SYN-002",
+        "total_score": "6",
+        "q1_score": "2",
+        "q2_score": "4"
+      }
+    }
+  ],
+  "errors": [
+    {
+      "rowNumber": 4,
+      "errors": [
+        "missing_student_key",
+        "q1_score_exceeds_max"
+      ],
+      "raw": {
+        "student_key": "",
+        "display_code": "SYN-BAD",
+        "total_score": "12",
+        "q1_score": "7",
+        "q2_score": "5"
+      }
+    }
+  ],
+  "fieldMappingDynamicAsset": true,
+  "templateReusable": true,
+  "summaryChinese": {
+    "title": "F002 Excel 字段映射导入合同报告",
+    "result": "通过",
+    "boundary": "仅使用 synthetic Excel fixture，不使用真实学生数据，不写生产学情口径。"
+  },
+  "dbContract": {
+    "tables": [
+      "score_import_templates",
+      "score_import_batches",
+      "score_records",
+      "item_scores"
+    ],
+    "requiredConstraintCount": 6,
+    "templates": 1,
+    "batches": 1,
+    "scoreRecords": 2,
+    "itemScores": 4,
+    "unsafeBatches": 0,
+    "piiRecords": 0,
+    "rollback": "transaction_rollback"
+  }
+}
