@@ -15,7 +15,7 @@
 当前仓库事实：
 
 - 已初始化 Git；`main` 跟踪 `origin/main`。每轮变更前必须检查 `git status --short --branch`，若已有脏改动，先区分用户改动与本轮改动。
-- 当前已有 API、Web、Worker、PostgreSQL/EF Core migrations、FileStore、backup、统一 gate、P1 导入闭环、P2 动态资产合同、C002 初中物理 v1 active、C002R active 后修订合同、P3 draft/test AI 合同、P4 draft/test 组卷导出合同和 P5 draft/test 学情分析合同。
+- 当前已有 API、Web、Worker、PostgreSQL/EF Core migrations、FileStore、backup、统一 gate、P1 导入闭环、P2 动态资产合同、C002 初中物理 v1 active、C002R active 后修订合同、P3 draft/test AI 合同、P4 draft/test 组卷导出合同、P5 draft/test 学情分析合同和 P6 draft/test 备份/存储运维合同。
 - `C002` 正式知识体系已成为当前初中物理生产默认 v1，但不表示永久冻结；后续修改必须走 C002R：新建 `candidate` 版本、映射、影响报告、审核、回滚快照和管理员 active 切换，不直接改旧 `active`。所有其他依赖动态元素的任务仍应先以 `draft/test`、`candidate`、`pending_review`、`productionEligible=false` 的方式推进，正式数据录入、映射审核和 active 激活后再切换生产口径。
 - 下一最小可执行里程碑按 `tasks/backlog.csv` 顺序推进，优先补齐完整 v0.1 系统闭环；不要因为知识点、标签、题型、难度、模板、评分规则、组织权限、隐私策略等动态元素未来会变化而停工。
 

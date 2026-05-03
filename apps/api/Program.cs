@@ -94,6 +94,36 @@ app.MapGet("/health/ready", async (
 })
 .WithName("ReadinessHealth");
 
+app.MapGet("/api/admin/storage/summary", (IConfiguration configuration) =>
+{
+    var paths = configuration.GetSection("KqgPaths").Get<KqgPathsOptions>() ?? new KqgPathsOptions();
+    var areas = new[]
+    {
+        StorageHelpers.SummarizeArea("data_root", paths.DataRoot, cleanupAllowed: false),
+        StorageHelpers.SummarizeArea("file_store", paths.FileStoreRoot, cleanupAllowed: false),
+        StorageHelpers.SummarizeArea("backup", paths.BackupRoot, cleanupAllowed: false),
+        StorageHelpers.SummarizeArea("logs", paths.LogsRoot, cleanupAllowed: false),
+        StorageHelpers.SummarizeArea("cache", paths.CacheRoot, cleanupAllowed: true)
+    };
+
+    return Results.Ok(new StorageSummaryResponse(
+        Status: "ok",
+        Mode: "draft_test",
+        ProductionEligible: false,
+        CacheCleanupRoot: Path.GetFullPath(paths.CacheRoot),
+        Areas: areas));
+})
+.WithName("AdminStorageSummary");
+
+app.MapPost("/api/admin/cache/cleanup", (CacheCleanupRequest request, IConfiguration configuration) =>
+{
+    var paths = configuration.GetSection("KqgPaths").Get<KqgPathsOptions>() ?? new KqgPathsOptions();
+    var result = StorageHelpers.CleanConfiguredCache(paths.CacheRoot, request);
+
+    return Results.Ok(result);
+})
+.WithName("AdminCacheCleanup");
+
 app.MapPost("/internal/ai/model-route", (AiRouteRequest request, IAiModelRouter router) =>
 {
     try
@@ -1305,6 +1335,85 @@ public static class HealthCheckHelpers
     }
 }
 
+public static class StorageHelpers
+{
+    public static StorageAreaResponse SummarizeArea(string name, string path, bool cleanupAllowed)
+    {
+        var fullPath = Path.GetFullPath(path);
+        Directory.CreateDirectory(fullPath);
+
+        long bytes = 0;
+        var fileCount = 0;
+        foreach (var file in Directory.EnumerateFiles(fullPath, "*", SearchOption.AllDirectories))
+        {
+            try
+            {
+                var info = new FileInfo(file);
+                bytes += info.Length;
+                fileCount++;
+            }
+            catch (IOException)
+            {
+            }
+            catch (UnauthorizedAccessException)
+            {
+            }
+        }
+
+        return new StorageAreaResponse(name, fullPath, bytes, fileCount, cleanupAllowed);
+    }
+
+    public static CacheCleanupResponse CleanConfiguredCache(string cacheRoot, CacheCleanupRequest request)
+    {
+        var fullRoot = Path.GetFullPath(cacheRoot);
+        Directory.CreateDirectory(fullRoot);
+
+        var cutoffUtc = DateTimeOffset.UtcNow.AddDays(-Math.Max(0, request.OlderThanDays));
+        var dryRun = request.DryRun ?? true;
+        var matched = new List<CacheCleanupCandidate>();
+        var deletedCount = 0;
+        long deletedBytes = 0;
+
+        foreach (var file in Directory.EnumerateFiles(fullRoot, "*", SearchOption.AllDirectories))
+        {
+            var fullFile = Path.GetFullPath(file);
+            if (!fullFile.StartsWith(fullRoot, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            var info = new FileInfo(fullFile);
+            if (info.LastWriteTimeUtc > cutoffUtc)
+            {
+                continue;
+            }
+
+            var relativePath = Path.GetRelativePath(fullRoot, fullFile).Replace('\\', '/');
+            var sizeBytes = info.Length;
+            matched.Add(new CacheCleanupCandidate(relativePath, sizeBytes, info.LastWriteTimeUtc));
+            if (!dryRun)
+            {
+                info.Delete();
+                deletedCount++;
+                deletedBytes += sizeBytes;
+            }
+        }
+
+        return new CacheCleanupResponse(
+            Status: "ok",
+            Mode: "draft_test",
+            ProductionEligible: false,
+            DryRun: dryRun,
+            CacheRoot: fullRoot,
+            OlderThanDays: Math.Max(0, request.OlderThanDays),
+            MatchedFileCount: matched.Count,
+            MatchedBytes: matched.Sum(x => x.SizeBytes),
+            DeletedFileCount: deletedCount,
+            DeletedBytes: deletedBytes,
+            Candidates: matched);
+    }
+}
+
 public sealed record KqgPathsOptions
 {
     public string DataRoot { get; init; } = @"D:\KQG_Data";
@@ -1314,6 +1423,8 @@ public sealed record KqgPathsOptions
     public string BackupRoot { get; init; } = @"D:\KQG_Backups";
 
     public string LogsRoot { get; init; } = @"D:\KQG_Data\logs";
+
+    public string CacheRoot { get; init; } = @"D:\KQG_Data\cache";
 }
 
 public sealed record HealthResponse(
@@ -1334,6 +1445,37 @@ public sealed record DatabaseHealthResponse(
 public sealed record ReadinessResponse(string Status, IReadOnlyList<ReadinessCheck> Checks);
 
 public sealed record ReadinessCheck(string Name, bool Ok, string Detail);
+
+public sealed record StorageSummaryResponse(
+    string Status,
+    string Mode,
+    bool ProductionEligible,
+    string CacheCleanupRoot,
+    IReadOnlyList<StorageAreaResponse> Areas);
+
+public sealed record StorageAreaResponse(
+    string Name,
+    string Path,
+    long Bytes,
+    int FileCount,
+    bool CleanupAllowed);
+
+public sealed record CacheCleanupRequest(bool? DryRun = true, int OlderThanDays = 7);
+
+public sealed record CacheCleanupResponse(
+    string Status,
+    string Mode,
+    bool ProductionEligible,
+    bool DryRun,
+    string CacheRoot,
+    int OlderThanDays,
+    int MatchedFileCount,
+    long MatchedBytes,
+    int DeletedFileCount,
+    long DeletedBytes,
+    IReadOnlyList<CacheCleanupCandidate> Candidates);
+
+public sealed record CacheCleanupCandidate(string RelativePath, long SizeBytes, DateTime LastWriteTimeUtc);
 
 public sealed record SourceRegionCreateRequest(
     int PageNumber,

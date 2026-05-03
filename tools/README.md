@@ -509,3 +509,13 @@ Verify backup:
 ```powershell
 .\tools\verify-backup.ps1 -ManifestPath 'D:\KQG_Backups\<timestamp>\manifest.json'
 ```
+
+G002 storage dashboard and cache cleanup contract:
+
+```powershell
+.\tools\run-g002-storage-cleanup-contract.ps1
+```
+
+This starts the API with synthetic configured roots, checks the admin storage
+summary and cache cleanup endpoints, verifies the Web dashboard markers, and
+confirms cleanup only deletes old files under the configured cache root.

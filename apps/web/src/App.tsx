@@ -17,6 +17,8 @@ import {
   CheckCircleOutlined,
   CloudUploadOutlined,
   ClockCircleOutlined,
+  DatabaseOutlined,
+  DeleteOutlined,
   ExclamationCircleOutlined,
   FileSearchOutlined,
   FileTextOutlined,
@@ -255,6 +257,20 @@ const activationReviewItems = [
   { label: '广州考点', count: 47, action: '看是否符合本地中考口径' },
   { label: '映射关系', count: 975, action: '重点看一拆多、多合一和低置信度项' },
 ]
+
+const storageAreas = [
+  { name: '题库文件', bytes: '18.4 GB', files: 1248, cleanupAllowed: false },
+  { name: '备份包', bytes: '42.7 GB', files: 37, cleanupAllowed: false },
+  { name: '日志', bytes: '320 MB', files: 216, cleanupAllowed: false },
+  { name: '缓存', bytes: '6.3 GB', files: 931, cleanupAllowed: true },
+]
+
+const cleanupPlan = {
+  scope: '仅清理配置的缓存目录',
+  dryRun: '先预览',
+  retention: '保留最近 7 天',
+  rollback: '清理前证据报告保留候选文件清单',
+}
 
 const initialPaperRequest =
   '八年级物理，牛顿第一定律与惯性，单选 5 题、计算 2 题、实验 1 题，总分 30 分，难度中等'
@@ -992,6 +1008,65 @@ function App() {
               title="正式激活只给管理员"
               description="普通教师侧不执行激活脚本；管理员确认前必须看到备份、阻断项、复核结论和回滚说明。"
               data-contract="rollback-ready"
+            />
+          </section>
+
+          <section className="storage-panel" aria-label="存储看板" data-flow="admin-storage-dashboard">
+            <div className="panel-heading">
+              <div>
+                <Typography.Title level={2}>存储看板</Typography.Title>
+                <Typography.Text type="secondary">
+                  管理员查看占用和清理缓存；普通教师不接触路径、脚本和证据文件。
+                </Typography.Text>
+              </div>
+              <Space size="small" wrap>
+                <Tag color="green">G002</Tag>
+                <Tag data-contract="productionEligible=false">草稿测试</Tag>
+              </Space>
+            </div>
+
+            <div className="storage-grid" data-contract="storage-summary">
+              {storageAreas.map((area) => (
+                <div className="storage-card" key={area.name} data-cleanup-allowed={area.cleanupAllowed}>
+                  <span className="storage-icon">
+                    <DatabaseOutlined />
+                  </span>
+                  <span>
+                    <Typography.Text type="secondary">{area.name}</Typography.Text>
+                    <strong>{area.bytes}</strong>
+                    <small>{area.files} 个文件</small>
+                  </span>
+                  <Tag color={area.cleanupAllowed ? 'orange' : undefined}>
+                    {area.cleanupAllowed ? '可清理' : '只读'}
+                  </Tag>
+                </div>
+              ))}
+            </div>
+
+            <div className="cache-cleanup-panel" data-contract="cache-cleanup-configured-root">
+              <div>
+                <Typography.Title level={3}>缓存清理</Typography.Title>
+                <Typography.Text>
+                  {cleanupPlan.scope}，{cleanupPlan.dryRun}，{cleanupPlan.retention}。
+                </Typography.Text>
+                <small>{cleanupPlan.rollback}</small>
+              </div>
+              <Space wrap>
+                <Button icon={<FileSearchOutlined />} data-action="storage-summary">
+                  查看详情
+                </Button>
+                <Button icon={<DeleteOutlined />} data-action="cache-cleanup-dry-run">
+                  预览清理
+                </Button>
+              </Space>
+            </div>
+
+            <Alert
+              showIcon
+              type="info"
+              title="只清理缓存"
+              description="文件仓库、备份包、学生成绩和正式资产不属于缓存清理范围。"
+              data-contract="no-production-data-delete"
             />
           </section>
 
