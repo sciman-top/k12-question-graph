@@ -755,6 +755,59 @@ app.MapGet("/questions/{id:guid}/sources", async (
 })
 .WithName("GetQuestionSources");
 
+app.MapPost("/paper-requests/parse", (PaperRequestParseRequest request) =>
+{
+    if (string.IsNullOrWhiteSpace(request.TeacherRequest))
+    {
+        return Results.BadRequest(new { error = "teacher_request_required" });
+    }
+
+    var normalized = request.TeacherRequest.Trim();
+    var scope = InferPaperRequestScope(normalized);
+    var questionTypePlan = new[]
+    {
+        new PaperQuestionTypePlan("single_choice", 5, 15m),
+        new PaperQuestionTypePlan("calculation", 2, 10m),
+        new PaperQuestionTypePlan("experiment", 1, 5m)
+    };
+    var blueprint = questionTypePlan.Select(item => new PaperBlueprintRow(
+        item.QuestionType,
+        item.Count,
+        item.Score,
+        scope,
+        "draft_dynamic_asset",
+        "pending_review")).ToArray();
+
+    return Results.Ok(new PaperRequestParseResponse(
+        Mode: "draft_test",
+        ProductionEligible: false,
+        AllowRealModelCalls: false,
+        SchemaVersion: "schemas/ai/natural_language_paper_request.schema.json",
+        PromptVersion: "prompt.e002.draft-test.v1",
+        SystemUnderstanding: $"按初中物理 draft 动态资产生成组卷理解：{normalized}",
+        PaperType: normalized.Contains("复习", StringComparison.OrdinalIgnoreCase) ? "review_practice" : "unit_practice",
+        Subject: "physics",
+        Grade: normalized.Contains("九") ? "grade_9" : "grade_8",
+        TextbookVersion: request.TextbookVersion,
+        Scope: scope,
+        TotalScore: 30,
+        DifficultyTarget: normalized.Contains("偏难") ? "medium_hard" : "medium",
+        QuestionTypePlan: questionTypePlan,
+        Blueprint: blueprint,
+        Constraints: new PaperRequestConstraints(
+            KnowledgeStatus: "draft",
+            SourceTypes: ["synthetic"],
+            ReviewRequired: true,
+            BlocksProductionPaper: true),
+        ReviewQuestions:
+        [
+            "是否需要限定教材版本或章节范围？",
+            "是否需要排除最近已练过的题目？",
+            "是否确认使用 draft_test 细目表继续生成试卷草稿？"
+        ]));
+})
+.WithName("ParsePaperRequest");
+
 app.MapPost("/imports/{id:guid}/status", async (
     Guid id,
     ImportJobStatusUpdate request,
@@ -995,6 +1048,32 @@ static string GetBlockPreview(QuestionBlock block)
     {
         return block.Content;
     }
+}
+
+static IReadOnlyList<string> InferPaperRequestScope(string teacherRequest)
+{
+    var scope = new List<string>();
+    if (teacherRequest.Contains("牛顿") || teacherRequest.Contains("惯性"))
+    {
+        scope.Add("牛顿第一定律与惯性");
+    }
+
+    if (teacherRequest.Contains("速度"))
+    {
+        scope.Add("速度与平均速度");
+    }
+
+    if (teacherRequest.Contains("压强"))
+    {
+        scope.Add("压强");
+    }
+
+    if (scope.Count == 0)
+    {
+        scope.Add("初中物理 draft L2/L3 范围");
+    }
+
+    return scope;
 }
 
 static AiJobResponse ToAiJobResponse(AIJob job)
@@ -1352,6 +1431,48 @@ public sealed record QuestionSourceRegionResponse(
             region.RegionType);
     }
 }
+
+public sealed record PaperRequestParseRequest(
+    string TeacherRequest,
+    string? TextbookVersion);
+
+public sealed record PaperRequestParseResponse(
+    string Mode,
+    bool ProductionEligible,
+    bool AllowRealModelCalls,
+    string SchemaVersion,
+    string PromptVersion,
+    string SystemUnderstanding,
+    string PaperType,
+    string Subject,
+    string Grade,
+    string? TextbookVersion,
+    IReadOnlyList<string> Scope,
+    int TotalScore,
+    string DifficultyTarget,
+    IReadOnlyList<PaperQuestionTypePlan> QuestionTypePlan,
+    IReadOnlyList<PaperBlueprintRow> Blueprint,
+    PaperRequestConstraints Constraints,
+    IReadOnlyList<string> ReviewQuestions);
+
+public sealed record PaperQuestionTypePlan(
+    string QuestionType,
+    int Count,
+    decimal Score);
+
+public sealed record PaperBlueprintRow(
+    string QuestionType,
+    int Count,
+    decimal Score,
+    IReadOnlyList<string> Scope,
+    string AssetStatus,
+    string ReviewStatus);
+
+public sealed record PaperRequestConstraints(
+    string KnowledgeStatus,
+    IReadOnlyList<string> SourceTypes,
+    bool ReviewRequired,
+    bool BlocksProductionPaper);
 
 public static class JsonHelpers
 {

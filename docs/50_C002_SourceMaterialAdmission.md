@@ -28,6 +28,18 @@ configs/knowledge/source-material-manifest.local.json
 
 该文件已被 `.gitignore` 排除。
 
+正式知识点候选录入模板使用：
+
+```text
+configs/knowledge/c002-formal-knowledge-template.csv
+```
+
+真实填写版应放在数据目录或本地忽略文件中，例如：
+
+```text
+D:\KQG_Data\source_materials\staging\c002-formal-knowledge.local.csv
+```
+
 ## 3. 最低资料集
 
 正式 C002 至少需要：

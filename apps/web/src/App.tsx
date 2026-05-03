@@ -5,6 +5,7 @@ import {
   Button,
   ConfigProvider,
   Divider,
+  Input,
   Layout,
   Progress,
   Space,
@@ -107,11 +108,58 @@ const questionCards = [
   },
 ]
 
+const initialPaperRequest =
+  '八年级物理，牛顿第一定律与惯性，单选 5 题、计算 2 题、实验 1 题，总分 30 分，难度中等'
+
+const initialPaperUnderstanding = {
+  mode: 'draft_test',
+  productionEligible: false,
+  allowRealModelCalls: false,
+  systemUnderstanding:
+    '按初中物理 draft 动态资产生成组卷理解：八年级物理，牛顿第一定律与惯性，单选 5 题、计算 2 题、实验 1 题，总分 30 分，难度中等',
+  paperType: 'unit_practice',
+  subject: 'physics',
+  grade: 'grade_8',
+  totalScore: 30,
+  difficultyTarget: 'medium',
+  scope: ['牛顿第一定律与惯性'],
+  blueprint: [
+    {
+      questionType: 'single_choice',
+      count: 5,
+      score: 15,
+      assetStatus: 'draft_dynamic_asset',
+      reviewStatus: 'pending_review',
+    },
+    {
+      questionType: 'calculation',
+      count: 2,
+      score: 10,
+      assetStatus: 'draft_dynamic_asset',
+      reviewStatus: 'pending_review',
+    },
+    {
+      questionType: 'experiment',
+      count: 1,
+      score: 5,
+      assetStatus: 'draft_dynamic_asset',
+      reviewStatus: 'pending_review',
+    },
+  ],
+  reviewQuestions: [
+    '是否需要限定教材版本或章节范围？',
+    '是否需要排除最近已练过的题目？',
+    '是否确认使用 draft_test 细目表继续生成试卷草稿？',
+  ],
+}
+
 function App() {
   const [segments, setSegments] = useState(initialSegments)
   const [selectedIds, setSelectedIds] = useState<string[]>(['q-02', 'q-03'])
   const [selectedAsset, setSelectedAsset] = useState(sharedAssets[0])
   const [actionLog, setActionLog] = useState<string[]>([])
+  const [paperRequest, setPaperRequest] = useState(initialPaperRequest)
+  const [paperUnderstanding, setPaperUnderstanding] = useState(initialPaperUnderstanding)
 
   const selectedSegments = useMemo(
     () => segments.filter((segment) => selectedIds.includes(segment.id)),
@@ -185,6 +233,15 @@ function App() {
     setSegments(initialSegments)
     setSelectedIds(['q-02', 'q-03'])
     setActionLog((current) => [`已撤销：${current[0] ?? '最近操作'}`, ...current.slice(1)])
+  }
+
+  const parsePaperRequest = () => {
+    setPaperUnderstanding((current) => ({
+      ...current,
+      systemUnderstanding: `按初中物理 draft 动态资产生成组卷理解：${paperRequest}`,
+      scope: paperRequest.includes('速度') ? ['速度与平均速度'] : ['牛顿第一定律与惯性'],
+      difficultyTarget: paperRequest.includes('偏难') ? 'medium_hard' : 'medium',
+    }))
   }
 
   return (
@@ -313,6 +370,86 @@ function App() {
                   </span>
                 </button>
               ))}
+            </div>
+          </section>
+
+          <section
+            className="paper-request-panel"
+            aria-label="自然语言组卷"
+            data-flow="paper-request-understanding"
+          >
+            <div className="panel-heading">
+              <div>
+                <Typography.Title level={2}>自然语言组卷</Typography.Title>
+                <Typography.Text type="secondary">
+                  先展示系统理解和细目表草稿，draft_test 不写生产组卷口径。
+                </Typography.Text>
+              </div>
+              <Space size="small" wrap>
+                <Tag color="green">{paperUnderstanding.mode}</Tag>
+                <Tag>productionEligible=false</Tag>
+              </Space>
+            </div>
+
+            <div className="paper-request-workspace">
+              <div className="paper-request-input">
+                <Input.TextArea
+                  aria-label="组卷需求"
+                  value={paperRequest}
+                  onChange={(event) => setPaperRequest(event.target.value)}
+                  autoSize={{ minRows: 4, maxRows: 6 }}
+                  data-contract="synthetic-paper-request"
+                />
+                <Button
+                  type="primary"
+                  icon={<FileSearchOutlined />}
+                  onClick={parsePaperRequest}
+                  data-action="parse-paper-request"
+                >
+                  生成理解
+                </Button>
+              </div>
+
+              <div className="paper-understanding" data-contract="paper-understanding">
+                <Alert
+                  showIcon
+                  type="info"
+                  message="系统理解"
+                  description={paperUnderstanding.systemUnderstanding}
+                />
+                <div className="paper-summary">
+                  <span>
+                    <strong>{paperUnderstanding.totalScore}</strong>
+                    <small>总分</small>
+                  </span>
+                  <span>
+                    <strong>{paperUnderstanding.difficultyTarget}</strong>
+                    <small>难度目标</small>
+                  </span>
+                  <span>
+                    <strong>{paperUnderstanding.scope.join('、')}</strong>
+                    <small>draft 范围</small>
+                  </span>
+                </div>
+
+                <div className="blueprint-table" data-contract="blueprint-draft">
+                  {paperUnderstanding.blueprint.map((row) => (
+                    <div className="blueprint-row" key={row.questionType}>
+                      <strong>{row.questionType}</strong>
+                      <span>{row.count} 题</span>
+                      <span>{row.score} 分</span>
+                      <Tag>{row.assetStatus}</Tag>
+                      <Tag color="orange">{row.reviewStatus}</Tag>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="review-questions" data-contract="paper-review-questions">
+                  {paperUnderstanding.reviewQuestions.map((item) => (
+                    <Typography.Text key={item}>{item}</Typography.Text>
+                  ))}
+                </div>
+              </div>
             </div>
           </section>
 

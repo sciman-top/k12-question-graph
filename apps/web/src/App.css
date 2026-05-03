@@ -46,6 +46,7 @@
 .primary-panel,
 .status-panel,
 .question-panel,
+.paper-request-panel,
 .review-panel,
 .guardrail-panel {
   border: 1px solid var(--line);
@@ -144,6 +145,11 @@
   padding: 24px;
 }
 
+.paper-request-panel {
+  grid-column: 1 / -1;
+  padding: 24px;
+}
+
 .filter-row {
   display: flex;
   flex-wrap: wrap;
@@ -205,6 +211,77 @@
   justify-content: flex-end;
   gap: 6px;
   flex-wrap: wrap;
+}
+
+.paper-request-workspace {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.74fr) minmax(0, 1.26fr);
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.paper-request-input {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+}
+
+.paper-understanding {
+  display: grid;
+  gap: 14px;
+}
+
+.paper-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.paper-summary span {
+  display: grid;
+  min-height: 76px;
+  align-content: center;
+  gap: 4px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  padding: 12px;
+}
+
+.paper-summary strong {
+  color: var(--ink);
+  font-size: 17px;
+}
+
+.paper-summary small {
+  color: var(--muted);
+}
+
+.blueprint-table,
+.review-questions {
+  display: grid;
+  gap: 8px;
+}
+
+.blueprint-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) 72px 72px auto auto;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  padding: 8px 10px;
+}
+
+.blueprint-row strong {
+  color: var(--ink);
+}
+
+.review-questions {
+  border-left: 3px solid var(--accent);
+  padding-left: 12px;
 }
 
 .status-strip {
@@ -417,7 +494,13 @@
   }
 
   .review-workspace,
+  .paper-request-workspace,
   .page-preview {
+    grid-template-columns: 1fr;
+  }
+
+  .paper-summary,
+  .blueprint-row {
     grid-template-columns: 1fr;
   }
 
