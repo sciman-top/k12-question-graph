@@ -7,18 +7,29 @@ foreach ($row in $rows) {
     $byId[$row.id] = $row
 }
 
-foreach ($requiredId in @('C002', 'C002P', 'C002Q0', 'C002Q', 'D001', 'D002', 'D003')) {
+foreach ($requiredId in @('C002', 'C002N', 'C002O', 'C002P', 'C002Q0', 'C002Q', 'C002S', 'D001', 'D002', 'D003')) {
     if (-not $byId.ContainsKey($requiredId)) {
         throw "missing backlog task: $requiredId"
     }
 }
 
 $c002 = $byId['C002']
+$c002n = $byId['C002N']
+$c002o = $byId['C002O']
 $c002q0 = $byId['C002Q0']
 $c002q = $byId['C002Q']
+$c002s = $byId['C002S']
 $d001 = $byId['D001']
 if ($d001.depends_on -eq 'C002') {
     throw "D001 must not depend on formal C002; use the dynamic asset draft/test gate such as C002H"
+}
+
+if ($c002n.depends_on -ne 'C002N0') {
+    throw "C002N must depend on C002N0 local-first AI consumption review"
+}
+
+if ($c002o.depends_on -ne 'C002N') {
+    throw "C002O must depend on C002N chunk cache evidence"
 }
 
 if ($c002q0.depends_on -ne 'C002P') {
@@ -27,6 +38,25 @@ if ($c002q0.depends_on -ne 'C002P') {
 
 if ($c002q.depends_on -ne 'C002Q0') {
     throw "C002Q must depend on C002Q0 orchestration readiness"
+}
+
+if ($c002s.depends_on -ne 'C002Q') {
+    throw "C002S must depend on C002Q small-batch AI extract dry-run"
+}
+
+if ($c002.depends_on -ne 'C002S') {
+    throw "formal C002 must depend on C002S formalization precheck"
+}
+
+if ($c002n.status -eq '已完成') {
+    $c002nReport = Join-Path $repoRoot 'docs\evidence\c002n-source-chunk-cache-report.json'
+    if (-not (Test-Path -LiteralPath $c002nReport)) {
+        throw "C002N is completed but report is missing: docs/evidence/c002n-source-chunk-cache-report.json"
+    }
+    $report = Get-Content -LiteralPath $c002nReport -Raw | ConvertFrom-Json
+    if ($report.status -ne 'pass' -or $report.externalAiCalls -ne 0 -or $report.sourceHashCoverage.coveragePass -ne $true) {
+        throw "C002N report must pass with zero external AI calls and full source hash coverage"
+    }
 }
 
 foreach ($pattern in @('subagent', '外层', '真实模型', 'no_active_write', '运行时依赖')) {

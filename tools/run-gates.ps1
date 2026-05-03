@@ -165,6 +165,10 @@ try {
         .\tools\run-local-first-ai-guard.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'c002n source chunk cache guard' {
+        .\tools\run-c002n-source-chunk-cache.ps1 | Write-Host
+    }
+
     Invoke-GateStep 'c002p model budget guard' {
         .\tools\run-c002p-model-budget-guard.ps1 | Write-Host
     }

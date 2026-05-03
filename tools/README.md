@@ -27,6 +27,7 @@ The gate also covers `b001 duplicate upload smoke`, `b002 adapter contract smoke
 `c002d source-derived admission contract`, `c002e activation guard contract`,
 `c002h mapping review workbench contract`,
 `local-first ai consumption guard`,
+`c002n source chunk cache guard`,
 `c002p model budget guard`,
 `c002 junior physics draft bootstrap guard`, and
 `d001 model router draft-test contract`, and
@@ -89,6 +90,19 @@ $env:KQG_CONNECTION_STRING='Host=127.0.0.1;Port=5432;Database=k12_question_graph
 This uploads the original files through the API into `SourceDocument/FileAsset`
 evidence only. It must not mark C002 formal knowledge as complete and must not
 activate candidate assets.
+
+C002N source chunk cache:
+
+```powershell
+.\tools\run-c002n-source-chunk-cache.ps1
+```
+
+This extracts local page-level text from the 33 admitted source PDFs, records
+source/page/chunk hashes, block-type summaries, token estimates, cache
+idempotency, and a Chinese report at
+`docs/evidence/c002n-source-chunk-cache-report.json`. Cache files stay under
+`tmp/c002n-source-chunk-cache` and are not committed. The script does not call
+external AI and does not activate formal C002 assets.
 
 C002P model budget guard:
 
