@@ -35,6 +35,42 @@ routes:
     require_review_for: [formal_exam, high_value_question]
   export_preflight:
     handler: rule_then_llm_if_needed
+outer_ai_validation:
+  default_policy: cost_first_with_quality_escalation
+  models:
+    bulk_format_check:
+      recommended_model: gpt-5.4-mini
+      escalate_to: gpt-5.3-codex
+      reason: "字段、枚举、重复 ID、空来源证据属于规则型批量检查。"
+    candidate_batch_prefilter:
+      recommended_model: gpt-5.4-mini
+      escalate_to: gpt-5.3-codex
+      reason: "先低成本识别 obvious 混淆和低置信度行。"
+    source_evidence_sample_review:
+      recommended_model: gpt-5.3-codex
+      escalate_to: gpt-5.4
+      reason: "需要结合来源字段、映射和项目导入门禁。"
+    complex_mapping_review:
+      recommended_model: gpt-5.3-codex
+      escalate_to: gpt-5.4
+      reason: "一拆多、多合一、多对多会影响组卷和学情口径。"
+    mechanical_csv_cleanup:
+      recommended_model: gpt-5.3-codex-spark
+      escalate_to: gpt-5.4-mini
+      reason: "仅限格式转换、拆分、重命名等机械任务。"
+    import_gate_migration_work:
+      recommended_model: gpt-5.3-codex
+      escalate_to: gpt-5.4
+      reason: "工程实现、门禁和回滚脚本需要代码可靠性。"
+    final_activation_review:
+      recommended_model: gpt-5.4
+      escalate_to: gpt-5.5
+      reason: "正式激活前的高风险少量复核需要更强推理。"
+    architecture_policy_decision:
+      recommended_model: gpt-5.4
+      escalate_to: gpt-5.5
+      reason: "仅用于跨学科动态资产模型或长期政策口径裁决。"
+  gpt_5_5_boundary: "少量最高风险、低频、不可轻易回滚且影响长期口径的裁决；不得用于常规批量 CSV 校验。"
 cost_controls:
   cache_by_input_hash: true
   use_batch_for_bulk_tasks: true
