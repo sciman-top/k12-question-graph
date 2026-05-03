@@ -1,0 +1,84 @@
+{
+  "status": "pass",
+  "task": "C002Q0",
+  "guard": "c002q0-outer-ai-readiness",
+  "manifest": "configs/ai-evals/c002q0-outer-ai-readiness.sample.json",
+  "batchId": "c002q0-guangzhou-physics-dry-run-readiness",
+  "mode": "draft_test",
+  "allowProjectRuntimeRealModelCalls": false,
+  "externalAiCallsInReadiness": 0,
+  "subagentRuntimeDependency": false,
+  "orchestrationOnly": true,
+  "noActiveWrite": true,
+  "humanReviewRequired": true,
+  "cacheHitRequired": true,
+  "productionEligible": false,
+  "reviewStatus": "pending_review",
+  "sourceEvidence": {
+    "sourceCount": 33,
+    "chunkCount": 1478,
+    "estimatedInputTokens": 520612,
+    "cacheHitSourceCount": 33
+  },
+  "schemaEvalEvidence": {
+    "suiteId": "c002o-candidate-extraction-golden-smoke",
+    "checkedAnchorCount": 98,
+    "productionEligible": false
+  },
+  "budgetEvidence": {
+    "dryRunLimits": {
+      "max_source_documents": 4,
+      "max_chunks_total": 32,
+      "max_chunks_per_source_document": 8,
+      "max_estimated_input_tokens": 120000,
+      "max_estimated_output_tokens": 20000,
+      "max_l4_items": 3
+    },
+    "fullSourceExceedsDryRunLimits": true,
+    "fullExtractionRequiresHumanBudgetApproval": true
+  },
+  "sampleRate": {
+    "policy": "small_batch_only",
+    "sourceDocuments": 4,
+    "chunksTotal": 32,
+    "chunksPerSourceDocument": 8,
+    "estimatedInputTokens": 120000,
+    "estimatedOutputTokens": 20000,
+    "l4Items": 3
+  },
+  "modelLayersChecked": [
+    "L0",
+    "L1",
+    "L2",
+    "L3",
+    "L4"
+  ],
+  "evidenceAnchorFieldsChecked": [
+    "cache_hit",
+    "cached_tokens",
+    "chunk_hash",
+    "cost_estimate",
+    "estimated_input_tokens",
+    "estimated_output_tokens",
+    "model",
+    "model_role",
+    "no_active_write",
+    "page_number",
+    "prompt_version",
+    "reasoning_effort",
+    "review_status",
+    "schema_version",
+    "source_document_id",
+    "source_hash"
+  ],
+  "outputArtifacts": [
+    "docs/evidence/c002q0-outer-ai-readiness-report.json",
+    "docs/evidence/c002q-ai-extract-dry-run-report.json"
+  ],
+  "summaryChinese": {
+    "title": "C002Q0 真实模型调用与 outer subagent 编排 readiness 报告",
+    "result": "通过",
+    "boundary": "本任务只验证外层 AI runner/subagent 编排合同；不调用真实模型，不写 active，不成为项目运行时依赖。",
+    "next": "下一步可进入 C002Q 小批量 AI extract dry-run，输出仍必须保持 candidate/pending_review/production_eligible=false。"
+  }
+}

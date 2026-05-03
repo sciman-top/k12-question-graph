@@ -1,0 +1,114 @@
+{
+  "manifestVersion": "c002q0.outer-ai-readiness.v0.1",
+  "batchId": "c002q0-guangzhou-physics-dry-run-readiness",
+  "mode": "draft_test",
+  "allowProjectRuntimeRealModelCalls": false,
+  "externalAiCallsInReadiness": 0,
+  "orchestrationOnly": true,
+  "subagentRuntimeDependency": false,
+  "noActiveWrite": true,
+  "humanReviewRequired": true,
+  "cacheHitRequired": true,
+  "productionEligible": false,
+  "reviewStatus": "pending_review",
+  "sourceReports": {
+    "chunkCacheReport": "docs/evidence/c002n-source-chunk-cache-report.json",
+    "schemaEvalReport": "docs/evidence/c002o-candidate-extraction-eval-report.json",
+    "budgetGuardReport": "docs/evidence/c002p-model-budget-guard-report.json"
+  },
+  "sampleRate": {
+    "policy": "small_batch_only",
+    "sourceDocuments": 4,
+    "chunksTotal": 32,
+    "chunksPerSourceDocument": 8,
+    "estimatedInputTokens": 120000,
+    "estimatedOutputTokens": 20000,
+    "l4Items": 3
+  },
+  "inputArtifacts": [
+    "docs/evidence/c002n-source-chunk-cache-report.json",
+    "docs/evidence/c002o-candidate-extraction-eval-report.json",
+    "docs/evidence/c002p-model-budget-guard-report.json",
+    "configs/model_routing.defaults.yaml",
+    "schemas/ai/c002_candidate_extraction.schema.json"
+  ],
+  "outputArtifacts": [
+    "docs/evidence/c002q0-outer-ai-readiness-report.json",
+    "docs/evidence/c002q-ai-extract-dry-run-report.json"
+  ],
+  "evidenceAnchorFields": [
+    "source_hash",
+    "source_document_id",
+    "page_number",
+    "chunk_hash",
+    "schema_version",
+    "prompt_version",
+    "model_role",
+    "model",
+    "reasoning_effort",
+    "estimated_input_tokens",
+    "estimated_output_tokens",
+    "cached_tokens",
+    "cost_estimate",
+    "cache_hit",
+    "no_active_write",
+    "review_status"
+  ],
+  "modelRoles": [
+    {
+      "layer": "L0",
+      "modelRole": "local_deterministic",
+      "model": "none",
+      "reasoningEffort": "none",
+      "externalAiAllowed": false
+    },
+    {
+      "layer": "L1",
+      "modelRole": "bulk_prefilter_model",
+      "model": "gpt-5.4-mini",
+      "reasoningEffort": "low",
+      "externalAiAllowed": true
+    },
+    {
+      "layer": "L2",
+      "modelRole": "bulk_prefilter_model",
+      "model": "gpt-5.4-mini",
+      "reasoningEffort": "medium",
+      "externalAiAllowed": true
+    },
+    {
+      "layer": "L3",
+      "modelRole": "engineering_review_model",
+      "model": "gpt-5.3-codex",
+      "reasoningEffort": "high",
+      "externalAiAllowed": true
+    },
+    {
+      "layer": "L4",
+      "modelRole": "high_risk_review_model",
+      "model": "gpt-5.4",
+      "reasoningEffort": "high",
+      "externalAiAllowed": true,
+      "escalateToRole": "highest_risk_decision_model",
+      "escalateTo": "gpt-5.5",
+      "escalateReasoningEffort": "xhigh"
+    }
+  ],
+  "humanReviewBoundary": {
+    "allOutputsEnterReviewQueue": true,
+    "autoActivate": false,
+    "allowedStatuses": [
+      "candidate",
+      "pending_review"
+    ],
+    "blockedStatuses": [
+      "active",
+      "production"
+    ]
+  },
+  "runtimeBoundary": {
+    "projectRuntimeDependency": false,
+    "subagentUse": "outer_parallel_execution_and_review_only",
+    "teacherFacingRuntimeDependency": false
+  }
+}

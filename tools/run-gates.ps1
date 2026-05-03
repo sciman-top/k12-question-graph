@@ -177,6 +177,10 @@ try {
         .\tools\run-c002p-model-budget-guard.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'c002q0 outer ai readiness guard' {
+        .\tools\run-c002q0-outer-ai-readiness.ps1 | Write-Host
+    }
+
     Invoke-GateStep 'c002 source material admission guard' {
         .\tools\run-c002-source-material-guard.ps1 | Write-Host
     }

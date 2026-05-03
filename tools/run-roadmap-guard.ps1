@@ -90,6 +90,23 @@ if ($byId['C002P'].status -eq '已完成') {
     }
 }
 
+if ($c002q0.status -eq '已完成') {
+    $c002q0Report = Join-Path $repoRoot 'docs\evidence\c002q0-outer-ai-readiness-report.json'
+    if (-not (Test-Path -LiteralPath $c002q0Report)) {
+        throw "C002Q0 is completed but report is missing: docs/evidence/c002q0-outer-ai-readiness-report.json"
+    }
+    $report = Get-Content -LiteralPath $c002q0Report -Raw | ConvertFrom-Json
+    if ($report.status -ne 'pass' -or $report.allowProjectRuntimeRealModelCalls -ne $false -or $report.externalAiCallsInReadiness -ne 0) {
+        throw "C002Q0 report must pass with project runtime real model calls disabled and zero readiness AI calls"
+    }
+    if ($report.noActiveWrite -ne $true -or $report.subagentRuntimeDependency -ne $false -or $report.productionEligible -ne $false) {
+        throw "C002Q0 report must enforce no active write, no runtime subagent dependency, and production eligibility false"
+    }
+    if ($report.humanReviewRequired -ne $true -or $report.cacheHitRequired -ne $true) {
+        throw "C002Q0 report must require human review and cache hit evidence"
+    }
+}
+
 foreach ($pattern in @('subagent', '外层', '真实模型', 'no_active_write', '运行时依赖')) {
     if ($c002q0.acceptance -notmatch $pattern) {
         throw "C002Q0 acceptance missing orchestration boundary: $pattern"
