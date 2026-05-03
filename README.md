@@ -66,6 +66,25 @@ $env:PGPASSWORD='<local-password>'
 
 该入口只导入 `candidate/pending_review` 动态资产、映射、迁移计划和审核队列，不会激活正式 C002。
 
+新学科知识体系激活入口：
+
+```powershell
+.\tools\run-domain-asset-activation.ps1 `
+  -ImportKey '<subject_candidate_import_key>' `
+  -MaterialBatchKey '<source_material_batch_key>' `
+  -EvidencePrefix '<subject>-activation' `
+  -ExpectedSourceDocumentCount 0
+```
+
+后续化学、生物、数学等学科不要手工串联底层 C002L/C002M/C002T 命令，优先使用该统一入口。教师复核和激活确认必须配套使用：
+
+- `docs/templates/subject-candidate-review-checklist.md`：候选知识点、教材章节、课标条目、地区考点和映射关系复核清单。
+- `docs/templates/subject-activation-approval-form.md`：激活前机器摘要、人工复核、备份和最终确认表。
+- `docs/79_TeacherCandidateReviewAndActivationGuide.md`：教师/备课组操作说明。
+- `docs/78_SubjectDomainAssetActivationRunbook.md`：管理员/代理执行 runbook。
+
+这四份文档已纳入 `tools/run-teacher-activation-template-guard.ps1` 和 full gate，避免后续学科激活流程只剩脚本、缺少教师可理解的操作材料。
+
 证据与回滚入口：
 
 - `docs/evidence/P0_EVIDENCE_2026-05-02.md`
@@ -188,6 +207,10 @@ python -c "import pathlib, yaml; [yaml.safe_load(p.read_text(encoding='utf-8')) 
 - `docs/28_FunctionScopeReview.md`：功能保留、修改、增加、后置与不进 v0.1 的裁决。
 - `docs/58_DynamicEvolvableElements.md`：必须动态化的参数、数据、标签、模板、规则和映射基数清单。
 - `docs/19_Roadmap.md`：动态元素不停工原则和 draft/test 先搭系统的阶段口径。
+- `docs/78_SubjectDomainAssetActivationRunbook.md`：后续新学科动态资产激活统一 runbook。
+- `docs/79_TeacherCandidateReviewAndActivationGuide.md`：教师候选复核和激活确认操作指南。
+- `docs/templates/subject-candidate-review-checklist.md`：教师候选复核清单模板。
+- `docs/templates/subject-activation-approval-form.md`：激活前确认表模板。
 
 ## 编码原则
 
