@@ -85,7 +85,7 @@ v0.1 聚焦：
 ```text
 P0/P1: 打开应用 → 上传文件 → 创建 ImportJob → 写数据库 → 文件入仓 → 页面预览 → 人工确认 → 单题入库 → 来源回看 → 备份 manifest
 P2/C002 draft-test: draft 知识点 → 替换映射 dry-run → 迁移影响报告 → candidate admission → active guard
-P2/C002 dynamic contract: dynamic elements → one-to-one/one-to-many/many-to-one/many-to-many mapping → review/impact/rollback
+P2/C002 dynamic contract: dynamic elements → one-to-one/one-to-many/many-to-one/many-to-many mapping → review workbench → impact/rollback
 P3/D001 draft-test: AI task → ModelRouter → rule/stub_llm → schema/prompt version → human review guard
 ```
 

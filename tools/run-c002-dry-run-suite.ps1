@@ -46,6 +46,10 @@ try {
         .\tools\run-c002e-activation-guard-contract.ps1
     }
 
+    Invoke-SuiteStep 'c002h mapping review workbench contract' {
+        .\tools\run-c002h-mapping-review-workbench-contract.ps1
+    }
+
     [ordered]@{
         status = 'pass'
         suite = 'c002-dynamic-assets-dry-run'

@@ -1,0 +1,173 @@
+{
+  "schemaVersion": "domain-asset-mapping-review-workbench.v0.1",
+  "planId": "C002H_SAMPLE_MAPPING_REVIEW_WORKBENCH",
+  "mode": "dry_run",
+  "sourceReplacementPlanId": "C002B_SAMPLE_DRAFT_TO_FORMAL",
+  "workbench": {
+    "defaultQueue": "pending_review",
+    "sortBy": [
+      "impact_desc",
+      "confidence_asc"
+    ],
+    "requiredFilters": [
+      "pending_review",
+      "low_confidence",
+      "high_impact",
+      "one_to_many",
+      "many_to_one",
+      "many_to_many",
+      "affects_historical_analysis",
+      "affects_assembly_rules"
+    ],
+    "requiredViews": [
+      "old_asset",
+      "new_asset",
+      "mapping_edges",
+      "source_evidence",
+      "impact_preview",
+      "rollback_preview",
+      "review_history"
+    ],
+    "keyboardActions": [
+      "approve",
+      "reject",
+      "skip",
+      "change_target",
+      "split",
+      "merge",
+      "create_group",
+      "undo"
+    ]
+  },
+  "reviewItems": [
+    {
+      "reviewItemId": "review-ohm-split",
+      "mappingGroupId": "group-ohm-split",
+      "cardinality": "one_to_many",
+      "riskLevel": "high",
+      "confidence": 0.89,
+      "sourceStableIds": [
+        "PHY-JH-ELEC-OHM-LAW"
+      ],
+      "targetStableIds": [
+        "PHY-JH-ELEC-OHM-CONCEPT",
+        "PHY-JH-ELEC-OHM-CALCULATION"
+      ],
+      "aiSuggestion": "split",
+      "allowedActions": [
+        "approve_group",
+        "change_targets",
+        "reject",
+        "skip",
+        "undo"
+      ],
+      "requiresHumanDecision": true,
+      "requiresReviewReason": true,
+      "impactPreview": {
+        "questionBindings": 18,
+        "tagBindings": 2,
+        "assemblyConstraints": 4,
+        "analysisReports": 3,
+        "historicalReportsAction": "freeze",
+        "autoMigratable": 0,
+        "requiresManualConfirmation": 27
+      },
+      "rollbackPreview": {
+        "snapshotRequired": true,
+        "restoreStrategy": "restore previous mapping group and rebuild derived indexes"
+      }
+    },
+    {
+      "reviewItemId": "review-force-remix",
+      "mappingGroupId": "group-force-many-to-many",
+      "cardinality": "many_to_many",
+      "riskLevel": "high",
+      "confidence": 0.74,
+      "sourceStableIds": [
+        "PHY-JH-MECH-FORCE-EFFECT",
+        "PHY-JH-MECH-FORCE-THREE-ELEMENTS"
+      ],
+      "targetStableIds": [
+        "PHY-JH-MECH-FORCE-MOTION-CHANGE",
+        "PHY-JH-MECH-FORCE-SHAPE-CHANGE",
+        "PHY-JH-MECH-FORCE-MAGNITUDE-DIRECTION-POINT"
+      ],
+      "aiSuggestion": "create_group",
+      "allowedActions": [
+        "approve_group",
+        "edit_edges",
+        "change_targets",
+        "reject",
+        "skip",
+        "undo"
+      ],
+      "requiresHumanDecision": true,
+      "requiresReviewReason": true,
+      "impactPreview": {
+        "questionBindings": 126,
+        "tagBindings": 11,
+        "assemblyConstraints": 8,
+        "analysisReports": 12,
+        "historicalReportsAction": "freeze",
+        "autoMigratable": 0,
+        "requiresManualConfirmation": 157
+      },
+      "rollbackPreview": {
+        "snapshotRequired": true,
+        "restoreStrategy": "restore previous mapping group and keep historical reports on old version"
+      }
+    },
+    {
+      "reviewItemId": "review-temperature-rename",
+      "mappingGroupId": "group-temperature-rename",
+      "cardinality": "one_to_one",
+      "riskLevel": "low",
+      "confidence": 0.97,
+      "sourceStableIds": [
+        "PHY-JH-THERMAL-TEMPERATURE"
+      ],
+      "targetStableIds": [
+        "PHY-JH-THERMAL-TEMPERATURE-FORMAL"
+      ],
+      "aiSuggestion": "renamed",
+      "allowedActions": [
+        "batch_approve",
+        "approve",
+        "change_target",
+        "undo"
+      ],
+      "requiresHumanDecision": false,
+      "requiresReviewReason": false,
+      "impactPreview": {
+        "questionBindings": 7,
+        "tagBindings": 1,
+        "assemblyConstraints": 0,
+        "analysisReports": 0,
+        "historicalReportsAction": "migrate",
+        "autoMigratable": 8,
+        "requiresManualConfirmation": 0
+      },
+      "rollbackPreview": {
+        "snapshotRequired": true,
+        "restoreStrategy": "restore previous one-to-one mapping"
+      }
+    }
+  ],
+  "bulkActions": [
+    {
+      "action": "batch_approve",
+      "allowedWhen": "all_selected_items_are_one_to_one_low_risk_high_confidence_reversible"
+    }
+  ],
+  "audit": {
+    "requiredFields": [
+      "reviewerId",
+      "decision",
+      "reviewReason",
+      "decidedAt",
+      "beforeSnapshot",
+      "afterSnapshot"
+    ],
+    "undoRequiredBeforeApply": true
+  }
+}

@@ -17,6 +17,7 @@
 - C002C migration impact contract。
 - C002D source-derived admission contract。
 - C002E activation guard contract。
+- C002H mapping review workbench contract。
 
 ## 4. 边界
 

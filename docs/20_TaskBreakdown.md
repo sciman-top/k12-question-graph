@@ -294,6 +294,7 @@
 - C002E source-derived active activation guard。已完成 dry-run contract：候选资产进入 `active` 前必须无待审候选、无 `pending_review` 映射、无待审影响项、历史学情冻结已确认且有回滚快照。
 - C002 dry-run suite。已完成：`tools/run-c002-dry-run-suite.ps1` 可在无数据库密码时一键验证 source admission、replacement mapping、migration impact、candidate admission 和 activation guard；full gate 仍保留数据库 contract。
 - C002G 动态变化对象清单与映射基数。已完成文档合同：明确知识点、教材/课标/考点、题型、标签、rubric、组卷规则、AI prompt/schema/model routing、解析 pipeline、分析指标、导出模板、Excel 映射、组织权限和隐私策略都必须动态化；映射必须兼容一对一、一对多、多对一和多对多，多对多用同一 migration/plan 下的多条 mapping 边表达并进入人工审核。
+- C002H 映射审核工作台预处理。已完成 dry-run contract：定义 pending review 队列、筛选、排序、旧/新对象并排视图、映射边、来源证据、影响预览、回滚预览、审核历史、快捷操作、批量确认边界、迁移组和 audit snapshot，后续 UI/API 必须按该合同实现。
 - C003 公式、实验、方法、易错点。
 - C004 教材章节映射。
 - C005 地区考点映射。

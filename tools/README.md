@@ -25,6 +25,7 @@ The gate also covers `b001 duplicate upload smoke`, `b002 adapter contract smoke
 `c001 knowledge ontology contract`, `c002a domain asset contract`,
 `c002b replacement mapping contract`, `c002c migration impact contract`,
 `c002d source-derived admission contract`, `c002e activation guard contract`,
+`c002h mapping review workbench contract`,
 `c002 junior physics draft bootstrap guard`, and
 `d001 model router draft-test contract`.
 It starts temporary
@@ -113,6 +114,17 @@ C002E activation guard contract:
 This validates that source-derived candidates cannot become `active` while
 teacher review, pending mapping decisions, or frozen historical analysis
 approval remains unresolved.
+
+C002H mapping review workbench contract:
+
+```powershell
+.\tools\run-c002h-mapping-review-workbench-contract.ps1
+```
+
+This validates the non-DB contract for convenient human mapping review:
+required filters, views, keyboard actions, one-to-one/one-to-many/many-to-many
+coverage, impact preview, rollback preview, audit fields, undo, and batch
+approval limits.
 
 C002 junior physics draft bootstrap guard:
 
