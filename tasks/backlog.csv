@@ -31,16 +31,16 @@ C002F,P2,动态资产,C002 动态资产 dry-run suite,高,已完成,C002E,无数
 C002G,P2,动态资产,动态变化对象清单与映射基数合同,高,已完成,C002F,功能需求 计划 任务清单明确哪些参数 数据 标签 模板 规则 组织 权限 策略必须动态化并支持一对一 一对多 多对一 多对多映射 自动替换边界 人工审核 影响报告和回滚入口,doc/config gates + docs/58_DynamicEvolvableElements.md
 C002H,P2,动态资产,映射审核工作台预处理合同,高,已完成,C002G,人工可便捷修改新旧对象映射 支持 pending review 筛选 排序 旧新对象并排 映射边 影响预览 回滚预览 审核历史 快捷操作 批量确认限制 迁移组 audit snapshot 和 undo,tools/run-c002h-mapping-review-workbench-contract.ps1
 C002,P2,知识本体,初中物理 L1-L3 知识点初始化,中,暂缓,C002H,教师录入各版本教材 学科课程标准 近年当地中考高考真题等资料后 从来源提炼并审核 L1-L3 知识点 当前 draft bootstrap 可用于测试 但正式激活必须有版本 替换 迁移 回滚证据,source-derived seed validation + tools/run-c002-seed-validation.ps1 draft guard + migration report guard
-D001,P3,AI,AI Provider 抽象与 ModelRouter,中,已完成,C002,C002 正式完成前仅以 draft/test 模式完成 Provider 抽象和 ModelRouter 合同 真实模型调用禁用 LLM 任务路由到 stub_llm 并要求人工审核 不得把 draft 知识点或真实模型输出标记为生产正式完成,tools/run-d001-model-router-contract.ps1 + tools/run-roadmap-guard.ps1
+D001,P3,AI,AI Provider 抽象与 ModelRouter,中,已完成,C002H,draft/test 模式完成 Provider 抽象和 ModelRouter 合同 真实模型调用禁用 LLM 任务路由到 stub_llm 并要求人工审核 不依赖正式 C002 active 不得把 draft 动态资产或真实模型输出标记为生产正式完成,tools/run-d001-model-router-contract.ps1 + tools/run-roadmap-guard.ps1
 D002,P3,AI,AIJob AIResult 成本日志,中,已完成,D001,draft/test 模式下 AIJob 记录 provider model routing prompt schema input_hash tokens cached_tokens cost latency confidence review_status teacher_modified 且真实模型调用保持禁用,tools/run-d002-ai-job-cost-contract.ps1 + tools/run-roadmap-guard.ps1
 D003,P3,AI,Structured Outputs 与 Evals 接入,中,已完成,D002,draft/test schema Evals 模式下结构化输出可用 golden smoke fixture 校验且全部保持 pending_review 不接真实模型 不具备生产资格,tools/run-d003-structured-output-eval.ps1 + tools/run-roadmap-guard.ps1
 E001,P4,组卷导出,题库检索和题目卡片,中,已完成,D003,draft/test 模式下教师可按 draft 知识点 题型 难度 来源筛题并获得题卡 preview 主知识点 来源摘要 block asset 计数 正式生产筛题仍等待 C002 source-derived active,tools/run-e001-question-search-contract.ps1 + frontend build/lint + tools/run-roadmap-guard.ps1
-E002,P4,组卷导出,自然语言组卷系统理解页面,中,暂缓,E001,教师能看到系统理解和细目表草稿,UI flow test
-E003,P4,组卷导出,一键换题与撤销,中,暂缓,E002,换题保持知识点题型难度分值约束且可撤销,scenario test
-E004,P4,组卷导出,Word/PDF 导出 MVP,中,暂缓,E003,Word/WPS 可打开且公式题图表格不丢失,export golden test
-F001,P5,成绩学情,学生班级考试模型,中,暂缓,E004,支持班级考试成绩基本实体且不暴露学生端,model test
-F002,P5,成绩学情,Excel 字段映射导入,中,暂缓,F001,常见 Excel 模板首次确认后可复用且异常集中提示,import mapping test
-F003,P5,成绩学情,得分率知识点分析,中,暂缓,F002,可输出班级得分率区分度知识点掌握摘要,analysis test
-G001,P6,运维,自动备份到本机与共享目录,中,暂缓,F003,备份包通过 manifest/hash 校验且主程序不可用时脚本仍可运行,backup restore drill
-G002,P6,运维,缓存清理与存储看板,中,暂缓,G001,管理员能看到存储占用并执行安全清理,storage UI/API test
-G003,P6,运维,WinPE 应急拷贝脚本生成,中,暂缓,G001,可生成离线恢复说明和应急拷贝脚本,recovery runbook check
+E002,P4,组卷导出,自然语言组卷系统理解页面,中,暂缓,E001,draft/test 模式下教师能看到系统理解和细目表草稿 使用 synthetic 需求与 draft 动态资产 不等待正式 C002 active 不写生产组卷口径,UI flow test + tools/run-roadmap-guard.ps1
+E003,P4,组卷导出,一键换题与撤销,中,暂缓,E002,draft/test 模式下换题保持知识点题型难度分值约束且可撤销 约束来自可迁移动态资产 正式资产变化后通过映射影响报告更新,scenario test + migration impact guard
+E004,P4,组卷导出,Word/PDF 导出 MVP,中,暂缓,E003,draft/test 模式下可导出 synthetic/draft 试卷 Word/WPS 可打开且公式题图表格不丢失 不要求正式题库或正式知识点激活,export golden test + tools/run-roadmap-guard.ps1
+F001,P5,成绩学情,学生班级考试模型,中,暂缓,E004,draft/test 模式下支持学生班级考试基本实体 使用 synthetic 学生与班级 fixture 不使用真实学生数据 不暴露学生端,model test + privacy fixture guard
+F002,P5,成绩学情,Excel 字段映射导入,中,暂缓,F001,draft/test 模式下 synthetic Excel 模板可导入 字段映射可保存复用 异常集中提示 字段模板作为动态资产可迁移,import mapping test + synthetic fixture
+F003,P5,成绩学情,得分率知识点分析,中,暂缓,F002,draft/test 模式下可输出班级得分率区分度知识点掌握摘要 正式知识点标签能力维度未激活前不改写正式历史学情,analysis test + no production analytics guard
+G001,P6,运维,自动备份到本机与共享目录,中,暂缓,F003,draft/test 模式下备份包通过 manifest/hash 校验且主程序不可用时脚本仍可运行 共享目录路径作为动态配置可修改,backup restore drill
+G002,P6,运维,缓存清理与存储看板,中,暂缓,G001,draft/test 模式下管理员能看到存储占用并执行安全清理 保留配置化目录和回滚证据,storage UI/API test
+G003,P6,运维,WinPE 应急拷贝脚本生成,中,暂缓,G001,draft/test 模式下可生成离线恢复说明和应急拷贝脚本 路径和介质策略作为动态配置可修改,recovery runbook check
