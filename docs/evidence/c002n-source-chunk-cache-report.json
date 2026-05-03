@@ -2,7 +2,7 @@
   "status": "pass",
   "task": "C002N",
   "extractorVersion": "c002n-source-chunk-cache.v1",
-  "generatedAt": "2026-05-03T15:05:25.595699+00:00",
+  "generatedAt": "2026-05-03T15:10:14.963883+00:00",
   "sourceReport": "docs\\evidence\\c002-source-material-import-report.json",
   "cacheRoot": "tmp\\c002n-source-chunk-cache",
   "externalAiCalls": 0,

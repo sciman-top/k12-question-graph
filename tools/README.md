@@ -125,8 +125,10 @@ C002P model budget guard:
 
 This validates the L0-L4 extraction layers, default model roles, reasoning
 effort, escalation targets, dry-run token caps, cache-key requirements, and
-fail-closed budget policy. It does not call external AI and does not mark C002
-as active.
+fail-closed budget policy. It also reads the C002N chunk/token report and C002O
+schema/eval report, then writes
+`docs/evidence/c002p-model-budget-guard-report.json`. It does not call external
+AI and does not mark C002 as active.
 
 C002 candidate DB import:
 

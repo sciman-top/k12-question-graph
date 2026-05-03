@@ -76,6 +76,20 @@ if ($c002o.status -eq '已完成') {
     }
 }
 
+if ($byId['C002P'].status -eq '已完成') {
+    $c002pReport = Join-Path $repoRoot 'docs\evidence\c002p-model-budget-guard-report.json'
+    if (-not (Test-Path -LiteralPath $c002pReport)) {
+        throw "C002P is completed but report is missing: docs/evidence/c002p-model-budget-guard-report.json"
+    }
+    $report = Get-Content -LiteralPath $c002pReport -Raw | ConvertFrom-Json
+    if ($report.status -ne 'pass' -or $report.realModelCallsDefault -ne $false -or $report.fullSourceExceedsDryRunLimits -ne $true) {
+        throw "C002P report must pass with real model calls disabled and full source exceeding dry-run limits"
+    }
+    if ($report.fullExtractionRequiresHumanBudgetApproval -ne $true) {
+        throw "C002P full extraction must require human budget approval"
+    }
+}
+
 foreach ($pattern in @('subagent', '外层', '真实模型', 'no_active_write', '运行时依赖')) {
     if ($c002q0.acceptance -notmatch $pattern) {
         throw "C002Q0 acceptance missing orchestration boundary: $pattern"

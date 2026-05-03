@@ -1,0 +1,51 @@
+{
+  "status": "pass",
+  "task": "C002P",
+  "guard": "c002p-model-budget",
+  "rolesChecked": [
+    "bulk_prefilter_model",
+    "engineering_review_model",
+    "high_risk_review_model",
+    "highest_risk_decision_model",
+    "mechanical_cleanup_model"
+  ],
+  "layersChecked": [
+    "L0",
+    "L1",
+    "L2",
+    "L3",
+    "L4"
+  ],
+  "sourceEvidence": {
+    "sourceCount": 33,
+    "chunkCount": 1478,
+    "estimatedInputTokens": 520612,
+    "cacheHitSourceCount": 33
+  },
+  "schemaEvalEvidence": {
+    "suiteId": "c002o-candidate-extraction-golden-smoke",
+    "checkedAnchorCount": 98,
+    "productionEligible": false
+  },
+  "dryRunLimits": {
+    "max_source_documents": 4,
+    "max_chunks_total": 32,
+    "max_chunks_per_source_document": 8,
+    "max_estimated_input_tokens": 120000,
+    "max_estimated_output_tokens": 20000,
+    "max_l4_items": 3
+  },
+  "fullSourceExceedsDryRunLimits": true,
+  "highestRiskEscalation": {
+    "model": "gpt-5.5",
+    "reasoningEffort": "xhigh"
+  },
+  "fullExtractionRequiresHumanBudgetApproval": true,
+  "realModelCallsDefault": false,
+  "summaryChinese": {
+    "title": "C002P 分层模型路由预算门禁报告",
+    "result": "通过",
+    "boundary": "C002Q 只能小批量 dry-run；33 份来源的 full extraction 超出 dry-run 上限，必须有人工作预算确认。",
+    "next": "下一步可进入 C002Q0 真实模型调用与 outer subagent 编排 readiness。"
+  }
+}

@@ -1,3 +1,7 @@
+param(
+    [string] $Output = 'docs\evidence\c002p-model-budget-guard-report.json'
+)
+
 $ErrorActionPreference = 'Stop'
 
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
@@ -13,6 +17,9 @@ import yaml
 
 
 CONFIG_PATH = Path("configs/model_routing.defaults.yaml")
+C002N_REPORT_PATH = Path("docs/evidence/c002n-source-chunk-cache-report.json")
+C002O_REPORT_PATH = Path("docs/evidence/c002o-candidate-extraction-eval-report.json")
+C002P_REPORT_PATH = Path("docs/evidence/c002p-model-budget-guard-report.json")
 
 
 def require(condition: bool, message: str) -> None:
@@ -21,6 +28,8 @@ def require(condition: bool, message: str) -> None:
 
 
 config = yaml.safe_load(CONFIG_PATH.read_text(encoding="utf-8"))
+c002n = json.loads(C002N_REPORT_PATH.read_text(encoding="utf-8"))
+c002o = json.loads(C002O_REPORT_PATH.read_text(encoding="utf-8"))
 outer = config["outer_ai_validation"]
 roles = outer["role_to_model"]
 local = config["local_first_contract"]
@@ -95,19 +104,53 @@ boundary = config["p0_p1_boundary"]
 require(boundary["allow_real_model_calls"] is False, "real model calls must remain disabled by default")
 require("stub_llm" in boundary["allowed_handlers"], "stub_llm must remain an allowed draft/test handler")
 
-print(json.dumps({
+require(c002n["status"] == "pass", "C002N chunk cache report must pass before C002P")
+require(c002n["externalAiCalls"] == 0, "C002N must have zero external AI calls")
+require(c002n["sourceHashCoverage"]["coveragePass"] is True, "C002N source hash coverage must pass")
+require(c002n["cacheIdempotency"]["cacheHitSourceCount"] >= c002n["sourceCount"], "C002N cache must be warm before C002P")
+require(c002n["totals"]["estimatedInputTokens"] > dry_run["max_estimated_input_tokens"], "full C002 source tokens should exceed dry-run cap and require budget controls")
+require(c002n["totals"]["chunkCount"] > dry_run["max_chunks_total"], "full C002 chunk count should exceed dry-run cap")
+
+require(c002o["status"] == "pass", "C002O schema/eval report must pass before C002P")
+require(c002o["allowRealModelCalls"] is False, "C002O must keep real model calls disabled")
+require(c002o["productionEligible"] is False, "C002O must not be production eligible")
+require(c002o["checkedAnchorCount"] >= 1, "C002O must validate source anchors from C002N")
+
+report = {
     "status": "pass",
+    "task": "C002P",
     "guard": "c002p-model-budget",
     "rolesChecked": sorted(expected_roles),
     "layersChecked": sorted(expected_layers),
+    "sourceEvidence": {
+        "sourceCount": c002n["sourceCount"],
+        "chunkCount": c002n["totals"]["chunkCount"],
+        "estimatedInputTokens": c002n["totals"]["estimatedInputTokens"],
+        "cacheHitSourceCount": c002n["cacheIdempotency"]["cacheHitSourceCount"],
+    },
+    "schemaEvalEvidence": {
+        "suiteId": c002o["suiteId"],
+        "checkedAnchorCount": c002o["checkedAnchorCount"],
+        "productionEligible": c002o["productionEligible"],
+    },
     "dryRunLimits": dry_run,
+    "fullSourceExceedsDryRunLimits": True,
     "highestRiskEscalation": {
         "model": defaults["L4"]["escalate_to"],
         "reasoningEffort": defaults["L4"]["escalate_reasoning_effort"],
     },
     "fullExtractionRequiresHumanBudgetApproval": full_limits["require_human_budget_approval"],
     "realModelCallsDefault": boundary["allow_real_model_calls"],
-}, ensure_ascii=False, indent=2))
+    "summaryChinese": {
+        "title": "C002P 分层模型路由预算门禁报告",
+        "result": "通过",
+        "boundary": "C002Q 只能小批量 dry-run；33 份来源的 full extraction 超出 dry-run 上限，必须有人工作预算确认。",
+        "next": "下一步可进入 C002Q0 真实模型调用与 outer subagent 编排 readiness。",
+    },
+}
+C002P_REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
+C002P_REPORT_PATH.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+print(json.dumps(report, ensure_ascii=False, indent=2))
 '@ | python -
     if ($LASTEXITCODE -ne 0) {
         throw "c002p model budget guard failed"
