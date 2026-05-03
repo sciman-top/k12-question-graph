@@ -1,6 +1,5 @@
 param(
-    [Parameter(Mandatory = $true)]
-    [string] $SourceRoot,
+    [string] $SourceRoot = 'D:\KQG_Data\source_materials\imported\guangzhou_physics_2016_2025',
     [string] $ApiUrl = '',
     [switch] $StartApi,
     [switch] $Apply,

@@ -205,13 +205,14 @@ def main() -> int:
                 "nextAction": "create rollback snapshot before active activation",
             }
         )
-    if active_imported_assets > 0:
+    total_imported_assets = candidate_assets + reviewed_imported_assets + active_imported_assets
+    if active_imported_assets > 0 and (candidate_assets > 0 or reviewed_imported_assets > 0):
         blockers.append(
             {
-                "blockerId": "unexpected_active_assets",
+                "blockerId": "partial_active_transition",
                 "severity": "hard",
                 "count": active_imported_assets,
-                "nextAction": "investigate and roll back unintended activation",
+                "nextAction": "complete activation or roll back to a single governed lifecycle state",
             }
         )
     if reviewed_imported_assets > 0:
@@ -233,7 +234,14 @@ def main() -> int:
             }
         )
 
-    activation_allowed = len([x for x in blockers if x["severity"] == "hard"]) == 0
+    activation_allowed = len([x for x in blockers if x["severity"] == "hard"]) == 0 and reviewed_imported_assets > 0
+    formal_activation_complete = (
+        total_imported_assets > 0
+        and active_imported_assets == total_imported_assets
+        and candidate_assets == 0
+        and reviewed_imported_assets == 0
+        and len([x for x in blockers if x["severity"] == "hard"]) == 0
+    )
     report = {
         "status": "pass",
         "checkedAt": datetime.now(timezone.utc).isoformat(),
@@ -258,6 +266,7 @@ def main() -> int:
             "candidateAssets": candidate_assets,
             "reviewedImportedAssets": reviewed_imported_assets,
             "activeImportedAssets": active_imported_assets,
+            "totalImportedAssets": total_imported_assets,
             "pendingReviewMappings": pending_mappings,
             "autoAppliedMappings": auto_applied_mappings,
             "pendingReviewMigrations": pending_migrations,
@@ -279,23 +288,33 @@ def main() -> int:
             "sourceDocumentsEqualSha256Count": True,
             "rollbackSnapshotReady": True,
         },
+        "activationState": {
+            "formalActivationComplete": formal_activation_complete,
+            "readyForActiveSwitch": activation_allowed,
+            "lifecycle": (
+                "active"
+                if formal_activation_complete
+                else "reviewed"
+                if reviewed_imported_assets > 0 and candidate_assets == 0 and active_imported_assets == 0
+                else "candidate"
+                if candidate_assets > 0
+                else "empty"
+            ),
+        },
     }
 
-    if candidate_assets < 1:
+    if total_imported_assets < 1:
         report["status"] = "fail"
-        report["error"] = "candidate_assets_missing"
+        report["error"] = "imported_assets_missing"
     if source_documents != 33 or source_documents_with_hash != 33:
         report["status"] = "fail"
         report["error"] = "source_document_count_mismatch"
-    if active_imported_assets != 0:
+    if active_imported_assets > 0 and not formal_activation_complete:
         report["status"] = "fail"
-        report["error"] = "active_assets_must_not_exist_before_guard"
+        report["error"] = "active_assets_partial_transition"
     if auto_applied_mappings != 0:
         report["status"] = "fail"
         report["error"] = "auto_applied_mappings_forbidden"
-    if not blockers:
-        report["status"] = "fail"
-        report["error"] = "sample_should_still_block_activation_until_review"
 
     write_report(pathlib.Path(args.report_path), report)
     print(json.dumps(report, ensure_ascii=False, indent=2))

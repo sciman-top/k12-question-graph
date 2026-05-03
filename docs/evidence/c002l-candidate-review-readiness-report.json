@@ -1,6 +1,6 @@
 {
   "status": "pass",
-  "checkedAt": "2026-05-03T17:37:07.851543+00:00",
+  "checkedAt": "2026-05-03T18:00:02.286836+00:00",
   "task": "C002L",
   "importKey": "c002_candidate_import_guangzhou_physics_2016_2025_v1",
   "materialBatchKey": "guangzhou_physics_2016_2025",
@@ -24,14 +24,15 @@
     ]
   },
   "counts": {
-    "candidateAssets": 452,
+    "candidateAssets": 0,
     "reviewedImportedAssets": 0,
-    "activeImportedAssets": 0,
-    "pendingReviewMappings": 400,
+    "activeImportedAssets": 452,
+    "totalImportedAssets": 452,
+    "pendingReviewMappings": 0,
     "autoAppliedMappings": 0,
-    "pendingReviewMigrations": 1,
+    "pendingReviewMigrations": 0,
     "rollbackSnapshots": 1,
-    "openReviewQueueItems": 1,
+    "openReviewQueueItems": 0,
     "sourceDocuments": 33,
     "sourceDocumentsWithSha256": 33
   },
@@ -52,32 +53,7 @@
     "local_exam_paper": 19,
     "textbook": 3
   },
-  "blockers": [
-    {
-      "blockerId": "candidate_assets_pending_review",
-      "severity": "hard",
-      "count": 452,
-      "nextAction": "review candidate assets and mark approved/rejected before active activation"
-    },
-    {
-      "blockerId": "pending_review_mappings",
-      "severity": "hard",
-      "count": 400,
-      "nextAction": "approve/reject or revise mapping edges before active activation"
-    },
-    {
-      "blockerId": "migration_plan_pending_review",
-      "severity": "hard",
-      "count": 1,
-      "nextAction": "review impact report and rollback snapshot before active activation"
-    },
-    {
-      "blockerId": "review_queue_open",
-      "severity": "hard",
-      "count": 1,
-      "nextAction": "close review queue item with explicit decision evidence"
-    }
-  ],
+  "blockers": [],
   "requiredBeforeActivation": {
     "candidateAssets": 0,
     "pendingReviewMappings": 0,
@@ -86,5 +62,10 @@
     "activeImportedAssetsBeforeGuard": 0,
     "sourceDocumentsEqualSha256Count": true,
     "rollbackSnapshotReady": true
+  },
+  "activationState": {
+    "formalActivationComplete": true,
+    "readyForActiveSwitch": false,
+    "lifecycle": "active"
   }
 }

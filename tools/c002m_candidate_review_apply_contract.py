@@ -244,6 +244,24 @@ def apply_decisions(conn: psycopg.Connection, decisions: dict[str, list[dict[str
             (next_status, decision, item["reviewReason"], import_key),
         )
 
+    remaining = before_counts(conn, import_key)
+    if (
+        remaining["candidateAssets"] == 0
+        and remaining["pendingMappings"] == 0
+        and remaining["pendingMigrations"] == 0
+        and remaining["openReviewItems"] > 0
+    ):
+        conn.execute(
+            """
+            update review_queue_items
+            set status = 'resolved', resolved_at = now()
+            where review_type = 'c002_candidate_import'
+              and status = 'open'
+              and payload->>'importKey' = %s
+            """,
+            (import_key,),
+        )
+
 
 def main() -> int:
     parser = argparse.ArgumentParser()
@@ -275,8 +293,15 @@ def main() -> int:
 
         errors = validate_decisions(decisions)
         blockers = []
-        if counts_before["activeAssets"] > 0:
-            blockers.append("active_assets_already_present")
+        already_active = (
+            counts_before["activeAssets"] > 0
+            and counts_before["candidateAssets"] == 0
+            and counts_before["pendingMappings"] == 0
+            and counts_before["pendingMigrations"] == 0
+            and counts_before["openReviewItems"] == 0
+        )
+        if counts_before["activeAssets"] > 0 and not already_active:
+            blockers.append("partial_active_transition")
         if counts_before["autoAppliedMappings"] > 0:
             blockers.append("auto_applied_mappings_already_present")
         if args.apply and not args.decision_file:
@@ -316,6 +341,7 @@ def main() -> int:
         },
         "before": counts_before,
         "after": counts_after,
+        "alreadyActive": already_active,
         "validationErrors": errors,
         "blockers": blockers,
         "activeActivationAllowed": False,

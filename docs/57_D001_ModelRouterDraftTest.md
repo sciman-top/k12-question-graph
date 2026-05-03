@@ -2,7 +2,7 @@
 
 ## 1. 目的
 
-D001 在正式 C002 仍为 `暂缓` 时只进入 draft/test 模式。目标是建立 AI Provider 抽象和 ModelRouter 合同，而不是接入真实模型或启用生产 AI 标注。
+D001 最初在正式 C002 未激活时只进入 draft/test 模式，目标是建立 AI Provider 抽象和 ModelRouter 合同，而不是接入真实模型或启用生产 AI 标注。即使当前 C002 v1 已 active，D001 仍默认禁用真实模型调用，生产 AI 标注必须另走后续任务和人工审核边界。
 
 ## 2. 本轮范围
 

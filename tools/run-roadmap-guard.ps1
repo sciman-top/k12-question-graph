@@ -7,7 +7,7 @@ foreach ($row in $rows) {
     $byId[$row.id] = $row
 }
 
-foreach ($requiredId in @('C002', 'C002N', 'C002O', 'C002P', 'C002Q0', 'C002Q', 'C002S', 'D001', 'D002', 'D003')) {
+foreach ($requiredId in @('C002', 'C002N', 'C002O', 'C002P', 'C002Q0', 'C002Q', 'C002S', 'C002T', 'D001', 'D002', 'D003')) {
     if (-not $byId.ContainsKey($requiredId)) {
         throw "missing backlog task: $requiredId"
     }
@@ -19,6 +19,7 @@ $c002o = $byId['C002O']
 $c002q0 = $byId['C002Q0']
 $c002q = $byId['C002Q']
 $c002s = $byId['C002S']
+$c002t = $byId['C002T']
 $d001 = $byId['D001']
 if ($d001.depends_on -eq 'C002') {
     throw "D001 must not depend on formal C002; use the dynamic asset draft/test gate such as C002H"
@@ -44,8 +45,12 @@ if ($c002s.depends_on -ne 'C002Q') {
     throw "C002S must depend on C002Q small-batch AI extract dry-run"
 }
 
-if ($c002.depends_on -ne 'C002S') {
-    throw "formal C002 must depend on C002S formalization precheck"
+if ($c002t.depends_on -ne 'C002M') {
+    throw "C002T active switch must depend on C002M review apply contract"
+}
+
+if ($c002.depends_on -ne 'C002T') {
+    throw "formal C002 must depend on C002T active switch"
 }
 
 if ($c002n.status -eq '已完成') {
@@ -127,6 +132,23 @@ if ($c002q.status -eq '已完成') {
     }
 }
 
+if ($c002t.status -eq '已完成') {
+    $c002tReport = Join-Path $repoRoot 'docs\evidence\c002t-active-switch-report.json'
+    if (-not (Test-Path -LiteralPath $c002tReport)) {
+        throw "C002T is completed but report is missing: docs/evidence/c002t-active-switch-report.json"
+    }
+    $report = Get-Content -LiteralPath $c002tReport -Raw | ConvertFrom-Json
+    if ($report.status -ne 'pass' -or $report.activationGuardPassed -ne $true) {
+        throw "C002T report must pass active switch guard"
+    }
+    if ($report.before.activeAssets -lt 1 -and $report.after.activeAssets -lt 1) {
+        throw "C002T report must show active imported assets"
+    }
+    if ($report.after.candidateAssets -ne 0 -or $report.after.pendingMappings -ne 0 -or $report.after.pendingMigrations -ne 0 -or $report.after.openReviewItems -ne 0) {
+        throw "C002T report must show no pending candidate review blockers"
+    }
+}
+
 foreach ($pattern in @('subagent', '外层', '真实模型', 'no_active_write', '运行时依赖')) {
     if ($c002q0.acceptance -notmatch $pattern) {
         throw "C002Q0 acceptance missing orchestration boundary: $pattern"
@@ -159,7 +181,7 @@ if (@($missingDraftPlan).Count -gt 0) {
     throw "future P4+ tasks must state draft/test no-stop acceptance: $ids"
 }
 
-if ($c002.acceptance -notmatch '教师录入|导入|来源|教材|课程标准|真题|draft|迁移|替换') {
+if ($c002.acceptance -notmatch '教师录入|导入|来源|教材|课程标准|真题|draft|迁移|替换|审核|active') {
     throw "C002 acceptance must preserve draft/test and teacher/source-derived formal upgrade semantics"
 }
 
@@ -170,5 +192,10 @@ if ($c002.acceptance -notmatch '教师录入|导入|来源|教材|课程标准|�
     productionDynamicAssetsBlockedUntilFormalC002 = ($c002.status -ne '已完成')
     draftTestSystemBuildAllowed = $true
     futureNoStopTasksChecked = @($futureDynamicTasks).Count
-    noStopPolicy = 'dynamic assets may use draft/test fixtures while production activation remains blocked'
+    noStopPolicy = if ($c002.status -eq '已完成') {
+        'dynamic assets may still use candidate/review/rollback flow for future revisions after formal C002 activation'
+    }
+    else {
+        'dynamic assets may use draft/test fixtures while production activation remains blocked'
+    }
 } | ConvertTo-Json

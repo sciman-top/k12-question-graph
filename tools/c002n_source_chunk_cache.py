@@ -138,8 +138,8 @@ def cache_path_for(cache_root: Path, source_hash: str) -> Path:
     return cache_root / source_hash[:2] / source_hash / "chunk-index.json"
 
 
-def extract_source(material: dict[str, Any], cache_root: Path, pdftotext: str, pdfinfo: str) -> dict[str, Any]:
-    source_path = Path(material["path"])
+def extract_source(material: dict[str, Any], cache_root: Path, pdftotext: str, pdfinfo: str, source_root: Path | None) -> dict[str, Any]:
+    source_path = source_root / material["relativePath"] if source_root else Path(material["path"])
     if not source_path.is_file():
         raise RuntimeError(f"missing source PDF: {source_path}")
 
@@ -236,7 +236,7 @@ def summarize_source(source: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def build_report(source_report: Path, cache_root: Path, output: Path, require_count: int) -> dict[str, Any]:
+def build_report(source_report: Path, cache_root: Path, output: Path, require_count: int, source_root: Path | None) -> dict[str, Any]:
     source_payload = read_json(source_report)
     materials = source_payload.get("plan", [])
     if len(materials) < require_count:
@@ -246,7 +246,7 @@ def build_report(source_report: Path, cache_root: Path, output: Path, require_co
     pdfinfo = require_tool("pdfinfo")
     sources: list[dict[str, Any]] = []
     for material in materials:
-        sources.append(extract_source(material, cache_root, pdftotext, pdfinfo))
+        sources.append(extract_source(material, cache_root, pdftotext, pdfinfo, source_root))
 
     source_hashes = {source["sourceHash"] for source in sources}
     chunk_hashes = {
@@ -274,6 +274,7 @@ def build_report(source_report: Path, cache_root: Path, output: Path, require_co
         "extractorVersion": EXTRACTOR_VERSION,
         "generatedAt": datetime.now(timezone.utc).isoformat(),
         "sourceReport": str(source_report),
+        "sourceRootOverride": str(source_root) if source_root else "",
         "cacheRoot": str(cache_root),
         "externalAiCalls": 0,
         "sourceCount": len(sources),
@@ -301,7 +302,7 @@ def build_report(source_report: Path, cache_root: Path, output: Path, require_co
             "result": "通过" if not failed_sources else "失败",
             "scope": f"已覆盖 {len(sources)} 份来源 PDF，全部仅本地抽取，不调用外部 AI。",
             "cache": f"本轮缓存命中 {cache_hits} 份，未命中 {len(sources) - cache_hits} 份。",
-            "next": "下一步可进入 C002O schema/eval；正式 C002 active 仍必须等待人工审核和 active guard。",
+            "next": "正式 C002 v1 已由 C002T 受控激活；后续修订继续走 candidate/review/rollback/active guard。",
         },
         "sources": [summarize_source(source) for source in sources],
     }
@@ -318,9 +319,10 @@ def main() -> int:
     parser.add_argument("--cache-root", type=Path, default=DEFAULT_CACHE_ROOT)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--require-count", type=int, default=33)
+    parser.add_argument("--source-root", type=Path, default=None)
     args = parser.parse_args()
 
-    report = build_report(args.source_report, args.cache_root, args.output, args.require_count)
+    report = build_report(args.source_report, args.cache_root, args.output, args.require_count, args.source_root)
     print(json.dumps({
         "status": report["status"],
         "task": report["task"],

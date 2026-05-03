@@ -102,13 +102,15 @@ C002.
 C002 real source material import:
 
 ```powershell
-.\tools\import-c002-source-materials.ps1 -SourceRoot 'D:\CODE\k12-question-graph\广州中考'
+.\tools\import-c002-source-materials.ps1
 ```
 
 The default mode is dry-run only and writes
 `docs/evidence/c002-source-material-import-report.json`. It classifies local PDF
 materials and reports the intended `sourceType`, `materialBatchKey`, and
-source-use flags without writing the database.
+source-use flags without writing the database. The default raw PDF source root
+is `D:\KQG_Data\source_materials\imported\guangzhou_physics_2016_2025`; raw
+source PDFs stay outside git.
 
 Persistent import requires a valid local database password and should be run
 after a backup check:
@@ -116,7 +118,7 @@ after a backup check:
 ```powershell
 $env:PGPASSWORD='<local-password>'
 $env:KQG_CONNECTION_STRING='Host=127.0.0.1;Port=5432;Database=k12_question_graph;Username=postgres;Password=<local-password>'
-.\tools\import-c002-source-materials.ps1 -SourceRoot 'D:\CODE\k12-question-graph\广州中考' -Apply -StartApi
+.\tools\import-c002-source-materials.ps1 -Apply -StartApi
 ```
 
 This uploads the original files through the API into `SourceDocument/FileAsset`
@@ -128,6 +130,12 @@ C002N source chunk cache:
 ```powershell
 .\tools\run-c002n-source-chunk-cache.ps1
 ```
+
+The default source root is
+`D:\KQG_Data\source_materials\imported\guangzhou_physics_2016_2025`. The script
+keeps using `docs\evidence\c002-source-material-import-report.json` for source
+metadata, but resolves PDFs from the canonical Git-external imported source
+directory so the old repository-local `广州中考` folder is no longer required.
 
 This extracts local page-level text from the 33 admitted source PDFs, records
 source/page/chunk hashes, block-type summaries, token estimates, cache
@@ -223,6 +231,33 @@ The default mode is dry-run. It generates and validates an approve/reject/
 keep-pending decision contract from the real C002 candidate batch, requires
 review reasons for approve/reject decisions, and records rollback expectations.
 Real apply requires an explicit decision file and still must not activate C002.
+
+C002 batch review decision generation:
+
+```powershell
+$env:PGPASSWORD='<local-password>'
+.\tools\generate-c002-review-decisions.ps1
+.\tools\run-c002m-candidate-review-apply-contract.ps1 -DecisionFile 'docs\evidence\c002-review-decisions.generated.json' -Apply
+```
+
+The generated decision file approves source-hash-aligned candidate assets and
+internal mappings only. It does not activate C002; active switch remains guarded
+by readiness and active guard checks.
+
+C002 active switch guard:
+
+```powershell
+$env:PGPASSWORD='<local-password>'
+.\tools\run-c002t-active-switch.ps1
+$backup = .\tools\backup.ps1 | ConvertFrom-Json
+.\tools\verify-backup.ps1 -ManifestPath $backup.manifest
+.\tools\run-c002t-active-switch.ps1 -BackupManifest $backup.manifest -Apply
+```
+
+The default mode is dry-run. Apply requires a backup manifest and only switches
+the reviewed Guangzhou physics C002 batch to `active` after source hashes,
+review decisions, mappings, migration state, review queue, and rollback evidence
+are clean. It is idempotent after activation.
 
 Golden import regression:
 

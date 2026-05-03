@@ -8,7 +8,7 @@
 
 2026-05-02 外部资料复核后的判断：最高原则、默认技术栈、模块化单体架构和 P0/P1 纵切路线保持正确；需要在进入编码前先完成 P0 准入预检，锁定 SDK/runtime、PostgreSQL 版本、数据目录、Windows Service/content root 约束、BackgroundService job lease/retry 规则、学生数据/合规辖区边界和文档门禁。
 
-当前 P0/P1 已打通“上传文件 -> 创建 ImportJob -> 持久化元数据 -> Python Worker 占位 -> 页面预览/人工确认/来源回看 -> health -> backup manifest -> unified gate”纵切闭环。P2 已完成 C001、C002A-C002Q：draft bootstrap 可用于测试，广州中考 33 份原始来源资料已进入 `SourceDocument/FileAsset` 证据层，cleaned candidate 已进入 `candidate/pending_review` 动态资产和审核队列，来源 PDF 已完成本地 chunk/hash/cache 证据层，候选提炼 schema/eval 已验证，分层模型路由预算门禁已证明 full extraction 必须人工预算确认，outer AI runner/subagent 编排 readiness 已证明不启用项目内生产真实模型、不写 active、不引入运行时 subagent 依赖，小批量 AI extract contract dry-run 已生成候选输出、模型层级、token/cost/cache 证据且不覆盖 C002K；正式 C002 仍必须经过人工审核、影响确认、回滚快照和 active guard。P3 已在 draft/test 模式完成 D001-D003：真实模型调用仍禁用，LLM 路由只进入 `stub_llm`、成本日志和结构化输出 eval smoke，结果保持人工审核边界。P4 已完成 E001-E004 draft/test：题库检索、自然语言组卷理解、一键换题与撤销、Word/PDF 导出 MVP 合同均不等待正式 C002。P5 已完成 F001-F002 draft/test：学生、班级、考试、报名、Excel 字段映射导入和异常行提示均使用 synthetic fixture；不使用真实学生数据，不暴露学生端，不写正式学情口径。
+当前 P0/P1 已打通“上传文件 -> 创建 ImportJob -> 持久化元数据 -> Python Worker 占位 -> 页面预览/人工确认/来源回看 -> health -> backup manifest -> unified gate”纵切闭环。P2 已完成 C001、C002A-C002T：draft bootstrap 可用于测试，广州中考 33 份原始来源资料已进入 `SourceDocument/FileAsset` 证据层，质量复核后的 cleaned candidate 已完成 candidate 导入、审核决策、reviewed -> active 受控切换，当前 C002 初中物理 v1 为 452 个 `active` 动态资产、400 条 `approved` 映射和 1 个 `applied` migration；来源 PDF 已完成本地 chunk/hash/cache 证据层，候选提炼 schema/eval 已验证，分层模型路由预算门禁已证明 full extraction 必须人工预算确认，outer AI runner/subagent 编排 readiness 已证明不启用项目内生产真实模型、不引入运行时 subagent 依赖，小批量 AI extract contract dry-run 已生成候选输出、模型层级、token/cost/cache 证据且不覆盖 C002K。P3 已在 draft/test 模式完成 D001-D003：真实模型调用仍禁用，LLM 路由只进入 `stub_llm`、成本日志和结构化输出 eval smoke，结果保持人工审核边界。P4 已完成 E001-E004 draft/test：题库检索、自然语言组卷理解、一键换题与撤销、Word/PDF 导出 MVP 合同均不等待正式 C002。P5 已完成 F001-F002 draft/test：学生、班级、考试、报名、Excel 字段映射导入和异常行提示均使用 synthetic fixture；不使用真实学生数据，不暴露学生端，不写正式学情口径。
 
 `C002` 标记为正式完成时，只表示初中物理知识体系 v1 已成为当前生产默认版本，不表示永久冻结。后续修改必须走新候选版本、映射、影响报告、审核、回滚快照和 active 切换，旧版本保留给历史题目、旧卷和学情解释。
 
@@ -51,10 +51,10 @@ C002 候选资料与真实来源资料入口：
 .\tools\prepare-c002-candidate-csvs.ps1
 .\tools\prepare-c002-candidate-csvs.ps1 -InputDir 'guangzhou-physics-full-research-package-2016-2025\csv' -OutputDir 'c002-k12-question-graph-candidate-csvs\cleaned'
 .\tools\merge-c003-quality-review-package.ps1 -Force
-.\tools\import-c002-source-materials.ps1 -SourceRoot 'D:\CODE\k12-question-graph\广州中考'
+.\tools\import-c002-source-materials.ps1
 ```
 
-`prepare-c002-candidate-csvs.ps1` 只清洗候选 CSV，输出 cleaned candidate 输入，不写库、不激活正式资产。默认兼容旧 `c002-*` 候选包；当输入目录包含 `c003-source-material.csv` 时，会自动把完整 `c003-*full` 数据转换成既有 C002 candidate import 格式，继续保持 `candidate/pending_review/productionEligible=false`。`merge-c003-quality-review-package.ps1` 会把完整 C003 CSV 包与 `quality-review-complete-csv-package` 合并到 `D:\KQG_Data\candidate_packages\c003-merged-quality-review-2016-2025`，用于复跑 C002S 和生成新 candidate 输入。`import-c002-source-materials.ps1` 默认只 dry-run；真实导入必须先设置正确 `PGPASSWORD/KQG_CONNECTION_STRING` 并保留备份证据，再用 `-Apply -StartApi` 把原始 PDF 导入 `SourceDocument/FileAsset` 证据层。
+`prepare-c002-candidate-csvs.ps1` 只清洗候选 CSV，输出 cleaned candidate 输入，不写库、不激活正式资产。默认兼容旧 `c002-*` 候选包；当输入目录包含 `c003-source-material.csv` 时，会自动把完整 `c003-*full` 数据转换成既有 C002 candidate import 格式，继续保持 `candidate/pending_review/productionEligible=false`。`merge-c003-quality-review-package.ps1` 会把完整 C003 CSV 包与 `quality-review-complete-csv-package` 合并到 `D:\KQG_Data\candidate_packages\c003-merged-quality-review-2016-2025`，用于复跑 C002S 和生成新 candidate 输入。原始 PDF 统一存放在 `D:\KQG_Data\source_materials\imported\guangzhou_physics_2016_2025`；`import-c002-source-materials.ps1` 默认从该目录 dry-run。真实导入必须先设置正确 `PGPASSWORD/KQG_CONNECTION_STRING` 并保留备份证据，再用 `-Apply -StartApi` 把原始 PDF 导入 `SourceDocument/FileAsset` 证据层。C002 正式激活只走 `run-c002t-active-switch.ps1`：先 dry-run，再备份并校验 manifest，最后 `-Apply`。
 
 候选数据写库入口：
 
@@ -159,7 +159,8 @@ tests/      自动化测试与黄金样本
 - `tools/prepare-c002-candidate-csvs.ps1`: C002 ChatGPT Web 候选 CSV 清洗和预检入口。
 - `tools/import-c002-source-materials.ps1`: C002 原始来源资料 dry-run / evidence-layer 导入入口。
 - `tools/import-c002-candidate-assets.ps1`: C002 cleaned candidate DB dry-run / apply 入口。
-- `tools/run-c002l-candidate-review-readiness.ps1`: C002 candidate review readiness / active blocker 报告入口。
+- `tools/run-c002l-candidate-review-readiness.ps1`: C002 candidate/reviewed/active lifecycle readiness 报告入口。
+- `tools/run-c002t-active-switch.ps1`: C002 reviewed 批次进入 active 的 dry-run/apply guard；`-Apply` 必须提供 backup manifest。
 - `tools/run-c002m-candidate-review-apply-contract.ps1`: C002 candidate review decision apply/rollback 合同入口。
 - `tools/run-local-first-ai-guard.ps1`: 本地优先 AI 消耗削减与中文显示 guard。
 - `tools/run-c002n-source-chunk-cache.ps1`: C002N 来源 PDF 本地 chunk/hash/cache 和中文报告 guard。

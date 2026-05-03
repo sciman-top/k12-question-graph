@@ -1,0 +1,51 @@
+{
+  "status": "pass",
+  "checkedAt": "2026-05-03T18:00:03.145994+00:00",
+  "task": "C002T",
+  "mode": "dry_run",
+  "importKey": "c002_candidate_import_guangzhou_physics_2016_2025_v1",
+  "materialBatchKey": "guangzhou_physics_2016_2025",
+  "backupManifest": "",
+  "activationGuardPassed": true,
+  "alreadyActive": true,
+  "applied": false,
+  "before": {
+    "candidateAssets": 0,
+    "reviewedAssets": 0,
+    "activeAssets": 452,
+    "totalAssets": 452,
+    "pendingMappings": 0,
+    "approvedMappings": 400,
+    "rejectedMappings": 0,
+    "autoAppliedMappings": 0,
+    "pendingMigrations": 0,
+    "dryRunMigrations": 0,
+    "appliedMigrations": 1,
+    "rollbackSnapshots": 1,
+    "openReviewItems": 0,
+    "sourceDocuments": 33,
+    "sourceDocumentsWithSha256": 33
+  },
+  "after": {
+    "candidateAssets": 0,
+    "reviewedAssets": 0,
+    "activeAssets": 452,
+    "totalAssets": 452,
+    "pendingMappings": 0,
+    "approvedMappings": 400,
+    "rejectedMappings": 0,
+    "autoAppliedMappings": 0,
+    "pendingMigrations": 0,
+    "dryRunMigrations": 0,
+    "appliedMigrations": 1,
+    "rollbackSnapshots": 1,
+    "openReviewItems": 0,
+    "sourceDocuments": 33,
+    "sourceDocumentsWithSha256": 33
+  },
+  "blockers": [],
+  "rollback": {
+    "primary": "restore database from backup manifest before downstream production use",
+    "manualFallback": "set imported active domain_asset_versions back to reviewed and domain_asset_migrations status back to dry_run using the activation report importKey"
+  }
+}

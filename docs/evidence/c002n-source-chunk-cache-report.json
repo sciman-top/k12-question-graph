@@ -2,8 +2,9 @@
   "status": "pass",
   "task": "C002N",
   "extractorVersion": "c002n-source-chunk-cache.v1",
-  "generatedAt": "2026-05-03T17:36:41.238946+00:00",
+  "generatedAt": "2026-05-03T17:59:37.924647+00:00",
   "sourceReport": "docs\\evidence\\c002-source-material-import-report.json",
+  "sourceRootOverride": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2016_2025",
   "cacheRoot": "tmp\\c002n-source-chunk-cache",
   "externalAiCalls": 0,
   "sourceCount": 33,
@@ -36,7 +37,7 @@
     "result": "通过",
     "scope": "已覆盖 33 份来源 PDF，全部仅本地抽取，不调用外部 AI。",
     "cache": "本轮缓存命中 33 份，未命中 0 份。",
-    "next": "下一步可进入 C002O schema/eval；正式 C002 active 仍必须等待人工审核和 active guard。"
+    "next": "正式 C002 v1 已由 C002T 受控激活；后续修订继续走 candidate/review/rollback/active guard。"
   },
   "sources": [
     {

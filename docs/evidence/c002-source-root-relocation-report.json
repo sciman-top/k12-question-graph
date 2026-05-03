@@ -1,0 +1,177 @@
+{
+  "status": "pass",
+  "task": "C002_SOURCE_ROOT_RELOCATION",
+  "previousSourceRoot": "D:\\CODE\\k12-question-graph\\广州中考",
+  "canonicalSourceRoot": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2016_2025",
+  "fileCount": 33,
+  "totalBytes": 121758000.0,
+  "gitPolicy": "raw PDF source materials stay outside git under D:\\KQG_Data; structured C003 CSV/PDF evidence package remains in repo",
+  "importStatus": "already imported into SourceDocument/FileAsset; relocation preserves raw re-import source only",
+  "files": [
+    {
+      "relativePath": "《义务教育物理课程标准·日常修订版》(2022年版2025年修订).pdf",
+      "bytes": 1224667,
+      "sha256": "a992f3c0028ff9e8b230ddef031bd6e9d224df46239a26b0a7125b560d834064"
+    },
+    {
+      "relativePath": "初中物理教材（人教版）/物理教材八上（2024人教）.pdf",
+      "bytes": 15855981,
+      "sha256": "6c551bd86328b84b8a181d1da437e3b92e9fa2b469ce12d65cc75aa29ef0922b"
+    },
+    {
+      "relativePath": "初中物理教材（人教版）/物理教材八下（2024人教）.pdf",
+      "bytes": 10849905,
+      "sha256": "b68839e93194bdd91d0a3ce1ef8ef4134b8b8b0d1b7fc82f05efc0defeb6fe52"
+    },
+    {
+      "relativePath": "初中物理教材（人教版）/物理教材九全（2025秋.人教）.pdf",
+      "bytes": 24096900,
+      "sha256": "55eb16b9e87e5ab28c7a041cd02826ff0ab70ce647460f638ff3a84af698e605"
+    },
+    {
+      "relativePath": "广州中考年报/2016广州中考年报.pdf",
+      "bytes": 2172260,
+      "sha256": "15e9d00bf1fe5a3a21419e58e45b99cd5b500321c72034f09e3b6c11881ae10c"
+    },
+    {
+      "relativePath": "广州中考年报/2017广州中考年报.pdf",
+      "bytes": 3073807,
+      "sha256": "625a8ede241011338ed88543a787750d20512bef72253debbaf2104e77f91a65"
+    },
+    {
+      "relativePath": "广州中考年报/2018广州中考年报.pdf",
+      "bytes": 5433512,
+      "sha256": "654d6433c1fdc18eec875a4253ade44ca6558561c6565adf2ac2d272337ad1f3"
+    },
+    {
+      "relativePath": "广州中考年报/2019广州中考年报.pdf",
+      "bytes": 9312459,
+      "sha256": "ec37a5ee6ffa550fc57eae2d3b9c51ef642dd808bf74a37c2751091b6db84f01"
+    },
+    {
+      "relativePath": "广州中考年报/2020广州中考年报.pdf",
+      "bytes": 6982256,
+      "sha256": "95f18f3ec6434f074f37a4396ed621a72dc6473fae5121d736099aebd48f3c1d"
+    },
+    {
+      "relativePath": "广州中考年报/2021广州中考年报.pdf",
+      "bytes": 5316441,
+      "sha256": "18c3e88851b24578b96e657c927a9c3baaa7ad807fb9942c6140496b02d90853"
+    },
+    {
+      "relativePath": "广州中考年报/2022广州中考年报.pdf",
+      "bytes": 3894211,
+      "sha256": "b06d7c64a422852eb14c42b8d7ee434fc28f97f3a93964da340fd1283f1e7116"
+    },
+    {
+      "relativePath": "广州中考年报/2023广州中考年报.pdf",
+      "bytes": 4395760,
+      "sha256": "4d5885aa9f2dadead754d7f5124b6cd7535bc3cddc9bce53fcc6dbcdc913ecc7"
+    },
+    {
+      "relativePath": "广州中考年报/2024广州中考年报.pdf",
+      "bytes": 5039547,
+      "sha256": "509224044bc1ed8b7bbce9dda011c19e33a273e4033661a76792ce89c94fe07f"
+    },
+    {
+      "relativePath": "广州中考年报/2025广州中考年报.pdf",
+      "bytes": 3816950,
+      "sha256": "122fb00ee53e975eeeb9068a76a694747ccb5d23d89bb459a29d4c50de4a7c6f"
+    },
+    {
+      "relativePath": "广州中考真题/2016广州中考.pdf",
+      "bytes": 821294,
+      "sha256": "377de2f0a5c7c8a35bff908ac5a4527b671702ac4265bf9d9728e531ae541cee"
+    },
+    {
+      "relativePath": "广州中考真题/2016广州中考答案.pdf",
+      "bytes": 851883,
+      "sha256": "fadc6107c2acaaf95de050f4693864a9fffcac71e456bf30a1f4593047ab408b"
+    },
+    {
+      "relativePath": "广州中考真题/2017广州中考.pdf",
+      "bytes": 1019691,
+      "sha256": "3f419b1779ebec02f74c694966924a2931611f3525d3d17701946bb63abfc4fa"
+    },
+    {
+      "relativePath": "广州中考真题/2017广州中考答案.pdf",
+      "bytes": 335295,
+      "sha256": "f87c3cb8ed02969137ba916184045052ec3efecbd6331dd1d192fe52de67d207"
+    },
+    {
+      "relativePath": "广州中考真题/2018广州中考.pdf",
+      "bytes": 1291035,
+      "sha256": "c4feff77379271fbea32404b1ab3952800ff305639c8af446fa1c8c68a2fc794"
+    },
+    {
+      "relativePath": "广州中考真题/2018广州中考答案.pdf",
+      "bytes": 568229,
+      "sha256": "40b1a15e8b70c44e862eabf265cbe4d63062151742a126133388d31a4b666ed6"
+    },
+    {
+      "relativePath": "广州中考真题/2019广州中考.pdf",
+      "bytes": 1254764,
+      "sha256": "85dd476db8eacd837f7a4590bac7c795ef5cf53f68a1c68a08f279e7d1731dba"
+    },
+    {
+      "relativePath": "广州中考真题/2019广州中考答案.pdf",
+      "bytes": 697141,
+      "sha256": "b4dfdef844f45be070eaf3db88961ede314eca829493b70e0ddbe17631c1d116"
+    },
+    {
+      "relativePath": "广州中考真题/2020广州中考（含答案）.pdf",
+      "bytes": 1011285,
+      "sha256": "03b67dc46d0e37377d0ac076638e6d34b42305c8f2824489da3f664fe53875db"
+    },
+    {
+      "relativePath": "广州中考真题/2021广州中考-参考答案.pdf",
+      "bytes": 290114,
+      "sha256": "e157ab8a16233acd68000299b427f814687035ec1b76384f69f1cf446ed04578"
+    },
+    {
+      "relativePath": "广州中考真题/2021广州中考.pdf",
+      "bytes": 1108692,
+      "sha256": "d4abb8aa48663b772abb1ee5b15935b065b8931af47bd3c62d89bdef1f83989c"
+    },
+    {
+      "relativePath": "广州中考真题/2022广州中考-参考答案.pdf",
+      "bytes": 1524553,
+      "sha256": "519a730083d49f576effa9f9d099c0f2731022ff94bc80bbe5e64713d2016120"
+    },
+    {
+      "relativePath": "广州中考真题/2022广州中考.pdf",
+      "bytes": 1829178,
+      "sha256": "66c5959ae3db3fa2d521b234d371c5fa05ef84763ffc1a5a9ed8bd9adce16101"
+    },
+    {
+      "relativePath": "广州中考真题/2023广州中考_参考答案.pdf",
+      "bytes": 185817,
+      "sha256": "f7c33a3e4525912de855f34e1d40e2853aa228da6d5f74be91f0627520c7d36a"
+    },
+    {
+      "relativePath": "广州中考真题/2023广州中考.pdf",
+      "bytes": 820220,
+      "sha256": "9422eb3c0542eeea3526717364de15288d74788c4a1348f64ff012233338acdc"
+    },
+    {
+      "relativePath": "广州中考真题/2024广州中考.pdf",
+      "bytes": 1649497,
+      "sha256": "f6a3a77585343e30722ef5e09cda58795fa752e2d86c74d0dda3c89e159311ef"
+    },
+    {
+      "relativePath": "广州中考真题/2024广州中考（解析版）.pdf",
+      "bytes": 1291410,
+      "sha256": "5b588bd2ed97be333da83a1f50031fe7f3adf66c8532506a481c97ed09adda95"
+    },
+    {
+      "relativePath": "广州中考真题/2025广州中考.pdf",
+      "bytes": 2357891,
+      "sha256": "26c8aabc95cd2ffa67ed2ea873f13c9f2cb15d8e576ca2e4d4281f00f63e0fbe"
+    },
+    {
+      "relativePath": "广州中考真题/2025广州中考（解析版）.pdf",
+      "bytes": 1385355,
+      "sha256": "22cc26e89bae766f1c6d9dc4497d9dcfa7a52467cdb48856c831f076805f8202"
+    }
+  ]
+}
