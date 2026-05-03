@@ -1,0 +1,35 @@
+{
+  "status": "pass",
+  "task": "G001",
+  "mode": "draft_test",
+  "apiStarted": false,
+  "productionEligible": false,
+  "localBackupManifest": "tmp/g001-backups/local/20260504-034543-b0f34ccf/20260504-034543/manifest.json",
+  "sharedBackupManifest": "tmp/g001-backups/shared/20260504-034543-b0f34ccf/20260504-034543/manifest.json",
+  "sharedBackupRootConfigurable": true,
+  "noMirrorDeleteToNetworkShare": true,
+  "localVerify": {
+    "status": "ok",
+    "manifest": "tmp\\g001-backups\\local\\20260504-034543-b0f34ccf\\20260504-034543\\manifest.json",
+    "fileCount": 387,
+    "configCount": 3
+  },
+  "sharedVerify": {
+    "status": "ok",
+    "manifest": "tmp\\g001-backups\\shared\\20260504-034543-b0f34ccf\\20260504-034543\\manifest.json",
+    "fileCount": 387,
+    "configCount": 3
+  },
+  "databaseSha256": "6e3780cf888578add3b57649931dfd752b33ed576cb061b1da40ef8bf4d21fc9",
+  "fileCount": 387,
+  "configCount": 3,
+  "rollback": {
+    "local": "delete the generated tmp/g001-backups run directory if this dry-run backup is no longer needed",
+    "shared": "delete only the generated shared run directory; never mirror-delete the target share"
+  },
+  "summaryChinese": {
+    "title": "G001 自动备份到本机与共享目录合同报告",
+    "result": "通过",
+    "boundary": "仅做 draft/test 备份演练；不启动 Web/API 主程序，不删除共享目录既有内容。"
+  }
+}

@@ -56,6 +56,8 @@ C002 active 前必须先完成 C002S 正式化前审查闭环：抽样核对 201
 
 P5 已在 draft/test 模式完成 F001-F003：学生/班级/考试模型、synthetic Excel 字段映射导入、得分率、区分度和知识点掌握摘要均已通过合同门禁。当前 F003 只写 `docs/evidence/f003-knowledge-mastery-analysis-report.json` 和临时 summary，不写正式历史学情，不使用真实学生数据。
 
+P6 已开始进入运维闭环。G001 已完成 draft/test 备份共享演练：`tools/run-g001-backup-share-contract.ps1` 在不启动 Web/API 主程序的情况下生成本机备份、复制到可配置共享目录，并分别通过 manifest/hash 校验；当前共享目录用 `tmp/g001-backups/shared` 模拟，真实 LAN 共享路径由配置和管理员部署时提供。
+
 ## P0 · 工程骨架与最小上传纵切
 
 目标：证明技术栈、数据路径、任务路径、文件路径和备份路径能在 Windows 本机/LAN 场景跑通。

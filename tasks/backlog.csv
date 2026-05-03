@@ -56,7 +56,7 @@ E004,P4,组卷导出,Word/PDF 导出 MVP,中,已完成,E003,draft/test 模式下
 F001,P5,成绩学情,学生班级考试模型,中,已完成,E004,draft/test 模式下支持学生班级考试基本实体 使用 synthetic 学生与班级 fixture 不使用真实学生数据 不暴露学生端,tools/run-f001-assessment-model-contract.ps1 + docs/76_F001_AssessmentModel.md + tools/run-gates.ps1
 F002,P5,成绩学情,Excel 字段映射导入,中,已完成,F001,draft/test 模式下 synthetic Excel 模板可导入 字段映射可保存复用 异常集中提示 字段模板作为动态资产可迁移,tools/run-f002-score-import-contract.ps1 + docs/77_F002_ScoreImportMapping.md + tools/run-gates.ps1
 F003,P5,成绩学情,得分率知识点分析,中,已完成,F002,draft/test 模式下已用 synthetic 小题分和 active 知识版本引用输出班级得分率 区分度 知识点掌握摘要 薄弱知识点和学生掌握摘要 不使用真实学生数据 不暴露学生端 不写正式历史学情,tools/run-f003-knowledge-mastery-analysis-contract.ps1 + docs/evidence/f003-knowledge-mastery-analysis-report.json + docs/82_F003_KnowledgeMasteryAnalysis.md + tools/run-gates.ps1
-G001,P6,运维,自动备份到本机与共享目录,中,暂缓,F003,draft/test 模式下备份包通过 manifest/hash 校验且主程序不可用时脚本仍可运行 共享目录路径作为动态配置可修改,backup restore drill
+G001,P6,运维,自动备份到本机与共享目录,中,已完成,F003,draft/test 模式下本机备份和可配置共享目录副本均通过 manifest/hash 校验 主程序不可用时脚本仍可运行 且 no_mirror_delete_to_network_share 防止共享目录镜像误删,tools/run-g001-backup-share-contract.ps1 + docs/evidence/g001-backup-share-report.json + docs/83_G001_BackupShareDrill.md + tools/run-gates.ps1
 G002,P6,运维,缓存清理与存储看板,中,暂缓,G001,draft/test 模式下管理员能看到存储占用并执行安全清理 保留配置化目录和回滚证据,storage UI/API test
 G003,P6,运维,WinPE 应急拷贝脚本生成,中,暂缓,G001,draft/test 模式下可生成离线恢复说明和应急拷贝脚本 路径和介质策略作为动态配置可修改,recovery runbook check
 G004,P6,部署安装,安装器数据库凭据初始化与 pgpass 验证,高,暂缓,G001,draft/test 安装器或初始化向导在新电脑上写入或更新 PostgreSQL 非交互凭据存储 优先 pgpass.conf 或等价安全凭据机制 收紧 ACL 清除进程级 PGPASSWORD 后仍能 psql -w 连接 并生成回滚与修复报告 不依赖 Codex 或桌面进程自然继承 User 环境变量,installer dry-run + pgpass ACL check + psql -w with process PGPASSWORD cleared + tools/run-gates.ps1

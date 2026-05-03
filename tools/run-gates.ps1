@@ -320,6 +320,10 @@ try {
         .\tools\run-f003-knowledge-mastery-analysis-contract.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'g001 backup share contract' {
+        .\tools\run-g001-backup-share-contract.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin -FileStoreRoot $FileStoreRoot | Write-Host
+    }
+
     Invoke-GateStep 'b001 duplicate upload smoke' {
         if ([string]::IsNullOrWhiteSpace($DatabasePassword)) {
             throw "DatabasePassword or PGPASSWORD is required for API upload smoke"
