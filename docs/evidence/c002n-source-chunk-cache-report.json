@@ -1,0 +1,1311 @@
+{
+  "status": "pass",
+  "task": "C002N",
+  "extractorVersion": "c002n-source-chunk-cache.v1",
+  "generatedAt": "2026-05-03T14:53:40.867605+00:00",
+  "sourceReport": "docs\\evidence\\c002-source-material-import-report.json",
+  "cacheRoot": "tmp\\c002n-source-chunk-cache",
+  "externalAiCalls": 0,
+  "sourceCount": 33,
+  "sourceHashCoverage": {
+    "expectedSourceCount": 33,
+    "coveredSourceCount": 33,
+    "coveragePass": true
+  },
+  "cacheIdempotency": {
+    "cacheHitSourceCount": 33,
+    "cacheMissSourceCount": 0,
+    "cacheHitRatio": 1.0
+  },
+  "totals": {
+    "pageCount": 1478,
+    "nonEmptyPageCount": 1473,
+    "chunkCount": 1478,
+    "uniqueChunkHashCount": 1478,
+    "estimatedInputTokens": 520612
+  },
+  "bySourceType": {
+    "curriculum_standard": 1,
+    "exam_analysis_report": 10,
+    "local_exam_paper": 19,
+    "textbook": 3
+  },
+  "failedSources": [],
+  "summaryChinese": {
+    "title": "C002N 来源 chunk 缓存报告",
+    "result": "通过",
+    "scope": "已覆盖 33 份来源 PDF，全部仅本地抽取，不调用外部 AI。",
+    "cache": "本轮缓存命中 33 份，未命中 0 份。",
+    "next": "下一步可进入 C002O schema/eval；正式 C002 active 仍必须等待人工审核和 active guard。"
+  },
+  "sources": [
+    {
+      "relativePath": "《义务教育物理课程标准·日常修订版》(2022年版2025年修订).pdf",
+      "sourceType": "curriculum_standard",
+      "sourceTitle": "《义务教育物理课程标准·日常修订版》(2022年版2025年修订)",
+      "sourceHash": "a992f3c0028ff9e8b230ddef031bd6e9d224df46239a26b0a7125b560d834064",
+      "pageCount": 67,
+      "nonEmptyPageCount": 67,
+      "chunkCount": 67,
+      "estimatedTokens": 19004,
+      "blockTypes": {
+        "curriculum_or_textbook_block": 18,
+        "question_or_exam_block": 38,
+        "text_block": 11
+      },
+      "cacheHit": true,
+      "sampleChunks": [
+        {
+          "pageNumber": 1,
+          "chunkHash": "130e6533241184eac68eb2945b6f2b769e5c60acf6b646b042ba92571635e867",
+          "blockType": "curriculum_or_textbook_block",
+          "charCount": 37,
+          "estimatedTokens": 18
+        },
+        {
+          "pageNumber": 2,
+          "chunkHash": "5ce5504044c2107c118d648ea2eb6f07ea4463f3298ceb96bd81f65dd281da91",
+          "blockType": "curriculum_or_textbook_block",
+          "charCount": 201,
+          "estimatedTokens": 100
+        },
+        {
+          "pageNumber": 3,
+          "chunkHash": "cb5dd461152e89803ba21911d60877d1dfd2c6a93b1065a44e0c210895cc448c",
+          "blockType": "text_block",
+          "charCount": 48,
+          "estimatedTokens": 24
+        }
+      ]
+    },
+    {
+      "relativePath": "初中物理教材（人教版）/物理教材八上（2024人教）.pdf",
+      "sourceType": "textbook",
+      "sourceTitle": "物理教材八上（2024人教）",
+      "sourceHash": "6c551bd86328b84b8a181d1da437e3b92e9fa2b469ce12d65cc75aa29ef0922b",
+      "pageCount": 170,
+      "nonEmptyPageCount": 167,
+      "chunkCount": 170,
+      "estimatedTokens": 40414,
+      "blockTypes": {
+        "curriculum_or_textbook_block": 4,
+        "empty_page": 3,
+        "question_or_exam_block": 51,
+        "text_block": 112
+      },
+      "cacheHit": true,
+      "sampleChunks": [
+        {
+          "pageNumber": 1,
+          "chunkHash": "890c0292461109515f84f9d7fa9655688460085c0e0a4cb136bd5840343327a4",
+          "blockType": "text_block",
+          "charCount": 20,
+          "estimatedTokens": 10
+        },
+        {
+          "pageNumber": 2,
+          "chunkHash": "4deb6e9d79ba7a97601130bbfa9aa52014014ed2484dd8277ece3e9da362de69",
+          "blockType": "curriculum_or_textbook_block",
+          "charCount": 45,
+          "estimatedTokens": 22
+        },
+        {
+          "pageNumber": 3,
+          "chunkHash": "33e2c5ee5ffa2084dcde686433ba56825fc398e5e2b3fe5b040b539add586b98",
+          "blockType": "curriculum_or_textbook_block",
+          "charCount": 249,
+          "estimatedTokens": 124
+        }
+      ]
+    },
+    {
+      "relativePath": "初中物理教材（人教版）/物理教材八下（2024人教）.pdf",
+      "sourceType": "textbook",
+      "sourceTitle": "物理教材八下（2024人教）",
+      "sourceHash": "b68839e93194bdd91d0a3ce1ef8ef4134b8b8b0d1b7fc82f05efc0defeb6fe52",
+      "pageCount": 131,
+      "nonEmptyPageCount": 131,
+      "chunkCount": 131,
+      "estimatedTokens": 30577,
+      "blockTypes": {
+        "curriculum_or_textbook_block": 3,
+        "question_or_exam_block": 42,
+        "text_block": 86
+      },
+      "cacheHit": true,
+      "sampleChunks": [
+        {
+          "pageNumber": 1,
+          "chunkHash": "87e2d4b95a91e2bdad5e54ae53b584dfedbd33b65fb8db6f241c79fb13f4c52d",
+          "blockType": "text_block",
+          "charCount": 20,
+          "estimatedTokens": 10
+        },
+        {
+          "pageNumber": 2,
+          "chunkHash": "8acbda520c030328caade1d0096f8fc8720186b4e18aee3e9058a6e936b7ad3c",
+          "blockType": "curriculum_or_textbook_block",
+          "charCount": 45,
+          "estimatedTokens": 22
+        },
+        {
+          "pageNumber": 3,
+          "chunkHash": "09fa5f0006e7a89ff92b45b6a32ec5d657d03fbc48fe3a1483f65200664b703f",
+          "blockType": "curriculum_or_textbook_block",
+          "charCount": 241,
+          "estimatedTokens": 120
+        }
+      ]
+    },
+    {
+      "relativePath": "初中物理教材（人教版）/物理教材九全（2025秋.人教）.pdf",
+      "sourceType": "textbook",
+      "sourceTitle": "物理教材九全（2025秋.人教）",
+      "sourceHash": "55eb16b9e87e5ab28c7a041cd02826ff0ab70ce647460f638ff3a84af698e605",
+      "pageCount": 218,
+      "nonEmptyPageCount": 216,
+      "chunkCount": 218,
+      "estimatedTokens": 52914,
+      "blockTypes": {
+        "curriculum_or_textbook_block": 3,
+        "empty_page": 2,
+        "question_or_exam_block": 77,
+        "text_block": 136
+      },
+      "cacheHit": true,
+      "sampleChunks": [
+        {
+          "pageNumber": 1,
+          "chunkHash": "d43cae637fafab2b2b805b081f300fbfed1dae85f8029d4ccfdea396397a7bce",
+          "blockType": "text_block",
+          "charCount": 21,
+          "estimatedTokens": 10
+        },
+        {
+          "pageNumber": 2,
+          "chunkHash": "a6bd5389b42e4d3daed15f446bd41a0f2d4ebcccd1e1633a8e58b1271dbf60d1",
+          "blockType": "curriculum_or_textbook_block",
+          "charCount": 46,
+          "estimatedTokens": 23
+        },
+        {
+          "pageNumber": 3,
+          "chunkHash": "26a9854ddebdb300b008256df6204f0a09b7188b517f730ddd50af35925900cc",
+          "blockType": "curriculum_or_textbook_block",
+          "charCount": 466,
+          "estimatedTokens": 233
+        }
+      ]
+    },
+    {
+      "relativePath": "广州中考年报/2016广州中考年报.pdf",
+      "sourceType": "exam_analysis_report",
+      "sourceTitle": "2016广州中考年报",
+      "sourceHash": "15e9d00bf1fe5a3a21419e58e45b99cd5b500321c72034f09e3b6c11881ae10c",
+      "pageCount": 52,
+      "nonEmptyPageCount": 52,
+      "chunkCount": 52,
+      "estimatedTokens": 31412,
+      "blockTypes": {
+        "curriculum_or_textbook_block": 10,
+        "exam_analysis_block": 5,
+        "question_or_exam_block": 33,
+        "text_block": 4
+      },
+      "cacheHit": true,
+      "sampleChunks": [
+        {
+          "pageNumber": 1,
+          "chunkHash": "099eac8682f16778fd3c251e949f0ac826bff66c978c43c1ce85da5bc020afeb",
+          "blockType": "question_or_exam_block",
+          "charCount": 1095,
+          "estimatedTokens": 547
+        },
+        {
+          "pageNumber": 2,
+          "chunkHash": "4e474f92d305a05ae6e9e76b16f748954470c0b12520bb12638da48e84460f43",
+          "blockType": "question_or_exam_block",
+          "charCount": 1264,
+          "estimatedTokens": 632
+        },
+        {
+          "pageNumber": 3,
+          "chunkHash": "e42fcde06d365cf820c68b3e544ef817a80be139754592fdbca2b34a560f0ca5",
+          "blockType": "question_or_exam_block",
+          "charCount": 1492,
+          "estimatedTokens": 746
+        }
+      ]
+    },
+    {
+      "relativePath": "广州中考年报/2017广州中考年报.pdf",
+      "sourceType": "exam_analysis_report",
+      "sourceTitle": "2017广州中考年报",
+      "sourceHash": "625a8ede241011338ed88543a787750d20512bef72253debbaf2104e77f91a65",
+      "pageCount": 56,
+      "nonEmptyPageCount": 56,
+      "chunkCount": 56,
+      "estimatedTokens": 26807,
+      "blockTypes": {
+        "curriculum_or_textbook_block": 4,
+        "exam_analysis_block": 8,
+        "question_or_exam_block": 34,
+        "text_block": 10
+      },
+      "cacheHit": true,
+      "sampleChunks": [
+        {
+          "pageNumber": 1,
+          "chunkHash": "9c0d226161ad9d1355addc600a3d9240004ac670dc97e6f6697f54c40cb11f29",
+          "blockType": "question_or_exam_block",
+          "charCount": 1157,
+          "estimatedTokens": 578
+        },
+        {
+          "pageNumber": 2,
+          "chunkHash": "5da7f027cd815da0ae2311971d47697391f17eddcd82875a4c30eeb3a1adc290",
+          "blockType": "question_or_exam_block",
+          "charCount": 1195,
+          "estimatedTokens": 597
+        },
+        {
+          "pageNumber": 3,
+          "chunkHash": "ffe7324f1824954394aa742a1f9d56c05b12ba083dfaceb82ffaf0792b0c6552",
+          "blockType": "question_or_exam_block",
+          "charCount": 1068,
+          "estimatedTokens": 534
+        }
+      ]
+    },
+    {
+      "relativePath": "广州中考年报/2018广州中考年报.pdf",
+      "sourceType": "exam_analysis_report",
+      "sourceTitle": "2018广州中考年报",
+      "sourceHash": "654d6433c1fdc18eec875a4253ade44ca6558561c6565adf2ac2d272337ad1f3",
+      "pageCount": 104,
+      "nonEmptyPageCount": 104,
+      "chunkCount": 104,
+      "estimatedTokens": 53924,
+      "blockTypes": {
+        "curriculum_or_textbook_block": 13,
+        "exam_analysis_block": 40,
+        "question_or_exam_block": 51
+      },
+      "cacheHit": true,
+      "sampleChunks": [
+        {
+          "pageNumber": 1,
+          "chunkHash": "eccc13fdffc7f8f655cb70c4053415c4321f826ede0bed125794d9862a196195",
+          "blockType": "question_or_exam_block",
+          "charCount": 739,
+          "estimatedTokens": 369
+        },
+        {
+          "pageNumber": 2,
+          "chunkHash": "742dc54bfcf117042dd865be73d66ee6a061ad57119dde4e0b2d114d8a54258f",
+          "blockType": "exam_analysis_block",
+          "charCount": 721,
+          "estimatedTokens": 360
+        },
+        {
+          "pageNumber": 3,
+          "chunkHash": "7f1022b1785b28f74c41ac15dab247a70ef0146cc540176c4b1a049d0c470337",
+          "blockType": "question_or_exam_block",
+          "charCount": 537,
+          "estimatedTokens": 268
+        }
+      ]
+    },
+    {
+      "relativePath": "广州中考年报/2019广州中考年报.pdf",
+      "sourceType": "exam_analysis_report",
+      "sourceTitle": "2019广州中考年报",
+      "sourceHash": "ec37a5ee6ffa550fc57eae2d3b9c51ef642dd808bf74a37c2751091b6db84f01",
+      "pageCount": 110,
+      "nonEmptyPageCount": 110,
+      "chunkCount": 110,
+      "estimatedTokens": 52483,
+      "blockTypes": {
+        "curriculum_or_textbook_block": 22,
+        "exam_analysis_block": 16,
+        "question_or_exam_block": 41,
+        "text_block": 31
+      },
+      "cacheHit": true,
+      "sampleChunks": [
+        {
+          "pageNumber": 1,
+          "chunkHash": "ac38128247e44bd844f42d7a7466859c831aeb5ea1cf9d25a89948d5f050765d",
+          "blockType": "question_or_exam_block",
+          "charCount": 761,
+          "estimatedTokens": 380
+        },
+        {
+          "pageNumber": 2,
+          "chunkHash": "7a46ab12ce91b03f4b7cb2a0ea5e7e33bc3cdbe69b05548e826bba488c33def8",
+          "blockType": "text_block",
+          "charCount": 697,
+          "estimatedTokens": 348
+        },
+        {
+          "pageNumber": 3,
+          "chunkHash": "68a70f3ef5bb859b959f50b1f7ab8d07b40b4fc39db69aaa14e397816388334d",
+          "blockType": "text_block",
+          "charCount": 605,
+          "estimatedTokens": 302
+        }
+      ]
+    },
+    {
+      "relativePath": "广州中考年报/2020广州中考年报.pdf",
+      "sourceType": "exam_analysis_report",
+      "sourceTitle": "2020广州中考年报",
+      "sourceHash": "95f18f3ec6434f074f37a4396ed621a72dc6473fae5121d736099aebd48f3c1d",
+      "pageCount": 91,
+      "nonEmptyPageCount": 91,
+      "chunkCount": 91,
+      "estimatedTokens": 40787,
+      "blockTypes": {
+        "curriculum_or_textbook_block": 7,
+        "exam_analysis_block": 11,
+        "question_or_exam_block": 48,
+        "text_block": 25
+      },
+      "cacheHit": true,
+      "sampleChunks": [
+        {
+          "pageNumber": 1,
+          "chunkHash": "1e8c00a37a3f1301c7e11587dd8e5fe3e5a8b8c9d45d5bf21a84f271e700a2de",
+          "blockType": "question_or_exam_block",
+          "charCount": 940,
+          "estimatedTokens": 470
+        },
+        {
+          "pageNumber": 2,
+          "chunkHash": "7515736a06ba4858c16316a27677978d034cd9485c8402b7a3fe9cfc66594b8c",
+          "blockType": "question_or_exam_block",
+          "charCount": 736,
+          "estimatedTokens": 368
+        },
+        {
+          "pageNumber": 3,
+          "chunkHash": "43da4c9ddaca1ea8a57d39c3ed6739dfe016fd425a9fececa90da770b5c9230c",
+          "blockType": "question_or_exam_block",
+          "charCount": 706,
+          "estimatedTokens": 353
+        }
+      ]
+    },
+    {
+      "relativePath": "广州中考年报/2021广州中考年报.pdf",
+      "sourceType": "exam_analysis_report",
+      "sourceTitle": "2021广州中考年报",
+      "sourceHash": "18c3e88851b24578b96e657c927a9c3baaa7ad807fb9942c6140496b02d90853",
+      "pageCount": 72,
+      "nonEmptyPageCount": 72,
+      "chunkCount": 72,
+      "estimatedTokens": 27032,
+      "blockTypes": {
+        "curriculum_or_textbook_block": 6,
+        "exam_analysis_block": 13,
+        "question_or_exam_block": 41,
+        "text_block": 12
+      },
+      "cacheHit": true,
+      "sampleChunks": [
+        {
+          "pageNumber": 1,
+          "chunkHash": "538487eba61bf3fdf2172815a1920834e14c453f323f0c058d0b0aad144fcdc4",
+          "blockType": "question_or_exam_block",
+          "charCount": 1187,
+          "estimatedTokens": 593
+        },
+        {
+          "pageNumber": 2,
+          "chunkHash": "599bf5a3169a26d8735305be133bea53dcf9d5d3991be5885361c41e1f59c8a9",
+          "blockType": "question_or_exam_block",
+          "charCount": 1391,
+          "estimatedTokens": 695
+        },
+        {
+          "pageNumber": 3,
+          "chunkHash": "4864601c301165431d214dff0a904573eec448e7d32b99100046007c87399e15",
+          "blockType": "question_or_exam_block",
+          "charCount": 1318,
+          "estimatedTokens": 659
+        }
+      ]
+    },
+    {
+      "relativePath": "广州中考年报/2022广州中考年报.pdf",
+      "sourceType": "exam_analysis_report",
+      "sourceTitle": "2022广州中考年报",
+      "sourceHash": "b06d7c64a422852eb14c42b8d7ee434fc28f97f3a93964da340fd1283f1e7116",
+      "pageCount": 59,
+      "nonEmptyPageCount": 59,
+      "chunkCount": 59,
+      "estimatedTokens": 23662,
+      "blockTypes": {
+        "curriculum_or_textbook_block": 2,
+        "exam_analysis_block": 11,
+        "question_or_exam_block": 37,
+        "text_block": 9
+      },
+      "cacheHit": true,
+      "sampleChunks": [
+        {
+          "pageNumber": 1,
+          "chunkHash": "d09e7d808167f57da5e0165af459ec64b96b2adb04e028c437aed081d0586cf1",
+          "blockType": "question_or_exam_block",
+          "charCount": 694,
+          "estimatedTokens": 347
+        },
+        {
+          "pageNumber": 2,
+          "chunkHash": "a8f59d31abc63a0a4ba8b971d9284bc3109b8925a648cd541b18311d3ecc2eca",
+          "blockType": "question_or_exam_block",
+          "charCount": 480,
+          "estimatedTokens": 240
+        },
+        {
+          "pageNumber": 3,
+          "chunkHash": "44e55550a134010fb17228046c3f41adc11c6bb839fc2c6e841d06291a8f0c28",
+          "blockType": "text_block",
+          "charCount": 636,
+          "estimatedTokens": 318
+        }
+      ]
+    },
+    {
+      "relativePath": "广州中考年报/2023广州中考年报.pdf",
+      "sourceType": "exam_analysis_report",
+      "sourceTitle": "2023广州中考年报",
+      "sourceHash": "4d5885aa9f2dadead754d7f5124b6cd7535bc3cddc9bce53fcc6dbcdc913ecc7",
+      "pageCount": 58,
+      "nonEmptyPageCount": 58,
+      "chunkCount": 58,
+      "estimatedTokens": 24162,
+      "blockTypes": {
+        "curriculum_or_textbook_block": 4,
+        "exam_analysis_block": 16,
+        "question_or_exam_block": 28,
+        "text_block": 10
+      },
+      "cacheHit": true,
+      "sampleChunks": [
+        {
+          "pageNumber": 1,
+          "chunkHash": "1626f5c77974d55f56958f8863ddbe1f4e093cda0277de392a68b751b6a2a2eb",
+          "blockType": "question_or_exam_block",
+          "charCount": 1148,
+          "estimatedTokens": 574
+        },
+        {
+          "pageNumber": 2,
+          "chunkHash": "a2e87ed81b83845603de73b52a65ccd5f9b28e2074bbff91ea6a48ad47c97f84",
+          "blockType": "question_or_exam_block",
+          "charCount": 1210,
+          "estimatedTokens": 605
+        },
+        {
+          "pageNumber": 3,
+          "chunkHash": "45d6f5b7707542e0b1e5bdb34850be76a2ec3fa0bbb66937ad9aefcbd8e4a834",
+          "blockType": "question_or_exam_block",
+          "charCount": 1109,
+          "estimatedTokens": 554
+        }
+      ]
+    },
+    {
+      "relativePath": "广州中考年报/2024广州中考年报.pdf",
+      "sourceType": "exam_analysis_report",
+      "sourceTitle": "2024广州中考年报",
+      "sourceHash": "509224044bc1ed8b7bbce9dda011c19e33a273e4033661a76792ce89c94fe07f",
+      "pageCount": 64,
+      "nonEmptyPageCount": 64,
+      "chunkCount": 64,
+      "estimatedTokens": 29082,
+      "blockTypes": {
+        "curriculum_or_textbook_block": 4,
+        "exam_analysis_block": 10,
+        "question_or_exam_block": 38,
+        "text_block": 12
+      },
+      "cacheHit": true,
+      "sampleChunks": [
+        {
+          "pageNumber": 1,
+          "chunkHash": "16987a04ad8c5629e0edee8d5a0cbbf4fae451290bcd0560ce9db562e6f04964",
+          "blockType": "question_or_exam_block",
+          "charCount": 1296,
+          "estimatedTokens": 648
+        },
+        {
+          "pageNumber": 2,
+          "chunkHash": "eee07486f5aca27c1ff8c27e55a6e1de4b2a418554176b8a032c73c8f10a10ad",
+          "blockType": "question_or_exam_block",
+          "charCount": 3980,
+          "estimatedTokens": 1990
+        },
+        {
+          "pageNumber": 3,
+          "chunkHash": "40d261825c63963f45f1ec4832ca1f4184f95b5c3009e73a02033bf13365c5a1",
+          "blockType": "question_or_exam_block",
+          "charCount": 1652,
+          "estimatedTokens": 826
+        }
+      ]
+    },
+    {
+      "relativePath": "广州中考年报/2025广州中考年报.pdf",
+      "sourceType": "exam_analysis_report",
+      "sourceTitle": "2025广州中考年报",
+      "sourceHash": "122fb00ee53e975eeeb9068a76a694747ccb5d23d89bb459a29d4c50de4a7c6f",
+      "pageCount": 51,
+      "nonEmptyPageCount": 51,
+      "chunkCount": 51,
+      "estimatedTokens": 23606,
+      "blockTypes": {
+        "curriculum_or_textbook_block": 5,
+        "exam_analysis_block": 7,
+        "question_or_exam_block": 30,
+        "text_block": 9
+      },
+      "cacheHit": true,
+      "sampleChunks": [
+        {
+          "pageNumber": 1,
+          "chunkHash": "b7e55dfed0faed89967f67928374e549277adc0798f6eae6f1e1214190012995",
+          "blockType": "question_or_exam_block",
+          "charCount": 1557,
+          "estimatedTokens": 778
+        },
+        {
+          "pageNumber": 2,
+          "chunkHash": "cca9605a24c135e810d9be22f70f8a8192bcea117a7879b9ca022fb47ae1c509",
+          "blockType": "question_or_exam_block",
+          "charCount": 1831,
+          "estimatedTokens": 915
+        },
+        {
+          "pageNumber": 3,
+          "chunkHash": "8c3b67797c1713f218b8cbcd6f41f6217b563ccbdda164f0bdc155f66d4a76cb",
+          "blockType": "question_or_exam_block",
+          "charCount": 808,
+          "estimatedTokens": 404
+        }
+      ]
+    },
+    {
+      "relativePath": "广州中考真题/2016广州中考.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceTitle": "2016广州中考",
+      "sourceHash": "377de2f0a5c7c8a35bff908ac5a4527b671702ac4265bf9d9728e531ae541cee",
+      "pageCount": 8,
+      "nonEmptyPageCount": 8,
+      "chunkCount": 8,
+      "estimatedTokens": 2456,
+      "blockTypes": {
+        "question_or_exam_block": 8
+      },
+      "cacheHit": true,
+      "sampleChunks": [
+        {
+          "pageNumber": 1,
+          "chunkHash": "3309d211338161394a7fba45172d740902af4cae1adab09b05330351d36dfe1e",
+          "blockType": "question_or_exam_block",
+          "charCount": 666,
+          "estimatedTokens": 333
+        },
+        {
+          "pageNumber": 2,
+          "chunkHash": "8efa004564224a977bbc87f52212433ba49cf66b822c3e79f6401485ca73d399",
+          "blockType": "question_or_exam_block",
+          "charCount": 663,
+          "estimatedTokens": 331
+        },
+        {
+          "pageNumber": 3,
+          "chunkHash": "fd179d34e5ad0d78f9602ad2dbfb9dc0230d7efbb627ba3b4ffdfc6b4184a98c",
+          "blockType": "question_or_exam_block",
+          "charCount": 586,
+          "estimatedTokens": 293
+        }
+      ]
+    },
+    {
+      "relativePath": "广州中考真题/2016广州中考答案.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceTitle": "2016广州中考答案",
+      "sourceHash": "fadc6107c2acaaf95de050f4693864a9fffcac71e456bf30a1f4593047ab408b",
+      "pageCount": 6,
+      "nonEmptyPageCount": 6,
+      "chunkCount": 6,
+      "estimatedTokens": 24,
+      "blockTypes": {
+        "question_or_exam_block": 1,
+        "text_block": 5
+      },
+      "cacheHit": true,
+      "sampleChunks": [
+        {
+          "pageNumber": 1,
+          "chunkHash": "f6c78c1b744ad6858fefbb371eeb55272ab8a2d279c175866dc63b8ec9511d1f",
+          "blockType": "text_block",
+          "charCount": 23,
+          "estimatedTokens": 11
+        },
+        {
+          "pageNumber": 2,
+          "chunkHash": "de332718484d57931fe2e0e8e6eedf48ef52beb83d40a05960e2157b9e96ebd2",
+          "blockType": "text_block",
+          "charCount": 5,
+          "estimatedTokens": 2
+        },
+        {
+          "pageNumber": 3,
+          "chunkHash": "6c478aa6250d3cd0d040c01bb82d26ec38c93158c0c1b99006f7ad9f4c26e88e",
+          "blockType": "text_block",
+          "charCount": 5,
+          "estimatedTokens": 2
+        }
+      ]
+    },
+    {
+      "relativePath": "广州中考真题/2017广州中考.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceTitle": "2017广州中考",
+      "sourceHash": "3f419b1779ebec02f74c694966924a2931611f3525d3d17701946bb63abfc4fa",
+      "pageCount": 8,
+      "nonEmptyPageCount": 8,
+      "chunkCount": 8,
+      "estimatedTokens": 2637,
+      "blockTypes": {
+        "question_or_exam_block": 4,
+        "text_block": 4
+      },
+      "cacheHit": true,
+      "sampleChunks": [
+        {
+          "pageNumber": 1,
+          "chunkHash": "a0ae7ef923dd8fe3a3e27371f84da621a8121184a830a94bb8ebcca157853197",
+          "blockType": "question_or_exam_block",
+          "charCount": 883,
+          "estimatedTokens": 441
+        },
+        {
+          "pageNumber": 2,
+          "chunkHash": "2f943b78b90a622901c477299c19b1ff8825ee00391241212ef53b802c804815",
+          "blockType": "question_or_exam_block",
+          "charCount": 635,
+          "estimatedTokens": 317
+        },
+        {
+          "pageNumber": 3,
+          "chunkHash": "1a60b856a1c93970c18da7e3b5815b2e74420f5f724c9d656241320d58ef4885",
+          "blockType": "text_block",
+          "charCount": 632,
+          "estimatedTokens": 316
+        }
+      ]
+    },
+    {
+      "relativePath": "广州中考真题/2017广州中考答案.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceTitle": "2017广州中考答案",
+      "sourceHash": "f87c3cb8ed02969137ba916184045052ec3efecbd6331dd1d192fe52de67d207",
+      "pageCount": 4,
+      "nonEmptyPageCount": 4,
+      "chunkCount": 4,
+      "estimatedTokens": 635,
+      "blockTypes": {
+        "question_or_exam_block": 3,
+        "text_block": 1
+      },
+      "cacheHit": true,
+      "sampleChunks": [
+        {
+          "pageNumber": 1,
+          "chunkHash": "7bfa3b7d7edcb5cea99155c3e9b4707e3dcd2e87dd5e1e9444b7a478340f6db5",
+          "blockType": "question_or_exam_block",
+          "charCount": 350,
+          "estimatedTokens": 175
+        },
+        {
+          "pageNumber": 2,
+          "chunkHash": "cc61cf55cb8f6745ffe471ff53073ce51a163e4ae744ba862d23dc74f434c7ca",
+          "blockType": "question_or_exam_block",
+          "charCount": 555,
+          "estimatedTokens": 277
+        },
+        {
+          "pageNumber": 3,
+          "chunkHash": "b5193782231813965d8f381864a649d635ae65ce42ed3145f4aba15577546b1b",
+          "blockType": "question_or_exam_block",
+          "charCount": 311,
+          "estimatedTokens": 155
+        }
+      ]
+    },
+    {
+      "relativePath": "广州中考真题/2018广州中考.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceTitle": "2018广州中考",
+      "sourceHash": "c4feff77379271fbea32404b1ab3952800ff305639c8af446fa1c8c68a2fc794",
+      "pageCount": 11,
+      "nonEmptyPageCount": 11,
+      "chunkCount": 11,
+      "estimatedTokens": 2925,
+      "blockTypes": {
+        "question_or_exam_block": 9,
+        "text_block": 2
+      },
+      "cacheHit": true,
+      "sampleChunks": [
+        {
+          "pageNumber": 1,
+          "chunkHash": "1394dc52c59fc6a387b82496c2a79aaa98dc8f2a28f70935a3c3b88b6f11fc49",
+          "blockType": "question_or_exam_block",
+          "charCount": 723,
+          "estimatedTokens": 361
+        },
+        {
+          "pageNumber": 2,
+          "chunkHash": "4f66b6168e85a6797cc8c98144188929a709ed0805fab71a8f2bf56617cf1d57",
+          "blockType": "question_or_exam_block",
+          "charCount": 506,
+          "estimatedTokens": 253
+        },
+        {
+          "pageNumber": 3,
+          "chunkHash": "ec4813eecbf4a2337f39a20a9db0c124d7ed73f78c90d5da7fc3647fe13c6e60",
+          "blockType": "question_or_exam_block",
+          "charCount": 561,
+          "estimatedTokens": 280
+        }
+      ]
+    },
+    {
+      "relativePath": "广州中考真题/2018广州中考答案.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceTitle": "2018广州中考答案",
+      "sourceHash": "40b1a15e8b70c44e862eabf265cbe4d63062151742a126133388d31a4b666ed6",
+      "pageCount": 3,
+      "nonEmptyPageCount": 3,
+      "chunkCount": 3,
+      "estimatedTokens": 612,
+      "blockTypes": {
+        "question_or_exam_block": 3
+      },
+      "cacheHit": true,
+      "sampleChunks": [
+        {
+          "pageNumber": 1,
+          "chunkHash": "557ab68240f6f4201e80c096f4d5f94ff08d5cf9217f617f8f9c32728d50533b",
+          "blockType": "question_or_exam_block",
+          "charCount": 343,
+          "estimatedTokens": 171
+        },
+        {
+          "pageNumber": 2,
+          "chunkHash": "c87975481994ccf941677eecb4a269b60ac5bf9bcb7a339e96e9a8a3558460ef",
+          "blockType": "question_or_exam_block",
+          "charCount": 601,
+          "estimatedTokens": 300
+        },
+        {
+          "pageNumber": 3,
+          "chunkHash": "a4665e6ae6c447228bee0e065db2ca5847f611bb46422e706e1977317a828ab2",
+          "blockType": "question_or_exam_block",
+          "charCount": 282,
+          "estimatedTokens": 141
+        }
+      ]
+    },
+    {
+      "relativePath": "广州中考真题/2019广州中考.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceTitle": "2019广州中考",
+      "sourceHash": "85dd476db8eacd837f7a4590bac7c795ef5cf53f68a1c68a08f279e7d1731dba",
+      "pageCount": 9,
+      "nonEmptyPageCount": 9,
+      "chunkCount": 9,
+      "estimatedTokens": 2168,
+      "blockTypes": {
+        "question_or_exam_block": 8,
+        "text_block": 1
+      },
+      "cacheHit": true,
+      "sampleChunks": [
+        {
+          "pageNumber": 1,
+          "chunkHash": "9ab45c893ea4043220222e1169b635ba6b0666198eb1f1b776e2c1083b102527",
+          "blockType": "question_or_exam_block",
+          "charCount": 657,
+          "estimatedTokens": 328
+        },
+        {
+          "pageNumber": 2,
+          "chunkHash": "7aa75515bf9d7e98cfa734b0fe224e3449194e8b112e4d986a9f522c0671f975",
+          "blockType": "question_or_exam_block",
+          "charCount": 490,
+          "estimatedTokens": 245
+        },
+        {
+          "pageNumber": 3,
+          "chunkHash": "3fe61da76715db1fdf9be7131b0f0bf1176590b2464190ac8135597a05d04167",
+          "blockType": "question_or_exam_block",
+          "charCount": 439,
+          "estimatedTokens": 219
+        }
+      ]
+    },
+    {
+      "relativePath": "广州中考真题/2019广州中考答案.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceTitle": "2019广州中考答案",
+      "sourceHash": "b4dfdef844f45be070eaf3db88961ede314eca829493b70e0ddbe17631c1d116",
+      "pageCount": 18,
+      "nonEmptyPageCount": 18,
+      "chunkCount": 18,
+      "estimatedTokens": 5062,
+      "blockTypes": {
+        "question_or_exam_block": 4,
+        "text_block": 14
+      },
+      "cacheHit": true,
+      "sampleChunks": [
+        {
+          "pageNumber": 1,
+          "chunkHash": "70e99f7b7629dda41a61a714baf5e09485bc14cce32b452bc596cef977f705a8",
+          "blockType": "question_or_exam_block",
+          "charCount": 545,
+          "estimatedTokens": 272
+        },
+        {
+          "pageNumber": 2,
+          "chunkHash": "cd718445230ffd7b98c4a6b4062d66c5f7776398bc71e3294e5bbf29ff880eac",
+          "blockType": "text_block",
+          "charCount": 652,
+          "estimatedTokens": 326
+        },
+        {
+          "pageNumber": 3,
+          "chunkHash": "446fc61bba283ebf5074c01569017b22623d36b1439fcdd67fcdabd255fc7841",
+          "blockType": "text_block",
+          "charCount": 540,
+          "estimatedTokens": 270
+        }
+      ]
+    },
+    {
+      "relativePath": "广州中考真题/2020广州中考（含答案）.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceTitle": "2020广州中考（含答案）",
+      "sourceHash": "03b67dc46d0e37377d0ac076638e6d34b42305c8f2824489da3f664fe53875db",
+      "pageCount": 10,
+      "nonEmptyPageCount": 10,
+      "chunkCount": 10,
+      "estimatedTokens": 3000,
+      "blockTypes": {
+        "question_or_exam_block": 6,
+        "text_block": 4
+      },
+      "cacheHit": true,
+      "sampleChunks": [
+        {
+          "pageNumber": 1,
+          "chunkHash": "b58d2ae48e4a13de7c348f9a666610e5b34a89a4a989907da4bac48f1d2d4e31",
+          "blockType": "question_or_exam_block",
+          "charCount": 831,
+          "estimatedTokens": 415
+        },
+        {
+          "pageNumber": 2,
+          "chunkHash": "aeb2056fc8389cfe8c855016679dcb435c2f7daeeaf44c2de6ab718c5a81b24d",
+          "blockType": "question_or_exam_block",
+          "charCount": 736,
+          "estimatedTokens": 368
+        },
+        {
+          "pageNumber": 3,
+          "chunkHash": "1a4d1daa5f86305b4b04779435badf9649079714c819622bd894ed578fa238e5",
+          "blockType": "text_block",
+          "charCount": 560,
+          "estimatedTokens": 280
+        }
+      ]
+    },
+    {
+      "relativePath": "广州中考真题/2021广州中考-参考答案.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceTitle": "2021广州中考-参考答案",
+      "sourceHash": "e157ab8a16233acd68000299b427f814687035ec1b76384f69f1cf446ed04578",
+      "pageCount": 4,
+      "nonEmptyPageCount": 4,
+      "chunkCount": 4,
+      "estimatedTokens": 479,
+      "blockTypes": {
+        "question_or_exam_block": 3,
+        "text_block": 1
+      },
+      "cacheHit": true,
+      "sampleChunks": [
+        {
+          "pageNumber": 1,
+          "chunkHash": "360193cb43cbeedf40e2edfac9e53e4ebe7aee2432904484970888b93e3c0db0",
+          "blockType": "question_or_exam_block",
+          "charCount": 110,
+          "estimatedTokens": 55
+        },
+        {
+          "pageNumber": 2,
+          "chunkHash": "d41753d0db850c66303ffd03b90cbcc53a49f972f0d669f131133eec31270b7f",
+          "blockType": "question_or_exam_block",
+          "charCount": 262,
+          "estimatedTokens": 131
+        },
+        {
+          "pageNumber": 3,
+          "chunkHash": "442dbf6cafb17e4e0c578880b7e1b4268665a3a776873eec7d17b11d31185084",
+          "blockType": "text_block",
+          "charCount": 160,
+          "estimatedTokens": 80
+        }
+      ]
+    },
+    {
+      "relativePath": "广州中考真题/2021广州中考.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceTitle": "2021广州中考",
+      "sourceHash": "d4abb8aa48663b772abb1ee5b15935b065b8931af47bd3c62d89bdef1f83989c",
+      "pageCount": 8,
+      "nonEmptyPageCount": 8,
+      "chunkCount": 8,
+      "estimatedTokens": 1755,
+      "blockTypes": {
+        "question_or_exam_block": 2,
+        "text_block": 6
+      },
+      "cacheHit": true,
+      "sampleChunks": [
+        {
+          "pageNumber": 1,
+          "chunkHash": "b56c6e47820e18a6875328b6b5652bd32c415409fbedbae69aed78022c5c9d06",
+          "blockType": "question_or_exam_block",
+          "charCount": 528,
+          "estimatedTokens": 264
+        },
+        {
+          "pageNumber": 2,
+          "chunkHash": "c40a2e778c73fb5df552f2846b6f08dd504464a178fb49ca0879d3399c746c76",
+          "blockType": "text_block",
+          "charCount": 395,
+          "estimatedTokens": 197
+        },
+        {
+          "pageNumber": 3,
+          "chunkHash": "4e03680ae1d93d6a3f9e802f48d5f04b8715930cf1a4a33b83cc8bc188677c85",
+          "blockType": "question_or_exam_block",
+          "charCount": 338,
+          "estimatedTokens": 169
+        }
+      ]
+    },
+    {
+      "relativePath": "广州中考真题/2022广州中考-参考答案.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceTitle": "2022广州中考-参考答案",
+      "sourceHash": "519a730083d49f576effa9f9d099c0f2731022ff94bc80bbe5e64713d2016120",
+      "pageCount": 18,
+      "nonEmptyPageCount": 18,
+      "chunkCount": 18,
+      "estimatedTokens": 4430,
+      "blockTypes": {
+        "question_or_exam_block": 13,
+        "text_block": 5
+      },
+      "cacheHit": true,
+      "sampleChunks": [
+        {
+          "pageNumber": 1,
+          "chunkHash": "5b604d97edb1960b96f2f062dcedbbe63b9d0e1ec250601ef0a4300fffa2e8b9",
+          "blockType": "question_or_exam_block",
+          "charCount": 678,
+          "estimatedTokens": 339
+        },
+        {
+          "pageNumber": 2,
+          "chunkHash": "aa31100c3bae0ebde52016f6a32465b338271685e332a04e7220013e5e0e2513",
+          "blockType": "question_or_exam_block",
+          "charCount": 546,
+          "estimatedTokens": 273
+        },
+        {
+          "pageNumber": 3,
+          "chunkHash": "be45e08adde24e5b2f45e5cb50f336ab4494b4970fa40eb30f518c428c1baa4a",
+          "blockType": "question_or_exam_block",
+          "charCount": 536,
+          "estimatedTokens": 268
+        }
+      ]
+    },
+    {
+      "relativePath": "广州中考真题/2022广州中考.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceTitle": "2022广州中考",
+      "sourceHash": "66c5959ae3db3fa2d521b234d371c5fa05ef84763ffc1a5a9ed8bd9adce16101",
+      "pageCount": 8,
+      "nonEmptyPageCount": 8,
+      "chunkCount": 8,
+      "estimatedTokens": 2005,
+      "blockTypes": {
+        "question_or_exam_block": 7,
+        "text_block": 1
+      },
+      "cacheHit": true,
+      "sampleChunks": [
+        {
+          "pageNumber": 1,
+          "chunkHash": "df23edc425b3c6ef19bac1b8b4eff8eb72e9b42da8a995d17aab9fcf5fceb8e4",
+          "blockType": "question_or_exam_block",
+          "charCount": 684,
+          "estimatedTokens": 342
+        },
+        {
+          "pageNumber": 2,
+          "chunkHash": "05d428cad5fdde737ddbbe59ce66a71c6894f722e4865ce327cf9126cb863263",
+          "blockType": "question_or_exam_block",
+          "charCount": 465,
+          "estimatedTokens": 232
+        },
+        {
+          "pageNumber": 3,
+          "chunkHash": "154b218a18066cc6e41821fd73be5970c49cd17eec5c07f72af61c9a10487c7c",
+          "blockType": "question_or_exam_block",
+          "charCount": 588,
+          "estimatedTokens": 294
+        }
+      ]
+    },
+    {
+      "relativePath": "广州中考真题/2023广州中考_参考答案.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceTitle": "2023广州中考_参考答案",
+      "sourceHash": "f7c33a3e4525912de855f34e1d40e2853aa228da6d5f74be91f0627520c7d36a",
+      "pageCount": 2,
+      "nonEmptyPageCount": 2,
+      "chunkCount": 2,
+      "estimatedTokens": 386,
+      "blockTypes": {
+        "question_or_exam_block": 2
+      },
+      "cacheHit": true,
+      "sampleChunks": [
+        {
+          "pageNumber": 1,
+          "chunkHash": "b0d734c0caba5c76f332736494e857ba42a65e7a28e4ee95944d36ac5bdf50fc",
+          "blockType": "question_or_exam_block",
+          "charCount": 558,
+          "estimatedTokens": 279
+        },
+        {
+          "pageNumber": 2,
+          "chunkHash": "03b1703a728131bfb15621564eacd11429be65013cbc80ce669cacf4473a94ec",
+          "blockType": "question_or_exam_block",
+          "charCount": 215,
+          "estimatedTokens": 107
+        }
+      ]
+    },
+    {
+      "relativePath": "广州中考真题/2023广州中考.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceTitle": "2023广州中考",
+      "sourceHash": "9422eb3c0542eeea3526717364de15288d74788c4a1348f64ff012233338acdc",
+      "pageCount": 8,
+      "nonEmptyPageCount": 8,
+      "chunkCount": 8,
+      "estimatedTokens": 2032,
+      "blockTypes": {
+        "question_or_exam_block": 8
+      },
+      "cacheHit": true,
+      "sampleChunks": [
+        {
+          "pageNumber": 1,
+          "chunkHash": "ef212a1acdd19cde3b62acbd31fc3efeb03eb78bea5aba87b73446e37dc84ab4",
+          "blockType": "question_or_exam_block",
+          "charCount": 621,
+          "estimatedTokens": 310
+        },
+        {
+          "pageNumber": 2,
+          "chunkHash": "b939af4bb18e3746c3bfe29c49e7b2cd7a5df6dfac6dfddff107ac9f1f28a870",
+          "blockType": "question_or_exam_block",
+          "charCount": 509,
+          "estimatedTokens": 254
+        },
+        {
+          "pageNumber": 3,
+          "chunkHash": "02fb4d3b257a56603ebbafa22fe3f640ea4f380d35b0c156b5b98ed401d52095",
+          "blockType": "question_or_exam_block",
+          "charCount": 465,
+          "estimatedTokens": 232
+        }
+      ]
+    },
+    {
+      "relativePath": "广州中考真题/2024广州中考.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceTitle": "2024广州中考",
+      "sourceHash": "f6a3a77585343e30722ef5e09cda58795fa752e2d86c74d0dda3c89e159311ef",
+      "pageCount": 8,
+      "nonEmptyPageCount": 8,
+      "chunkCount": 8,
+      "estimatedTokens": 2302,
+      "blockTypes": {
+        "question_or_exam_block": 7,
+        "text_block": 1
+      },
+      "cacheHit": true,
+      "sampleChunks": [
+        {
+          "pageNumber": 1,
+          "chunkHash": "ed035e2003d6dc611e93a4383c284ab52d60f21f67fe0c1ed35f851b148db083",
+          "blockType": "question_or_exam_block",
+          "charCount": 698,
+          "estimatedTokens": 349
+        },
+        {
+          "pageNumber": 2,
+          "chunkHash": "e19513a5d5d526847d1dc20a3fe5c472b1af0c0f245b569cfa674e272621488c",
+          "blockType": "question_or_exam_block",
+          "charCount": 406,
+          "estimatedTokens": 203
+        },
+        {
+          "pageNumber": 3,
+          "chunkHash": "6042f40fba54445e9ba078a2853f9a99e7c3b2698e38c8c75a75785dfcce3d67",
+          "blockType": "question_or_exam_block",
+          "charCount": 536,
+          "estimatedTokens": 268
+        }
+      ]
+    },
+    {
+      "relativePath": "广州中考真题/2024广州中考（解析版）.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceTitle": "2024广州中考（解析版）",
+      "sourceHash": "5b588bd2ed97be333da83a1f50031fe7f3adf66c8532506a481c97ed09adda95",
+      "pageCount": 17,
+      "nonEmptyPageCount": 17,
+      "chunkCount": 17,
+      "estimatedTokens": 4940,
+      "blockTypes": {
+        "question_or_exam_block": 14,
+        "text_block": 3
+      },
+      "cacheHit": true,
+      "sampleChunks": [
+        {
+          "pageNumber": 1,
+          "chunkHash": "39948f090580c2b2e58b02beecc349a79510cc025357ac5e51376eb19abb559f",
+          "blockType": "question_or_exam_block",
+          "charCount": 677,
+          "estimatedTokens": 338
+        },
+        {
+          "pageNumber": 2,
+          "chunkHash": "241c8825fec8b5326a46e23a5fbf2058a7a7cbaba4194134c8a36973548bb099",
+          "blockType": "question_or_exam_block",
+          "charCount": 573,
+          "estimatedTokens": 286
+        },
+        {
+          "pageNumber": 3,
+          "chunkHash": "1d4a4699520639330bdda42ceab2a7920e6122caf667b469dc50e0d7288e74d3",
+          "blockType": "question_or_exam_block",
+          "charCount": 542,
+          "estimatedTokens": 271
+        }
+      ]
+    },
+    {
+      "relativePath": "广州中考真题/2025广州中考.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceTitle": "2025广州中考",
+      "sourceHash": "26c8aabc95cd2ffa67ed2ea873f13c9f2cb15d8e576ca2e4d4281f00f63e0fbe",
+      "pageCount": 8,
+      "nonEmptyPageCount": 8,
+      "chunkCount": 8,
+      "estimatedTokens": 2280,
+      "blockTypes": {
+        "question_or_exam_block": 7,
+        "text_block": 1
+      },
+      "cacheHit": true,
+      "sampleChunks": [
+        {
+          "pageNumber": 1,
+          "chunkHash": "137b323df0d94edbe8973da5911928eb4c5903cb8658a8a6662ed45aab9d8fee",
+          "blockType": "question_or_exam_block",
+          "charCount": 695,
+          "estimatedTokens": 347
+        },
+        {
+          "pageNumber": 2,
+          "chunkHash": "61dca0ed412ec8296858efeb4805e2d4b52f067ae89cc7745f605bb604418966",
+          "blockType": "question_or_exam_block",
+          "charCount": 424,
+          "estimatedTokens": 212
+        },
+        {
+          "pageNumber": 3,
+          "chunkHash": "61b48ac1f65a399890507b2f0034c034a36487749644a1b1b31da8a846d0028b",
+          "blockType": "question_or_exam_block",
+          "charCount": 528,
+          "estimatedTokens": 264
+        }
+      ]
+    },
+    {
+      "relativePath": "广州中考真题/2025广州中考（解析版）.pdf",
+      "sourceType": "local_exam_paper",
+      "sourceTitle": "2025广州中考（解析版）",
+      "sourceHash": "22cc26e89bae766f1c6d9dc4497d9dcfa7a52467cdb48856c831f076805f8202",
+      "pageCount": 17,
+      "nonEmptyPageCount": 17,
+      "chunkCount": 17,
+      "estimatedTokens": 4618,
+      "blockTypes": {
+        "question_or_exam_block": 13,
+        "text_block": 4
+      },
+      "cacheHit": true,
+      "sampleChunks": [
+        {
+          "pageNumber": 1,
+          "chunkHash": "3798ea0f93b657eba8484d8c8e4e698bece7eb04ce229140ef050a3b75a24010",
+          "blockType": "question_or_exam_block",
+          "charCount": 780,
+          "estimatedTokens": 390
+        },
+        {
+          "pageNumber": 2,
+          "chunkHash": "0be9725269d95913183fdcfe32a8550aa28692bce3896ad2ccc552068b9e2d07",
+          "blockType": "question_or_exam_block",
+          "charCount": 461,
+          "estimatedTokens": 230
+        },
+        {
+          "pageNumber": 3,
+          "chunkHash": "da1e15d56737055e5ff320f58a580d42ef7cef9192c4c1947c97abda0fe9e3c4",
+          "blockType": "question_or_exam_block",
+          "charCount": 401,
+          "estimatedTokens": 200
+        }
+      ]
+    }
+  ]
+}
