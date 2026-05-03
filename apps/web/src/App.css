@@ -290,6 +290,44 @@
   padding-left: 12px;
 }
 
+.replacement-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 132px minmax(0, 1fr);
+  gap: 14px;
+  align-items: stretch;
+  margin-top: 20px;
+}
+
+.replacement-card {
+  display: grid;
+  align-content: center;
+  gap: 12px;
+  min-height: 144px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  padding: 16px;
+}
+
+.replacement-card h3 {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.replacement-actions {
+  display: grid;
+  align-content: center;
+  gap: 10px;
+}
+
+.replacement-audit {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
 .source-material-workspace {
   display: grid;
   gap: 16px;
@@ -595,6 +633,7 @@
 
   .review-workspace,
   .paper-request-workspace,
+  .replacement-workspace,
   .page-preview {
     grid-template-columns: 1fr;
   }

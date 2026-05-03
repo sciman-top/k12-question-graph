@@ -23,6 +23,7 @@ import {
   SearchOutlined,
   SafetyCertificateOutlined,
   SplitCellsOutlined,
+  SwapOutlined,
   UndoOutlined,
 } from '@ant-design/icons'
 import './App.css'
@@ -243,6 +244,39 @@ const initialPaperUnderstanding = {
   ],
 }
 
+const initialPaperDraft = {
+  mode: 'draft_test',
+  productionEligible: false,
+  allowRealModelCalls: false,
+  currentQuestion: {
+    id: 'paper-q-01',
+    stemPreview: '关于惯性的说法，下列哪项正确？',
+    questionType: 'single_choice',
+    score: 3,
+    difficultyEstimated: 0.62,
+    primaryKnowledgeId: 'PHY-JH-MECH-FORCE-NEWTON1',
+    primaryKnowledgeTitle: '牛顿第一定律与惯性',
+    sourceType: 'synthetic',
+    recentUseStatus: 'not_recently_used',
+  },
+  replacementQuestion: null as null | {
+    id: string
+    stemPreview: string
+    questionType: string
+    score: number
+    difficultyEstimated: number
+    primaryKnowledgeId: string
+    primaryKnowledgeTitle: string
+    sourceType: string
+    recentUseStatus: string
+  },
+  undoSnapshot: null as null | {
+    undoToken: string
+    revertAction: string
+  },
+  auditTrail: [] as string[],
+}
+
 function App() {
   const [segments, setSegments] = useState(initialSegments)
   const [selectedIds, setSelectedIds] = useState<string[]>(['q-02', 'q-03'])
@@ -250,6 +284,7 @@ function App() {
   const [actionLog, setActionLog] = useState<string[]>([])
   const [paperRequest, setPaperRequest] = useState(initialPaperRequest)
   const [paperUnderstanding, setPaperUnderstanding] = useState(initialPaperUnderstanding)
+  const [paperDraft, setPaperDraft] = useState(initialPaperDraft)
 
   const selectedSegments = useMemo(
     () => segments.filter((segment) => selectedIds.includes(segment.id)),
@@ -332,6 +367,41 @@ function App() {
       scope: paperRequest.includes('速度') ? ['速度与平均速度'] : ['牛顿第一定律与惯性'],
       difficultyTarget: paperRequest.includes('偏难') ? 'medium_hard' : 'medium',
     }))
+  }
+
+  const replacePaperQuestion = () => {
+    const replacement = {
+      ...paperDraft.currentQuestion,
+      id: `paper-q-replacement-${Date.now()}`,
+      stemPreview: '关于惯性的理解，下列说法正确的是哪一项？',
+      difficultyEstimated: Math.min(1, paperDraft.currentQuestion.difficultyEstimated + 0.03),
+      recentUseStatus: 'not_recently_used',
+    }
+    setPaperDraft((current) => ({
+      ...current,
+      replacementQuestion: replacement,
+      undoSnapshot: {
+        undoToken: `undo-${Date.now()}`,
+        revertAction: 'restore_before_question',
+      },
+      auditTrail: [
+        'kept primary knowledge constraint',
+        'kept question type constraint',
+        'kept score constraint',
+        'kept draft_test non-production boundary',
+      ],
+    }))
+    appendLog('已按同知识点、同题型、相近难度和同分值生成替换题')
+  }
+
+  const undoPaperReplacement = () => {
+    setPaperDraft((current) => ({
+      ...current,
+      replacementQuestion: null,
+      undoSnapshot: null,
+      auditTrail: ['restored before question'],
+    }))
+    appendLog('已撤销换题并恢复原题')
   }
 
   return (
@@ -540,6 +610,86 @@ function App() {
                   ))}
                 </div>
               </div>
+            </div>
+          </section>
+
+          <section
+            className="paper-replacement-panel"
+            aria-label="一键换题与撤销"
+            data-flow="paper-question-replacement"
+          >
+            <div className="panel-heading">
+              <div>
+                <Typography.Title level={2}>一键换题</Typography.Title>
+                <Typography.Text type="secondary">
+                  保持约束一致，先生成可撤销草稿。
+                </Typography.Text>
+              </div>
+              <Space size="small" wrap>
+                <Tag color="green">{paperDraft.mode}</Tag>
+                <Tag data-contract="replacement-productionEligible=false">不进入生产</Tag>
+                <Tag data-contract="replacement-undo-snapshot">可撤销</Tag>
+              </Space>
+            </div>
+
+            <div className="replacement-workspace" data-contract="replacement-constraints">
+              <div className="replacement-card" data-contract="before-question">
+                <Typography.Text type="secondary">当前题</Typography.Text>
+                <Typography.Title level={3}>{paperDraft.currentQuestion.stemPreview}</Typography.Title>
+                <Space size="small" wrap>
+                  <Tag>{labelFor(paperDraft.currentQuestion.questionType)}</Tag>
+                  <Tag>{paperDraft.currentQuestion.score} 分</Tag>
+                  <Tag>{paperDraft.currentQuestion.difficultyEstimated.toFixed(2)}</Tag>
+                  <Tag>{paperDraft.currentQuestion.primaryKnowledgeTitle}</Tag>
+                </Space>
+              </div>
+
+              <div className="replacement-actions">
+                <Button
+                  type="primary"
+                  icon={<SwapOutlined />}
+                  onClick={replacePaperQuestion}
+                  data-action="replace-question"
+                >
+                  换题
+                </Button>
+                <Button
+                  icon={<UndoOutlined />}
+                  onClick={undoPaperReplacement}
+                  disabled={!paperDraft.undoSnapshot}
+                  data-action="undo-question-replacement"
+                >
+                  撤销
+                </Button>
+              </div>
+
+              <div className="replacement-card" data-contract="after-question">
+                <Typography.Text type="secondary">替换题</Typography.Text>
+                <Typography.Title level={3}>
+                  {paperDraft.replacementQuestion?.stemPreview ?? '等待生成替换题'}
+                </Typography.Title>
+                <Space size="small" wrap>
+                  <Tag>{labelFor(paperDraft.replacementQuestion?.questionType ?? paperDraft.currentQuestion.questionType)}</Tag>
+                  <Tag>{paperDraft.replacementQuestion?.score ?? paperDraft.currentQuestion.score} 分</Tag>
+                  <Tag>
+                    {(paperDraft.replacementQuestion?.difficultyEstimated ?? paperDraft.currentQuestion.difficultyEstimated).toFixed(2)}
+                  </Tag>
+                  <Tag>{paperDraft.replacementQuestion?.primaryKnowledgeTitle ?? paperDraft.currentQuestion.primaryKnowledgeTitle}</Tag>
+                </Space>
+              </div>
+            </div>
+
+            <div className="replacement-audit" data-contract="replacement-audit-trail">
+              {[
+                'sameKnowledge=true',
+                'sameQuestionType=true',
+                'similarDifficulty=true',
+                'sameScore=true',
+                'excludeRecentlyUsed=true',
+                'knowledgeStatus=draft',
+              ].map((item) => (
+                <Tag key={item}>{item}</Tag>
+              ))}
             </div>
           </section>
 

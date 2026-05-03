@@ -842,6 +842,58 @@ app.MapPost("/paper-requests/parse", (PaperRequestParseRequest request) =>
 })
 .WithName("ParsePaperRequest");
 
+app.MapPost("/paper-requests/replace-question", (PaperQuestionReplacementRequest request) =>
+{
+    if (request.CurrentQuestion is null)
+    {
+        return Results.BadRequest(new { error = "current_question_required" });
+    }
+
+    var current = request.CurrentQuestion;
+    var constraints = new PaperQuestionReplacementConstraints(
+        SameKnowledge: true,
+        SameQuestionType: true,
+        SimilarDifficulty: true,
+        SameScore: true,
+        ExcludeCurrentPaperDuplicates: true,
+        ExcludeRecentlyUsed: true,
+        KnowledgeStatus: "draft",
+        BlocksProductionPaper: true);
+    var replacement = new PaperDraftQuestion(
+        Id: "draft-replacement-" + current.Id,
+        StemPreview: BuildReplacementPreview(current.StemPreview),
+        QuestionType: current.QuestionType,
+        Score: current.Score,
+        DifficultyEstimated: ClampDifficulty((current.DifficultyEstimated ?? 0.6) + 0.03),
+        PrimaryKnowledgeId: current.PrimaryKnowledgeId,
+        PrimaryKnowledgeTitle: current.PrimaryKnowledgeTitle,
+        SourceType: "synthetic",
+        RecentUseStatus: "not_recently_used");
+    var undo = new PaperQuestionUndoSnapshot(
+        UndoToken: "undo-" + Guid.NewGuid().ToString("N"),
+        BeforeQuestion: current,
+        AfterQuestion: replacement,
+        RevertAction: "restore_before_question");
+
+    return Results.Ok(new PaperQuestionReplacementResponse(
+        Mode: "draft_test",
+        ProductionEligible: false,
+        AllowRealModelCalls: false,
+        Action: "replace_question",
+        Reason: "same_knowledge_type_difficulty_score",
+        Constraints: constraints,
+        Replacement: replacement,
+        Undo: undo,
+        AuditTrail:
+        [
+            "kept primary knowledge constraint",
+            "kept question type constraint",
+            "kept score constraint",
+            "kept draft_test non-production boundary"
+        ]));
+})
+.WithName("ReplacePaperQuestion");
+
 app.MapPost("/imports/{id:guid}/status", async (
     Guid id,
     ImportJobStatusUpdate request,
@@ -1123,6 +1175,23 @@ static IReadOnlyList<string> InferPaperRequestScope(string teacherRequest)
     }
 
     return scope;
+}
+
+static string BuildReplacementPreview(string currentPreview)
+{
+    if (string.IsNullOrWhiteSpace(currentPreview))
+    {
+        return "同知识点、同题型、相近难度的替换题草稿。";
+    }
+
+    return currentPreview.Contains("惯性", StringComparison.OrdinalIgnoreCase)
+        ? "关于惯性的理解，下列说法正确的是哪一项？"
+        : $"替换题草稿：{currentPreview}";
+}
+
+static double ClampDifficulty(double value)
+{
+    return Math.Max(0.0, Math.Min(1.0, value));
 }
 
 static AiJobResponse ToAiJobResponse(AIJob job)
@@ -1574,6 +1643,46 @@ public sealed record PaperRequestConstraints(
     IReadOnlyList<string> SourceTypes,
     bool ReviewRequired,
     bool BlocksProductionPaper);
+
+public sealed record PaperQuestionReplacementRequest(PaperDraftQuestion CurrentQuestion);
+
+public sealed record PaperDraftQuestion(
+    string Id,
+    string StemPreview,
+    string QuestionType,
+    decimal Score,
+    double? DifficultyEstimated,
+    string PrimaryKnowledgeId,
+    string PrimaryKnowledgeTitle,
+    string SourceType,
+    string RecentUseStatus);
+
+public sealed record PaperQuestionReplacementResponse(
+    string Mode,
+    bool ProductionEligible,
+    bool AllowRealModelCalls,
+    string Action,
+    string Reason,
+    PaperQuestionReplacementConstraints Constraints,
+    PaperDraftQuestion Replacement,
+    PaperQuestionUndoSnapshot Undo,
+    IReadOnlyList<string> AuditTrail);
+
+public sealed record PaperQuestionReplacementConstraints(
+    bool SameKnowledge,
+    bool SameQuestionType,
+    bool SimilarDifficulty,
+    bool SameScore,
+    bool ExcludeCurrentPaperDuplicates,
+    bool ExcludeRecentlyUsed,
+    string KnowledgeStatus,
+    bool BlocksProductionPaper);
+
+public sealed record PaperQuestionUndoSnapshot(
+    string UndoToken,
+    PaperDraftQuestion BeforeQuestion,
+    PaperDraftQuestion AfterQuestion,
+    string RevertAction);
 
 public static class JsonHelpers
 {

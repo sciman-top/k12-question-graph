@@ -37,7 +37,8 @@ The gate also covers `b001 duplicate upload smoke`, `b002 adapter contract smoke
 `d001 model router draft-test contract`, and
 `d002 ai job cost contract`, and
 `d003 structured output eval contract`, and
-`e001 question search ui/api contracts`.
+`e001 question search ui/api contracts`, `e002 paper request contract`, and
+`e003 question replacement undo contract`.
 It starts temporary
 API processes for API smoke steps, so `PGPASSWORD` must match the local PostgreSQL
 password.
@@ -343,6 +344,26 @@ $env:PGPASSWORD='<local-password>'
 This validates draft/test question-card search by knowledge point, question type,
 difficulty range, and source type. The response remains non-production while
 formal C002 source-derived knowledge assets are pending.
+
+E002 paper request contract:
+
+```powershell
+.\tools\run-e002-paper-request-contract.ps1
+```
+
+This validates natural-language paper request parsing in `draft_test` mode. It
+returns system understanding, a blueprint draft, and review questions without
+calling real models or writing production paper semantics.
+
+E003 question replacement undo contract:
+
+```powershell
+.\tools\run-e003-question-replacement-contract.ps1
+```
+
+This validates one-click replacement and undo in `draft_test` mode. Replacement
+keeps the same knowledge point, question type, similar difficulty, and score,
+excludes duplicate/recently used questions, and returns an undo snapshot.
 
 C002 source material admission guard:
 
