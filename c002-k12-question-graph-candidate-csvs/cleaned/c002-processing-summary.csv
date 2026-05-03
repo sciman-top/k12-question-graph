@@ -1,0 +1,10 @@
+﻿summary_item,value
+source_files_count,33
+knowledge_points_count,24
+exam_points_count,16
+textbook_chapters_count,25
+curriculum_items_count,24
+mappings_count,55
+low_confidence_rows_count,0
+rows_missing_source_location_count,0
+main_risks,OCR局部误差可能影响页码和题号细粒度定位；候选ID未与既有题谱主数据去重；考点频率为基于上传资料的相对观察值

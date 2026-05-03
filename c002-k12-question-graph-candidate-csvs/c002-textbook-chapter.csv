@@ -1,0 +1,26 @@
+﻿stable_id,parent_stable_id,level,title,subject,stage,textbook_version,publisher,grade_or_volume,chapter_number,section_number,source_material_ids,evidence_locations,knowledge_stable_ids,review_status,production_eligible,notes
+TBPHY-CAND-001,,1,物理八年级上册,physics,junior_middle_school,2024人教版,人民教育出版社,八年级上册,,,物理教材八上（2024人教）(1).pdf,封面p1-p2;目录p5-p6,,pending_review,false,candidate only
+TBPHY-CAND-002,TBPHY-CAND-001,2,第一章 机械运动,physics,junior_middle_school,2024人教版,人民教育出版社,八年级上册,第一章,,物理教材八上（2024人教）(1).pdf,目录p5,KPHY-CAND-009,pending_review,false,candidate only
+TBPHY-CAND-003,TBPHY-CAND-001,2,第二章 声现象,physics,junior_middle_school,2024人教版,人民教育出版社,八年级上册,第二章,,物理教材八上（2024人教）(1).pdf,目录p5,KPHY-CAND-012,pending_review,false,candidate only
+TBPHY-CAND-004,TBPHY-CAND-001,2,第三章 物态变化,physics,junior_middle_school,2024人教版,人民教育出版社,八年级上册,第三章,,物理教材八上（2024人教）(1).pdf,目录p5,KPHY-CAND-006,pending_review,false,candidate only
+TBPHY-CAND-005,TBPHY-CAND-001,2,第四章 光现象,physics,junior_middle_school,2024人教版,人民教育出版社,八年级上册,第四章,,物理教材八上（2024人教）(1).pdf,目录p6,KPHY-CAND-013,pending_review,false,candidate only
+TBPHY-CAND-006,TBPHY-CAND-001,2,第五章 透镜及其应用,physics,junior_middle_school,2024人教版,人民教育出版社,八年级上册,第五章,,物理教材八上（2024人教）(1).pdf,目录p6,KPHY-CAND-013,pending_review,false,candidate only
+TBPHY-CAND-007,TBPHY-CAND-001,2,第六章 质量与密度,physics,junior_middle_school,2024人教版,人民教育出版社,八年级上册,第六章,,物理教材八上（2024人教）(1).pdf,目录p6,KPHY-CAND-007,pending_review,false,candidate only
+TBPHY-CAND-008,,1,物理八年级下册,physics,junior_middle_school,2024人教版,人民教育出版社,八年级下册,,,物理教材八下（2024人教）(1).pdf,封面p1-p2;目录p4-p5,,pending_review,false,candidate only
+TBPHY-CAND-009,TBPHY-CAND-008,2,第七章 力,physics,junior_middle_school,2024人教版,人民教育出版社,八年级下册,第七章,,物理教材八下（2024人教）(1).pdf,目录p4,KPHY-CAND-010;KPHY-CAND-024,pending_review,false,candidate only
+TBPHY-CAND-010,TBPHY-CAND-008,2,第八章 运动和力,physics,junior_middle_school,2024人教版,人民教育出版社,八年级下册,第八章,,物理教材八下（2024人教）(1).pdf,目录p4,KPHY-CAND-010,pending_review,false,candidate only
+TBPHY-CAND-011,TBPHY-CAND-008,2,第九章 压强,physics,junior_middle_school,2024人教版,人民教育出版社,八年级下册,第九章,,物理教材八下（2024人教）(1).pdf,目录p4,KPHY-CAND-011,pending_review,false,candidate only
+TBPHY-CAND-012,TBPHY-CAND-008,2,第十章 浮力,physics,junior_middle_school,2024人教版,人民教育出版社,八年级下册,第十章,,物理教材八下（2024人教）(1).pdf,目录p5,KPHY-CAND-011,pending_review,false,candidate only
+TBPHY-CAND-013,TBPHY-CAND-008,2,第十一章 功和机械能,physics,junior_middle_school,2024人教版,人民教育出版社,八年级下册,第十一章,,物理教材八下（2024人教）(1).pdf,目录p5,KPHY-CAND-015,pending_review,false,candidate only
+TBPHY-CAND-014,TBPHY-CAND-008,2,第十二章 简单机械,physics,junior_middle_school,2024人教版,人民教育出版社,八年级下册,第十二章,,物理教材八下（2024人教）(1).pdf,目录p5,KPHY-CAND-015,pending_review,false,candidate only
+TBPHY-CAND-015,,1,物理九年级全一册,physics,junior_middle_school,2025秋人教版,人民教育出版社,九年级全一册,,,物理教材九全（2025秋.人教）(1).pdf,封面p1-p2;目录p4-p7,,pending_review,false,candidate only
+TBPHY-CAND-016,TBPHY-CAND-015,2,第十三章 内能,physics,junior_middle_school,2025秋人教版,人民教育出版社,九年级全一册,第十三章,,物理教材九全（2025秋.人教）(1).pdf,目录p4,KPHY-CAND-016,pending_review,false,candidate only
+TBPHY-CAND-017,TBPHY-CAND-015,2,第十四章 内能的利用,physics,junior_middle_school,2025秋人教版,人民教育出版社,九年级全一册,第十四章,,物理教材九全（2025秋.人教）(1).pdf,目录p4,KPHY-CAND-016;KPHY-CAND-019,pending_review,false,candidate only
+TBPHY-CAND-018,TBPHY-CAND-015,2,第十五章 电流和电路,physics,junior_middle_school,2025秋人教版,人民教育出版社,九年级全一册,第十五章,,物理教材九全（2025秋.人教）(1).pdf,目录p4,KPHY-CAND-017,pending_review,false,candidate only
+TBPHY-CAND-019,TBPHY-CAND-015,2,第十六章 电压 电阻,physics,junior_middle_school,2025秋人教版,人民教育出版社,九年级全一册,第十六章,,物理教材九全（2025秋.人教）(1).pdf,目录p5,KPHY-CAND-017,pending_review,false,candidate only
+TBPHY-CAND-020,TBPHY-CAND-015,2,第十七章 欧姆定律,physics,junior_middle_school,2025秋人教版,人民教育出版社,九年级全一册,第十七章,,物理教材九全（2025秋.人教）(1).pdf,目录p5,KPHY-CAND-017,pending_review,false,candidate only
+TBPHY-CAND-021,TBPHY-CAND-015,2,第十八章 电功率,physics,junior_middle_school,2025秋人教版,人民教育出版社,九年级全一册,第十八章,,物理教材九全（2025秋.人教）(1).pdf,目录p5,KPHY-CAND-018,pending_review,false,candidate only
+TBPHY-CAND-022,TBPHY-CAND-015,2,第十九章 生活用电,physics,junior_middle_school,2025秋人教版,人民教育出版社,九年级全一册,第十九章,,物理教材九全（2025秋.人教）(1).pdf,目录p6,KPHY-CAND-018,pending_review,false,candidate only
+TBPHY-CAND-023,TBPHY-CAND-015,2,第二十章 电与磁,physics,junior_middle_school,2025秋人教版,人民教育出版社,九年级全一册,第二十章,,物理教材九全（2025秋.人教）(1).pdf,目录p6,KPHY-CAND-014,pending_review,false,candidate only
+TBPHY-CAND-024,TBPHY-CAND-015,2,第二十一章 电磁波及其应用,physics,junior_middle_school,2025秋人教版,人民教育出版社,九年级全一册,第二十一章,,物理教材九全（2025秋.人教）(1).pdf,目录p6,KPHY-CAND-014,pending_review,false,candidate only
+TBPHY-CAND-025,TBPHY-CAND-015,2,第二十二章 能源与可持续发展,physics,junior_middle_school,2025秋人教版,人民教育出版社,九年级全一册,第二十二章,,物理教材九全（2025秋.人教）(1).pdf,目录p7,KPHY-CAND-019,pending_review,false,candidate only

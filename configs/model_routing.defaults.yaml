@@ -37,38 +37,88 @@ routes:
     handler: rule_then_llm_if_needed
 outer_ai_validation:
   default_policy: cost_first_with_quality_escalation
+  strategy_contract:
+    stable_principle: "模型名会变化；稳定的是规则优先、低成本批筛、中强模型抽样/复杂判断、高风险升级、人工审核兜底。"
+    model_names_are_current_mapping_only: true
+    update_rule: "模型价格、质量或可用性变化时，只替换 role_to_model 的当前模型映射，不改变升级语义。"
+  role_to_model:
+    bulk_prefilter_model: gpt-5.4-mini
+    mechanical_cleanup_model: gpt-5.3-codex-spark
+    engineering_review_model: gpt-5.3-codex
+    high_risk_review_model: gpt-5.4
+    highest_risk_decision_model: gpt-5.5
   models:
     bulk_format_check:
+      model_role: bulk_prefilter_model
       recommended_model: gpt-5.4-mini
+      escalate_to_role: engineering_review_model
       escalate_to: gpt-5.3-codex
+      default_sample_rate: "script_100_percent_ai_failed_rows_only"
+      escalation_threshold: "unclear_failure_reason_or_repeated_error_class_or_import_gate_impact"
+      evidence_anchor_fields: [input_artifact, failed_row_ids, error_class, gate_output]
       reason: "字段、枚举、重复 ID、空来源证据属于规则型批量检查。"
     candidate_batch_prefilter:
+      model_role: bulk_prefilter_model
       recommended_model: gpt-5.4-mini
+      escalate_to_role: engineering_review_model
       escalate_to: gpt-5.3-codex
+      default_sample_rate: "low_risk_5_to_10_percent_abnormal_100_percent"
+      escalation_threshold: "knowledge_exam_chapter_standard_confusion_or_pending_review_spike"
+      evidence_anchor_fields: [source_id, candidate_id, confidence, anomaly_reason]
       reason: "先低成本识别 obvious 混淆和低置信度行。"
     source_evidence_sample_review:
+      model_role: engineering_review_model
       recommended_model: gpt-5.3-codex
+      escalate_to_role: high_risk_review_model
       escalate_to: gpt-5.4
+      default_sample_rate: "draft_test_5_to_10_percent_activation_10_to_20_percent_disputed_100_percent"
+      escalation_threshold: "source_page_question_chapter_excerpt_or_hash_mismatch"
+      evidence_anchor_fields: [source_id, source_type, source_title, page, question_number, chapter_or_standard_ref, evidence_excerpt, source_hash]
       reason: "需要结合来源字段、映射和项目导入门禁。"
     complex_mapping_review:
+      model_role: engineering_review_model
       recommended_model: gpt-5.3-codex
+      escalate_to_role: high_risk_review_model
       escalate_to: gpt-5.4
+      default_sample_rate: "100_percent"
+      escalation_threshold: "split_merge_many_to_many_low_confidence_or_learning_analytics_impact"
+      evidence_anchor_fields: [mapping_id, source_id, from_asset_id, to_asset_id, migration_impact_report, rollback_plan]
       reason: "一拆多、多合一、多对多会影响组卷和学情口径。"
     mechanical_csv_cleanup:
+      model_role: mechanical_cleanup_model
       recommended_model: gpt-5.3-codex-spark
+      escalate_to_role: bulk_prefilter_model
       escalate_to: gpt-5.4-mini
+      default_sample_rate: "diff_and_gate_100_percent_semantic_rows_manual_review"
+      escalation_threshold: "semantic_judgment_required_or_non_mechanical_diff"
+      evidence_anchor_fields: [input_artifact, output_artifact, diff_summary, gate_output]
       reason: "仅限格式转换、拆分、重命名等机械任务。"
     import_gate_migration_work:
+      model_role: engineering_review_model
       recommended_model: gpt-5.3-codex
+      escalate_to_role: high_risk_review_model
       escalate_to: gpt-5.4
+      default_sample_rate: "code_diff_gate_rollback_100_percent"
+      escalation_threshold: "cross_module_change_or_data_migration_or_backup_restore_risk"
+      evidence_anchor_fields: [changed_files, gate_output, migration_impact_report, rollback_plan]
       reason: "工程实现、门禁和回滚脚本需要代码可靠性。"
     final_activation_review:
+      model_role: high_risk_review_model
       recommended_model: gpt-5.4
+      escalate_to_role: highest_risk_decision_model
       escalate_to: gpt-5.5
+      default_sample_rate: "high_risk_100_percent_normal_by_evidence_risk"
+      escalation_threshold: "long_term_policy_or_learning_analytics_impact_high_dispute_or_hard_to_rollback"
+      evidence_anchor_fields: [activation_batch_id, source_hash, mapping_impact_report, reviewer_decision, rollback_snapshot]
       reason: "正式激活前的高风险少量复核需要更强推理。"
     architecture_policy_decision:
+      model_role: high_risk_review_model
       recommended_model: gpt-5.4
+      escalate_to_role: highest_risk_decision_model
       escalate_to: gpt-5.5
+      default_sample_rate: "decision_materials_100_percent"
+      escalation_threshold: "cross_subject_dynamic_asset_model_or_long_term_policy_boundary"
+      evidence_anchor_fields: [decision_record, alternatives_considered, compatibility_impact, rollback_plan]
       reason: "仅用于跨学科动态资产模型或长期政策口径裁决。"
   gpt_5_5_boundary: "少量最高风险、低频、不可轻易回滚且影响长期口径的裁决；不得用于常规批量 CSV 校验。"
 cost_controls:
@@ -89,9 +139,10 @@ cost_controls:
     - teacher_context
 p0_p1_boundary:
   allow_real_model_calls: false
+  real_model_calls_enable_condition: "P3+ 仍需显式开启 allow_real_model_calls，并同时满足正式动态资产 guard、AIJob 成本日志、人工审核、rollback/evidence gate。"
   allowed_handlers:
     - rule
     - local_ocr
     - local_document_parser
     - stub_llm
-  reason: "P0/P1 先验证工程和人工确认闭环，真实模型调用进入 P3。"
+  reason: "P0/P1 先验证工程和人工确认闭环；P3 可建立 draft/test AI 合同，但真实外部模型调用默认仍禁用。"

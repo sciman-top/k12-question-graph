@@ -32,7 +32,20 @@
 
 ## 3.1 Codex 外层校验模型矩阵
 
-本节只约束外层 AI 协助整理、校验、导入和工程实现时的推荐模型；项目内真实模型调用仍受 `AllowRealModelCalls=false` 和人工审核边界控制。
+本节只约束外层 AI 协助整理、校验、导入和工程实现时的推荐策略；项目内真实模型调用仍受 `AllowRealModelCalls=false`、production guard 和人工审核边界控制。
+
+外层 AI 的“最佳”定义为策略最佳，而不是某个模型名永久最佳。稳定策略是：
+
+```text
+确定性规则/脚本/SQL 先做 100% 检查
+→ 低成本模型做批量初筛
+→ 中强模型做抽样复核、工程导入和复杂映射
+→ 高风险/不可轻易回滚事项升级强模型
+→ 少量最高风险长期口径裁决才使用最高档模型
+→ 正式激活仍必须保留人工审核
+```
+
+`gpt-5.4-mini`、`gpt-5.3-codex`、`gpt-5.4`、`gpt-5.5` 只是当前默认映射。模型价格、可用性或质量变化时，只更新 `configs/model_routing.defaults.yaml` 的映射；不得改变“规则优先、低成本批筛、按风险升级、人工兜底”的策略语义。
 
 | 任务 | 默认模型 | 升级条件 | 成本口径 |
 |---|---|---|---|
@@ -57,6 +70,20 @@
 `gpt-5.5` 不作为常规批量模型。它只用于少量、低频、不可轻易回滚且影响长期口径的判断，例如：新旧课标口径冲突、地区考点体系重大重构、正式学情指标口径迁移、跨学科动态资产模型变更。
 
 `gpt-5.4` 的合理使用位置是质量兜底，不是替代所有批量工作。凡是可用规则、schema、SQL、CSV parser 或 `gpt-5.4-mini` 解决的任务，不升级。
+
+来源核验不得只依赖更强模型。进入正式激活链路的来源证据必须可追溯到 `source_id`、页码/题号/章节、原文片段或 hash；模型只辅助判断一致性和风险，不替代证据锚点。
+
+默认抽样和升级阈值：
+
+| 场景 | 默认检查/抽样 | 升级阈值 |
+|---|---:|---|
+| CSV/Excel 格式、枚举、重复 ID、必填字段 | 脚本 100%；AI 只看失败样本 | 错误原因不清、同类错误连续出现或影响导入 gate |
+| 候选表批量初筛 | 低风险行 5%-10%；低置信度/异常行 100% | 知识点/考点/章节/课标混淆，或 pending_review 异常升高 |
+| 来源证据抽样核验 | draft/test 5%-10%；正式激活前 10%-20%；争议项 100% | 来源字段、页码、题号、章节或原文片段不一致 |
+| 一拆多、多合一、多对多映射 | 100% 中强模型复核 | 影响组卷、学情、正式口径或迁移影响报告 |
+| 正式激活最终复核 | 100% 高风险项；普通项按 evidence risk 抽样 | 影响长期政策/学情口径、争议很高或不可轻易回滚 |
+
+每次外层 AI 校验结果进入项目，至少记录：`model_role`、`model`、`reasoning_effort`、`input_artifact`、`output_artifact`、`sample_rate`、`evidence_anchor_fields`、`escalation_reason`、`remaining_pending_review_count`。
 
 ## 4. AIJob 记录
 
@@ -116,7 +143,7 @@ P0/P1 不接真实模型作为完成条件，只建立：
 - Worker/Adapter 占位返回。
 - 黄金样本目录与 eval 入口预留。
 
-真实 AI 调用、Batch、Evals、prompt caching 优化进入 P3；如果 P1 必须临时调用 AI，只能作为可替换 adapter，且不能绕过人工确认队列。
+真实 AI 调用不以 P0/P1 完成为条件。P3 可以先完成 Provider 抽象、ModelRouter、AIJob 成本日志、Structured Outputs、Evals 和 prompt caching 合同；真正启用外部模型调用必须额外满足 `AllowRealModelCalls=true`、正式动态资产 guard、人工审核队列、成本日志、回滚入口和对应 evidence gate。如果 P1 必须临时调用 AI，只能作为可替换 adapter，且不能绕过人工确认队列。
 
 ## 9. Prompt caching 与成本字段
 
