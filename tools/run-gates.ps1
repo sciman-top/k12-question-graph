@@ -328,6 +328,10 @@ try {
         .\tools\run-g002-storage-cleanup-contract.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'g003 winpe emergency copy contract' {
+        .\tools\run-g003-winpe-emergency-copy-contract.ps1 | Write-Host
+    }
+
     Invoke-GateStep 'b001 duplicate upload smoke' {
         if ([string]::IsNullOrWhiteSpace($DatabasePassword)) {
             throw "DatabasePassword or PGPASSWORD is required for API upload smoke"

@@ -1,0 +1,24 @@
+version: "g003.recovery-media.v1"
+mode: "draft_test"
+winpe:
+  source_data_root: "D:\\KQG_Data"
+  source_backup_root: "D:\\KQG_Backups"
+  default_destination_root: "E:\\KQG_EmergencyCopy"
+  media_label_hint: "KQG_RECOVERY"
+  copy_items:
+    - "file_store"
+    - "logs"
+    - "recovery"
+    - "config"
+    - "templates"
+    - "prompts"
+    - "ai_rules"
+    - "teacher_profiles"
+  backup_items:
+    - "manifest.json"
+    - "database.dump"
+  safety:
+    no_mirror_delete: true
+    copy_only: true
+    require_destination_argument: true
+    include_hash_verify_instruction: true

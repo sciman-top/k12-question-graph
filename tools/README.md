@@ -519,3 +519,13 @@ G002 storage dashboard and cache cleanup contract:
 This starts the API with synthetic configured roots, checks the admin storage
 summary and cache cleanup endpoints, verifies the Web dashboard markers, and
 confirms cleanup only deletes old files under the configured cache root.
+
+G003 WinPE emergency copy media contract:
+
+```powershell
+.\tools\run-g003-winpe-emergency-copy-contract.ps1
+```
+
+This generates draft/test emergency copy scripts under
+`tmp/g003-winpe-recovery-media`, verifies the generated scripts use copy-only
+Robocopy behavior, and writes `docs/evidence/g003-winpe-emergency-copy-report.json`.

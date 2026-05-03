@@ -1,0 +1,39 @@
+{
+  "status": "pass",
+  "task": "G003",
+  "mode": "draft_test",
+  "productionEligible": false,
+  "config": "configs\\recovery_media.defaults.yaml",
+  "generatedManifest": "tmp/g003-winpe-recovery-media/KQG_RecoveryMedia/recovery-media-manifest.json",
+  "outputs": {
+    "cmd": "tmp/g003-winpe-recovery-media/KQG_RecoveryMedia/KQG_EmergencyCopy.cmd",
+    "ps1": "tmp/g003-winpe-recovery-media/KQG_RecoveryMedia/KQG_EmergencyCopy.ps1",
+    "readme": "tmp/g003-winpe-recovery-media/KQG_RecoveryMedia/README-WinPE.txt"
+  },
+  "copyItems": [
+    "file_store",
+    "logs",
+    "recovery",
+    "config",
+    "templates",
+    "prompts",
+    "ai_rules",
+    "teacher_profiles"
+  ],
+  "safety": {
+    "noMirrorDelete": true,
+    "copyOnly": true,
+    "destinationArgumentSupported": true,
+    "hashVerifyInstructionIncluded": true,
+    "productionDataMutated": false
+  },
+  "rollback": {
+    "code": "git revert this G003 commit",
+    "generatedFiles": "delete only tmp/g003-winpe-recovery-media generated package"
+  },
+  "summaryChinese": {
+    "title": "G003 WinPE 应急拷贝脚本生成合同报告",
+    "result": "通过",
+    "boundary": "仅生成 draft/test 离线拷贝脚本和说明；不执行真实拷贝，不删除目标介质内容。"
+  }
+}
