@@ -185,6 +185,10 @@ try {
         .\tools\run-c002q-ai-extract-dry-run.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'c002s formalization precheck guard' {
+        .\tools\run-c002s-formalization-precheck.ps1 | Write-Host
+    }
+
     Invoke-GateStep 'c002 source material admission guard' {
         .\tools\run-c002-source-material-guard.ps1 | Write-Host
     }

@@ -30,6 +30,9 @@ The gate also covers `b001 duplicate upload smoke`, `b002 adapter contract smoke
 `c002n source chunk cache guard`,
 `c002o candidate extraction schema/eval guard`,
 `c002p model budget guard`,
+`c002q0 outer ai readiness guard`,
+`c002q ai extract dry-run guard`,
+`c002s formalization precheck guard`,
 `c002 junior physics draft bootstrap guard`, and
 `d001 model router draft-test contract`, and
 `d002 ai job cost contract`, and
@@ -129,6 +132,20 @@ fail-closed budget policy. It also reads the C002N chunk/token report and C002O
 schema/eval report, then writes
 `docs/evidence/c002p-model-budget-guard-report.json`. It does not call external
 AI and does not mark C002 as active.
+
+C002S formalization precheck:
+
+```powershell
+.\tools\run-c002s-formalization-precheck.ps1
+```
+
+This reads the complete Guangzhou physics C003 candidate CSV package, samples
+three questions per year for 2016-2025, checks exam stem, answer source,
+year-report page anchor, exam point, knowledge point, curriculum, and textbook
+references, then writes
+`docs/evidence/c002s-formalization-precheck-report.json`. The current expected
+state is `blocked`: sample evidence passes, but 210 year-report page/metric
+quality issues remain open, so production activation must stay blocked.
 
 C002 candidate DB import:
 

@@ -1,6 +1,8 @@
 {
   "status": "blocked",
-  "checkedAt": "2026-05-03T14:40:51.188798+00:00",
+  "task": "C002S",
+  "checkedAt": "2026-05-03T15:40:26.379824+00:00",
+  "samplePolicy": "3 questions per year from 2016-2025: first/middle/last available question numbers",
   "sampleSize": 30,
   "sampleFailures": 0,
   "qualityIssuesTotal": 210,
@@ -12,6 +14,7 @@
     "year_report_page_unverified": 5
   },
   "productionActivationAllowed": false,
+  "candidateBoundary": "candidate/pending_review/production_eligible=false until C002S blockers, review readiness, backup, and active guard are cleared",
   "blockers": [
     {
       "blockerId": "c003_year_report_quality_issues_open",
@@ -470,5 +473,10 @@
       "status": "pass",
       "failures": []
     }
-  ]
+  ],
+  "summaryChinese": {
+    "title": "C002S 广州物理正式化前审查闭环报告",
+    "result": "抽样来源核对通过，但年报页码/指标质量问题仍未清零，正式 C002 active 必须继续阻断。",
+    "next": "逐条关闭 c003-quality-issue-registry.csv 中的 pending_review 问题，再运行 candidate DB dry-run、backup manifest、C002L readiness 和 active guard。"
+  }
 }

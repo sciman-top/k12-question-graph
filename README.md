@@ -160,6 +160,7 @@ tests/      自动化测试与黄金样本
 - `tools/run-c002p-model-budget-guard.ps1`: C002P L0-L4 模型、reasoning、预算和 fail-closed guard。
 - `tools/run-c002q0-outer-ai-readiness.ps1`: C002Q0 真实模型调用与 outer subagent 编排 readiness guard。
 - `tools/run-c002q-ai-extract-dry-run.ps1`: C002Q 小批量 AI extract contract dry-run guard。
+- `tools/run-c002s-formalization-precheck.ps1`: C002S 正式化前抽样核对和质量问题阻断 guard。
 
 快速文档/配置门禁：
 
