@@ -1,0 +1,372 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "C002CandidateExtractionResult",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "batch_id",
+    "mode",
+    "production_eligible",
+    "review_status",
+    "source_anchors",
+    "knowledge_points",
+    "curriculum_standard_items",
+    "textbook_chapters",
+    "exam_points",
+    "trend_summaries",
+    "mapping_suggestions",
+    "warnings"
+  ],
+  "properties": {
+    "batch_id": {
+      "type": "string"
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "draft_test"
+      ]
+    },
+    "production_eligible": {
+      "type": "boolean"
+    },
+    "review_status": {
+      "type": "string",
+      "enum": [
+        "pending_review"
+      ]
+    },
+    "source_anchors": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source_hash",
+          "relative_path",
+          "page_number",
+          "chunk_hash",
+          "evidence_role"
+        ],
+        "properties": {
+          "source_hash": {
+            "type": "string"
+          },
+          "relative_path": {
+            "type": "string"
+          },
+          "page_number": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "chunk_hash": {
+            "type": "string"
+          },
+          "evidence_role": {
+            "type": "string",
+            "enum": [
+              "definition",
+              "scope",
+              "exam_evidence",
+              "trend_evidence",
+              "mapping_evidence"
+            ]
+          }
+        }
+      }
+    },
+    "knowledge_points": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "candidate_id",
+          "name",
+          "level",
+          "parent_candidate_id",
+          "source_anchor_refs",
+          "confidence",
+          "review_status"
+        ],
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "L1",
+              "L2",
+              "L3"
+            ]
+          },
+          "parent_candidate_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "source_anchor_refs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "review_status": {
+            "type": "string",
+            "enum": [
+              "pending_review"
+            ]
+          }
+        }
+      }
+    },
+    "curriculum_standard_items": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "candidate_id",
+          "code",
+          "text",
+          "source_anchor_refs",
+          "review_status"
+        ],
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "source_anchor_refs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "review_status": {
+            "type": "string",
+            "enum": [
+              "pending_review"
+            ]
+          }
+        }
+      }
+    },
+    "textbook_chapters": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "candidate_id",
+          "title",
+          "grade_or_scope",
+          "edition_or_version",
+          "source_anchor_refs",
+          "review_status"
+        ],
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "grade_or_scope": {
+            "type": "string"
+          },
+          "edition_or_version": {
+            "type": "string"
+          },
+          "source_anchor_refs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "review_status": {
+            "type": "string",
+            "enum": [
+              "pending_review"
+            ]
+          }
+        }
+      }
+    },
+    "exam_points": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "candidate_id",
+          "description",
+          "region",
+          "year_range",
+          "source_anchor_refs",
+          "review_status"
+        ],
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "region": {
+            "type": "string"
+          },
+          "year_range": {
+            "type": "string"
+          },
+          "source_anchor_refs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "review_status": {
+            "type": "string",
+            "enum": [
+              "pending_review"
+            ]
+          }
+        }
+      }
+    },
+    "trend_summaries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "candidate_id",
+          "summary",
+          "source_anchor_refs",
+          "confidence",
+          "review_status"
+        ],
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "source_anchor_refs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "review_status": {
+            "type": "string",
+            "enum": [
+              "pending_review"
+            ]
+          }
+        }
+      }
+    },
+    "mapping_suggestions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "from_candidate_id",
+          "to_candidate_id",
+          "mapping_type",
+          "confidence",
+          "impact_level",
+          "source_anchor_refs",
+          "review_status"
+        ],
+        "properties": {
+          "from_candidate_id": {
+            "type": "string"
+          },
+          "to_candidate_id": {
+            "type": "string"
+          },
+          "mapping_type": {
+            "type": "string",
+            "enum": [
+              "equivalent",
+              "split",
+              "merge",
+              "broader",
+              "narrower",
+              "renamed",
+              "deprecated"
+            ]
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "impact_level": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
+          },
+          "source_anchor_refs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "review_status": {
+            "type": "string",
+            "enum": [
+              "pending_review"
+            ]
+          }
+        }
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

@@ -59,6 +59,23 @@ if ($c002n.status -eq '已完成') {
     }
 }
 
+if ($c002o.status -eq '已完成') {
+    $c002oReport = Join-Path $repoRoot 'docs\evidence\c002o-candidate-extraction-eval-report.json'
+    if (-not (Test-Path -LiteralPath $c002oReport)) {
+        throw "C002O is completed but report is missing: docs/evidence/c002o-candidate-extraction-eval-report.json"
+    }
+    $report = Get-Content -LiteralPath $c002oReport -Raw | ConvertFrom-Json
+    if ($report.status -ne 'pass' -or $report.allowRealModelCalls -ne $false -or $report.productionEligible -ne $false) {
+        throw "C002O report must pass with real model calls disabled and production eligibility false"
+    }
+    foreach ($requiredSection in @('knowledgePoints', 'curriculumStandardItems', 'textbookChapters', 'examPoints', 'trendSummaries', 'mappingSuggestions')) {
+        $case = @($report.cases)[0]
+        if ($case.$requiredSection -lt 1) {
+            throw "C002O report missing required eval section: $requiredSection"
+        }
+    }
+}
+
 foreach ($pattern in @('subagent', '外层', '真实模型', 'no_active_write', '运行时依赖')) {
     if ($c002q0.acceptance -notmatch $pattern) {
         throw "C002Q0 acceptance missing orchestration boundary: $pattern"

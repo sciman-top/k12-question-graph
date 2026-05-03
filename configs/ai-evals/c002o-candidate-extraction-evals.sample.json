@@ -1,0 +1,137 @@
+{
+  "schemaVersion": "c002o.candidate-extraction-evals.v0.1",
+  "suiteId": "c002o-candidate-extraction-golden-smoke",
+  "mode": "draft_test",
+  "allowRealModelCalls": false,
+  "productionEligible": false,
+  "sourceChunkReport": "docs/evidence/c002n-source-chunk-cache-report.json",
+  "cases": [
+    {
+      "caseId": "c002o-physics-force-and-motion-sample",
+      "taskType": "c002_candidate_extraction",
+      "schemaPath": "schemas/ai/c002_candidate_extraction.schema.json",
+      "promptVersion": "c002o-candidate-extraction.draft.v0.1",
+      "expectedReviewStatus": "pending_review",
+      "input": {
+        "sourcePolicy": "sample_chunks_only",
+        "sampleSourceTypes": [
+          "curriculum_standard",
+          "textbook",
+          "exam_analysis_report",
+          "local_exam_paper"
+        ]
+      },
+      "expectedOutput": {
+        "batch_id": "c002o-golden-smoke-001",
+        "mode": "draft_test",
+        "production_eligible": false,
+        "review_status": "pending_review",
+        "source_anchors": [
+          {
+            "source_hash": "SOURCE_HASH_FROM_C002N_REPORT",
+            "relative_path": "《义务教育物理课程标准·日常修订版》(2022年版2025年修订).pdf",
+            "page_number": 2,
+            "chunk_hash": "CHUNK_HASH_FROM_C002N_REPORT",
+            "evidence_role": "scope"
+          },
+          {
+            "source_hash": "SOURCE_HASH_FROM_C002N_REPORT",
+            "relative_path": "初中物理教材（人教版）/物理教材八上（2024人教）.pdf",
+            "page_number": 1,
+            "chunk_hash": "CHUNK_HASH_FROM_C002N_REPORT",
+            "evidence_role": "definition"
+          },
+          {
+            "source_hash": "SOURCE_HASH_FROM_C002N_REPORT",
+            "relative_path": "广州中考年报/2024广州中考年报.pdf",
+            "page_number": 1,
+            "chunk_hash": "CHUNK_HASH_FROM_C002N_REPORT",
+            "evidence_role": "trend_evidence"
+          },
+          {
+            "source_hash": "SOURCE_HASH_FROM_C002N_REPORT",
+            "relative_path": "广州中考真题/2024广州中考.pdf",
+            "page_number": 1,
+            "chunk_hash": "CHUNK_HASH_FROM_C002N_REPORT",
+            "evidence_role": "exam_evidence"
+          }
+        ],
+        "knowledge_points": [
+          {
+            "candidate_id": "kp-force-motion-l2",
+            "name": "力和运动",
+            "level": "L2",
+            "parent_candidate_id": "kp-mechanics-l1",
+            "source_anchor_refs": [
+              "CHUNK_HASH_FROM_C002N_REPORT"
+            ],
+            "confidence": 0.72,
+            "review_status": "pending_review"
+          }
+        ],
+        "curriculum_standard_items": [
+          {
+            "candidate_id": "cs-force-motion-001",
+            "code": "draft-cs-physics-motion",
+            "text": "能从现象和实验中解释力对物体运动状态的影响。",
+            "source_anchor_refs": [
+              "CHUNK_HASH_FROM_C002N_REPORT"
+            ],
+            "review_status": "pending_review"
+          }
+        ],
+        "textbook_chapters": [
+          {
+            "candidate_id": "tb-grade8-force-motion",
+            "title": "力和运动",
+            "grade_or_scope": "grade_8_volume_1",
+            "edition_or_version": "2024_person_education_press_grade_8_volume_1",
+            "source_anchor_refs": [
+              "CHUNK_HASH_FROM_C002N_REPORT"
+            ],
+            "review_status": "pending_review"
+          }
+        ],
+        "exam_points": [
+          {
+            "candidate_id": "ep-guangzhou-force-motion",
+            "description": "结合情境判断力与运动状态变化的关系。",
+            "region": "Guangzhou",
+            "year_range": "2016-2025",
+            "source_anchor_refs": [
+              "CHUNK_HASH_FROM_C002N_REPORT"
+            ],
+            "review_status": "pending_review"
+          }
+        ],
+        "trend_summaries": [
+          {
+            "candidate_id": "trend-force-motion-context",
+            "summary": "近年本地试题倾向把力和运动放入生活或实验情境中考查。",
+            "source_anchor_refs": [
+              "CHUNK_HASH_FROM_C002N_REPORT"
+            ],
+            "confidence": 0.66,
+            "review_status": "pending_review"
+          }
+        ],
+        "mapping_suggestions": [
+          {
+            "from_candidate_id": "tb-grade8-force-motion",
+            "to_candidate_id": "kp-force-motion-l2",
+            "mapping_type": "equivalent",
+            "confidence": 0.68,
+            "impact_level": "medium",
+            "source_anchor_refs": [
+              "CHUNK_HASH_FROM_C002N_REPORT"
+            ],
+            "review_status": "pending_review"
+          }
+        ],
+        "warnings": [
+          "draft/test golden fixture; all items require human review before formalization"
+        ]
+      }
+    }
+  ]
+}

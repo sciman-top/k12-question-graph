@@ -28,6 +28,7 @@ The gate also covers `b001 duplicate upload smoke`, `b002 adapter contract smoke
 `c002h mapping review workbench contract`,
 `local-first ai consumption guard`,
 `c002n source chunk cache guard`,
+`c002o candidate extraction schema/eval guard`,
 `c002p model budget guard`,
 `c002 junior physics draft bootstrap guard`, and
 `d001 model router draft-test contract`, and
@@ -103,6 +104,18 @@ idempotency, and a Chinese report at
 `docs/evidence/c002n-source-chunk-cache-report.json`. Cache files stay under
 `tmp/c002n-source-chunk-cache` and are not committed. The script does not call
 external AI and does not activate formal C002 assets.
+
+C002O candidate extraction schema/eval:
+
+```powershell
+.\tools\run-c002o-candidate-extraction-eval.ps1
+```
+
+This validates the C002 candidate extraction schema and a golden eval fixture
+for `knowledge_points`, `curriculum_standard_items`, `textbook_chapters`,
+`exam_points`, `trend_summaries`, and `mapping_suggestions`. It reads C002N
+chunk hashes as source anchors, keeps every item `pending_review`, and does not
+call a real model or activate formal C002 assets.
 
 C002P model budget guard:
 
