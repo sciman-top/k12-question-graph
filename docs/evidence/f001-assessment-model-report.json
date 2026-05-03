@@ -1,0 +1,29 @@
+{
+  "status": "pass",
+  "task": "F001",
+  "mode": "draft_test",
+  "productionEligible": false,
+  "realStudentDataUsed": false,
+  "studentPortalExposed": false,
+  "tables": [
+    "students",
+    "class_groups",
+    "assessments",
+    "assessment_enrollments"
+  ],
+  "requiredConstraintCount": 6,
+  "syntheticFixture": {
+    "students": 1,
+    "classGroups": 1,
+    "assessments": 1,
+    "enrollments": 1,
+    "piiStudents": 0,
+    "unsafeDraftAssessments": 0,
+    "rollback": "transaction_rollback"
+  },
+  "summaryChinese": {
+    "title": "F001 学生/班级/考试模型合同报告",
+    "result": "通过",
+    "boundary": "仅使用 synthetic 学生、班级、考试和报名关系；不使用真实学生数据，不暴露学生端。"
+  }
+}

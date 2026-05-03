@@ -39,7 +39,8 @@ The gate also covers `b001 duplicate upload smoke`, `b002 adapter contract smoke
 `d003 structured output eval contract`, and
 `e001 question search ui/api contracts`, `e002 paper request contract`, and
 `e003 question replacement undo contract`, and
-`e004 paper export contract`.
+`e004 paper export contract`, and
+`f001 assessment model contract`.
 It starts temporary
 API processes for API smoke steps, so `PGPASSWORD` must match the local PostgreSQL
 password.
@@ -375,6 +376,17 @@ E004 paper export contract:
 This validates `draft_test` Word/PDF export artifacts without requiring formal
 C002 activation. It checks the generated DOCX/PDF manifest, formula text, figure
 media, table content, frontend export controls, and non-production boundary.
+
+F001 assessment model contract:
+
+```powershell
+.\tools\run-f001-assessment-model-contract.ps1
+```
+
+This validates the draft/test student, class group, assessment, and enrollment
+model. It inserts only synthetic fixtures inside a rolled-back transaction,
+checks privacy/production constraints, and ensures no student-facing endpoint is
+exposed.
 
 C002 source material admission guard:
 

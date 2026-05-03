@@ -109,6 +109,14 @@ public static class DomainAssetMigrationStatuses
     public const string Rejected = "rejected";
 }
 
+public static class AssessmentStatuses
+{
+    public const string Draft = "draft";
+    public const string PendingReview = "pending_review";
+    public const string Ready = "ready";
+    public const string Archived = "archived";
+}
+
 public sealed class TeacherPreference
 {
     public Guid Id { get; set; }
@@ -207,6 +215,120 @@ public sealed class SourceRegion
     public string? ScreenshotRelativePath { get; set; }
 
     public string RegionType { get; set; } = "preview";
+
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class Student
+{
+    public Guid Id { get; set; }
+
+    public string StudentKey { get; set; } = string.Empty;
+
+    public string DisplayCode { get; set; } = string.Empty;
+
+    public string Stage { get; set; } = "junior_middle_school";
+
+    public string Grade { get; set; } = string.Empty;
+
+    public bool SyntheticFixture { get; set; }
+
+    public bool ContainsStudentPii { get; set; }
+
+    public string AnonymizationStatus { get; set; } = "synthetic";
+
+    public bool StudentPortalEnabled { get; set; }
+
+    public string Metadata { get; set; } = "{}";
+
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+
+    public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class ClassGroup
+{
+    public Guid Id { get; set; }
+
+    public string ClassKey { get; set; } = string.Empty;
+
+    public string DisplayName { get; set; } = string.Empty;
+
+    public string Stage { get; set; } = "junior_middle_school";
+
+    public string Grade { get; set; } = string.Empty;
+
+    public string SchoolYear { get; set; } = string.Empty;
+
+    public bool SyntheticFixture { get; set; }
+
+    public bool ContainsStudentPii { get; set; }
+
+    public string AnonymizationStatus { get; set; } = "synthetic";
+
+    public string Metadata { get; set; } = "{}";
+
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+
+    public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class Assessment
+{
+    public Guid Id { get; set; }
+
+    public string AssessmentKey { get; set; } = string.Empty;
+
+    public string Title { get; set; } = string.Empty;
+
+    public string Subject { get; set; } = "physics";
+
+    public string Stage { get; set; } = "junior_middle_school";
+
+    public string Grade { get; set; } = string.Empty;
+
+    public string Status { get; set; } = AssessmentStatuses.Draft;
+
+    public string Mode { get; set; } = "draft_test";
+
+    public bool ProductionEligible { get; set; }
+
+    public bool SyntheticFixture { get; set; }
+
+    public bool ContainsStudentPii { get; set; }
+
+    public string AnonymizationStatus { get; set; } = "synthetic";
+
+    public bool StudentPortalEnabled { get; set; }
+
+    public string Blueprint { get; set; } = "{}";
+
+    public string Metadata { get; set; } = "{}";
+
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+
+    public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class AssessmentEnrollment
+{
+    public Guid Id { get; set; }
+
+    public Guid AssessmentId { get; set; }
+
+    public Guid ClassGroupId { get; set; }
+
+    public Guid StudentId { get; set; }
+
+    public string SeatNo { get; set; } = string.Empty;
+
+    public string Status { get; set; } = "enrolled";
+
+    public bool SyntheticFixture { get; set; }
+
+    public bool ContainsStudentPii { get; set; }
+
+    public string ScoreSummary { get; set; } = "{}";
 
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 }

@@ -13,6 +13,14 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
 
     public DbSet<SourceRegion> SourceRegions => Set<SourceRegion>();
 
+    public DbSet<Student> Students => Set<Student>();
+
+    public DbSet<ClassGroup> ClassGroups => Set<ClassGroup>();
+
+    public DbSet<Assessment> Assessments => Set<Assessment>();
+
+    public DbSet<AssessmentEnrollment> AssessmentEnrollments => Set<AssessmentEnrollment>();
+
     public DbSet<ImportJob> ImportJobs => Set<ImportJob>();
 
     public DbSet<AIJob> AIJobs => Set<AIJob>();
@@ -47,6 +55,10 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
         ConfigureFileAsset(modelBuilder.Entity<FileAsset>());
         ConfigureSourceDocument(modelBuilder.Entity<SourceDocument>());
         ConfigureSourceRegion(modelBuilder.Entity<SourceRegion>());
+        ConfigureStudent(modelBuilder.Entity<Student>());
+        ConfigureClassGroup(modelBuilder.Entity<ClassGroup>());
+        ConfigureAssessment(modelBuilder.Entity<Assessment>());
+        ConfigureAssessmentEnrollment(modelBuilder.Entity<AssessmentEnrollment>());
         ConfigureImportJob(modelBuilder.Entity<ImportJob>());
         ConfigureAIJob(modelBuilder.Entity<AIJob>());
         ConfigureReviewQueueItem(modelBuilder.Entity<ReviewQueueItem>());
@@ -127,6 +139,98 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
             x.HasCheckConstraint("ck_source_regions_page_number", "page_number >= 1");
             x.HasCheckConstraint("ck_source_regions_bbox", "x >= 0 and y >= 0 and width > 0 and height > 0");
             x.HasCheckConstraint("ck_source_regions_coordinate_unit", "coordinate_unit in ('pixel','point','percent')");
+        });
+    }
+
+    private static void ConfigureStudent(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<Student> entity)
+    {
+        entity.ToTable("students");
+        entity.HasKey(x => x.Id);
+        entity.HasIndex(x => x.StudentKey).IsUnique();
+        entity.HasIndex(x => new { x.Stage, x.Grade });
+        entity.HasIndex(x => x.ContainsStudentPii);
+        entity.Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
+        entity.Property(x => x.StudentKey).HasMaxLength(160).IsRequired();
+        entity.Property(x => x.DisplayCode).HasMaxLength(128).HasDefaultValue(string.Empty);
+        entity.Property(x => x.Stage).HasMaxLength(64).HasDefaultValue("junior_middle_school");
+        entity.Property(x => x.Grade).HasMaxLength(64).HasDefaultValue(string.Empty);
+        entity.Property(x => x.AnonymizationStatus).HasMaxLength(64).HasDefaultValue("synthetic");
+        entity.Property(x => x.Metadata).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.ToTable(x =>
+        {
+            x.HasCheckConstraint("ck_students_anonymization_status", "anonymization_status in ('none','anonymized','synthetic')");
+            x.HasCheckConstraint("ck_students_pii_guard", "(contains_student_pii = false) or (anonymization_status in ('anonymized','synthetic'))");
+            x.HasCheckConstraint("ck_students_no_portal_for_synthetic", "(synthetic_fixture = false) or (student_portal_enabled = false)");
+        });
+    }
+
+    private static void ConfigureClassGroup(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<ClassGroup> entity)
+    {
+        entity.ToTable("class_groups");
+        entity.HasKey(x => x.Id);
+        entity.HasIndex(x => x.ClassKey).IsUnique();
+        entity.HasIndex(x => new { x.Stage, x.Grade, x.SchoolYear });
+        entity.HasIndex(x => x.ContainsStudentPii);
+        entity.Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
+        entity.Property(x => x.ClassKey).HasMaxLength(160).IsRequired();
+        entity.Property(x => x.DisplayName).HasMaxLength(160).HasDefaultValue(string.Empty);
+        entity.Property(x => x.Stage).HasMaxLength(64).HasDefaultValue("junior_middle_school");
+        entity.Property(x => x.Grade).HasMaxLength(64).HasDefaultValue(string.Empty);
+        entity.Property(x => x.SchoolYear).HasMaxLength(32).HasDefaultValue(string.Empty);
+        entity.Property(x => x.AnonymizationStatus).HasMaxLength(64).HasDefaultValue("synthetic");
+        entity.Property(x => x.Metadata).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.ToTable(x =>
+        {
+            x.HasCheckConstraint("ck_class_groups_anonymization_status", "anonymization_status in ('none','anonymized','synthetic')");
+            x.HasCheckConstraint("ck_class_groups_pii_guard", "(contains_student_pii = false) or (anonymization_status in ('anonymized','synthetic'))");
+        });
+    }
+
+    private static void ConfigureAssessment(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<Assessment> entity)
+    {
+        entity.ToTable("assessments");
+        entity.HasKey(x => x.Id);
+        entity.HasIndex(x => x.AssessmentKey).IsUnique();
+        entity.HasIndex(x => new { x.Subject, x.Stage, x.Status });
+        entity.HasIndex(x => x.ContainsStudentPii);
+        entity.Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
+        entity.Property(x => x.AssessmentKey).HasMaxLength(160).IsRequired();
+        entity.Property(x => x.Title).HasMaxLength(256).IsRequired();
+        entity.Property(x => x.Subject).HasMaxLength(64).HasDefaultValue("physics");
+        entity.Property(x => x.Stage).HasMaxLength(64).HasDefaultValue("junior_middle_school");
+        entity.Property(x => x.Grade).HasMaxLength(64).HasDefaultValue(string.Empty);
+        entity.Property(x => x.Status).HasMaxLength(32).HasDefaultValue(AssessmentStatuses.Draft);
+        entity.Property(x => x.Mode).HasMaxLength(32).HasDefaultValue("draft_test");
+        entity.Property(x => x.AnonymizationStatus).HasMaxLength(64).HasDefaultValue("synthetic");
+        entity.Property(x => x.Blueprint).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.Property(x => x.Metadata).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.ToTable(x =>
+        {
+            x.HasCheckConstraint("ck_assessments_status", "status in ('draft','pending_review','ready','archived')");
+            x.HasCheckConstraint("ck_assessments_mode", "mode in ('draft_test','production')");
+            x.HasCheckConstraint("ck_assessments_anonymization_status", "anonymization_status in ('none','anonymized','synthetic')");
+            x.HasCheckConstraint("ck_assessments_production_guard", "(production_eligible = false and mode = 'draft_test') or (production_eligible = true and mode = 'production')");
+            x.HasCheckConstraint("ck_assessments_no_portal_for_draft", "(mode <> 'draft_test') or (student_portal_enabled = false)");
+        });
+    }
+
+    private static void ConfigureAssessmentEnrollment(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<AssessmentEnrollment> entity)
+    {
+        entity.ToTable("assessment_enrollments");
+        entity.HasKey(x => x.Id);
+        entity.HasIndex(x => new { x.AssessmentId, x.StudentId }).IsUnique();
+        entity.HasIndex(x => x.ClassGroupId);
+        entity.Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
+        entity.Property(x => x.SeatNo).HasMaxLength(32).HasDefaultValue(string.Empty);
+        entity.Property(x => x.Status).HasMaxLength(32).HasDefaultValue("enrolled");
+        entity.Property(x => x.ScoreSummary).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.HasOne<Assessment>().WithMany().HasForeignKey(x => x.AssessmentId).OnDelete(DeleteBehavior.Cascade);
+        entity.HasOne<ClassGroup>().WithMany().HasForeignKey(x => x.ClassGroupId).OnDelete(DeleteBehavior.Restrict);
+        entity.HasOne<Student>().WithMany().HasForeignKey(x => x.StudentId).OnDelete(DeleteBehavior.Restrict);
+        entity.ToTable(x =>
+        {
+            x.HasCheckConstraint("ck_assessment_enrollments_status", "status in ('enrolled','excluded','absent')");
+            x.HasCheckConstraint("ck_assessment_enrollments_pii_guard", "contains_student_pii = false");
         });
     }
 

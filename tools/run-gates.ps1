@@ -288,6 +288,10 @@ try {
         .\tools\run-e004-paper-export-contract.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'f001 assessment model contract' {
+        .\tools\run-f001-assessment-model-contract.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin | Write-Host
+    }
+
     Invoke-GateStep 'b001 duplicate upload smoke' {
         if ([string]::IsNullOrWhiteSpace($DatabasePassword)) {
             throw "DatabasePassword or PGPASSWORD is required for API upload smoke"
