@@ -1,0 +1,199 @@
+{
+  "schemaVersion": "domain-asset-versioned-revision.v0.1",
+  "planId": "C002R_JUNIOR_PHYSICS_ACTIVE_V1_REVISION_SAMPLE",
+  "mode": "dry_run",
+  "noActiveWrite": true,
+  "activeBaseline": {
+    "status": "active",
+    "activeImportKey": "c002_candidate_import_guangzhou_physics_2016_2025_v1",
+    "activeVersionLabel": "junior-physics-guangzhou-source-derived-v1",
+    "activeAssetCount": 452,
+    "approvedMappingCount": 400,
+    "appliedMigrationCount": 1,
+    "rollbackEvidence": "docs/evidence/c002t-active-switch-report.json"
+  },
+  "teacherRevisionIntake": {
+    "allowedChangeSources": [
+      "new_textbook",
+      "new_curriculum_standard",
+      "exam_trend",
+      "teacher_correction"
+    ],
+    "requiredFields": [
+      "changeSummary",
+      "sourceEvidence",
+      "affectedScope",
+      "urgency"
+    ],
+    "hideTechnicalFieldsFromTeacher": true,
+    "teacherVisibleSummary": "教师只提交修订原因、来源页码或截图、影响范围和紧急程度；系统生成候选版本、映射、影响报告和回滚快照。"
+  },
+  "candidateVersion": {
+    "revisionKey": "c002r_revision_candidate_sample_2026",
+    "status": "candidate",
+    "productionEligible": false,
+    "basedOnActiveVersion": "junior-physics-guangzhou-source-derived-v1",
+    "noInPlaceActiveEdit": true,
+    "requiredEvidenceFields": [
+      "sourceDocumentSha256",
+      "pageNumber",
+      "teacherChangeReason",
+      "reviewerId",
+      "rollbackSnapshotKey"
+    ]
+  },
+  "mappingPlan": {
+    "planId": "C002R_MAPPING_PLAN_SAMPLE",
+    "mappings": [
+      {
+        "mappingId": "c002r-map-equivalent-speed",
+        "mappingType": "equivalent",
+        "fromStableId": "PHY-JH-MECH-MOTION-SPEED",
+        "toStableId": "PHY-JH-MECH-MOTION-SPEED-V2",
+        "confidence": 0.96,
+        "impactLevel": "low",
+        "requiresHumanReview": false,
+        "requiresReviewReason": false,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "c002r-map-split-electric-circuit",
+        "mappingType": "split",
+        "fromStableId": "PHY-JH-ELEC-CIRCUIT",
+        "toStableId": "PHY-JH-ELEC-SERIES-CIRCUIT;PHY-JH-ELEC-PARALLEL-CIRCUIT",
+        "confidence": 0.78,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "c002r-map-merge-light-reflection",
+        "mappingType": "merge",
+        "fromStableId": "PHY-JH-OPTICS-PLANE-MIRROR;PHY-JH-OPTICS-LIGHT-REFLECTION",
+        "toStableId": "PHY-JH-OPTICS-REFLECTION-V2",
+        "confidence": 0.81,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "c002r-map-broader-energy",
+        "mappingType": "broader",
+        "fromStableId": "PHY-JH-MECH-WORK-POWER",
+        "toStableId": "PHY-JH-ENERGY-WORK-POWER-V2",
+        "confidence": 0.83,
+        "impactLevel": "medium",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "c002r-map-narrower-pressure",
+        "mappingType": "narrower",
+        "fromStableId": "PHY-JH-MECH-PRESSURE",
+        "toStableId": "PHY-JH-MECH-SOLID-PRESSURE-V2",
+        "confidence": 0.8,
+        "impactLevel": "medium",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "c002r-map-renamed-density",
+        "mappingType": "renamed",
+        "fromStableId": "PHY-JH-MATTER-DENSITY",
+        "toStableId": "PHY-JH-MATTER-DENSITY-CONCEPT",
+        "confidence": 0.94,
+        "impactLevel": "low",
+        "requiresHumanReview": false,
+        "requiresReviewReason": false,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "c002r-map-deprecated-old-trend",
+        "mappingType": "deprecated",
+        "fromStableId": "PHY-JH-EXAM-OLD-LOCAL-TREND",
+        "toStableId": "PHY-JH-EXAM-TREND-2026",
+        "confidence": 0.72,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      }
+    ]
+  },
+  "impactReport": {
+    "reportId": "C002R_IMPACT_REPORT_SAMPLE",
+    "impacts": [
+      {
+        "impactType": "question_binding",
+        "affectedCount": 42,
+        "action": "update_after_review",
+        "requiresHumanReview": true,
+        "requiresRollbackSnapshot": true,
+        "rollbackKey": "question_binding:c002r"
+      },
+      {
+        "impactType": "paper_blueprint",
+        "affectedCount": 6,
+        "action": "hold_for_review",
+        "requiresHumanReview": true,
+        "requiresRollbackSnapshot": true,
+        "rollbackKey": "paper_blueprint:c002r"
+      },
+      {
+        "impactType": "search_index",
+        "affectedCount": 452,
+        "action": "rebuild_derived_index",
+        "requiresHumanReview": false,
+        "requiresRollbackSnapshot": true,
+        "rollbackKey": "search_index:c002r"
+      },
+      {
+        "impactType": "analysis_metric",
+        "affectedCount": 12,
+        "action": "freeze_historical_snapshot",
+        "requiresHumanReview": true,
+        "requiresRollbackSnapshot": true,
+        "rollbackKey": "analysis_metric:c002r"
+      },
+      {
+        "impactType": "export_template",
+        "affectedCount": 3,
+        "action": "hold_for_review",
+        "requiresHumanReview": true,
+        "requiresRollbackSnapshot": true,
+        "rollbackKey": "export_template:c002r"
+      },
+      {
+        "impactType": "score_import_template",
+        "affectedCount": 2,
+        "action": "hold_for_review",
+        "requiresHumanReview": true,
+        "requiresRollbackSnapshot": true,
+        "rollbackKey": "score_import_template:c002r"
+      }
+    ]
+  },
+  "reviewWorkflow": {
+    "initialStatus": "pending_review",
+    "requiresReviewReason": true,
+    "requiresRollbackSnapshotBeforeApproval": true,
+    "activeSwitchRole": "administrator",
+    "teacherCanApplyActive": false,
+    "activationEntry": "tools/run-domain-asset-activation.ps1",
+    "teacherVisibleBoundary": "教师复核修订建议和影响摘要，不直接执行 active 切换。"
+  },
+  "rollbackDrill": {
+    "requiredSteps": [
+      "restore_active_version",
+      "restore_mapping_edges",
+      "restore_impact_targets",
+      "verify_historical_analysis"
+    ],
+    "verifyAfterRollback": true,
+    "evidencePath": "docs/evidence/c002r-versioned-revision-report.json"
+  }
+}

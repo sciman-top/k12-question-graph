@@ -312,7 +312,7 @@
 - C002T reviewed -> active 受控切换。已完成：`tools/run-c002t-active-switch.ps1` 默认 dry-run，`-Apply` 必须提供 backup manifest。已在 `D:\KQG_Backups\20260504-015358\manifest.json` 备份并校验后执行 active switch：452 个 `reviewed` 资产切换为 `active`，migration 切换为 `applied`，报告为 `docs/evidence/c002t-active-switch-report.json`。该入口可复跑，已激活后返回 `alreadyActive=true`。
 - C002U 学科激活工作台 v0。已完成教师侧 UI 简化层：Web 页面包含 `data-flow="subject-activation-workbench"`，把资料批次、候选结果、教师复核、激活前检查和正式启用呈现为可理解流程；教师侧只提供复核、确认表、证据和回滚查看入口，明确“不在教师端直接激活”，正式激活只给管理员。验证入口为 `tools/run-subject-activation-workbench-ui-contract.ps1`，已纳入 `tools/run-gates.ps1`；说明见 `docs/80_SubjectActivationWorkbenchV0.md`。
 - C002 正式知识点初始化。已完成：初中物理 L1-L3 知识体系 v1 已通过来源证据、审核决策、映射影响、回滚快照和 active switch guard，成为当前生产默认版本。完成不表示永久冻结；旧版本保留用于历史题目、旧卷、学情解释和回滚，后续修改走 C002R。
-- C002R 知识体系版本治理与便捷修订闭环。暂缓到 C002 v1 active 后：面向教材、课标、中考趋势或教师修正的后续修改，新建 candidate 版本，使用 `equivalent/split/merge/broader/narrower/renamed/deprecated` 映射，生成影响报告和 rollback snapshot，经审核后切换 active。
+- C002R 知识体系版本治理与便捷修订闭环。已完成合同层：`tools/run-c002r-versioned-revision-contract.ps1` 验证 C002 v1 active 后的修订不直接改旧 active；教师只提交修订原因、来源证据、影响范围和紧急程度；系统生成 `candidate/productionEligible=false` 版本，覆盖 `equivalent/split/merge/broader/narrower/renamed/deprecated` 映射、影响报告、审核理由、rollback snapshot、历史学情冻结和管理员 active 切换边界。说明见 `docs/81_C002R_VersionedRevision.md`。
 - C003 公式、实验、方法、易错点。
 - C004 教材章节映射。
 - C005 地区考点映射。

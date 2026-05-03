@@ -1,0 +1,37 @@
+{
+  "status": "pass",
+  "planId": "C002R_JUNIOR_PHYSICS_ACTIVE_V1_REVISION_SAMPLE",
+  "mode": "dry_run",
+  "checkedAt": "2026-05-03T19:30:02.2079757Z",
+  "task": "C002R",
+  "activeImportKey": "c002_candidate_import_guangzhou_physics_2016_2025_v1",
+  "activeAssetCount": 452,
+  "mappingTypes": [
+    "broader",
+    "deprecated",
+    "equivalent",
+    "merge",
+    "narrower",
+    "renamed",
+    "split"
+  ],
+  "mappings": 7,
+  "manualReviewMappings": 5,
+  "autoSuggestMappings": 2,
+  "impactTypes": [
+    "analysis_metric",
+    "export_template",
+    "paper_blueprint",
+    "question_binding",
+    "score_import_template",
+    "search_index"
+  ],
+  "impacts": 6,
+  "frozenHistoricalAnalysis": 12,
+  "teacherCanApplyActive": false,
+  "rollbackSteps": 4,
+  "evidence": {
+    "revisionPlan": "configs/domain-assets/c002r-versioned-revision.sample.json",
+    "report": "docs/evidence/c002r-versioned-revision-report.json"
+  }
+}

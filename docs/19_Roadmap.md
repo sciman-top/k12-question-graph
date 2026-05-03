@@ -44,6 +44,8 @@ AI 推荐保留当前 P0-P6 大方向，但调整顺序和验收口径：
 
 C002 的“正式完成”定义为：初中物理 L1-L3 知识体系 v1 已通过来源证据、人工审核、映射影响、回滚快照和 active guard，成为当前生产默认版本。它不表示永久冻结。后续教材、课标、考情或教师修正都应进入新的 `candidate` 版本，通过 `equivalent/split/merge/broader/narrower/renamed/deprecated` 映射、影响报告、审核和回滚快照后，再切换 active；旧 active 版本继续保留用于历史题目、旧卷复现、学情解释和回滚。
 
+C002R 已把上述“active 后仍可修订”落成 dry-run 合同：`configs/domain-assets/c002r-versioned-revision.sample.json` 和 `tools/run-c002r-versioned-revision-contract.ps1` 验证教师侧只提交简化修订信息，系统侧生成 candidate 版本、映射、影响报告、审核理由、rollback snapshot 和管理员 active 切换边界。当前完成的是合同和 gate，不表示已经发生新的生产修订。
+
 为了降低教师使用门槛，C002U 已把后续新学科激活流程产品化为 Web 侧“学科激活工作台 v0”。该工作台只暴露资料批次、候选结果、教师复核、激活前检查、正式启用、证据和回滚摘要；普通教师不直接执行激活脚本，正式激活仍由管理员在备份、阻断项、复核结论和回滚说明齐备后执行。UI 合同由 `tools/run-subject-activation-workbench-ui-contract.ps1` 验证，并纳入 full gate。
 
 C002 active 前必须先完成 C002S 正式化前审查闭环：抽样核对 2016-2025 每年 2-3 道题的原卷、答案、年报页码、考点、知识点、教材/课标映射；把 C003 研究包中 210 条年报页码/指标质量问题清零；再通过 candidate DB dry-run、备份 manifest、审核队列 readiness 和 active guard。当前 `tools/run-c002s-formalization-precheck.ps1` 已自动 overlay `quality-review-complete-csv-package` 并通过审查，报告为 `docs/evidence/c002s-formalization-precheck-report.json`，`sampleFailures=0`、`qualityIssuesOpenForProduction=0`、`productionActivationAllowed=true`。`docs/evidence/c002l-candidate-review-readiness-report.json` 当前显示 `formalActivationComplete=true`、hard blockers 为空；`docs/evidence/c002t-active-switch-report.json` 显示 active switch 已应用。
