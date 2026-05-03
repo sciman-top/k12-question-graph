@@ -28,7 +28,8 @@ The gate also covers `b001 duplicate upload smoke`, `b002 adapter contract smoke
 `c002h mapping review workbench contract`,
 `c002 junior physics draft bootstrap guard`, and
 `d001 model router draft-test contract`, and
-`d002 ai job cost contract`.
+`d002 ai job cost contract`, and
+`d003 structured output eval contract`.
 It starts temporary
 API processes for API smoke steps, so `PGPASSWORD` must match the local PostgreSQL
 password.
@@ -172,6 +173,16 @@ This applies the D002 migration and validates that a synthetic stub AI task
 records provider, model, routing version, prompt/schema versions, input hash,
 tokens, cached tokens, zero stub cost, latency, confidence, review status, and
 idempotency without calling any external AI provider.
+
+D003 structured output eval contract:
+
+```powershell
+.\tools\run-d003-structured-output-eval.ps1
+```
+
+This validates draft/test golden smoke fixtures against the AI structured output
+schemas without calling external AI providers. It keeps all eval cases
+`pending_review`, non-production, and repeatable.
 
 C002 source material admission guard:
 

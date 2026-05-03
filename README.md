@@ -8,7 +8,7 @@
 
 2026-05-02 外部资料复核后的判断：最高原则、默认技术栈、模块化单体架构和 P0/P1 纵切路线保持正确；需要在进入编码前先完成 P0 准入预检，锁定 SDK/runtime、PostgreSQL 版本、数据目录、Windows Service/content root 约束、BackgroundService job lease/retry 规则、学生数据/合规辖区边界和文档门禁。
 
-当前 P0/P1 已打通“上传文件 -> 创建 ImportJob -> 持久化元数据 -> Python Worker 占位 -> 页面预览/人工确认/来源回看 -> health -> backup manifest -> unified gate”纵切闭环。P2 已完成 C001、C002A-C002F 的动态领域资产合同：draft bootstrap 可用于测试，source-derived 正式资产必须经过来源准入、映射 dry-run、迁移影响报告、候选审核和 active 激活 guard。P3 已在 draft/test 模式完成 D001 AI Provider 抽象与 ModelRouter 合同；真实模型调用仍禁用，LLM 路由只进入 `stub_llm` 和人工审核链路。
+当前 P0/P1 已打通“上传文件 -> 创建 ImportJob -> 持久化元数据 -> Python Worker 占位 -> 页面预览/人工确认/来源回看 -> health -> backup manifest -> unified gate”纵切闭环。P2 已完成 C001、C002A-C002H 的动态领域资产合同：draft bootstrap 可用于测试，source-derived 正式资产必须经过来源准入、映射 dry-run、迁移影响报告、候选审核和 active 激活 guard。P3 已在 draft/test 模式完成 D001-D003：真实模型调用仍禁用，LLM 路由只进入 `stub_llm`、成本日志和结构化输出 eval smoke，结果保持人工审核边界。
 
 ## 当前启动与门禁
 
@@ -86,7 +86,7 @@ v0.1 聚焦：
 P0/P1: 打开应用 → 上传文件 → 创建 ImportJob → 写数据库 → 文件入仓 → 页面预览 → 人工确认 → 单题入库 → 来源回看 → 备份 manifest
 P2/C002 draft-test: draft 知识点 → 替换映射 dry-run → 迁移影响报告 → candidate admission → active guard
 P2/C002 dynamic contract: dynamic elements → one-to-one/one-to-many/many-to-one/many-to-many mapping → review workbench → impact/rollback
-P3/D001-D002 draft-test: AI task → ModelRouter → rule/stub_llm → schema/prompt/model/cost log → human review guard
+P3/D001-D003 draft-test: AI task → ModelRouter → rule/stub_llm → schema/prompt/model/cost log → structured output eval → human review guard
 ```
 
 完整 v0.1 闭环仍是：
@@ -122,6 +122,7 @@ tests/      自动化测试与黄金样本
 - `tools/run-gates.ps1`: 统一门禁入口。
 - `tools/run-c002-dry-run-suite.ps1`: 无数据库的 C002 动态资产 dry-run 入口。
 - `tools/run-d001-model-router-contract.ps1`: D001 draft/test ModelRouter 合同。
+- `tools/run-d003-structured-output-eval.ps1`: D003 draft/test 结构化输出 eval smoke。
 
 快速文档/配置门禁：
 

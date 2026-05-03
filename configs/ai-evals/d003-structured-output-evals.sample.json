@@ -1,0 +1,158 @@
+{
+  "schemaVersion": "d003.structured-output-evals.v0.1",
+  "suiteId": "d003-draft-test-golden-smoke",
+  "mode": "draft_test",
+  "allowRealModelCalls": false,
+  "productionEligible": false,
+  "cases": [
+    {
+      "caseId": "knowledge-mapping-single-choice",
+      "taskType": "knowledge_tagging",
+      "schemaPath": "schemas/ai/knowledge_mapping.schema.json",
+      "promptVersion": "knowledge-tagging.draft.v0.1",
+      "input": {
+        "sourceType": "question",
+        "sourceId": "golden-physics-force-001",
+        "text": "下列关于力的说法正确的是？"
+      },
+      "expectedOutput": {
+        "source_type": "question",
+        "source_id": "golden-physics-force-001",
+        "suggestions": [
+          {
+            "knowledge_id": "draft-physics-force-interaction",
+            "name": "力是物体间的相互作用",
+            "mapping_type": "primary",
+            "weight": 1.0,
+            "confidence": 0.82
+          }
+        ],
+        "review_required": true,
+        "reason": "draft/test fixture for structured output validation"
+      },
+      "expectedReviewStatus": "pending_review",
+      "minConfidence": 0.75
+    },
+    {
+      "caseId": "question-extraction-cross-page",
+      "taskType": "question_extraction",
+      "schemaPath": "schemas/ai/question_extraction.schema.json",
+      "promptVersion": "question-extraction.draft.v0.1",
+      "input": {
+        "sourceDocumentId": "golden-cross-page-001",
+        "fixture": "tests/golden-import/cross-page-question.json"
+      },
+      "expectedOutput": {
+        "source_document_id": "golden-cross-page-001",
+        "questions": [
+          {
+            "local_number": "1",
+            "question_type": "short_answer",
+            "stem_blocks": [
+              {
+                "type": "text",
+                "content": "请说明惯性的含义。",
+                "confidence": 0.84
+              }
+            ],
+            "options": [],
+            "sub_questions": [],
+            "answer": "物体保持原有运动状态的性质。",
+            "solution": "惯性是物体保持原有运动状态不变的性质。",
+            "source_regions": [
+              {
+                "page": 1,
+                "bbox": [
+                  0.10,
+                  0.20,
+                  0.80,
+                  0.30
+                ]
+              }
+            ],
+            "confidence": 0.84,
+            "review_required": true,
+            "issues": [
+              "draft fixture requires teacher review"
+            ]
+          }
+        ],
+        "warnings": []
+      },
+      "expectedReviewStatus": "pending_review",
+      "minConfidence": 0.80
+    },
+    {
+      "caseId": "answer-verification-conflict",
+      "taskType": "answer_verification",
+      "schemaPath": "schemas/ai/answer_verification.schema.json",
+      "promptVersion": "answer-verification.draft.v0.1",
+      "input": {
+        "questionId": "golden-answer-conflict-001",
+        "extractedAnswer": "A",
+        "independentAnswer": "B"
+      },
+      "expectedOutput": {
+        "question_id": "golden-answer-conflict-001",
+        "extracted_answer": "A",
+        "independent_answer": "B",
+        "consistency": "conflict",
+        "risk_level": "high",
+        "issues": [
+          {
+            "type": "answer_conflict",
+            "description": "extracted answer differs from independent answer"
+          }
+        ],
+        "confidence": 0.78,
+        "review_required": true
+      },
+      "expectedReviewStatus": "pending_review",
+      "minConfidence": 0.70
+    },
+    {
+      "caseId": "paper-request-parse",
+      "taskType": "natural_language_paper_request",
+      "schemaPath": "schemas/ai/natural_language_paper_request.schema.json",
+      "promptVersion": "paper-request.draft.v0.1",
+      "input": {
+        "text": "八年级物理，力和运动，出一份 100 分单元练习，难度中等。"
+      },
+      "expectedOutput": {
+        "system_understanding": "八年级物理单元练习，覆盖力和运动，目标总分 100，难度中等。",
+        "paper_type": "unit_practice",
+        "subject": "physics",
+        "grade": "grade_8",
+        "textbook_version": null,
+        "scope": [
+          "力",
+          "运动"
+        ],
+        "total_score": 100,
+        "difficulty_target": "medium",
+        "question_type_plan": [
+          {
+            "question_type": "single_choice",
+            "count": 10,
+            "score": 30
+          },
+          {
+            "question_type": "short_answer",
+            "count": 5,
+            "score": 70
+          }
+        ],
+        "constraints": {
+          "requiresTeacherReview": true,
+          "sourcePolicy": "draft_test_only"
+        },
+        "review_questions": [
+          "是否限定教材版本？",
+          "是否需要包含实验探究题？"
+        ]
+      },
+      "expectedReviewStatus": "pending_review",
+      "minConfidence": 0.0
+    }
+  ]
+}
