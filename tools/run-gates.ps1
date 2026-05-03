@@ -332,6 +332,10 @@ try {
         .\tools\run-g003-winpe-emergency-copy-contract.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'g004 pgpass installer dry-run contract' {
+        .\tools\run-g004-pgpass-installer-dry-run.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin | Write-Host
+    }
+
     Invoke-GateStep 'b001 duplicate upload smoke' {
         if ([string]::IsNullOrWhiteSpace($DatabasePassword)) {
             throw "DatabasePassword or PGPASSWORD is required for API upload smoke"
