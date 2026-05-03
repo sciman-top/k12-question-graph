@@ -1,0 +1,15 @@
+{
+  "expected_sha256": "9c13ada63de4a9b711b94a3175d7eb34ebe15e31f302f22ea859b0693661b889",
+  "management_mode": "block_on_drift",
+  "marker_strategy": "sidecar",
+  "mode_status": "active",
+  "overwrite_policy": "create_missing_block_existing_drift",
+  "ownership_scope": "whole_file",
+  "path": ".claude/hooks/governed-pre-tool-use.py",
+  "record_kind": "target_repo_managed_file_provenance",
+  "schema_version": "1.0",
+  "source": "D:\\CODE\\governed-ai-coding-runtime\\docs\\targets\\templates\\claude-code\\governed-pre-tool-use.py",
+  "source_sha256": "9c13ada63de4a9b711b94a3175d7eb34ebe15e31f302f22ea859b0693661b889",
+  "sync_revision": "2026-05-02.2",
+  "target_sha256": "9c13ada63de4a9b711b94a3175d7eb34ebe15e31f302f22ea859b0693661b889"
+}

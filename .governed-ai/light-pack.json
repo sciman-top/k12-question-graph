@@ -1,0 +1,13 @@
+{
+  "adapter_preference": "native_attach",
+  "binding_id": "binding-k12-question-graph",
+  "gate_profile": "default",
+  "pack_kind": "repo_attachment_light_pack",
+  "provenance_ref": ".governed-ai/light-pack.provenance.json",
+  "repo_profile_ref": ".governed-ai/repo-profile.json",
+  "runtime_contract_refs": {
+    "repo_attachment_binding_schema": "schemas/jsonschema/repo-attachment-binding.schema.json",
+    "repo_profile_schema": "schemas/jsonschema/repo-profile.schema.json"
+  },
+  "schema_version": "1.0"
+}

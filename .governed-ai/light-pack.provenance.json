@@ -1,0 +1,33 @@
+{
+  "attestation_id": "binding-k12-question-graph.light-pack",
+  "generated_at": "2026-05-03T18:31:57.111796+00:00",
+  "generator_version": "1.0",
+  "input_digest": "sha256:57fd2556d0ce5847fdda9b7785338a416d56715c622b1804f6a5de9afa185361",
+  "materials": [
+    {
+      "uri": "D:\\CODE\\k12-question-graph\\.governed-ai\\repo-profile.json",
+      "version_or_digest": "sha256:57fd2556d0ce5847fdda9b7785338a416d56715c622b1804f6a5de9afa185361"
+    },
+    {
+      "uri": "schemas/jsonschema/repo-attachment-binding.schema.json",
+      "version_or_digest": "repo-contract-ref"
+    },
+    {
+      "uri": "schemas/jsonschema/repo-profile.schema.json",
+      "version_or_digest": "repo-contract-ref"
+    }
+  ],
+  "notes": "Generated alongside repo-local light pack; digest validation is local and does not imply release signing.",
+  "output_digest": "sha256:818c305bb0b7be2f2cb4ee9ae336cf11bb52901025c3cbb31c1762f0a488810c",
+  "predicate_type": "governed-ai-coding-runtime/light-pack-provenance/v1",
+  "producer": "governed_ai_coding_runtime_contracts.repo_attachment",
+  "repo_id": "k12-question-graph",
+  "rollback_ref": "git diff -- light-pack.json light-pack.provenance.json",
+  "schema_version": "1.0",
+  "source_ref": "packages/contracts/src/governed_ai_coding_runtime_contracts/repo_attachment.py",
+  "subject_digest": "sha256:818c305bb0b7be2f2cb4ee9ae336cf11bb52901025c3cbb31c1762f0a488810c",
+  "subject_ref": "D:\\CODE\\k12-question-graph\\.governed-ai\\light-pack.json",
+  "subject_type": "repo_light_pack",
+  "target_repo_binding": "binding-k12-question-graph",
+  "verification_status": "unverified"
+}

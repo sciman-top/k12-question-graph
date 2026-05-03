@@ -1,0 +1,8 @@
+{
+  "baseline_kind": "target_repo_dependency_baseline",
+  "generated_at": "2026-05-03T18:31:57.112537+00:00",
+  "owner_runtime": "governed-ai-coding-runtime",
+  "repo_id": "k12-question-graph",
+  "schema_version": "1.0",
+  "verify_command": "python scripts/verify-dependency-baseline.py --target-repo-root <target-repo-root> --require-target-repo-baseline"
+}
