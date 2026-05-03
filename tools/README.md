@@ -529,3 +529,16 @@ G003 WinPE emergency copy media contract:
 This generates draft/test emergency copy scripts under
 `tmp/g003-winpe-recovery-media`, verifies the generated scripts use copy-only
 Robocopy behavior, and writes `docs/evidence/g003-winpe-emergency-copy-report.json`.
+
+G004 pgpass installer credential dry-run:
+
+```powershell
+$env:PGPASSWORD='<local-password>'
+.\tools\run-g004-pgpass-installer-dry-run.ps1
+```
+
+This uses a temporary `APPDATA` root, writes a temporary PostgreSQL
+`pgpass.conf`, tightens ACLs, clears the process-level `PGPASSWORD`, verifies
+`psql -w`, deletes the temporary credential file, and writes
+`docs/evidence/g004-pgpass-installer-dry-run-report.json`. It does not modify
+the real user profile pgpass file and does not log the password.
