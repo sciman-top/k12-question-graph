@@ -274,6 +274,17 @@ optional review-decision generation/application, active dry-run, backup,
 activation, and final idempotency evidence. See
 `docs/78_SubjectDomainAssetActivationRunbook.md`.
 
+Teacher review and activation templates:
+
+```text
+docs/templates/subject-candidate-review-checklist.md
+docs/templates/subject-activation-approval-form.md
+docs/79_TeacherCandidateReviewAndActivationGuide.md
+```
+
+These define what teachers should review, the minimum sampling rules, the
+approval form, and the exact operation process before a subject goes active.
+
 Golden import regression:
 
 ```powershell

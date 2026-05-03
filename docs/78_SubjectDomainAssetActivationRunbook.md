@@ -16,6 +16,13 @@
 
 其余动作由脚本执行，证据写入 `docs/evidence/`。
 
+教师复核和激活确认必须使用模板：
+
+- `docs/templates/subject-candidate-review-checklist.md`
+- `docs/templates/subject-activation-approval-form.md`
+
+详细操作说明见 `docs/79_TeacherCandidateReviewAndActivationGuide.md`。
+
 ## 3. 统一入口
 
 激活前只检查，不写 active：

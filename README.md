@@ -163,6 +163,7 @@ tests/      自动化测试与黄金样本
 - `tools/run-c002t-active-switch.ps1`: C002 reviewed 批次进入 active 的 dry-run/apply guard；`-Apply` 必须提供 backup manifest。
 - `tools/run-c002m-candidate-review-apply-contract.ps1`: C002 candidate review decision apply/rollback 合同入口。
 - `tools/run-domain-asset-activation.ps1`: 后续新学科动态资产激活统一入口，编排 readiness、审核、备份、active switch 和证据报告。
+- `docs/templates/subject-candidate-review-checklist.md` / `docs/templates/subject-activation-approval-form.md`: 教师候选复核和激活前确认模板。
 - `tools/run-local-first-ai-guard.ps1`: 本地优先 AI 消耗削减与中文显示 guard。
 - `tools/run-c002n-source-chunk-cache.ps1`: C002N 来源 PDF 本地 chunk/hash/cache 和中文报告 guard。
 - `tools/run-c002o-candidate-extraction-eval.ps1`: C002O 候选提炼 schema/eval golden smoke。
