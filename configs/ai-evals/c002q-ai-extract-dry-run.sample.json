@@ -1,0 +1,66 @@
+{
+  "manifestVersion": "c002q.ai-extract-dry-run.v0.1",
+  "batchId": "c002q-guangzhou-physics-small-batch-dry-run",
+  "mode": "draft_test",
+  "allowRealModelCalls": false,
+  "modelExecutionMode": "contract_dry_run_no_real_model",
+  "externalAiCalls": 0,
+  "productionEligible": false,
+  "reviewStatus": "pending_review",
+  "noActiveWrite": true,
+  "doNotOverwriteBatchKeys": [
+    "c002_candidate_import_guangzhou_physics_2016_2025_v1"
+  ],
+  "requires": {
+    "readinessReport": "docs/evidence/c002q0-outer-ai-readiness-report.json",
+    "chunkCacheReport": "docs/evidence/c002n-source-chunk-cache-report.json",
+    "schemaPath": "schemas/ai/c002_candidate_extraction.schema.json"
+  },
+  "samplePolicy": {
+    "sourceTypes": [
+      "curriculum_standard",
+      "textbook",
+      "exam_analysis_report",
+      "local_exam_paper"
+    ],
+    "maxSourceDocuments": 4,
+    "maxChunksTotal": 32,
+    "maxChunksPerSourceDocument": 8,
+    "maxEstimatedInputTokens": 120000,
+    "maxEstimatedOutputTokens": 20000,
+    "maxL4Items": 3
+  },
+  "layerPlan": [
+    {
+      "layer": "L0",
+      "purpose": "local_chunk_anchor_and_cache",
+      "modelRole": "local_deterministic",
+      "model": "none",
+      "reasoningEffort": "none"
+    },
+    {
+      "layer": "L1",
+      "purpose": "low_cost_prefilter",
+      "modelRole": "bulk_prefilter_model",
+      "model": "gpt-5.4-mini",
+      "reasoningEffort": "low"
+    },
+    {
+      "layer": "L2",
+      "purpose": "structured_candidate_extraction",
+      "modelRole": "bulk_prefilter_model",
+      "model": "gpt-5.4-mini",
+      "reasoningEffort": "medium"
+    },
+    {
+      "layer": "L3",
+      "purpose": "taxonomy_merge_and_mapping_review",
+      "modelRole": "engineering_review_model",
+      "model": "gpt-5.3-codex",
+      "reasoningEffort": "high"
+    }
+  ],
+  "outputArtifacts": [
+    "docs/evidence/c002q-ai-extract-dry-run-report.json"
+  ]
+}

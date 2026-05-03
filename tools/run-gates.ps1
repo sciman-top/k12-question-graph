@@ -181,6 +181,10 @@ try {
         .\tools\run-c002q0-outer-ai-readiness.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'c002q ai extract dry-run guard' {
+        .\tools\run-c002q-ai-extract-dry-run.ps1 | Write-Host
+    }
+
     Invoke-GateStep 'c002 source material admission guard' {
         .\tools\run-c002-source-material-guard.ps1 | Write-Host
     }

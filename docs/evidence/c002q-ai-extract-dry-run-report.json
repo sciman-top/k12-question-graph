@@ -1,0 +1,217 @@
+{
+  "status": "pass",
+  "task": "C002Q",
+  "guard": "c002q-ai-extract-dry-run",
+  "batchId": "c002q-guangzhou-physics-small-batch-dry-run",
+  "mode": "draft_test",
+  "allowRealModelCalls": false,
+  "modelExecutionMode": "contract_dry_run_no_real_model",
+  "externalAiCalls": 0,
+  "productionEligible": false,
+  "reviewStatus": "pending_review",
+  "noActiveWrite": true,
+  "overwritesExistingC002K": false,
+  "requiresHumanReview": true,
+  "readinessReport": "docs/evidence/c002q0-outer-ai-readiness-report.json",
+  "sample": {
+    "sourceDocuments": 4,
+    "chunksTotal": 12,
+    "estimatedInputTokens": 3180,
+    "estimatedOutputTokens": 1800,
+    "cacheHitChunks": 12,
+    "sourceTypes": [
+      "curriculum_standard",
+      "textbook",
+      "exam_analysis_report",
+      "local_exam_paper"
+    ]
+  },
+  "budgetLimits": {
+    "sourceTypes": [
+      "curriculum_standard",
+      "textbook",
+      "exam_analysis_report",
+      "local_exam_paper"
+    ],
+    "maxSourceDocuments": 4,
+    "maxChunksTotal": 32,
+    "maxChunksPerSourceDocument": 8,
+    "maxEstimatedInputTokens": 120000,
+    "maxEstimatedOutputTokens": 20000,
+    "maxL4Items": 3
+  },
+  "layerTrace": [
+    {
+      "layer": "L0",
+      "purpose": "local_chunk_anchor_and_cache",
+      "modelRole": "local_deterministic",
+      "model": "none",
+      "reasoningEffort": "none",
+      "called": false,
+      "cachedTokens": 0,
+      "estimatedInputTokens": 0,
+      "estimatedOutputTokens": 0,
+      "estimatedCost": 0.0
+    },
+    {
+      "layer": "L1",
+      "purpose": "low_cost_prefilter",
+      "modelRole": "bulk_prefilter_model",
+      "model": "gpt-5.4-mini",
+      "reasoningEffort": "low",
+      "called": false,
+      "cachedTokens": 3180,
+      "estimatedInputTokens": 3180,
+      "estimatedOutputTokens": 600,
+      "estimatedCost": 0.0
+    },
+    {
+      "layer": "L2",
+      "purpose": "structured_candidate_extraction",
+      "modelRole": "bulk_prefilter_model",
+      "model": "gpt-5.4-mini",
+      "reasoningEffort": "medium",
+      "called": false,
+      "cachedTokens": 3180,
+      "estimatedInputTokens": 3180,
+      "estimatedOutputTokens": 600,
+      "estimatedCost": 0.0
+    },
+    {
+      "layer": "L3",
+      "purpose": "taxonomy_merge_and_mapping_review",
+      "modelRole": "engineering_review_model",
+      "model": "gpt-5.3-codex",
+      "reasoningEffort": "high",
+      "called": false,
+      "cachedTokens": 3180,
+      "estimatedInputTokens": 3180,
+      "estimatedOutputTokens": 600,
+      "estimatedCost": 0.0
+    }
+  ],
+  "candidateOutput": {
+    "batch_id": "c002q-guangzhou-physics-small-batch-dry-run",
+    "mode": "draft_test",
+    "production_eligible": false,
+    "review_status": "pending_review",
+    "source_anchors": [
+      {
+        "source_hash": "a992f3c0028ff9e8b230ddef031bd6e9d224df46239a26b0a7125b560d834064",
+        "relative_path": "《义务教育物理课程标准·日常修订版》(2022年版2025年修订).pdf",
+        "page_number": 1,
+        "chunk_hash": "130e6533241184eac68eb2945b6f2b769e5c60acf6b646b042ba92571635e867",
+        "evidence_role": "scope"
+      },
+      {
+        "source_hash": "6c551bd86328b84b8a181d1da437e3b92e9fa2b469ce12d65cc75aa29ef0922b",
+        "relative_path": "初中物理教材（人教版）/物理教材八上（2024人教）.pdf",
+        "page_number": 1,
+        "chunk_hash": "890c0292461109515f84f9d7fa9655688460085c0e0a4cb136bd5840343327a4",
+        "evidence_role": "definition"
+      },
+      {
+        "source_hash": "15e9d00bf1fe5a3a21419e58e45b99cd5b500321c72034f09e3b6c11881ae10c",
+        "relative_path": "广州中考年报/2016广州中考年报.pdf",
+        "page_number": 1,
+        "chunk_hash": "099eac8682f16778fd3c251e949f0ac826bff66c978c43c1ce85da5bc020afeb",
+        "evidence_role": "trend_evidence"
+      },
+      {
+        "source_hash": "377de2f0a5c7c8a35bff908ac5a4527b671702ac4265bf9d9728e531ae541cee",
+        "relative_path": "广州中考真题/2016广州中考.pdf",
+        "page_number": 1,
+        "chunk_hash": "3309d211338161394a7fba45172d740902af4cae1adab09b05330351d36dfe1e",
+        "evidence_role": "exam_evidence"
+      }
+    ],
+    "knowledge_points": [
+      {
+        "candidate_id": "c002q-kp-force-motion-l2",
+        "name": "力和运动",
+        "level": "L2",
+        "parent_candidate_id": "c002q-kp-mechanics-l1",
+        "source_anchor_refs": [
+          "130e6533241184eac68eb2945b6f2b769e5c60acf6b646b042ba92571635e867",
+          "890c0292461109515f84f9d7fa9655688460085c0e0a4cb136bd5840343327a4"
+        ],
+        "confidence": 0.64,
+        "review_status": "pending_review"
+      }
+    ],
+    "curriculum_standard_items": [
+      {
+        "candidate_id": "c002q-cs-motion-force-001",
+        "code": "draft-test-cs-motion-force",
+        "text": "从现象和实验中说明力可以改变物体的运动状态。",
+        "source_anchor_refs": [
+          "130e6533241184eac68eb2945b6f2b769e5c60acf6b646b042ba92571635e867"
+        ],
+        "review_status": "pending_review"
+      }
+    ],
+    "textbook_chapters": [
+      {
+        "candidate_id": "c002q-tb-grade8-force-motion",
+        "title": "运动和力",
+        "grade_or_scope": "grade_8_volume_1",
+        "edition_or_version": "2024_person_education_press_grade_8_volume_1",
+        "source_anchor_refs": [
+          "890c0292461109515f84f9d7fa9655688460085c0e0a4cb136bd5840343327a4"
+        ],
+        "review_status": "pending_review"
+      }
+    ],
+    "exam_points": [
+      {
+        "candidate_id": "c002q-ep-guangzhou-force-motion",
+        "description": "在真实情境中判断力与运动状态变化的关系。",
+        "region": "Guangzhou",
+        "year_range": "2016-2025",
+        "source_anchor_refs": [
+          "3309d211338161394a7fba45172d740902af4cae1adab09b05330351d36dfe1e"
+        ],
+        "review_status": "pending_review"
+      }
+    ],
+    "trend_summaries": [
+      {
+        "candidate_id": "c002q-trend-force-motion-context",
+        "summary": "样本显示本地试题倾向用生活或实验情境考查力与运动关系；该结论仅用于 dry-run，需人工复核。",
+        "source_anchor_refs": [
+          "099eac8682f16778fd3c251e949f0ac826bff66c978c43c1ce85da5bc020afeb",
+          "3309d211338161394a7fba45172d740902af4cae1adab09b05330351d36dfe1e"
+        ],
+        "confidence": 0.58,
+        "review_status": "pending_review"
+      }
+    ],
+    "mapping_suggestions": [
+      {
+        "from_candidate_id": "c002q-tb-grade8-force-motion",
+        "to_candidate_id": "c002q-kp-force-motion-l2",
+        "mapping_type": "equivalent",
+        "confidence": 0.61,
+        "impact_level": "medium",
+        "source_anchor_refs": [
+          "130e6533241184eac68eb2945b6f2b769e5c60acf6b646b042ba92571635e867",
+          "890c0292461109515f84f9d7fa9655688460085c0e0a4cb136bd5840343327a4",
+          "099eac8682f16778fd3c251e949f0ac826bff66c978c43c1ce85da5bc020afeb",
+          "3309d211338161394a7fba45172d740902af4cae1adab09b05330351d36dfe1e"
+        ],
+        "review_status": "pending_review"
+      }
+    ],
+    "warnings": [
+      "contract dry-run only; no real model was called",
+      "all outputs remain candidate/pending_review/production_eligible=false",
+      "does not overwrite C002K candidate import batch"
+    ]
+  },
+  "summaryChinese": {
+    "title": "C002Q 小批量 AI extract dry-run 报告",
+    "result": "通过",
+    "boundary": "本轮为合同 dry-run，不调用真实模型，不写数据库，不覆盖 C002K，输出保持 candidate/pending_review/production_eligible=false。",
+    "next": "下一步可进入 C002S 正式化前审查闭环；正式 C002 active 仍等待人工审核、质量问题清零、备份和 active guard。"
+  }
+}

@@ -107,6 +107,26 @@ if ($c002q0.status -eq '已完成') {
     }
 }
 
+if ($c002q.status -eq '已完成') {
+    $c002qReport = Join-Path $repoRoot 'docs\evidence\c002q-ai-extract-dry-run-report.json'
+    if (-not (Test-Path -LiteralPath $c002qReport)) {
+        throw "C002Q is completed but report is missing: docs/evidence/c002q-ai-extract-dry-run-report.json"
+    }
+    $report = Get-Content -LiteralPath $c002qReport -Raw | ConvertFrom-Json
+    if ($report.status -ne 'pass' -or $report.allowRealModelCalls -ne $false -or $report.externalAiCalls -ne 0) {
+        throw "C002Q report must pass with real model calls disabled and zero external AI calls"
+    }
+    if ($report.noActiveWrite -ne $true -or $report.productionEligible -ne $false -or $report.reviewStatus -ne 'pending_review') {
+        throw "C002Q report must enforce no active write and pending_review non-production output"
+    }
+    if ($report.overwritesExistingC002K -ne $false -or $report.requiresHumanReview -ne $true) {
+        throw "C002Q report must not overwrite C002K and must require human review"
+    }
+    if ($report.sample.sourceDocuments -gt 4 -or $report.sample.chunksTotal -gt 32 -or $report.sample.estimatedInputTokens -gt 120000) {
+        throw "C002Q report exceeds dry-run sample budget"
+    }
+}
+
 foreach ($pattern in @('subagent', '外层', '真实模型', 'no_active_write', '运行时依赖')) {
     if ($c002q0.acceptance -notmatch $pattern) {
         throw "C002Q0 acceptance missing orchestration boundary: $pattern"
