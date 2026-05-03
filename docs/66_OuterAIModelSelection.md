@@ -54,7 +54,23 @@
 
 不得用 `gpt-5.5` 做常规 CSV 批量校验、格式转换、重复 ID 检查或普通候选表初筛。
 
-## 5. 来源证据与人工审核
+## 5. Reasoning 档位
+
+默认档位以任务风险而不是模型名决定：
+
+| 层级 | 默认模型 | 默认 reasoning | 升级 |
+| --- | --- | --- | --- |
+| L0 本地确定性处理 | 不用外部 AI | none | 不允许升级，失败先修本地抽取、hash、schema 或 cache |
+| L1 低成本筛查 | `gpt-5.4-mini` | low | 异常类型不清或反复失败时升 `gpt-5.3-codex medium` |
+| L2 结构化候选提炼 | `gpt-5.4-mini` | medium | 多来源语义冲突、schema 反复失败时升 `gpt-5.3-codex high` |
+| L3 体系合并与复杂映射 | `gpt-5.3-codex` | high | 影响组卷、检索或学情口径时升 `gpt-5.4 high` |
+| L4 高风险仲裁 | `gpt-5.4` | high | 少量最高风险、难回滚裁决才升 `gpt-5.5 xhigh` |
+
+`xhigh` 是 API/配置层对 Extra high 的可执行写法。它不是质量默认值，而是成本和风险都很高的仲裁手段。它必须有来源锚点、备选方案、影响报告和回滚计划，且不得用于批量提炼。
+
+`tools/run-c002p-model-budget-guard.ps1` 会检查 `configs/model_routing.defaults.yaml` 中的 L0-L4 模型、reasoning、升级目标、dry-run token 上限、L4 数量上限、cache key 和 full extraction 人工预算确认要求。
+
+## 6. 来源证据与人工审核
 
 外层 AI 只能辅助发现风险和生成复核建议。正式激活链路必须保留可机器检查或人工复核的证据锚点：
 
@@ -71,7 +87,7 @@
 
 若来源证据缺失，结果只能保持 `pending_review` 或 `candidate`，不得进入 `active` 或生产统计口径。
 
-## 6. 记录要求
+## 7. 记录要求
 
 每次外层 AI 校验结果进入项目时，至少记录：
 
@@ -87,7 +103,7 @@
 
 这些记录可以先放在会话报告中；正式导入链路完成后进入 `docs/evidence/` 或后续审核表。
 
-## 7. 真实模型调用边界
+## 8. 真实模型调用边界
 
 本文件不改变项目内 AI 调用权限。D001-D003 当前只证明 draft/test 的 ModelRouter、AIJob 成本日志和 structured output/eval 合同；真正启用外部模型调用仍必须同时满足：
 

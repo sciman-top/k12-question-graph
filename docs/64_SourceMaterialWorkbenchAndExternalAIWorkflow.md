@@ -2,13 +2,14 @@
 
 ## 1. 结论
 
-近十年当地中考真题、考情总结年报、教材、课程标准等 PDF 最终都应进入本项目的来源资料工作台；ChatGPT Web 端可先做初提炼，但输出只能作为 `candidate` 候选数据。
+近十年当地中考真题、考情总结年报、教材、课程标准等 PDF 必须先进入本项目的来源资料工作台和本地 chunk/cache 链路；外部 AI 只能在来源 hash、页码、chunk、schema、预算和小批量 dry-run guard 之后处理必要片段。ChatGPT Web 端或其他外部 AI 的初提炼输出只能作为 `candidate` 候选数据。
 
 正式激活必须同时具备两条证据链：
 
 ```text
+本项目上传原始 PDF -> SourceDocument/FileAsset hash/page/chunk evidence -> local cache/budget/eval
 外部 AI 初提炼结果 -> candidate CSV -> pending_review
-本项目上传原始 PDF -> SourceDocument/FileAsset hash/page/question evidence -> verification
+candidate CSV -> source hash/page/question/chunk verification -> review/impact/rollback
 ```
 
 ## 2. 必需与可选资料
@@ -28,15 +29,19 @@
 推荐执行顺序：
 
 ```text
-1. 在 ChatGPT Web 端上传 PDF 并输出结构化候选 CSV
-2. 把候选 CSV 交给本项目导入为 candidate
-3. 在本项目来源资料工作台上传同一批原始 PDF
-4. 本项目记录 sha256、sourceType、region、year、license、PII、用途许可
-5. 用来源页码、题号、章节和 hash 核验 candidate
-6. 生成 draft/formal mapping plan 和 migration impact report
-7. 高影响或低置信度映射进入人工审核
-8. 审核通过后才 reviewed/active
+1. 在本项目来源资料工作台上传原始 PDF
+2. 本项目记录 sha256、sourceType、region、year、license、PII、用途许可
+3. C002N 本地抽取页级文本、来源锚点、chunk hash、去重和 cache，不调用外部 AI
+4. C002O 本地验证结构化输出 schema、golden fixture 和 pending_review 边界
+5. C002P 本地验证 L0-L4 模型路由、reasoning 档位、token 预算、cache key 和超预算 fail closed
+6. C002Q 只抽样课标、教材、年报、真题的小批 chunk 运行外部 AI dry-run
+7. 把外部 AI 输出导入为 candidate，并用来源页码、题号、章节、chunk hash 和 source hash 核验
+8. 生成 draft/formal mapping plan 和 migration impact report
+9. 高影响或低置信度映射进入人工审核
+10. 审核通过、影响确认、回滚快照和 active guard 全部通过后才 reviewed/active
 ```
+
+不得直接把 33 份 PDF 全量上传给强模型。`gpt-5.5` 只用于少量最高风险、难回滚、影响长期口径的争议裁决，不用于批量格式检查、普通候选提炼或常规 CSV 清洗。
 
 ## 4. 项目内存储
 

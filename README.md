@@ -155,6 +155,7 @@ tests/      自动化测试与黄金样本
 - `tools/run-c002l-candidate-review-readiness.ps1`: C002 candidate review readiness / active blocker 报告入口。
 - `tools/run-c002m-candidate-review-apply-contract.ps1`: C002 candidate review decision apply/rollback 合同入口。
 - `tools/run-local-first-ai-guard.ps1`: 本地优先 AI 消耗削减与中文显示 guard。
+- `tools/run-c002p-model-budget-guard.ps1`: C002P L0-L4 模型、reasoning、预算和 fail-closed guard。
 
 快速文档/配置门禁：
 

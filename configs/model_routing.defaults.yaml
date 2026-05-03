@@ -148,6 +148,44 @@ local_first_contract:
     - c002_chunk_hash_cache
     - token_budget_estimation
     - chinese_user_output_guard
+  c002_layer_model_defaults:
+    L0:
+      model_role: local_deterministic
+      model: none
+      reasoning_effort: none
+      escalation_allowed: false
+    L1:
+      model_role: bulk_prefilter_model
+      model: gpt-5.4-mini
+      reasoning_effort: low
+      escalate_to_role: engineering_review_model
+      escalate_to: gpt-5.3-codex
+      escalate_reasoning_effort: medium
+      escalation_reason: "异常类型不清、低置信度集中或来源分类混淆。"
+    L2:
+      model_role: bulk_prefilter_model
+      model: gpt-5.4-mini
+      reasoning_effort: medium
+      escalate_to_role: engineering_review_model
+      escalate_to: gpt-5.3-codex
+      escalate_reasoning_effort: high
+      escalation_reason: "候选知识点语义提炼需要结合多来源锚点或 schema 失败。"
+    L3:
+      model_role: engineering_review_model
+      model: gpt-5.3-codex
+      reasoning_effort: high
+      escalate_to_role: high_risk_review_model
+      escalate_to: gpt-5.4
+      escalate_reasoning_effort: high
+      escalation_reason: "一拆多、多合一、多对多映射影响组卷、检索或学情口径。"
+    L4:
+      model_role: high_risk_review_model
+      model: gpt-5.4
+      reasoning_effort: high
+      escalate_to_role: highest_risk_decision_model
+      escalate_to: gpt-5.5
+      escalate_reasoning_effort: xhigh
+      escalation_reason: "正式激活前仍存在长期口径争议或难回滚裁决。"
   c002_extraction_layers:
     L0:
       name: local_deterministic_extraction
@@ -179,6 +217,26 @@ local_first_contract:
       external_ai_allowed: true
       reasoning_effort: high_or_extra_high
       input_policy: disputed_activation_or_long_term_policy_only
+  c002_budget_controls:
+    forbid_full_source_bulk_submission: true
+    fail_closed_on_missing_token_estimate: true
+    fail_closed_on_budget_overrun: true
+    require_chunk_cache_before_external_ai: true
+    require_schema_eval_before_external_ai: true
+    require_budget_guard_before_external_ai: true
+    cache_key_fields: [source_hash, page_number, chunk_hash, prompt_version, schema_version, model, reasoning_effort]
+    dry_run_limits:
+      max_source_documents: 4
+      max_chunks_total: 32
+      max_chunks_per_source_document: 8
+      max_estimated_input_tokens: 120000
+      max_estimated_output_tokens: 20000
+      max_l4_items: 3
+    full_extraction_limits:
+      require_explicit_budget_report: true
+      require_human_budget_approval: true
+      require_cache_hit_report: true
+      max_l4_ratio: 0.05
   chinese_user_outputs:
     required_for:
       - teacher_ui

@@ -1,4 +1,4 @@
-﻿mapping_id,source_asset_type,source_stable_id,target_asset_type,target_stable_id,mapping_type,confidence,source_material_ids,evidence_locations,impact_scope,review_status,auto_apply_allowed,rollback_required,notes
+mapping_id,source_asset_type,source_stable_id,target_asset_type,target_stable_id,mapping_type,confidence,source_material_ids,evidence_locations,impact_scope,review_status,auto_apply_allowed,rollback_required,notes
 MAP-C003-00001,curriculum_standard_item,CS-C003-1-1,knowledge_point,KPHY-C003-002,related,0.86,SRC-C003-001,课标p12,curriculum_to_knowledge,pending_review,false,true,candidate mapping
 MAP-C003-00002,curriculum_standard_item,CS-C003-1-1-1,knowledge_point,KPHY-C003-003,related,0.86,SRC-C003-001,课标p12,curriculum_to_knowledge,pending_review,false,true,candidate mapping
 MAP-C003-00003,curriculum_standard_item,CS-C003-1-1-2,knowledge_point,KPHY-C003-004,related,0.86,SRC-C003-001,课标p12,curriculum_to_knowledge,pending_review,false,true,candidate mapping
@@ -392,8 +392,8 @@ MAP-C003-00390,question,QPHY-C003-2016-23,exam_point,EPHY-C003-040,related,0.86,
 MAP-C003-00391,question,QPHY-C003-2016-23,knowledge_point,KPHY-C003-084,related,0.86,SRC-C003-005,真题p7,question_to_knowledge,pending_review,false,true,candidate mapping
 MAP-C003-00392,question,QPHY-C003-2016-24,exam_point,EPHY-C003-018,related,0.86,SRC-C003-005,真题p8,question_to_exam_point,pending_review,false,true,candidate mapping
 MAP-C003-00393,question,QPHY-C003-2016-24,knowledge_point,KPHY-C003-053,related,0.86,SRC-C003-005,真题p8,question_to_knowledge,pending_review,false,true,candidate mapping
-MAP-C003-00394,question,QPHY-C003-2017-01,exam_point,EPHY-C003-040,related,0.76,SRC-C003-008,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping
-MAP-C003-00395,question,QPHY-C003-2017-01,knowledge_point,KPHY-C003-084,related,0.76,SRC-C003-008,真题p1,question_to_knowledge,pending_review,false,true,candidate mapping
+MAP-C003-00394,question,QPHY-C003-2017-01,exam_point,EPHY-C003-001,related,0.82,SRC-C003-008,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping; target repaired after source exam PDF stem correction
+MAP-C003-00395,question,QPHY-C003-2017-01,knowledge_point,KPHY-C003-014,related,0.82,SRC-C003-008,真题p1,question_to_knowledge,pending_review,false,true,candidate mapping; target repaired after source exam PDF stem correction
 MAP-C003-00396,question,QPHY-C003-2017-02,exam_point,EPHY-C003-040,related,0.76,SRC-C003-008,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping
 MAP-C003-00397,question,QPHY-C003-2017-02,knowledge_point,KPHY-C003-084,related,0.76,SRC-C003-008,真题p1,question_to_knowledge,pending_review,false,true,candidate mapping
 MAP-C003-00398,question,QPHY-C003-2017-03,exam_point,EPHY-C003-040,related,0.76,SRC-C003-008,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping
@@ -440,8 +440,8 @@ MAP-C003-00438,question,QPHY-C003-2017-23,exam_point,EPHY-C003-031,related,0.76,
 MAP-C003-00439,question,QPHY-C003-2017-23,knowledge_point,KPHY-C003-065,related,0.76,SRC-C003-008,真题p7,question_to_knowledge,pending_review,false,true,candidate mapping
 MAP-C003-00440,question,QPHY-C003-2017-24,exam_point,EPHY-C003-002,related,0.86,SRC-C003-008,真题p8,question_to_exam_point,pending_review,false,true,candidate mapping
 MAP-C003-00441,question,QPHY-C003-2017-24,knowledge_point,KPHY-C003-026,related,0.86,SRC-C003-008,真题p8,question_to_knowledge,pending_review,false,true,candidate mapping
-MAP-C003-00442,question,QPHY-C003-2018-01,exam_point,EPHY-C003-040,related,0.76,SRC-C003-011,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping
-MAP-C003-00443,question,QPHY-C003-2018-01,knowledge_point,KPHY-C003-084,related,0.76,SRC-C003-011,真题p1,question_to_knowledge,pending_review,false,true,candidate mapping
+MAP-C003-00442,question,QPHY-C003-2018-01,exam_point,EPHY-C003-001,related,0.82,SRC-C003-011,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping; target repaired after source exam PDF stem correction
+MAP-C003-00443,question,QPHY-C003-2018-01,knowledge_point,KPHY-C003-025,related,0.82,SRC-C003-011,真题p1,question_to_knowledge,pending_review,false,true,candidate mapping; target repaired after source exam PDF stem correction
 MAP-C003-00444,question,QPHY-C003-2018-02,exam_point,EPHY-C003-040,related,0.76,SRC-C003-011,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping
 MAP-C003-00445,question,QPHY-C003-2018-02,knowledge_point,KPHY-C003-084,related,0.76,SRC-C003-011,真题p1,question_to_knowledge,pending_review,false,true,candidate mapping
 MAP-C003-00446,question,QPHY-C003-2018-03,exam_point,EPHY-C003-040,related,0.76,SRC-C003-011,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping
@@ -488,8 +488,8 @@ MAP-C003-00486,question,QPHY-C003-2018-23,exam_point,EPHY-C003-009,related,0.86,
 MAP-C003-00487,question,QPHY-C003-2018-23,knowledge_point,KPHY-C003-060,related,0.86,SRC-C003-011,真题p10,question_to_knowledge,pending_review,false,true,candidate mapping
 MAP-C003-00488,question,QPHY-C003-2018-24,exam_point,EPHY-C003-040,related,0.86,SRC-C003-011,真题p11,question_to_exam_point,pending_review,false,true,candidate mapping
 MAP-C003-00489,question,QPHY-C003-2018-24,knowledge_point,KPHY-C003-084,related,0.86,SRC-C003-011,真题p11,question_to_knowledge,pending_review,false,true,candidate mapping
-MAP-C003-00490,question,QPHY-C003-2019-01,exam_point,EPHY-C003-040,related,0.76,SRC-C003-014,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping
-MAP-C003-00491,question,QPHY-C003-2019-01,knowledge_point,KPHY-C003-084,related,0.76,SRC-C003-014,真题p1,question_to_knowledge,pending_review,false,true,candidate mapping
+MAP-C003-00490,question,QPHY-C003-2019-01,exam_point,EPHY-C003-003,related,0.82,SRC-C003-014,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping; target repaired after source exam PDF stem correction
+MAP-C003-00491,question,QPHY-C003-2019-01,knowledge_point,KPHY-C003-037,related,0.82,SRC-C003-014,真题p1,question_to_knowledge,pending_review,false,true,candidate mapping; target repaired after source exam PDF stem correction
 MAP-C003-00492,question,QPHY-C003-2019-02,exam_point,EPHY-C003-040,related,0.76,SRC-C003-014,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping
 MAP-C003-00493,question,QPHY-C003-2019-02,knowledge_point,KPHY-C003-084,related,0.76,SRC-C003-014,真题p1,question_to_knowledge,pending_review,false,true,candidate mapping
 MAP-C003-00494,question,QPHY-C003-2019-03,exam_point,EPHY-C003-040,related,0.76,SRC-C003-014,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping
@@ -536,8 +536,8 @@ MAP-C003-00534,question,QPHY-C003-2019-23,exam_point,EPHY-C003-040,related,0.86,
 MAP-C003-00535,question,QPHY-C003-2019-23,knowledge_point,KPHY-C003-084,related,0.86,SRC-C003-014,真题p8,question_to_knowledge,pending_review,false,true,candidate mapping
 MAP-C003-00536,question,QPHY-C003-2019-24,exam_point,EPHY-C003-040,related,0.76,SRC-C003-014,真题p8,question_to_exam_point,pending_review,false,true,candidate mapping
 MAP-C003-00537,question,QPHY-C003-2019-24,knowledge_point,KPHY-C003-084,related,0.76,SRC-C003-014,真题p8,question_to_knowledge,pending_review,false,true,candidate mapping
-MAP-C003-00538,question,QPHY-C003-2020-01,exam_point,EPHY-C003-040,related,0.76,SRC-C003-017,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping
-MAP-C003-00539,question,QPHY-C003-2020-01,knowledge_point,KPHY-C003-084,related,0.76,SRC-C003-017,真题p1,question_to_knowledge,pending_review,false,true,candidate mapping
+MAP-C003-00538,question,QPHY-C003-2020-01,exam_point,EPHY-C003-001,related,0.82,SRC-C003-017,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping; target repaired after source exam PDF stem correction
+MAP-C003-00539,question,QPHY-C003-2020-01,knowledge_point,KPHY-C003-025,related,0.82,SRC-C003-017,真题p1,question_to_knowledge,pending_review,false,true,candidate mapping; target repaired after source exam PDF stem correction
 MAP-C003-00540,question,QPHY-C003-2020-02,exam_point,EPHY-C003-040,related,0.76,SRC-C003-017,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping
 MAP-C003-00541,question,QPHY-C003-2020-02,knowledge_point,KPHY-C003-084,related,0.76,SRC-C003-017,真题p1,question_to_knowledge,pending_review,false,true,candidate mapping
 MAP-C003-00542,question,QPHY-C003-2020-03,exam_point,EPHY-C003-040,related,0.76,SRC-C003-017,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping
@@ -620,10 +620,10 @@ MAP-C003-00618,question,QPHY-C003-2021-17,exam_point,EPHY-C003-040,related,0.86,
 MAP-C003-00619,question,QPHY-C003-2021-17,knowledge_point,KPHY-C003-084,related,0.86,SRC-C003-019,真题p7,question_to_knowledge,pending_review,false,true,candidate mapping
 MAP-C003-00620,question,QPHY-C003-2021-18,exam_point,EPHY-C003-040,related,0.86,SRC-C003-019,真题p8,question_to_exam_point,pending_review,false,true,candidate mapping
 MAP-C003-00621,question,QPHY-C003-2021-18,knowledge_point,KPHY-C003-084,related,0.86,SRC-C003-019,真题p8,question_to_knowledge,pending_review,false,true,candidate mapping
-MAP-C003-00622,question,QPHY-C003-2022-01,exam_point,EPHY-C003-040,related,0.76,SRC-C003-022,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping
-MAP-C003-00623,question,QPHY-C003-2022-01,knowledge_point,KPHY-C003-084,related,0.76,SRC-C003-022,真题p1,question_to_knowledge,pending_review,false,true,candidate mapping
-MAP-C003-00624,question,QPHY-C003-2022-02,exam_point,EPHY-C003-040,related,0.76,SRC-C003-022,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping
-MAP-C003-00625,question,QPHY-C003-2022-02,knowledge_point,KPHY-C003-084,related,0.76,SRC-C003-022,真题p1,question_to_knowledge,pending_review,false,true,candidate mapping
+MAP-C003-00622,question,QPHY-C003-2022-01,exam_point,EPHY-C003-002,related,0.82,SRC-C003-022,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping; target repaired after source exam PDF stem correction
+MAP-C003-00623,question,QPHY-C003-2022-01,knowledge_point,KPHY-C003-026,related,0.82,SRC-C003-022,真题p1,question_to_knowledge,pending_review,false,true,candidate mapping; target repaired after source exam PDF stem correction
+MAP-C003-00624,question,QPHY-C003-2022-02,exam_point,EPHY-C003-005,related,0.82,SRC-C003-022,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping; target repaired after source exam PDF stem correction
+MAP-C003-00625,question,QPHY-C003-2022-02,knowledge_point,KPHY-C003-005,related,0.82,SRC-C003-022,真题p1,question_to_knowledge,pending_review,false,true,candidate mapping; target repaired after source exam PDF stem correction
 MAP-C003-00626,question,QPHY-C003-2022-03,exam_point,EPHY-C003-040,related,0.76,SRC-C003-022,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping
 MAP-C003-00627,question,QPHY-C003-2022-03,knowledge_point,KPHY-C003-084,related,0.76,SRC-C003-022,真题p1,question_to_knowledge,pending_review,false,true,candidate mapping
 MAP-C003-00628,question,QPHY-C003-2022-04,exam_point,EPHY-C003-002,related,0.86,SRC-C003-022,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping
@@ -656,10 +656,10 @@ MAP-C003-00654,question,QPHY-C003-2022-17,exam_point,EPHY-C003-014,related,0.86,
 MAP-C003-00655,question,QPHY-C003-2022-17,knowledge_point,KPHY-C003-027,related,0.86,SRC-C003-022,真题p6,question_to_knowledge,pending_review,false,true,candidate mapping
 MAP-C003-00656,question,QPHY-C003-2022-18,exam_point,EPHY-C003-040,related,0.86,SRC-C003-022,真题p7,question_to_exam_point,pending_review,false,true,candidate mapping
 MAP-C003-00657,question,QPHY-C003-2022-18,knowledge_point,KPHY-C003-084,related,0.86,SRC-C003-022,真题p7,question_to_knowledge,pending_review,false,true,candidate mapping
-MAP-C003-00658,question,QPHY-C003-2023-01,exam_point,EPHY-C003-040,related,0.76,SRC-C003-025,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping
-MAP-C003-00659,question,QPHY-C003-2023-01,knowledge_point,KPHY-C003-084,related,0.76,SRC-C003-025,真题p1,question_to_knowledge,pending_review,false,true,candidate mapping
-MAP-C003-00660,question,QPHY-C003-2023-02,exam_point,EPHY-C003-040,related,0.76,SRC-C003-025,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping
-MAP-C003-00661,question,QPHY-C003-2023-02,knowledge_point,KPHY-C003-084,related,0.76,SRC-C003-025,真题p1,question_to_knowledge,pending_review,false,true,candidate mapping
+MAP-C003-00658,question,QPHY-C003-2023-01,exam_point,EPHY-C003-001,related,0.82,SRC-C003-025,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping; target repaired after source exam PDF stem correction
+MAP-C003-00659,question,QPHY-C003-2023-01,knowledge_point,KPHY-C003-014,related,0.82,SRC-C003-025,真题p1,question_to_knowledge,pending_review,false,true,candidate mapping; target repaired after source exam PDF stem correction
+MAP-C003-00660,question,QPHY-C003-2023-02,exam_point,EPHY-C003-012,related,0.82,SRC-C003-025,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping; target repaired after source exam PDF stem correction
+MAP-C003-00661,question,QPHY-C003-2023-02,knowledge_point,KPHY-C003-043,related,0.82,SRC-C003-025,真题p1,question_to_knowledge,pending_review,false,true,candidate mapping; target repaired after source exam PDF stem correction
 MAP-C003-00662,question,QPHY-C003-2023-03,exam_point,EPHY-C003-040,related,0.76,SRC-C003-025,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping
 MAP-C003-00663,question,QPHY-C003-2023-03,knowledge_point,KPHY-C003-084,related,0.76,SRC-C003-025,真题p1,question_to_knowledge,pending_review,false,true,candidate mapping
 MAP-C003-00664,question,QPHY-C003-2023-04,exam_point,EPHY-C003-012,related,0.86,SRC-C003-025,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping
@@ -692,10 +692,10 @@ MAP-C003-00690,question,QPHY-C003-2023-17,exam_point,EPHY-C003-022,related,0.86,
 MAP-C003-00691,question,QPHY-C003-2023-17,knowledge_point,KPHY-C003-034,related,0.86,SRC-C003-025,真题p7,question_to_knowledge,pending_review,false,true,candidate mapping
 MAP-C003-00692,question,QPHY-C003-2023-18,exam_point,EPHY-C003-040,related,0.86,SRC-C003-025,真题p8,question_to_exam_point,pending_review,false,true,candidate mapping
 MAP-C003-00693,question,QPHY-C003-2023-18,knowledge_point,KPHY-C003-084,related,0.86,SRC-C003-025,真题p8,question_to_knowledge,pending_review,false,true,candidate mapping
-MAP-C003-00694,question,QPHY-C003-2024-01,exam_point,EPHY-C003-040,related,0.76,SRC-C003-028,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping
-MAP-C003-00695,question,QPHY-C003-2024-01,knowledge_point,KPHY-C003-084,related,0.76,SRC-C003-028,真题p1,question_to_knowledge,pending_review,false,true,candidate mapping
-MAP-C003-00696,question,QPHY-C003-2024-02,exam_point,EPHY-C003-040,related,0.76,SRC-C003-028,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping
-MAP-C003-00697,question,QPHY-C003-2024-02,knowledge_point,KPHY-C003-084,related,0.76,SRC-C003-028,真题p1,question_to_knowledge,pending_review,false,true,candidate mapping
+MAP-C003-00694,question,QPHY-C003-2024-01,exam_point,EPHY-C003-023,related,0.82,SRC-C003-028,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping; target repaired after source exam PDF stem correction
+MAP-C003-00695,question,QPHY-C003-2024-01,knowledge_point,KPHY-C003-038,related,0.82,SRC-C003-028,真题p1,question_to_knowledge,pending_review,false,true,candidate mapping; target repaired after source exam PDF stem correction
+MAP-C003-00696,question,QPHY-C003-2024-02,exam_point,EPHY-C003-003,related,0.82,SRC-C003-028,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping; target repaired after source exam PDF stem correction
+MAP-C003-00697,question,QPHY-C003-2024-02,knowledge_point,KPHY-C003-037,related,0.82,SRC-C003-028,真题p1,question_to_knowledge,pending_review,false,true,candidate mapping; target repaired after source exam PDF stem correction
 MAP-C003-00698,question,QPHY-C003-2024-03,exam_point,EPHY-C003-040,related,0.76,SRC-C003-028,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping
 MAP-C003-00699,question,QPHY-C003-2024-03,knowledge_point,KPHY-C003-084,related,0.76,SRC-C003-028,真题p1,question_to_knowledge,pending_review,false,true,candidate mapping
 MAP-C003-00700,question,QPHY-C003-2024-04,exam_point,EPHY-C003-003,related,0.86,SRC-C003-028,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping
@@ -716,8 +716,8 @@ MAP-C003-00714,question,QPHY-C003-2024-11,exam_point,EPHY-C003-023,related,0.86,
 MAP-C003-00715,question,QPHY-C003-2024-11,knowledge_point,KPHY-C003-038,related,0.86,SRC-C003-028,真题p4,question_to_knowledge,pending_review,false,true,candidate mapping
 MAP-C003-00716,question,QPHY-C003-2024-12,exam_point,EPHY-C003-017,related,0.86,SRC-C003-028,真题p4,question_to_exam_point,pending_review,false,true,candidate mapping
 MAP-C003-00717,question,QPHY-C003-2024-12,knowledge_point,KPHY-C003-055,related,0.86,SRC-C003-028,真题p4,question_to_knowledge,pending_review,false,true,candidate mapping
-MAP-C003-00718,question,QPHY-C003-2024-13,exam_point,EPHY-C003-040,related,0.76,SRC-C003-028,真题p4,question_to_exam_point,pending_review,false,true,candidate mapping
-MAP-C003-00719,question,QPHY-C003-2024-13,knowledge_point,KPHY-C003-084,related,0.76,SRC-C003-028,真题p4,question_to_knowledge,pending_review,false,true,candidate mapping
+MAP-C003-00718,question,QPHY-C003-2024-13,exam_point,EPHY-C003-019,related,0.82,SRC-C003-028,真题p4,question_to_exam_point,pending_review,false,true,candidate mapping; target repaired after source exam PDF stem correction
+MAP-C003-00719,question,QPHY-C003-2024-13,knowledge_point,KPHY-C003-031,related,0.82,SRC-C003-028,真题p4,question_to_knowledge,pending_review,false,true,candidate mapping; target repaired after source exam PDF stem correction
 MAP-C003-00720,question,QPHY-C003-2024-14,exam_point,EPHY-C003-021,related,0.86,SRC-C003-028,真题p5,question_to_exam_point,pending_review,false,true,candidate mapping
 MAP-C003-00721,question,QPHY-C003-2024-14,knowledge_point,KPHY-C003-033,related,0.86,SRC-C003-028,真题p5,question_to_knowledge,pending_review,false,true,candidate mapping
 MAP-C003-00722,question,QPHY-C003-2024-15,exam_point,EPHY-C003-031,related,0.86,SRC-C003-028,真题p6,question_to_exam_point,pending_review,false,true,candidate mapping
@@ -728,10 +728,10 @@ MAP-C003-00726,question,QPHY-C003-2024-17,exam_point,EPHY-C003-044,related,0.76,
 MAP-C003-00727,question,QPHY-C003-2024-17,knowledge_point,KPHY-C003-001,related,0.76,SRC-C003-028,真题p6,question_to_knowledge,pending_review,false,true,candidate mapping
 MAP-C003-00728,question,QPHY-C003-2024-18,exam_point,EPHY-C003-040,related,0.86,SRC-C003-028,真题p7,question_to_exam_point,pending_review,false,true,candidate mapping
 MAP-C003-00729,question,QPHY-C003-2024-18,knowledge_point,KPHY-C003-084,related,0.86,SRC-C003-028,真题p7,question_to_knowledge,pending_review,false,true,candidate mapping
-MAP-C003-00730,question,QPHY-C003-2025-01,exam_point,EPHY-C003-040,related,0.76,SRC-C003-031,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping
-MAP-C003-00731,question,QPHY-C003-2025-01,knowledge_point,KPHY-C003-084,related,0.76,SRC-C003-031,真题p1,question_to_knowledge,pending_review,false,true,candidate mapping
-MAP-C003-00732,question,QPHY-C003-2025-02,exam_point,EPHY-C003-040,related,0.76,SRC-C003-031,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping
-MAP-C003-00733,question,QPHY-C003-2025-02,knowledge_point,KPHY-C003-084,related,0.76,SRC-C003-031,真题p1,question_to_knowledge,pending_review,false,true,candidate mapping
+MAP-C003-00730,question,QPHY-C003-2025-01,exam_point,EPHY-C003-003,related,0.82,SRC-C003-031,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping; target repaired after source exam PDF stem correction
+MAP-C003-00731,question,QPHY-C003-2025-01,knowledge_point,KPHY-C003-037,related,0.82,SRC-C003-031,真题p1,question_to_knowledge,pending_review,false,true,candidate mapping; target repaired after source exam PDF stem correction
+MAP-C003-00732,question,QPHY-C003-2025-02,exam_point,EPHY-C003-011,related,0.82,SRC-C003-031,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping; target repaired after source exam PDF stem correction
+MAP-C003-00733,question,QPHY-C003-2025-02,knowledge_point,KPHY-C003-017,related,0.82,SRC-C003-031,真题p1,question_to_knowledge,pending_review,false,true,candidate mapping; target repaired after source exam PDF stem correction
 MAP-C003-00734,question,QPHY-C003-2025-03,exam_point,EPHY-C003-040,related,0.76,SRC-C003-031,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping
 MAP-C003-00735,question,QPHY-C003-2025-03,knowledge_point,KPHY-C003-084,related,0.76,SRC-C003-031,真题p1,question_to_knowledge,pending_review,false,true,candidate mapping
 MAP-C003-00736,question,QPHY-C003-2025-04,exam_point,EPHY-C003-003,related,0.86,SRC-C003-031,真题p1,question_to_exam_point,pending_review,false,true,candidate mapping

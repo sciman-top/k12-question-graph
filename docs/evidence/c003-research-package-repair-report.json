@@ -1,0 +1,28 @@
+{
+  "status": "pass",
+  "checkedAt": "2026-05-03T13:18:19.093250+00:00",
+  "csvRoot": "guangzhou-physics-full-research-package-2016-2025\\csv",
+  "candidateOnly": true,
+  "productionActivationAllowed": false,
+  "questionSummary": {
+    "questionRowsRepaired": 13,
+    "subquestionRowsRepaired": 13,
+    "evidenceRowsRepaired": 13,
+    "mappingRowsRepaired": 26
+  },
+  "yearReportSummary": {
+    "yearReportRowsLocated": 205,
+    "yearReportDifficultyExtracted": 84,
+    "yearReportDiscriminationExtracted": 9,
+    "qualityIssuesByType": {
+      "year_report_metric_review_required": 121,
+      "year_report_discrimination_review_required": 75,
+      "year_report_human_confirmation_required": 9,
+      "year_report_page_unverified": 5
+    },
+    "qualityIssuesBySeverity": {
+      "low": 205,
+      "medium": 5
+    }
+  }
+}

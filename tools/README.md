@@ -27,6 +27,7 @@ The gate also covers `b001 duplicate upload smoke`, `b002 adapter contract smoke
 `c002d source-derived admission contract`, `c002e activation guard contract`,
 `c002h mapping review workbench contract`,
 `local-first ai consumption guard`,
+`c002p model budget guard`,
 `c002 junior physics draft bootstrap guard`, and
 `d001 model router draft-test contract`, and
 `d002 ai job cost contract`, and
@@ -88,6 +89,17 @@ $env:KQG_CONNECTION_STRING='Host=127.0.0.1;Port=5432;Database=k12_question_graph
 This uploads the original files through the API into `SourceDocument/FileAsset`
 evidence only. It must not mark C002 formal knowledge as complete and must not
 activate candidate assets.
+
+C002P model budget guard:
+
+```powershell
+.\tools\run-c002p-model-budget-guard.ps1
+```
+
+This validates the L0-L4 extraction layers, default model roles, reasoning
+effort, escalation targets, dry-run token caps, cache-key requirements, and
+fail-closed budget policy. It does not call external AI and does not mark C002
+as active.
 
 C002 candidate DB import:
 

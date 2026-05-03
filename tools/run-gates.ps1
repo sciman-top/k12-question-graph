@@ -163,6 +163,10 @@ try {
         .\tools\run-local-first-ai-guard.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'c002p model budget guard' {
+        .\tools\run-c002p-model-budget-guard.ps1 | Write-Host
+    }
+
     Invoke-GateStep 'c002 source material admission guard' {
         .\tools\run-c002-source-material-guard.ps1 | Write-Host
     }

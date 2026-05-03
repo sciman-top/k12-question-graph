@@ -62,6 +62,8 @@ L0 本地确定性处理，不调用外部 AI
 - C002P 不调用外部 AI：只检查模型路由配置、预算、reasoning 层级、cache 和 fail closed。
 - C002Q 才允许小批量外部 AI dry-run，且必须先证明 C002N/O/P 通过。
 
+`configs/model_routing.defaults.yaml` 必须显式声明 L0-L4 的默认模型、`reasoning_effort`、升级目标、dry-run token 上限、L4 数量上限、cache key 字段和 full extraction 的人工预算确认要求。该合同由 `tools/run-c002p-model-budget-guard.ps1` 检查，并纳入 `tools/run-gates.ps1`。
+
 ## 6. 当前建议
 
 下一步直接做 C002N。不要等整个项目完全搭建完再做，因为 C002N 是降低 token 消耗的前置工程；但也不要越过 C002N/O/P 直接做 33 份 PDF 的全量模型提炼。
