@@ -181,6 +181,10 @@ try {
         .\tools\run-j004-fidelity-regression-contract.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'j005 adapter diagnostic supply-chain gate' {
+        .\tools\run-j005-adapter-diagnostic-supply-chain-contract.ps1 | Write-Host
+    }
+
     Invoke-GateStep 'b002 adapter contract smoke' {
         $workerDir = Join-Path $FileStoreRoot 'gate'
         New-Item -ItemType Directory -Path $workerDir -Force | Out-Null

@@ -41,6 +41,7 @@ The gate also covers `b001 duplicate upload smoke`, `b002 adapter contract smoke
 `e003 question replacement undo contract`, and
 `e004 paper export contract`, and
 `j004 formula/table/figure fidelity regression`, and
+`j005 adapter diagnostic supply-chain gate`, and
 `f001 assessment model contract`, and
 `f002 score import contract`.
 It starts temporary
@@ -488,6 +489,17 @@ This validates a synthetic OpenXML import-to-export chain. It requires formula,
 table, and image blocks from the worker, preserves source regions and image
 assets in a draft question shape, then checks the exported DOCX/PDF artifacts.
 It does not use real student data, external AI, or production activation.
+
+J005 adapter diagnostic supply-chain gate:
+
+```powershell
+.\tools\run-j005-adapter-diagnostic-supply-chain-contract.ps1
+```
+
+This validates that every current worker adapter records adapter/tool versions,
+command arguments, duration, input/output hashes, warnings, and errors. It also
+locks this diagnostic gate to local synthetic fixtures without external OCR,
+Docling, network access, real student data, or real AI calls.
 
 F001 assessment model contract:
 
