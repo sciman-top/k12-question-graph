@@ -64,7 +64,7 @@ Windows/LAN first teacher workstation
 | ID | 补强项 | 归宿 |
 |---|---|---|
 | H007 | external benchmark drift guard | 每个重要发布周期复核官方文档、成熟项目和最佳实践，避免工程路线过期 |
-| I007 | server-state 与 typed API boundary | 前端明确 TanStack Query、教师草稿、撤销和高风险状态的边界，并生成或快照 API contract |
+| I007 | server-state 与 typed API boundary | 前端明确 TanStack Query、教师草稿、撤销和高风险状态的边界，并生成或快照 API contract；同步用 bundle analysis 处理 Vite chunk warning |
 | L007 | LLM security red-team gate | 真实 AI 调用前覆盖 OWASP LLM Top 10 与 NIST GenAI Profile 关键风险 |
 | O007 | EF migration bundle 与升级演练 | v0.1 release 前证明目标机可无源码/SDK执行迁移、备份、回滚和恢复 |
 | R007 | interoperability profile map | 先把本仓实体映射到 QTI/CASE/OneRoster/Caliper profile，再决定是否做真实 import/export |
@@ -74,7 +74,7 @@ Windows/LAN first teacher workstation
 近期仍按 `H0 -> I0 -> J0` 推进。新增补强不改变主线，只改变验收质量：
 
 1. `H007` 放在 H0 收口后半段，作为路线漂移防护。
-2. `I007` 与 I0 教师工作台同时做，避免前端状态变成隐形事实源。
+2. `I007` 与 I0 教师工作台同时做，避免前端状态变成隐形事实源；当前 Vite chunk warning 不直接调高阈值，归入 I007 的真实拆包和 bundle analysis。
 3. `J0` 继续优先真实文档解析黄金样本；Docling/PaddleOCR/OpenXML/OCRmyPDF 都必须经 Adapter 输出内部模型。
 4. `L007` 在真实 AI 调用前执行，不阻断当前 stub/draft/test。
 5. `O007` 在发布包前执行，是 v0.1 release hard gate。
