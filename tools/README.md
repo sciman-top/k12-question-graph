@@ -538,6 +538,18 @@ change reason, source evidence, affected scope, and urgency. The UI contract
 also verifies that system-generated candidate, mapping, impact, and rollback
 outputs are visible while teacher-facing active switch actions stay absent.
 
+K003 mapping review workbench UI contract:
+
+```powershell
+.\tools\run-k003-mapping-review-workbench-ui-contract.ps1
+```
+
+This runs the C002H mapping review workbench contract, then checks that the Web
+UI exposes side-by-side old/new assets, mapping edges, source evidence, impact
+preview, rollback preview, review history, and manual actions for high-risk
+`split`, `merge`, and `deprecated` mappings. It also verifies that high-risk
+bulk approval and direct active apply actions are absent.
+
 F001 assessment model contract:
 
 ```powershell

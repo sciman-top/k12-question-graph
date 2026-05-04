@@ -507,6 +507,120 @@
   align-items: flex-start;
 }
 
+.mapping-review-panel {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  padding: 16px;
+}
+
+.mapping-review-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.mapping-review-card {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #f9fbf8;
+  padding: 14px;
+}
+
+.mapping-review-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.mapping-review-card-head span {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.mapping-review-card-head strong {
+  color: var(--ink);
+  line-height: 1.35;
+}
+
+.mapping-review-card-head small {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.mapping-compare {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 32px minmax(0, 1fr);
+  gap: 8px;
+  align-items: stretch;
+}
+
+.mapping-compare > div {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  padding: 10px;
+}
+
+.mapping-compare code {
+  color: var(--accent);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.mapping-edge {
+  place-items: center;
+  color: var(--accent);
+}
+
+.mapping-evidence-row {
+  display: grid;
+  gap: 8px;
+}
+
+.mapping-evidence-row span {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.mapping-evidence-row .anticon {
+  color: var(--accent);
+  margin-top: 2px;
+}
+
+.mapping-review-actions,
+.mapping-review-audit {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mapping-review-audit {
+  align-items: center;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+
+.mapping-review-audit span {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
 .score-workbench {
   grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.15fr);
   align-items: stretch;
@@ -1410,6 +1524,7 @@
   .replacement-workspace,
   .export-workspace,
   .score-workbench,
+  .mapping-review-grid,
   .paper-workbench-flow,
   .paper-workbench-summary,
   .page-preview {
@@ -1423,7 +1538,8 @@
   .activation-review,
   .storage-grid,
   .source-type-grid,
-  .source-form-grid {
+  .source-form-grid,
+  .mapping-compare {
     grid-template-columns: 1fr;
   }
 

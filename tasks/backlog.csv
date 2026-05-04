@@ -82,7 +82,7 @@ J005,J0,供应链,Adapter 版本诊断和工具供应链门禁,中,已完成,J00
 J006,J0,教师效率,导入准确率基线与人工工作量报告,高,已完成,J003,输出导入准确率代理基线 人工确认题数 失败接管耗时 明确 automatedCutCaseCount=0 autoCutAccuracy=N/A 不虚报 AI 自动化,tools/run-j006-import-accuracy-workload-contract.ps1 + docs/evidence/j006-import-accuracy-workload-report.json + docs/91_J006_ImportAccuracyWorkload.md + tools/run-gates.ps1
 K001,K0,知识资产,C002 active 生产查询接入,高,已完成,H002,题库检索 组卷约束 学情分析默认读取 active C002 v1 且保留版本引用 不修改 active 资产 不写真实学情,tools/run-k001-active-c002-production-query-contract.ps1 + docs/evidence/k001-active-c002-production-query-report.json + docs/92_K001_ActiveC002ProductionQuery.md + tools/run-gates.ps1
 K002,K0,知识资产,C002R 教师修订 UX,高,已完成,K001,教师只提交修订原因 来源证据 影响范围 紧急程度 系统生成 candidate 版本 映射建议 影响报告和回滚快照 普通教师不能直接切换 active,tools/run-k002-c002r-teacher-revision-ux-contract.ps1 + docs/evidence/k002-c002r-teacher-revision-ux-report.json + docs/93_K002_C002RTeacherRevisionUX.md + tools/run-gates.ps1
-K003,K0,知识资产,映射审核工作台 UI 实现,高,待办,K002,split merge deprecated 等高影响映射可并排审核 预览影响 回滚,c002h contract + frontend build
+K003,K0,知识资产,映射审核工作台 UI 实现,高,已完成,K002,split merge deprecated 等高影响映射可并排审核 显示旧对象 新对象 映射边 来源证据 影响预览 回滚预览和审核记录 批量确认只允许低风险一对一 不直接应用 active,tools/run-k003-mapping-review-workbench-ui-contract.ps1 + docs/evidence/k003-mapping-review-workbench-ui-report.json + docs/94_K003_MappingReviewWorkbenchUI.md + tools/run-gates.ps1
 K004,K0,知识资产,历史题目版本解释,中,待办,K001,旧题 旧卷 学情报告能显示当时知识版本和当前版本映射,API contract + regression fixture
 K005,K0,知识资产,第二批 C002 修订演练,中,待办,K002,用 synthetic 或教师审查样例完成 candidate to reviewed to active dry-run 不直接改旧 active,c002r dry-run + rollback snapshot
 K006,K0,知识资产,知识资产健康面板,中,待办,K001,管理员可看到 active candidate pending mappings migrations blockers 和证据摘要,UI contract + roadmap guard

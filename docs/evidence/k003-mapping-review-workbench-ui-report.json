@@ -1,0 +1,41 @@
+{
+  "status": "pass",
+  "task": "K003",
+  "mode": "ui_contract",
+  "checkedAt": "2026-05-04T15:16:09.6901593Z",
+  "dependency": {
+    "c002hStatus": "pass",
+    "c002hPlanId": "C002H_SAMPLE_MAPPING_REVIEW_WORKBENCH",
+    "c002hManualReview": 2,
+    "c002hCoveredCardinalities": [
+      "many_to_many",
+      "one_to_many",
+      "one_to_one"
+    ]
+  },
+  "coveredMappingTypes": [
+    "split",
+    "merge",
+    "deprecated"
+  ],
+  "sideBySideViews": [
+    "old_asset",
+    "new_asset",
+    "mapping_edges",
+    "source_evidence",
+    "impact_preview",
+    "rollback_preview"
+  ],
+  "highRiskBulkApproveAllowed": false,
+  "directActiveApplyAllowed": false,
+  "undoRequiredBeforeApply": true,
+  "evidence": {
+    "app": "apps/web/src/App.tsx",
+    "style": "apps/web/src/App.css",
+    "report": "docs/evidence/k003-mapping-review-workbench-ui-report.json"
+  },
+  "rollback": {
+    "code": "git revert this K003 commit",
+    "data": "no database or active asset mutation; remove only generated K003 evidence report if needed"
+  }
+}

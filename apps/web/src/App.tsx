@@ -281,6 +281,45 @@ const c002RevisionSystemOutputs = [
   { label: '回滚快照', detail: '管理员切换前必须先准备恢复路径' },
 ]
 
+const mappingReviewItems = [
+  {
+    id: 'review-ohm-split',
+    title: '欧姆定律拆分',
+    mappingType: 'split',
+    cardinality: 'one_to_many',
+    risk: 'high',
+    confidence: '0.89',
+    oldAsset: 'PHY-JH-ELEC-OHM-LAW',
+    newAsset: 'PHY-JH-ELEC-OHM-CONCEPT / PHY-JH-ELEC-OHM-CALCULATION',
+    impact: '18 道题、4 条组卷约束、3 份历史分析',
+    rollback: '恢复旧映射组并重建派生索引',
+  },
+  {
+    id: 'review-force-remix',
+    title: '力的作用效果重组',
+    mappingType: 'merge',
+    cardinality: 'many_to_many',
+    risk: 'high',
+    confidence: '0.74',
+    oldAsset: 'FORCE-EFFECT / FORCE-THREE-ELEMENTS',
+    newAsset: 'FORCE-MOTION-CHANGE / FORCE-SHAPE-CHANGE / FORCE-MAGNITUDE',
+    impact: '126 道题、8 条组卷约束、12 份历史分析',
+    rollback: '恢复 mappingGroupId 并冻结历史报告旧版本',
+  },
+  {
+    id: 'review-old-trend-deprecated',
+    title: '旧考情口径废弃',
+    mappingType: 'deprecated',
+    cardinality: 'one_to_one',
+    risk: 'high',
+    confidence: '0.72',
+    oldAsset: 'PHY-JH-EXAM-OLD-LOCAL-TREND',
+    newAsset: 'PHY-JH-EXAM-TREND-2026',
+    impact: '9 道题、2 个导出模板、1 个分析指标',
+    rollback: '恢复废弃前关系并撤销影响目标',
+  },
+]
+
 const storageAreas = [
   { name: '题库文件', bytes: '18.4 GB', files: 1248, cleanupAllowed: false },
   { name: '备份包', bytes: '42.7 GB', files: 37, cleanupAllowed: false },
@@ -870,6 +909,104 @@ function App() {
                 description="本入口只生成 pending_review 的 candidate 和影响报告；管理员完成审核、备份和回滚检查后，才可能切换 active。"
                 data-contract="candidate-pending-review-only"
               />
+            </div>
+
+            <div
+              className="mapping-review-panel"
+              data-flow="c002h-mapping-review-workbench-ui"
+              data-contract="complex-mapping-review"
+            >
+              <div className="panel-heading">
+                <div>
+                  <Typography.Text type="secondary">映射审核</Typography.Text>
+                  <Typography.Title level={3}>高影响映射并排审核</Typography.Title>
+                  <Typography.Text>
+                    默认只看待审核、低置信度、高影响和复杂基数映射；split、merge、deprecated 必须逐项给出审核理由。
+                  </Typography.Text>
+                </div>
+                <Space size="small" wrap>
+                  <Tag color="orange" data-filter="pending_review">待审核</Tag>
+                  <Tag data-filter="low_confidence">低置信度</Tag>
+                  <Tag data-filter="high_impact">高影响</Tag>
+                  <Tag data-filter="many_to_many">多对多</Tag>
+                </Space>
+              </div>
+
+              <div className="mapping-review-grid" data-contract="side-by-side-review">
+                {mappingReviewItems.map((item) => (
+                  <div
+                    className="mapping-review-card"
+                    key={item.id}
+                    data-card="mapping-review-item"
+                    data-mapping-type={item.mappingType}
+                    data-cardinality={item.cardinality}
+                    data-risk={item.risk}
+                  >
+                    <div className="mapping-review-card-head">
+                      <span>
+                        <strong>{item.title}</strong>
+                        <small>
+                          {item.mappingType} · {item.cardinality} · confidence {item.confidence}
+                        </small>
+                      </span>
+                      <Tag color="red">{item.risk}</Tag>
+                    </div>
+
+                    <div className="mapping-compare" data-contract="old-new-asset-compare">
+                      <div data-view="old_asset">
+                        <Typography.Text type="secondary">旧对象</Typography.Text>
+                        <code>{item.oldAsset}</code>
+                      </div>
+                      <div className="mapping-edge" data-view="mapping_edges">
+                        <SwapOutlined />
+                      </div>
+                      <div data-view="new_asset">
+                        <Typography.Text type="secondary">新对象</Typography.Text>
+                        <code>{item.newAsset}</code>
+                      </div>
+                    </div>
+
+                    <div className="mapping-evidence-row">
+                      <span data-view="source_evidence">
+                        <FileSearchOutlined />
+                        来源证据已绑定
+                      </span>
+                      <span data-view="impact_preview">
+                        <ExclamationCircleOutlined />
+                        {item.impact}
+                      </span>
+                      <span data-view="rollback_preview">
+                        <UndoOutlined />
+                        {item.rollback}
+                      </span>
+                    </div>
+
+                    <div className="mapping-review-actions" data-contract="manual-review-actions">
+                      <Button icon={<CheckCircleOutlined />} data-action="approve-mapping">
+                        确认
+                      </Button>
+                      <Button icon={<LinkOutlined />} data-action="change-mapping-target">
+                        改目标
+                      </Button>
+                      <Button icon={<SplitCellsOutlined />} data-action="split-mapping">
+                        拆分
+                      </Button>
+                      <Button icon={<MergeCellsOutlined />} data-action="merge-mapping">
+                        合并
+                      </Button>
+                      <Button icon={<UndoOutlined />} data-action="undo-mapping-review">
+                        撤销
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mapping-review-audit" data-contract="review-history-and-audit">
+                <span>审核记录包含 reviewer、decision、reviewReason、beforeSnapshot 和 afterSnapshot。</span>
+                <Tag data-contract="batch-approve-one-to-one-only">批量确认只允许低风险一对一</Tag>
+                <Tag data-contract="no-direct-active-apply">不直接应用到 active</Tag>
+              </div>
             </div>
           </section>
 
