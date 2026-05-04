@@ -35,30 +35,36 @@ import {
 } from '@ant-design/icons'
 import './App.css'
 
+type TeacherView = 'import' | 'paper' | 'scores' | 'analysis'
+
 const teacherActions = [
   {
     title: '导入试卷',
-    description: '上传 Word、PDF 或图片试卷',
+    description: '上传文件，只处理异常项',
     icon: <CloudUploadOutlined />,
-    status: 'P0',
+    view: 'import' as TeacherView,
+    status: '常用',
   },
   {
     title: '找题组卷',
-    description: '按知识点、题型和难度选题',
+    description: '找题、换题、导出样卷',
     icon: <FileSearchOutlined />,
-    status: 'P4',
+    view: 'paper' as TeacherView,
+    status: '10 分钟目标',
   },
   {
     title: '导入成绩',
-    description: '导入 Excel 小题分和总分',
+    description: '上传 Excel，复用字段映射',
     icon: <FileTextOutlined />,
-    status: 'P5',
+    view: 'scores' as TeacherView,
+    status: '模板复用',
   },
   {
     title: '查看分析',
-    description: '查看班级薄弱点和讲评摘要',
+    description: '查看薄弱点和讲评摘要',
     icon: <BarChartOutlined />,
-    status: 'P5',
+    view: 'analysis' as TeacherView,
+    status: '讲评',
   },
 ]
 
@@ -351,6 +357,7 @@ const initialPaperDraft = {
 }
 
 function App() {
+  const [activeTeacherView, setActiveTeacherView] = useState<TeacherView>('import')
   const [segments, setSegments] = useState(initialSegments)
   const [selectedIds, setSelectedIds] = useState<string[]>(['q-02', 'q-03'])
   const [selectedAsset, setSelectedAsset] = useState(sharedAssets[0])
@@ -425,6 +432,20 @@ function App() {
 
   const takeoverFailure = (action: string) => {
     appendLog(`失败接管：${action}`)
+  }
+
+  const selectExceptionItems = () => {
+    setSelectedIds(segments.slice(0, 2).map((segment) => segment.id))
+    appendLog('已筛选需要确认的异常项')
+  }
+
+  const batchConfirmSelected = () => {
+    if (selectedIds.length === 0) {
+      return
+    }
+
+    appendLog(`已批量确认 ${selectedIds.length} 个异常项`)
+    setSelectedIds([])
   }
 
   const undoLast = () => {
@@ -506,23 +527,36 @@ function App() {
           </Space>
         </header>
 
-        <main className="workspace">
-          <section className="primary-panel" aria-label="普通教师入口">
+        <main className={`workspace teacher-view-${activeTeacherView}`}>
+          <section
+            className="primary-panel"
+            aria-label="普通教师入口"
+            data-flow="teacher-home"
+            data-contract="four-default-actions"
+          >
             <div className="panel-heading">
               <div>
-                <Typography.Title level={2}>今日工作台</Typography.Title>
+                <Typography.Title level={2}>今天要做什么</Typography.Title>
                 <Typography.Text type="secondary">
-                  普通教师默认入口保持 4 个，高级配置后置。
+                  默认只放四件常用事，其他设置交给管理员。
                 </Typography.Text>
               </div>
-              <Button type="primary" icon={<InboxOutlined />} size="large">
+              <Button type="primary" icon={<InboxOutlined />} size="large" onClick={() => setActiveTeacherView('import')}>
                 打开导入
               </Button>
             </div>
 
             <div className="action-grid">
               {teacherActions.map((action) => (
-                <button className="action-card" key={action.title} type="button">
+                <button
+                  className={activeTeacherView === action.view ? 'action-card active' : 'action-card'}
+                  key={action.title}
+                  type="button"
+                  onClick={() => setActiveTeacherView(action.view)}
+                  aria-pressed={activeTeacherView === action.view}
+                  data-action="teacher-entry"
+                  data-view={action.view}
+                >
                   <span className="action-icon">{action.icon}</span>
                   <span className="action-copy">
                     <strong>{action.title}</strong>
@@ -532,23 +566,78 @@ function App() {
                 </button>
               ))}
             </div>
+
+            <div className="starter-demo" data-flow="first-run-starter-demo" data-contract="teacher-default-values">
+              <div>
+                <Typography.Text type="secondary">新手示例</Typography.Text>
+                <Typography.Title level={3}>用默认样例跑一遍</Typography.Title>
+              </div>
+              <div className="starter-demo-grid">
+                {[
+                  { title: '导入样卷', detail: '使用示例试卷，不需要先准备真实资料', view: 'import' as TeacherView, contract: 'starter-step-1' },
+                  { title: '生成草稿卷', detail: '默认初中物理、力学基础、30 分', view: 'paper' as TeacherView, contract: 'starter-step-2' },
+                  { title: '导入样例成绩', detail: '字段映射自动匹配，异常行集中处理', view: 'scores' as TeacherView, contract: 'starter-step-3' },
+                  { title: '查看讲评摘要', detail: '直接看到薄弱知识点和导出入口', view: 'analysis' as TeacherView, contract: 'starter-step-4' },
+                ].map((step, index) => (
+                  <button
+                    className="starter-step"
+                    key={step.title}
+                    type="button"
+                    data-action="run-starter-example"
+                    data-contract={step.contract}
+                    onClick={() => setActiveTeacherView(step.view)}
+                  >
+                    <strong>{index + 1}</strong>
+                    <span>
+                      <b>{step.title}</b>
+                      <small>{step.detail}</small>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </section>
 
           <section className="status-panel" aria-label="系统状态">
             <div className="status-strip">
               <div>
-                <Typography.Text type="secondary">导入任务</Typography.Text>
-                <Typography.Title level={3}>0</Typography.Title>
+                <Typography.Text type="secondary">导入向导</Typography.Text>
+                <Typography.Title level={3}>4 步</Typography.Title>
               </div>
-              <Badge status="processing" text="服务已就绪" />
+              <Badge status="processing" text="可继续" />
             </div>
 
             <Alert
               showIcon
               type="info"
-              title="等待 P1 导入样本"
-              description="当前只验证工程骨架和任务状态，不接真实 AI，不使用真实学生数据。"
+              title="可以开始处理"
+              description="上传后会显示处理进度；失败时保留原文件，可继续人工处理。"
             />
+
+            <div className="import-wizard" data-flow="paper-import-wizard">
+              {[
+                ['上传文件', 'Word、PDF、图片'],
+                ['查看状态', '排队、处理中、失败、等待重试'],
+                ['确认异常', '只处理跨页、误切、共用题图'],
+                ['回看来源', '页码、区域和原文件可追溯'],
+              ].map(([title, detail], index) => (
+                <div className="import-step" key={title} data-contract={`import-step-${index + 1}`}>
+                  <strong>{index + 1}</strong>
+                  <span>
+                    <Typography.Text>{title}</Typography.Text>
+                    <small>{detail}</small>
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <button className="upload-dropzone" type="button" data-action="upload-paper">
+              <CloudUploadOutlined />
+              <span>
+                <strong>上传试卷</strong>
+                <small>选择文件后自动进入任务状态和异常确认。</small>
+              </span>
+            </button>
 
             <div className="job-list">
               {jobStates.map((state) => (
@@ -563,6 +652,193 @@ function App() {
                   <strong>{state.value}</strong>
                 </div>
               ))}
+            </div>
+          </section>
+
+          <section className="score-panel" aria-label="成绩导入" data-flow="score-import-workbench">
+            <div className="panel-heading">
+              <div>
+                <Typography.Title level={2}>成绩导入分析工作台</Typography.Title>
+                <Typography.Text type="secondary">
+                  Excel 字段映射、异常行、知识点分析和报告导出在同一屏完成。
+                </Typography.Text>
+              </div>
+              <Space size="small" wrap>
+                <Tag color="green" data-contract="synthetic-score-fixture">synthetic fixture</Tag>
+                <Tag data-contract="score-productionEligible=false">不进入生产</Tag>
+              </Space>
+            </div>
+
+            <div className="score-workbench" data-flow="score-analysis-workbench">
+              <div className="score-upload-lane">
+                <Button type="primary" icon={<FileTextOutlined />} data-action="upload-score-sheet">
+                  上传 Excel
+                </Button>
+                <Button icon={<BarChartOutlined />} data-action="generate-score-analysis">
+                  生成分析
+                </Button>
+                <Button icon={<FileTextOutlined />} data-action="export-score-report">
+                  导出报告
+                </Button>
+              </div>
+
+              <div className="score-field-mapping" data-contract="excel-field-mapping-preview">
+                <Typography.Text type="secondary">字段映射预览</Typography.Text>
+                {[
+                  ['student_key', '学生编号'],
+                  ['total_score', '总分'],
+                  ['q1_score', '第 1 题'],
+                  ['q2_score', '第 2 题'],
+                ].map(([field, label]) => (
+                  <div className="mapping-row" key={field}>
+                    <code>{field}</code>
+                    <span>{label}</span>
+                    <Tag>已匹配</Tag>
+                  </div>
+                ))}
+              </div>
+
+              <div className="score-exception-list" data-contract="score-exception-rows">
+                <Typography.Text type="secondary">异常行</Typography.Text>
+                <div className="exception-row">
+                  <strong>第 3 行</strong>
+                  <span>q2_score 超过满分，暂不导入</span>
+                  <Tag color="orange">需确认</Tag>
+                </div>
+                <small>有效记录 2 行，异常 1 行；教师只处理异常，不重填整张表。</small>
+              </div>
+
+              <div className="score-analysis-summary" data-contract="knowledge-analysis-summary">
+                <Typography.Text type="secondary">知识点分析</Typography.Text>
+                <div className="analysis-summary-grid compact">
+                  <div>
+                    <strong>87.5%</strong>
+                    <small>班级得分率</small>
+                  </div>
+                  <div>
+                    <strong>运动快慢与速度</strong>
+                    <small>薄弱点 1 个</small>
+                  </div>
+                  <div>
+                    <strong>区分度可用</strong>
+                    <small>draft/test 报告</small>
+                  </div>
+                </div>
+              </div>
+
+              <div className="score-report-path" data-contract="analysis-report-export-path">
+                <Typography.Text type="secondary">报告导出路径</Typography.Text>
+                <strong>导入后直接生成讲评摘要，再导出给备课使用。</strong>
+                <small>不使用真实学生数据，不写正式历史学情。</small>
+              </div>
+            </div>
+
+            <div className="teacher-step-list">
+              {[
+                ['选择成绩表', '支持总分和小题分'],
+                ['确认字段', '系统记住本次映射'],
+                ['处理异常行', '只集中处理缺失和超分记录'],
+                ['生成分析', '导入后直接进入讲评摘要'],
+              ].map(([title, detail]) => (
+                <div className="teacher-step" key={title}>
+                  <CheckCircleOutlined />
+                  <span>
+                    <strong>{title}</strong>
+                    <small>{detail}</small>
+                  </span>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="analysis-panel" aria-label="讲评分析" data-flow="teacher-analysis-workbench">
+            <div className="panel-heading">
+              <div>
+                <Typography.Title level={2}>讲评分析</Typography.Title>
+                <Typography.Text type="secondary">
+                  先看班级薄弱点，再决定讲评和练习。
+                </Typography.Text>
+              </div>
+              <Button icon={<BarChartOutlined />} data-action="open-analysis-summary">
+                查看摘要
+              </Button>
+            </div>
+            <div className="analysis-summary-grid">
+              <div>
+                <Typography.Text type="secondary">班级得分率</Typography.Text>
+                <strong>87.5%</strong>
+                <small>synthetic baseline</small>
+              </div>
+              <div>
+                <Typography.Text type="secondary">优先讲评</Typography.Text>
+                <strong>运动快慢与速度</strong>
+                <small>薄弱点 1 个</small>
+              </div>
+              <div>
+                <Typography.Text type="secondary">下一步</Typography.Text>
+                <strong>加入巩固题</strong>
+                <small>按当前知识版本选题</small>
+              </div>
+            </div>
+          </section>
+
+          <section
+            className="paper-workbench-panel"
+            aria-label="找题组卷工作台"
+            data-flow="paper-assembly-workbench"
+          >
+            <div className="panel-heading">
+              <div>
+                <Typography.Title level={2}>找题组卷工作台</Typography.Title>
+                <Typography.Text type="secondary">
+                  检索、题篮、细目表、换题和导出放在同一屏，目标是 10 分钟内完成一份草稿卷。
+                </Typography.Text>
+              </div>
+              <Space size="small" wrap>
+                <Tag color="green" data-contract="ten-minute-target">10 分钟目标</Tag>
+                <Tag data-contract="single-workbench">单工作台</Tag>
+              </Space>
+            </div>
+
+            <div className="paper-workbench-flow" aria-label="组卷流程">
+              {[
+                ['找题', '按知识点、题型、难度筛选'],
+                ['题篮', '已选 2 题，8 分'],
+                ['细目表', '单选 1 题，填空 1 题'],
+                ['换题', '保持知识点、题型、分值一致'],
+                ['导出', 'Word/PDF 草稿可打印'],
+              ].map(([title, description], index) => (
+                <div className="paper-workbench-step" key={title} data-contract={`paper-step-${index + 1}`}>
+                  <strong>{index + 1}</strong>
+                  <span>
+                    <b>{title}</b>
+                    <small>{description}</small>
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div className="paper-workbench-summary">
+              <div data-contract="question-basket">
+                <Typography.Text type="secondary">题篮</Typography.Text>
+                <strong>2 题 · 8 分</strong>
+                <small>从检索结果直接加入</small>
+              </div>
+              <div data-contract="blueprint-table-entry">
+                <Typography.Text type="secondary">细目表</Typography.Text>
+                <strong>力学基础</strong>
+                <small>难度目标 0.55-0.7</small>
+              </div>
+              <div data-contract="replacement-entry">
+                <Typography.Text type="secondary">换题入口</Typography.Text>
+                <strong>保持约束</strong>
+                <small>可撤销草稿</small>
+              </div>
+              <div data-contract="export-entry">
+                <Typography.Text type="secondary">导出入口</Typography.Text>
+                <strong>Word / PDF</strong>
+                <small>先验证工件</small>
+              </div>
             </div>
           </section>
 
@@ -1070,10 +1346,15 @@ function App() {
             />
           </section>
 
-          <section className="review-panel" aria-label="导入确认" data-flow="manual-review">
+          <section
+            className="review-panel"
+            aria-label="导入确认"
+            data-flow="manual-review"
+            data-contract="import-wizard-review"
+          >
             <div className="panel-heading">
               <div>
-                <Typography.Title level={2}>导入确认</Typography.Title>
+                <Typography.Title level={2}>异常确认与来源回看</Typography.Title>
                 <Typography.Text type="secondary">
                   处理跨页、误切和共用题图，只记录必要修正。
                 </Typography.Text>
@@ -1082,7 +1363,7 @@ function App() {
             </div>
 
             <div className="review-workspace">
-              <div className="page-preview" aria-label="来源页预览">
+              <div className="page-preview" aria-label="来源页预览" data-contract="source-review">
                 <div className="page-sheet">
                   <span className="page-number">第 1 页</span>
                   <button
@@ -1113,7 +1394,25 @@ function App() {
               </div>
 
               <div className="review-queue">
+                <div className="review-summary" data-contract="review-queue-summary">
+                  <span>
+                    <Typography.Text type="secondary">待确认</Typography.Text>
+                    <strong>{segments.length}</strong>
+                  </span>
+                  <span>
+                    <Typography.Text type="secondary">已选择</Typography.Text>
+                    <strong>{selectedIds.length}</strong>
+                  </span>
+                  <span>
+                    <Typography.Text type="secondary">预计处理</Typography.Text>
+                    <strong>8 分钟</strong>
+                  </span>
+                </div>
+
                 <div className="review-toolbar" aria-label="人工确认操作">
+                  <Button icon={<SearchOutlined />} onClick={selectExceptionItems} data-action="filter-exceptions">
+                    只看异常
+                  </Button>
                   <Button
                     icon={<MergeCellsOutlined />}
                     onClick={mergeSelected}
@@ -1151,6 +1450,15 @@ function App() {
                   </Button>
                   <Button icon={<UndoOutlined />} onClick={undoLast} data-action="undo">
                     撤销
+                  </Button>
+                  <Button
+                    type="primary"
+                    icon={<CheckCircleOutlined />}
+                    onClick={batchConfirmSelected}
+                    disabled={selectedIds.length === 0}
+                    data-action="batch-confirm"
+                  >
+                    批量确认
                   </Button>
                 </div>
 

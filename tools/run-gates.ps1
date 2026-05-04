@@ -95,6 +95,30 @@ try {
         }
     }
 
+    Invoke-GateStep 'i001 teacher home ui contract' {
+        .\tools\run-i001-teacher-home-ui-contract.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'i002 import wizard ui contract' {
+        .\tools\run-i002-import-wizard-ui-contract.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'i003 review queue ui contract' {
+        .\tools\run-i003-review-queue-ui-contract.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'i004 paper workbench ui contract' {
+        .\tools\run-i004-paper-workbench-ui-contract.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'i005 score analysis workbench ui contract' {
+        .\tools\run-i005-score-analysis-workbench-ui-contract.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'i006 starter defaults ui contract' {
+        .\tools\run-i006-starter-defaults-ui-contract.ps1 | Write-Host
+    }
+
     Invoke-GateStep 'b004 manual review ui contract' {
         $app = Get-Content -LiteralPath 'apps\web\src\App.tsx' -Raw
         foreach ($pattern in @(

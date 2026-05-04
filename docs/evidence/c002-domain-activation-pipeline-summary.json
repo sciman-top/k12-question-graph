@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "task": "domain_asset_activation_pipeline",
-  "generatedAt": "2026-05-04T02:47:30.8092547Z",
+  "generatedAt": "2026-05-04T03:37:06.0762655Z",
   "importKey": "c002_candidate_import_guangzhou_physics_2016_2025_v1",
   "materialBatchKey": "guangzhou_physics_2016_2025",
   "evidencePrefix": "c002-domain-activation-pipeline",
@@ -26,22 +26,22 @@
     {
       "name": "readiness before review/activation",
       "status": "pass",
-      "durationMs": 405
+      "durationMs": 399
     },
     {
       "name": "readiness after review",
       "status": "pass",
-      "durationMs": 445
+      "durationMs": 399
     },
     {
       "name": "active switch dry-run before apply",
       "status": "pass",
-      "durationMs": 511
+      "durationMs": 504
     },
     {
       "name": "active switch dry-run after pipeline",
       "status": "pass",
-      "durationMs": 394
+      "durationMs": 392
     }
   ]
 }
