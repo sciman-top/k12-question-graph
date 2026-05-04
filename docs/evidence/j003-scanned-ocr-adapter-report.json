@@ -1,0 +1,16 @@
+{
+  "status": "pass",
+  "task": "J003",
+  "adapterName": "scanned_ocr_review_adapter",
+  "adapterVersion": "0.1",
+  "scannedPdfPageCount": 1,
+  "scannedPdfBlockCount": 1,
+  "invalidTakeoverBlockCount": 1,
+  "lowConfidence": true,
+  "reviewStatus": "pending_review",
+  "takeoverRequired": true,
+  "ocrEngineAvailable": false,
+  "realOcrTextRecognized": false,
+  "source": "synthetic scanned pdf and invalid image",
+  "productionEligible": false
+}

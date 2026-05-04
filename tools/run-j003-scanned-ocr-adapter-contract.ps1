@@ -1,0 +1,72 @@
+$ErrorActionPreference = 'Stop'
+
+$repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+$fileRoot = Join-Path $repoRoot 'tmp\j003-scanned-ocr'
+$reportPath = Join-Path $repoRoot 'docs\evidence\j003-scanned-ocr-adapter-report.json'
+
+function Assert-OcrReviewResult {
+    param(
+        [Parameter(Mandatory=$true)]$Json,
+        [Parameter(Mandatory=$true)][string]$CaseName
+    )
+
+    if ($Json.status -ne 'ok') { throw "$CaseName worker status is not ok" }
+    if ($Json.adapterDiagnostics[0].adapterName -ne 'scanned_ocr_review_adapter') {
+        throw "$CaseName must use scanned_ocr_review_adapter"
+    }
+    if (@($Json.adapterDiagnostics[0].warnings).Count -lt 1) {
+        throw "$CaseName must record OCR takeover warning"
+    }
+
+    $pages = @($Json.documentModel.pages)
+    if ($pages.Count -lt 1) { throw "$CaseName must output at least one reviewable page" }
+
+    $blocks = @($pages | ForEach-Object { $_.layoutBlocks })
+    if ($blocks.Count -lt 1) { throw "$CaseName must output at least one reviewable candidate block" }
+    foreach ($block in $blocks) {
+        if ($block.blockType -ne 'ocr_candidate') { throw "$CaseName block must be ocr_candidate" }
+        if ([decimal]$block.confidence -ne 0) { throw "$CaseName confidence must be fail-closed at 0" }
+        if ($block.reviewStatus -ne 'pending_review') { throw "$CaseName must enter pending_review" }
+        if ($block.takeoverRequired -ne $true) { throw "$CaseName must require manual takeover" }
+        if ($null -eq $block.sourceRegion) { throw "$CaseName missing sourceRegion" }
+        if ($block.sourceRegion.takeoverRequired -ne $true) { throw "$CaseName sourceRegion must require takeover" }
+    }
+}
+
+Push-Location $repoRoot
+try {
+    python tools\j003_scanned_ocr_fixture.py | Write-Host
+    if ($LASTEXITCODE -ne 0) { throw "J003 fixture generation failed" }
+
+    $pdf = python workers\document\worker.py --job-id j003-scanned --relative-path j003-scanned.pdf --file-root $fileRoot | ConvertFrom-Json
+    if ($LASTEXITCODE -ne 0) { throw "J003 scanned PDF worker failed" }
+    Assert-OcrReviewResult -Json $pdf -CaseName 'J003 scanned PDF'
+
+    $invalid = python workers\document\worker.py --job-id j003-invalid --relative-path j003-invalid.png --file-root $fileRoot | ConvertFrom-Json
+    if ($LASTEXITCODE -ne 0) { throw "J003 invalid image worker failed" }
+    Assert-OcrReviewResult -Json $invalid -CaseName 'J003 invalid image'
+
+    $pdfBlocks = @($pdf.documentModel.pages | ForEach-Object { $_.layoutBlocks })
+    $invalidBlocks = @($invalid.documentModel.pages | ForEach-Object { $_.layoutBlocks })
+    $report = [ordered]@{
+        status = 'pass'
+        task = 'J003'
+        adapterName = $pdf.adapterDiagnostics[0].adapterName
+        adapterVersion = $pdf.adapterDiagnostics[0].adapterVersion
+        scannedPdfPageCount = @($pdf.documentModel.pages).Count
+        scannedPdfBlockCount = $pdfBlocks.Count
+        invalidTakeoverBlockCount = $invalidBlocks.Count
+        lowConfidence = $true
+        reviewStatus = 'pending_review'
+        takeoverRequired = $true
+        ocrEngineAvailable = $false
+        realOcrTextRecognized = $false
+        source = 'synthetic scanned pdf and invalid image'
+        productionEligible = $false
+    }
+    $report | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $reportPath -Encoding utf8
+    $report | ConvertTo-Json -Depth 6
+}
+finally {
+    Pop-Location
+}

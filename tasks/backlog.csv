@@ -73,10 +73,10 @@ I003,I0,教师工作流,人工确认队列可用性强化,高,已完成,I002,合
 I004,I0,教师工作流,找题组卷工作台整合,高,已完成,I001,检索 题篮 细目表 换题 导出入口在一个工作台内完成且保持 10 分钟目标,tools/run-i004-paper-workbench-ui-contract.ps1 + e001-e004 contracts + docs/evidence/20260504-i004-paper-workbench-ui.md
 I005,I0,教师工作流,成绩导入分析工作台整合,中,已完成,I001,Excel 字段映射预览 异常行 知识点分析和报告导出路径连贯,tools/run-i005-score-analysis-workbench-ui-contract.ps1 + f001-f003 contracts + docs/evidence/20260504-i005-score-analysis-workbench-ui.md
 I006,I0,教师效率,新手示例与默认值闭环,中,已完成,I001,首次使用无需读文档即可通过示例完成导入 组卷 成绩导入和分析,tools/run-i006-starter-defaults-ui-contract.ps1 + teacher preference checks + docs/evidence/20260504-i006-starter-defaults-ui.md
-I007,I0,前端架构,server-state 与 typed API boundary,高,待办,I001,前端明确 TanStack Query 只管理 server state 教师草稿和高风险操作状态另有事实源 API contract 可生成 typed client 且 UI 不直接依赖裸 JSON 形状 同时用 bundle analysis 处理 Vite chunk warning 避免只调高阈值,frontend build/lint + API contract snapshot + bundle analysis
-J001,J0,文档解析,OpenXML docx 真实解析 adapter,高,待办,I002,docx 题干 选项 答案 解析 表格 公式可转换为稳定 DocumentModel,adapter contract + golden sample
-J002,J0,文档解析,PDF 文本版解析 adapter,高,待办,J001,文本 PDF 页码 区块 顺序 来源定位可稳定输出,adapter contract + golden sample
-J003,J0,OCR,扫描版 PDF 图片 OCR adapter,高,待办,J002,扫描版样本可输出可审阅候选且低置信度进入人工确认,ocr smoke + invalid sample takeover
+I007,I0,前端架构,server-state 与 typed API boundary,高,已完成,I001,前端明确 TanStack Query 只管理 server state 教师草稿和高风险操作状态另有事实源 API contract 可生成 typed client 且 UI 不直接依赖裸 JSON 形状 同时用 bundle analysis 处理 Vite chunk warning 避免只调高阈值,tools/run-i007-frontend-boundary-contract.ps1 + frontend build/lint + API contract snapshot + bundle analysis + docs/evidence/20260504-i007-frontend-boundary.md
+J001,J0,文档解析,OpenXML docx 真实解析 adapter,高,已完成,I002,docx 题干 选项 答案 解析 表格 公式可转换为稳定 DocumentModel,tools/run-j001-openxml-docx-adapter-contract.ps1 + golden sample + docs/evidence/20260504-j001-openxml-docx-adapter.md
+J002,J0,文档解析,PDF 文本版解析 adapter,高,已完成,J001,文本 PDF 页码 区块 顺序 来源定位可稳定输出,tools/run-j002-text-pdf-adapter-contract.ps1 + golden sample + docs/evidence/20260504-j002-text-pdf-adapter.md
+J003,J0,OCR,扫描版 PDF 图片 OCR adapter,高,已完成,J002,扫描版样本可输出可审阅候选且低置信度进入人工确认,tools/run-j003-scanned-ocr-adapter-contract.ps1 + invalid sample takeover + docs/evidence/20260504-j003-scanned-ocr-adapter.md
 J004,J0,文档解析,公式 表格 题图保真回归,高,待办,J001,公式 表格 题图在导入 保存 导出链路不丢失,golden import + export regression
 J005,J0,供应链,Adapter 版本诊断和工具供应链门禁,中,待办,J001,每次解析记录工具版本 参数 输入输出 hash 耗时 警告和错误,adapter diagnostic gate + supply-chain note
 J006,J0,教师效率,导入准确率基线与人工工作量报告,高,待办,J003,输出切题准确率 人工确认题数 失败接管耗时 不虚报 AI 自动化,import eval report + teacher-efficiency evidence

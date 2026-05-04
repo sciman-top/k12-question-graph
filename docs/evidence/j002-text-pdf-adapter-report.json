@@ -1,0 +1,15 @@
+{
+  "status": "pass",
+  "task": "J002",
+  "adapterName": "pdf_text_adapter",
+  "adapterVersion": "0.1",
+  "pageCount": 2,
+  "blockCount": 5,
+  "pageNumbers": [
+    1,
+    2
+  ],
+  "sourceRegionsPresent": true,
+  "source": "synthetic text pdf",
+  "productionEligible": false
+}

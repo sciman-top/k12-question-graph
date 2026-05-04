@@ -34,6 +34,9 @@ import {
   UndoOutlined,
 } from '@ant-design/icons'
 import './App.css'
+import { apiContractSnapshot } from './api/contracts'
+import { useReadyHealthQuery } from './api/queries'
+import { uiStateBoundary } from './state/uiState'
 
 type TeacherView = 'import' | 'paper' | 'scores' | 'analysis'
 
@@ -357,6 +360,7 @@ const initialPaperDraft = {
 }
 
 function App() {
+  const readyHealthQuery = useReadyHealthQuery()
   const [activeTeacherView, setActiveTeacherView] = useState<TeacherView>('import')
   const [segments, setSegments] = useState(initialSegments)
   const [selectedIds, setSelectedIds] = useState<string[]>(['q-02', 'q-03'])
@@ -370,6 +374,7 @@ function App() {
     () => segments.filter((segment) => selectedIds.includes(segment.id)),
     [segments, selectedIds],
   )
+  const readyHealth = readyHealthQuery.data?.ok ? readyHealthQuery.data.data : undefined
 
   const appendLog = (message: string) => {
     setActionLog((current) => [message, ...current].slice(0, 5))
@@ -524,6 +529,9 @@ function App() {
           <Space size="small" wrap>
             <Tag color="green">P0 骨架</Tag>
             <Tag>初中物理</Tag>
+            <Tag data-contract="server-state-query-boundary">
+              服务状态 {readyHealth?.status ?? 'unknown'}
+            </Tag>
           </Space>
         </header>
 
@@ -595,6 +603,19 @@ function App() {
                   </button>
                 ))}
               </div>
+            </div>
+
+            <div
+              className="state-boundary-strip"
+              data-flow="frontend-state-boundary"
+              data-contract={apiContractSnapshot.version}
+              data-server-state={uiStateBoundary.serverState}
+              data-draft-state={uiStateBoundary.teacherDraftState}
+              data-high-risk-state={uiStateBoundary.highRiskOperationState}
+            >
+              <span>服务数据由 TanStack Query 同步</span>
+              <span>教师草稿留在当前页面</span>
+              <span>高风险操作以 API 合同为准</span>
             </div>
           </section>
 

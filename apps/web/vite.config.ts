@@ -4,4 +4,41 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
+            return 'react-vendor'
+          }
+
+          if (id.includes('node_modules/@ant-design/icons')) {
+            return 'antd-icons-vendor'
+          }
+
+          if (id.includes('node_modules/@ant-design')) {
+            return 'antd-core-vendor'
+          }
+
+          if (id.includes('node_modules/antd')) {
+            return 'antd-vendor'
+          }
+
+          if (id.includes('node_modules/rc-')) {
+            return 'antd-rc-vendor'
+          }
+
+          if (id.includes('node_modules/@tanstack')) {
+            return 'query-vendor'
+          }
+
+          if (id.includes('node_modules')) {
+            return 'vendor'
+          }
+
+          return undefined
+        },
+      },
+    },
+  },
 })

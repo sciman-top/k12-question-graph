@@ -1,0 +1,23 @@
+{
+  "status": "pass",
+  "task": "J001",
+  "adapterName": "openxml_docx_adapter",
+  "adapterVersion": "0.1",
+  "blockTypes": [
+    "question_stem",
+    "option",
+    "option",
+    "answer",
+    "explanation",
+    "table",
+    "formula"
+  ],
+  "hasQuestionStem": true,
+  "hasOptions": true,
+  "hasAnswer": true,
+  "hasExplanation": true,
+  "hasTable": true,
+  "hasFormula": true,
+  "source": "synthetic golden docx",
+  "productionEligible": false
+}

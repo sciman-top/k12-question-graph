@@ -119,6 +119,10 @@ try {
         .\tools\run-i006-starter-defaults-ui-contract.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'i007 frontend boundary contract' {
+        .\tools\run-i007-frontend-boundary-contract.ps1 | Write-Host
+    }
+
     Invoke-GateStep 'b004 manual review ui contract' {
         $app = Get-Content -LiteralPath 'apps\web\src\App.tsx' -Raw
         foreach ($pattern in @(
@@ -159,6 +163,18 @@ try {
         Set-Content -LiteralPath $workerFile -Value 'worker smoke' -Encoding UTF8
         python workers\document\worker.py --job-id gate --relative-path gate/worker-smoke.txt --file-root $FileStoreRoot | Write-Host
         if ($LASTEXITCODE -ne 0) { throw "worker smoke failed" }
+    }
+
+    Invoke-GateStep 'j001 openxml docx adapter contract' {
+        .\tools\run-j001-openxml-docx-adapter-contract.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'j002 text pdf adapter contract' {
+        .\tools\run-j002-text-pdf-adapter-contract.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'j003 scanned ocr adapter contract' {
+        .\tools\run-j003-scanned-ocr-adapter-contract.ps1 | Write-Host
     }
 
     Invoke-GateStep 'b002 adapter contract smoke' {
