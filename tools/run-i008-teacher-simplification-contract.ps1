@@ -1,0 +1,120 @@
+$ErrorActionPreference = 'Stop'
+
+$repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+$appPath = Join-Path $repoRoot 'apps\web\src\App.tsx'
+$cssPath = Join-Path $repoRoot 'apps\web\src\App.css'
+
+$app = Get-Content -LiteralPath $appPath -Raw
+$css = Get-Content -LiteralPath $cssPath -Raw
+
+function Get-SectionByClass([string] $ClassName) {
+    $pattern = '<section\s+className="' + [regex]::Escape($ClassName) + '"[\s\S]*?</section>'
+    $match = [regex]::Match($app, $pattern)
+    if (-not $match.Success) {
+        throw "missing teacher section: $ClassName"
+    }
+
+    return $match.Value
+}
+
+function Remove-ContractOnlyText([string] $Text) {
+    $withoutDataAttributes = [regex]::Replace($Text, '\sdata-[a-zA-Z0-9_-]+="[^"]*"', '')
+    $withoutAriaAttributes = [regex]::Replace($withoutDataAttributes, '\saria-[a-zA-Z0-9_-]+="[^"]*"', '')
+    return $withoutAriaAttributes
+}
+
+$teacherSectionClasses = @(
+    'primary-panel',
+    'status-panel',
+    'review-panel',
+    'paper-workbench-panel',
+    'question-panel',
+    'paper-request-panel',
+    'paper-replacement-panel',
+    'paper-export-panel',
+    'score-panel',
+    'analysis-panel'
+)
+
+$teacherVisibleSource = ($teacherSectionClasses | ForEach-Object {
+    Remove-ContractOnlyText (Get-SectionByClass $_)
+}) -join "`n"
+
+$forbiddenVisibleTerms = @(
+    'synthetic fixture',
+    'synthetic baseline',
+    'draft_test',
+    'productionEligible=false',
+    'candidate 版本',
+    'active switch',
+    'rollback snapshot',
+    'importKey',
+    'migration',
+    'TanStack Query',
+    'API 合同',
+    '不进入生产',
+    'sameKnowledge=true',
+    'sameQuestionType=true',
+    'similarDifficulty=true',
+    'excludeRecentlyUsed=true',
+    'knowledgeStatus=draft'
+)
+
+foreach ($term in $forbiddenVisibleTerms) {
+    if ($teacherVisibleSource.Contains($term)) {
+        throw "teacher-visible UI leaks technical/governance term: $term"
+    }
+}
+
+$analysisSection = Get-SectionByClass 'analysis-panel'
+foreach ($advancedMarker in @(
+    'revision-intake-panel',
+    'mapping-review-panel',
+    'data-flow="c002r-teacher-revision-ux"',
+    'data-flow="c002h-mapping-review-workbench-ui"',
+    'data-contract="complex-mapping-review"'
+)) {
+    if ($analysisSection.Contains($advancedMarker)) {
+        throw "teacher analysis panel leaks admin governance workbench: $advancedMarker"
+    }
+}
+
+foreach ($requiredAdminMarker in @(
+    'className="admin-knowledge-panel"',
+    'data-flow="admin-knowledge-governance"',
+    'data-contract="advanced-admin-only"',
+    'data-flow="c002r-teacher-revision-ux"',
+    'data-flow="c002h-mapping-review-workbench-ui"'
+)) {
+    if (-not $app.Contains($requiredAdminMarker)) {
+        throw "missing admin-only governance marker: $requiredAdminMarker"
+    }
+}
+
+$displayNoneBlocks = [regex]::Matches($css, '(?s)([^{}]+)\{\s*display:\s*none;\s*\}')
+$adminHiddenByDefault = $false
+foreach ($block in $displayNoneBlocks) {
+    if ($block.Groups[1].Value.Contains('.admin-knowledge-panel')) {
+        $adminHiddenByDefault = $true
+        break
+    }
+}
+if (-not $adminHiddenByDefault) {
+    throw "admin knowledge panel must be hidden by default"
+}
+
+$teacherDisplayBlocks = [regex]::Matches($css, '(?s)([^{}]*teacher-view[^{}]*)\{\s*display:\s*block;\s*\}')
+foreach ($block in $teacherDisplayBlocks) {
+    if ($block.Groups[1].Value.Contains('.admin-knowledge-panel')) {
+        throw "admin knowledge panel must not be displayed by teacher-view CSS"
+    }
+}
+
+[ordered]@{
+    status = 'pass'
+    task = 'I008'
+    teacherSectionClasses = $teacherSectionClasses
+    forbiddenVisibleTermsChecked = $forbiddenVisibleTerms
+    adminGovernanceHiddenByDefault = $true
+    analysisPanelAdminLeakBlocked = $true
+} | ConvertTo-Json -Depth 5

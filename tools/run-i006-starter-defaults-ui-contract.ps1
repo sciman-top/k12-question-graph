@@ -22,7 +22,7 @@ foreach ($pattern in @(
     }
 }
 
-foreach ($label in @('新手示例','用默认样例跑一遍','导入样卷','生成草稿卷','导入样例成绩','查看讲评摘要','不需要先准备真实资料')) {
+foreach ($label in @('新手示例','用默认样例跑一遍','导入样卷','生成样卷','导入样例成绩','查看讲评摘要','不需要先准备真实资料')) {
     if (-not $app.Contains($label)) {
         throw "missing I006 teacher-facing label: $label"
     }
@@ -37,7 +37,7 @@ foreach ($pattern in @('.starter-demo', '.starter-demo-grid', '.starter-step')) 
 [ordered]@{
     status = 'pass'
     task = 'I006'
-    firstRunSteps = @('import-sample-paper','assemble-draft-paper','import-sample-scores','open-analysis-summary')
+    firstRunSteps = @('import-sample-paper','assemble-sample-paper','import-sample-scores','open-analysis-summary')
     defaultValuesVisible = $true
     teacherDocsRequired = $false
 } | ConvertTo-Json -Depth 4

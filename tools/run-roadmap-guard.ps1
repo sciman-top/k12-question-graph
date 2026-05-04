@@ -7,7 +7,7 @@ foreach ($row in $rows) {
     $byId[$row.id] = $row
 }
 
-foreach ($requiredId in @('C002', 'C002N', 'C002O', 'C002P', 'C002Q0', 'C002Q', 'C002S', 'C002T', 'D001', 'D002', 'D003')) {
+foreach ($requiredId in @('C002', 'C002N', 'C002O', 'C002P', 'C002Q0', 'C002Q', 'C002S', 'C002T', 'D001', 'D002', 'D003', 'I008')) {
     if (-not $byId.ContainsKey($requiredId)) {
         throw "missing backlog task: $requiredId"
     }
@@ -21,6 +21,7 @@ $c002q = $byId['C002Q']
 $c002s = $byId['C002S']
 $c002t = $byId['C002T']
 $d001 = $byId['D001']
+$i008 = $byId['I008']
 if ($d001.depends_on -eq 'C002') {
     throw "D001 must not depend on formal C002; use the dynamic asset draft/test gate such as C002H"
 }
@@ -146,6 +147,18 @@ if ($c002t.status -eq '已完成') {
     }
     if ($report.after.candidateAssets -ne 0 -or $report.after.pendingMappings -ne 0 -or $report.after.pendingMigrations -ne 0 -or $report.after.openReviewItems -ne 0) {
         throw "C002T report must show no pending candidate review blockers"
+    }
+}
+
+if ($i008.status -eq '已完成') {
+    $i008Contract = Join-Path $repoRoot 'tools\run-i008-teacher-simplification-contract.ps1'
+    if (-not (Test-Path -LiteralPath $i008Contract)) {
+        throw "I008 is completed but contract is missing: tools/run-i008-teacher-simplification-contract.ps1"
+    }
+    foreach ($pattern in @('普通教师', '不暴露', 'C002R', 'active', 'candidate', 'migration', 'rollback', 'draft_test', 'synthetic fixture', 'UI 合同')) {
+        if ($i008.acceptance -notmatch $pattern) {
+            throw "I008 acceptance missing simplification boundary: $pattern"
+        }
     }
 }
 

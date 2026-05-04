@@ -37,6 +37,15 @@
 | 简洁模式 | 普通教师 | 一键导入、自动组卷、换题、导出、成绩导入、基础分析 |
 | 高级模式 | 备课组长/管理员 | 细目表、知识点权重、标签治理、模型路由、备份策略 |
 
+普通教师可见面必须只讲任务语言，不讲治理语言。以下内容只能出现在管理员、代理证据、脚本、`data-contract` 或后端合同层，不能作为普通教师按钮、标签、说明或分析页内容：
+
+- `ImportKey`、`manifest`、`migration`、`rollback snapshot`、`active switch`。
+- `candidate`、`active`、`draft_test`、`productionEligible=false`、`synthetic fixture`。
+- C002R 修订治理、映射审核、知识资产健康、存储清理、缓存清理、备份回滚脚本。
+- 证据 JSON 路径、脚本名、API 合同、server-state、模型路由和成本审计字段。
+
+普通教师看到的替代表述应是“示例数据”“示例流程”“正式启用前预览”“需确认”“可撤销”“自动检查”。UI 合同必须检查实际可见面是否外溢，而不是只检查 marker 是否存在。
+
 ## 4. 试题导入工作流
 
 ```text

@@ -37,8 +37,8 @@ try {
     foreach ($pattern in @(
         'queued: ''排队中''',
         'single_choice: ''单选题''',
-        'draft_test: ''草稿测试''',
-        '不进入生产'
+        'draft_test: ''示例流程''',
+        '正式启用前预览'
     )) {
         if (-not $app.Contains($pattern)) {
             throw "web Chinese display mapping missing pattern: $pattern"

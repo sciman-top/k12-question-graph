@@ -123,6 +123,10 @@ try {
         .\tools\run-i007-frontend-boundary-contract.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'i008 teacher simplification contract' {
+        .\tools\run-i008-teacher-simplification-contract.ps1 | Write-Host
+    }
+
     Invoke-GateStep 'b004 manual review ui contract' {
         $app = Get-Content -LiteralPath 'apps\web\src\App.tsx' -Raw
         foreach ($pattern in @(

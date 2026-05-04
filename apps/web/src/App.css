@@ -52,6 +52,7 @@
 .paper-export-panel,
 .score-panel,
 .analysis-panel,
+.admin-knowledge-panel,
 .activation-panel,
 .knowledge-health-panel,
 .storage-panel,
@@ -242,6 +243,7 @@
 .paper-export-panel,
 .score-panel,
 .analysis-panel,
+.admin-knowledge-panel,
 .status-panel,
 .source-material-panel,
 .activation-panel,
@@ -296,6 +298,11 @@
 
 .score-panel,
 .analysis-panel {
+  grid-column: 1 / -1;
+  padding: 24px;
+}
+
+.admin-knowledge-panel {
   grid-column: 1 / -1;
   padding: 24px;
 }

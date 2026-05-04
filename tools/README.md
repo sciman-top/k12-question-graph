@@ -17,7 +17,8 @@ $env:PGPASSWORD='<local-password>'
 .\tools\run-gates.ps1
 ```
 
-The gate also covers `b001 duplicate upload smoke`, `b002 adapter contract smoke`,
+The gate also covers `i001-i008 teacher workflow UI contracts`,
+`b001 duplicate upload smoke`, `b002 adapter contract smoke`,
 `b003 source preview smoke`, `b004/b004a UI contracts`, and
 `b005 save question api smoke`, `b006 question source review smoke`,
 `b007 golden import regression`, `b008 p1 proxy scenario`,
@@ -49,6 +50,17 @@ The gate also covers `b001 duplicate upload smoke`, `b002 adapter contract smoke
 It starts temporary
 API processes for API smoke steps, so `PGPASSWORD` must match the local PostgreSQL
 password.
+
+I008 teacher simplification contract:
+
+```powershell
+.\tools\run-i008-teacher-simplification-contract.ps1
+```
+
+This blocks ordinary teacher views from showing C002R governance workbenches,
+mapping review, storage/asset health dashboards, and engineering/test terms
+such as `draft_test`, `productionEligible=false`, `synthetic fixture`,
+`active switch`, `candidate`, `migration`, and `rollback snapshot`.
 
 F002 score import contract:
 

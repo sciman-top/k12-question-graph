@@ -136,8 +136,8 @@ const displayText = {
   short_answer: '简答题',
   synthetic: '示例来源',
   golden: '黄金样本',
-  draft_test: '草稿测试',
-  draft_dynamic_asset: '草稿动态资产',
+  draft_test: '示例流程',
+  draft_dynamic_asset: '示例约束',
   pending_review: '待审核',
   unit_practice: '单元练习',
   physics: '物理',
@@ -157,6 +157,18 @@ type DisplayKey = keyof typeof displayText
 
 const labelFor = (value: string) =>
   value in displayText ? displayText[value as DisplayKey] : value
+
+const teacherLabelFor = (value: string) => {
+  const teacherText: Record<string, string> = {
+    draft_test: '示例流程',
+    draft_dynamic_asset: '示例约束',
+    pending_review: '需确认',
+    synthetic: '示例来源',
+    golden: '样本来源',
+  }
+
+  return teacherText[value] ?? labelFor(value)
+}
 
 const sourceMaterialTypes = [
   {
@@ -623,7 +635,7 @@ function App() {
   }
 
   const exportPaper = (format: 'docx' | 'pdf') => {
-    appendLog(`已生成 ${format.toUpperCase()} draft_test 导出工件`)
+    appendLog(`已生成 ${format.toUpperCase()} 示例导出工件`)
   }
 
   return (
@@ -646,7 +658,7 @@ function App() {
             <Typography.Title level={1}>校本题谱</Typography.Title>
           </div>
           <Space size="small" wrap>
-            <Tag color="green">P0 骨架</Tag>
+            <Tag color="green">本机可用</Tag>
             <Tag>初中物理</Tag>
             <Tag data-contract="server-state-query-boundary">
               服务状态 {readyHealth?.status ?? 'unknown'}
@@ -702,7 +714,7 @@ function App() {
               <div className="starter-demo-grid">
                 {[
                   { title: '导入样卷', detail: '使用示例试卷，不需要先准备真实资料', view: 'import' as TeacherView, contract: 'starter-step-1' },
-                  { title: '生成草稿卷', detail: '默认初中物理、力学基础、30 分', view: 'paper' as TeacherView, contract: 'starter-step-2' },
+                  { title: '生成样卷', detail: '默认初中物理、力学基础、30 分', view: 'paper' as TeacherView, contract: 'starter-step-2' },
                   { title: '导入样例成绩', detail: '字段映射自动匹配，异常行集中处理', view: 'scores' as TeacherView, contract: 'starter-step-3' },
                   { title: '查看讲评摘要', detail: '直接看到薄弱知识点和导出入口', view: 'analysis' as TeacherView, contract: 'starter-step-4' },
                 ].map((step, index) => (
@@ -732,9 +744,9 @@ function App() {
               data-draft-state={uiStateBoundary.teacherDraftState}
               data-high-risk-state={uiStateBoundary.highRiskOperationState}
             >
-              <span>服务数据由 TanStack Query 同步</span>
-              <span>教师草稿留在当前页面</span>
-              <span>高风险操作以 API 合同为准</span>
+              <span>服务状态自动同步</span>
+              <span>教师修改留在当前页面</span>
+              <span>重要操作会先确认</span>
             </div>
           </section>
 
@@ -804,8 +816,8 @@ function App() {
                 </Typography.Text>
               </div>
               <Space size="small" wrap>
-                <Tag color="green" data-contract="synthetic-score-fixture">synthetic fixture</Tag>
-                <Tag data-contract="score-productionEligible=false">不进入生产</Tag>
+                <Tag color="green" data-contract="synthetic-score-fixture">示例数据</Tag>
+                <Tag data-contract="score-productionEligible=false">正式启用前预览</Tag>
               </Space>
             </div>
 
@@ -907,7 +919,7 @@ function App() {
               <div>
                 <Typography.Text type="secondary">班级得分率</Typography.Text>
                 <strong>87.5%</strong>
-                <small>synthetic baseline</small>
+                <small>示例基线</small>
               </div>
               <div>
                 <Typography.Text type="secondary">优先讲评</Typography.Text>
@@ -921,6 +933,14 @@ function App() {
               </div>
             </div>
 
+          </section>
+
+          <section
+            className="admin-knowledge-panel"
+            aria-label="知识治理高级工作台"
+            data-flow="admin-knowledge-governance"
+            data-contract="advanced-admin-only"
+          >
             <div
               className="revision-intake-panel"
               data-flow="c002r-teacher-revision-ux"
@@ -1085,7 +1105,7 @@ function App() {
               <div>
                 <Typography.Title level={2}>找题组卷工作台</Typography.Title>
                 <Typography.Text type="secondary">
-                  检索、题篮、细目表、换题和导出放在同一屏，目标是 10 分钟内完成一份草稿卷。
+                  检索、题篮、细目表、换题和导出放在同一屏，目标是 10 分钟内完成一份可打印样卷。
                 </Typography.Text>
               </div>
               <Space size="small" wrap>
@@ -1141,7 +1161,7 @@ function App() {
               <div>
                 <Typography.Title level={2}>题库检索</Typography.Title>
                 <Typography.Text type="secondary">
-                  草稿测试先验证题卡筛选合同，正式知识点激活后再进入生产筛题。
+                  先用示例题卡熟悉筛选方式，正式资料启用后自动使用校本题库。
                 </Typography.Text>
               </div>
               <Button icon={<SearchOutlined />}>检索</Button>
@@ -1170,10 +1190,10 @@ function App() {
                     <small>{card.knowledge}</small>
                   </span>
                   <span className="question-meta">
-                    <Tag>{labelFor(card.type)}</Tag>
+                    <Tag>{teacherLabelFor(card.type)}</Tag>
                     <Tag>{card.difficulty}</Tag>
-                    <Tag>{labelFor(card.source)}</Tag>
-                    <Tag color="green">{labelFor(card.status)}</Tag>
+                    <Tag>{teacherLabelFor(card.source)}</Tag>
+                    <Tag color="green">{teacherLabelFor(card.status)}</Tag>
                   </span>
                 </button>
               ))}
@@ -1189,12 +1209,12 @@ function App() {
               <div>
                 <Typography.Title level={2}>自然语言组卷</Typography.Title>
                 <Typography.Text type="secondary">
-                  先展示系统理解和细目表草稿，草稿测试不写生产组卷口径。
+                  先展示系统理解和细目表，教师确认后再继续选题。
                 </Typography.Text>
               </div>
               <Space size="small" wrap>
-                <Tag color="green">{paperUnderstanding.mode}</Tag>
-                <Tag data-contract="productionEligible=false">不进入生产</Tag>
+                <Tag color="green">{teacherLabelFor(paperUnderstanding.mode)}</Tag>
+                <Tag data-contract="productionEligible=false">正式启用前预览</Tag>
               </Space>
             </div>
 
@@ -1235,7 +1255,7 @@ function App() {
                   </span>
                   <span>
                     <strong>{paperUnderstanding.scope.join('、')}</strong>
-                    <small>draft 范围</small>
+                    <small>范围</small>
                   </span>
                 </div>
 
@@ -1245,8 +1265,8 @@ function App() {
                       <strong>{labelFor(row.questionType)}</strong>
                       <span>{row.count} 题</span>
                       <span>{row.score} 分</span>
-                      <Tag>{labelFor(row.assetStatus)}</Tag>
-                      <Tag color="orange">{labelFor(row.reviewStatus)}</Tag>
+                      <Tag>{teacherLabelFor(row.assetStatus)}</Tag>
+                      <Tag color="orange">{teacherLabelFor(row.reviewStatus)}</Tag>
                     </div>
                   ))}
                 </div>
@@ -1269,12 +1289,12 @@ function App() {
               <div>
                 <Typography.Title level={2}>一键换题</Typography.Title>
                 <Typography.Text type="secondary">
-                  保持约束一致，先生成可撤销草稿。
+                  保持约束一致，先生成可撤销替换题。
                 </Typography.Text>
               </div>
               <Space size="small" wrap>
-                <Tag color="green">{paperDraft.mode}</Tag>
-                <Tag data-contract="replacement-productionEligible=false">不进入生产</Tag>
+                <Tag color="green">{teacherLabelFor(paperDraft.mode)}</Tag>
+                <Tag data-contract="replacement-productionEligible=false">正式启用前预览</Tag>
                 <Tag data-contract="replacement-undo-snapshot">可撤销</Tag>
               </Space>
             </div>
@@ -1328,12 +1348,12 @@ function App() {
 
             <div className="replacement-audit" data-contract="replacement-audit-trail">
               {[
-                'sameKnowledge=true',
-                'sameQuestionType=true',
-                'similarDifficulty=true',
-                'sameScore=true',
-                'excludeRecentlyUsed=true',
-                'knowledgeStatus=draft',
+                '同知识点',
+                '同题型',
+                '难度相近',
+                '分值一致',
+                '避开近期练过',
+                '示例约束',
               ].map((item) => (
                 <Tag key={item}>{item}</Tag>
               ))}
@@ -1349,20 +1369,20 @@ function App() {
               <div>
                 <Typography.Title level={2}>试卷导出</Typography.Title>
                 <Typography.Text type="secondary">
-                  先导出可打印草稿，验证公式、题图和表格不丢失。
+                  先导出可打印样卷，验证公式、题图和表格不丢失。
                 </Typography.Text>
               </div>
               <Space size="small" wrap>
-                <Tag color="green">draft_test</Tag>
-                <Tag data-contract="export-productionEligible=false">不进入生产</Tag>
-                <Tag data-contract="export-artifact-checks">工件校验</Tag>
+                <Tag color="green">示例导出</Tag>
+                <Tag data-contract="export-productionEligible=false">正式启用前预览</Tag>
+                <Tag data-contract="export-artifact-checks">自动检查</Tag>
               </Space>
             </div>
 
             <div className="export-workspace">
               <div className="export-preview" data-contract="export-preview">
                 <Typography.Text type="secondary">样卷预览</Typography.Text>
-                <Typography.Title level={3}>校本题谱 draft_test 导出样卷</Typography.Title>
+                <Typography.Title level={3}>校本题谱示例导出样卷</Typography.Title>
                 <p>Q1. 质量为 2 kg 的物体受到恒力作用，公式：F=ma。</p>
                 <div className="export-table-preview" aria-label="导出表格预览">
                   <span>物理量</span>

@@ -1,12 +1,12 @@
 {
   "attestation_id": "binding-k12-question-graph.light-pack",
-  "generated_at": "2026-05-03T18:31:57.111796+00:00",
+  "generated_at": "2026-05-04T15:50:45.841645+00:00",
   "generator_version": "1.0",
-  "input_digest": "sha256:57fd2556d0ce5847fdda9b7785338a416d56715c622b1804f6a5de9afa185361",
+  "input_digest": "sha256:4ff58ef0a6762cd95883a7573afb715a2e27f169f93a23eeed42854773727325",
   "materials": [
     {
       "uri": "D:\\CODE\\k12-question-graph\\.governed-ai\\repo-profile.json",
-      "version_or_digest": "sha256:57fd2556d0ce5847fdda9b7785338a416d56715c622b1804f6a5de9afa185361"
+      "version_or_digest": "sha256:4ff58ef0a6762cd95883a7573afb715a2e27f169f93a23eeed42854773727325"
     },
     {
       "uri": "schemas/jsonschema/repo-attachment-binding.schema.json",

@@ -7,6 +7,12 @@ $cssPath = Join-Path $repoRoot 'apps\web\src\App.css'
 $app = Get-Content -LiteralPath $appPath -Raw
 $css = Get-Content -LiteralPath $cssPath -Raw
 
+$analysisMatch = [regex]::Match($app, '<section\s+className="analysis-panel"[\s\S]*?</section>')
+if (-not $analysisMatch.Success) {
+    throw "missing I001 analysis panel section"
+}
+$teacherAnalysis = $analysisMatch.Value
+
 foreach ($pattern in @(
     'data-flow="teacher-home"',
     'data-contract="four-default-actions"',
@@ -15,7 +21,10 @@ foreach ($pattern in @(
     "type TeacherView = 'import' | 'paper' | 'scores' | 'analysis'",
     "useState<TeacherView>('import')",
     'data-flow="score-import-workbench"',
-    'data-flow="teacher-analysis-workbench"'
+    'data-flow="teacher-analysis-workbench"',
+    'className="admin-knowledge-panel"',
+    'data-flow="admin-knowledge-governance"',
+    'data-contract="advanced-admin-only"'
 )) {
     if (-not $app.Contains($pattern)) {
         throw "missing I001 teacher home marker: $pattern"
@@ -33,6 +42,7 @@ foreach ($pattern in @(
     '.workspace.teacher-view-paper .question-panel',
     '.workspace.teacher-view-scores .score-panel',
     '.workspace.teacher-view-analysis .analysis-panel',
+    '.admin-knowledge-panel',
     '.source-material-panel',
     '.activation-panel',
     '.storage-panel',
@@ -47,11 +57,27 @@ if ($app.Contains('普通教师默认入口保持 4 个，高级配置后置。'
     throw "I001 should replace technical homepage copy with teacher-facing copy"
 }
 
+foreach ($leak in @(
+    'data-flow="c002r-teacher-revision-ux"',
+    'data-flow="c002h-mapping-review-workbench-ui"',
+    'revision-intake-panel',
+    'mapping-review-panel',
+    'candidate 版本',
+    'active switch',
+    'rollback snapshot',
+    'migration'
+)) {
+    if ($teacherAnalysis.Contains($leak)) {
+        throw "I001 teacher analysis view leaks advanced governance content: $leak"
+    }
+}
+
 [ordered]@{
     status = 'pass'
     task = 'I001'
     defaultEntryCount = 4
     defaultView = 'import'
     adminPanelsHiddenByDefault = $true
+    adminGovernanceMovedOutOfTeacherAnalysis = $true
     teacherViews = @('import','paper','scores','analysis')
 } | ConvertTo-Json -Depth 4
