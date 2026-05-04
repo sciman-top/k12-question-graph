@@ -563,6 +563,18 @@ historical knowledge version while exposing the current-version mapping in a
 teacher-visible summary. The contract is read-only, uses no real student data,
 and does not rewrite production history.
 
+K005 C002 second revision drill contract:
+
+```powershell
+.\tools\run-k005-c002-second-revision-drill-contract.ps1
+```
+
+This first re-runs the C002R versioned revision dependency contract, then
+checks a second synthetic revision batch through `candidate`, `reviewed`, and
+`active_dry_run`. It verifies rollback snapshot coverage, manual review
+reasons, administrator-only active dry-run, old active preservation, and no
+production history rewrite.
+
 F001 assessment model contract:
 
 ```powershell

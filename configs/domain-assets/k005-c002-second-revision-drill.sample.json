@@ -1,0 +1,143 @@
+{
+  "schemaVersion": "c002-second-revision-drill.v0.1",
+  "taskId": "K005",
+  "batchId": "K005_C002_SECOND_REVISION_SYNTHETIC_BATCH",
+  "mode": "dry_run",
+  "noActiveWrite": true,
+  "realTeacherDataUsed": false,
+  "activeBaseline": {
+    "status": "active",
+    "activeVersionLabel": "junior-physics-guangzhou-source-derived-v1",
+    "activeImportKey": "c002_candidate_import_guangzhou_physics_2016_2025_v1",
+    "activeAssetCount": 452,
+    "preserveOldActive": true
+  },
+  "teacherReviewSample": {
+    "source": "synthetic_teacher_review",
+    "changeSummary": "补充第二批广州初中物理复习中对电功率实验和浮力应用的教师审查意见。",
+    "sourceEvidence": [
+      "synthetic:teacher-review-note:page-12",
+      "synthetic:paper-review:item-18"
+    ],
+    "affectedScope": [
+      "电功率实验",
+      "浮力应用"
+    ],
+    "urgency": "normal",
+    "hideTechnicalFieldsFromTeacher": true
+  },
+  "lifecycle": {
+    "candidate": {
+      "revisionKey": "k005_c002_second_revision_candidate_2026",
+      "status": "candidate",
+      "productionEligible": false,
+      "basedOnActiveVersion": "junior-physics-guangzhou-source-derived-v1",
+      "noInPlaceActiveEdit": true,
+      "assetDelta": {
+        "added": 2,
+        "updated": 3,
+        "deprecated": 1
+      },
+      "requiredEvidenceFields": [
+        "sourceEvidence",
+        "teacherChangeReason",
+        "mappingReviewDecision",
+        "rollbackSnapshotKey"
+      ]
+    },
+    "reviewed": {
+      "status": "reviewed",
+      "reviewerRole": "备课组长",
+      "reviewDecision": "approved_for_active_dry_run",
+      "reviewReasonRequired": true,
+      "reviewReason": "synthetic 样例覆盖高影响映射和历史学情冻结，允许进入 active dry-run。",
+      "manualReviewItemCount": 3,
+      "unresolvedBlockerCount": 0
+    },
+    "activeDryRun": {
+      "status": "active_dry_run_pass",
+      "apply": false,
+      "adminOnly": true,
+      "teacherCanApplyActive": false,
+      "wouldPromoteVersionLabel": "junior-physics-guangzhou-source-derived-v1-k005-dry-run",
+      "oldActivePreserved": true,
+      "noProductionHistoryRewrite": true,
+      "blockers": []
+    }
+  },
+  "mappingPlan": {
+    "mappings": [
+      {
+        "mappingId": "k005-map-electric-power-experiment",
+        "mappingType": "broader",
+        "fromStableId": "PHY-JH-ELEC-POWER",
+        "toStableId": "PHY-JH-ELEC-POWER-EXPERIMENT",
+        "confidence": 0.82,
+        "impactLevel": "medium",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "k005-map-buoyancy-application-split",
+        "mappingType": "split",
+        "fromStableId": "PHY-JH-MECH-BUOYANCY",
+        "toStableId": "PHY-JH-MECH-BUOYANCY-CONCEPT;PHY-JH-MECH-BUOYANCY-APPLICATION",
+        "confidence": 0.76,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "k005-map-old-lab-trend-deprecated",
+        "mappingType": "deprecated",
+        "fromStableId": "PHY-JH-EXAM-OLD-LAB-TREND",
+        "toStableId": "PHY-JH-EXAM-EXPERIMENT-TREND-2026",
+        "confidence": 0.71,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      }
+    ]
+  },
+  "impactReport": {
+    "impacts": [
+      {
+        "impactType": "question_binding",
+        "affectedCount": 18,
+        "action": "update_after_review",
+        "requiresRollbackSnapshot": true,
+        "rollbackKey": "k005:question_binding"
+      },
+      {
+        "impactType": "paper_blueprint",
+        "affectedCount": 4,
+        "action": "hold_for_review",
+        "requiresRollbackSnapshot": true,
+        "rollbackKey": "k005:paper_blueprint"
+      },
+      {
+        "impactType": "analysis_metric",
+        "affectedCount": 7,
+        "action": "freeze_historical_snapshot",
+        "requiresRollbackSnapshot": true,
+        "rollbackKey": "k005:analysis_metric"
+      }
+    ]
+  },
+  "rollbackSnapshot": {
+    "snapshotKey": "k005_c002_second_revision_rollback_snapshot_dry_run",
+    "requiredBeforeReviewed": true,
+    "requiredBeforeActiveDryRun": true,
+    "includes": [
+      "active_version_pointer",
+      "mapping_edges",
+      "impact_targets",
+      "historical_analysis_snapshots"
+    ],
+    "restoreCommand": "git revert K005 commit; no DB or active asset write is performed by this dry-run contract",
+    "verifyAfterRollback": true
+  }
+}

@@ -205,6 +205,10 @@ try {
         .\tools\run-k004-historical-version-explanation-contract.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'k005 c002 second revision drill contract' {
+        .\tools\run-k005-c002-second-revision-drill-contract.ps1 | Write-Host
+    }
+
     Invoke-GateStep 'b002 adapter contract smoke' {
         $workerDir = Join-Path $FileStoreRoot 'gate'
         New-Item -ItemType Directory -Path $workerDir -Force | Out-Null
