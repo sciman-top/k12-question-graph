@@ -185,6 +185,10 @@ try {
         .\tools\run-j005-adapter-diagnostic-supply-chain-contract.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'j006 import accuracy workload baseline' {
+        .\tools\run-j006-import-accuracy-workload-contract.ps1 | Write-Host
+    }
+
     Invoke-GateStep 'b002 adapter contract smoke' {
         $workerDir = Join-Path $FileStoreRoot 'gate'
         New-Item -ItemType Directory -Path $workerDir -Force | Out-Null

@@ -1,0 +1,93 @@
+{
+  "status": "pass",
+  "task": "J006",
+  "mode": "draft_test",
+  "productionEligible": false,
+  "externalAiCalls": 0,
+  "realStudentDataUsed": false,
+  "proxyBaseline": true,
+  "accuracy": {
+    "sourceRegionAccuracy": 1.0,
+    "blockPreservationAccuracy": 1.0,
+    "autoCutAccuracy": null,
+    "autoCutAccuracyReason": "未启用真实 OCR/AI 自动切题；当前 automated_cut_cases=0，不能计算或宣称自动切题准确率。",
+    "automatedCutCaseCount": 0,
+    "humanReviewCaseCount": 5,
+    "failClosedCaseCount": 1,
+    "scannedCaseCount": 1,
+    "goldenSamples": [
+      "shared-image",
+      "cross-page",
+      "formula-dense",
+      "scanned",
+      "answer-split"
+    ]
+  },
+  "teacherWorkload": {
+    "sampleCount": 5,
+    "confirmationItemCount": 6,
+    "confirmationItems": [
+      "merge cross-page segments",
+      "split over-cut segment",
+      "associate shared image",
+      "review formula dense item",
+      "review scanned placeholder",
+      "separate answer and solution"
+    ],
+    "failureTakeoverStepCount": 6,
+    "failureTakeoverSteps": [
+      "keep original file",
+      "keep adapter diagnostics",
+      "manual box source region",
+      "split or merge affected segments",
+      "skip bad page when needed",
+      "rerun adapter when source is fixed"
+    ],
+    "estimatedTeacherMinutes": 8,
+    "manualReviewRequired": true,
+    "manualReviewReason": "当前 J0 只证明 adapter/导入/来源回看合同；扫描件和复杂切题仍进入人工确认，不虚报 AI 自动切题。"
+  },
+  "evidence": {
+    "j001": {
+      "adapter": "openxml_docx_adapter",
+      "hasTable": true,
+      "hasFormula": true
+    },
+    "j002": {
+      "adapter": "pdf_text_adapter",
+      "pageCount": 2,
+      "sourceRegionsPresent": true
+    },
+    "j003": {
+      "adapter": "scanned_ocr_review_adapter",
+      "reviewStatus": "pending_review",
+      "takeoverRequired": true,
+      "realOcrTextRecognized": false
+    },
+    "j004": {
+      "importHasFormula": true,
+      "importHasTable": true,
+      "importHasImage": true,
+      "exportHasFigure": true
+    },
+    "j005": {
+      "diagnosticCaseCount": 5,
+      "adapterNames": [
+        "openxml_docx_adapter",
+        "pdf_text_adapter",
+        "placeholder_document_adapter",
+        "scanned_ocr_review_adapter"
+      ],
+      "networkAccessRequired": false,
+      "externalOcrEngineInvoked": false
+    }
+  },
+  "hotspot": {
+    "teacherEfficiencyImpact": "导入链路当前可稳定保留来源、block、公式、表格和题图；教师仍需处理 6 个确认项，扫描件必须人工接管。",
+    "doesNotClaimAiAutomation": true,
+    "nextMeasurement": "后续 L003/M006/P002/P004 才能在真实授权材料、真实 OCR/AI 或现场教师代理下重新测量自动切题准确率和耗时。"
+  },
+  "rollback": "git restore tracked files; remove tools/j006_import_accuracy_workload.py, tools/run-j006-import-accuracy-workload-contract.ps1, docs/91_J006_ImportAccuracyWorkload.md, docs/evidence/j006-import-accuracy-workload-report.json",
+  "createdAt": "2026-05-04T14:27:54.482975+00:00",
+  "summaryChinese": "J006 形成导入准确率与人工工作量代理基线：source region 与 block 保存为 100%，但自动切题样本数为 0，扫描件 fail-closed 到人工接管；不虚报 AI 自动化。"
+}

@@ -42,6 +42,7 @@ The gate also covers `b001 duplicate upload smoke`, `b002 adapter contract smoke
 `e004 paper export contract`, and
 `j004 formula/table/figure fidelity regression`, and
 `j005 adapter diagnostic supply-chain gate`, and
+`j006 import accuracy workload baseline`, and
 `f001 assessment model contract`, and
 `f002 score import contract`.
 It starts temporary
@@ -500,6 +501,17 @@ This validates that every current worker adapter records adapter/tool versions,
 command arguments, duration, input/output hashes, warnings, and errors. It also
 locks this diagnostic gate to local synthetic fixtures without external OCR,
 Docling, network access, real student data, or real AI calls.
+
+J006 import accuracy workload baseline:
+
+```powershell
+.\tools\run-j006-import-accuracy-workload-contract.ps1
+```
+
+This writes the proxy import accuracy and teacher workload baseline from golden
+samples plus J001-J005 evidence. It records source-region/block preservation,
+confirmation items, failure takeover steps, and explicitly keeps automated cut
+accuracy as N/A while no real OCR/AI cutting evidence exists.
 
 F001 assessment model contract:
 
