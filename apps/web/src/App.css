@@ -428,6 +428,85 @@
   padding: 14px;
 }
 
+.revision-intake-panel {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  padding: 16px;
+}
+
+.revision-intake-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.revision-intake-copy h3.ant-typography {
+  margin: 0;
+  color: var(--ink);
+  font-size: 20px;
+  line-height: 1.35;
+}
+
+.revision-intake-grid,
+.revision-output-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.revision-intake-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.revision-output-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.revision-intake-field,
+.revision-output-item {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #f9fbf8;
+  padding: 12px;
+}
+
+.revision-intake-field,
+.revision-output-item span {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.revision-output-item {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 10px;
+}
+
+.revision-output-item > .anticon {
+  color: var(--accent);
+  font-size: 18px;
+}
+
+.revision-intake-field strong,
+.revision-output-item strong {
+  color: var(--ink);
+  line-height: 1.35;
+}
+
+.revision-intake-field small,
+.revision-output-item small {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.revision-actions {
+  align-items: flex-start;
+}
+
 .score-workbench {
   grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.15fr);
   align-items: stretch;

@@ -1,0 +1,42 @@
+{
+  "status": "pass",
+  "task": "K002",
+  "mode": "ui_contract",
+  "checkedAt": "2026-05-04T14:55:32.0944292Z",
+  "activeKnowledgeVersion": "junior-physics-guangzhou-source-derived-v1",
+  "requiredTeacherFields": [
+    "changeSummary",
+    "sourceEvidence",
+    "affectedScope",
+    "urgency"
+  ],
+  "teacherVisibleLabels": [
+    "修订原因",
+    "来源证据",
+    "影响范围",
+    "紧急程度"
+  ],
+  "systemGeneratedOutputs": [
+    "candidateVersion",
+    "mappingSuggestions",
+    "impactReport",
+    "rollbackSnapshot"
+  ],
+  "teacherCanApplyActive": false,
+  "noActiveWrite": true,
+  "productionEligible": false,
+  "dependency": {
+    "c002rContractStatus": "pass",
+    "c002rPlanId": "C002R_JUNIOR_PHYSICS_ACTIVE_V1_REVISION_SAMPLE",
+    "c002rReport": "tmp/k002-c002r-versioned-revision-dependency-report.json"
+  },
+  "evidence": {
+    "app": "apps/web/src/App.tsx",
+    "style": "apps/web/src/App.css",
+    "report": "docs/evidence/k002-c002r-teacher-revision-ux-report.json"
+  },
+  "rollback": {
+    "code": "git revert this K002 commit",
+    "data": "no database or active asset mutation; remove only generated K002 evidence report if needed"
+  }
+}

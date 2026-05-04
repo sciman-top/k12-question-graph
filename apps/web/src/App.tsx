@@ -267,6 +267,20 @@ const activationReviewItems = [
   { label: '映射关系', count: 975, action: '重点看一拆多、多合一和低置信度项' },
 ]
 
+const c002RevisionIntakeFields = [
+  { label: '修订原因', detail: '教材、课标、考情或教师纠错' },
+  { label: '来源证据', detail: '页码、截图或文件来源' },
+  { label: '影响范围', detail: '知识点、章节、题目或学情报告' },
+  { label: '紧急程度', detail: '一般、近期考试前、立即处理' },
+]
+
+const c002RevisionSystemOutputs = [
+  { label: 'candidate 版本', detail: '基于当前 active v1 生成，不直接改旧版本' },
+  { label: '映射建议', detail: '覆盖同义、拆分、合并、上下位、改名和废弃' },
+  { label: '影响报告', detail: '题目绑定、组卷、检索、分析和导出都会列出影响' },
+  { label: '回滚快照', detail: '管理员切换前必须先准备恢复路径' },
+]
+
 const storageAreas = [
   { name: '题库文件', bytes: '18.4 GB', files: 1248, cleanupAllowed: false },
   { name: '备份包', bytes: '42.7 GB', files: 37, cleanupAllowed: false },
@@ -800,6 +814,62 @@ function App() {
                 <strong>加入巩固题</strong>
                 <small>按当前知识版本选题</small>
               </div>
+            </div>
+
+            <div
+              className="revision-intake-panel"
+              data-flow="c002r-teacher-revision-ux"
+              data-contract="teacher-revision-low-friction"
+              data-active-version="junior-physics-guangzhou-source-derived-v1"
+            >
+              <div className="revision-intake-copy">
+                <Typography.Text type="secondary">知识体系修订</Typography.Text>
+                <Typography.Title level={3}>发现知识点不准确时，只提交 4 项信息</Typography.Title>
+                <Typography.Text>
+                  系统生成候选版本、映射建议和影响报告；普通教师不接触 importKey、migration、rollback snapshot 或 active switch。
+                </Typography.Text>
+              </div>
+
+              <div className="revision-intake-grid" data-contract="teacher-required-fields">
+                {c002RevisionIntakeFields.map((field) => (
+                  <div className="revision-intake-field" key={field.label}>
+                    <strong>{field.label}</strong>
+                    <small>{field.detail}</small>
+                  </div>
+                ))}
+              </div>
+
+              <div className="revision-output-grid" data-contract="system-generated-candidate-impact">
+                {c002RevisionSystemOutputs.map((item) => (
+                  <div className="revision-output-item" key={item.label}>
+                    <CheckCircleOutlined />
+                    <span>
+                      <strong>{item.label}</strong>
+                      <small>{item.detail}</small>
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              <Space wrap className="revision-actions" data-contract="no-teacher-active-switch">
+                <Button icon={<FileTextOutlined />} data-action="submit-c002r-teacher-revision">
+                  提交修订建议
+                </Button>
+                <Button icon={<FileSearchOutlined />} data-action="preview-c002r-impact">
+                  预览影响摘要
+                </Button>
+                <Button icon={<ClockCircleOutlined />} data-action="open-c002r-review-status">
+                  查看审核状态
+                </Button>
+              </Space>
+
+              <Alert
+                showIcon
+                type="info"
+                title="不会直接修改当前正式知识体系"
+                description="本入口只生成 pending_review 的 candidate 和影响报告；管理员完成审核、备份和回滚检查后，才可能切换 active。"
+                data-contract="candidate-pending-review-only"
+              />
             </div>
           </section>
 

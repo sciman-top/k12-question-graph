@@ -526,6 +526,18 @@ constraints, and knowledge mastery analysis default to the active C002 v1
 version reference. It does not mutate active assets, write production history,
 use real student data, or call external AI.
 
+K002 C002R teacher revision UX contract:
+
+```powershell
+.\tools\run-k002-c002r-teacher-revision-ux-contract.ps1
+```
+
+This runs the C002R versioned revision contract, then checks that the Web UI has
+a teacher-facing revision intake with only the four low-friction fields:
+change reason, source evidence, affected scope, and urgency. The UI contract
+also verifies that system-generated candidate, mapping, impact, and rollback
+outputs are visible while teacher-facing active switch actions stay absent.
+
 F001 assessment model contract:
 
 ```powershell
