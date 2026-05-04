@@ -1,0 +1,37 @@
+{
+  "status": "pass",
+  "task": "K006",
+  "mode": "ui_contract",
+  "checkedAt": "2026-05-04T15:41:33.6218651Z",
+  "dashboard": "knowledge-asset-health-dashboard",
+  "coveredStatusFields": [
+    "active",
+    "candidate",
+    "pending_mappings",
+    "migrations",
+    "blockers"
+  ],
+  "evidenceSummaries": [
+    "docs/evidence/c002t-active-switch-report.json",
+    "docs/evidence/k001-active-c002-production-query-report.json",
+    "docs/evidence/k005-c002-second-revision-drill-report.json"
+  ],
+  "readonlyActions": [
+    "open-knowledge-health-evidence",
+    "open-pending-mapping-review",
+    "open-migration-history",
+    "open-blocker-report"
+  ],
+  "activeWriteAllowed": false,
+  "migrationApplyAllowed": false,
+  "teacherFacingTechnicalBurden": false,
+  "evidence": {
+    "app": "apps/web/src/App.tsx",
+    "style": "apps/web/src/App.css",
+    "report": "docs/evidence/k006-knowledge-asset-health-dashboard-report.json"
+  },
+  "rollback": {
+    "code": "git revert this K006 commit",
+    "data": "no database, active asset, migration, or production history write is performed by this UI contract"
+  }
+}

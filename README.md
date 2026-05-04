@@ -186,6 +186,7 @@ tests/      自动化测试与黄金样本
 - `tools/run-k003-mapping-review-workbench-ui-contract.ps1`: K003 映射审核工作台 UI 合同，验证 split/merge/deprecated 等高影响映射并排审核、影响预览、回滚预览和禁止直接 active apply。
 - `tools/run-k004-historical-version-explanation-contract.ps1`: K004 历史题目/试卷/学情报告版本解释合同，验证旧对象保留历史知识版本，同时只读显示当前版本映射。
 - `tools/run-k005-c002-second-revision-drill-contract.ps1`: K005 第二批 C002 修订演练合同，验证 synthetic candidate -> reviewed -> active dry-run 链路、rollback snapshot 和不直接改旧 active。
+- `tools/run-k006-knowledge-asset-health-dashboard-contract.ps1`: K006 知识资产健康面板 UI 合同，验证管理员只读查看 active、candidate、pending mappings、migrations、blockers 和证据摘要。
 - `tools/run-f001-assessment-model-contract.ps1`: F001 draft/test 学生、班级、考试和报名模型合同。
 - `tools/run-f002-score-import-contract.ps1`: F002 draft/test synthetic Excel 字段映射导入合同。
 - `tools/run-f003-knowledge-mastery-analysis-contract.ps1`: F003 draft/test 得分率、区分度和知识点掌握摘要合同。

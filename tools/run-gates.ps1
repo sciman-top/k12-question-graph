@@ -209,6 +209,10 @@ try {
         .\tools\run-k005-c002-second-revision-drill-contract.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'k006 knowledge asset health dashboard contract' {
+        .\tools\run-k006-knowledge-asset-health-dashboard-contract.ps1 | Write-Host
+    }
+
     Invoke-GateStep 'b002 adapter contract smoke' {
         $workerDir = Join-Path $FileStoreRoot 'gate'
         New-Item -ItemType Directory -Path $workerDir -Force | Out-Null

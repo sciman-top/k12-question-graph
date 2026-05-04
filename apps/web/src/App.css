@@ -53,6 +53,7 @@
 .score-panel,
 .analysis-panel,
 .activation-panel,
+.knowledge-health-panel,
 .storage-panel,
 .source-material-panel,
 .review-panel,
@@ -244,6 +245,7 @@
 .status-panel,
 .source-material-panel,
 .activation-panel,
+.knowledge-health-panel,
 .storage-panel,
 .review-panel,
 .guardrail-panel {
@@ -266,6 +268,11 @@
 }
 
 .activation-panel {
+  grid-column: 1 / -1;
+  padding: 24px;
+}
+
+.knowledge-health-panel {
   grid-column: 1 / -1;
   padding: 24px;
 }
@@ -1216,6 +1223,122 @@
   margin: 14px 0;
 }
 
+.knowledge-health-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.knowledge-health-card {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  align-content: start;
+  gap: 10px;
+  min-height: 126px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  padding: 12px;
+}
+
+.knowledge-health-card .ant-tag {
+  grid-column: 2;
+  width: fit-content;
+  margin-inline-end: 0;
+}
+
+.knowledge-health-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 6px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 18px;
+}
+
+.knowledge-health-card span:nth-child(2) {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.knowledge-health-card strong {
+  color: var(--ink);
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.knowledge-health-card small {
+  color: var(--muted);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.knowledge-health-evidence {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.34fr) minmax(0, 0.66fr);
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.knowledge-health-evidence > div {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  padding: 14px;
+}
+
+.knowledge-health-evidence h3.ant-typography {
+  margin: 0 0 8px;
+  color: var(--ink);
+  font-size: 18px;
+}
+
+.knowledge-evidence-list {
+  display: grid;
+  gap: 8px;
+}
+
+.knowledge-evidence-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 64px;
+  border-bottom: 1px solid var(--line);
+}
+
+.knowledge-evidence-row:last-child {
+  border-bottom: 0;
+}
+
+.knowledge-evidence-row span {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.knowledge-evidence-row small {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.knowledge-evidence-row code {
+  color: var(--accent);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.knowledge-health-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0;
+}
+
 .storage-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1536,6 +1659,8 @@
   .activation-summary,
   .activation-flow,
   .activation-review,
+  .knowledge-health-grid,
+  .knowledge-health-evidence,
   .storage-grid,
   .source-type-grid,
   .source-form-grid,

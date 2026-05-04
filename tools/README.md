@@ -575,6 +575,17 @@ checks a second synthetic revision batch through `candidate`, `reviewed`, and
 reasons, administrator-only active dry-run, old active preservation, and no
 production history rewrite.
 
+K006 knowledge asset health dashboard contract:
+
+```powershell
+.\tools\run-k006-knowledge-asset-health-dashboard-contract.ps1
+```
+
+This checks the Web UI for an administrator-facing, read-only knowledge asset
+health dashboard covering active assets, candidate assets, pending mappings,
+migrations, blockers, and evidence summaries. It also verifies that the panel
+does not expose active switch, migration apply, or C002R revision apply actions.
+
 F001 assessment model contract:
 
 ```powershell

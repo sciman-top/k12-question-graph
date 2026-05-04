@@ -281,6 +281,72 @@ const c002RevisionSystemOutputs = [
   { label: '回滚快照', detail: '管理员切换前必须先准备恢复路径' },
 ]
 
+const knowledgeAssetHealth = {
+  activeVersion: 'junior-physics-guangzhou-source-derived-v1',
+  activeAssets: 452,
+  candidateAssets: 0,
+  pendingMappings: 0,
+  pendingMigrations: 0,
+  blockers: 0,
+  evidenceUpdatedAt: '2026-05-04',
+}
+
+const knowledgeAssetHealthCards = [
+  {
+    key: 'active',
+    label: 'active',
+    value: knowledgeAssetHealth.activeAssets,
+    detail: knowledgeAssetHealth.activeVersion,
+    status: '生产默认',
+  },
+  {
+    key: 'candidate',
+    label: 'candidate',
+    value: knowledgeAssetHealth.candidateAssets,
+    detail: '无待激活候选',
+    status: '清零',
+  },
+  {
+    key: 'pending_mappings',
+    label: 'pending mappings',
+    value: knowledgeAssetHealth.pendingMappings,
+    detail: '无待审映射',
+    status: '清零',
+  },
+  {
+    key: 'migrations',
+    label: 'migrations',
+    value: knowledgeAssetHealth.pendingMigrations,
+    detail: '无待执行迁移',
+    status: '清零',
+  },
+  {
+    key: 'blockers',
+    label: 'blockers',
+    value: knowledgeAssetHealth.blockers,
+    detail: '无阻断问题',
+    status: '通过',
+  },
+]
+
+const knowledgeAssetEvidence = [
+  {
+    label: 'active switch',
+    path: 'docs/evidence/c002t-active-switch-report.json',
+    summary: '452 active assets, 400 approved mappings',
+  },
+  {
+    label: 'production query',
+    path: 'docs/evidence/k001-active-c002-production-query-report.json',
+    summary: '题库检索、组卷约束、学情分析默认引用 active C002 v1',
+  },
+  {
+    label: 'revision drill',
+    path: 'docs/evidence/k005-c002-second-revision-drill-report.json',
+    summary: '第二批修订仅 active dry-run，不改旧 active',
+  },
+]
+
 const mappingReviewItems = [
   {
     id: 'review-ohm-split',
@@ -1512,6 +1578,90 @@ function App() {
               title="正式激活只给管理员"
               description="普通教师侧不执行激活脚本；管理员确认前必须看到备份、阻断项、复核结论和回滚说明。"
               data-contract="rollback-ready"
+            />
+          </section>
+
+          <section
+            className="knowledge-health-panel"
+            aria-label="知识资产健康面板"
+            data-flow="knowledge-asset-health-dashboard"
+            data-contract="admin-health-summary"
+          >
+            <div className="panel-heading">
+              <div>
+                <Typography.Title level={2}>知识资产健康</Typography.Title>
+                <Typography.Text type="secondary">
+                  管理员查看 active、candidate、映射、迁移、阻断项和证据摘要；普通教师不处理脚本和状态码。
+                </Typography.Text>
+              </div>
+              <Space size="small" wrap>
+                <Tag color="green" data-contract="active-version">
+                  {knowledgeAssetHealth.activeVersion}
+                </Tag>
+                <Tag data-contract="evidence-updated-at">
+                  证据 {knowledgeAssetHealth.evidenceUpdatedAt}
+                </Tag>
+              </Space>
+            </div>
+
+            <div className="knowledge-health-grid" data-contract="active-candidate-pending-summary">
+              {knowledgeAssetHealthCards.map((card) => (
+                <div className="knowledge-health-card" key={card.key} data-health-key={card.key}>
+                  <span className="knowledge-health-icon">
+                    {card.key === 'blockers' ? <SafetyCertificateOutlined /> : <DatabaseOutlined />}
+                  </span>
+                  <span>
+                    <Typography.Text type="secondary">{card.label}</Typography.Text>
+                    <strong>{card.value}</strong>
+                    <small>{card.detail}</small>
+                  </span>
+                  <Tag color={card.value === 0 ? 'green' : 'orange'}>{card.status}</Tag>
+                </div>
+              ))}
+            </div>
+
+            <div className="knowledge-health-evidence" data-contract="evidence-summary">
+              <div>
+                <Typography.Title level={3}>证据摘要</Typography.Title>
+                <Typography.Text>
+                  健康状态来自 gate 证据，不在面板内直接执行 active switch、migration 或修订 apply。
+                </Typography.Text>
+              </div>
+              <div className="knowledge-evidence-list">
+                {knowledgeAssetEvidence.map((item) => (
+                  <div className="knowledge-evidence-row" key={item.path}>
+                    <span>
+                      <strong>{item.label}</strong>
+                      <small>{item.summary}</small>
+                      <code>{item.path}</code>
+                    </span>
+                    <Tag>已记录</Tag>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="knowledge-health-actions" data-contract="admin-readonly-actions">
+              <Button icon={<FileSearchOutlined />} data-action="open-knowledge-health-evidence">
+                查看证据
+              </Button>
+              <Button icon={<ReadOutlined />} data-action="open-pending-mapping-review">
+                查看待审映射
+              </Button>
+              <Button icon={<ClockCircleOutlined />} data-action="open-migration-history">
+                查看迁移历史
+              </Button>
+              <Button icon={<SafetyCertificateOutlined />} data-action="open-blocker-report">
+                查看阻断项
+              </Button>
+            </div>
+
+            <Alert
+              showIcon
+              type="info"
+              title="只读健康面板"
+              description="本面板只汇总状态和证据；active 切换、migration apply、C002R 修订应用仍走受控脚本、备份和回滚门禁。"
+              data-contract="no-active-write"
             />
           </section>
 

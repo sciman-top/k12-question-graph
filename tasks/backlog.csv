@@ -85,7 +85,7 @@ K002,K0,知识资产,C002R 教师修订 UX,高,已完成,K001,教师只提交修
 K003,K0,知识资产,映射审核工作台 UI 实现,高,已完成,K002,split merge deprecated 等高影响映射可并排审核 显示旧对象 新对象 映射边 来源证据 影响预览 回滚预览和审核记录 批量确认只允许低风险一对一 不直接应用 active,tools/run-k003-mapping-review-workbench-ui-contract.ps1 + docs/evidence/k003-mapping-review-workbench-ui-report.json + docs/94_K003_MappingReviewWorkbenchUI.md + tools/run-gates.ps1
 K004,K0,知识资产,历史题目版本解释,中,已完成,K001,旧题 旧卷 学情报告能显示当时知识版本和当前版本映射,tools/run-k004-historical-version-explanation-contract.ps1 + docs/evidence/k004-historical-version-explanation-report.json + docs/95_K004_HistoricalVersionExplanation.md + tools/run-gates.ps1
 K005,K0,知识资产,第二批 C002 修订演练,中,已完成,K002,用 synthetic 或教师审查样例完成 candidate to reviewed to active dry-run 不直接改旧 active,tools/run-k005-c002-second-revision-drill-contract.ps1 + docs/evidence/k005-c002-second-revision-drill-report.json + docs/96_K005_C002SecondRevisionDrill.md + tools/run-gates.ps1
-K006,K0,知识资产,知识资产健康面板,中,待办,K001,管理员可看到 active candidate pending mappings migrations blockers 和证据摘要,UI contract + roadmap guard
+K006,K0,知识资产,知识资产健康面板,中,已完成,K001,管理员可看到 active candidate pending mappings migrations blockers 和证据摘要,tools/run-k006-knowledge-asset-health-dashboard-contract.ps1 + docs/evidence/k006-knowledge-asset-health-dashboard-report.json + docs/97_K006_KnowledgeAssetHealthDashboard.md + tools/run-gates.ps1
 L001,L0,AI,真实模型调用合规准入卡,高,待办,H003,锁定数据边界 预算 人工审核 外部传输和 no active write 后才允许真实调用,docs/25 admission card + c002q0 readiness
 L002,L0,AI,小批量真实 AI extract 试点,高,待办,L007,仅抽样 cache-hit 来源 chunk 输出 candidate pending_review 记录 token cost 不覆盖 C002K,c002q report + human review evidence
 L003,L0,AI,AI 切题候选试点,高,待办,J006;L001,真实或本地模型只产候选 低置信度进入确认队列 原文件可接管,AI eval + p1 proxy scenario
