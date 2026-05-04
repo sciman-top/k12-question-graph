@@ -1,0 +1,44 @@
+{
+  "status": "pass",
+  "task": "J004",
+  "mode": "draft_test",
+  "productionEligible": false,
+  "externalAiCalls": 0,
+  "realStudentDataUsed": false,
+  "inputDocx": "tmp\\j004-fidelity\\j004-import-golden.docx",
+  "exportDocx": "tmp\\j004-fidelity\\export\\j004-export-regression.docx",
+  "exportPdf": "tmp\\j004-fidelity\\export\\j004-export-regression.pdf",
+  "importChecks": {
+    "adapterName": "openxml_docx_adapter",
+    "hasFormulaBlock": true,
+    "hasTableBlock": true,
+    "hasImageBlock": true,
+    "hasImageRelationshipTarget": true
+  },
+  "draftChecks": {
+    "mode": "draft_test",
+    "productionEligible": false,
+    "formulaBlocks": 1,
+    "tableBlocks": 1,
+    "imageAssets": 1,
+    "sourceRegionsPreserved": true
+  },
+  "exportChecks": {
+    "docx": {
+      "hasDocumentXml": true,
+      "hasFormulaText": true,
+      "hasFigureMedia": true,
+      "hasTable": true,
+      "hasAnswer": true,
+      "mediaCount": 1
+    },
+    "pdf": {
+      "hasPdfHeader": true,
+      "hasEof": true,
+      "hasFormulaText": true
+    }
+  },
+  "rollback": "git restore tracked files; remove tmp/j004-fidelity and docs/evidence/j004-fidelity-regression-report.json",
+  "createdAt": "2026-05-04T14:12:08.976121+00:00",
+  "summaryChinese": "J004 已验证公式、表格、题图从 OpenXML 导入解析到 draft question 再到 Word/PDF 导出均未丢失；仅 synthetic draft/test，不具备生产资格。"
+}

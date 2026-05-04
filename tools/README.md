@@ -40,6 +40,7 @@ The gate also covers `b001 duplicate upload smoke`, `b002 adapter contract smoke
 `e001 question search ui/api contracts`, `e002 paper request contract`, and
 `e003 question replacement undo contract`, and
 `e004 paper export contract`, and
+`j004 formula/table/figure fidelity regression`, and
 `f001 assessment model contract`, and
 `f002 score import contract`.
 It starts temporary
@@ -476,6 +477,17 @@ E004 paper export contract:
 This validates `draft_test` Word/PDF export artifacts without requiring formal
 C002 activation. It checks the generated DOCX/PDF manifest, formula text, figure
 media, table content, frontend export controls, and non-production boundary.
+
+J004 formula/table/figure fidelity regression:
+
+```powershell
+.\tools\run-j004-fidelity-regression-contract.ps1
+```
+
+This validates a synthetic OpenXML import-to-export chain. It requires formula,
+table, and image blocks from the worker, preserves source regions and image
+assets in a draft question shape, then checks the exported DOCX/PDF artifacts.
+It does not use real student data, external AI, or production activation.
 
 F001 assessment model contract:
 

@@ -13,6 +13,8 @@ import xml.etree.ElementTree as ET
 WORD_NS = {
     "w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main",
     "m": "http://schemas.openxmlformats.org/officeDocument/2006/math",
+    "a": "http://schemas.openxmlformats.org/drawingml/2006/main",
+    "r": "http://schemas.openxmlformats.org/officeDocument/2006/relationships",
 }
 
 
@@ -59,6 +61,15 @@ def parse_docx_blocks(target: pathlib.Path) -> tuple[list[dict], list[str]]:
 
     with zipfile.ZipFile(target) as docx:
         document_xml = docx.read("word/document.xml")
+        rel_targets: dict[str, str] = {}
+        if "word/_rels/document.xml.rels" in docx.namelist():
+            rels_root = ET.fromstring(docx.read("word/_rels/document.xml.rels"))
+            for rel in rels_root:
+                rel_id = rel.attrib.get("Id")
+                target_attr = rel.attrib.get("Target")
+                rel_type = rel.attrib.get("Type", "")
+                if rel_id and target_attr and rel_type.endswith("/image"):
+                    rel_targets[rel_id] = target_attr
 
     root = ET.fromstring(document_xml)
     body = root.find("w:body", WORD_NS)
@@ -70,23 +81,51 @@ def parse_docx_blocks(target: pathlib.Path) -> tuple[list[dict], list[str]]:
         if tag == "p":
             text = element_text(child)
             has_formula = child.find(".//m:oMath", WORD_NS) is not None or child.find(".//m:oMathPara", WORD_NS) is not None
-            if not text and not has_formula:
+            image_refs = [
+                blip.attrib.get(f"{{{WORD_NS['r']}}}embed")
+                for blip in child.findall(".//a:blip", WORD_NS)
+                if blip.attrib.get(f"{{{WORD_NS['r']}}}embed")
+            ]
+            if not text and not has_formula and not image_refs:
                 continue
 
-            block_type = "formula" if has_formula else paragraph_type(text)
-            blocks.append(
-                {
-                    "id": f"block_{len(blocks) + 1:04d}",
-                    "pageNumber": 1,
-                    "blockType": block_type,
-                    "textPreview": text[:500],
-                    "sourceRegion": {
-                        "source": "openxml",
-                        "element": "w:p",
-                        "index": len(blocks),
-                    },
-                }
-            )
+            if text or has_formula:
+                block_type = "formula" if has_formula else paragraph_type(text)
+                blocks.append(
+                    {
+                        "id": f"block_{len(blocks) + 1:04d}",
+                        "pageNumber": 1,
+                        "blockType": block_type,
+                        "textPreview": text[:500],
+                        "sourceRegion": {
+                            "source": "openxml",
+                            "element": "w:p",
+                            "index": len(blocks),
+                        },
+                    }
+                )
+
+            for rel_id in image_refs:
+                blocks.append(
+                    {
+                        "id": f"block_{len(blocks) + 1:04d}",
+                        "pageNumber": 1,
+                        "blockType": "image",
+                        "textPreview": rel_targets.get(rel_id, rel_id),
+                        "sourceRegion": {
+                            "source": "openxml",
+                            "element": "w:drawing",
+                            "relationshipId": rel_id,
+                            "target": rel_targets.get(rel_id),
+                            "index": len(blocks),
+                        },
+                        "asset": {
+                            "relationshipId": rel_id,
+                            "target": rel_targets.get(rel_id),
+                            "assetType": "image",
+                        },
+                    }
+                )
         elif tag == "tbl":
             rows = []
             for row in child.findall("w:tr", WORD_NS):

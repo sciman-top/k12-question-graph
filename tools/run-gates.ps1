@@ -177,6 +177,10 @@ try {
         .\tools\run-j003-scanned-ocr-adapter-contract.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'j004 formula table figure fidelity regression' {
+        .\tools\run-j004-fidelity-regression-contract.ps1 | Write-Host
+    }
+
     Invoke-GateStep 'b002 adapter contract smoke' {
         $workerDir = Join-Path $FileStoreRoot 'gate'
         New-Item -ItemType Directory -Path $workerDir -Force | Out-Null
