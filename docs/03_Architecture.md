@@ -90,6 +90,20 @@ D:\KQG_Backups\
 | Storage Manager | 文件去重、生命周期、压缩、清理、容量监控 |
 | Model Router | 决定 AI 任务用规则、本地工具、小模型、强模型或人工 |
 
+### 5.1 模块化单体边界
+
+长期终态仍是 modular monolith，不是分布式微服务。内部边界按 Clean/Hexagonal 思路收敛：
+
+| 层 | 允许依赖 | 不允许依赖 |
+|---|---|---|
+| Domain | 领域实体、值对象、领域事件、纯规则 | EF Core、HTTP、OpenAI SDK、文件系统、Python 工具、前端 DTO |
+| Application | Use case、port interface、事务边界、权限和状态流转 | 具体数据库实现、具体 OCR/AI/导出工具 |
+| Ports | repository、file store、document parser、AI provider、exporter、clock、audit 等抽象 | 外部工具原始输出直接穿透到 Domain |
+| Adapters | EF/Npgsql、local file store、Docling/PaddleOCR/OpenXML/OCRmyPDF、OpenAI provider、Word/PDF exporter | 反向修改 Domain 规则或绕过 use case |
+| API/Web | HTTP contract、teacher workflow、view model、typed client | 把 UI 草稿或裸 JSON 形状当作业务事实源 |
+
+验收标准：核心 use case 测试应能用 fake/in-memory ports 运行；涉及 PostgreSQL、文件系统、Python、外部 AI 或导出工具的测试属于 adapter/contract/integration 层。若某个功能必须先接真实工具，也必须先定义内部模型和 AdapterDiagnostic，不得让第三方输出成为领域模型。
+
 ## 6. 边界原则
 
 - 大文件不进数据库。

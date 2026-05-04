@@ -1,13 +1,13 @@
-# AGENTS.md - k12-question-graph Shared Project Rules
+# AGENTS.md - k12-question-graph Shared Project Rules / Codex Direct
 **项目**: k12-question-graph
 **类型**: K-12 teacher-first question graph platform
-**承接来源**: `GlobalUser/AGENTS.md v9.51`
+**承接来源**: `GlobalUser/AGENTS.md v9.52`
 **适用范围**: 项目级（仓库根）
 **最后更新**: 2026-05-04
 
 ## 1. 阅读指引
-- 本文件是本仓共同项目规则主体；Codex 直接读取，Claude/Gemini 通过各自 wrapper 的 `@AGENTS.md` 承接。
-- 固定协同：全局规则定义 WHAT；本文件定义 k12-question-graph 的 WHERE/HOW；Claude/Gemini wrapper 只追加平台差异。
+- 本文件是三工具共同项目规则主体；Codex 直接读取，Claude/Gemini 通过各自 wrapper 的 `AGENTS.md` import 承接并只追加平台差异。
+- 固定结构：本文件保持 `1 / A / B / C / D`；Claude/Gemini wrapper 保持 `1 / B / D`，并通过 import 承接本文件 `A/C/D`。
 - 裁决链：`运行事实/代码 > README/backlog/schema/gate > 项目级规则 > 全局规则 > 临时上下文`。
 - 自包含边界：根文件必须保留项目边界、门禁、证据和回滚；长产品说明、研究材料和 runbook 放入 `docs/`、`runbooks/`、`tasks/` 或 `sources/`。
 - 渐进披露：编码前按任务读取相关 docs；不要把 `README.md`、PRD、架构文档或 backlog 全文复制进规则。
@@ -90,3 +90,4 @@
   - `E5`: NuGet/npm/Python/AI provider/OCR/外部工具变化必须记录供应链和成本/隐私边界。
   - `E6`: domain asset、DB、backup、export template 和 analysis metric 结构变化必须记录迁移、兼容和回滚。
 - 本文件属于控制仓 manifest 管理；目标仓现场修改必须回写控制仓源文件后同步。
+- 三工具协同约束：`AGENTS.md` 承载共同 A/C/D 项目事实；`CLAUDE.md` / `GEMINI.md` 通过 import 追加 B/D 平台差异，不复制共同正文。

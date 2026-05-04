@@ -60,3 +60,73 @@ G001,P6,运维,自动备份到本机与共享目录,中,已完成,F003,draft/tes
 G002,P6,运维,缓存清理与存储看板,中,已完成,G001,draft/test 模式下管理员能看到存储占用并执行安全清理 保留配置化目录和回滚证据,GET /api/admin/storage/summary + POST /api/admin/cache/cleanup + Web admin-storage-dashboard + tools/run-g002-storage-cleanup-contract.ps1 + docs/evidence/g002-storage-cleanup-report.json + tools/run-gates.ps1
 G003,P6,运维,WinPE 应急拷贝脚本生成,中,已完成,G001,draft/test 模式下可生成离线恢复说明和应急拷贝脚本 路径和介质策略作为动态配置可修改,configs/recovery_media.defaults.yaml + tools/run-g003-winpe-emergency-copy-contract.ps1 + docs/evidence/g003-winpe-emergency-copy-report.json + docs/85_G003_WinPEEmergencyCopy.md + tools/run-gates.ps1
 G004,P6,部署安装,安装器数据库凭据初始化与 pgpass 验证,高,已完成,G001,draft/test 安装器或初始化向导在新电脑上写入或更新 PostgreSQL 非交互凭据存储 优先 pgpass.conf 或等价安全凭据机制 收紧 ACL 清除进程级 PGPASSWORD 后仍能 psql -w 连接 并生成回滚与修复报告 不依赖 Codex 或桌面进程自然继承 User 环境变量,configs/installer_credentials.defaults.yaml + tools/run-g004-pgpass-installer-dry-run.ps1 + docs/evidence/g004-pgpass-installer-dry-run-report.json + docs/86_G004_PgpassInstallerDryRun.md + tools/run-gates.ps1
+H001,H0,阶段收口,旧 backlog 完成态核验,高,待办,G004,核对 A000-G004 状态 证据文件 门禁报告和 README 完成态 不把 draft/test 写成生产完成,python csv/json/yaml parse + tools/run-roadmap-guard.ps1 + evidence report
+H002,H0,阶段收口,full gate 与 quick gate 基线刷新,高,待办,H001,有数据库时运行 full gate 无数据库时运行 quick dry-run 并按 gate_na 记录缺口,tools/run-gates.ps1 or tools/run-c002-dry-run-suite.ps1 + tools/run-roadmap-guard.ps1
+H003,H0,教师效率,教师效率基线复测,高,待办,H001,用代理场景记录导入 组卷 导出 成绩导入步骤数 耗时 异常接管点,proxy walkthrough + docs/evidence teacher-efficiency-baseline
+H004,H0,发布回滚,发布候选和回滚包收口,高,待办,H002,形成 release candidate 说明 备份 manifest 回滚命令 已知 gate_na 和复测条件,git status + backup verify + release candidate notes
+H005,H0,版本同步,main 合并与远端同步检查,中,待办,H004,确认当前分支 main origin/main 和未合并工作分支状态 不丢用户改动,git status --short --branch + git branch --contains + git log --oneline --decorate
+H006,H0,治理,下一轮任务看板初始化,高,待办,H001,把 H-R 阶段任务作为新主线并标记首批 H I J 为近期执行项,docs/87 + tasks/backlog.csv parse
+H007,H0,外部复核,external benchmark drift guard,高,待办,H006,定期用官方文档 成熟项目和最佳实践复核工程终态 技术栈 架构 路线图和任务清单 并把差异落到文档或 backlog,docs/88 + source list + roadmap guard
+I001,I0,教师工作流,普通教师首页与导航产品化,高,待办,H007,默认只保留四个入口 高级能力折叠 页面不暴露脚本和 evidence 术语,npm run build + npm run lint + UI contract
+I002,I0,教师工作流,导入试卷向导产品化,高,待办,I001,上传 任务状态 异常确认 来源回看在同一向导中完成 失败后可继续,npm build/lint + b001-b008 contracts
+I003,I0,教师工作流,人工确认队列可用性强化,高,待办,I002,合并 拆分 题图关联 撤销 批量确认快捷路径减少教师重复操作,UI smoke + p1 proxy scenario
+I004,I0,教师工作流,找题组卷工作台整合,高,待办,I001,检索 题篮 细目表 换题 导出入口在一个工作台内完成且保持 10 分钟目标,e001-e004 contracts + UX walkthrough
+I005,I0,教师工作流,成绩导入分析工作台整合,中,待办,I001,Excel 字段映射预览 异常行 知识点分析和报告导出路径连贯,f001-f003 contracts + synthetic fixture
+I006,I0,教师效率,新手示例与默认值闭环,中,待办,I001,首次使用无需读文档即可通过示例完成导入 组卷 成绩导入和分析,manual smoke + teacher preference checks
+I007,I0,前端架构,server-state 与 typed API boundary,高,待办,I001,前端明确 TanStack Query 只管理 server state 教师草稿和高风险操作状态另有事实源 API contract 可生成 typed client 且 UI 不直接依赖裸 JSON 形状,frontend build/lint + API contract snapshot
+J001,J0,文档解析,OpenXML docx 真实解析 adapter,高,待办,I002,docx 题干 选项 答案 解析 表格 公式可转换为稳定 DocumentModel,adapter contract + golden sample
+J002,J0,文档解析,PDF 文本版解析 adapter,高,待办,J001,文本 PDF 页码 区块 顺序 来源定位可稳定输出,adapter contract + golden sample
+J003,J0,OCR,扫描版 PDF 图片 OCR adapter,高,待办,J002,扫描版样本可输出可审阅候选且低置信度进入人工确认,ocr smoke + invalid sample takeover
+J004,J0,文档解析,公式 表格 题图保真回归,高,待办,J001,公式 表格 题图在导入 保存 导出链路不丢失,golden import + export regression
+J005,J0,供应链,Adapter 版本诊断和工具供应链门禁,中,待办,J001,每次解析记录工具版本 参数 输入输出 hash 耗时 警告和错误,adapter diagnostic gate + supply-chain note
+J006,J0,教师效率,导入准确率基线与人工工作量报告,高,待办,J003,输出切题准确率 人工确认题数 失败接管耗时 不虚报 AI 自动化,import eval report + teacher-efficiency evidence
+K001,K0,知识资产,C002 active 生产查询接入,高,待办,H002,题库检索 组卷约束 学情分析默认读取 active C002 v1 且保留版本引用,e001/e003/f003 contracts + DB query
+K002,K0,知识资产,C002R 教师修订 UX,高,待办,K001,教师只提交修订原因 来源证据 影响范围 紧急程度 系统生成 candidate 和影响报告,c002r contract + UI smoke
+K003,K0,知识资产,映射审核工作台 UI 实现,高,待办,K002,split merge deprecated 等高影响映射可并排审核 预览影响 回滚,c002h contract + frontend build
+K004,K0,知识资产,历史题目版本解释,中,待办,K001,旧题 旧卷 学情报告能显示当时知识版本和当前版本映射,API contract + regression fixture
+K005,K0,知识资产,第二批 C002 修订演练,中,待办,K002,用 synthetic 或教师审查样例完成 candidate to reviewed to active dry-run 不直接改旧 active,c002r dry-run + rollback snapshot
+K006,K0,知识资产,知识资产健康面板,中,待办,K001,管理员可看到 active candidate pending mappings migrations blockers 和证据摘要,UI contract + roadmap guard
+L001,L0,AI,真实模型调用合规准入卡,高,待办,H003,锁定数据边界 预算 人工审核 外部传输和 no active write 后才允许真实调用,docs/25 admission card + c002q0 readiness
+L002,L0,AI,小批量真实 AI extract 试点,高,待办,L007,仅抽样 cache-hit 来源 chunk 输出 candidate pending_review 记录 token cost 不覆盖 C002K,c002q report + human review evidence
+L003,L0,AI,AI 切题候选试点,高,待办,J006;L001,真实或本地模型只产候选 低置信度进入确认队列 原文件可接管,AI eval + p1 proxy scenario
+L004,L0,AI,知识点标注建议试点,中,待办,K001;L001,AI 标注只作为建议 绑定 active 知识版本 人工修改生成 FeedbackEvent,d003 eval + feedback event check
+L005,L0,AI,答案校验与解析质量试点,中,待办,L001,AI 校验结果保留来源和置信度 不自动覆盖教师答案,schema eval + review queue contract
+L006,L0,AI,成本缓存与批处理看板,中,待办,L002,管理员可看到任务成本 cache hit 模型路由和异常失败原因,d002 contract + admin UI smoke
+L007,L0,AI安全,LLM security red-team gate,高,待办,L001,真实 AI 调用前覆盖 prompt injection sensitive information disclosure insecure output handling supply chain vector/embedding weakness 和 excessive agency 风险,OWASP LLM checklist + NIST AI RMF mapping + no active write proof
+M001,M0,组卷导出,生产题篮与试卷结构模型,高,待办,K001,题篮 试卷结构 分值 题号 小问和版本引用可保存和复现,API contract + DB regression
+M002,M0,组卷导出,自然语言组卷到细目表生产链,高,待办,M001;L001,自然语言只生成可审查细目表 不直接生成不可解释试卷,e002 contract + UX walkthrough
+M003,M0,组卷导出,一键换题生产约束强化,高,待办,M001,换题保持知识点 题型 难度 分值 近期未用和不重复 且可撤销,e003 contract + regression
+M004,M0,组卷导出,导出前审校,高,待办,M003,导出前显示版本 题号 答案 解析 题图缺失和授权风险,export preflight contract
+M005,M0,组卷导出,Word WPS PDF 导出回归扩展,高,待办,M004,学生版 教师版 答案版均可打开且公式题图表格不丢,e004 contract + golden export regression
+M006,M0,教师效率,10 分钟组卷场景验收,高,待办,M005,从自然语言需求到可打印导出记录小于等于 10 分钟 或记录阻断项,teacher-efficiency evidence + hotspot report
+N001,N0,成绩学情,真实隐私边界准入,高,待办,H003,明确真实学生成绩使用前的辖区 授权 数据最小化 保留 删除和外部模型禁用策略,docs/17 update + privacy gate
+N002,N0,成绩学情,Excel 模板学习与复用,高,待办,N001,同一教师二次导入自动复用字段映射 仅异常行需要处理,f002 contract + teacher preference check
+N003,N0,成绩学情,小题分与题目映射工作台,高,待办,M001;N002,考试小题分能映射到题目和知识点 映射不清时集中提示,API/UI contract + synthetic fixture
+N004,N0,成绩学情,班级讲评报告 MVP,中,待办,N003,输出得分率 区分度 薄弱知识点和讲评建议 且不写正式历史口径直到准入,f003 contract + export smoke
+N005,N0,成绩学情,分层练习建议 draft/test,中,待办,N004,按 A/B/C 或教师自定义分层生成候选练习建议 保持 draft/test 和人工确认,analysis eval + no production write guard
+N006,N0,安全隐私,真实数据试点前安全审计,高,待办,N001,日志 prompt 备份 fixture 中无真实学生 PII 密码或 API key,privacy scan + evidence report
+O001,O0,部署运维,Windows Service 发布包,高,待办,H004,API Worker Web 配置和数据目录在发布后不依赖仓库当前目录,publish smoke + service config review
+O002,O0,部署运维,安装初始化向导,高,待办,O001,初始化 PostgreSQL 连接 数据目录 备份目录 pgpass 权限和管理员账号,g004 dry-run + install smoke
+O003,O0,部署运维,恢复演练升级,高,待办,O002,从备份 manifest 恢复数据库 文件仓库 配置 模板和教师偏好到隔离目录,backup restore drill + hash verify
+O004,O0,部署运维,权限角色与审计日志,高,待办,O002,普通教师 备课组长 管理员权限分离 高风险操作有审计和回滚,security tests + audit log smoke
+O005,O0,部署运维,容量和成本健康面板,中,待办,O002,管理员可看文件仓库 备份 cache AI 成本 失败任务和清理建议,g002 + d002 + UI contract
+O006,O0,部署运维,离线应急手册和演练,中,待办,O003,WinPE 拷贝 恢复 校验和失败回退可由管理员按 runbook 执行,g003 contract + tabletop drill
+O007,O0,部署升级,EF migration bundle 与升级演练,高,待办,O002,发布包包含 migration bundle 备份 dry-run apply rollback 和隔离恢复演练 目标机不依赖源码目录或 dotnet SDK,efbundle smoke + backup restore drill + release evidence
+P001,P0-live,试点,试点学校部署预演,高,待办,O006;O007,在隔离机器按安装向导完成部署 备份 恢复和四个教师入口 smoke,release checklist + evidence
+P002,P0-live,试点,教师代理试点第 1 轮,高,待办,P001,用真实但授权或脱敏材料完成导入 组卷 导出 成绩导入代理验收,teacher proxy report
+P003,P0-live,试点,现场教师试点准入,高,待办,P002,确认教师参与边界 数据授权 支持人 回滚方案和反馈模板,pilot admission card
+P004,P0-live,试点,现场教师试点第 1 轮,高,待办,P003,记录实际耗时 操作卡点 错误 文案困惑 和回滚事件,teacher pilot evidence
+P005,P0-live,试点,试点反馈转 backlog,高,待办,P004,反馈按教师效率 频率 风险 成本排序 进入保留 修改 后置 不做四类,docs/28 update + backlog update
+P006,P0-live,发布,v0.1 发布裁决,高,待办,P005,只有门禁 备份 恢复 教师效率和隐私边界均通过才标记 v0.1 release,release decision record + tag candidate
+Q001,Q0,多学科,第二学科候选资料包准入,中,待办,P006,新学科先上传来源资料和 candidate 不直接 active,domain asset activation dry-run
+Q002,Q0,多学科,第二学科教师复核模板,中,待办,Q001,教师可用统一清单复核候选知识点 教材章节 课标和考点,template guard + review evidence
+Q003,Q0,多学科,第二学科 active 演练,中,待办,Q002,按统一入口完成 backup readiness reviewed active 和 rollback snapshot,run-domain-asset-activation dry-run/apply as approved
+Q004,Q0,多学科,跨学科题型与模板差异报告,中,待办,Q003,识别需动态化的题型 标签 评分 导出和分析差异 不硬编码,docs/58 update + guard
+Q005,Q0,多学科,多学科 UI 简化复核,中,待办,Q004,普通教师仍只看到四个入口 学科切换来自默认值或模板,UI smoke + teacher efficiency check
+R001,R0,长期演进,搜索和语义检索升级评估,低,待办,P006,只有 PostgreSQL FTS 真实不足时才评估 pgvector 或外部搜索,benchmark report + ADR
+R002,R0,长期演进,队列和 Worker 扩展评估,低,待办,P006,只有 BackgroundService 出现真实吞吐或可靠性瓶颈才评估 Hangfire RabbitMQ,operational metrics + ADR
+R003,R0,长期演进,标准互操作评估,低,待办,P006,仅在真实校内系统对接需求出现后评估 QTI CASE OneRoster,admission card + integration spike
+R004,R0,长期演进,高级分析评估,低,待办,N004,复杂 IRT 等值或长期成长分析必须有样本量和解释责任边界,research note + feature admission
+R005,R0,长期演进,公网或多校部署评估,低,待办,P006,只有数据责任 采购 网络和运维边界明确后才评估 SaaS 或多租户,security privacy ADR
+R006,R0,长期演进,长期技术债清理节奏,中,待办,P006,每个发布周期保留门禁维护 依赖升级 性能基线和删除无效实验,quality dashboard + dependency gate
+R007,R0,标准互操作,interoperability profile map,中,待办,P006,先把本仓 QuestionItem Paper KnowledgeNode ScoreRecord AnalysisEvent 映射到 QTI CASE OneRoster Caliper profile 再按真实对接需求做 import/export spike,profile map doc + admission card + optional spike

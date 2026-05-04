@@ -10,6 +10,6 @@
   "schema_version": "1.0",
   "source": "D:\\CODE\\governed-ai-coding-runtime\\docs\\targets\\templates\\verify-powershell-policy.py",
   "source_sha256": "bfaf1f41dd8a8c809c70625f4f0950a12230706fa524ce46cf3b0382d187a863",
-  "sync_revision": "2026-05-04.1",
+  "sync_revision": "2026-05-04.2",
   "target_sha256": "bfaf1f41dd8a8c809c70625f4f0950a12230706fa524ce46cf3b0382d187a863"
 }

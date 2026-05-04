@@ -8,6 +8,8 @@
 
 2026-05-02 外部资料复核后的判断：最高原则、默认技术栈、模块化单体架构和 P0/P1 纵切路线保持正确；需要在进入编码前先完成 P0 准入预检，锁定 SDK/runtime、PostgreSQL 版本、数据目录、Windows Service/content root 约束、BackgroundService job lease/retry 规则、学生数据/合规辖区边界和文档门禁。
 
+2026-05-04 工程终态复核后的判断：当前最优终态仍是 Windows/LAN first teacher workstation + ASP.NET Core modular monolith + PostgreSQL fact store + local file store + Python document/OCR/AI adapters + React/Vite/Ant Design teacher workbench + versioned domain assets + structured AI candidate pipeline + release/backup/restore evidence。需要补强的不是换栈，而是 external benchmark drift guard、前端 server-state/typed API 边界、LLM security red-team gate、EF migration bundle/升级演练和标准互操作 profile map。
+
 当前 P0/P1 已打通“上传文件 -> 创建 ImportJob -> 持久化元数据 -> Python Worker 占位 -> 页面预览/人工确认/来源回看 -> health -> backup manifest -> unified gate”纵切闭环。P2 已完成 C001、C002A-C002T 和 C002R：draft bootstrap 可用于测试，广州中考 33 份原始来源资料已进入 `SourceDocument/FileAsset` 证据层，质量复核后的 cleaned candidate 已完成 candidate 导入、审核决策、reviewed -> active 受控切换，当前 C002 初中物理 v1 为 452 个 `active` 动态资产、400 条 `approved` 映射和 1 个 `applied` migration；C002R 已把 active 后修订合同化，后续教师修正、新教材、新课标或新考情必须进入新 candidate 版本、映射、影响报告、审核、回滚演练和管理员 active 切换，不直接改旧 active。来源 PDF 已完成本地 chunk/hash/cache 证据层，候选提炼 schema/eval 已验证，分层模型路由预算门禁已证明 full extraction 必须人工预算确认，outer AI runner/subagent 编排 readiness 已证明不启用项目内生产真实模型、不引入运行时 subagent 依赖，小批量 AI extract contract dry-run 已生成候选输出、模型层级、token/cost/cache 证据且不覆盖 C002K。P3 已在 draft/test 模式完成 D001-D003：真实模型调用仍禁用，LLM 路由只进入 `stub_llm`、成本日志和结构化输出 eval smoke，结果保持人工审核边界。P4 已完成 E001-E004 draft/test：题库检索、自然语言组卷理解、一键换题与撤销、Word/PDF 导出 MVP 合同均不等待正式 C002。P5 已完成 F001-F003 draft/test：学生、班级、考试、报名、Excel 字段映射导入、异常行提示、得分率、区分度、知识点掌握摘要和薄弱知识点报告均使用 synthetic fixture；不使用真实学生数据，不暴露学生端，不写正式学情口径。P6 已完成 G001-G004 draft/test：本机/共享目录备份、管理员存储看板、配置化缓存清理、WinPE 应急拷贝脚本和 PostgreSQL `pgpass.conf` 非交互凭据 dry-run 均已纳入合同；G004 仅使用临时 `APPDATA` 写入 pgpass，清空进程级 `PGPASSWORD` 后用 `psql -w` 验证，不修改真实用户 pgpass，不记录密码。
 
 `C002` 标记为正式完成时，只表示初中物理知识体系 v1 已成为当前生产默认版本，不表示永久冻结。后续修改必须走新候选版本、映射、影响报告、审核、回滚快照和 active 切换，旧版本保留给历史题目、旧卷和学情解释。
@@ -127,7 +129,7 @@ v0.1 聚焦：
 
 ## 推荐实现顺序
 
-先按 `docs/19_Roadmap.md` 与 `tasks/backlog.csv` 执行。P0/P1 已完成；当前继续把 v0.1 完整系统能力搭起来。知识点、标签、题型、难度、组卷规则、导出模板、Excel 映射、AI prompt/schema/model routing、分析指标、组织权限和隐私策略等动态元素都不得写死，但它们的可变性也不得阻断开发：先用 draft/test、synthetic fixture、sample config 或少量临时资料完成系统能力，正式资料以后再录入、映射、审核、激活。
+先按 `docs/19_Roadmap.md`、`docs/20_TaskBreakdown.md`、`docs/87_PhaseCloseoutAndFullRoadmap.md` 与 `tasks/backlog.csv` 执行。旧 A000-G004 已全部完成，当前主线应先做 H0 阶段收口，再进入 I0-J0 教师工作流产品化和真实文档解析。知识点、标签、题型、难度、组卷规则、导出模板、Excel 映射、AI prompt/schema/model routing、分析指标、组织权限和隐私策略等动态元素都不得写死，但它们的可变性也不得阻断开发：先用 draft/test、synthetic fixture、sample config 或少量临时资料完成系统能力，正式资料以后再录入、映射、审核、激活。
 
 ```text
 P0/P1: 打开应用 → 上传文件 → 创建 ImportJob → 写数据库 → 文件入仓 → 页面预览 → 人工确认 → 单题入库 → 来源回看 → 备份 manifest
@@ -217,6 +219,8 @@ python -c "import pathlib, yaml; [yaml.safe_load(p.read_text(encoding='utf-8')) 
 - `docs/28_FunctionScopeReview.md`：功能保留、修改、增加、后置与不进 v0.1 的裁决。
 - `docs/58_DynamicEvolvableElements.md`：必须动态化的参数、数据、标签、模板、规则和映射基数清单。
 - `docs/19_Roadmap.md`：动态元素不停工原则和 draft/test 先搭系统的阶段口径。
+- `docs/87_PhaseCloseoutAndFullRoadmap.md`：A-G 完成后的阶段收口、长期路线图和 H-R 下一轮任务清单。
+- `docs/88_EngineeringEndStateExternalReview_20260504.md`：工程终态、技术栈、架构和长期路线图的外部复核与补强项。
 - `docs/78_SubjectDomainAssetActivationRunbook.md`：后续新学科动态资产激活统一 runbook。
 - `docs/79_TeacherCandidateReviewAndActivationGuide.md`：教师候选复核和激活确认操作指南。
 - `docs/80_SubjectActivationWorkbenchV0.md`：学科激活工作台 v0 的教师侧边界、UI 合同和验证方式。
