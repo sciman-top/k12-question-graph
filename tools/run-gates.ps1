@@ -201,6 +201,10 @@ try {
         .\tools\run-k003-mapping-review-workbench-ui-contract.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'k004 historical version explanation contract' {
+        .\tools\run-k004-historical-version-explanation-contract.ps1 | Write-Host
+    }
+
     Invoke-GateStep 'b002 adapter contract smoke' {
         $workerDir = Join-Path $FileStoreRoot 'gate'
         New-Item -ItemType Directory -Path $workerDir -Force | Out-Null

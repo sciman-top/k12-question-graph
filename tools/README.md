@@ -550,6 +550,19 @@ preview, rollback preview, review history, and manual actions for high-risk
 `split`, `merge`, and `deprecated` mappings. It also verifies that high-risk
 bulk approval and direct active apply actions are absent.
 
+K004 historical version explanation contract:
+
+```powershell
+.\tools\run-k004-historical-version-explanation-contract.ps1
+```
+
+This starts the API, posts the synthetic regression fixture to
+`POST /knowledge-version-explanations/resolve`, and verifies that legacy
+questions, legacy papers, and historical analysis reports keep a frozen
+historical knowledge version while exposing the current-version mapping in a
+teacher-visible summary. The contract is read-only, uses no real student data,
+and does not rewrite production history.
+
 F001 assessment model contract:
 
 ```powershell

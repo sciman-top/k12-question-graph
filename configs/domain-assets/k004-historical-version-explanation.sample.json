@@ -1,0 +1,43 @@
+{
+  "contract_id": "K004",
+  "contract_name": "historical_knowledge_version_explanation",
+  "cases": [
+    {
+      "artifactType": "question",
+      "artifactId": "legacy-question-001",
+      "historicalKnowledgeStableId": "PHY-JH-MECH-MOTION-SPEED",
+      "historicalKnowledgeVersion": "junior-physics-guangzhou-source-derived-v1",
+      "currentKnowledgeVersion": "junior-physics-guangzhou-source-derived-v2",
+      "mappingType": "renamed",
+      "currentKnowledgeStableIds": [
+        "PHY-JH-MECH-MOTION-AVERAGE-SPEED"
+      ],
+      "affectsHistoricalAnalysis": false
+    },
+    {
+      "artifactType": "paper",
+      "artifactId": "legacy-paper-midterm-2024",
+      "historicalKnowledgeStableId": "PHY-JH-ELEC-OHM-LAW",
+      "historicalKnowledgeVersion": "junior-physics-guangzhou-source-derived-v1",
+      "currentKnowledgeVersion": "junior-physics-guangzhou-source-derived-v2",
+      "mappingType": "split",
+      "currentKnowledgeStableIds": [
+        "PHY-JH-ELEC-OHM-CONCEPT",
+        "PHY-JH-ELEC-OHM-CALCULATION"
+      ],
+      "affectsHistoricalAnalysis": false
+    },
+    {
+      "artifactType": "analysis_report",
+      "artifactId": "legacy-analysis-class-8a-2024-final",
+      "historicalKnowledgeStableId": "PHY-JH-EXAM-OLD-LOCAL-TREND",
+      "historicalKnowledgeVersion": "junior-physics-guangzhou-source-derived-v1",
+      "currentKnowledgeVersion": "junior-physics-guangzhou-source-derived-v2",
+      "mappingType": "deprecated",
+      "currentKnowledgeStableIds": [
+        "PHY-JH-EXAM-TREND-2026"
+      ],
+      "affectsHistoricalAnalysis": true
+    }
+  ]
+}

@@ -924,6 +924,94 @@ app.MapPost("/paper-requests/replace-question", (PaperQuestionReplacementRequest
 })
 .WithName("ReplacePaperQuestion");
 
+app.MapPost("/knowledge-version-explanations/resolve", (KnowledgeVersionExplanationRequest request) =>
+{
+    if (string.IsNullOrWhiteSpace(request.ArtifactType))
+    {
+        return Results.BadRequest(new { error = "artifact_type_required" });
+    }
+
+    if (string.IsNullOrWhiteSpace(request.ArtifactId))
+    {
+        return Results.BadRequest(new { error = "artifact_id_required" });
+    }
+
+    if (string.IsNullOrWhiteSpace(request.HistoricalKnowledgeStableId))
+    {
+        return Results.BadRequest(new { error = "historical_knowledge_stable_id_required" });
+    }
+
+    if (string.IsNullOrWhiteSpace(request.HistoricalKnowledgeVersion))
+    {
+        return Results.BadRequest(new { error = "historical_knowledge_version_required" });
+    }
+
+    if (string.IsNullOrWhiteSpace(request.CurrentKnowledgeVersion))
+    {
+        return Results.BadRequest(new { error = "current_knowledge_version_required" });
+    }
+
+    var currentTargets = request.CurrentKnowledgeStableIds
+        .Where(id => !string.IsNullOrWhiteSpace(id))
+        .Select(id => id.Trim())
+        .Distinct(StringComparer.OrdinalIgnoreCase)
+        .ToArray();
+
+    if (currentTargets.Length == 0)
+    {
+        return Results.BadRequest(new { error = "current_knowledge_stable_ids_required" });
+    }
+
+    var artifactType = NormalizeToken(request.ArtifactType, "question");
+    var mappingType = string.IsNullOrWhiteSpace(request.MappingType)
+        ? "equivalent"
+        : NormalizeToken(request.MappingType, "equivalent");
+    var historicalVersion = request.HistoricalKnowledgeVersion.Trim();
+    var currentVersion = request.CurrentKnowledgeVersion.Trim();
+    var currentVersionDifferent = !string.Equals(
+        historicalVersion,
+        currentVersion,
+        StringComparison.OrdinalIgnoreCase);
+    var explanationText = BuildKnowledgeVersionExplanationText(
+        artifactType,
+        request.HistoricalKnowledgeStableId.Trim(),
+        historicalVersion,
+        currentVersion,
+        mappingType,
+        currentTargets,
+        request.AffectsHistoricalAnalysis);
+
+    var response = new KnowledgeVersionExplanationResponse(
+        Mode: "historical_version_explanation_contract",
+        ProductionEligible: false,
+        ReadOnly: true,
+        RealStudentDataUsed: false,
+        WritesProductionHistory: false,
+        ArtifactType: artifactType,
+        ArtifactId: request.ArtifactId.Trim(),
+        HistoricalKnowledgeStableId: request.HistoricalKnowledgeStableId.Trim(),
+        HistoricalKnowledgeVersion: historicalVersion,
+        CurrentKnowledgeVersion: currentVersion,
+        MappingType: mappingType,
+        CurrentKnowledgeStableIds: currentTargets,
+        FrozenHistoricalView: true,
+        CurrentVersionDifferent: currentVersionDifferent,
+        AffectsHistoricalAnalysis: request.AffectsHistoricalAnalysis,
+        ExplanationText: explanationText,
+        TeacherVisibleSummary: currentVersionDifferent
+            ? $"此{artifactType}保留生成时的历史知识版本；当前版本已通过 {mappingType} 映射到 {string.Join(", ", currentTargets)}。"
+            : $"此{artifactType}使用的知识版本仍是当前版本，可直接按 {string.Join(", ", currentTargets)} 理解。",
+        AuditTrail:
+        [
+            $"preserve_historical_view:{historicalVersion}",
+            $"resolve_current_mapping:{currentVersion}:{mappingType}",
+            "block_production_history_rewrite"
+        ]);
+
+    return Results.Ok(response);
+})
+.WithName("ResolveKnowledgeVersionExplanation");
+
 app.MapPost("/imports/{id:guid}/status", async (
     Guid id,
     ImportJobStatusUpdate request,
@@ -1222,6 +1310,23 @@ static string BuildReplacementPreview(string currentPreview)
 static double ClampDifficulty(double value)
 {
     return Math.Max(0.0, Math.Min(1.0, value));
+}
+
+static string BuildKnowledgeVersionExplanationText(
+    string artifactType,
+    string historicalKnowledgeStableId,
+    string historicalKnowledgeVersion,
+    string currentKnowledgeVersion,
+    string mappingType,
+    IReadOnlyList<string> currentKnowledgeStableIds,
+    bool affectsHistoricalAnalysis)
+{
+    var currentTargets = string.Join(", ", currentKnowledgeStableIds);
+    var analysisNote = affectsHistoricalAnalysis
+        ? "历史学情结论保持冻结，只展示当前版本映射解释，不回写旧统计口径。"
+        : "历史对象保持原始归属，教师可按当前版本映射继续检索和理解。";
+
+    return $"此{artifactType}生成时使用历史知识版本 {historicalKnowledgeVersion}，知识点为 {historicalKnowledgeStableId}。当前知识版本为 {currentKnowledgeVersion}，通过 {mappingType} 映射到 {currentTargets}。{analysisNote}";
 }
 
 static AiJobResponse ToAiJobResponse(AIJob job)
@@ -1825,6 +1930,36 @@ public sealed record PaperQuestionUndoSnapshot(
     PaperDraftQuestion BeforeQuestion,
     PaperDraftQuestion AfterQuestion,
     string RevertAction);
+
+public sealed record KnowledgeVersionExplanationRequest(
+    string ArtifactType,
+    string ArtifactId,
+    string HistoricalKnowledgeStableId,
+    string HistoricalKnowledgeVersion,
+    string CurrentKnowledgeVersion,
+    string? MappingType,
+    IReadOnlyList<string> CurrentKnowledgeStableIds,
+    bool AffectsHistoricalAnalysis);
+
+public sealed record KnowledgeVersionExplanationResponse(
+    string Mode,
+    bool ProductionEligible,
+    bool ReadOnly,
+    bool RealStudentDataUsed,
+    bool WritesProductionHistory,
+    string ArtifactType,
+    string ArtifactId,
+    string HistoricalKnowledgeStableId,
+    string HistoricalKnowledgeVersion,
+    string CurrentKnowledgeVersion,
+    string MappingType,
+    IReadOnlyList<string> CurrentKnowledgeStableIds,
+    bool FrozenHistoricalView,
+    bool CurrentVersionDifferent,
+    bool AffectsHistoricalAnalysis,
+    string ExplanationText,
+    string TeacherVisibleSummary,
+    IReadOnlyList<string> AuditTrail);
 
 public static class JsonHelpers
 {
