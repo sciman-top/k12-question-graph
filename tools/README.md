@@ -47,6 +47,9 @@ The gate also covers `i001-i008 teacher workflow UI contracts`,
 `k001 active c002 production query contract`, and
 `f001 assessment model contract`, and
 `f002 score import contract`.
+It also includes `o004 admin internal auth boundary contract`, which requires
+`/api/admin/*` and `/internal/ai/*` to be blocked outside explicit draft/test
+or configured admin-key contexts.
 It starts temporary
 API processes for API smoke steps, so `PGPASSWORD` must match the local PostgreSQL
 password.

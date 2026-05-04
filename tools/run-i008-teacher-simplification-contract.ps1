@@ -3,9 +3,11 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 $appPath = Join-Path $repoRoot 'apps\web\src\App.tsx'
 $cssPath = Join-Path $repoRoot 'apps\web\src\App.css'
+$teacherLabelsPath = Join-Path $repoRoot 'apps\web\src\ui\teacherLabels.ts'
 
 $app = Get-Content -LiteralPath $appPath -Raw
 $css = Get-Content -LiteralPath $cssPath -Raw
+$teacherLabels = Get-Content -LiteralPath $teacherLabelsPath -Raw
 
 function Get-SectionByClass([string] $ClassName) {
     $pattern = '<section\s+className="' + [regex]::Escape($ClassName) + '"[\s\S]*?</section>'
@@ -91,6 +93,18 @@ foreach ($requiredAdminMarker in @(
     }
 }
 
+foreach ($requiredTeacherLabel in @(
+    "draft_test: '示例流程'",
+    "draft_dynamic_asset: '示例约束'",
+    "pending_review: '需确认'",
+    "synthetic: '示例来源'",
+    "golden: '样本来源'"
+)) {
+    if (-not $teacherLabels.Contains($requiredTeacherLabel)) {
+        throw "missing centralized teacher-facing label: $requiredTeacherLabel"
+    }
+}
+
 $displayNoneBlocks = [regex]::Matches($css, '(?s)([^{}]+)\{\s*display:\s*none;\s*\}')
 $adminHiddenByDefault = $false
 foreach ($block in $displayNoneBlocks) {
@@ -115,6 +129,7 @@ foreach ($block in $teacherDisplayBlocks) {
     task = 'I008'
     teacherSectionClasses = $teacherSectionClasses
     forbiddenVisibleTermsChecked = $forbiddenVisibleTerms
+    centralizedTeacherLabels = 'apps/web/src/ui/teacherLabels.ts'
     adminGovernanceHiddenByDefault = $true
     analysisPanelAdminLeakBlocked = $true
 } | ConvertTo-Json -Depth 5

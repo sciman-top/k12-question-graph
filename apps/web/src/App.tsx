@@ -37,6 +37,7 @@ import './App.css'
 import { apiContractSnapshot } from './api/contracts'
 import { useReadyHealthQuery } from './api/queries'
 import { uiStateBoundary } from './state/uiState'
+import { teacherLabelFor } from './ui/teacherLabels'
 
 type TeacherView = 'import' | 'paper' | 'scores' | 'analysis'
 
@@ -157,18 +158,6 @@ type DisplayKey = keyof typeof displayText
 
 const labelFor = (value: string) =>
   value in displayText ? displayText[value as DisplayKey] : value
-
-const teacherLabelFor = (value: string) => {
-  const teacherText: Record<string, string> = {
-    draft_test: '示例流程',
-    draft_dynamic_asset: '示例约束',
-    pending_review: '需确认',
-    synthetic: '示例来源',
-    golden: '样本来源',
-  }
-
-  return teacherText[value] ?? labelFor(value)
-}
 
 const sourceMaterialTypes = [
   {

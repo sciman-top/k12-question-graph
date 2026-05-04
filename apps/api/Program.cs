@@ -27,6 +27,8 @@ builder.Services.AddSingleton<IAiProvider, StubAiProvider>();
 
 var app = builder.Build();
 
+app.UseAdminInternalEndpointGuard();
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -1967,5 +1969,90 @@ public static class JsonHelpers
     {
         using var document = JsonDocument.Parse(value);
         return document.RootElement.Clone();
+    }
+}
+
+public sealed class AdminInternalGuardOptions
+{
+    public string? ApiKey { get; set; }
+    public bool AllowUnguardedDraftTest { get; set; }
+}
+
+public static class AdminInternalEndpointGuard
+{
+    public const string HeaderName = "X-KQG-Admin-Key";
+    public const string DraftTestHeaderName = "X-KQG-Auth-Boundary";
+    public const string DraftTestHeaderValue = "draft-test-unguarded-admin-internal";
+
+    public static WebApplication UseAdminInternalEndpointGuard(this WebApplication app)
+    {
+        app.Use(async (context, next) =>
+        {
+            if (!RequiresGuard(context.Request.Path))
+            {
+                await next();
+                return;
+            }
+
+            var options = app.Configuration
+                .GetSection("AdminInternalGuard")
+                .Get<AdminInternalGuardOptions>() ?? new AdminInternalGuardOptions();
+            var configuredKey = options.ApiKey?.Trim();
+            var draftTestBypassAllowed = app.Environment.IsDevelopment() && options.AllowUnguardedDraftTest;
+
+            if (string.IsNullOrWhiteSpace(configuredKey))
+            {
+                if (draftTestBypassAllowed)
+                {
+                    context.Response.Headers[DraftTestHeaderName] = DraftTestHeaderValue;
+                    await next();
+                    return;
+                }
+
+                context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
+                await context.Response.WriteAsJsonAsync(new
+                {
+                    error = "admin_internal_guard_not_configured",
+                    requiredHeader = HeaderName
+                });
+                return;
+            }
+
+            if (!context.Request.Headers.TryGetValue(HeaderName, out var providedValues))
+            {
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                await context.Response.WriteAsJsonAsync(new { error = "missing_admin_internal_key" });
+                return;
+            }
+
+            var providedKey = providedValues.FirstOrDefault();
+            if (!FixedTimeEquals(providedKey, configuredKey))
+            {
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                await context.Response.WriteAsJsonAsync(new { error = "invalid_admin_internal_key" });
+                return;
+            }
+
+            await next();
+        });
+
+        return app;
+    }
+
+    private static bool RequiresGuard(PathString path) =>
+        path.StartsWithSegments("/api/admin", StringComparison.OrdinalIgnoreCase) ||
+        path.StartsWithSegments("/internal/ai", StringComparison.OrdinalIgnoreCase);
+
+    private static bool FixedTimeEquals(string? providedKey, string configuredKey)
+    {
+        if (string.IsNullOrEmpty(providedKey))
+        {
+            return false;
+        }
+
+        var providedBytes = Encoding.UTF8.GetBytes(providedKey);
+        var configuredBytes = Encoding.UTF8.GetBytes(configuredKey);
+        return providedBytes.Length == configuredBytes.Length &&
+            CryptographicOperations.FixedTimeEquals(providedBytes, configuredBytes);
     }
 }

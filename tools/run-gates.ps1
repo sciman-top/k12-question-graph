@@ -416,6 +416,10 @@ try {
         .\tools\run-g004-pgpass-installer-dry-run.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin | Write-Host
     }
 
+    Invoke-GateStep 'o004 admin internal auth boundary contract' {
+        .\tools\run-o004-admin-internal-auth-boundary-contract.ps1 | Write-Host
+    }
+
     Invoke-GateStep 'b001 duplicate upload smoke' {
         if ([string]::IsNullOrWhiteSpace($DatabasePassword)) {
             throw "DatabasePassword or PGPASSWORD is required for API upload smoke"
