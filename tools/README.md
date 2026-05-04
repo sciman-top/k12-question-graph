@@ -43,6 +43,7 @@ The gate also covers `b001 duplicate upload smoke`, `b002 adapter contract smoke
 `j004 formula/table/figure fidelity regression`, and
 `j005 adapter diagnostic supply-chain gate`, and
 `j006 import accuracy workload baseline`, and
+`k001 active c002 production query contract`, and
 `f001 assessment model contract`, and
 `f002 score import contract`.
 It starts temporary
@@ -512,6 +513,18 @@ This writes the proxy import accuracy and teacher workload baseline from golden
 samples plus J001-J005 evidence. It records source-region/block preservation,
 confirmation items, failure takeover steps, and explicitly keeps automated cut
 accuracy as N/A while no real OCR/AI cutting evidence exists.
+
+K001 active C002 production query contract:
+
+```powershell
+$env:PGPASSWORD='<local-password>'
+.\tools\run-k001-active-c002-production-query-contract.ps1
+```
+
+This read-only database contract verifies that question search, paper assembly
+constraints, and knowledge mastery analysis default to the active C002 v1
+version reference. It does not mutate active assets, write production history,
+use real student data, or call external AI.
 
 F001 assessment model contract:
 

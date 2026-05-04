@@ -189,6 +189,10 @@ try {
         .\tools\run-j006-import-accuracy-workload-contract.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'k001 active c002 production query contract' {
+        .\tools\run-k001-active-c002-production-query-contract.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword | Write-Host
+    }
+
     Invoke-GateStep 'b002 adapter contract smoke' {
         $workerDir = Join-Path $FileStoreRoot 'gate'
         New-Item -ItemType Directory -Path $workerDir -Force | Out-Null

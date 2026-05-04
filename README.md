@@ -181,6 +181,7 @@ tests/      自动化测试与黄金样本
 - `tools/run-j004-fidelity-regression-contract.ps1`: J004 公式/表格/题图从导入解析、draft question 到导出的保真回归合同。
 - `tools/run-j005-adapter-diagnostic-supply-chain-contract.ps1`: J005 Adapter 版本诊断和工具供应链门禁。
 - `tools/run-j006-import-accuracy-workload-contract.ps1`: J006 导入准确率代理基线与人工工作量报告。
+- `tools/run-k001-active-c002-production-query-contract.ps1`: K001 C002 active v1 生产查询默认知识版本合同。
 - `tools/run-f001-assessment-model-contract.ps1`: F001 draft/test 学生、班级、考试和报名模型合同。
 - `tools/run-f002-score-import-contract.ps1`: F002 draft/test synthetic Excel 字段映射导入合同。
 - `tools/run-f003-knowledge-mastery-analysis-contract.ps1`: F003 draft/test 得分率、区分度和知识点掌握摘要合同。
