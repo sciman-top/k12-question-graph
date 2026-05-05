@@ -102,7 +102,11 @@ try {
         $internalWrongKey = Invoke-ApiForStatus -Uri "$apiUrl/internal/ai/providers" -Headers @{ 'X-KQG-Admin-Key' = 'wrong' }
         Assert-Condition ($internalWrongKey.StatusCode -eq 403) "internal AI endpoint with wrong key should return 403"
 
-        $internalWithKey = Invoke-ApiForStatus -Uri "$apiUrl/internal/ai/providers" -Headers @{ 'X-KQG-Admin-Key' = 'o004-contract-secret' }
+        $internalWithKey = Invoke-ApiForStatus -Uri "$apiUrl/internal/ai/providers" -Headers @{
+            'X-KQG-Admin-Key' = 'o004-contract-secret'
+            'X-KQG-Operator-Role' = 'admin'
+            'X-KQG-Operator-Id' = 'o004-contract'
+        }
         Assert-Condition ($internalWithKey.StatusCode -eq 200) "internal AI endpoint with configured key should pass"
     }
     finally {

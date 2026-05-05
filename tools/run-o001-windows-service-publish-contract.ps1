@@ -12,6 +12,7 @@ $packageRoot = Join-Path $repoRoot $OutputRoot
 $apiPublishRoot = Join-Path $packageRoot 'api'
 $webPublishRoot = Join-Path $packageRoot 'web'
 $workerPublishRoot = Join-Path $apiPublishRoot 'worker/document'
+$workerFallbackRoot = Join-Path $packageRoot 'workers/document'
 
 function Assert-True([bool]$Condition, [string]$Message) {
     if (-not $Condition) {
@@ -90,8 +91,10 @@ try {
     dotnet @publishArgs | Write-Host
     if ($LASTEXITCODE -ne 0) { throw 'dotnet publish failed' }
 
-    New-Item -ItemType Directory -Path $workerPublishRoot -Force | Out-Null
-    Copy-Item -LiteralPath (Join-Path $repoRoot 'workers/document/worker.py') -Destination (Join-Path $workerPublishRoot 'worker.py') -Force
+    New-Item -ItemType Directory -Path $workerPublishRoot, $workerFallbackRoot -Force | Out-Null
+    $workerSource = Join-Path $repoRoot 'workers/document/worker.py'
+    Copy-Item -LiteralPath $workerSource -Destination (Join-Path $workerPublishRoot 'worker.py') -Force
+    Copy-Item -LiteralPath $workerSource -Destination (Join-Path $workerFallbackRoot 'worker.py') -Force
 
     $apiExe = Join-Path $apiPublishRoot 'K12QuestionGraph.Api.exe'
     Assert-True (Test-Path $apiExe) "publish output missing: $apiExe"
@@ -116,6 +119,8 @@ try {
     $stdoutLog = Join-Path $packageRoot 'published-api.out.log'
     $stderrLog = Join-Path $packageRoot 'published-api.err.log'
 
+    $previousAspNetCoreEnvironment = $env:ASPNETCORE_ENVIRONMENT
+    $env:ASPNETCORE_ENVIRONMENT = 'Production'
     $process = Start-Process -FilePath $apiExe -ArgumentList @('--urls', $apiUrl, '--contentRoot', $apiPublishRoot) -WorkingDirectory $tempRunDir -PassThru -WindowStyle Hidden -RedirectStandardOutput $stdoutLog -RedirectStandardError $stderrLog
     try {
         $health = Wait-Health -Process $process -HealthUrl "$apiUrl/health"
@@ -137,6 +142,7 @@ try {
             apiPublishRoot = $apiPublishRoot
             webPublishRoot = $webPublishRoot
             workerScript = (Join-Path $workerPublishRoot 'worker.py')
+            workerFallbackScript = (Join-Path $workerFallbackRoot 'worker.py')
             runtime = $Runtime
             selfContained = [bool]$SelfContained
             smoke = [ordered]@{
@@ -157,6 +163,7 @@ try {
     }
     finally {
         Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+        $env:ASPNETCORE_ENVIRONMENT = $previousAspNetCoreEnvironment
     }
 }
 finally {

@@ -116,17 +116,17 @@ O004B,O0,部署运维,角色权限与审计日志剩余闭环,高,已完成,O004
 O005,O0,部署运维,容量和成本健康面板,中,已完成,O002,管理员可看文件仓库 备份 cache AI 成本 失败任务和清理建议,tools/run-o005-capacity-cost-health-dashboard-contract.ps1 + docs/evidence/20260505-o005-capacity-cost-health-dashboard.md
 O006,O0,部署运维,离线应急手册和演练,中,已完成,O003,已完成 WinPE runbook 指令核验 tabletop 演练与 backup/verify/restore dry-run 证据链 管理员可按手册执行失败回退,tools/run-o006-offline-emergency-runbook-tabletop-contract.ps1 + g003 contract + tabletop drill + docs/evidence/20260505-o006-offline-emergency-runbook-tabletop.md
 O007,O0,部署升级,EF migration bundle 与升级演练,高,已完成,O002,已完成 efbundle 产物与发布目录演练 并验证 backup manifest 与隔离恢复链路 目标机迁移执行不依赖源码目录,tools/run-o007-ef-migration-bundle-upgrade-contract.ps1 + efbundle smoke + backup restore drill + docs/evidence/20260505-o007-ef-migration-bundle-upgrade-drill.md
-P001,P0-live,试点,试点学校部署预演,高,待办,O004B;O006;O007,在隔离机器按安装向导完成部署 备份 恢复 权限审计和四个教师入口 smoke,release checklist + evidence
-P002,P0-live,试点,教师代理试点第 1 轮,高,待办,P001,用真实但授权或脱敏材料完成导入 组卷 导出 成绩导入代理验收,teacher proxy report
-P003,P0-live,试点,现场教师试点准入,高,待办,P002,确认教师参与边界 数据授权 支持人 回滚方案和反馈模板,pilot admission card
-P004,P0-live,试点,现场教师试点第 1 轮,高,待办,P003,记录实际耗时 操作卡点 错误 文案困惑 和回滚事件,teacher pilot evidence
-P005,P0-live,试点,试点反馈转 backlog,高,待办,P004,反馈按教师效率 频率 风险 成本排序 进入保留 修改 后置 不做四类,docs/28 update + backlog update
-P006,P0-live,发布,v0.1 发布裁决,高,待办,P005,只有门禁 备份 恢复 教师效率和隐私边界均通过才标记 v0.1 release,release decision record + tag candidate
-Q001,Q0,多学科,第二学科候选资料包准入,中,待办,P006,新学科先上传来源资料和 candidate 不直接 active,domain asset activation dry-run
-Q002,Q0,多学科,第二学科教师复核模板,中,待办,Q001,教师可用统一清单复核候选知识点 教材章节 课标和考点,template guard + review evidence
-Q003,Q0,多学科,第二学科 active 演练,中,待办,Q002,按统一入口完成 backup readiness reviewed active 和 rollback snapshot,run-domain-asset-activation dry-run/apply as approved
-Q004,Q0,多学科,跨学科题型与模板差异报告,中,待办,Q003,识别需动态化的题型 标签 评分 导出和分析差异 不硬编码,docs/58 update + guard
-Q005,Q0,多学科,多学科 UI 简化复核,中,待办,Q004,普通教师仍只看到四个入口 学科切换来自默认值或模板,UI smoke + teacher efficiency check
+P001,P0-live,试点,试点学校部署预演,高,待办,O004B;O006;O007,在隔离机器按安装向导完成部署 备份 恢复 权限审计和四个教师入口 smoke,tools/run-p001-live-pilot-readiness-preflight-contract.ps1 + docs/templates/p001-live-pilot-release-checklist.md + evidence
+P002,P0-live,试点,教师代理试点第 1 轮,高,待办,P001,用真实但授权或脱敏材料完成导入 组卷 导出 成绩导入代理验收,tools/run-p002-teacher-proxy-pilot-preflight-contract.ps1 + docs/templates/p002-teacher-proxy-pilot-checklist.md + teacher proxy report
+P003,P0-live,试点,现场教师试点准入,高,待办,P002,确认教师参与边界 数据授权 支持人 回滚方案和反馈模板,tools/run-p003-onsite-pilot-admission-preflight-contract.ps1 + docs/templates/p003-onsite-pilot-admission-checklist.md + pilot admission card
+P004,P0-live,试点,现场教师试点第 1 轮,高,待办,P003,记录实际耗时 操作卡点 错误 文案困惑 和回滚事件,tools/run-p004-onsite-pilot-round1-preflight-contract.ps1 + docs/templates/p004-onsite-pilot-round1-checklist.md + teacher pilot evidence
+P005,P0-live,试点,试点反馈转 backlog,高,待办,P004,反馈按教师效率 频率 风险 成本排序 进入保留 修改 后置 不做四类,tools/run-p005-pilot-feedback-backlog-preflight-contract.ps1 + docs/templates/p005-pilot-feedback-backlog-checklist.md + docs/28 update + backlog update
+P006,P0-live,发布,v0.1 发布裁决,高,待办,P005,只有门禁 备份 恢复 教师效率和隐私边界均通过才标记 v0.1 release,tools/run-p006-release-decision-preflight-contract.ps1 + docs/templates/p006-release-decision-checklist.md + release decision record + tag candidate
+Q001,Q0,多学科,第二学科候选资料包准入,中,待办,P006,新学科先上传来源资料和 candidate 不直接 active,tools/run-q001-second-subject-candidate-admission-preflight-contract.ps1 + docs/templates/q001-second-subject-candidate-admission-checklist.md + docs/evidence/20260505-q001-second-subject-candidate-admission-preflight.md
+Q002,Q0,多学科,第二学科教师复核模板,中,待办,Q001,教师可用统一清单复核候选知识点 教材章节 课标和考点,tools/run-q002-second-subject-teacher-review-template-preflight-contract.ps1 + docs/templates/q002-second-subject-teacher-review-template-checklist.md + docs/evidence/20260505-q002-second-subject-teacher-review-template-preflight.md
+Q003,Q0,多学科,第二学科 active 演练,中,待办,Q002,按统一入口完成 backup readiness reviewed active 和 rollback snapshot,tools/run-q003-second-subject-active-drill-preflight-contract.ps1 + docs/templates/q003-second-subject-active-drill-checklist.md + docs/evidence/20260505-q003-second-subject-active-drill-preflight.md
+Q004,Q0,多学科,跨学科题型与模板差异报告,中,待办,Q003,识别需动态化的题型 标签 评分 导出和分析差异 不硬编码,tools/run-q004-cross-subject-diff-report-preflight-contract.ps1 + docs/templates/q004-cross-subject-diff-report-checklist.md + docs/evidence/20260505-q004-cross-subject-diff-report-preflight.md
+Q005,Q0,多学科,多学科 UI 简化复核,中,待办,Q004,普通教师仍只看到四个入口 学科切换来自默认值或模板,tools/run-q005-multi-subject-ui-simplification-preflight-contract.ps1 + docs/templates/q005-multi-subject-ui-simplification-checklist.md + docs/evidence/20260505-q005-multi-subject-ui-simplification-preflight.md
 R001,R0,长期演进,搜索和语义检索升级评估,低,待办,P006,只有 PostgreSQL FTS 真实不足时才评估 pgvector 或外部搜索,benchmark report + ADR
 R002,R0,长期演进,队列和 Worker 扩展评估,低,待办,P006,只有 BackgroundService 出现真实吞吐或可靠性瓶颈才评估 Hangfire RabbitMQ,operational metrics + ADR
 R003,R0,长期演进,标准互操作评估,低,待办,P006,仅在真实校内系统对接需求出现后评估 QTI CASE OneRoster,admission card + integration spike

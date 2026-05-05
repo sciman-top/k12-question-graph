@@ -491,6 +491,10 @@ try {
         .\tools\run-o004-admin-internal-auth-boundary-contract.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'o004b role audit closure contract' {
+        .\tools\run-o004b-role-audit-closure-contract.ps1 | Write-Host
+    }
+
     Invoke-GateStep 'o001 windows service publish package contract' {
         .\tools\run-o001-windows-service-publish-contract.ps1 | Write-Host
     }
@@ -510,6 +514,50 @@ try {
     
     Invoke-GateStep 'o006 offline emergency runbook and tabletop contract' {
         .\tools\run-o006-offline-emergency-runbook-tabletop-contract.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'p001 live pilot readiness preflight contract' {
+        .\tools\run-p001-live-pilot-readiness-preflight-contract.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'p002 teacher proxy pilot preflight contract' {
+        .\tools\run-p002-teacher-proxy-pilot-preflight-contract.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'p003 onsite pilot admission preflight contract' {
+        .\tools\run-p003-onsite-pilot-admission-preflight-contract.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'p004 onsite pilot round1 preflight contract' {
+        .\tools\run-p004-onsite-pilot-round1-preflight-contract.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'p005 pilot feedback backlog preflight contract' {
+        .\tools\run-p005-pilot-feedback-backlog-preflight-contract.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'p006 release decision preflight contract' {
+        .\tools\run-p006-release-decision-preflight-contract.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'q001 second-subject candidate admission preflight contract' {
+        .\tools\run-q001-second-subject-candidate-admission-preflight-contract.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'q002 second-subject teacher review template preflight contract' {
+        .\tools\run-q002-second-subject-teacher-review-template-preflight-contract.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'q003 second-subject active drill preflight contract' {
+        .\tools\run-q003-second-subject-active-drill-preflight-contract.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'q004 cross-subject diff report preflight contract' {
+        .\tools\run-q004-cross-subject-diff-report-preflight-contract.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'q005 multi-subject ui simplification preflight contract' {
+        .\tools\run-q005-multi-subject-ui-simplification-preflight-contract.ps1 | Write-Host
     }
 
     Invoke-GateStep 'b001 duplicate upload smoke' {
