@@ -44,7 +44,9 @@ foreach ($pattern in @(
 }
 
 foreach ($pattern in @(
-    'fetch(path',
+    'VITE_KQG_API_BASE_URL',
+    'buildApiUrl(path)',
+    'fetch(buildApiUrl(path)',
     'normalize(json)',
     'getReadyHealth',
     'serverStateQueryKeys',
@@ -71,6 +73,8 @@ foreach ($pattern in @(
 
 foreach ($pattern in @(
     'manualChunks',
+    "'/health'",
+    "target: 'http://127.0.0.1:5275'",
     'react-vendor',
     'antd-vendor',
     'antd-icons-vendor',
@@ -106,6 +110,8 @@ $report = [ordered]@{
     tanstackQueryDependency = $packageJson.dependencies.'@tanstack/react-query'
     typedApiBoundary = $true
     openApiPath = '/openapi/v1.json'
+    devHealthProxy = 'http://127.0.0.1:5275'
+    apiBaseUrlOverride = 'VITE_KQG_API_BASE_URL'
     uiConsumesRawJson = $false
     teacherDraftStateInQuery = $false
     highRiskOperationSource = 'api-contract-source-of-truth'

@@ -2,7 +2,7 @@
   "status": "pass",
   "task": "K006",
   "mode": "ui_contract",
-  "checkedAt": "2026-05-04T16:21:52.2630847Z",
+  "checkedAt": "2026-05-05T05:04:15.2444326Z",
   "dashboard": "knowledge-asset-health-dashboard",
   "coveredStatusFields": [
     "active",
@@ -26,7 +26,10 @@
   "migrationApplyAllowed": false,
   "teacherFacingTechnicalBurden": false,
   "evidence": {
-    "app": "apps/web/src/App.tsx",
+    "ui": [
+      "apps/web/src/App.tsx",
+      "apps/web/src/ui/AdminGovernancePanels.tsx"
+    ],
     "style": "apps/web/src/App.css",
     "report": "docs/evidence/k006-knowledge-asset-health-dashboard-report.json"
   },

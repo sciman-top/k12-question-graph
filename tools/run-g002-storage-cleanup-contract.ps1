@@ -60,6 +60,8 @@ try {
     }
 
     $app = Get-Content -LiteralPath 'apps\web\src\App.tsx' -Raw
+    $adminPanels = Get-Content -LiteralPath 'apps\web\src\ui\AdminGovernancePanels.tsx' -Raw
+    $uiSource = $app + "`n" + $adminPanels
     foreach ($pattern in @(
         'data-flow="admin-storage-dashboard"',
         'data-contract="storage-summary"',
@@ -67,7 +69,7 @@ try {
         'data-action="cache-cleanup-dry-run"',
         'data-contract="no-production-data-delete"'
     )) {
-        Assert-Condition ($app.Contains($pattern)) "missing G002 UI contract marker: $pattern"
+        Assert-Condition ($uiSource.Contains($pattern)) "missing G002 UI contract marker: $pattern"
     }
 
     $resolved = @{

@@ -50,6 +50,8 @@ function Wait-ApiReady([System.Diagnostics.Process] $Process, [string] $ApiUrl, 
 Push-Location $repoRoot
 try {
     $app = Get-Content -LiteralPath 'apps\web\src\App.tsx' -Raw
+    $adminPanels = Get-Content -LiteralPath 'apps\web\src\ui\AdminGovernancePanels.tsx' -Raw
+    $uiSource = $app + "`n" + $adminPanels
     foreach ($pattern in @(
         'data-flow="source-material-workbench"',
         'data-contract="dual-evidence-chain"',
@@ -60,7 +62,7 @@ try {
         '可选',
         'ChatGPT Web'
     )) {
-        if (-not $app.Contains($pattern)) {
+        if (-not $uiSource.Contains($pattern)) {
             throw "missing C002I UI contract marker: $pattern"
         }
     }

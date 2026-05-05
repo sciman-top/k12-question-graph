@@ -7,7 +7,13 @@ foreach ($row in $rows) {
     $byId[$row.id] = $row
 }
 
-foreach ($requiredId in @('C002', 'C002N', 'C002O', 'C002P', 'C002Q0', 'C002Q', 'C002S', 'C002T', 'D001', 'D002', 'D003', 'I008')) {
+foreach ($requiredId in @(
+    'C002', 'C002N', 'C002O', 'C002P', 'C002Q0', 'C002Q', 'C002S', 'C002T',
+    'D001', 'D002', 'D003',
+    'I008', 'I009', 'I010',
+    'O004', 'O004B',
+    'P001'
+)) {
     if (-not $byId.ContainsKey($requiredId)) {
         throw "missing backlog task: $requiredId"
     }
@@ -22,6 +28,11 @@ $c002s = $byId['C002S']
 $c002t = $byId['C002T']
 $d001 = $byId['D001']
 $i008 = $byId['I008']
+$i009 = $byId['I009']
+$i010 = $byId['I010']
+$o004 = $byId['O004']
+$o004b = $byId['O004B']
+$p001 = $byId['P001']
 if ($d001.depends_on -eq 'C002') {
     throw "D001 must not depend on formal C002; use the dynamic asset draft/test gate such as C002H"
 }
@@ -162,6 +173,75 @@ if ($i008.status -eq '已完成') {
     }
 }
 
+if ($i009.depends_on -ne 'I008') {
+    throw "I009 must depend on I008 teacher simplification baseline"
+}
+
+if ($i010.depends_on -ne 'I009') {
+    throw "I010 must depend on I009 teacher-visible terminology cleanup"
+}
+
+if ($o004b.depends_on -ne 'O004') {
+    throw "O004B must depend on O004 fail-closed API guard"
+}
+
+$p001Dependencies = @($p001.depends_on -split ';' | ForEach-Object { $_.Trim() } | Where-Object { $_ })
+foreach ($requiredDependency in @('O004B', 'O006', 'O007')) {
+    if ($p001Dependencies -notcontains $requiredDependency) {
+        throw "P001 must depend on $requiredDependency before live readiness"
+    }
+}
+
+if ($i009.status -eq '已完成') {
+    $i009Evidence = Join-Path $repoRoot 'docs\evidence\20260505-i009-teacher-visible-terminology.md'
+    if (-not (Test-Path -LiteralPath $i009Evidence)) {
+        throw "I009 is completed but evidence is missing: docs/evidence/20260505-i009-teacher-visible-terminology.md"
+    }
+    foreach ($pattern in @('draft/test', 'medium_hard', '0\.x', '状态枚举', '集中教师标签')) {
+        if ($i009.acceptance -notmatch $pattern) {
+            throw "I009 acceptance missing teacher terminology boundary: $pattern"
+        }
+    }
+    if ($i009.verification -notmatch 'run-i008-teacher-simplification-contract') {
+        throw "I009 verification must include the teacher simplification contract"
+    }
+}
+
+if ($i010.status -eq '已完成') {
+    $i010Evidence = Join-Path $repoRoot 'docs\evidence\20260505-i010-teacher-admin-shell-split.md'
+    if (-not (Test-Path -LiteralPath $i010Evidence)) {
+        throw "I010 is completed but evidence is missing: docs/evidence/20260505-i010-teacher-admin-shell-split.md"
+    }
+    foreach ($pattern in @('AdminGovernancePanels', 'admin', 'source', 'activation', 'knowledge', 'storage', 'guardrail')) {
+        if ($i010.acceptance -notmatch $pattern) {
+            throw "I010 acceptance missing admin shell split boundary: $pattern"
+        }
+    }
+    if ($i010.verification -notmatch 'run-i008-teacher-simplification-contract') {
+        throw "I010 verification must include the teacher simplification contract"
+    }
+}
+
+if ($o004.status -eq '已完成') {
+    foreach ($pattern in @('fail-closed', '/api/admin/\*', '/internal/ai/\*', '不代表角色和审计已完成')) {
+        if ($o004.acceptance -notmatch $pattern) {
+            throw "O004 acceptance missing fail-closed scope boundary: $pattern"
+        }
+    }
+}
+
+if ($p001.status -ne '待办' -and $o004b.status -ne '已完成') {
+    throw "P001 cannot leave todo until O004B role/audit/admin UI authorization is complete"
+}
+
+$p0LiveCompleted = $rows | Where-Object {
+    $_.phase -eq 'P0-live' -and $_.status -eq '已完成'
+}
+if (@($p0LiveCompleted).Count -gt 0 -and $o004b.status -ne '已完成') {
+    $ids = ($p0LiveCompleted | Select-Object -ExpandProperty id) -join ','
+    throw "P0-live tasks cannot be completed before O004B: $ids"
+}
+
 foreach ($pattern in @('subagent', '外层', '真实模型', 'no_active_write', '运行时依赖')) {
     if ($c002q0.acceptance -notmatch $pattern) {
         throw "C002Q0 acceptance missing orchestration boundary: $pattern"
@@ -202,6 +282,11 @@ if ($c002.acceptance -notmatch '教师录入|导入|来源|教材|课程标准|�
     status = 'pass'
     c002Status = $c002.status
     d001DependsOn = $d001.depends_on
+    teacherSimplificationGate = 'I008/I009/I010'
+    simplificationBlockersChecked = @('I008', 'I009', 'I010', 'O004B', 'P001')
+    o004Status = $o004.status
+    o004bStatus = $o004b.status
+    p001DependsOn = $p001Dependencies
     productionDynamicAssetsBlockedUntilFormalC002 = ($c002.status -ne '已完成')
     draftTestSystemBuildAllowed = $true
     futureNoStopTasksChecked = @($futureDynamicTasks).Count

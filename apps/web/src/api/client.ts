@@ -1,9 +1,19 @@
 import type { ApiResult, ReadyHealthContract } from './contracts'
 import { normalizeReadyHealthResponse } from './contracts'
 
+const apiBaseUrl = import.meta.env.VITE_KQG_API_BASE_URL ?? ''
+
+function buildApiUrl(path: string) {
+  if (!apiBaseUrl) {
+    return path
+  }
+
+  return `${apiBaseUrl.replace(/\/$/, '')}${path}`
+}
+
 async function requestJson<T>(path: string, normalize: (value: unknown) => T): Promise<ApiResult<T>> {
   try {
-    const response = await fetch(path, {
+    const response = await fetch(buildApiUrl(path), {
       headers: {
         Accept: 'application/json',
       },

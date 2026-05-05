@@ -34,13 +34,15 @@ try {
     }
 
     $app = Get-Content -LiteralPath 'apps\web\src\App.tsx' -Raw
+    $teacherLabels = Get-Content -LiteralPath 'apps\web\src\ui\teacherLabels.ts' -Raw
+    $webChineseDisplaySources = $app + "`n" + $teacherLabels
     foreach ($pattern in @(
         'queued: ''排队中''',
         'single_choice: ''单选题''',
         'draft_test: ''示例流程''',
         '正式启用前预览'
     )) {
-        if (-not $app.Contains($pattern)) {
+        if (-not $webChineseDisplaySources.Contains($pattern)) {
             throw "web Chinese display mapping missing pattern: $pattern"
         }
     }

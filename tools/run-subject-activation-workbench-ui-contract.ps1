@@ -2,7 +2,11 @@ param()
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
-$app = Get-Content -LiteralPath (Join-Path $repoRoot 'apps\web\src\App.tsx') -Raw
+$appPath = Join-Path $repoRoot 'apps\web\src\App.tsx'
+$adminPanelsPath = Join-Path $repoRoot 'apps\web\src\ui\AdminGovernancePanels.tsx'
+$app = Get-Content -LiteralPath $appPath -Raw
+$adminPanels = Get-Content -LiteralPath $adminPanelsPath -Raw
+$uiSource = $app + "`n" + $adminPanels
 $style = Get-Content -LiteralPath (Join-Path $repoRoot 'apps\web\src\App.css') -Raw
 
 foreach ($pattern in @(
@@ -20,7 +24,7 @@ foreach ($pattern in @(
     '教师只做复核和确认',
     '正式激活只给管理员'
 )) {
-    if (-not $app.Contains($pattern)) {
+    if (-not $uiSource.Contains($pattern)) {
         throw "missing subject activation workbench UI marker: $pattern"
     }
 }
@@ -30,7 +34,7 @@ foreach ($forbidden in @(
     'data-action="run-activation-script"',
     'ApplyActivation'
 )) {
-    if ($app.Contains($forbidden)) {
+    if ($uiSource.Contains($forbidden)) {
         throw "teacher-facing workbench must not expose direct activation action: $forbidden"
     }
 }

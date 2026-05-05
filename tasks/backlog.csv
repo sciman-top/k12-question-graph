@@ -75,6 +75,8 @@ I005,I0,教师工作流,成绩导入分析工作台整合,中,已完成,I001,Exc
 I006,I0,教师效率,新手示例与默认值闭环,中,已完成,I001,首次使用无需读文档即可通过示例完成导入 组卷 成绩导入和分析,tools/run-i006-starter-defaults-ui-contract.ps1 + teacher preference checks + docs/evidence/20260504-i006-starter-defaults-ui.md
 I007,I0,前端架构,server-state 与 typed API boundary,高,已完成,I001,前端明确 TanStack Query 只管理 server state 教师草稿和高风险操作状态另有事实源 API contract 可生成 typed client 且 UI 不直接依赖裸 JSON 形状 同时用 bundle analysis 处理 Vite chunk warning 避免只调高阈值,tools/run-i007-frontend-boundary-contract.ps1 + frontend build/lint + API contract snapshot + bundle analysis + docs/evidence/20260504-i007-frontend-boundary.md
 I008,I0,教师工作流,教师简洁模式硬收口,高,已完成,I007,普通教师四入口只显示导入 组卷 成绩 分析任务流 不暴露 C002R 映射审核 知识资产健康 存储看板 active candidate migration rollback snapshot draft_test productionEligible synthetic fixture 等治理或测试术语 高级能力移入管理员或高级模式且 UI 合同按可见面阻断,tools/run-i008-teacher-simplification-contract.ps1 + npm run build + npm run lint + tools/run-roadmap-guard.ps1
+I009,I0,教师工作流,教师可见术语语义漏检收口,高,已完成,I008,普通教师可见面不得出现 draft/test draft 动态资产 medium medium_hard 0.x 难度区间 生产资格 状态枚举 或后台审计语义 所有模式 状态 难度和来源说明经集中教师标签映射为任务语言 合同必须检查语义变体而非只查精确 marker,npm run build + npm run lint + tools/run-i008-teacher-simplification-contract.ps1 + docs/evidence/20260505-i009-teacher-visible-terminology.md
+I010,I0,前端架构,教师 shell 与后台治理面板拆分,高,已完成,I009,App.tsx 不再内联 admin source activation knowledge storage guardrail 面板 后台治理能力进入独立 AdminGovernancePanels 组件 合同扫描组合 UI 源并阻断教师 shell 重新混入后台面板,npm run build + npm run lint + affected UI contracts + tools/run-i008-teacher-simplification-contract.ps1 + docs/evidence/20260505-i010-teacher-admin-shell-split.md
 J001,J0,文档解析,OpenXML docx 真实解析 adapter,高,已完成,I002,docx 题干 选项 答案 解析 表格 公式可转换为稳定 DocumentModel,tools/run-j001-openxml-docx-adapter-contract.ps1 + golden sample + docs/evidence/20260504-j001-openxml-docx-adapter.md
 J002,J0,文档解析,PDF 文本版解析 adapter,高,已完成,J001,文本 PDF 页码 区块 顺序 来源定位可稳定输出,tools/run-j002-text-pdf-adapter-contract.ps1 + golden sample + docs/evidence/20260504-j002-text-pdf-adapter.md
 J003,J0,OCR,扫描版 PDF 图片 OCR adapter,高,已完成,J002,扫描版样本可输出可审阅候选且低置信度进入人工确认,tools/run-j003-scanned-ocr-adapter-contract.ps1 + invalid sample takeover + docs/evidence/20260504-j003-scanned-ocr-adapter.md
@@ -109,11 +111,12 @@ N006,N0,安全隐私,真实数据试点前安全审计,高,待办,N001,日志 pr
 O001,O0,部署运维,Windows Service 发布包,高,待办,H004,API Worker Web 配置和数据目录在发布后不依赖仓库当前目录,publish smoke + service config review
 O002,O0,部署运维,安装初始化向导,高,待办,O001,初始化 PostgreSQL 连接 数据目录 备份目录 pgpass 权限和管理员账号,g004 dry-run + install smoke
 O003,O0,部署运维,恢复演练升级,高,待办,O002,从备份 manifest 恢复数据库 文件仓库 配置 模板和教师偏好到隔离目录,backup restore drill + hash verify
-O004,O0,部署运维,权限角色与审计日志,高,待办,O002,普通教师 备课组长 管理员权限分离 /api/admin/* 和 /internal/ai/* 必须有 authentication authorization 角色守卫 高风险操作有审计和回滚 进入试点或 live 前阻断裸接口,security tests + audit log smoke + admin/internal endpoint auth contract
+O004,O0,部署运维,admin/internal endpoint fail-closed guard,高,已完成,O002,/api/admin/* 和 /internal/ai/* 已有 authentication authorization fail-closed 边界 已在试点或 live 前阻断裸接口 生产默认无 ApiKey 返回 503 配 key 后无 key 返回 401 错 key 返回 403 正确 key 返回 200 开发 draft/test 放行必须显式配置 不代表角色和审计已完成,tools/run-o004-admin-internal-auth-boundary-contract.ps1 + tools/run-gates.ps1
+O004B,O0,部署运维,角色权限与审计日志剩余闭环,高,待办,O004,普通教师 备课组长 管理员权限分离 高风险操作必须记录操作者 时间 对象 结果 回滚引用 普通教师 UI 不出现管理员入口 进入试点或 live 前阻断未审计的后台操作,security tests + audit log smoke + admin UI auth contract
 O005,O0,部署运维,容量和成本健康面板,中,待办,O002,管理员可看文件仓库 备份 cache AI 成本 失败任务和清理建议,g002 + d002 + UI contract
 O006,O0,部署运维,离线应急手册和演练,中,待办,O003,WinPE 拷贝 恢复 校验和失败回退可由管理员按 runbook 执行,g003 contract + tabletop drill
 O007,O0,部署升级,EF migration bundle 与升级演练,高,待办,O002,发布包包含 migration bundle 备份 dry-run apply rollback 和隔离恢复演练 目标机不依赖源码目录或 dotnet SDK,efbundle smoke + backup restore drill + release evidence
-P001,P0-live,试点,试点学校部署预演,高,待办,O006;O007,在隔离机器按安装向导完成部署 备份 恢复和四个教师入口 smoke,release checklist + evidence
+P001,P0-live,试点,试点学校部署预演,高,待办,O004B;O006;O007,在隔离机器按安装向导完成部署 备份 恢复 权限审计和四个教师入口 smoke,release checklist + evidence
 P002,P0-live,试点,教师代理试点第 1 轮,高,待办,P001,用真实但授权或脱敏材料完成导入 组卷 导出 成绩导入代理验收,teacher proxy report
 P003,P0-live,试点,现场教师试点准入,高,待办,P002,确认教师参与边界 数据授权 支持人 回滚方案和反馈模板,pilot admission card
 P004,P0-live,试点,现场教师试点第 1 轮,高,待办,P003,记录实际耗时 操作卡点 错误 文案困惑 和回滚事件,teacher pilot evidence

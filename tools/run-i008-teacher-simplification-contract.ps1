@@ -4,10 +4,13 @@ $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 $appPath = Join-Path $repoRoot 'apps\web\src\App.tsx'
 $cssPath = Join-Path $repoRoot 'apps\web\src\App.css'
 $teacherLabelsPath = Join-Path $repoRoot 'apps\web\src\ui\teacherLabels.ts'
+$adminPanelsPath = Join-Path $repoRoot 'apps\web\src\ui\AdminGovernancePanels.tsx'
 
 $app = Get-Content -LiteralPath $appPath -Raw
 $css = Get-Content -LiteralPath $cssPath -Raw
 $teacherLabels = Get-Content -LiteralPath $teacherLabelsPath -Raw
+$adminPanels = Get-Content -LiteralPath $adminPanelsPath -Raw
+$uiSource = $app + "`n" + $adminPanels
 
 function Get-SectionByClass([string] $ClassName) {
     $pattern = '<section\s+className="' + [regex]::Escape($ClassName) + '"[\s\S]*?</section>'
@@ -25,6 +28,15 @@ function Remove-ContractOnlyText([string] $Text) {
     return $withoutAriaAttributes
 }
 
+$adminOnlySelectors = @(
+    '.admin-knowledge-panel',
+    '.source-material-panel',
+    '.activation-panel',
+    '.knowledge-health-panel',
+    '.storage-panel',
+    '.guardrail-panel'
+)
+
 $teacherSectionClasses = @(
     'primary-panel',
     'status-panel',
@@ -38,13 +50,22 @@ $teacherSectionClasses = @(
     'analysis-panel'
 )
 
-$teacherVisibleSource = ($teacherSectionClasses | ForEach-Object {
+$topbarMatch = [regex]::Match($app, '<header\s+className="topbar"[\s\S]*?</header>')
+if (-not $topbarMatch.Success) {
+    throw "missing teacher topbar"
+}
+
+$teacherVisibleParts = @($teacherSectionClasses | ForEach-Object {
     Remove-ContractOnlyText (Get-SectionByClass $_)
-}) -join "`n"
+})
+$teacherVisibleParts += Remove-ContractOnlyText $topbarMatch.Value
+$teacherVisibleSource = $teacherVisibleParts -join "`n"
 
 $forbiddenVisibleTerms = @(
     'synthetic fixture',
     'synthetic baseline',
+    'draft/test',
+    'draft 动态资产',
     'draft_test',
     'productionEligible=false',
     'candidate 版本',
@@ -59,12 +80,22 @@ $forbiddenVisibleTerms = @(
     'sameQuestionType=true',
     'similarDifficulty=true',
     'excludeRecentlyUsed=true',
-    'knowledgeStatus=draft'
+    'knowledgeStatus=draft',
+    'medium_hard',
+    '生产资格',
+    '状态枚举',
+    'unknown'
 )
 
 foreach ($term in $forbiddenVisibleTerms) {
     if ($teacherVisibleSource.Contains($term)) {
         throw "teacher-visible UI leaks technical/governance term: $term"
+    }
+}
+
+foreach ($pattern in @('\bmedium\b', '\b0\.\d+(?:-0\.\d+)?\b')) {
+    if ([regex]::IsMatch($teacherVisibleSource, $pattern)) {
+        throw "teacher-visible UI leaks technical/governance pattern: $pattern"
     }
 }
 
@@ -88,7 +119,7 @@ foreach ($requiredAdminMarker in @(
     'data-flow="c002r-teacher-revision-ux"',
     'data-flow="c002h-mapping-review-workbench-ui"'
 )) {
-    if (-not $app.Contains($requiredAdminMarker)) {
+    if (-not $uiSource.Contains($requiredAdminMarker)) {
         throw "missing admin-only governance marker: $requiredAdminMarker"
     }
 }
@@ -96,6 +127,8 @@ foreach ($requiredAdminMarker in @(
 foreach ($requiredTeacherLabel in @(
     "draft_test: '示例流程'",
     "draft_dynamic_asset: '示例约束'",
+    "medium: '难度中等'",
+    "medium_hard: '难度略高'",
     "pending_review: '需确认'",
     "synthetic: '示例来源'",
     "golden: '样本来源'"
@@ -105,22 +138,49 @@ foreach ($requiredTeacherLabel in @(
     }
 }
 
-$displayNoneBlocks = [regex]::Matches($css, '(?s)([^{}]+)\{\s*display:\s*none;\s*\}')
-$adminHiddenByDefault = $false
-foreach ($block in $displayNoneBlocks) {
-    if ($block.Groups[1].Value.Contains('.admin-knowledge-panel')) {
-        $adminHiddenByDefault = $true
-        break
+foreach ($requiredHelper in @(
+    'teacherDifficultyLabelFor',
+    'teacherDifficultyRangeLabelFor'
+)) {
+    if (-not $teacherLabels.Contains($requiredHelper)) {
+        throw "missing teacher-facing helper: $requiredHelper"
+    }
+    if (-not $app.Contains($requiredHelper)) {
+        throw "teacher UI must use centralized helper: $requiredHelper"
     }
 }
-if (-not $adminHiddenByDefault) {
-    throw "admin knowledge panel must be hidden by default"
+
+if (-not $app.Contains('服务未连接')) {
+    throw "teacher-visible service fallback must use clear Chinese wording"
+}
+
+foreach ($adminOnlySelector in $adminOnlySelectors) {
+    $adminOnlyClass = 'className="' + $adminOnlySelector.TrimStart('.') + '"'
+    if ($app.Contains($adminOnlyClass)) {
+        throw "teacher shell must not inline admin-only panel: $adminOnlyClass"
+    }
+}
+
+$displayNoneBlocks = [regex]::Matches($css, '(?s)([^{}]+)\{\s*display:\s*none;\s*\}')
+foreach ($adminOnlySelector in $adminOnlySelectors) {
+    $adminHiddenByDefault = $false
+    foreach ($block in $displayNoneBlocks) {
+        if ($block.Groups[1].Value.Contains($adminOnlySelector)) {
+            $adminHiddenByDefault = $true
+            break
+        }
+    }
+    if (-not $adminHiddenByDefault) {
+        throw "admin-only panel must be hidden by default: $adminOnlySelector"
+    }
 }
 
 $teacherDisplayBlocks = [regex]::Matches($css, '(?s)([^{}]*teacher-view[^{}]*)\{\s*display:\s*block;\s*\}')
 foreach ($block in $teacherDisplayBlocks) {
-    if ($block.Groups[1].Value.Contains('.admin-knowledge-panel')) {
-        throw "admin knowledge panel must not be displayed by teacher-view CSS"
+    foreach ($adminOnlySelector in $adminOnlySelectors) {
+        if ($block.Groups[1].Value.Contains($adminOnlySelector)) {
+            throw "admin-only panel must not be displayed by teacher-view CSS: $adminOnlySelector"
+        }
     }
 }
 
@@ -130,6 +190,6 @@ foreach ($block in $teacherDisplayBlocks) {
     teacherSectionClasses = $teacherSectionClasses
     forbiddenVisibleTermsChecked = $forbiddenVisibleTerms
     centralizedTeacherLabels = 'apps/web/src/ui/teacherLabels.ts'
-    adminGovernanceHiddenByDefault = $true
+    adminGovernanceHiddenByDefault = $adminOnlySelectors
     analysisPanelAdminLeakBlocked = $true
 } | ConvertTo-Json -Depth 5

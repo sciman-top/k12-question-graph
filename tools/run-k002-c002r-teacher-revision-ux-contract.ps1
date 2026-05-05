@@ -4,7 +4,11 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
-$app = Get-Content -LiteralPath (Join-Path $repoRoot 'apps\web\src\App.tsx') -Raw
+$appPath = Join-Path $repoRoot 'apps\web\src\App.tsx'
+$adminPanelsPath = Join-Path $repoRoot 'apps\web\src\ui\AdminGovernancePanels.tsx'
+$app = Get-Content -LiteralPath $appPath -Raw
+$adminPanels = Get-Content -LiteralPath $adminPanelsPath -Raw
+$uiSource = $app + "`n" + $adminPanels
 $css = Get-Content -LiteralPath (Join-Path $repoRoot 'apps\web\src\App.css') -Raw
 $resolvedReportPath = Join-Path $repoRoot $ReportPath
 $dependencyReportPath = 'tmp\k002-c002r-versioned-revision-dependency-report.json'
@@ -32,7 +36,7 @@ foreach ($pattern in @(
     'data-action="preview-c002r-impact"',
     'data-action="open-c002r-review-status"'
 )) {
-    Assert-Condition ($app.Contains($pattern)) "missing K002 UI marker: $pattern"
+    Assert-Condition ($uiSource.Contains($pattern)) "missing K002 UI marker: $pattern"
 }
 
 foreach ($label in @(
@@ -48,7 +52,7 @@ foreach ($label in @(
     '回滚快照',
     '不会直接修改当前正式知识体系'
 )) {
-    Assert-Condition ($app.Contains($label)) "missing K002 teacher-facing label: $label"
+    Assert-Condition ($uiSource.Contains($label)) "missing K002 teacher-facing label: $label"
 }
 
 foreach ($forbidden in @(
@@ -58,7 +62,7 @@ foreach ($forbidden in @(
     'ApplyC002RActive',
     'EditActiveC002'
 )) {
-    Assert-Condition (-not $app.Contains($forbidden)) "teacher revision UX must not expose high-risk action: $forbidden"
+    Assert-Condition (-not $uiSource.Contains($forbidden)) "teacher revision UX must not expose high-risk action: $forbidden"
 }
 
 foreach ($technicalText in @(
@@ -67,7 +71,7 @@ foreach ($technicalText in @(
     'rollback snapshot',
     'active switch'
 )) {
-    Assert-Condition ($app.Contains($technicalText)) "missing hidden technical boundary text: $technicalText"
+    Assert-Condition ($uiSource.Contains($technicalText)) "missing hidden technical boundary text: $technicalText"
 }
 
 foreach ($pattern in @(
@@ -98,7 +102,7 @@ $report = [ordered]@{
         c002rReport = $dependencyReportPath.Replace('\', '/')
     }
     evidence = [ordered]@{
-        app = 'apps/web/src/App.tsx'
+        ui = @('apps/web/src/App.tsx', 'apps/web/src/ui/AdminGovernancePanels.tsx')
         style = 'apps/web/src/App.css'
         report = $ReportPath.Replace('\', '/')
     }

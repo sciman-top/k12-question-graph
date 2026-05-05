@@ -4,6 +4,8 @@
   "tanstackQueryDependency": "^5.100.9",
   "typedApiBoundary": true,
   "openApiPath": "/openapi/v1.json",
+  "devHealthProxy": "http://127.0.0.1:5275",
+  "apiBaseUrlOverride": "VITE_KQG_API_BASE_URL",
   "uiConsumesRawJson": false,
   "teacherDraftStateInQuery": false,
   "highRiskOperationSource": "api-contract-source-of-truth",
@@ -12,9 +14,9 @@
     "antd-core-vendor-DLRk65BZ.js",
     "antd-icons-vendor-BaAX98Z_.js",
     "antd-vendor-CYkrA1Dt.js",
-    "index-B9urDJFp.js",
     "index-BECol9vY.css",
-    "query-vendor-DQGFmHOV.js",
+    "index-twt6mXdC.js",
+    "query-vendor-DkY0-M4z.js",
     "rolldown-runtime-jpDsebLB.js"
   ],
   "buildChecked": true

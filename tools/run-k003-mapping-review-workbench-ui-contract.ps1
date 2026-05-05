@@ -4,7 +4,11 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
-$app = Get-Content -LiteralPath (Join-Path $repoRoot 'apps\web\src\App.tsx') -Raw
+$appPath = Join-Path $repoRoot 'apps\web\src\App.tsx'
+$adminPanelsPath = Join-Path $repoRoot 'apps\web\src\ui\AdminGovernancePanels.tsx'
+$app = Get-Content -LiteralPath $appPath -Raw
+$adminPanels = Get-Content -LiteralPath $adminPanelsPath -Raw
+$uiSource = $app + "`n" + $adminPanels
 $css = Get-Content -LiteralPath (Join-Path $repoRoot 'apps\web\src\App.css') -Raw
 $resolvedReportPath = Join-Path $repoRoot $ReportPath
 
@@ -36,7 +40,7 @@ foreach ($pattern in @(
     'data-view="impact_preview"',
     'data-view="rollback_preview"'
 )) {
-    Assert-Condition ($app.Contains($pattern)) "missing K003 UI marker: $pattern"
+    Assert-Condition ($uiSource.Contains($pattern)) "missing K003 UI marker: $pattern"
 }
 
 foreach ($pattern in @(
@@ -52,7 +56,7 @@ foreach ($pattern in @(
     "cardinality: 'many_to_many'",
     "risk: 'high'"
 )) {
-    Assert-Condition ($app.Contains($pattern)) "missing K003 filter or mapping marker: $pattern"
+    Assert-Condition ($uiSource.Contains($pattern)) "missing K003 filter or mapping marker: $pattern"
 }
 
 foreach ($action in @(
@@ -62,7 +66,7 @@ foreach ($action in @(
     'data-action="merge-mapping"',
     'data-action="undo-mapping-review"'
 )) {
-    Assert-Condition ($app.Contains($action)) "missing K003 review action: $action"
+    Assert-Condition ($uiSource.Contains($action)) "missing K003 review action: $action"
 }
 
 foreach ($label in @(
@@ -76,7 +80,7 @@ foreach ($label in @(
     '批量确认只允许低风险一对一',
     '不直接应用到 active'
 )) {
-    Assert-Condition ($app.Contains($label)) "missing K003 teacher-facing label: $label"
+    Assert-Condition ($uiSource.Contains($label)) "missing K003 teacher-facing label: $label"
 }
 
 foreach ($forbidden in @(
@@ -85,7 +89,7 @@ foreach ($forbidden in @(
     'data-action="run-mapping-migration"',
     'ApplyMappingActive'
 )) {
-    Assert-Condition (-not $app.Contains($forbidden)) "mapping review UI must not expose high-risk action: $forbidden"
+    Assert-Condition (-not $uiSource.Contains($forbidden)) "mapping review UI must not expose high-risk action: $forbidden"
 }
 
 foreach ($pattern in @(
@@ -118,7 +122,7 @@ $report = [ordered]@{
     directActiveApplyAllowed = $false
     undoRequiredBeforeApply = $true
     evidence = [ordered]@{
-        app = 'apps/web/src/App.tsx'
+        ui = @('apps/web/src/App.tsx', 'apps/web/src/ui/AdminGovernancePanels.tsx')
         style = 'apps/web/src/App.css'
         report = $ReportPath.Replace('\', '/')
     }

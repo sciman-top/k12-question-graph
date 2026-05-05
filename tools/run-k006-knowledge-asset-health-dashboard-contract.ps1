@@ -4,7 +4,11 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
-$app = Get-Content -LiteralPath (Join-Path $repoRoot 'apps\web\src\App.tsx') -Raw
+$appPath = Join-Path $repoRoot 'apps\web\src\App.tsx'
+$adminPanelsPath = Join-Path $repoRoot 'apps\web\src\ui\AdminGovernancePanels.tsx'
+$app = Get-Content -LiteralPath $appPath -Raw
+$adminPanels = Get-Content -LiteralPath $adminPanelsPath -Raw
+$uiSource = $app + "`n" + $adminPanels
 $css = Get-Content -LiteralPath (Join-Path $repoRoot 'apps\web\src\App.css') -Raw
 $resolvedReportPath = Join-Path $repoRoot $ReportPath
 
@@ -35,7 +39,7 @@ foreach ($pattern in @(
     '管理员查看 active、candidate、映射、迁移、阻断项和证据摘要',
     '只读健康面板'
 )) {
-    Assert-Condition ($app.Contains($pattern)) "missing K006 UI marker: $pattern"
+    Assert-Condition ($uiSource.Contains($pattern)) "missing K006 UI marker: $pattern"
 }
 
 foreach ($action in @(
@@ -44,7 +48,7 @@ foreach ($action in @(
     'data-action="open-migration-history"',
     'data-action="open-blocker-report"'
 )) {
-    Assert-Condition ($app.Contains($action)) "missing K006 readonly action: $action"
+    Assert-Condition ($uiSource.Contains($action)) "missing K006 readonly action: $action"
 }
 
 foreach ($forbidden in @(
@@ -55,7 +59,7 @@ foreach ($forbidden in @(
     'ApplyKnowledgeActive',
     'RunKnowledgeMigration'
 )) {
-    Assert-Condition (-not $app.Contains($forbidden)) "K006 health dashboard must not expose mutation action: $forbidden"
+    Assert-Condition (-not $uiSource.Contains($forbidden)) "K006 health dashboard must not expose mutation action: $forbidden"
 }
 
 foreach ($pattern in @(
@@ -93,7 +97,7 @@ $report = [ordered]@{
     migrationApplyAllowed = $false
     teacherFacingTechnicalBurden = $false
     evidence = [ordered]@{
-        app = 'apps/web/src/App.tsx'
+        ui = @('apps/web/src/App.tsx', 'apps/web/src/ui/AdminGovernancePanels.tsx')
         style = 'apps/web/src/App.css'
         report = $ReportPath.Replace('\', '/')
     }

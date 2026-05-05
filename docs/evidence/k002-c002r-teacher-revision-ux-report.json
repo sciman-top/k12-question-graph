@@ -2,7 +2,7 @@
   "status": "pass",
   "task": "K002",
   "mode": "ui_contract",
-  "checkedAt": "2026-05-04T16:21:48.7550421Z",
+  "checkedAt": "2026-05-05T05:04:12.2444602Z",
   "activeKnowledgeVersion": "junior-physics-guangzhou-source-derived-v1",
   "requiredTeacherFields": [
     "changeSummary",
@@ -31,7 +31,10 @@
     "c002rReport": "tmp/k002-c002r-versioned-revision-dependency-report.json"
   },
   "evidence": {
-    "app": "apps/web/src/App.tsx",
+    "ui": [
+      "apps/web/src/App.tsx",
+      "apps/web/src/ui/AdminGovernancePanels.tsx"
+    ],
     "style": "apps/web/src/App.css",
     "report": "docs/evidence/k002-c002r-teacher-revision-ux-report.json"
   },

@@ -129,7 +129,7 @@ v0.1 聚焦：
 
 ## 推荐实现顺序
 
-先按 `docs/19_Roadmap.md`、`docs/20_TaskBreakdown.md`、`docs/87_PhaseCloseoutAndFullRoadmap.md` 与 `tasks/backlog.csv` 执行。旧 A000-G004 已全部完成，H0/I0/J0/K0 已形成可复跑合同；进入 L0 真实 AI 或后续发布试点前，必须保持 I008 教师简洁模式合同通过。知识点、标签、题型、难度、组卷规则、导出模板、Excel 映射、AI prompt/schema/model routing、分析指标、组织权限和隐私策略等动态元素都不得写死，但它们的可变性也不得阻断开发：可先用示例数据、示例配置或少量临时资料完成系统能力，正式资料以后再录入、映射、审核、激活。
+先按 `docs/19_Roadmap.md`、`docs/20_TaskBreakdown.md`、`docs/87_PhaseCloseoutAndFullRoadmap.md` 与 `tasks/backlog.csv` 执行。旧 A000-G004 已全部完成，H0/I0/J0/K0 已形成可复跑合同；进入 L0 真实 AI、M0/N0/O0 或后续发布试点前，必须保持 I008/I009/I010 教师简洁模式、教师可见术语和教师 shell 边界合同通过。O004 只代表 `/api/admin/*` 和 `/internal/ai/*` 裸接口 fail-closed guard 已完成，P0-live 前还必须完成 O004B 角色权限与审计日志剩余闭环。知识点、标签、题型、难度、组卷规则、导出模板、Excel 映射、AI prompt/schema/model routing、分析指标、组织权限和隐私策略等动态元素都不得写死，但它们的可变性也不得阻断开发：可先用示例数据、示例配置或少量临时资料完成系统能力，正式资料以后再录入、映射、审核、激活。
 
 ```text
 P0/P1: 打开应用 → 上传文件 → 创建 ImportJob → 写数据库 → 文件入仓 → 页面预览 → 人工确认 → 单题入库 → 来源回看 → 备份 manifest

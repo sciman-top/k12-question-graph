@@ -3,9 +3,12 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 $appPath = Join-Path $repoRoot 'apps\web\src\App.tsx'
 $cssPath = Join-Path $repoRoot 'apps\web\src\App.css'
+$adminPanelsPath = Join-Path $repoRoot 'apps\web\src\ui\AdminGovernancePanels.tsx'
 
 $app = Get-Content -LiteralPath $appPath -Raw
 $css = Get-Content -LiteralPath $cssPath -Raw
+$adminPanels = Get-Content -LiteralPath $adminPanelsPath -Raw
+$uiSource = $app + "`n" + $adminPanels
 
 $analysisMatch = [regex]::Match($app, '<section\s+className="analysis-panel"[\s\S]*?</section>')
 if (-not $analysisMatch.Success) {
@@ -21,14 +24,25 @@ foreach ($pattern in @(
     "type TeacherView = 'import' | 'paper' | 'scores' | 'analysis'",
     "useState<TeacherView>('import')",
     'data-flow="score-import-workbench"',
-    'data-flow="teacher-analysis-workbench"',
-    'className="admin-knowledge-panel"',
-    'data-flow="admin-knowledge-governance"',
-    'data-contract="advanced-admin-only"'
+    'data-flow="teacher-analysis-workbench"'
 )) {
     if (-not $app.Contains($pattern)) {
         throw "missing I001 teacher home marker: $pattern"
     }
+}
+
+foreach ($pattern in @(
+    'className="admin-knowledge-panel"',
+    'data-flow="admin-knowledge-governance"',
+    'data-contract="advanced-admin-only"'
+)) {
+    if (-not $uiSource.Contains($pattern)) {
+        throw "missing I001 admin boundary marker: $pattern"
+    }
+}
+
+if ($app.Contains('className="admin-knowledge-panel"')) {
+    throw "I001 teacher shell must not inline admin knowledge panel"
 }
 
 foreach ($view in @("'import' as TeacherView", "'paper' as TeacherView", "'scores' as TeacherView", "'analysis' as TeacherView")) {
