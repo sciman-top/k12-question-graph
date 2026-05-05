@@ -146,11 +146,19 @@ const scoreAnalysisHighlights = [
   ['区分度可用', '讲评参考报告'],
 ]
 
+const scoreWorkbenchActions = [
+  { action: 'upload-score-sheet', label: '上传 Excel', icon: <FileTextOutlined />, kind: 'primary' },
+  { action: 'generate-score-analysis', label: '生成分析', icon: <BarChartOutlined /> },
+  { action: 'export-score-report', label: '导出报告', icon: <FileTextOutlined /> },
+]
+
 const teacherAnalysisHighlights = [
   ['班级得分率', '87.5%', '示例基线'],
   ['优先讲评', '运动快慢与速度', '薄弱点 1 个'],
   ['下一步', '加入巩固题', '按当前知识版本选题'],
 ]
+
+const analysisActions = [{ action: 'open-analysis-summary', label: '查看摘要', icon: <BarChartOutlined /> }]
 
 const paperWorkbenchSummaryCards = [
   ['question-basket', '题篮', '2 题 · 8 分', '从检索结果直接加入'],
@@ -160,6 +168,13 @@ const paperWorkbenchSummaryCards = [
 ]
 
 const replacementAuditTags = ['同知识点', '同题型', '难度相近', '分值一致', '避开近期练过', '示例约束']
+
+const questionSearchFilterChips = [
+  { filter: 'knowledge', label: '惯性' },
+  { filter: 'question-type', label: '单选题' },
+  { filter: 'difficulty', label: defaultDifficultyFilterLabel },
+  { filter: 'source', label: '示例来源' },
+]
 
 const questionCards = [
   {
@@ -586,15 +601,16 @@ function App() {
 
             <div className="score-workbench" data-flow="score-analysis-workbench">
               <div className="score-upload-lane">
-                <Button type="primary" icon={<FileTextOutlined />} data-action="upload-score-sheet">
-                  上传 Excel
-                </Button>
-                <Button icon={<BarChartOutlined />} data-action="generate-score-analysis">
-                  生成分析
-                </Button>
-                <Button icon={<FileTextOutlined />} data-action="export-score-report">
-                  导出报告
-                </Button>
+                {scoreWorkbenchActions.map((item) => (
+                  <Button
+                    key={item.action}
+                    type={item.kind === 'primary' ? 'primary' : 'default'}
+                    icon={item.icon}
+                    data-action={item.action}
+                  >
+                    {item.label}
+                  </Button>
+                ))}
               </div>
 
               <div className="score-field-mapping" data-contract="excel-field-mapping-preview">
@@ -658,9 +674,11 @@ function App() {
                   先看班级薄弱点，再决定讲评和练习。
                 </Typography.Text>
               </div>
-              <Button icon={<BarChartOutlined />} data-action="open-analysis-summary">
-                查看摘要
-              </Button>
+              {analysisActions.map((item) => (
+                <Button key={item.action} icon={item.icon} data-action={item.action}>
+                  {item.label}
+                </Button>
+              ))}
             </div>
             <div className="analysis-summary-grid">
               {teacherAnalysisHighlights.map(([label, value, detail]) => (
@@ -727,18 +745,11 @@ function App() {
             </div>
 
             <div className="filter-row" aria-label="筛选条件">
-              <button className="filter-chip" data-filter="knowledge" type="button">
-                惯性
-              </button>
-              <button className="filter-chip" data-filter="question-type" type="button">
-                单选题
-              </button>
-              <button className="filter-chip" data-filter="difficulty" type="button">
-                {defaultDifficultyFilterLabel}
-              </button>
-              <button className="filter-chip" data-filter="source" type="button">
-                示例来源
-              </button>
+              {questionSearchFilterChips.map((item) => (
+                <button className="filter-chip" data-filter={item.filter} key={item.filter} type="button">
+                  {item.label}
+                </button>
+              ))}
             </div>
 
             <div className="question-card-list" aria-label="题目卡片">

@@ -52,6 +52,11 @@ Invoke-RestMethod -Method Post -Uri "http://localhost:5275/imports/$($created.id
 Invoke-RestMethod -Method Post -Uri "http://localhost:5275/imports/$($created.id)/worker-smoke?simulateFailure=true"
 ```
 
+Published Windows Service package note:
+
+- Production `appsettings.json` uses `PythonWorker.DocumentWorkerScript=worker\document\worker.py` (package-local path).
+- Development `appsettings.Development.json` overrides it to `..\..\workers\document\worker.py` for repo-local `dotnet run`.
+
 Source preview smoke:
 
 ```powershell

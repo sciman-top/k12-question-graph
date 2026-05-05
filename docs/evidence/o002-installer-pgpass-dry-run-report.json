@@ -1,0 +1,36 @@
+{
+  "status": "pass",
+  "task": "G004",
+  "mode": "draft_test",
+  "productionEligible": false,
+  "config": "configs\\installer_credentials.defaults.yaml",
+  "psqlVersion": "psql (PostgreSQL) 17.9",
+  "tempAppData": "%TEMP%/kqg-g004-pgpass-dry-run/20260505-161350-406c59ff/AppData/Roaming",
+  "pgpassPath": "%TEMP%/kqg-g004-pgpass-dry-run/20260505-161350-406c59ff/AppData/Roaming/postgresql/pgpass.conf",
+  "realUserPgpassModified": false,
+  "processPgpasswordClearedForVerification": true,
+  "psqlNoPasswordPromptVerified": true,
+  "acl": {
+    "checked": true,
+    "currentIdentityOnly": true,
+    "broadPrincipalsAbsent": true
+  },
+  "cleanup": {
+    "tempPgpassRemoved": true,
+    "tempRootRemoved": true
+  },
+  "secretHandling": {
+    "passwordLogged": false,
+    "reportContainsPassword": false
+  },
+  "rollback": {
+    "realUserProfile": "no real user pgpass was modified in this dry-run",
+    "tempFiles": "temporary APPDATA root is deleted after verification",
+    "code": "git revert this G004 commit"
+  },
+  "summaryChinese": {
+    "title": "G004 pgpass 安装器 dry-run 合同报告",
+    "result": "通过",
+    "boundary": "仅使用临时 APPDATA 写入 pgpass 并验证 psql -w；不修改真实用户 pgpass，不记录密码。"
+  }
+}

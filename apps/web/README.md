@@ -5,8 +5,10 @@ React + TypeScript + Vite + Ant Design teacher workspace created by `A003`.
 Run:
 
 ```powershell
-npm run dev --prefix apps/web
+.\tools\start-local-web.ps1
 ```
+
+The repo-level helper keeps Vite on `http://127.0.0.1:5173/`, writes PID/logs under `logs/dev-web/`, and supports `-Status`, `-Restart`, and `-Stop`.
 
 Build:
 

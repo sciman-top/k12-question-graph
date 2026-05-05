@@ -1,4 +1,4 @@
-﻿id,phase,category,task,priority,status,depends_on,acceptance,verification
+id,phase,category,task,priority,status,depends_on,acceptance,verification
 A000,P0,准入预检,P0 准入预检与决策锁定,高,已完成,,记录 .NET Node Python PostgreSQL 版本 数据目录 Windows Service content root BackgroundService lease/retry/idempotency 文档门禁,dotnet --info + node --version + python --version + PostgreSQL version query + doc gates
 A000A,P0,契约收口,P0 编码前契约收口,高,已完成,A000,API DTO 错误码 幂等 OpenAPI snapshot 数据库 constraints/indexes/status transition threat model RPO/RTO UX 状态 学生数据合规辖区 外部AI边界 黄金样本目录规则已落文档且 locked_by 命名一致,doc consistency search + sensitive boundary search + CSV/JSON/YAML gates
 A001,P0,基础工程,创建 monorepo 目录结构,高,已完成,A000A,apps/api apps/web workers/document tools tests 存在且 README 指向真实启动入口,rg --files
@@ -89,28 +89,28 @@ K003,K0,知识资产,映射审核工作台 UI 实现,高,已完成,K002,split me
 K004,K0,知识资产,历史题目版本解释,中,已完成,K001,旧题 旧卷 学情报告能显示当时知识版本和当前版本映射,tools/run-k004-historical-version-explanation-contract.ps1 + docs/evidence/k004-historical-version-explanation-report.json + docs/95_K004_HistoricalVersionExplanation.md + tools/run-gates.ps1
 K005,K0,知识资产,第二批 C002 修订演练,中,已完成,K002,用 synthetic 或教师审查样例完成 candidate to reviewed to active dry-run 不直接改旧 active,tools/run-k005-c002-second-revision-drill-contract.ps1 + docs/evidence/k005-c002-second-revision-drill-report.json + docs/96_K005_C002SecondRevisionDrill.md + tools/run-gates.ps1
 K006,K0,知识资产,知识资产健康面板,中,已完成,K001,管理员可看到 active candidate pending mappings migrations blockers 和证据摘要,tools/run-k006-knowledge-asset-health-dashboard-contract.ps1 + docs/evidence/k006-knowledge-asset-health-dashboard-report.json + docs/97_K006_KnowledgeAssetHealthDashboard.md + tools/run-gates.ps1
-L001,L0,AI,真实模型调用合规准入卡,高,待办,H003,锁定数据边界 预算 人工审核 外部传输和 no active write 后才允许真实调用,docs/25 admission card + c002q0 readiness
-L002,L0,AI,小批量真实 AI extract 试点,高,待办,L007,仅抽样 cache-hit 来源 chunk 输出 candidate pending_review 记录 token cost 不覆盖 C002K,c002q report + human review evidence
-L003,L0,AI,AI 切题候选试点,高,待办,J006;L001,真实或本地模型只产候选 低置信度进入确认队列 原文件可接管,AI eval + p1 proxy scenario
-L004,L0,AI,知识点标注建议试点,中,待办,K001;L001,AI 标注只作为建议 绑定 active 知识版本 人工修改生成 FeedbackEvent,d003 eval + feedback event check
-L005,L0,AI,答案校验与解析质量试点,中,待办,L001,AI 校验结果保留来源和置信度 不自动覆盖教师答案,schema eval + review queue contract
-L006,L0,AI,成本缓存与批处理看板,中,待办,L002,管理员可看到任务成本 cache hit 模型路由和异常失败原因,d002 contract + admin UI smoke
-L007,L0,AI安全,LLM security red-team gate,高,待办,L001,真实 AI 调用前覆盖 prompt injection sensitive information disclosure insecure output handling supply chain vector/embedding weakness 和 excessive agency 风险,OWASP LLM checklist + NIST AI RMF mapping + no active write proof
-M001,M0,组卷导出,生产题篮与试卷结构模型,高,待办,K001,题篮 试卷结构 分值 题号 小问和版本引用可保存和复现,API contract + DB regression
-M002,M0,组卷导出,自然语言组卷到细目表生产链,高,待办,M001;L001,自然语言只生成可审查细目表 不直接生成不可解释试卷,e002 contract + UX walkthrough
-M003,M0,组卷导出,一键换题生产约束强化,高,待办,M001,换题保持知识点 题型 难度 分值 近期未用和不重复 且可撤销,e003 contract + regression
-M004,M0,组卷导出,导出前审校,高,待办,M003,导出前显示版本 题号 答案 解析 题图缺失和授权风险,export preflight contract
-M005,M0,组卷导出,Word WPS PDF 导出回归扩展,高,待办,M004,学生版 教师版 答案版均可打开且公式题图表格不丢,e004 contract + golden export regression
-M006,M0,教师效率,10 分钟组卷场景验收,高,待办,M005,从自然语言需求到可打印导出记录小于等于 10 分钟 或记录阻断项,teacher-efficiency evidence + hotspot report
-N001,N0,成绩学情,真实隐私边界准入,高,待办,H003,明确真实学生成绩使用前的辖区 授权 数据最小化 保留 删除和外部模型禁用策略,docs/17 update + privacy gate
-N002,N0,成绩学情,Excel 模板学习与复用,高,待办,N001,同一教师二次导入自动复用字段映射 仅异常行需要处理,f002 contract + teacher preference check
-N003,N0,成绩学情,小题分与题目映射工作台,高,待办,M001;N002,考试小题分能映射到题目和知识点 映射不清时集中提示,API/UI contract + synthetic fixture
-N004,N0,成绩学情,班级讲评报告 MVP,中,待办,N003,输出得分率 区分度 薄弱知识点和讲评建议 且不写正式历史口径直到准入,f003 contract + export smoke
-N005,N0,成绩学情,分层练习建议 draft/test,中,待办,N004,按 A/B/C 或教师自定义分层生成候选练习建议 保持 draft/test 和人工确认,analysis eval + no production write guard
-N006,N0,安全隐私,真实数据试点前安全审计,高,待办,N001,日志 prompt 备份 fixture 中无真实学生 PII 密码或 API key,privacy scan + evidence report
-O001,O0,部署运维,Windows Service 发布包,高,待办,H004,API Worker Web 配置和数据目录在发布后不依赖仓库当前目录,publish smoke + service config review
-O002,O0,部署运维,安装初始化向导,高,待办,O001,初始化 PostgreSQL 连接 数据目录 备份目录 pgpass 权限和管理员账号,g004 dry-run + install smoke
-O003,O0,部署运维,恢复演练升级,高,待办,O002,从备份 manifest 恢复数据库 文件仓库 配置 模板和教师偏好到隔离目录,backup restore drill + hash verify
+L001,L0,AI,真实模型调用合规准入卡,高,已完成,H003,锁定数据边界 预算 人工审核 外部传输和 no active write 后才允许真实调用,tools/run-l001-real-model-admission-card.ps1 + docs/25 admission card + c002q0 readiness + docs/evidence/20260505-l001-real-model-admission-card.md
+L002,L0,AI,小批量真实 AI extract 试点,高,已完成,L007,仅抽样 cache-hit 来源 chunk 输出 candidate pending_review 记录 token cost 不覆盖 C002K,tools/run-l002-real-ai-extract-pilot.ps1 + c002q report + human review evidence + docs/evidence/20260505-l002-real-ai-extract-pilot.md
+L003,L0,AI,AI 切题候选试点,高,已完成,J006;L001,真实或本地模型只产候选 低置信度进入确认队列 原文件可接管,tools/run-l003-ai-cut-candidate-pilot.ps1 + AI eval + p1 proxy scenario + docs/evidence/20260505-l003-ai-cut-candidate-pilot.md
+L004,L0,AI,知识点标注建议试点,中,已完成,K001;L001,AI 标注只作为建议 绑定 active 知识版本 人工修改生成 FeedbackEvent,tools/run-l004-knowledge-tagging-suggestion-pilot.ps1 + d003 eval + feedback event check + docs/evidence/20260505-l004-knowledge-tagging-suggestion-pilot.md
+L005,L0,AI,答案校验与解析质量试点,中,已完成,L001,AI 校验结果保留来源和置信度 不自动覆盖教师答案,tools/run-l005-answer-verification-quality-pilot.ps1 + schema eval + review queue contract + docs/evidence/20260505-l005-answer-verification-quality-pilot.md
+L006,L0,AI,成本缓存与批处理看板,中,已完成,L002,管理员可看到任务成本 cache hit 模型路由和异常失败原因,tools/run-l006-cost-cache-batch-dashboard-pilot.ps1 + d002 contract + admin UI smoke + docs/evidence/20260505-l006-cost-cache-batch-dashboard-pilot.md
+L007,L0,AI安全,LLM security red-team gate,高,已完成,L001,真实 AI 调用前覆盖 prompt injection sensitive information disclosure insecure output handling supply chain vector/embedding weakness 和 excessive agency 风险,tools/run-l007-llm-security-red-team-gate.ps1 + docs/98_L007_LlmSecurityRedTeamGate.md + OWASP LLM checklist + NIST AI RMF mapping + no active write proof + docs/evidence/20260505-l007-llm-security-red-team-gate.md
+M001,M0,组卷导出,生产题篮与试卷结构模型,高,已完成,K001,题篮 试卷结构 分值 题号 小问和版本引用可保存和复现,tools/run-m001-paper-basket-structure-contract.ps1 + API contract + DB regression + docs/evidence/20260505-m001-paper-basket-structure-contract.md
+M002,M0,组卷导出,自然语言组卷到细目表生产链,高,已完成,M001;L001,自然语言只生成可审查细目表 不直接生成不可解释试卷,tools/run-m002-nl-to-blueprint-production-chain.ps1 + e002 contract + UX walkthrough + docs/evidence/20260505-m002-nl-to-blueprint-production-chain.md
+M003,M0,组卷导出,一键换题生产约束强化,高,已完成,M001,换题保持知识点 题型 难度 分值 近期未用和不重复 且可撤销,tools/run-m003-replacement-production-constraints.ps1 + e003 contract + regression + docs/evidence/20260505-m003-replacement-production-constraints.md
+M004,M0,组卷导出,导出前审校,高,已完成,M003,导出前显示版本 题号 答案 解析 题图缺失和授权风险,tools/run-m004-export-preflight-contract.ps1 + export preflight contract + docs/evidence/20260505-m004-export-preflight-contract.md
+M005,M0,组卷导出,Word WPS PDF 导出回归扩展,高,已完成,M004,学生版 教师版 答案版均可打开且公式题图表格不丢,tools/run-m005-export-regression-extended.ps1 + e004 contract + golden export regression + docs/evidence/20260505-m005-export-regression-extended.md
+M006,M0,教师效率,10 分钟组卷场景验收,高,已完成,M005,从自然语言需求到可打印导出记录小于等于 10 分钟 或记录阻断项,tools/run-m006-ten-minute-paper-workflow-acceptance.ps1 + teacher-efficiency evidence + hotspot report + docs/evidence/20260505-m006-ten-minute-paper-workflow-acceptance.md
+N001,N0,成绩学情,真实隐私边界准入,高,已完成,H003,明确真实学生成绩使用前的辖区 授权 数据最小化 保留 删除和外部模型禁用策略,tools/run-n001-real-privacy-boundary-admission.ps1 + docs/17 update + privacy gate + docs/evidence/20260505-n001-real-privacy-boundary-admission.md
+N002,N0,成绩学情,Excel 模板学习与复用,高,已完成,N001,同一教师二次导入自动复用字段映射 仅异常行需要处理,tools/run-n002-excel-template-reuse.ps1 + f002 contract + teacher preference check + docs/evidence/20260505-n002-excel-template-reuse.md
+N003,N0,成绩学情,小题分与题目映射工作台,高,已完成,M001;N002,考试小题分能映射到题目和知识点 映射不清时集中提示,tools/run-n003-item-score-mapping-workbench.ps1 + API/UI contract + synthetic fixture + docs/evidence/20260505-n003-item-score-mapping-workbench.md
+N004,N0,成绩学情,班级讲评报告 MVP,中,已完成,N003,输出得分率 区分度 薄弱知识点和讲评建议 且不写正式历史口径直到准入,tools/run-n004-class-commentary-report-mvp.ps1 + f003 contract + export smoke + docs/evidence/20260505-n004-class-commentary-report-mvp.md
+N005,N0,成绩学情,分层练习建议 draft/test,中,已完成,N004,按 A/B/C 或教师自定义分层生成候选练习建议 保持 draft/test 和人工确认,tools/run-n005-tiered-practice-draft-test.ps1 + analysis eval + no production write guard + docs/evidence/20260505-n005-tiered-practice-draft-test.md
+N006,N0,安全隐私,真实数据试点前安全审计,高,已完成,N001,日志 prompt 备份 fixture 中无真实学生 PII 密码或 API key,tools/run-n006-pre-pilot-security-audit.ps1 + privacy scan + evidence report + docs/evidence/20260505-n006-pre-pilot-security-audit.md
+O001,O0,部署运维,Windows Service 发布包,高,已完成,H004,发布包包含 API Web 和 worker 脚本且可通过 --contentRoot 在非仓库工作目录启动并通过健康检查 数据目录与程序目录分离,tools/run-o001-windows-service-publish-contract.ps1 + publish smoke + service config review
+O002,O0,部署运维,安装初始化向导,高,已完成,O001,初始化向导可验证 PostgreSQL 连接参数 数据目录 备份目录 pgpass 流程与管理员引导 key 且不落地明文密码,tools/run-o002-installer-init-wizard-contract.ps1 + g004 dry-run + install smoke + docs/evidence/20260505-o002-installer-init-wizard.md
+O003,O0,部署运维,恢复演练升级,高,已完成,O002,已完成 backup manifest 驱动的隔离恢复演练 覆盖数据库恢复计划 文件仓库 配置 模板和教师偏好且可回滚,tools/run-o003-recovery-drill-contract.ps1 + backup restore drill + hash verify + docs/evidence/20260505-o003-recovery-drill-upgrade.md
 O004,O0,部署运维,admin/internal endpoint fail-closed guard,高,已完成,O002,/api/admin/* 和 /internal/ai/* 已有 authentication authorization fail-closed 边界 已在试点或 live 前阻断裸接口 生产默认无 ApiKey 返回 503 配 key 后无 key 返回 401 错 key 返回 403 正确 key 返回 200 开发 draft/test 放行必须显式配置 不代表角色和审计已完成,tools/run-o004-admin-internal-auth-boundary-contract.ps1 + tools/run-gates.ps1
 O004B,O0,部署运维,角色权限与审计日志剩余闭环,高,待办,O004,普通教师 备课组长 管理员权限分离 高风险操作必须记录操作者 时间 对象 结果 回滚引用 普通教师 UI 不出现管理员入口 进入试点或 live 前阻断未审计的后台操作,security tests + audit log smoke + admin UI auth contract
 O005,O0,部署运维,容量和成本健康面板,中,待办,O002,管理员可看文件仓库 备份 cache AI 成本 失败任务和清理建议,g002 + d002 + UI contract

@@ -13,8 +13,8 @@
       "toolName": "python",
       "toolVersion": "3.13.7",
       "durationMs": 3,
-      "inputSha256": "eeaa976c544379710565ea8bc4fbb3c8bfab5a9480901c083ad6d72550953a08",
-      "outputSha256": "966576df17aa0cb449e339da0c696a53734790b48dcc52bda06e3d6ed941fa7c",
+      "inputSha256": "d834a2d1e77076ae1c8d69d9466e1a2d0d8395d3bf340d219df75fe4f680f3ac",
+      "outputSha256": "6fc7dd8f19924d6de4030b60acf31bd34689d38ad152058bc1687224d3402255",
       "warningCount": 0,
       "errorCount": 0,
       "commandArgs": {
@@ -28,7 +28,7 @@
       "adapterVersion": "0.1",
       "toolName": "python",
       "toolVersion": "3.13.7",
-      "durationMs": 2,
+      "durationMs": 3,
       "inputSha256": "f3081ad4685c9e5330cc0be5874fc240af9d0181113b68787e82774739ef0b29",
       "outputSha256": "c5dff7d72debea928bbd9072ab6d4c758e19854cbbf017b135398601c14b9383",
       "warningCount": 0,
@@ -76,7 +76,7 @@
       "adapterVersion": "0.1",
       "toolName": "python",
       "toolVersion": "3.13.7",
-      "durationMs": 2,
+      "durationMs": 3,
       "inputSha256": "ada1417bcda1de941b67f9e958945207bb4db82fb15b3baa4523833cbc819274",
       "outputSha256": "96a091844f7589f30e0e6f7c5f384ed9e5137e541b66ed80741d869ef0a694a1",
       "warningCount": 1,
@@ -118,6 +118,6 @@
     "rawInputsStayUnder": "tmp\\j005-adapter-diagnostics"
   },
   "rollback": "git restore tracked files; remove tools/j005_adapter_diagnostic_supply_chain.py, tools/run-j005-adapter-diagnostic-supply-chain-contract.ps1, docs/90_J005_AdapterDiagnosticSupplyChain.md, docs/evidence/j005-adapter-diagnostic-supply-chain-report.json, and tmp/j005-adapter-diagnostics",
-  "createdAt": "2026-05-05T05:49:59.150950+00:00",
+  "createdAt": "2026-05-05T06:13:52.205460+00:00",
   "summaryChinese": "J005 已验证所有当前 worker adapter 均记录版本、命令参数、输入输出 hash、耗时、warnings 和 errors；当前供应链为本地 Python/stdlib synthetic gate，不调用外部 OCR、Docling、网络或真实 AI。"
 }

@@ -5,11 +5,13 @@ using K12QuestionGraph.Api.FileStore;
 using K12QuestionGraph.Api.ImportJobs;
 using K12QuestionGraph.Api.Workers;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting.WindowsServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Host.UseWindowsService();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -85,8 +87,7 @@ app.MapGet("/health/ready", async (
     checks.Add(HealthCheckHelpers.CheckWritableDirectory("logs", paths.LogsRoot));
 
     var workerOptions = configuration.GetSection("PythonWorker").Get<PythonWorkerOptions>() ?? new PythonWorkerOptions();
-    var repoRoot = Path.GetFullPath(Path.Combine(environment.ContentRootPath, "..", ".."));
-    var workerScript = Path.GetFullPath(Path.Combine(repoRoot, workerOptions.DocumentWorkerScript));
+    var workerScript = WorkerPathHelpers.ResolveWorkerScriptPath(environment.ContentRootPath, workerOptions.DocumentWorkerScript);
     checks.Add(new ReadinessCheck("document_worker_script", File.Exists(workerScript), workerScript));
 
     var ready = checks.All(x => x.Ok);
@@ -1518,6 +1519,19 @@ public static class StorageHelpers
             DeletedFileCount: deletedCount,
             DeletedBytes: deletedBytes,
             Candidates: matched);
+    }
+}
+
+public static class WorkerPathHelpers
+{
+    public static string ResolveWorkerScriptPath(string contentRootPath, string configuredPath)
+    {
+        if (Path.IsPathRooted(configuredPath))
+        {
+            return Path.GetFullPath(configuredPath);
+        }
+
+        return Path.GetFullPath(Path.Combine(contentRootPath, configuredPath));
     }
 }
 

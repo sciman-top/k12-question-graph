@@ -11,13 +11,20 @@ foreach ($pattern in @(
     'data-contract="score-exception-rows"',
     'data-contract="knowledge-analysis-summary"',
     'data-contract="analysis-report-export-path"',
-    'data-action="upload-score-sheet"',
-    'data-action="generate-score-analysis"',
-    'data-action="export-score-report"',
     'data-contract="score-productionEligible=false"'
 )) {
     if (-not $app.Contains($pattern)) {
         throw "missing I005 score analysis workbench marker: $pattern"
+    }
+}
+
+foreach ($action in @(
+    'upload-score-sheet',
+    'generate-score-analysis',
+    'export-score-report'
+)) {
+    if ((-not $app.Contains("data-action=""$action""")) -and (-not $app.Contains("action: '$action'"))) {
+        throw "missing I005 score analysis action marker: $action"
     }
 }
 

@@ -1,0 +1,53 @@
+{
+  "status": "pass",
+  "task": "O002",
+  "mode": "draft_test",
+  "productionEligible": false,
+  "config": "configs\\installer_init.defaults.yaml",
+  "installerChecks": {
+    "postgresqlConnectionConfig": {
+      "host": "127.0.0.1",
+      "port": 5432,
+      "database": "k12_question_graph",
+      "username": "postgres",
+      "passwordProvided": true
+    },
+    "directories": {
+      "dataRoot": "D:\\KQG_Data",
+      "backupRoot": "D:\\KQG_Backups",
+      "fileStoreRoot": "D:\\KQG_Data\\file_store",
+      "logsRoot": "D:\\KQG_Data\\logs",
+      "cacheRoot": "D:\\KQG_Data\\cache",
+      "writableProbePassed": true
+    },
+    "pgpass": {
+      "config": "configs\\installer_credentials.defaults.yaml",
+      "gate": "tools\\run-g004-pgpass-installer-dry-run.ps1",
+      "report": "docs\\evidence\\o002-installer-pgpass-dry-run-report.json",
+      "status": "pass"
+    },
+    "bootstrapAdmin": {
+      "mode": "admin_internal_guard_key",
+      "rotateRequiredOnFirstLogin": true,
+      "persistedPlaintext": false,
+      "adminKeySha256": "35930344b55ad79a4917ddb931a1ffbe44fb1de984523ec9ad366ff9550acb1e"
+    }
+  },
+  "guardrail": {
+    "o004bNotCompleted": true,
+    "note": "O002 only initializes installer-level admin key bootstrap; RBAC and audit trail remain blocked by O004B."
+  },
+  "rollback": {
+    "directories": [
+      "Remove-Item -LiteralPath 'D:\\KQG_Data' -Recurse -Force",
+      "Remove-Item -LiteralPath 'D:\\KQG_Backups' -Recurse -Force"
+    ],
+    "pgpass": "see o002-installer-pgpass-dry-run-report.json for temp APPDATA cleanup evidence",
+    "adminKey": "generated bootstrap key is not persisted in plaintext; rotate key when real install is enabled"
+  },
+  "summaryChinese": {
+    "title": "O002 安装初始化向导 dry-run 合同报告",
+    "result": "通过",
+    "boundary": "仅验证初始化向导所需参数、目录、pgpass 流程和管理员引导 key，不开启真实试点部署。"
+  }
+}

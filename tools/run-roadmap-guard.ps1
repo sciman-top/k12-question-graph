@@ -9,6 +9,7 @@ foreach ($row in $rows) {
 
 foreach ($requiredId in @(
     'C002', 'C002N', 'C002O', 'C002P', 'C002Q0', 'C002Q', 'C002S', 'C002T',
+    'L001', 'L002', 'L003', 'L004', 'L005', 'L006', 'L007', 'M001', 'M002', 'M003', 'M004', 'M005', 'M006', 'N001', 'N002', 'N003', 'N004', 'N005', 'N006',
     'D001', 'D002', 'D003',
     'I008', 'I009', 'I010',
     'O004', 'O004B',
@@ -26,6 +27,25 @@ $c002q0 = $byId['C002Q0']
 $c002q = $byId['C002Q']
 $c002s = $byId['C002S']
 $c002t = $byId['C002T']
+$l001 = $byId['L001']
+$l002 = $byId['L002']
+$l003 = $byId['L003']
+$l004 = $byId['L004']
+$l005 = $byId['L005']
+$l006 = $byId['L006']
+$l007 = $byId['L007']
+$m001 = $byId['M001']
+$m002 = $byId['M002']
+$m003 = $byId['M003']
+$m004 = $byId['M004']
+$m005 = $byId['M005']
+$m006 = $byId['M006']
+$n001 = $byId['N001']
+$n002 = $byId['N002']
+$n003 = $byId['N003']
+$n004 = $byId['N004']
+$n005 = $byId['N005']
+$n006 = $byId['N006']
 $d001 = $byId['D001']
 $i008 = $byId['I008']
 $i009 = $byId['I009']
@@ -159,6 +179,219 @@ if ($c002t.status -eq '已完成') {
     if ($report.after.candidateAssets -ne 0 -or $report.after.pendingMappings -ne 0 -or $report.after.pendingMigrations -ne 0 -or $report.after.openReviewItems -ne 0) {
         throw "C002T report must show no pending candidate review blockers"
     }
+}
+
+if ($l001.depends_on -ne 'H003') {
+    throw "L001 must depend on H003 teacher efficiency baseline retest"
+}
+
+if ($l001.status -eq '已完成') {
+    $l001Evidence = Join-Path $repoRoot 'docs\evidence\20260505-l001-real-model-admission-card.md'
+    if (-not (Test-Path -LiteralPath $l001Evidence)) {
+        throw "L001 is completed but evidence is missing: docs/evidence/20260505-l001-real-model-admission-card.md"
+    }
+    if ($l001.acceptance -notmatch '数据边界|预算|人工审核|外部传输|no active write') {
+        throw "L001 acceptance must lock data boundary, budget, human review, external transfer and no active write"
+    }
+    if ($l001.verification -notmatch 'run-l001-real-model-admission-card') {
+        throw "L001 verification must include run-l001-real-model-admission-card.ps1"
+    }
+}
+
+if ($l007.depends_on -ne 'L001') {
+    throw "L007 must depend on L001 real model admission card"
+}
+
+if ($l002.depends_on -ne 'L007') {
+    throw "L002 must depend on L007 LLM security red-team gate"
+}
+
+if ($l002.status -eq '已完成') {
+    $l002Evidence = Join-Path $repoRoot 'docs\evidence\20260505-l002-real-ai-extract-pilot.md'
+    if (-not (Test-Path -LiteralPath $l002Evidence)) {
+        throw "L002 is completed but evidence is missing: docs/evidence/20260505-l002-real-ai-extract-pilot.md"
+    }
+    if ($l002.acceptance -notmatch 'cache-hit|candidate pending_review|token cost|不覆盖 C002K') {
+        throw "L002 acceptance must keep sample cache-hit, pending_review, token cost, and no C002K overwrite"
+    }
+    if ($l002.verification -notmatch 'run-l002-real-ai-extract-pilot') {
+        throw "L002 verification must include run-l002-real-ai-extract-pilot.ps1"
+    }
+}
+
+if ($l003.depends_on -ne 'J006;L001') {
+    throw "L003 must depend on J006 and L001"
+}
+
+if ($l003.status -eq '已完成') {
+    $l003Evidence = Join-Path $repoRoot 'docs\evidence\20260505-l003-ai-cut-candidate-pilot.md'
+    if (-not (Test-Path -LiteralPath $l003Evidence)) {
+        throw "L003 is completed but evidence is missing: docs/evidence/20260505-l003-ai-cut-candidate-pilot.md"
+    }
+    if ($l003.acceptance -notmatch '只产候选|低置信度进入确认队列|原文件可接管') {
+        throw "L003 acceptance must keep candidate-only and manual takeover boundaries"
+    }
+    if ($l003.verification -notmatch 'run-l003-ai-cut-candidate-pilot') {
+        throw "L003 verification must include run-l003-ai-cut-candidate-pilot.ps1"
+    }
+}
+
+if ($l004.depends_on -ne 'K001;L001') {
+    throw "L004 must depend on K001 and L001"
+}
+
+if ($l004.status -eq '已完成') {
+    $l004Evidence = Join-Path $repoRoot 'docs\evidence\20260505-l004-knowledge-tagging-suggestion-pilot.md'
+    if (-not (Test-Path -LiteralPath $l004Evidence)) {
+        throw "L004 is completed but evidence is missing: docs/evidence/20260505-l004-knowledge-tagging-suggestion-pilot.md"
+    }
+    if ($l004.acceptance -notmatch '只作为建议|绑定 active 知识版本|FeedbackEvent') {
+        throw "L004 acceptance must keep suggestion-only and active-version boundaries"
+    }
+    if ($l004.verification -notmatch 'run-l004-knowledge-tagging-suggestion-pilot') {
+        throw "L004 verification must include run-l004-knowledge-tagging-suggestion-pilot.ps1"
+    }
+}
+
+if ($l005.depends_on -ne 'L001') {
+    throw "L005 must depend on L001"
+}
+
+if ($l005.status -eq '已完成') {
+    $l005Evidence = Join-Path $repoRoot 'docs\evidence\20260505-l005-answer-verification-quality-pilot.md'
+    if (-not (Test-Path -LiteralPath $l005Evidence)) {
+        throw "L005 is completed but evidence is missing: docs/evidence/20260505-l005-answer-verification-quality-pilot.md"
+    }
+    if ($l005.acceptance -notmatch '保留来源和置信度|不自动覆盖教师答案') {
+        throw "L005 acceptance must keep source-confidence and no-auto-override boundaries"
+    }
+    if ($l005.verification -notmatch 'run-l005-answer-verification-quality-pilot') {
+        throw "L005 verification must include run-l005-answer-verification-quality-pilot.ps1"
+    }
+}
+
+if ($l006.depends_on -ne 'L002') {
+    throw "L006 must depend on L002"
+}
+
+if ($l006.status -eq '已完成') {
+    $l006Evidence = Join-Path $repoRoot 'docs\evidence\20260505-l006-cost-cache-batch-dashboard-pilot.md'
+    if (-not (Test-Path -LiteralPath $l006Evidence)) {
+        throw "L006 is completed but evidence is missing: docs/evidence/20260505-l006-cost-cache-batch-dashboard-pilot.md"
+    }
+    if ($l006.acceptance -notmatch '任务成本 cache hit 模型路由和异常失败原因') {
+        throw "L006 acceptance must keep cost/cache/routing/failure boundaries"
+    }
+    if ($l006.verification -notmatch 'run-l006-cost-cache-batch-dashboard-pilot') {
+        throw "L006 verification must include run-l006-cost-cache-batch-dashboard-pilot.ps1"
+    }
+}
+
+if ($l007.status -eq '已完成') {
+    $l007Evidence = Join-Path $repoRoot 'docs\evidence\20260505-l007-llm-security-red-team-gate.md'
+    if (-not (Test-Path -LiteralPath $l007Evidence)) {
+        throw "L007 is completed but evidence is missing: docs/evidence/20260505-l007-llm-security-red-team-gate.md"
+    }
+    if ($l007.acceptance -notmatch 'prompt injection|sensitive information disclosure|insecure output handling|supply chain|vector/embedding weakness|excessive agency') {
+        throw "L007 acceptance must cover OWASP/NIST risk set"
+    }
+    if ($l007.verification -notmatch 'run-l007-llm-security-red-team-gate') {
+        throw "L007 verification must include run-l007-llm-security-red-team-gate.ps1"
+    }
+}
+
+if ($m001.depends_on -ne 'K001') {
+    throw "M001 must depend on K001"
+}
+
+if ($m001.status -eq '已完成') {
+    $m001Evidence = Join-Path $repoRoot 'docs\evidence\20260505-m001-paper-basket-structure-contract.md'
+    if (-not (Test-Path -LiteralPath $m001Evidence)) {
+        throw "M001 is completed but evidence is missing: docs/evidence/20260505-m001-paper-basket-structure-contract.md"
+    }
+    if ($m001.acceptance -notmatch '题篮 试卷结构 分值 题号 小问和版本引用可保存和复现') {
+        throw "M001 acceptance must keep paper basket/structure/version-reference boundary"
+    }
+    if ($m001.verification -notmatch 'run-m001-paper-basket-structure-contract') {
+        throw "M001 verification must include run-m001-paper-basket-structure-contract.ps1"
+    }
+}
+
+if ($m002.depends_on -ne 'M001;L001') { throw "M002 must depend on M001 and L001" }
+if ($m002.status -eq '已完成') {
+  $p = Join-Path $repoRoot 'docs\evidence\20260505-m002-nl-to-blueprint-production-chain.md'
+  if(-not (Test-Path -LiteralPath $p)){ throw "M002 evidence missing" }
+  if($m002.verification -notmatch 'run-m002-nl-to-blueprint-production-chain'){ throw "M002 verification missing contract script" }
+}
+
+if ($m003.depends_on -ne 'M001') { throw "M003 must depend on M001" }
+if ($m003.status -eq '已完成') {
+  $p = Join-Path $repoRoot 'docs\evidence\20260505-m003-replacement-production-constraints.md'
+  if(-not (Test-Path -LiteralPath $p)){ throw "M003 evidence missing" }
+  if($m003.verification -notmatch 'run-m003-replacement-production-constraints'){ throw "M003 verification missing contract script" }
+}
+
+if ($m004.depends_on -ne 'M003') { throw "M004 must depend on M003" }
+if ($m004.status -eq '已完成') {
+  $p = Join-Path $repoRoot 'docs\evidence\20260505-m004-export-preflight-contract.md'
+  if(-not (Test-Path -LiteralPath $p)){ throw "M004 evidence missing" }
+  if($m004.verification -notmatch 'run-m004-export-preflight-contract'){ throw "M004 verification missing contract script" }
+}
+
+if ($m005.depends_on -ne 'M004') { throw "M005 must depend on M004" }
+if ($m005.status -eq '已完成') {
+  $p = Join-Path $repoRoot 'docs\evidence\20260505-m005-export-regression-extended.md'
+  if(-not (Test-Path -LiteralPath $p)){ throw "M005 evidence missing" }
+  if($m005.verification -notmatch 'run-m005-export-regression-extended'){ throw "M005 verification missing contract script" }
+}
+
+if ($m006.depends_on -ne 'M005') { throw "M006 must depend on M005" }
+if ($m006.status -eq '已完成') {
+  $p = Join-Path $repoRoot 'docs\evidence\20260505-m006-ten-minute-paper-workflow-acceptance.md'
+  if(-not (Test-Path -LiteralPath $p)){ throw "M006 evidence missing" }
+  if($m006.verification -notmatch 'run-m006-ten-minute-paper-workflow-acceptance'){ throw "M006 verification missing contract script" }
+}
+
+if ($n001.depends_on -ne 'H003') { throw "N001 must depend on H003" }
+if ($n001.status -eq '已完成') {
+  $p = Join-Path $repoRoot 'docs\evidence\20260505-n001-real-privacy-boundary-admission.md'
+  if(-not (Test-Path -LiteralPath $p)){ throw "N001 evidence missing" }
+  if($n001.verification -notmatch 'run-n001-real-privacy-boundary-admission'){ throw "N001 verification missing contract script" }
+}
+
+if ($n002.depends_on -ne 'N001') { throw "N002 must depend on N001" }
+if ($n002.status -eq '已完成') {
+  $p = Join-Path $repoRoot 'docs\evidence\20260505-n002-excel-template-reuse.md'
+  if(-not (Test-Path -LiteralPath $p)){ throw "N002 evidence missing" }
+  if($n002.verification -notmatch 'run-n002-excel-template-reuse'){ throw "N002 verification missing contract script" }
+}
+
+if ($n003.depends_on -ne 'M001;N002') { throw "N003 must depend on M001 and N002" }
+if ($n003.status -eq '已完成') {
+  $p = Join-Path $repoRoot 'docs\evidence\20260505-n003-item-score-mapping-workbench.md'
+  if(-not (Test-Path -LiteralPath $p)){ throw "N003 evidence missing" }
+  if($n003.verification -notmatch 'run-n003-item-score-mapping-workbench'){ throw "N003 verification missing contract script" }
+}
+
+if ($n004.depends_on -ne 'N003') { throw "N004 must depend on N003" }
+if ($n004.status -eq '已完成') {
+  $p = Join-Path $repoRoot 'docs\evidence\20260505-n004-class-commentary-report-mvp.md'
+  if(-not (Test-Path -LiteralPath $p)){ throw "N004 evidence missing" }
+  if($n004.verification -notmatch 'run-n004-class-commentary-report-mvp'){ throw "N004 verification missing contract script" }
+}
+
+if ($n005.depends_on -ne 'N004') { throw "N005 must depend on N004" }
+if ($n005.status -eq '已完成') {
+  $p = Join-Path $repoRoot 'docs\evidence\20260505-n005-tiered-practice-draft-test.md'
+  if(-not (Test-Path -LiteralPath $p)){ throw "N005 evidence missing" }
+  if($n005.verification -notmatch 'run-n005-tiered-practice-draft-test'){ throw "N005 verification missing contract script" }
+}
+
+if ($n006.depends_on -ne 'N001') { throw "N006 must depend on N001" }
+if ($n006.status -eq '已完成') {
+  $p = Join-Path $repoRoot 'docs\evidence\20260505-n006-pre-pilot-security-audit.md'
+  if(-not (Test-Path -LiteralPath $p)){ throw "N006 evidence missing" }
+  if($n006.verification -notmatch 'run-n006-pre-pilot-security-audit'){ throw "N006 verification missing contract script" }
 }
 
 if ($i008.status -eq '已完成') {

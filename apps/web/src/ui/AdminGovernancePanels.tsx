@@ -40,6 +40,12 @@ const sourceMaterialUsageTags = [
   { label: '不进入生产', contract: 'productionEligible=false' },
 ]
 
+const sourceMetadataInputs = [
+  { key: 'region', label: '地区', defaultValue: '本地' },
+  { key: 'year', label: '年份', defaultValue: '2025' },
+  { key: 'batch', label: '批次', defaultValue: 'local-physics-2015-2025' },
+]
+
 const activationOverview = {
   subject: '初中物理',
   region: '广州',
@@ -214,6 +220,10 @@ function healthCardIcon(key: string) {
   return key === 'blockers' ? <SafetyCertificateOutlined /> : <DatabaseOutlined />
 }
 
+function storageStatusColor(cleanupAllowed: boolean) {
+  return cleanupAllowed ? 'orange' : undefined
+}
+
 const labelFor = teacherLabelFor
 
 export function AdminGovernancePanels() {
@@ -333,10 +343,22 @@ export function AdminGovernancePanels() {
           </div>
           <div className="source-upload-form" data-contract="source-material-metadata">
             <div className="source-form-grid">
-              <label>资料类型<select defaultValue="local_exam_paper" aria-label="资料类型">{sourceMaterialTypes.map((item) => <option key={item.type} value={item.type}>{item.title}</option>)}</select></label>
-              <label>地区<Input defaultValue="本地" aria-label="地区" /></label>
-              <label>年份<Input defaultValue="2025" aria-label="年份" /></label>
-              <label>批次<Input defaultValue="local-physics-2015-2025" aria-label="批次" /></label>
+              <label>
+                资料类型
+                <select defaultValue="local_exam_paper" aria-label="资料类型">
+                  {sourceMaterialTypes.map((item) => (
+                    <option key={item.type} value={item.type}>
+                      {item.title}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {sourceMetadataInputs.map((field) => (
+                <label key={field.key}>
+                  {field.label}
+                  <Input defaultValue={field.defaultValue} aria-label={field.label} />
+                </label>
+              ))}
             </div>
             <div className="source-permission-row">
               {sourceMaterialUsageTags.map((item) => (
@@ -441,7 +463,7 @@ export function AdminGovernancePanels() {
             <div className="storage-card" key={area.name} data-cleanup-allowed={area.cleanupAllowed}>
               <span className="storage-icon"><DatabaseOutlined /></span>
               <span><Typography.Text type="secondary">{area.name}</Typography.Text><strong>{area.bytes}</strong><small>{area.files} 个文件</small></span>
-              <Tag color={area.cleanupAllowed ? 'orange' : undefined}>{area.cleanupAllowed ? '可清理' : '只读'}</Tag>
+              <Tag color={storageStatusColor(area.cleanupAllowed)}>{area.cleanupAllowed ? '可清理' : '只读'}</Tag>
             </div>
           ))}
         </div>

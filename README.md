@@ -28,9 +28,11 @@ dotnet run --project apps\api\K12QuestionGraph.Api.csproj --urls http://127.0.0.
 Web:
 
 ```powershell
-cd apps\web
-npm run dev -- --host 127.0.0.1
+.\tools\start-local-web.ps1
+.\tools\start-local-web.ps1 -Status
 ```
+
+该入口会把 Vite 固定到 `http://127.0.0.1:5173/`，后台启动并把 PID/日志写入 `logs/dev-web/`。需要重启或停止时使用 `.\tools\start-local-web.ps1 -Restart` / `.\tools\start-local-web.ps1 -Stop`。
 
 统一 gate:
 
@@ -250,3 +252,9 @@ python -c "import pathlib, yaml; [yaml.safe_load(p.read_text(encoding='utf-8')) 
 10. 所有 AI 结果都要有置信度、来源、prompt 版本、schema 版本、成本记录。
 11. 所有备份恢复能力都不能只依赖主程序 UI，必须有独立脚本/恢复包。
 12. 学生成绩、学生身份信息、题库原始资料和备份包按高风险资产处理；进入真实部署前必须锁定适用辖区、告知/授权、外部模型传输边界、数据保留和删除策略。
+
+## 许可证与商业使用
+
+- 本项目采用 `MIT License`，见仓库根目录 [LICENSE](LICENSE)。
+- 本项目是个人开源项目，不采用付费商业许可门槛。
+- 允许个人或组织在遵守 MIT 条款前提下免费商用、分发和修改。

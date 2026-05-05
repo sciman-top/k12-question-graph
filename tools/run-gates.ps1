@@ -261,6 +261,71 @@ try {
         .\tools\run-c002q0-outer-ai-readiness.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'l001 real model admission card guard' {
+        .\tools\run-l001-real-model-admission-card.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'l007 llm security red-team gate' {
+        .\tools\run-l007-llm-security-red-team-gate.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'l002 real ai extract pilot gate' {
+        .\tools\run-l002-real-ai-extract-pilot.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'l003 ai cut candidate pilot gate' {
+        .\tools\run-l003-ai-cut-candidate-pilot.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'l004 knowledge tagging suggestion pilot gate' {
+        .\tools\run-l004-knowledge-tagging-suggestion-pilot.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'l005 answer verification quality pilot gate' {
+        .\tools\run-l005-answer-verification-quality-pilot.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'l006 cost cache batch dashboard pilot gate' {
+        .\tools\run-l006-cost-cache-batch-dashboard-pilot.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'm001 paper basket structure contract' {
+        .\tools\run-m001-paper-basket-structure-contract.ps1 | Write-Host
+    }
+    Invoke-GateStep 'm002 nl to blueprint production chain' {
+        .\tools\run-m002-nl-to-blueprint-production-chain.ps1 | Write-Host
+    }
+    Invoke-GateStep 'm003 replacement production constraints' {
+        .\tools\run-m003-replacement-production-constraints.ps1 | Write-Host
+    }
+    Invoke-GateStep 'm004 export preflight contract' {
+        .\tools\run-m004-export-preflight-contract.ps1 | Write-Host
+    }
+    Invoke-GateStep 'm005 export regression extended' {
+        .\tools\run-m005-export-regression-extended.ps1 | Write-Host
+    }
+    Invoke-GateStep 'm006 ten-minute paper workflow acceptance' {
+        .\tools\run-m006-ten-minute-paper-workflow-acceptance.ps1 | Write-Host
+    }
+    Invoke-GateStep 'n001 real privacy boundary admission' {
+        .\tools\run-n001-real-privacy-boundary-admission.ps1 | Write-Host
+    }
+    Invoke-GateStep 'n002 excel template reuse' {
+        .\tools\run-n002-excel-template-reuse.ps1 | Write-Host
+    }
+    Invoke-GateStep 'n003 item score mapping workbench' {
+        .\tools\run-n003-item-score-mapping-workbench.ps1 | Write-Host
+    }
+    Invoke-GateStep 'n004 class commentary report mvp' {
+        .\tools\run-n004-class-commentary-report-mvp.ps1 | Write-Host
+    }
+    Invoke-GateStep 'n005 tiered practice draft-test' {
+        .\tools\run-n005-tiered-practice-draft-test.ps1 | Write-Host
+    }
+    Invoke-GateStep 'n006 pre-pilot security audit' {
+        .\tools\run-n006-pre-pilot-security-audit.ps1 | Write-Host
+    }
+
     Invoke-GateStep 'c002q ai extract dry-run guard' {
         .\tools\run-c002q-ai-extract-dry-run.ps1 | Write-Host
     }
@@ -359,15 +424,17 @@ try {
         $app = Get-Content -LiteralPath 'apps\web\src\App.tsx' -Raw
         foreach ($pattern in @(
             'data-flow="question-search"',
-            'data-filter="knowledge"',
-            'data-filter="question-type"',
-            'data-filter="difficulty"',
-            'data-filter="source"',
             'data-card="question-card"',
             'draft_test'
         )) {
             if (-not $app.Contains($pattern)) {
                 throw "missing E001 UI contract marker: $pattern"
+            }
+        }
+
+        foreach ($filter in @('knowledge', 'question-type', 'difficulty', 'source')) {
+            if ((-not $app.Contains("data-filter=""$filter""")) -and (-not $app.Contains("filter: '$filter'"))) {
+                throw "missing E001 UI filter marker: $filter"
             }
         }
     }
@@ -418,6 +485,18 @@ try {
 
     Invoke-GateStep 'o004 admin internal auth boundary contract' {
         .\tools\run-o004-admin-internal-auth-boundary-contract.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'o001 windows service publish package contract' {
+        .\tools\run-o001-windows-service-publish-contract.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'o002 installer init wizard contract' {
+        .\tools\run-o002-installer-init-wizard-contract.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'o003 recovery drill upgrade contract' {
+        .\tools\run-o003-recovery-drill-contract.ps1 | Write-Host
     }
 
     Invoke-GateStep 'b001 duplicate upload smoke' {

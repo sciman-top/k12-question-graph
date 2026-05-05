@@ -1,0 +1,21 @@
+version: "o002.installer-init.v1"
+mode: "draft_test"
+postgresql:
+  host: "127.0.0.1"
+  port: 5432
+  database: "k12_question_graph"
+  username: "postgres"
+paths:
+  data_root: "D:\\KQG_Data"
+  backup_root: "D:\\KQG_Backups"
+  file_store_relative: "file_store"
+  logs_relative: "logs"
+  cache_relative: "cache"
+security:
+  bootstrap_admin:
+    mode: "admin_internal_guard_key"
+    rotate_required_on_first_login: true
+    persist_plaintext_key: false
+references:
+  pgpass_config: "configs\\installer_credentials.defaults.yaml"
+  pgpass_gate: "tools\\run-g004-pgpass-installer-dry-run.ps1"

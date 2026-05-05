@@ -15,8 +15,8 @@ public sealed class DocumentWorkerClient(
         CancellationToken cancellationToken)
     {
         var workerOptions = options.Value;
-        var repoRoot = Path.GetFullPath(Path.Combine(environment.ContentRootPath, "..", ".."));
-        var scriptPath = Path.GetFullPath(Path.Combine(repoRoot, workerOptions.DocumentWorkerScript));
+        var contentRoot = Path.GetFullPath(environment.ContentRootPath);
+        var scriptPath = WorkerPathHelpers.ResolveWorkerScriptPath(contentRoot, workerOptions.DocumentWorkerScript);
 
         var startInfo = new ProcessStartInfo
         {
@@ -24,7 +24,7 @@ public sealed class DocumentWorkerClient(
             RedirectStandardError = true,
             RedirectStandardOutput = true,
             UseShellExecute = false,
-            WorkingDirectory = repoRoot
+            WorkingDirectory = contentRoot
         };
         startInfo.ArgumentList.Add(scriptPath);
         startInfo.ArgumentList.Add("--job-id");

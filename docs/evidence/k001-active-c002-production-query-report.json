@@ -127,6 +127,6 @@
     "doesNotWriteProductionHistory": true
   },
   "rollback": "git restore tracked files; this K001 contract performs read-only DB checks and does not mutate active assets",
-  "createdAt": "2026-05-05T05:49:59.718210+00:00",
+  "createdAt": "2026-05-05T06:13:52.827467+00:00",
   "summaryChinese": "K001 已验证题库检索、组卷约束和学情分析的默认知识来源均引用 active C002 v1；本合同只读数据库，不修改 active 资产，不写真实学情。"
 }

@@ -50,9 +50,47 @@ The gate also covers `i001-i008 teacher workflow UI contracts`,
 It also includes `o004 admin internal auth boundary contract`, which requires
 `/api/admin/*` and `/internal/ai/*` to be blocked outside explicit draft/test
 or configured admin-key contexts.
+It also includes `o001 windows service publish package contract`, which
+publishes API/Web, packages worker script into publish output, and verifies the
+published API can boot with `--contentRoot` from a non-repo working directory.
 It starts temporary
 API processes for API smoke steps, so `PGPASSWORD` must match the local PostgreSQL
 password.
+
+O001 windows service publish package contract:
+
+```powershell
+.\tools\run-o001-windows-service-publish-contract.ps1
+```
+
+This validates that the Windows publish package has API/Web artifacts,
+`PythonWorker.DocumentWorkerScript` points to package-local worker path,
+`KqgPaths` stays absolute, and health/readiness pass when the published API is
+started from a temporary working directory (not repository root).
+
+O002 installer initialization wizard contract:
+
+```powershell
+.\tools\run-o002-installer-init-wizard-contract.ps1
+```
+
+This validates installer initialization readiness in draft/test mode:
+PostgreSQL connection parameters, data/backup/file-store/log/cache directory
+creation and writable probes, embedded G004 pgpass dry-run, and bootstrap admin
+key hashing (without persisting plaintext). It does not complete RBAC/audit
+closure, which remains blocked by `O004B`.
+
+O003 recovery drill upgrade contract:
+
+```powershell
+.\tools\run-o003-recovery-drill-contract.ps1
+```
+
+This runs a backup + verify cycle, then performs isolated restore drill steps
+from the generated manifest: PostgreSQL dump restore plan extraction
+(`pg_restore -l`), schema-only extraction, file store copy restore, config
+restore, templates restore, and teacher preference restore. The drill writes to
+`tmp/o003/*` only and does not mutate production active assets.
 
 I008 teacher simplification contract:
 
