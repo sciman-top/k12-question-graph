@@ -580,6 +580,15 @@ try {
     Invoke-GateStep 'r007 interoperability profile map preflight contract' {
         .\tools\run-r007-interoperability-profile-map-preflight-contract.ps1 | Write-Host
     }
+    Invoke-GateStep 'pqr preflight pack contract' {
+        .\tools\run-pqr-preflight-pack-contract.ps1 | Write-Host
+    }
+    Invoke-GateStep 'pqr preflight freshness guard' {
+        .\tools\run-pqr-preflight-freshness-guard.ps1 | Write-Host
+    }
+    Invoke-GateStep 'pqr preflight dashboard contract' {
+        .\tools\run-pqr-preflight-dashboard-contract.ps1 | Write-Host
+    }
 
     Invoke-GateStep 'b001 duplicate upload smoke' {
         if ([string]::IsNullOrWhiteSpace($DatabasePassword)) {

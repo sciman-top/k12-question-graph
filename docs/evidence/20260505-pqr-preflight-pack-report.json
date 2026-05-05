@@ -1,0 +1,35 @@
+{
+  "status": "pass",
+  "task": "PQR preflight pack",
+  "checkedAt": "2026-05-05T22:41:07",
+  "targetCount": 18,
+  "todoCount": 18,
+  "groups": {
+    "P": [
+      "P001",
+      "P002",
+      "P003",
+      "P004",
+      "P005",
+      "P006"
+    ],
+    "Q": [
+      "Q001",
+      "Q002",
+      "Q003",
+      "Q004",
+      "Q005"
+    ],
+    "R": [
+      "R001",
+      "R002",
+      "R003",
+      "R004",
+      "R005",
+      "R006",
+      "R007"
+    ]
+  },
+  "boundary": "preflight only; no live execution state transition is performed",
+  "report": "docs/evidence/20260505-pqr-preflight-pack-report.json"
+}

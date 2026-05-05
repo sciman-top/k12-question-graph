@@ -1,0 +1,119 @@
+{
+  "status": "pass",
+  "task": "PQR preflight dashboard",
+  "checkedAt": "2026-05-05T22:41:07",
+  "totals": {
+    "all": 18,
+    "todo": 18,
+    "completed": 0
+  },
+  "blockers": {
+    "root": "P006 release decision remains todo; downstream Q/R stay preflight-only by design",
+    "p": "P001-P006 require live/on-site evidence to transition from 待办",
+    "q": "Q001-Q005 depend on P006 and second-subject real execution evidence",
+    "r": "R001-R003/R005-R007 depend on P006; R004 depends on N004 and advanced-analysis admission"
+  },
+  "nextActions": [
+    "When live/on-site execution becomes available, close P001->P006 in order with real evidence.",
+    "After P006, execute Q001->Q005 second-subject pipeline with admission/review/activation proof.",
+    "Then execute R-series evaluations with ADR/admission artifacts."
+  ],
+  "groups": {
+    "P": [
+      {
+        "id": "P001",
+        "status": "待办",
+        "depends_on": "O004B;O006;O007"
+      },
+      {
+        "id": "P002",
+        "status": "待办",
+        "depends_on": "P001"
+      },
+      {
+        "id": "P003",
+        "status": "待办",
+        "depends_on": "P002"
+      },
+      {
+        "id": "P004",
+        "status": "待办",
+        "depends_on": "P003"
+      },
+      {
+        "id": "P005",
+        "status": "待办",
+        "depends_on": "P004"
+      },
+      {
+        "id": "P006",
+        "status": "待办",
+        "depends_on": "P005"
+      }
+    ],
+    "Q": [
+      {
+        "id": "Q001",
+        "status": "待办",
+        "depends_on": "P006"
+      },
+      {
+        "id": "Q002",
+        "status": "待办",
+        "depends_on": "Q001"
+      },
+      {
+        "id": "Q003",
+        "status": "待办",
+        "depends_on": "Q002"
+      },
+      {
+        "id": "Q004",
+        "status": "待办",
+        "depends_on": "Q003"
+      },
+      {
+        "id": "Q005",
+        "status": "待办",
+        "depends_on": "Q004"
+      }
+    ],
+    "R": [
+      {
+        "id": "R001",
+        "status": "待办",
+        "depends_on": "P006"
+      },
+      {
+        "id": "R002",
+        "status": "待办",
+        "depends_on": "P006"
+      },
+      {
+        "id": "R003",
+        "status": "待办",
+        "depends_on": "P006"
+      },
+      {
+        "id": "R004",
+        "status": "待办",
+        "depends_on": "N004"
+      },
+      {
+        "id": "R005",
+        "status": "待办",
+        "depends_on": "P006"
+      },
+      {
+        "id": "R006",
+        "status": "待办",
+        "depends_on": "P006"
+      },
+      {
+        "id": "R007",
+        "status": "待办",
+        "depends_on": "P006"
+      }
+    ]
+  }
+}
