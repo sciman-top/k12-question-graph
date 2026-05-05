@@ -10,6 +10,14 @@ function Assert-True([bool]$Condition, [string]$Message) {
     if (-not $Condition) { throw $Message }
 }
 
+function Write-ContentIfChanged([string]$Path, [string]$Content) {
+    if (Test-Path -LiteralPath $Path) {
+        $existing = Get-Content -LiteralPath $Path -Raw
+        if ($existing -eq $Content) { return }
+    }
+    Set-Content -LiteralPath $Path -Value $Content -Encoding UTF8
+}
+
 $backlogFullPath = Join-Path $repoRoot $BacklogPath
 $reportFullPath = Join-Path $repoRoot $ReportPath
 Assert-True (Test-Path -LiteralPath $backlogFullPath) "PQR backlog file missing: $BacklogPath"
@@ -69,7 +77,7 @@ Assert-True ($missing.Count -eq 0) ("PQR preflight pack validation failed: " + (
 $summary = [ordered]@{
     status = 'pass'
     task = 'PQR preflight pack'
-    checkedAt = (Get-Date).ToString('s')
+    checkedDate = (Get-Date).ToString('yyyy-MM-dd')
     targetCount = $targets.Count
     todoCount = ($targets | Where-Object { $_.status -eq '待办' }).Count
     groups = [ordered]@{
@@ -81,5 +89,6 @@ $summary = [ordered]@{
     report = $ReportPath
 }
 
-$summary | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $reportFullPath -Encoding UTF8
+$summaryJson = $summary | ConvertTo-Json -Depth 6
+Write-ContentIfChanged -Path $reportFullPath -Content $summaryJson
 $summary | ConvertTo-Json -Depth 6

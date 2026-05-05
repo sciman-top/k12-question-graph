@@ -11,6 +11,14 @@ function Assert-True([bool]$Condition, [string]$Message) {
     if (-not $Condition) { throw $Message }
 }
 
+function Write-ContentIfChanged([string]$Path, [string]$Content) {
+    if (Test-Path -LiteralPath $Path) {
+        $existing = Get-Content -LiteralPath $Path -Raw
+        if ($existing -eq $Content) { return }
+    }
+    Set-Content -LiteralPath $Path -Value $Content -Encoding UTF8
+}
+
 $rows = Import-Csv -LiteralPath (Join-Path $repoRoot $BacklogPath) -Encoding UTF8
 $targets = $rows | Where-Object { $_.id -match '^(P00[1-6]|Q00[1-5]|R00[1-7])$' }
 Assert-True ($targets.Count -eq 18) 'PQR freshness guard expects 18 targets'
@@ -67,10 +75,12 @@ Assert-True ($issues.Count -eq 0) ("PQR freshness guard failed: " + ($issues | C
 $report = [ordered]@{
     status = 'pass'
     task = 'PQR preflight freshness guard'
-    checkedAt = (Get-Date).ToString('s')
+    checkedDate = (Get-Date).ToString('yyyy-MM-dd')
     expectedDatePrefix = $ExpectedDatePrefix
     targetCount = $targets.Count
     report = $ReportPath
 }
-$report | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $repoRoot $ReportPath) -Encoding UTF8
+$reportFullPath = Join-Path $repoRoot $ReportPath
+$reportJson = $report | ConvertTo-Json -Depth 4
+Write-ContentIfChanged -Path $reportFullPath -Content $reportJson
 $report | ConvertTo-Json -Depth 4

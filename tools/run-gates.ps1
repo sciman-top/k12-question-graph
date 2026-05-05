@@ -589,6 +589,9 @@ try {
     Invoke-GateStep 'pqr preflight dashboard contract' {
         .\tools\run-pqr-preflight-dashboard-contract.ps1 | Write-Host
     }
+    Invoke-GateStep 'pqr orchestration consistency guard' {
+        .\tools\run-pqr-orchestration-consistency-guard.ps1 | Write-Host
+    }
 
     Invoke-GateStep 'b001 duplicate upload smoke' {
         if ([string]::IsNullOrWhiteSpace($DatabasePassword)) {

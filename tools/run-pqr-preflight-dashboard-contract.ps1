@@ -11,6 +11,14 @@ function Assert-True([bool]$Condition, [string]$Message) {
     if (-not $Condition) { throw $Message }
 }
 
+function Write-ContentIfChanged([string]$Path, [string]$Content) {
+    if (Test-Path -LiteralPath $Path) {
+        $existing = Get-Content -LiteralPath $Path -Raw
+        if ($existing -eq $Content) { return }
+    }
+    Set-Content -LiteralPath $Path -Value $Content -Encoding UTF8
+}
+
 $rows = Import-Csv -LiteralPath (Join-Path $repoRoot $BacklogPath) -Encoding UTF8
 $targets = $rows | Where-Object { $_.id -match '^(P00[1-6]|Q00[1-5]|R00[1-7])$' } | Sort-Object id
 Assert-True ($targets.Count -eq 18) 'PQR dashboard expects 18 target tasks'
@@ -24,7 +32,7 @@ $groups = [ordered]@{
 $summary = [ordered]@{
     status = 'pass'
     task = 'PQR preflight dashboard'
-    checkedAt = (Get-Date).ToString('s')
+    checkedDate = (Get-Date).ToString('yyyy-MM-dd')
     totals = [ordered]@{
         all = $targets.Count
         todo = @($targets | Where-Object { $_.status -eq '待办' }).Count
@@ -50,12 +58,13 @@ $summary = [ordered]@{
 
 $jsonFullPath = Join-Path $repoRoot $DashboardJsonPath
 $mdFullPath = Join-Path $repoRoot $DashboardMarkdownPath
-$summary | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $jsonFullPath -Encoding UTF8
+$summaryJson = $summary | ConvertTo-Json -Depth 8
+Write-ContentIfChanged -Path $jsonFullPath -Content $summaryJson
 
 $md = @()
 $md += '# 20260505 PQR preflight dashboard'
 $md += ''
-$md += "- checkedAt: $($summary.checkedAt)"
+$md += "- checkedDate: $($summary.checkedDate)"
 $md += "- totals: all=$($summary.totals.all), todo=$($summary.totals.todo), completed=$($summary.totals.completed)"
 $md += ''
 $md += '## Blockers'
@@ -75,6 +84,7 @@ foreach ($g in @('P','Q','R')) {
         $md += "| $g | $($row.id) | $($row.status) | $($row.depends_on) |"
     }
 }
-$md -join "`r`n" | Set-Content -LiteralPath $mdFullPath -Encoding UTF8
+$mdContent = $md -join "`r`n"
+Write-ContentIfChanged -Path $mdFullPath -Content $mdContent
 
 $summary | ConvertTo-Json -Depth 8
