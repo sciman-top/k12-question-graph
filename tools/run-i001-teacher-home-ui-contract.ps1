@@ -10,6 +10,12 @@ $css = Get-Content -LiteralPath $cssPath -Raw
 $adminPanels = Get-Content -LiteralPath $adminPanelsPath -Raw
 $uiSource = $app + "`n" + $adminPanels
 
+$mainMatch = [regex]::Match($app, '<main\s+className=\{`workspace teacher-view-\$\{activeTeacherView\}`\}[\s\S]*?</main>')
+if (-not $mainMatch.Success) {
+    throw "missing I001 teacher workspace shell"
+}
+$teacherWorkspace = $mainMatch.Value
+
 $analysisMatch = [regex]::Match($app, '<section\s+className="analysis-panel"[\s\S]*?</section>')
 if (-not $analysisMatch.Success) {
     throw "missing I001 analysis panel section"
@@ -45,6 +51,10 @@ if ($app.Contains('className="admin-knowledge-panel"')) {
     throw "I001 teacher shell must not inline admin knowledge panel"
 }
 
+if ($teacherWorkspace.Contains('<AdminGovernancePanels />')) {
+    throw "I001 teacher workspace must not mount admin governance panels"
+}
+
 foreach ($view in @("'import' as TeacherView", "'paper' as TeacherView", "'scores' as TeacherView", "'analysis' as TeacherView")) {
     if (-not $app.Contains($view)) {
         throw "missing I001 teacher action view: $view"
@@ -60,11 +70,16 @@ foreach ($pattern in @(
     '.source-material-panel',
     '.activation-panel',
     '.storage-panel',
-    '.guardrail-panel'
+    '.guardrail-panel',
+    '.admin-workspace'
 )) {
     if (-not $css.Contains($pattern)) {
         throw "missing I001 teacher home CSS guard: $pattern"
     }
+}
+
+if (-not $app.Contains('data-shell="admin-governance-staging"')) {
+    throw "I001 must keep admin governance mounted outside the teacher workspace shell"
 }
 
 if ($app.Contains('普通教师默认入口保持 4 个，高级配置后置。')) {

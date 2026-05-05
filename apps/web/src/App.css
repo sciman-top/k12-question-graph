@@ -43,6 +43,10 @@
   box-sizing: border-box;
 }
 
+.admin-workspace {
+  display: none;
+}
+
 .primary-panel,
 .status-panel,
 .question-panel,

@@ -66,11 +66,15 @@ try {
         'data-flow="admin-storage-dashboard"',
         'data-contract="storage-summary"',
         'data-contract="cache-cleanup-configured-root"',
-        'data-action="cache-cleanup-dry-run"',
         'data-contract="no-production-data-delete"'
     )) {
         Assert-Condition ($uiSource.Contains($pattern)) "missing G002 UI contract marker: $pattern"
     }
+
+    Assert-Condition (
+        $uiSource.Contains('data-action="cache-cleanup-dry-run"') -or
+        $uiSource.Contains("action: 'cache-cleanup-dry-run'")
+    ) 'missing G002 UI contract marker: cache-cleanup-dry-run'
 
     $resolved = @{
         DataRoot = (Join-Path $repoRoot $DataRoot)

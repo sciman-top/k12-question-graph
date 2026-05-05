@@ -44,10 +44,6 @@ foreach ($pattern in @(
 }
 
 foreach ($pattern in @(
-    'data-filter="pending_review"',
-    'data-filter="low_confidence"',
-    'data-filter="high_impact"',
-    'data-filter="many_to_many"',
     'data-mapping-type={item.mappingType}',
     "mappingType: 'split'",
     "mappingType: 'merge'",
@@ -59,6 +55,18 @@ foreach ($pattern in @(
     Assert-Condition ($uiSource.Contains($pattern)) "missing K003 filter or mapping marker: $pattern"
 }
 
+foreach ($filter in @(
+    'pending_review',
+    'low_confidence',
+    'high_impact',
+    'many_to_many'
+)) {
+    Assert-Condition (
+        $uiSource.Contains("data-filter=""$filter""") -or
+        $uiSource.Contains("filter: '$filter'")
+    ) "missing K003 filter marker: $filter"
+}
+
 foreach ($action in @(
     'data-action="approve-mapping"',
     'data-action="change-mapping-target"',
@@ -66,7 +74,11 @@ foreach ($action in @(
     'data-action="merge-mapping"',
     'data-action="undo-mapping-review"'
 )) {
-    Assert-Condition ($uiSource.Contains($action)) "missing K003 review action: $action"
+    $actionName = $action.Replace('data-action="', '').Replace('"', '')
+    Assert-Condition (
+        $uiSource.Contains($action) -or
+        $uiSource.Contains("action: '$actionName'")
+    ) "missing K003 review action: $actionName"
 }
 
 foreach ($label in @(

@@ -33,6 +33,13 @@ const sourceMaterialUploads = [
   { title: '2025 本地物理考情年报.pdf', sourceType: 'exam_analysis_report', region: '本地', year: '2025', status: 'uploaded_metadata' },
 ]
 
+const sourceMaterialUsageTags = [
+  { label: '可用于知识点提炼' },
+  { label: '可用于考点提炼' },
+  { label: '可用于趋势分析' },
+  { label: '不进入生产', contract: 'productionEligible=false' },
+]
+
 const activationOverview = {
   subject: '初中物理',
   region: '广州',
@@ -98,6 +105,13 @@ const knowledgeAssetEvidence = [
   { label: 'revision drill', path: 'docs/evidence/k005-c002-second-revision-drill-report.json', summary: '第二批修订仅 active dry-run，不改旧 active' },
 ]
 
+const mappingReviewFilters = [
+  { label: '待审核', color: 'orange', filter: 'pending_review' },
+  { label: '低置信度', filter: 'low_confidence' },
+  { label: '高影响', filter: 'high_impact' },
+  { label: '多对多', filter: 'many_to_many' },
+]
+
 const mappingReviewItems = [
   {
     id: 'review-ohm-split',
@@ -151,6 +165,55 @@ const cleanupPlan = {
   rollback: '清理前证据报告保留候选文件清单',
 }
 
+const revisionActions = [
+  { label: '提交修订建议', action: 'submit-c002r-teacher-revision', icon: <FileTextOutlined /> },
+  { label: '预览影响摘要', action: 'preview-c002r-impact', icon: <FileSearchOutlined /> },
+  { label: '查看审核状态', action: 'open-c002r-review-status', icon: <ClockCircleOutlined /> },
+]
+
+const mappingReviewActions = [
+  { label: '确认', action: 'approve-mapping', icon: <CheckCircleOutlined /> },
+  { label: '改目标', action: 'change-mapping-target', icon: <LinkOutlined /> },
+  { label: '拆分', action: 'split-mapping', icon: <SplitCellsOutlined /> },
+  { label: '合并', action: 'merge-mapping', icon: <MergeCellsOutlined /> },
+  { label: '撤销', action: 'undo-mapping-review', icon: <UndoOutlined /> },
+]
+
+const activationActions = [
+  { label: '开始复核', action: 'open-candidate-review', icon: <ReadOutlined /> },
+  { label: '查看确认表', action: 'open-activation-approval', icon: <CheckCircleOutlined /> },
+  { label: '查看证据', action: 'open-activation-evidence', icon: <FileTextOutlined /> },
+  { label: '查看回滚', action: 'open-rollback-summary', icon: <ClockCircleOutlined /> },
+]
+
+const knowledgeHealthActions = [
+  { label: '查看证据', action: 'open-knowledge-health-evidence', icon: <FileSearchOutlined /> },
+  { label: '查看待审映射', action: 'open-pending-mapping-review', icon: <ReadOutlined /> },
+  { label: '查看迁移历史', action: 'open-migration-history', icon: <ClockCircleOutlined /> },
+  { label: '查看阻断项', action: 'open-blocker-report', icon: <SafetyCertificateOutlined /> },
+]
+
+const storageActions = [
+  { label: '查看详情', action: 'storage-summary', icon: <FileSearchOutlined /> },
+  { label: '预览清理', action: 'cache-cleanup-dry-run', icon: <DeleteOutlined /> },
+]
+
+function sourceRequirementColor(requirement: string) {
+  if (requirement === '必需') {
+    return 'red'
+  }
+
+  if (requirement === '强烈建议') {
+    return 'orange'
+  }
+
+  return undefined
+}
+
+function healthCardIcon(key: string) {
+  return key === 'blockers' ? <SafetyCertificateOutlined /> : <DatabaseOutlined />
+}
+
 const labelFor = teacherLabelFor
 
 export function AdminGovernancePanels() {
@@ -186,9 +249,11 @@ export function AdminGovernancePanels() {
           </div>
 
           <Space wrap className="revision-actions" data-contract="no-teacher-active-switch">
-            <Button icon={<FileTextOutlined />} data-action="submit-c002r-teacher-revision">提交修订建议</Button>
-            <Button icon={<FileSearchOutlined />} data-action="preview-c002r-impact">预览影响摘要</Button>
-            <Button icon={<ClockCircleOutlined />} data-action="open-c002r-review-status">查看审核状态</Button>
+            {revisionActions.map((item) => (
+              <Button key={item.action} icon={item.icon} data-action={item.action}>
+                {item.label}
+              </Button>
+            ))}
           </Space>
 
           <Alert showIcon type="info" title="不会直接修改当前正式知识体系" description="本入口只生成 pending_review 的 candidate 和影响报告；管理员完成审核、备份和回滚检查后，才可能切换 active。" data-contract="candidate-pending-review-only" />
@@ -202,10 +267,11 @@ export function AdminGovernancePanels() {
               <Typography.Text>默认只看待审核、低置信度、高影响和复杂基数映射；split、merge、deprecated 必须逐项给出审核理由。</Typography.Text>
             </div>
             <Space size="small" wrap>
-              <Tag color="orange" data-filter="pending_review">待审核</Tag>
-              <Tag data-filter="low_confidence">低置信度</Tag>
-              <Tag data-filter="high_impact">高影响</Tag>
-              <Tag data-filter="many_to_many">多对多</Tag>
+              {mappingReviewFilters.map((item) => (
+                <Tag key={item.filter} color={item.color} data-filter={item.filter}>
+                  {item.label}
+                </Tag>
+              ))}
             </Space>
           </div>
 
@@ -230,11 +296,11 @@ export function AdminGovernancePanels() {
                   <span data-view="rollback_preview"><UndoOutlined />{item.rollback}</span>
                 </div>
                 <div className="mapping-review-actions" data-contract="manual-review-actions">
-                  <Button icon={<CheckCircleOutlined />} data-action="approve-mapping">确认</Button>
-                  <Button icon={<LinkOutlined />} data-action="change-mapping-target">改目标</Button>
-                  <Button icon={<SplitCellsOutlined />} data-action="split-mapping">拆分</Button>
-                  <Button icon={<MergeCellsOutlined />} data-action="merge-mapping">合并</Button>
-                  <Button icon={<UndoOutlined />} data-action="undo-mapping-review">撤销</Button>
+                  {mappingReviewActions.map((action) => (
+                    <Button key={action.action} icon={action.icon} data-action={action.action}>
+                      {action.label}
+                    </Button>
+                  ))}
                 </div>
               </div>
             ))}
@@ -261,7 +327,7 @@ export function AdminGovernancePanels() {
             {sourceMaterialTypes.map((item) => (
               <button className="source-type-card" key={item.type} type="button">
                 <span><strong>{item.title}</strong><small>{item.use}</small></span>
-                <Tag color={item.requirement === '必需' ? 'red' : item.requirement === '可选' ? undefined : 'orange'}>{item.requirement}</Tag>
+                <Tag color={sourceRequirementColor(item.requirement)}>{item.requirement}</Tag>
               </button>
             ))}
           </div>
@@ -272,7 +338,13 @@ export function AdminGovernancePanels() {
               <label>年份<Input defaultValue="2025" aria-label="年份" /></label>
               <label>批次<Input defaultValue="local-physics-2015-2025" aria-label="批次" /></label>
             </div>
-            <div className="source-permission-row"><Tag>可用于知识点提炼</Tag><Tag>可用于考点提炼</Tag><Tag>可用于趋势分析</Tag><Tag data-contract="productionEligible=false">不进入生产</Tag></div>
+            <div className="source-permission-row">
+              {sourceMaterialUsageTags.map((item) => (
+                <Tag key={item.label} data-contract={item.contract}>
+                  {item.label}
+                </Tag>
+              ))}
+            </div>
             <Button icon={<CloudUploadOutlined />} data-action="upload-source-material">上传来源资料</Button>
           </div>
           <div className="source-material-list" data-contract="source-material-list">
@@ -298,17 +370,31 @@ export function AdminGovernancePanels() {
           <div><Typography.Text type="secondary">阻断问题</Typography.Text><strong>{activationOverview.blockers}</strong><small>{activationOverview.backupStatus}</small></div>
         </div>
         <div className="activation-flow" aria-label="激活进度">
-          {activationSteps.map((step) => <div className="activation-step" key={step.title}><span className="activation-step-icon">{step.icon}</span><span><strong>{step.title}</strong><small>{step.description}</small></span><Tag color="green">{step.status}</Tag></div>)}
+          {activationSteps.map((step) => (
+            <div className="activation-step" key={step.title}>
+              <span className="activation-step-icon">{step.icon}</span>
+              <span><strong>{step.title}</strong><small>{step.description}</small></span>
+              <Tag color="green">{step.status}</Tag>
+            </div>
+          ))}
         </div>
         <div className="activation-review" data-contract="teacher-review">
           <div className="activation-review-copy"><Typography.Title level={3}>教师需要做什么</Typography.Title><Typography.Text>不需要看脚本。只检查候选结果是否有明显错误；没有问题就提交复核结论。</Typography.Text></div>
-          <div className="activation-review-list">{activationReviewItems.map((item) => <div className="activation-review-row" key={item.label}><span><strong>{item.label}</strong><small>{item.action}</small></span><Tag>{item.count}</Tag></div>)}</div>
+          <div className="activation-review-list">
+            {activationReviewItems.map((item) => (
+              <div className="activation-review-row" key={item.label}>
+                <span><strong>{item.label}</strong><small>{item.action}</small></span>
+                <Tag>{item.count}</Tag>
+              </div>
+            ))}
+          </div>
         </div>
         <div className="activation-actions" data-contract="role-split">
-          <Button icon={<ReadOutlined />} data-action="open-candidate-review">开始复核</Button>
-          <Button icon={<CheckCircleOutlined />} data-action="open-activation-approval">查看确认表</Button>
-          <Button icon={<FileTextOutlined />} data-action="open-activation-evidence">查看证据</Button>
-          <Button icon={<ClockCircleOutlined />} data-action="open-rollback-summary">查看回滚</Button>
+          {activationActions.map((item) => (
+            <Button key={item.action} icon={item.icon} data-action={item.action}>
+              {item.label}
+            </Button>
+          ))}
         </div>
         <Alert showIcon type="warning" icon={<ExclamationCircleOutlined />} title="正式激活只给管理员" description="普通教师侧不执行激活脚本；管理员确认前必须看到备份、阻断项、复核结论和回滚说明。" data-contract="rollback-ready" />
       </section>
@@ -319,17 +405,31 @@ export function AdminGovernancePanels() {
           <Space size="small" wrap><Tag color="green" data-contract="active-version">{knowledgeAssetHealth.activeVersion}</Tag><Tag data-contract="evidence-updated-at">证据 {knowledgeAssetHealth.evidenceUpdatedAt}</Tag></Space>
         </div>
         <div className="knowledge-health-grid" data-contract="active-candidate-pending-summary">
-          {knowledgeAssetHealthCards.map((card) => <div className="knowledge-health-card" key={card.key} data-health-key={card.key}><span className="knowledge-health-icon">{card.key === 'blockers' ? <SafetyCertificateOutlined /> : <DatabaseOutlined />}</span><span><Typography.Text type="secondary">{card.label}</Typography.Text><strong>{card.value}</strong><small>{card.detail}</small></span><Tag color={card.value === 0 ? 'green' : 'orange'}>{card.status}</Tag></div>)}
+          {knowledgeAssetHealthCards.map((card) => (
+            <div className="knowledge-health-card" key={card.key} data-health-key={card.key}>
+              <span className="knowledge-health-icon">{healthCardIcon(card.key)}</span>
+              <span><Typography.Text type="secondary">{card.label}</Typography.Text><strong>{card.value}</strong><small>{card.detail}</small></span>
+              <Tag color={card.value === 0 ? 'green' : 'orange'}>{card.status}</Tag>
+            </div>
+          ))}
         </div>
         <div className="knowledge-health-evidence" data-contract="evidence-summary">
           <div><Typography.Title level={3}>证据摘要</Typography.Title><Typography.Text>健康状态来自 gate 证据，不在面板内直接执行 active switch、migration 或修订 apply。</Typography.Text></div>
-          <div className="knowledge-evidence-list">{knowledgeAssetEvidence.map((item) => <div className="knowledge-evidence-row" key={item.path}><span><strong>{item.label}</strong><small>{item.summary}</small><code>{item.path}</code></span><Tag>已记录</Tag></div>)}</div>
+          <div className="knowledge-evidence-list">
+            {knowledgeAssetEvidence.map((item) => (
+              <div className="knowledge-evidence-row" key={item.path}>
+                <span><strong>{item.label}</strong><small>{item.summary}</small><code>{item.path}</code></span>
+                <Tag>已记录</Tag>
+              </div>
+            ))}
+          </div>
         </div>
         <div className="knowledge-health-actions" data-contract="admin-readonly-actions">
-          <Button icon={<FileSearchOutlined />} data-action="open-knowledge-health-evidence">查看证据</Button>
-          <Button icon={<ReadOutlined />} data-action="open-pending-mapping-review">查看待审映射</Button>
-          <Button icon={<ClockCircleOutlined />} data-action="open-migration-history">查看迁移历史</Button>
-          <Button icon={<SafetyCertificateOutlined />} data-action="open-blocker-report">查看阻断项</Button>
+          {knowledgeHealthActions.map((item) => (
+            <Button key={item.action} icon={item.icon} data-action={item.action}>
+              {item.label}
+            </Button>
+          ))}
         </div>
         <Alert showIcon type="info" title="只读健康面板" description="本面板只汇总状态和证据；active 切换、migration apply、C002R 修订应用仍走受控脚本、备份和回滚门禁。" data-contract="no-active-write" />
       </section>
@@ -337,11 +437,23 @@ export function AdminGovernancePanels() {
       <section className="storage-panel" aria-label="存储看板" data-flow="admin-storage-dashboard">
         <div className="panel-heading"><div><Typography.Title level={2}>存储看板</Typography.Title><Typography.Text type="secondary">管理员查看占用和清理缓存；普通教师不接触路径、脚本和证据文件。</Typography.Text></div><Space size="small" wrap><Tag color="green">G002</Tag><Tag data-contract="productionEligible=false">草稿测试</Tag></Space></div>
         <div className="storage-grid" data-contract="storage-summary">
-          {storageAreas.map((area) => <div className="storage-card" key={area.name} data-cleanup-allowed={area.cleanupAllowed}><span className="storage-icon"><DatabaseOutlined /></span><span><Typography.Text type="secondary">{area.name}</Typography.Text><strong>{area.bytes}</strong><small>{area.files} 个文件</small></span><Tag color={area.cleanupAllowed ? 'orange' : undefined}>{area.cleanupAllowed ? '可清理' : '只读'}</Tag></div>)}
+          {storageAreas.map((area) => (
+            <div className="storage-card" key={area.name} data-cleanup-allowed={area.cleanupAllowed}>
+              <span className="storage-icon"><DatabaseOutlined /></span>
+              <span><Typography.Text type="secondary">{area.name}</Typography.Text><strong>{area.bytes}</strong><small>{area.files} 个文件</small></span>
+              <Tag color={area.cleanupAllowed ? 'orange' : undefined}>{area.cleanupAllowed ? '可清理' : '只读'}</Tag>
+            </div>
+          ))}
         </div>
         <div className="cache-cleanup-panel" data-contract="cache-cleanup-configured-root">
           <div><Typography.Title level={3}>缓存清理</Typography.Title><Typography.Text>{cleanupPlan.scope}，{cleanupPlan.dryRun}，{cleanupPlan.retention}。</Typography.Text><small>{cleanupPlan.rollback}</small></div>
-          <Space wrap><Button icon={<FileSearchOutlined />} data-action="storage-summary">查看详情</Button><Button icon={<DeleteOutlined />} data-action="cache-cleanup-dry-run">预览清理</Button></Space>
+          <Space wrap>
+            {storageActions.map((item) => (
+              <Button key={item.action} icon={item.icon} data-action={item.action}>
+                {item.label}
+              </Button>
+            ))}
+          </Space>
         </div>
         <Alert showIcon type="info" title="只清理缓存" description="文件仓库、备份包、学生成绩和正式资产不属于缓存清理范围。" data-contract="no-production-data-delete" />
       </section>

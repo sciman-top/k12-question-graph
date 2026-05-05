@@ -12,6 +12,12 @@ $teacherLabels = Get-Content -LiteralPath $teacherLabelsPath -Raw
 $adminPanels = Get-Content -LiteralPath $adminPanelsPath -Raw
 $uiSource = $app + "`n" + $adminPanels
 
+$mainMatch = [regex]::Match($app, '<main\s+className=\{`workspace teacher-view-\$\{activeTeacherView\}`\}[\s\S]*?</main>')
+if (-not $mainMatch.Success) {
+    throw "missing teacher workspace shell"
+}
+$teacherWorkspace = $mainMatch.Value
+
 function Get-SectionByClass([string] $ClassName) {
     $pattern = '<section\s+className="' + [regex]::Escape($ClassName) + '"[\s\S]*?</section>'
     $match = [regex]::Match($app, $pattern)
@@ -152,6 +158,14 @@ foreach ($requiredHelper in @(
 
 if (-not $app.Contains('服务未连接')) {
     throw "teacher-visible service fallback must use clear Chinese wording"
+}
+
+if ($teacherWorkspace.Contains('<AdminGovernancePanels />')) {
+    throw "teacher workspace must not mount admin governance panels"
+}
+
+if (-not $app.Contains('data-shell="admin-governance-staging"')) {
+    throw "admin governance staging shell must exist outside teacher workspace"
 }
 
 foreach ($adminOnlySelector in $adminOnlySelectors) {

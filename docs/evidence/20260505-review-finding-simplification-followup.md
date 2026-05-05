@@ -16,6 +16,7 @@
 
 - `tools/run-roadmap-guard.ps1` now treats `I009/I010/O004B/P001` as first-class simplification blockers and checks their dependencies and completion evidence.
 - `tools/run-i008-teacher-simplification-contract.ps1` now verifies all admin-only selectors remain hidden and are not re-opened by teacher-view CSS.
+- `apps/web/src/App.tsx` now mounts `AdminGovernancePanels` outside the teacher `main.workspace` shell, so admin governance is no longer only a same-shell hidden block.
 - `apps/web/src/api/client.ts` supports `VITE_KQG_API_BASE_URL`; `apps/web/vite.config.ts` proxies `/health` to the local API in development.
 - `apps/web/src/App.tsx` maps missing health data to `服务未连接` instead of exposing `unknown`.
 - `docs/75_E004_PaperExportMvp.md` now points old `E005/E006` scope to `M004/M005`.

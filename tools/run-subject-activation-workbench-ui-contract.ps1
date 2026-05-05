@@ -17,15 +17,22 @@ foreach ($pattern in @(
     'data-contract="role-split"',
     'data-contract="no-direct-activation"',
     'data-contract="rollback-ready"',
-    'data-action="open-candidate-review"',
-    'data-action="open-activation-approval"',
-    'data-action="open-activation-evidence"',
-    'data-action="open-rollback-summary"',
     '教师只做复核和确认',
     '正式激活只给管理员'
 )) {
     if (-not $uiSource.Contains($pattern)) {
         throw "missing subject activation workbench UI marker: $pattern"
+    }
+}
+
+foreach ($action in @(
+    'open-candidate-review',
+    'open-activation-approval',
+    'open-activation-evidence',
+    'open-rollback-summary'
+)) {
+    if ((-not $uiSource.Contains("data-action=""$action""")) -and (-not $uiSource.Contains("action: '$action'"))) {
+        throw "missing subject activation workbench action marker: $action"
     }
 }
 

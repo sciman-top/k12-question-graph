@@ -31,12 +31,20 @@ foreach ($pattern in @(
     'data-contract="system-generated-candidate-impact"',
     'data-contract="no-teacher-active-switch"',
     'data-contract="candidate-pending-review-only"',
-    'data-active-version="junior-physics-guangzhou-source-derived-v1"',
-    'data-action="submit-c002r-teacher-revision"',
-    'data-action="preview-c002r-impact"',
-    'data-action="open-c002r-review-status"'
+    'data-active-version="junior-physics-guangzhou-source-derived-v1"'
 )) {
     Assert-Condition ($uiSource.Contains($pattern)) "missing K002 UI marker: $pattern"
+}
+
+foreach ($action in @(
+    'submit-c002r-teacher-revision',
+    'preview-c002r-impact',
+    'open-c002r-review-status'
+)) {
+    Assert-Condition (
+        $uiSource.Contains("data-action=""$action""") -or
+        $uiSource.Contains("action: '$action'")
+    ) "missing K002 UI action: $action"
 }
 
 foreach ($label in @(

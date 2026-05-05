@@ -8,10 +8,6 @@ foreach ($pattern in @(
     'data-flow="paper-assembly-workbench"',
     'data-contract="ten-minute-target"',
     'data-contract="single-workbench"',
-    'data-contract="question-basket"',
-    'data-contract="blueprint-table-entry"',
-    'data-contract="replacement-entry"',
-    'data-contract="export-entry"',
     'data-flow="question-search"',
     'data-flow="paper-request-understanding"',
     'data-flow="paper-question-replacement"',
@@ -22,6 +18,18 @@ foreach ($pattern in @(
 )) {
     if (-not $app.Contains($pattern)) {
         throw "missing I004 paper workbench marker: $pattern"
+    }
+}
+
+foreach ($pattern in @(
+    'paperWorkbenchSummaryCards',
+    "'question-basket'",
+    "'blueprint-table-entry'",
+    "'replacement-entry'",
+    "'export-entry'"
+)) {
+    if (-not $app.Contains($pattern)) {
+        throw "missing I004 workbench summary configuration: $pattern"
     }
 }
 

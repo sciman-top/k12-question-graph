@@ -48,7 +48,11 @@ foreach ($action in @(
     'data-action="open-migration-history"',
     'data-action="open-blocker-report"'
 )) {
-    Assert-Condition ($uiSource.Contains($action)) "missing K006 readonly action: $action"
+    $actionName = $action.Replace('data-action="', '').Replace('"', '')
+    Assert-Condition (
+        $uiSource.Contains($action) -or
+        $uiSource.Contains("action: '$actionName'")
+    ) "missing K006 readonly action: $actionName"
 }
 
 foreach ($forbidden in @(

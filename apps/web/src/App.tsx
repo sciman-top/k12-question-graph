@@ -104,6 +104,63 @@ const initialSegments = [
 const sharedAssets = ['图 A：滑轮组示意图', '图 B：电路图', '表 1：实验数据']
 const defaultDifficultyFilterLabel = teacherDifficultyRangeLabelFor('0.4-0.7')
 
+const starterDemoSteps = [
+  { title: '导入样卷', detail: '使用示例试卷，不需要先准备真实资料', view: 'import' as TeacherView, contract: 'starter-step-1' },
+  { title: '生成样卷', detail: '默认初中物理、力学基础、30 分', view: 'paper' as TeacherView, contract: 'starter-step-2' },
+  { title: '导入样例成绩', detail: '字段映射自动匹配，异常行集中处理', view: 'scores' as TeacherView, contract: 'starter-step-3' },
+  { title: '查看讲评摘要', detail: '直接看到薄弱知识点和导出入口', view: 'analysis' as TeacherView, contract: 'starter-step-4' },
+]
+
+const importWizardSteps = [
+  ['上传文件', 'Word、PDF、图片'],
+  ['查看状态', '排队、处理中、失败、等待重试'],
+  ['确认异常', '只处理跨页、误切、共用题图'],
+  ['回看来源', '页码、区域和原文件可追溯'],
+]
+
+const scoreWorkbenchSteps = [
+  ['选择成绩表', '支持总分和小题分'],
+  ['确认字段', '系统记住本次映射'],
+  ['处理异常行', '只集中处理缺失和超分记录'],
+  ['生成分析', '导入后直接进入讲评摘要'],
+]
+
+const paperWorkbenchSteps = [
+  ['找题', '按知识点、题型、难度筛选'],
+  ['题篮', '已选 2 题，8 分'],
+  ['细目表', '单选 1 题，填空 1 题'],
+  ['换题', '保持知识点、题型、分值一致'],
+  ['导出', 'Word/PDF 草稿可打印'],
+]
+
+const scoreFieldMappings = [
+  ['student_key', '学生编号'],
+  ['total_score', '总分'],
+  ['q1_score', '第 1 题'],
+  ['q2_score', '第 2 题'],
+]
+
+const scoreAnalysisHighlights = [
+  ['87.5%', '班级得分率'],
+  ['运动快慢与速度', '薄弱点 1 个'],
+  ['区分度可用', '讲评参考报告'],
+]
+
+const teacherAnalysisHighlights = [
+  ['班级得分率', '87.5%', '示例基线'],
+  ['优先讲评', '运动快慢与速度', '薄弱点 1 个'],
+  ['下一步', '加入巩固题', '按当前知识版本选题'],
+]
+
+const paperWorkbenchSummaryCards = [
+  ['question-basket', '题篮', '2 题 · 8 分', '从检索结果直接加入'],
+  ['blueprint-table-entry', '细目表', '力学基础', '难度中等到略高'],
+  ['replacement-entry', '换题入口', '保持约束', '可撤销草稿'],
+  ['export-entry', '导出入口', 'Word / PDF', '先验证工件'],
+]
+
+const replacementAuditTags = ['同知识点', '同题型', '难度相近', '分值一致', '避开近期练过', '示例约束']
+
 const questionCards = [
   {
     id: 'draft_test-card-001',
@@ -428,12 +485,7 @@ function App() {
                 <Typography.Title level={3}>用默认样例跑一遍</Typography.Title>
               </div>
               <div className="starter-demo-grid">
-                {[
-                  { title: '导入样卷', detail: '使用示例试卷，不需要先准备真实资料', view: 'import' as TeacherView, contract: 'starter-step-1' },
-                  { title: '生成样卷', detail: '默认初中物理、力学基础、30 分', view: 'paper' as TeacherView, contract: 'starter-step-2' },
-                  { title: '导入样例成绩', detail: '字段映射自动匹配，异常行集中处理', view: 'scores' as TeacherView, contract: 'starter-step-3' },
-                  { title: '查看讲评摘要', detail: '直接看到薄弱知识点和导出入口', view: 'analysis' as TeacherView, contract: 'starter-step-4' },
-                ].map((step, index) => (
+                {starterDemoSteps.map((step, index) => (
                   <button
                     className="starter-step"
                     key={step.title}
@@ -483,12 +535,7 @@ function App() {
             />
 
             <div className="import-wizard" data-flow="paper-import-wizard">
-              {[
-                ['上传文件', 'Word、PDF、图片'],
-                ['查看状态', '排队、处理中、失败、等待重试'],
-                ['确认异常', '只处理跨页、误切、共用题图'],
-                ['回看来源', '页码、区域和原文件可追溯'],
-              ].map(([title, detail], index) => (
+              {importWizardSteps.map(([title, detail], index) => (
                 <div className="import-step" key={title} data-contract={`import-step-${index + 1}`}>
                   <strong>{index + 1}</strong>
                   <span>
@@ -552,12 +599,7 @@ function App() {
 
               <div className="score-field-mapping" data-contract="excel-field-mapping-preview">
                 <Typography.Text type="secondary">字段映射预览</Typography.Text>
-                {[
-                  ['student_key', '学生编号'],
-                  ['total_score', '总分'],
-                  ['q1_score', '第 1 题'],
-                  ['q2_score', '第 2 题'],
-                ].map(([field, label]) => (
+                {scoreFieldMappings.map(([field, label]) => (
                   <div className="mapping-row" key={field}>
                     <code>{field}</code>
                     <span>{label}</span>
@@ -579,18 +621,12 @@ function App() {
               <div className="score-analysis-summary" data-contract="knowledge-analysis-summary">
                 <Typography.Text type="secondary">知识点分析</Typography.Text>
                 <div className="analysis-summary-grid compact">
-                  <div>
-                    <strong>87.5%</strong>
-                    <small>班级得分率</small>
-                  </div>
-                  <div>
-                    <strong>运动快慢与速度</strong>
-                    <small>薄弱点 1 个</small>
-                  </div>
-                  <div>
-                    <strong>区分度可用</strong>
-                    <small>讲评参考报告</small>
-                  </div>
+                  {scoreAnalysisHighlights.map(([value, detail]) => (
+                    <div key={detail}>
+                      <strong>{value}</strong>
+                      <small>{detail}</small>
+                    </div>
+                  ))}
                 </div>
               </div>
 
@@ -602,12 +638,7 @@ function App() {
             </div>
 
             <div className="teacher-step-list">
-              {[
-                ['选择成绩表', '支持总分和小题分'],
-                ['确认字段', '系统记住本次映射'],
-                ['处理异常行', '只集中处理缺失和超分记录'],
-                ['生成分析', '导入后直接进入讲评摘要'],
-              ].map(([title, detail]) => (
+              {scoreWorkbenchSteps.map(([title, detail]) => (
                 <div className="teacher-step" key={title}>
                   <CheckCircleOutlined />
                   <span>
@@ -632,26 +663,16 @@ function App() {
               </Button>
             </div>
             <div className="analysis-summary-grid">
-              <div>
-                <Typography.Text type="secondary">班级得分率</Typography.Text>
-                <strong>87.5%</strong>
-                <small>示例基线</small>
-              </div>
-              <div>
-                <Typography.Text type="secondary">优先讲评</Typography.Text>
-                <strong>运动快慢与速度</strong>
-                <small>薄弱点 1 个</small>
-              </div>
-              <div>
-                <Typography.Text type="secondary">下一步</Typography.Text>
-                <strong>加入巩固题</strong>
-                <small>按当前知识版本选题</small>
-              </div>
+              {teacherAnalysisHighlights.map(([label, value, detail]) => (
+                <div key={label}>
+                  <Typography.Text type="secondary">{label}</Typography.Text>
+                  <strong>{value}</strong>
+                  <small>{detail}</small>
+                </div>
+              ))}
             </div>
 
           </section>
-
-          <AdminGovernancePanels />
 
           <section
             className="paper-workbench-panel"
@@ -672,13 +693,7 @@ function App() {
             </div>
 
             <div className="paper-workbench-flow" aria-label="组卷流程">
-              {[
-                ['找题', '按知识点、题型、难度筛选'],
-                ['题篮', '已选 2 题，8 分'],
-                ['细目表', '单选 1 题，填空 1 题'],
-                ['换题', '保持知识点、题型、分值一致'],
-                ['导出', 'Word/PDF 草稿可打印'],
-              ].map(([title, description], index) => (
+              {paperWorkbenchSteps.map(([title, description], index) => (
                 <div className="paper-workbench-step" key={title} data-contract={`paper-step-${index + 1}`}>
                   <strong>{index + 1}</strong>
                   <span>
@@ -690,26 +705,13 @@ function App() {
             </div>
 
             <div className="paper-workbench-summary">
-              <div data-contract="question-basket">
-                <Typography.Text type="secondary">题篮</Typography.Text>
-                <strong>2 题 · 8 分</strong>
-                <small>从检索结果直接加入</small>
-              </div>
-              <div data-contract="blueprint-table-entry">
-                <Typography.Text type="secondary">细目表</Typography.Text>
-                <strong>力学基础</strong>
-                <small>难度中等到略高</small>
-              </div>
-              <div data-contract="replacement-entry">
-                <Typography.Text type="secondary">换题入口</Typography.Text>
-                <strong>保持约束</strong>
-                <small>可撤销草稿</small>
-              </div>
-              <div data-contract="export-entry">
-                <Typography.Text type="secondary">导出入口</Typography.Text>
-                <strong>Word / PDF</strong>
-                <small>先验证工件</small>
-              </div>
+              {paperWorkbenchSummaryCards.map(([contract, title, value, detail]) => (
+                <div data-contract={contract} key={contract}>
+                  <Typography.Text type="secondary">{title}</Typography.Text>
+                  <strong>{value}</strong>
+                  <small>{detail}</small>
+                </div>
+              ))}
             </div>
           </section>
 
@@ -906,14 +908,7 @@ function App() {
             </div>
 
             <div className="replacement-audit" data-contract="replacement-audit-trail">
-              {[
-                '同知识点',
-                '同题型',
-                '难度相近',
-                '分值一致',
-                '避开近期练过',
-                '示例约束',
-              ].map((item) => (
+              {replacementAuditTags.map((item) => (
                 <Tag key={item}>{item}</Tag>
               ))}
             </div>
@@ -1163,6 +1158,9 @@ function App() {
           </section>
 
         </main>
+        <aside className="admin-workspace" data-shell="admin-governance-staging" aria-hidden="true">
+          <AdminGovernancePanels />
+        </aside>
       </Layout>
     </ConfigProvider>
   )
