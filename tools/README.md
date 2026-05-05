@@ -682,6 +682,17 @@ This starts the API with synthetic configured roots, checks the admin storage
 summary and cache cleanup endpoints, verifies the Web dashboard markers, and
 confirms cleanup only deletes old files under the configured cache root.
 
+O005 capacity and cost health dashboard contract:
+
+```powershell
+$env:PGPASSWORD='<local-password>'
+.\tools\run-o005-capacity-cost-health-dashboard-contract.ps1
+```
+
+This aggregates G002 storage/cache signals, D002 AI job cost signals, and
+admin dashboard UI contracts (including failed-task signal), then writes
+`docs/evidence/o005-capacity-cost-health-dashboard-report.json`.
+
 G003 WinPE emergency copy media contract:
 
 ```powershell
@@ -704,3 +715,37 @@ This uses a temporary `APPDATA` root, writes a temporary PostgreSQL
 `psql -w`, deletes the temporary credential file, and writes
 `docs/evidence/g004-pgpass-installer-dry-run-report.json`. It does not modify
 the real user profile pgpass file and does not log the password.
+
+O007 EF migration bundle and upgrade drill contract:
+
+```powershell
+.\tools\run-o007-ef-migration-bundle-upgrade-contract.ps1
+```
+
+This restores `dotnet-ef`, builds `efbundle.exe`, stages a release-like
+migrations package, executes bundle migration with explicit connection string,
+then chains backup/verify and isolated restore drill evidence. It validates the
+upgrade path without requiring source-tree execution at migration runtime.
+
+O004B role authorization and audit closure contract:
+
+```powershell
+.\tools\run-o004b-role-audit-closure-contract.ps1
+```
+
+This validates fail-closed role separation on guarded backend endpoints:
+`teacher` blocked, `group_lead` read-only on `/api/admin/*`, `admin` required for
+high-risk writes and `/internal/ai/*`. It also verifies structured audit logs
+for high-risk operations with operator/time/object/result/rollback-reference
+fields.
+
+O006 offline emergency runbook and tabletop contract:
+
+```powershell
+.\tools\run-o006-offline-emergency-runbook-tabletop-contract.ps1
+```
+
+This validates the offline emergency runbook chain by combining: G003 recovery
+media generation, backup+verify evidence, `restore.ps1` dry-run, and a 3-case
+admin tabletop drill (unbootable Windows, manifest mismatch, restore failure)
+with explicit fallback and rollback actions.

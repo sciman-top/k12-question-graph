@@ -1,0 +1,49 @@
+{
+  "status": "pass",
+  "task": "O003",
+  "mode": "draft_test",
+  "productionEligible": false,
+  "backup": {
+    "manifest": "tmp\\o007\\o003-backup-root\\20260505-165403\\manifest.json",
+    "backupDir": "tmp\\o007\\o003-backup-root\\20260505-165403",
+    "databaseDump": "tmp\\o007\\o003-backup-root\\20260505-165403\\database.dump",
+    "fileCount": 627,
+    "configCount": 3
+  },
+  "recoveryDrill": {
+    "isolatedRoot": "tmp\\o003\\restore-drill",
+    "database": {
+      "restorePlan": "tmp\\o003\\restore-drill\\database\\database.restore-plan.txt",
+      "schemaOnlySql": "tmp\\o003\\restore-drill\\database\\database.schema-only.sql",
+      "pgRestoreListOk": true,
+      "schemaExtractOk": true
+    },
+    "fileStore": {
+      "restoredFileCount": 627,
+      "targetRoot": "tmp\\o003\\restore-drill\\file_store"
+    },
+    "configs": {
+      "restoredConfigCount": 3,
+      "targetRoot": "tmp\\o003\\restore-drill\\configs"
+    },
+    "templates": {
+      "source": "docs/templates",
+      "targetRoot": "tmp\\o003\\restore-drill\\templates",
+      "restored": true
+    },
+    "teacherPreference": {
+      "source": "configs/teacher_preference.defaults.yaml",
+      "target": "tmp\\o003\\restore-drill\\teacher-preference\\teacher_preference.defaults.yaml",
+      "restored": true
+    }
+  },
+  "rollback": {
+    "deleteBackupRoot": "Remove-Item -LiteralPath 'D:\\CODE\\k12-question-graph\\tmp\\o007\\o003-backup-root' -Recurse -Force",
+    "deleteDrillRoot": "Remove-Item -LiteralPath 'D:\\CODE\\k12-question-graph\\tmp\\o003\\restore-drill' -Recurse -Force"
+  },
+  "summaryChinese": {
+    "title": "O003 恢复演练升级合同报告",
+    "result": "通过",
+    "boundary": "在隔离目录完成 backup manifest 恢复演练，不改生产数据库与正式资产。"
+  }
+}

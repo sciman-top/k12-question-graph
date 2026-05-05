@@ -475,6 +475,10 @@ try {
         .\tools\run-g002-storage-cleanup-contract.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'o005 capacity cost health dashboard contract' {
+        .\tools\run-o005-capacity-cost-health-dashboard-contract.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin | Write-Host
+    }
+
     Invoke-GateStep 'g003 winpe emergency copy contract' {
         .\tools\run-g003-winpe-emergency-copy-contract.ps1 | Write-Host
     }
@@ -497,6 +501,15 @@ try {
 
     Invoke-GateStep 'o003 recovery drill upgrade contract' {
         .\tools\run-o003-recovery-drill-contract.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'o007 ef migration bundle and upgrade drill contract' {
+        .\tools\run-o007-ef-migration-bundle-upgrade-contract.ps1 | Write-Host
+    }
+
+    
+    Invoke-GateStep 'o006 offline emergency runbook and tabletop contract' {
+        .\tools\run-o006-offline-emergency-runbook-tabletop-contract.ps1 | Write-Host
     }
 
     Invoke-GateStep 'b001 duplicate upload smoke' {
@@ -751,3 +764,4 @@ try {
 finally {
     Pop-Location
 }
+

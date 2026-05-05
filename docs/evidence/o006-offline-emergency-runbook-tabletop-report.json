@@ -1,0 +1,63 @@
+{
+  "status": "pass",
+  "task": "O006",
+  "mode": "draft_test",
+  "productionEligible": false,
+  "dependencies": {
+    "g003": "pass",
+    "o003": "already_completed"
+  },
+  "runbook": {
+    "path": "runbooks/WinPE_EmergencyRecovery.md",
+    "requiredInstructionsChecked": true
+  },
+  "tabletop": {
+    "scenarios": [
+      {
+        "scenario": "windows_unbootable",
+        "trigger": "Windows cannot boot",
+        "operator": "admin",
+        "expectedAction": "boot WinPE and run KQG_EmergencyCopy.cmd",
+        "expectedEvidence": "recovery-media-manifest + copy log + backup manifest",
+        "fallback": "manual copy data root and backup root, then verify-backup and restore dry-run",
+        "rollback": "do not run mirror-delete; keep destination content intact"
+      },
+      {
+        "scenario": "backup_manifest_hash_mismatch",
+        "trigger": "verify-backup returns hash mismatch",
+        "operator": "admin",
+        "expectedAction": "stop restore apply and collect mismatch file list",
+        "expectedEvidence": "verify-backup error output + previous valid manifest reference",
+        "fallback": "switch to last known good manifest and rerun verify-backup",
+        "rollback": "do not overwrite recovered target until manifest passes"
+      },
+      {
+        "scenario": "restore_apply_failure",
+        "trigger": "pg_restore exits non-zero during apply",
+        "operator": "admin",
+        "expectedAction": "keep system read-only and use previous backup manifest for rollback",
+        "expectedEvidence": "pg_restore stderr + attempted dump path + database target",
+        "fallback": "rerun restore in dry-run and isolate failing object list",
+        "rollback": "restore from previous validated manifest before retry"
+      }
+    ],
+    "scenarioCount": 3
+  },
+  "evidenceChain": {
+    "g003Report": "tmp/g003-winpe-recovery-media/KQG_RecoveryMedia/recovery-media-manifest.json",
+    "backupManifest": "D:\\KQG_Backups\\20260505-183200\\manifest.json",
+    "verifyStatus": "ok",
+    "restoreDryRunMode": "dry_run"
+  },
+  "rollback": {
+    "tempCleanup": [
+      "Remove-Item -LiteralPath 'D:\\KQG_Backups\\20260505-183200' -Recurse -Force"
+    ],
+    "policy": "if tabletop reveals unresolved blocker, keep O006 as todo and block P001"
+  },
+  "summaryChinese": {
+    "title": "O006 离线应急手册与演练报告",
+    "result": "通过",
+    "boundary": "完成 runbook + tabletop + backup/verify + restore dry-run 证据链；未执行生产恢复 apply。"
+  }
+}

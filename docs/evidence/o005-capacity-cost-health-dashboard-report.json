@@ -1,0 +1,38 @@
+{
+  "status": "pass",
+  "task": "O005",
+  "mode": "draft_test",
+  "productionEligible": false,
+  "dependencies": {
+    "g002": "pass",
+    "d002": "pass",
+    "l006Evidence": "present"
+  },
+  "scope": {
+    "storage": "file_store/backup/cache/logs size summary",
+    "cost": "stub llm tokens/cost/routing metrics in AI job contract",
+    "failedTasks": "UI includes failed state signal for operator diagnosis",
+    "cleanupSuggestion": "cache-only cleanup with dry-run/apply split"
+  },
+  "uiContracts": [
+    "admin-storage-dashboard",
+    "storage-summary",
+    "cache-cleanup-configured-root",
+    "no-production-data-delete",
+    "knowledge-asset-health-dashboard",
+    "failed-task-state-signal"
+  ],
+  "evidence": {
+    "g002Report": "docs/evidence/g002-storage-cleanup-report.json",
+    "l006Pilot": "docs\\evidence\\20260505-l006-cost-cache-batch-dashboard-pilot.md"
+  },
+  "rollback": {
+    "code": "git revert this O005 commit",
+    "data": "cleanup only synthetic tmp folders created by dependency contracts"
+  },
+  "summaryChinese": {
+    "title": "O005 容量和成本健康面板合同报告",
+    "result": "通过",
+    "boundary": "管理员可见容量/成本/失败信号与清理建议；仅允许缓存清理，禁止触达正式生产资产。"
+  }
+}

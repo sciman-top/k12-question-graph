@@ -1,0 +1,33 @@
+{
+  "status": "pass",
+  "task": "O007",
+  "mode": "draft_test",
+  "productionEligible": false,
+  "migrationBundle": {
+    "bundleExe": "tmp\\o007\\bundle\\efbundle.exe",
+    "releasePackageRoot": "tmp\\o007\\release-package",
+    "packageFiles": [
+      "migrations/efbundle.exe",
+      "migrations/appsettings.json"
+    ],
+    "noSourceOrSdkRequiredAtExecution": true,
+    "executionLog": "tmp\\o007\\efbundle-run.log"
+  },
+  "upgradeDrill": {
+    "bundleRunExitCode": 0,
+    "backupManifest": "tmp\\o007\\backup-root\\20260505-165359\\manifest.json",
+    "backupDir": "tmp\\o007\\backup-root\\20260505-165359",
+    "backupVerify": "pass",
+    "restoreDrillReport": "docs/evidence/o007-o003-recovery-drill-report.json"
+  },
+  "rollback": {
+    "bundle": "Remove-Item -LiteralPath 'D:\\CODE\\k12-question-graph\\tmp\\o007' -Recurse -Force",
+    "database": "restore database from backup manifest before downstream production use",
+    "notes": "if a real apply introduces incompatibility, restore database and file store from manifest, then rerun efbundle after fixing migration"
+  },
+  "summaryChinese": {
+    "title": "O007 EF migration bundle 与升级演练报告",
+    "result": "通过",
+    "boundary": "已验证 efbundle 可执行、备份可校验和隔离恢复演练链路；未执行生产环境不可逆变更。"
+  }
+}

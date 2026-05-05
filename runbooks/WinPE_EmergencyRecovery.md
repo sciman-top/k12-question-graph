@@ -30,6 +30,18 @@ Windows 无法启动，主程序无法打开。
 8. 先运行 `verify-backup.ps1` 校验最近 `manifest.json`。
 9. 校验通过后运行 `restore.ps1` 恢复。
 
+推荐先执行 dry-run（默认）：
+
+```powershell
+.\tools\restore.ps1 -ManifestPath D:\KQG_Backups\<timestamp>\manifest.json -ApplyDatabase -ApplyFileStore -ApplyConfigs
+```
+
+仅在维护窗口确认后再显式去掉 dry-run：
+
+```powershell
+.\tools\restore.ps1 -ManifestPath D:\KQG_Backups\<timestamp>\manifest.json -ApplyDatabase -ApplyFileStore -ApplyConfigs -DryRun:$false
+```
+
 ## 注意
 
 如果没有 pg_dump 备份，只能尝试抢救 PostgreSQL 数据目录，但优先恢复 pg_dump 备份。
