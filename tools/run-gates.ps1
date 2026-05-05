@@ -559,6 +559,27 @@ try {
     Invoke-GateStep 'q005 multi-subject ui simplification preflight contract' {
         .\tools\run-q005-multi-subject-ui-simplification-preflight-contract.ps1 | Write-Host
     }
+    Invoke-GateStep 'r001 search semantic retrieval eval preflight contract' {
+        .\tools\run-r001-search-semantic-retrieval-eval-preflight-contract.ps1 | Write-Host
+    }
+    Invoke-GateStep 'r002 queue worker scale eval preflight contract' {
+        .\tools\run-r002-queue-worker-scale-eval-preflight-contract.ps1 | Write-Host
+    }
+    Invoke-GateStep 'r003 interop eval preflight contract' {
+        .\tools\run-r003-interop-eval-preflight-contract.ps1 | Write-Host
+    }
+    Invoke-GateStep 'r004 advanced analysis eval preflight contract' {
+        .\tools\run-r004-advanced-analysis-eval-preflight-contract.ps1 | Write-Host
+    }
+    Invoke-GateStep 'r005 public multischool deploy eval preflight contract' {
+        .\tools\run-r005-public-multischool-deploy-eval-preflight-contract.ps1 | Write-Host
+    }
+    Invoke-GateStep 'r006 techdebt cadence preflight contract' {
+        .\tools\run-r006-techdebt-cadence-preflight-contract.ps1 | Write-Host
+    }
+    Invoke-GateStep 'r007 interoperability profile map preflight contract' {
+        .\tools\run-r007-interoperability-profile-map-preflight-contract.ps1 | Write-Host
+    }
 
     Invoke-GateStep 'b001 duplicate upload smoke' {
         if ([string]::IsNullOrWhiteSpace($DatabasePassword)) {
