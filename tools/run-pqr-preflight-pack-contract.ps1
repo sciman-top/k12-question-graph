@@ -85,7 +85,7 @@ $summary = [ordered]@{
         Q = ($targets | Where-Object { $_.id -like 'Q*' } | Select-Object -ExpandProperty id)
         R = ($targets | Where-Object { $_.id -like 'R*' } | Select-Object -ExpandProperty id)
     }
-    boundary = 'preflight only; no live execution state transition is performed'
+    boundary = 'preflight only; no S0 productization or live execution state transition is performed'
     report = $ReportPath
 }
 

@@ -1,0 +1,42 @@
+{
+  "status": "pass",
+  "task": "S001",
+  "checkedAt": "2026-05-06T00:21:11",
+  "dashboardPath": "tasks/completion-state-dashboard.csv",
+  "backlogPath": "tasks/backlog.csv",
+  "areaCount": 22,
+  "stateCounts": {
+    "contract_done": 6,
+    "synthetic_done": 9,
+    "db_backed_done": 6,
+    "ui_productized": 1,
+    "teacher_validated": 0,
+    "release_ready": 0
+  },
+  "riskCounts": {
+    "low": 1,
+    "medium": 5,
+    "high": 16
+  },
+  "notNormallyUsableCount": 14,
+  "teacherVisibleValidatedOrReleaseReadyCount": 0,
+  "nextTaskCounts": {
+    "P001": 2,
+    "Q001": 1,
+    "R001": 1,
+    "S002": 1,
+    "S003": 2,
+    "S004": 1,
+    "S005": 1,
+    "S006": 3,
+    "S007": 2,
+    "S008": 2,
+    "S009": 1,
+    "S010": 1,
+    "S011": 2,
+    "S012": 2
+  },
+  "s001Status": "已完成",
+  "nextProductizationTask": "S002",
+  "conclusion": "当前项目拥有可验证底座和合同能力 但教师可直接连续使用的 release_ready 板块为 0 必须先执行 S002-S012"
+}

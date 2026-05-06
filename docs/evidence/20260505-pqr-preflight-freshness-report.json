@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "task": "PQR preflight freshness guard",
-  "checkedDate": "2026-05-05",
+  "checkedDate": "2026-05-06",
   "expectedDatePrefix": "20260505",
   "targetCount": 18,
   "report": "docs/evidence/20260505-pqr-preflight-freshness-report.json"

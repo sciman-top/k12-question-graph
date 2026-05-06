@@ -116,7 +116,19 @@ O004B,O0,部署运维,角色权限与审计日志剩余闭环,高,已完成,O004
 O005,O0,部署运维,容量和成本健康面板,中,已完成,O002,管理员可看文件仓库 备份 cache AI 成本 失败任务和清理建议,tools/run-o005-capacity-cost-health-dashboard-contract.ps1 + docs/evidence/20260505-o005-capacity-cost-health-dashboard.md
 O006,O0,部署运维,离线应急手册和演练,中,已完成,O003,已完成 WinPE runbook 指令核验 tabletop 演练与 backup/verify/restore dry-run 证据链 管理员可按手册执行失败回退,tools/run-o006-offline-emergency-runbook-tabletop-contract.ps1 + g003 contract + tabletop drill + docs/evidence/20260505-o006-offline-emergency-runbook-tabletop.md
 O007,O0,部署升级,EF migration bundle 与升级演练,高,已完成,O002,已完成 efbundle 产物与发布目录演练 并验证 backup manifest 与隔离恢复链路 目标机迁移执行不依赖源码目录,tools/run-o007-ef-migration-bundle-upgrade-contract.ps1 + efbundle smoke + backup restore drill + docs/evidence/20260505-o007-ef-migration-bundle-upgrade-drill.md
-P001,P0-live,试点,试点学校部署预演,高,待办,O004B;O006;O007,在隔离机器按安装向导完成部署 备份 恢复 权限审计和四个教师入口 smoke,tools/run-p001-live-pilot-readiness-preflight-contract.ps1 + docs/templates/p001-live-pilot-release-checklist.md + evidence
+S001,S0,完成态治理,完成态分级与看板,高,已完成,O007,backlog 证据和看板区分 contract_done synthetic_done db_backed_done ui_productized teacher_validated release_ready,tools/run-s001-completion-state-dashboard.ps1 + tasks/completion-state-dashboard.csv + docs/100_S001CompletionStateDashboard.md + docs/evidence/20260506-s001-completion-state-dashboard.json
+S002,S0,架构,教师工作流应用服务层,高,待办,S001,导入 切题 审核 标注 组卷 导出 成绩 分析有稳定 application service 或 workflow aggregate 且 endpoint 不承载主要业务编排,dotnet build + focused API contract + architecture doc update
+S003,S0,试题导入,真实导入工作台 API/UI 接通,高,待办,S002,上传真实授权或脱敏材料后教师可看到任务 页 区块 异常 来源和可接管动作,npm build + API smoke + UI contract
+S004,S0,文档解析,文档解析质量基线,高,待办,S003,docx 文本PDF 扫描件 公式 表格 题图 golden set 输出准确率 耗时 人工接管点和失败原因,adapter benchmark contract + golden import + docs/evidence
+S005,S0,切题,自动半自动切题候选管线,高,待办,S004,生成切题候选 置信度 SourceRegion 失败原因和人工接管入口 不宣称全自动,API contract + J006 updated accuracy report
+S006,S0,人机协作,人工确认与接管工作台产品化,高,待办,S005,合并 拆分 跳过 重跑 题图关联 撤销 保存题目形成连续闭环,UI contract + API smoke + golden scenario
+S007,S0,AI标注,AI 标注建议审核队列,高,待办,S006;L007,AI 只生成候选知识点 题型 难度 答案校验建议 教师确认后才写入题目,AI eval + review queue contract + no active write guard
+S008,S0,题库检索,题库生产检索与题卡,高,待办,S007;K001,题库检索默认使用 C002 active 展示来源 版本 题图公式表格状态和授权边界,API search contract + UI contract + roadmap guard
+S009,S0,组卷,组卷持久化与题篮,高,待办,S008,自然语言理解 细目表 题篮 换题 撤销和版本引用可保存与复现,API persistence contract + UI smoke
+S010,S0,导出,导出前审校与 Word/PDF 产品化,高,待办,S009,学生版 教师版 答案版导出前可审校 公式题图表格和授权风险不丢,export regression + UI contract
+S011,S0,成绩分析,成绩导入到讲评报告闭环,高,待办,S010;N001,Excel 模板复用 小题分映射 异常行 讲评报告 分层练习建议接真实 UI/API,score import contract + analysis report smoke
+S012,S0,端到端,非现场端到端发布演练,高,待办,S011,用授权或脱敏材料完成导入 切题 审核 标注 入库 组卷 导出 成绩 分析 备份恢复并记录耗时 失败 回滚 教师效率,full gate + E2E proxy evidence + roadmap guard
+P001,P0-live,试点,试点学校部署预演,高,待办,S012;O004B;O006;O007,在隔离机器按安装向导完成部署 备份 恢复 权限审计和四个教师入口 smoke,tools/run-p001-live-pilot-readiness-preflight-contract.ps1 + docs/templates/p001-live-pilot-release-checklist.md + evidence
 P002,P0-live,试点,教师代理试点第 1 轮,高,待办,P001,用真实但授权或脱敏材料完成导入 组卷 导出 成绩导入代理验收,tools/run-p002-teacher-proxy-pilot-preflight-contract.ps1 + docs/templates/p002-teacher-proxy-pilot-checklist.md + teacher proxy report
 P003,P0-live,试点,现场教师试点准入,高,待办,P002,确认教师参与边界 数据授权 支持人 回滚方案和反馈模板,tools/run-p003-onsite-pilot-admission-preflight-contract.ps1 + docs/templates/p003-onsite-pilot-admission-checklist.md + pilot admission card
 P004,P0-live,试点,现场教师试点第 1 轮,高,待办,P003,记录实际耗时 操作卡点 错误 文案困惑 和回滚事件,tools/run-p004-onsite-pilot-round1-preflight-contract.ps1 + docs/templates/p004-onsite-pilot-round1-checklist.md + teacher pilot evidence

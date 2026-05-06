@@ -13,6 +13,7 @@ foreach ($requiredId in @(
     'D001', 'D002', 'D003',
     'I008', 'I009', 'I010',
     'O004', 'O004B',
+    'S001', 'S002', 'S003', 'S004', 'S005', 'S006', 'S007', 'S008', 'S009', 'S010', 'S011', 'S012',
     'P001'
 )) {
     if (-not $byId.ContainsKey($requiredId)) {
@@ -52,6 +53,18 @@ $i009 = $byId['I009']
 $i010 = $byId['I010']
 $o004 = $byId['O004']
 $o004b = $byId['O004B']
+$s001 = $byId['S001']
+$s002 = $byId['S002']
+$s003 = $byId['S003']
+$s004 = $byId['S004']
+$s005 = $byId['S005']
+$s006 = $byId['S006']
+$s007 = $byId['S007']
+$s008 = $byId['S008']
+$s009 = $byId['S009']
+$s010 = $byId['S010']
+$s011 = $byId['S011']
+$s012 = $byId['S012']
 $p001 = $byId['P001']
 if ($d001.depends_on -eq 'C002') {
     throw "D001 must not depend on formal C002; use the dynamic asset draft/test gate such as C002H"
@@ -418,8 +431,30 @@ if ($o004b.depends_on -ne 'O004') {
     throw "O004B must depend on O004 fail-closed API guard"
 }
 
+$expectedS0Dependencies = [ordered]@{
+    S001 = 'O007'
+    S002 = 'S001'
+    S003 = 'S002'
+    S004 = 'S003'
+    S005 = 'S004'
+    S006 = 'S005'
+    S007 = 'S006;L007'
+    S008 = 'S007;K001'
+    S009 = 'S008'
+    S010 = 'S009'
+    S011 = 'S010;N001'
+    S012 = 'S011'
+}
+
+foreach ($entry in $expectedS0Dependencies.GetEnumerator()) {
+    $actual = $byId[$entry.Key].depends_on
+    if ($actual -ne $entry.Value) {
+        throw "$($entry.Key) must depend on $($entry.Value); actual: $actual"
+    }
+}
+
 $p001Dependencies = @($p001.depends_on -split ';' | ForEach-Object { $_.Trim() } | Where-Object { $_ })
-foreach ($requiredDependency in @('O004B', 'O006', 'O007')) {
+foreach ($requiredDependency in @('S012', 'O004B', 'O006', 'O007')) {
     if ($p001Dependencies -notcontains $requiredDependency) {
         throw "P001 must depend on $requiredDependency before live readiness"
     }
@@ -465,6 +500,10 @@ if ($o004.status -eq '已完成') {
 
 if ($p001.status -ne '待办' -and $o004b.status -ne '已完成') {
     throw "P001 cannot leave todo until O004B role/audit/admin UI authorization is complete"
+}
+
+if ($p001.status -ne '待办' -and $s012.status -ne '已完成') {
+    throw "P001 cannot leave todo until S012 productization end-to-end rehearsal is complete"
 }
 
 $p0LiveCompleted = $rows | Where-Object {
@@ -519,6 +558,14 @@ if ($c002.acceptance -notmatch '教师录入|导入|来源|教材|课程标准|�
     simplificationBlockersChecked = @('I008', 'I009', 'I010', 'O004B', 'P001')
     o004Status = $o004.status
     o004bStatus = $o004b.status
+    s0ProductizationGate = 'S001-S012'
+    s0Statuses = @($s001, $s002, $s003, $s004, $s005, $s006, $s007, $s008, $s009, $s010, $s011, $s012) | ForEach-Object {
+        [ordered]@{
+            id = $_.id
+            status = $_.status
+            depends_on = $_.depends_on
+        }
+    }
     p001DependsOn = $p001Dependencies
     productionDynamicAssetsBlockedUntilFormalC002 = ($c002.status -ne '已完成')
     draftTestSystemBuildAllowed = $true

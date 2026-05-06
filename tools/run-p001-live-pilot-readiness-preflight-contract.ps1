@@ -29,21 +29,23 @@ foreach ($row in $rows) {
     $byId[$row.id] = $row
 }
 
-foreach ($requiredTaskId in @('O004B', 'O006', 'O007', 'P001')) {
+foreach ($requiredTaskId in @('S012', 'O004B', 'O006', 'O007', 'P001')) {
     Assert-True ($byId.ContainsKey($requiredTaskId)) "P001 prerequisite task missing: $requiredTaskId"
 }
 
 $p001 = $byId['P001']
+$s012 = $byId['S012']
 $o004b = $byId['O004B']
 $o006 = $byId['O006']
 $o007 = $byId['O007']
 
 $dependencies = @($p001.depends_on -split ';' | ForEach-Object { $_.Trim() } | Where-Object { $_ })
-foreach ($required in @('O004B', 'O006', 'O007')) {
+foreach ($required in @('S012', 'O004B', 'O006', 'O007')) {
     Assert-True ($dependencies -contains $required) "P001 depends_on must include $required"
 }
 
 Assert-True ($p001.status -eq '待办') 'P001 must remain todo until isolated-machine rehearsal is executed with live evidence'
+Assert-True ($s012.status -eq '待办' -or $s012.status -eq '已完成') 'S012 must exist as productization gate before P001'
 Assert-True ($o004b.status -eq '已完成') 'O004B must be completed before P001 preflight can pass'
 Assert-True ($o006.status -eq '已完成') 'O006 must be completed before P001 preflight can pass'
 Assert-True ($o007.status -eq '已完成') 'O007 must be completed before P001 preflight can pass'
@@ -65,12 +67,13 @@ foreach ($keyword in @('preflight', 'P001', 'platform_na', 'gate_na', '隔离机
     p001Status = $p001.status
     dependencies = $dependencies
     prerequisites = [ordered]@{
+        S012 = $s012.status
         O004B = $o004b.status
         O006 = $o006.status
         O007 = $o007.status
     }
     checklistPath = $ChecklistPath
     evidencePath = $EvidencePath
-    boundary = 'isolated-machine live rehearsal not executed in this contract; keep P001 as todo until site run is complete'
+    boundary = 'productization S012 and isolated-machine live rehearsal are not executed in this contract; keep P001 as todo until productized E2E and site run evidence are complete'
     checkedAt = (Get-Date).ToString('s')
 } | ConvertTo-Json -Depth 6

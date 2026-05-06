@@ -241,6 +241,14 @@ try {
         .\tools\run-roadmap-guard.ps1 | Write-Host
     }
 
+    Invoke-GateStep 's001 completion-state dashboard' {
+        .\tools\run-s001-completion-state-dashboard.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 's0 execution plan guard' {
+        .\tools\run-s0-execution-plan-guard.ps1 | Write-Host
+    }
+
     Invoke-GateStep 'local-first ai consumption guard' {
         .\tools\run-local-first-ai-guard.ps1 | Write-Host
     }
@@ -845,4 +853,6 @@ try {
 finally {
     Pop-Location
 }
+
+
 

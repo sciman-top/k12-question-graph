@@ -1,0 +1,36 @@
+id,parent_id,wave,category,slice,entry_state,exit_state,status,depends_on,acceptance,verification,likely_touched
+S002A,S002,W1,架构,现状编排盘点,contract_done,contract_done,待办,S001,列出 Program.cs 静态前端 脚本中承担教师工作流编排的真实位置并标出迁移归宿,rg inventory + docs/evidence,apps/api/Program.cs apps/web/src/App.tsx tools docs/evidence
+S002B,S002,W1,架构,Workflow DTO 与状态契约,contract_done,contract_done,待办,S002A,定义 import review tagging paper export score analysis 的 workflow DTO 状态 错误码和回滚字段,dotnet build + contract script,apps/api docs/03_Architecture.md tools
+S002C,S002,W1,架构,ImportReviewWorkflowService 骨架,contract_done,db_backed_done,待办,S002B,导入 解析候选 人工确认 题目保存 来源回看进入同一 application service 边界,dotnet build + focused API smoke,apps/api tests tools
+S002D,S002,W1,架构,PaperWorkflowService 骨架,contract_done,db_backed_done,待办,S002B,检索 题篮 细目表 换题 导出前审校进入同一 application service 边界,dotnet build + focused API smoke,apps/api tests tools
+S002E,S002,W1,架构,ScoreAnalysisWorkflowService 骨架,contract_done,db_backed_done,待办,S002B,成绩导入 模板复用 异常行 小题映射 讲评报告进入同一 application service 边界,dotnet build + focused API smoke,apps/api tests tools
+S002F,S002,W1,架构,Thin endpoint guard,contract_done,db_backed_done,待办,S002C;S002D;S002E,endpoint 只做协议转换 主要业务编排不继续堆在 Program.cs,architecture guard + dotnet build,apps/api/Program.cs tools docs/evidence
+S003A,S003,W2,试题导入,前端 typed API 扩展,contract_done,ui_productized,待办,S002F,前端 client/query 覆盖上传 创建导入任务 查询任务 查询来源资料,npm build + lint + UI contract,apps/web/src/api apps/web/src/App.tsx
+S003B,S003,W2,试题导入,真实上传和任务状态 UI,db_backed_done,ui_productized,待办,S003A,教师上传授权或脱敏文件后看到 job id 状态 失败原因 重试入口和原文件信息,UI smoke + API smoke,apps/web apps/api tools
+S003C,S003,W2,试题导入,来源预览接通,db_backed_done,ui_productized,待办,S003B,导入页显示 source document page region preview 的加载 空 错误 回退状态,UI contract + source preview smoke,apps/web apps/api tools
+S003D,S003,W2,试题导入,导入证据与教师效率,ui_productized,ui_productized,待办,S003C,记录上传到可接管状态的耗时 点击数 失败后继续路径和证据文件,task evidence + roadmap guard,docs/evidence tools
+S004A,S004,W3,文档解析,golden set registry,synthetic_done,synthetic_done,待办,S003D,登记 docx 文本PDF 扫描件 公式 表格 题图样本来源 授权 hash 预期输出和失败接管点,CSV/JSON parse + adapter guard,tests/golden-import workers/document docs/evidence
+S004B,S004,W3,文档解析,adapter benchmark report,synthetic_done,teacher_validated,待办,S004A,输出每类样本准确率 耗时 警告 错误和人工接管建议,adapter benchmark contract,workers/document tools docs/evidence
+S004C,S004,W3,文档解析,真实材料代理验收,synthetic_done,teacher_validated,待办,S004B,用授权或脱敏材料跑解析并记录不可自动处理项 不把失败伪装成通过,E2E proxy evidence,docs/evidence tools
+S005A,S005,W4,切题,切题候选数据模型,contract_done,db_backed_done,待办,S004C,候选题段 置信度 来源区域 失败原因 状态和人工接管动作可持久化,dotnet build + migration/contract review,apps/api docs/05_DomainModel.md tools
+S005B,S005,W4,切题,候选生成服务,synthetic_done,db_backed_done,待办,S005A,从 DocumentModel 生成候选 不宣称全自动 低置信度进入确认队列,API contract + J006 update,apps/api workers/document tools
+S005C,S005,W4,切题,切题候选 UI,db_backed_done,ui_productized,待办,S005B,教师能看到候选边界 置信度 失败原因并进入合并 拆分 跳过 重跑,UI contract + npm build,apps/web tools
+S006A,S006,W5,人机协作,审核队列 API,contract_done,db_backed_done,待办,S005C,review queue 支持筛选 排序 批量低风险确认 高风险逐项确认和审计记录,API smoke + auth audit check,apps/api tools
+S006B,S006,W5,人机协作,人工接管工作台 API/UI,synthetic_done,ui_productized,待办,S006A,合并 拆分 跳过 重跑 题图关联 撤销 保存题目形成真实操作闭环,UI + API smoke + golden scenario,apps/web apps/api tools
+S006C,S006,W5,人机协作,题目保存来源回看闭环,db_backed_done,ui_productized,待办,S006B,保存题目后可立即回看来源 缺图 缺区域和权限错误有明确回退,API/UI smoke,apps/web apps/api docs/evidence
+S007A,S007,W6,AI标注,AI suggestion schema hardening,synthetic_done,contract_done,待办,S006C;L007,知识点 题型 难度 答案校验建议 schema 含来源 置信度 成本 缓存和人工审核字段,AI eval + schema parse,schemas tools docs/evidence
+S007B,S007,W6,AI标注,DB-backed suggestion queue,contract_done,db_backed_done,待办,S007A,AI 建议入队 pending_review 不直接写题目 教师修改生成反馈事件,API contract + no active write guard,apps/api tools
+S007C,S007,W6,AI标注,教师确认写入题目,db_backed_done,ui_productized,待办,S007B,教师确认后才写入 QuestionItem KnowledgeMapping 并可撤销,API/UI smoke + audit evidence,apps/api apps/web tools
+S008A,S008,W7,题库检索,QuestionSearch API productization,db_backed_done,db_backed_done,待办,S007C;K001,检索默认使用 C002 active 支持来源 版本 题图公式表格状态和分页,API contract + DB query evidence,apps/api tools
+S008B,S008,W7,题库检索,题卡 UI 接真实 API,db_backed_done,ui_productized,待办,S008A,题卡展示真实题目 来源 版本 难度 题图公式状态 空态和错误态,UI contract + npm build,apps/web tools
+S009A,S009,W8,组卷,PaperBasket persistence,contract_done,db_backed_done,待办,S008B,题篮 试卷结构 题号 分值 小问 版本引用可保存和复现,dotnet build + API contract,apps/api docs/05_DomainModel.md tools
+S009B,S009,W8,组卷,Blueprint review workflow,synthetic_done,db_backed_done,待办,S009A,自然语言只生成可审查细目表 教师确认后才取题,API smoke + no opaque generation guard,apps/api tools docs/evidence
+S009C,S009,W8,组卷,组卷 UI 产品化,db_backed_done,ui_productized,待办,S009B,教师能保存题篮 换题 撤销 复现并看到约束不满足原因,UI smoke + teacher workflow evidence,apps/web apps/api tools
+S010A,S010,W9,导出,Export preflight API,contract_done,db_backed_done,待办,S009C,导出前检查题图 公式 表格 答案 解析 来源授权 版本引用和缺失风险,API contract + export regression,apps/api tools
+S010B,S010,W9,导出,Word/PDF artifact chain,synthetic_done,ui_productized,待办,S010A,学生版 教师版 答案版生成真实可下载 artifact 且 manifest 可验证,export regression + file manifest,apps/api apps/web tools docs/evidence
+S011A,S011,W10,成绩分析,Score import API productization,synthetic_done,db_backed_done,待办,S010B;N001,Excel 模板复用 字段映射 异常行 批次状态真实入库且不泄露 PII,API contract + privacy guard,apps/api tools
+S011B,S011,W10,成绩分析,Item score mapping UI,db_backed_done,ui_productized,待办,S011A,小题分能映射题目和知识点 映射不清集中处理,UI contract + API smoke,apps/web apps/api tools
+S011C,S011,W10,成绩分析,讲评报告导出闭环,db_backed_done,ui_productized,待办,S011B,生成班级讲评报告 分层练习建议和可导出材料 不写正式历史口径直到准入,analysis/export smoke + evidence,apps/api apps/web tools
+S012A,S012,W11,端到端,E2E proxy fixture pack,ui_productized,teacher_validated,待办,S011C,准备授权或脱敏材料包和预期路径 覆盖导入 切题 审核 标注 入库 组卷 导出 成绩 分析,fixture manifest + privacy check,tests docs/evidence
+S012B,S012,W11,端到端,非现场 E2E 演练,ui_productized,teacher_validated,待办,S012A,完整链路跑通并记录耗时 错误 接管点 数据变更和回滚动作,E2E script + evidence + backup restore,tools docs/evidence
+S012C,S012,W11,端到端,S0 release gate,teacher_validated,teacher_validated,待办,S012B,completion dashboard 中核心教师板块达到 teacher_validated 且 P001 preflight 仍阻断现场前置条件,full gate + roadmap guard + S001 dashboard,tools tasks docs/evidence

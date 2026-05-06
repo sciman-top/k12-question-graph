@@ -232,6 +232,7 @@ python -c "import pathlib, yaml; [yaml.safe_load(p.read_text(encoding='utf-8')) 
 - `docs/19_Roadmap.md`：动态元素不停工原则和 draft/test 先搭系统的阶段口径。
 - `docs/87_PhaseCloseoutAndFullRoadmap.md`：A-G 完成后的阶段收口、长期路线图和 H-R 下一轮任务清单。
 - `docs/88_EngineeringEndStateExternalReview_20260504.md`：工程终态、技术栈、架构和长期路线图的外部复核与补强项。
+- `docs/99_ProductizationFullRoadmapAndTaskPlan.md`：把合同完成、产品完成和教师验证拆开的长期产品化全程路线图与 S0 任务计划。
 - `docs/78_SubjectDomainAssetActivationRunbook.md`：后续新学科动态资产激活统一 runbook。
 - `docs/79_TeacherCandidateReviewAndActivationGuide.md`：教师候选复核和激活确认操作指南。
 - `docs/80_SubjectActivationWorkbenchV0.md`：学科激活工作台 v0 的教师侧边界、UI 合同和验证方式。
@@ -258,3 +259,4 @@ python -c "import pathlib, yaml; [yaml.safe_load(p.read_text(encoding='utf-8')) 
 - 本项目采用 `MIT License`，见仓库根目录 [LICENSE](LICENSE)。
 - 本项目是个人开源项目，不采用付费商业许可门槛。
 - 允许个人或组织在遵守 MIT 条款前提下免费商用、分发和修改。
+
