@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   Alert,
   Badge,
@@ -28,7 +28,12 @@ import {
 } from '@ant-design/icons'
 import './App.css'
 import { apiContractSnapshot } from './api/contracts'
-import { useReadyHealthQuery } from './api/queries'
+import {
+  useImportJobQuery,
+  useReadyHealthQuery,
+  useSourceMaterialsQuery,
+  useSourcePreviewQuery,
+} from './api/queries'
 import { uiStateBoundary } from './state/uiState'
 import { AdminGovernancePanels } from './ui/AdminGovernancePanels'
 import {
@@ -279,6 +284,9 @@ const initialPaperDraft = {
 
 function App() {
   const readyHealthQuery = useReadyHealthQuery()
+  const [sourceTypeFilter, setSourceTypeFilter] = useState('all')
+  const [importJobLookupId, setImportJobLookupId] = useState('')
+  const [selectedSourceDocumentId, setSelectedSourceDocumentId] = useState('')
   const [activeTeacherView, setActiveTeacherView] = useState<TeacherView>('import')
   const [segments, setSegments] = useState(initialSegments)
   const [selectedIds, setSelectedIds] = useState<string[]>(['q-02', 'q-03'])
@@ -287,19 +295,61 @@ function App() {
   const [paperRequest, setPaperRequest] = useState(initialPaperRequest)
   const [paperUnderstanding, setPaperUnderstanding] = useState(initialPaperUnderstanding)
   const [paperDraft, setPaperDraft] = useState(initialPaperDraft)
+  const [importStartedAt] = useState<Date>(() => new Date())
+  const [nowMs, setNowMs] = useState<number>(() => Date.now())
+  const [importActionCount, setImportActionCount] = useState(0)
+  const [failureTakeoverCount, setFailureTakeoverCount] = useState(0)
+  const [lastTakeoverAction, setLastTakeoverAction] = useState<string | null>(null)
 
   const selectedSegments = useMemo(
     () => segments.filter((segment) => selectedIds.includes(segment.id)),
     [segments, selectedIds],
   )
+  const sourceMaterialsQuery = useSourceMaterialsQuery(
+    sourceTypeFilter === 'all' ? undefined : sourceTypeFilter,
+  )
+  const importJobQuery = useImportJobQuery(importJobLookupId.trim(), importJobLookupId.trim().length > 0)
   const readyHealth = readyHealthQuery.data?.ok ? readyHealthQuery.data.data : undefined
+  const sourceMaterials =
+    sourceMaterialsQuery.data?.ok ? sourceMaterialsQuery.data.data.sourceDocuments : []
+  const previewQuery = useSourcePreviewQuery(selectedSourceDocumentId, selectedSourceDocumentId.length > 0)
+  const sourcePreview = previewQuery.data?.ok ? previewQuery.data.data : undefined
+  const importJob = importJobQuery.data?.ok ? importJobQuery.data.data : undefined
   const readyHealthStatusLabel = readyHealth?.status === 'ok' ? '正常' : '服务未连接'
+  const importElapsedMinutes = Math.max(
+    0,
+    Math.round((nowMs - importStartedAt.getTime()) / 60000),
+  )
+  const s003dEvidenceSummary = JSON.stringify(
+    {
+      contract: 's003d-import-efficiency',
+      elapsedMinutes: importElapsedMinutes,
+      actionCount: importActionCount,
+      failureTakeoverCount,
+      lastTakeoverAction,
+      sourceMaterialCount: sourceMaterials.length,
+      importJobStatus: importJob?.status ?? 'not_queried',
+      updatedAt: new Date().toISOString(),
+    },
+    null,
+    2,
+  )
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNowMs(Date.now()), 30_000)
+    return () => window.clearInterval(timer)
+  }, [])
 
   const appendLog = (message: string) => {
     setActionLog((current) => [message, ...current].slice(0, 5))
   }
 
+  const trackImportAction = () => {
+    setImportActionCount((count) => count + 1)
+  }
+
   const toggleSegment = (id: string) => {
+    trackImportAction()
     setSelectedIds((current) =>
       current.includes(id) ? current.filter((item) => item !== id) : [...current, id],
     )
@@ -320,6 +370,7 @@ function App() {
     const selected = new Set(selectedIds)
     setSegments((current) => [merged, ...current.filter((segment) => !selected.has(segment.id))])
     setSelectedIds([merged.id])
+    trackImportAction()
     appendLog(`已合并 ${selectedSegments.length} 个片段为 ${merged.title}`)
   }
 
@@ -337,6 +388,7 @@ function App() {
       current.flatMap((segment) => (segment.id === target.id ? split : [segment])),
     )
     setSelectedIds(split.map((segment) => segment.id))
+    trackImportAction()
     appendLog(`已拆分 ${target.title}`)
   }
 
@@ -351,15 +403,20 @@ function App() {
         selected.has(segment.id) ? { ...segment, asset: selectedAsset } : segment,
       ),
     )
+    trackImportAction()
     appendLog(`已关联 ${selectedAsset} 到 ${selectedIds.length} 个片段`)
   }
 
   const takeoverFailure = (action: string) => {
+    trackImportAction()
+    setFailureTakeoverCount((count) => count + 1)
+    setLastTakeoverAction(action)
     appendLog(`失败接管：${action}`)
   }
 
   const selectExceptionItems = () => {
     setSelectedIds(segments.slice(0, 2).map((segment) => segment.id))
+    trackImportAction()
     appendLog('已筛选需要确认的异常项')
   }
 
@@ -369,12 +426,14 @@ function App() {
     }
 
     appendLog(`已批量确认 ${selectedIds.length} 个异常项`)
+    trackImportAction()
     setSelectedIds([])
   }
 
   const undoLast = () => {
     setSegments(initialSegments)
     setSelectedIds(['q-02', 'q-03'])
+    trackImportAction()
     setActionLog((current) => [`已撤销：${current[0] ?? '最近操作'}`, ...current.slice(1)])
   }
 
@@ -561,13 +620,91 @@ function App() {
               ))}
             </div>
 
-            <button className="upload-dropzone" type="button" data-action="upload-paper">
+            <button
+              className="upload-dropzone"
+              type="button"
+              data-action="upload-paper"
+              onClick={() => {
+                trackImportAction()
+                appendLog('已触发上传入口，等待文件选择')
+              }}
+            >
               <CloudUploadOutlined />
               <span>
                 <strong>上传试卷</strong>
                 <small>选择文件后自动进入任务状态和异常确认。</small>
               </span>
             </button>
+
+            <div className="score-field-mapping" data-contract="s003b-source-materials-query">
+              <Typography.Text type="secondary">来源资料（真实 API）</Typography.Text>
+              <Space size="small" wrap>
+                <Button
+                  type={sourceTypeFilter === 'all' ? 'primary' : 'default'}
+                  onClick={() => setSourceTypeFilter('all')}
+                >
+                  全部
+                </Button>
+                <Button
+                  type={sourceTypeFilter === 'textbook' ? 'primary' : 'default'}
+                  onClick={() => setSourceTypeFilter('textbook')}
+                >
+                  textbook
+                </Button>
+                <Button
+                  type={sourceTypeFilter === 'local_exam_paper' ? 'primary' : 'default'}
+                  onClick={() => setSourceTypeFilter('local_exam_paper')}
+                >
+                  local_exam_paper
+                </Button>
+              </Space>
+              <div className="review-summary">
+                <span>
+                  <Typography.Text type="secondary">查询状态</Typography.Text>
+                  <strong>{sourceMaterialsQuery.isLoading ? '加载中' : '已加载'}</strong>
+                </span>
+                <span>
+                  <Typography.Text type="secondary">来源条数</Typography.Text>
+                  <strong>{sourceMaterials.length}</strong>
+                </span>
+              </div>
+              <Space.Compact block>
+                <Input
+                  value={selectedSourceDocumentId}
+                  onChange={(event) => setSelectedSourceDocumentId(event.target.value)}
+                  placeholder="输入 SourceDocumentId 查询预览"
+                  data-action="lookup-source-preview"
+                />
+                <Button onClick={() => previewQuery.refetch()} disabled={!selectedSourceDocumentId.trim()}>
+                  查询预览
+                </Button>
+              </Space.Compact>
+            </div>
+
+            <div className="score-field-mapping" data-contract="s003b-import-job-query">
+              <Typography.Text type="secondary">导入任务状态（真实 API）</Typography.Text>
+              <Space.Compact block>
+                <Input
+                  value={importJobLookupId}
+                  onChange={(event) => setImportJobLookupId(event.target.value)}
+                  placeholder="输入 ImportJobId"
+                  data-action="lookup-import-job"
+                />
+                <Button onClick={() => importJobQuery.refetch()} disabled={!importJobLookupId.trim()}>
+                  查询任务
+                </Button>
+              </Space.Compact>
+              <div className="review-summary">
+                <span>
+                  <Typography.Text type="secondary">任务状态</Typography.Text>
+                  <strong>{importJob?.status ?? '未查询'}</strong>
+                </span>
+                <span>
+                  <Typography.Text type="secondary">错误码</Typography.Text>
+                  <strong>{importJob?.lastErrorCode ?? '-'}</strong>
+                </span>
+              </div>
+            </div>
 
             <div className="job-list">
               {jobStates.map((state) => (
@@ -582,6 +719,26 @@ function App() {
                   <strong>{state.value}</strong>
                 </div>
               ))}
+            </div>
+
+            <div className="score-analysis-summary" data-contract="s003d-import-efficiency">
+              <Typography.Text type="secondary">导入效率摘要</Typography.Text>
+              <div className="analysis-summary-grid compact">
+                <span>
+                  <strong>{importElapsedMinutes} 分钟</strong>
+                  <small>上传到当前耗时</small>
+                </span>
+                <span>
+                  <strong>{importActionCount}</strong>
+                  <small>关键操作次数</small>
+                </span>
+                <span>
+                  <strong>{failureTakeoverCount}</strong>
+                  <small>失败接管次数</small>
+                </span>
+              </div>
+              <Typography.Text type="secondary">证据摘要（S003D）</Typography.Text>
+              <pre aria-label="s003d-evidence-summary">{s003dEvidenceSummary}</pre>
             </div>
           </section>
 
@@ -996,6 +1153,30 @@ function App() {
 
             <div className="review-workspace">
               <div className="page-preview" aria-label="来源页预览" data-contract="source-review">
+                <div className="review-summary" data-contract="s003c-source-preview-state">
+                  <span>
+                    <Typography.Text type="secondary">预览状态</Typography.Text>
+                    <strong>
+                      {previewQuery.isLoading
+                        ? '加载中'
+                        : previewQuery.isError
+                          ? '加载失败'
+                          : sourcePreview
+                            ? '已加载'
+                            : '未查询'}
+                    </strong>
+                  </span>
+                  <span>
+                    <Typography.Text type="secondary">页数</Typography.Text>
+                    <strong>{sourcePreview?.pages.length ?? 0}</strong>
+                  </span>
+                  <span>
+                    <Typography.Text type="secondary">区域数</Typography.Text>
+                    <strong>
+                      {sourcePreview ? sourcePreview.pages.reduce((sum, page) => sum + page.regions.length, 0) : 0}
+                    </strong>
+                  </span>
+                </div>
                 <div className="page-sheet">
                   <span className="page-number">第 1 页</span>
                   <button

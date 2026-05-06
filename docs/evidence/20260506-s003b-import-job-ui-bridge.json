@@ -1,0 +1,25 @@
+{
+  "status": "partial_pass",
+  "taskId": "S003B",
+  "checkedAt": "2026-05-06T20:01:30+08:00",
+  "verification": {
+    "lint": "pass",
+    "tsc_build": "pass",
+    "vite_build": "platform_na"
+  },
+  "platform_na": {
+    "reason": "vite config load failed with externalize-deps spawn EPERM on host",
+    "alternative_verification": [
+      "npx tsc -b",
+      "npm run lint"
+    ],
+    "evidence_link": "docs/evidence/20260506-s003b-import-job-ui-bridge.json",
+    "expires_at": "2026-05-13"
+  },
+  "changes": [
+    "apps/web/src/App.tsx",
+    "apps/web/src/api/client.ts",
+    "apps/web/src/api/contracts.ts",
+    "apps/web/src/api/queries.ts"
+  ]
+}

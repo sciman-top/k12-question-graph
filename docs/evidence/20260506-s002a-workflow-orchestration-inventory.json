@@ -1,0 +1,16 @@
+{
+  "status": "pass",
+  "taskId": "S002A",
+  "task": "workflow orchestration inventory",
+  "checkedAt": "2026-05-06T19:52:04+08:00",
+  "evidencePath": "docs/evidence/20260506-s002a-workflow-orchestration-inventory.md",
+  "apiOrchestrationLocation": "apps/api/Program.cs",
+  "webOrchestrationLocation": "apps/web/src/App.tsx",
+  "targetServices": [
+    "apps/api/Application/Workflows/ImportReviewWorkflowService.cs",
+    "apps/api/Application/Workflows/PaperWorkflowService.cs",
+    "apps/api/Application/Workflows/ScoreAnalysisWorkflowService.cs"
+  ],
+  "endpointTargetBoundary": "thin endpoint only",
+  "notes": "S002A completed as inventory and migration destination definition for S002B-S002F"
+}

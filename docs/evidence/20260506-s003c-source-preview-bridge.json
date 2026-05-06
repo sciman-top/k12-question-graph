@@ -1,0 +1,23 @@
+{
+  "status": "partial_pass",
+  "taskId": "S003C",
+  "checkedAt": "2026-05-06T20:04:20+08:00",
+  "changes": [
+    "apps/web/src/App.tsx",
+    "apps/web/src/api/contracts.ts",
+    "apps/web/src/api/client.ts",
+    "apps/web/src/api/queries.ts"
+  ],
+  "verification": {
+    "lint": "pass",
+    "tsc_build": "pass",
+    "vite_build": "platform_na (same spawn EPERM)"
+  },
+  "ui_states": [
+    "loading",
+    "empty_or_not_queried",
+    "error",
+    "loaded"
+  ],
+  "evidence": "source preview state is surfaced in manual-review panel via data-contract=s003c-source-preview-state"
+}

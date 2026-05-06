@@ -1,0 +1,14 @@
+{
+  "status": "pass",
+  "taskId": "S003A",
+  "checkedAt": "2026-05-06T19:57:10+08:00",
+  "changes": [
+    "apps/web/src/api/contracts.ts",
+    "apps/web/src/api/client.ts",
+    "apps/web/src/api/queries.ts"
+  ],
+  "verification": [
+    "npm run build (apps/web)",
+    "npm run lint (apps/web)"
+  ]
+}

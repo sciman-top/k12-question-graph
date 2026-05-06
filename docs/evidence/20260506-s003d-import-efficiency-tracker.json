@@ -1,0 +1,22 @@
+{
+  "status": "pass",
+  "taskId": "S003D",
+  "checkedAt": "2026-05-06T20:09:20+08:00",
+  "feature": {
+    "name": "import efficiency tracker",
+    "contract": "s003d-import-efficiency",
+    "capabilities": [
+      "elapsed minutes from import start",
+      "key action count",
+      "failure takeover count and last action",
+      "inline evidence JSON snapshot for quick operator review"
+    ]
+  },
+  "files": [
+    "apps/web/src/App.tsx"
+  ],
+  "verification": [
+    "npm run lint",
+    "npx tsc -b"
+  ]
+}

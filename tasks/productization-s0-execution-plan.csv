@@ -1,14 +1,14 @@
 id,parent_id,wave,category,slice,entry_state,exit_state,status,depends_on,acceptance,verification,likely_touched
-S002A,S002,W1,架构,现状编排盘点,contract_done,contract_done,待办,S001,列出 Program.cs 静态前端 脚本中承担教师工作流编排的真实位置并标出迁移归宿,rg inventory + docs/evidence,apps/api/Program.cs apps/web/src/App.tsx tools docs/evidence
-S002B,S002,W1,架构,Workflow DTO 与状态契约,contract_done,contract_done,待办,S002A,定义 import review tagging paper export score analysis 的 workflow DTO 状态 错误码和回滚字段,dotnet build + contract script,apps/api docs/03_Architecture.md tools
-S002C,S002,W1,架构,ImportReviewWorkflowService 骨架,contract_done,db_backed_done,待办,S002B,导入 解析候选 人工确认 题目保存 来源回看进入同一 application service 边界,dotnet build + focused API smoke,apps/api tests tools
-S002D,S002,W1,架构,PaperWorkflowService 骨架,contract_done,db_backed_done,待办,S002B,检索 题篮 细目表 换题 导出前审校进入同一 application service 边界,dotnet build + focused API smoke,apps/api tests tools
-S002E,S002,W1,架构,ScoreAnalysisWorkflowService 骨架,contract_done,db_backed_done,待办,S002B,成绩导入 模板复用 异常行 小题映射 讲评报告进入同一 application service 边界,dotnet build + focused API smoke,apps/api tests tools
+S002A,S002,W1,架构,现状编排盘点,contract_done,contract_done,已完成,S001,列出 Program.cs 静态前端 脚本中承担教师工作流编排的真实位置并标出迁移归宿,rg inventory + docs/evidence,apps/api/Program.cs apps/web/src/App.tsx tools docs/evidence
+S002B,S002,W1,架构,Workflow DTO 与状态契约,contract_done,contract_done,已完成,S002A,定义 import review tagging paper export score analysis 的 workflow DTO 状态 错误码和回滚字段,dotnet build + contract script,apps/api docs/03_Architecture.md tools
+S002C,S002,W1,架构,ImportReviewWorkflowService 骨架,contract_done,db_backed_done,已完成,S002B,导入 解析候选 人工确认 题目保存 来源回看进入同一 application service 边界,dotnet build + focused API smoke,apps/api tests tools
+S002D,S002,W1,架构,PaperWorkflowService 骨架,contract_done,db_backed_done,已完成,S002B,检索 题篮 细目表 换题 导出前审校进入同一 application service 边界,dotnet build + focused API smoke,apps/api tests tools
+S002E,S002,W1,架构,ScoreAnalysisWorkflowService 骨架,contract_done,db_backed_done,已完成,S002B,成绩导入 模板复用 异常行 小题映射 讲评报告进入同一 application service 边界,dotnet build + focused API smoke,apps/api tests tools
 S002F,S002,W1,架构,Thin endpoint guard,contract_done,db_backed_done,待办,S002C;S002D;S002E,endpoint 只做协议转换 主要业务编排不继续堆在 Program.cs,architecture guard + dotnet build,apps/api/Program.cs tools docs/evidence
-S003A,S003,W2,试题导入,前端 typed API 扩展,contract_done,ui_productized,待办,S002F,前端 client/query 覆盖上传 创建导入任务 查询任务 查询来源资料,npm build + lint + UI contract,apps/web/src/api apps/web/src/App.tsx
-S003B,S003,W2,试题导入,真实上传和任务状态 UI,db_backed_done,ui_productized,待办,S003A,教师上传授权或脱敏文件后看到 job id 状态 失败原因 重试入口和原文件信息,UI smoke + API smoke,apps/web apps/api tools
-S003C,S003,W2,试题导入,来源预览接通,db_backed_done,ui_productized,待办,S003B,导入页显示 source document page region preview 的加载 空 错误 回退状态,UI contract + source preview smoke,apps/web apps/api tools
-S003D,S003,W2,试题导入,导入证据与教师效率,ui_productized,ui_productized,待办,S003C,记录上传到可接管状态的耗时 点击数 失败后继续路径和证据文件,task evidence + roadmap guard,docs/evidence tools
+S003A,S003,W2,试题导入,前端 typed API 扩展,contract_done,ui_productized,已完成,S002F,前端 client/query 覆盖上传 创建导入任务 查询任务 查询来源资料,npm build + lint + UI contract,apps/web/src/api apps/web/src/App.tsx
+S003B,S003,W2,试题导入,真实上传和任务状态 UI,db_backed_done,ui_productized,已完成,S003A,教师上传授权或脱敏文件后看到 job id 状态 失败原因 重试入口和原文件信息,UI smoke + API smoke,apps/web apps/api tools
+S003C,S003,W2,试题导入,来源预览接通,db_backed_done,ui_productized,已完成,S003B,导入页显示 source document page region preview 的加载 空 错误 回退状态,UI contract + source preview smoke,apps/web apps/api tools
+S003D,S003,W2,试题导入,导入证据与教师效率,ui_productized,ui_productized,已完成,S003C,记录上传到可接管状态的耗时 点击数 失败后继续路径和证据文件,task evidence + roadmap guard,docs/evidence tools
 S004A,S004,W3,文档解析,golden set registry,synthetic_done,synthetic_done,待办,S003D,登记 docx 文本PDF 扫描件 公式 表格 题图样本来源 授权 hash 预期输出和失败接管点,CSV/JSON parse + adapter guard,tests/golden-import workers/document docs/evidence
 S004B,S004,W3,文档解析,adapter benchmark report,synthetic_done,teacher_validated,待办,S004A,输出每类样本准确率 耗时 警告 错误和人工接管建议,adapter benchmark contract,workers/document tools docs/evidence
 S004C,S004,W3,文档解析,真实材料代理验收,synthetic_done,teacher_validated,待办,S004B,用授权或脱敏材料跑解析并记录不可自动处理项 不把失败伪装成通过,E2E proxy evidence,docs/evidence tools

@@ -26,6 +26,50 @@ export interface ReadyHealthContract {
   checkedAtIso: string
 }
 
+export interface SourceMaterialContract {
+  sourceDocumentId: string
+  fileAssetId: string
+  sourceType: string
+  sourceTitle: string
+  region: string
+  materialBatchKey: string
+  createdAt: string
+}
+
+export interface SourceMaterialListContract {
+  mode: string
+  sourceType: string | null
+  sourceDocuments: SourceMaterialContract[]
+}
+
+export interface SourcePreviewRegionContract {
+  id: string
+  sourceDocumentId: string
+  pageNumber: number
+  regionType: string
+  screenshotRelativePath: string | null
+}
+
+export interface SourcePreviewPageContract {
+  pageNumber: number
+  regions: SourcePreviewRegionContract[]
+}
+
+export interface SourceDocumentPreviewContract {
+  sourceDocumentId: string
+  pages: SourcePreviewPageContract[]
+}
+
+export interface ImportJobContract {
+  id: string
+  inputFileAssetId: string
+  status: string
+  idempotencyKey: string
+  lastErrorCode: string | null
+  lastErrorMessage: string | null
+  createdAt: string
+}
+
 function readStringField(value: unknown, field: string): string | undefined {
   if (!value || typeof value !== 'object' || !(field in value)) {
     return undefined
@@ -43,5 +87,78 @@ export function normalizeReadyHealthResponse(value: unknown): ReadyHealthContrac
     status,
     database,
     checkedAtIso: new Date().toISOString(),
+  }
+}
+
+function readArrayField(value: unknown, field: string): unknown[] {
+  if (!value || typeof value !== 'object' || !(field in value)) {
+    return []
+  }
+
+  const record = value as Record<string, unknown>
+  return Array.isArray(record[field]) ? record[field] : []
+}
+
+function readNullableStringField(value: unknown, field: string): string | null {
+  if (!value || typeof value !== 'object' || !(field in value)) {
+    return null
+  }
+
+  const record = value as Record<string, unknown>
+  return typeof record[field] === 'string' ? record[field] : null
+}
+
+function readNumberField(value: unknown, field: string): number {
+  if (!value || typeof value !== 'object' || !(field in value)) {
+    return 0
+  }
+
+  const record = value as Record<string, unknown>
+  return typeof record[field] === 'number' ? record[field] : 0
+}
+
+export function normalizeSourceMaterialListResponse(value: unknown): SourceMaterialListContract {
+  const rows = readArrayField(value, 'sourceDocuments')
+  return {
+    mode: readStringField(value, 'mode') ?? 'unknown',
+    sourceType: readNullableStringField(value, 'sourceType'),
+    sourceDocuments: rows.map((row) => ({
+      sourceDocumentId: readStringField(row, 'sourceDocumentId') ?? '',
+      fileAssetId: readStringField(row, 'fileAssetId') ?? '',
+      sourceType: readStringField(row, 'sourceType') ?? 'unknown',
+      sourceTitle: readStringField(row, 'sourceTitle') ?? '',
+      region: readStringField(row, 'region') ?? '',
+      materialBatchKey: readStringField(row, 'materialBatchKey') ?? '',
+      createdAt: readStringField(row, 'createdAt') ?? '',
+    })),
+  }
+}
+
+export function normalizeImportJobResponse(value: unknown): ImportJobContract {
+  return {
+    id: readStringField(value, 'id') ?? '',
+    inputFileAssetId: readStringField(value, 'inputFileAssetId') ?? '',
+    status: readStringField(value, 'status') ?? 'unknown',
+    idempotencyKey: readStringField(value, 'idempotencyKey') ?? '',
+    lastErrorCode: readNullableStringField(value, 'lastErrorCode'),
+    lastErrorMessage: readNullableStringField(value, 'lastErrorMessage'),
+    createdAt: readStringField(value, 'createdAt') ?? '',
+  }
+}
+
+export function normalizeSourceDocumentPreviewResponse(value: unknown): SourceDocumentPreviewContract {
+  const pages = readArrayField(value, 'pages')
+  return {
+    sourceDocumentId: readStringField(value, 'sourceDocumentId') ?? '',
+    pages: pages.map((page) => ({
+      pageNumber: readNumberField(page, 'pageNumber'),
+      regions: readArrayField(page, 'regions').map((region) => ({
+        id: readStringField(region, 'id') ?? '',
+        sourceDocumentId: readStringField(region, 'sourceDocumentId') ?? '',
+        pageNumber: readNumberField(region, 'pageNumber'),
+        regionType: readStringField(region, 'regionType') ?? 'preview',
+        screenshotRelativePath: readNullableStringField(region, 'screenshotRelativePath'),
+      })),
+    })),
   }
 }

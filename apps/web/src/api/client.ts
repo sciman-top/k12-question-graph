@@ -1,5 +1,16 @@
-import type { ApiResult, ReadyHealthContract } from './contracts'
-import { normalizeReadyHealthResponse } from './contracts'
+import type {
+  ApiResult,
+  ImportJobContract,
+  ReadyHealthContract,
+  SourceDocumentPreviewContract,
+  SourceMaterialListContract,
+} from './contracts'
+import {
+  normalizeImportJobResponse,
+  normalizeReadyHealthResponse,
+  normalizeSourceDocumentPreviewResponse,
+  normalizeSourceMaterialListResponse,
+} from './contracts'
 
 const apiBaseUrl = import.meta.env.VITE_KQG_API_BASE_URL ?? ''
 
@@ -47,4 +58,20 @@ async function requestJson<T>(path: string, normalize: (value: unknown) => T): P
 
 export async function getReadyHealth(): Promise<ApiResult<ReadyHealthContract>> {
   return requestJson('/health/ready', normalizeReadyHealthResponse)
+}
+
+export async function getSourceMaterials(sourceType?: string): Promise<ApiResult<SourceMaterialListContract>> {
+  const query = sourceType ? `?sourceType=${encodeURIComponent(sourceType)}` : ''
+  return requestJson(`/source-documents${query}`, normalizeSourceMaterialListResponse)
+}
+
+export async function getImportJob(id: string): Promise<ApiResult<ImportJobContract>> {
+  return requestJson(`/imports/${encodeURIComponent(id)}`, normalizeImportJobResponse)
+}
+
+export async function getSourceDocumentPreview(id: string): Promise<ApiResult<SourceDocumentPreviewContract>> {
+  return requestJson(
+    `/source-documents/${encodeURIComponent(id)}/preview`,
+    normalizeSourceDocumentPreviewResponse,
+  )
 }

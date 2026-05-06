@@ -1,4 +1,5 @@
 using K12QuestionGraph.Api.Ai;
+using K12QuestionGraph.Api.Application.Workflows;
 using K12QuestionGraph.Api.Data;
 using K12QuestionGraph.Api.Domain;
 using K12QuestionGraph.Api.FileStore;
@@ -24,6 +25,9 @@ builder.Services.AddDbContext<KqgDbContext>(options =>
         .UseSnakeCaseNamingConvention());
 builder.Services.AddScoped<IFileStore, LocalFileStore>();
 builder.Services.AddScoped<IDocumentWorkerClient, DocumentWorkerClient>();
+builder.Services.AddScoped<IImportReviewWorkflowService, ImportReviewWorkflowService>();
+builder.Services.AddScoped<IPaperWorkflowService, PaperWorkflowService>();
+builder.Services.AddScoped<IScoreAnalysisWorkflowService, ScoreAnalysisWorkflowService>();
 builder.Services.AddSingleton<IAiModelRouter, AiModelRouter>();
 builder.Services.AddSingleton<IAiProvider, StubAiProvider>();
 
