@@ -1,0 +1,27 @@
+{
+  "status": "pass",
+  "taskId": "S004C",
+  "mode": "authorized_anonymized_proxy_validation",
+  "checkedAt": "2026-05-06T20:43:26",
+  "materialCount": 2,
+  "uploadedCount": 2,
+  "uploads": [
+    {
+      "materialId": "s004c-textbook-anonymized",
+      "sourceDocumentId": "3d039b04-6ed5-4f9d-b021-f7743197b791",
+      "fileAssetId": "721faa98-77fb-4aab-848e-bc169143ebb6",
+      "sourceType": "textbook"
+    },
+    {
+      "materialId": "s004c-exam-anonymized",
+      "sourceDocumentId": "38ee8c78-a035-48c5-8c58-353f4ca48650",
+      "fileAssetId": "c7f75d60-bd49-4fe8-bc09-b0aa6fd62cac",
+      "sourceType": "local_exam_paper"
+    }
+  ],
+  "blockedAutomationItems": [
+    "scanned_pdf_auto_cut_accuracy_not_claimed",
+    "manual_takeover_required_for_ocr_failure_paths"
+  ],
+  "nextAction": "Use real authorized/anonymized school files in the same manifest path and rerun this script to refresh evidence."
+}

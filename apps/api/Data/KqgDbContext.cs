@@ -55,6 +55,8 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
 
     public DbSet<QuestionAsset> QuestionAssets => Set<QuestionAsset>();
 
+    public DbSet<CutCandidate> CutCandidates => Set<CutCandidate>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasPostgresExtension("pgcrypto");
@@ -84,6 +86,7 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
         ConfigureDomainAssetMigration(modelBuilder.Entity<DomainAssetMigration>());
         ConfigureQuestionBlock(modelBuilder.Entity<QuestionBlock>());
         ConfigureQuestionAsset(modelBuilder.Entity<QuestionAsset>());
+        ConfigureCutCandidate(modelBuilder.Entity<CutCandidate>());
     }
 
     private static void ConfigureTeacherPreference(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TeacherPreference> entity)
@@ -581,5 +584,31 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
         entity.HasOne<QuestionItem>().WithMany().HasForeignKey(x => x.QuestionItemId).OnDelete(DeleteBehavior.Cascade);
         entity.HasOne<FileAsset>().WithMany().HasForeignKey(x => x.FileAssetId).OnDelete(DeleteBehavior.Restrict);
         entity.HasOne<SourceRegion>().WithMany().HasForeignKey(x => x.SourceRegionId).OnDelete(DeleteBehavior.Restrict);
+    }
+
+    private static void ConfigureCutCandidate(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<CutCandidate> entity)
+    {
+        entity.ToTable("cut_candidates");
+        entity.HasKey(x => x.Id);
+        entity.HasIndex(x => new { x.SourceDocumentId, x.Status });
+        entity.HasIndex(x => x.SourceRegionId);
+        entity.HasIndex(x => x.SuggestedQuestionItemId);
+        entity.Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
+        entity.Property(x => x.Status).HasMaxLength(32).HasDefaultValue(CutCandidateStatuses.PendingReview);
+        entity.Property(x => x.SegmentType).HasMaxLength(64).HasDefaultValue("question_stem");
+        entity.Property(x => x.CandidatePayload).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.Property(x => x.FailureReason).HasMaxLength(1024).HasDefaultValue(string.Empty);
+        entity.Property(x => x.TakeoverAction).HasMaxLength(64).HasDefaultValue("manual_review");
+        entity.Property(x => x.Metadata).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.HasOne<SourceDocument>().WithMany().HasForeignKey(x => x.SourceDocumentId).OnDelete(DeleteBehavior.Cascade);
+        entity.HasOne<SourceRegion>().WithMany().HasForeignKey(x => x.SourceRegionId).OnDelete(DeleteBehavior.SetNull);
+        entity.HasOne<QuestionItem>().WithMany().HasForeignKey(x => x.SuggestedQuestionItemId).OnDelete(DeleteBehavior.SetNull);
+        entity.ToTable(x =>
+        {
+            x.HasCheckConstraint("ck_cut_candidates_confidence", "confidence >= 0 and confidence <= 1");
+            x.HasCheckConstraint("ck_cut_candidates_sequence_no", "sequence_no >= 0");
+            x.HasCheckConstraint("ck_cut_candidates_status", "status in ('pending_review','needs_split','needs_merge','accepted','rejected','retry_required')");
+            x.HasCheckConstraint("ck_cut_candidates_takeover_action", "takeover_action in ('manual_review','split','merge','skip','rerun')");
+        });
     }
 }

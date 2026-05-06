@@ -125,6 +125,16 @@ public static class ScoreImportStatuses
     public const string Archived = "archived";
 }
 
+public static class CutCandidateStatuses
+{
+    public const string PendingReview = "pending_review";
+    public const string NeedsSplit = "needs_split";
+    public const string NeedsMerge = "needs_merge";
+    public const string Accepted = "accepted";
+    public const string Rejected = "rejected";
+    public const string RetryRequired = "retry_required";
+}
+
 public sealed class TeacherPreference
 {
     public Guid Id { get; set; }
@@ -772,4 +782,35 @@ public sealed class QuestionAsset
     public string Metadata { get; set; } = "{}";
 
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class CutCandidate
+{
+    public Guid Id { get; set; }
+
+    public Guid SourceDocumentId { get; set; }
+
+    public Guid? SourceRegionId { get; set; }
+
+    public Guid? SuggestedQuestionItemId { get; set; }
+
+    public string Status { get; set; } = CutCandidateStatuses.PendingReview;
+
+    public decimal Confidence { get; set; }
+
+    public string SegmentType { get; set; } = "question_stem";
+
+    public int SequenceNo { get; set; }
+
+    public string CandidatePayload { get; set; } = "{}";
+
+    public string FailureReason { get; set; } = string.Empty;
+
+    public string TakeoverAction { get; set; } = "manual_review";
+
+    public string Metadata { get; set; } = "{}";
+
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+
+    public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
 }

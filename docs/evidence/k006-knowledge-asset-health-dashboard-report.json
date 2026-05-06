@@ -2,7 +2,7 @@
   "status": "pass",
   "task": "K006",
   "mode": "ui_contract",
-  "checkedAt": "2026-05-05T16:21:10.6438154Z",
+  "checkedAt": "2026-05-06T12:48:47.5323773Z",
   "dashboard": "knowledge-asset-health-dashboard",
   "coveredStatusFields": [
     "active",

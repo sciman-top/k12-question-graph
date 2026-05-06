@@ -1,0 +1,101 @@
+{
+  "status": "pass",
+  "taskId": "S004B",
+  "mode": "synthetic_benchmark",
+  "checkedAt": "2026-05-06T20:32:01",
+  "inputs": {
+    "registryPath": "tests/golden-import/registry.json",
+    "evidence": [
+      "docs/evidence/j001-openxml-docx-adapter-report.json",
+      "docs/evidence/j002-text-pdf-adapter-report.json",
+      "docs/evidence/j003-scanned-ocr-adapter-report.json",
+      "docs/evidence/j005-adapter-diagnostic-supply-chain-report.json",
+      "docs/evidence/j006-import-accuracy-workload-report.json"
+    ],
+    "sampleCount": 5
+  },
+  "benchmark": [
+    {
+      "format": "docx",
+      "adapter": "openxml_docx_adapter",
+      "sampleIds": [
+        "shared-image",
+        "formula-dense"
+      ],
+      "accuracy": {
+        "sourceRegionAccuracy": 1.0,
+        "blockPreservationAccuracy": 1.0,
+        "formulaPreserved": true,
+        "tablePreserved": true
+      },
+      "performance": {
+        "avgDurationMs": 3.0,
+        "warningCount": 0,
+        "errorCount": 0,
+        "sampleCount": 1
+      },
+      "warnings": 0,
+      "errors": 0,
+      "takeoverNeeded": false,
+      "takeoverRecommendations": []
+    },
+    {
+      "format": "text_pdf",
+      "adapter": "pdf_text_adapter",
+      "sampleIds": [
+        "cross-page",
+        "answer-split"
+      ],
+      "accuracy": {
+        "sourceRegionAccuracy": 1.0,
+        "blockPreservationAccuracy": 1.0,
+        "pageCount": 2
+      },
+      "performance": {
+        "avgDurationMs": 3.0,
+        "warningCount": 0,
+        "errorCount": 0,
+        "sampleCount": 1
+      },
+      "warnings": 0,
+      "errors": 0,
+      "takeoverNeeded": false,
+      "takeoverRecommendations": []
+    },
+    {
+      "format": "scanned_pdf",
+      "adapter": "scanned_ocr_review_adapter",
+      "sampleIds": [
+        "scanned"
+      ],
+      "accuracy": {
+        "sourceRegionAccuracy": 1.0,
+        "blockPreservationAccuracy": 1.0,
+        "autoCutAccuracy": null,
+        "automatedCutCaseCount": 0
+      },
+      "performance": {
+        "avgDurationMs": 2.5,
+        "warningCount": 2,
+        "errorCount": 0,
+        "sampleCount": 2
+      },
+      "warnings": 2,
+      "errors": 0,
+      "takeoverNeeded": true,
+      "takeoverRecommendations": [
+        "keep original file",
+        "keep adapter diagnostics",
+        "manual box source region",
+        "split or merge affected segments",
+        "skip bad page when needed",
+        "rerun adapter when source is fixed"
+      ]
+    }
+  ],
+  "summary": {
+    "teacherMessage": "docx/text_pdf 稳定，扫描件必须走人工接管；当前不宣称自动切题准确率。",
+    "manualTakeoverStepCount": 6,
+    "nextAction": "S004C 使用授权或脱敏材料做代理验收并复核不可自动处理项。"
+  }
+}

@@ -4,24 +4,24 @@
   "mode": "draft_test",
   "apiStarted": false,
   "productionEligible": false,
-  "localBackupManifest": "tmp/g001-backups/local/20260506-002250-f0aab026/20260506-002250/manifest.json",
-  "sharedBackupManifest": "tmp/g001-backups/shared/20260506-002250-f0aab026/20260506-002250/manifest.json",
+  "localBackupManifest": "tmp/g001-backups/local/20260506-205040-472d3be4/20260506-205040/manifest.json",
+  "sharedBackupManifest": "tmp/g001-backups/shared/20260506-205040-472d3be4/20260506-205040/manifest.json",
   "sharedBackupRootConfigurable": true,
   "noMirrorDeleteToNetworkShare": true,
   "localVerify": {
     "status": "ok",
-    "manifest": "tmp\\g001-backups\\local\\20260506-002250-f0aab026\\20260506-002250\\manifest.json",
-    "fileCount": 721,
+    "manifest": "tmp\\g001-backups\\local\\20260506-205040-472d3be4\\20260506-205040\\manifest.json",
+    "fileCount": 737,
     "configCount": 3
   },
   "sharedVerify": {
     "status": "ok",
-    "manifest": "tmp\\g001-backups\\shared\\20260506-002250-f0aab026\\20260506-002250\\manifest.json",
-    "fileCount": 721,
+    "manifest": "tmp\\g001-backups\\shared\\20260506-205040-472d3be4\\20260506-205040\\manifest.json",
+    "fileCount": 737,
     "configCount": 3
   },
-  "databaseSha256": "fbbe0b7335e068c5ea5b6d5e38f1e88291a934bd75b1184393c44d803f53da11",
-  "fileCount": 721,
+  "databaseSha256": "ed077e4ef56ca5b0290f31143b460b557f97e85964822e9bfe51591d7ca3a83f",
+  "fileCount": 737,
   "configCount": 3,
   "rollback": {
     "local": "delete the generated tmp/g001-backups run directory if this dry-run backup is no longer needed",

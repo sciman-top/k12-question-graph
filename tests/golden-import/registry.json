@@ -1,0 +1,82 @@
+{
+  "registryVersion": "golden-import-registry.v1",
+  "updatedAt": "2026-05-06T20:12:00+08:00",
+  "fixtureSource": {
+    "samplesPath": "tests/golden-import/samples.json",
+    "samplesSha256": "347b6f8827555f1273790a5de6df1561b2d7e8de00ec2469a547fc673d23e8f0",
+    "licensePath": "tests/golden-import/privacy_and_license.md"
+  },
+  "entries": [
+    {
+      "sampleId": "shared-image",
+      "format": "docx",
+      "capabilityFocus": ["shared_image", "image_reference"],
+      "sourceType": "synthetic",
+      "authorization": "synthetic_local_regression_allowed",
+      "expectedOutput": {
+        "questionBlocks": ["text", "image", "option", "answer", "solution"],
+        "sourceRegionRequired": true,
+        "status": "draft_test"
+      },
+      "takeoverPoints": []
+    },
+    {
+      "sampleId": "cross-page",
+      "format": "text_pdf",
+      "capabilityFocus": ["cross_page_merge", "manual_merge_assist"],
+      "sourceType": "synthetic",
+      "authorization": "synthetic_local_regression_allowed",
+      "expectedOutput": {
+        "questionBlocks": ["text", "sub_question", "answer", "solution"],
+        "sourceRegionRequired": true,
+        "status": "draft_test"
+      },
+      "takeoverPoints": ["manual_merge_when_cross_page_cut_incomplete"]
+    },
+    {
+      "sampleId": "formula-dense",
+      "format": "docx",
+      "capabilityFocus": ["formula_preservation", "export_fidelity"],
+      "sourceType": "synthetic",
+      "authorization": "synthetic_local_regression_allowed",
+      "expectedOutput": {
+        "questionBlocks": ["text", "formula", "answer", "solution"],
+        "sourceRegionRequired": true,
+        "status": "draft_test"
+      },
+      "takeoverPoints": ["manual_review_when_formula_split_or_lost"]
+    },
+    {
+      "sampleId": "scanned",
+      "format": "scanned_pdf",
+      "capabilityFocus": ["ocr_fallback", "fail_closed_manual_takeover"],
+      "sourceType": "synthetic",
+      "authorization": "synthetic_local_regression_allowed",
+      "expectedOutput": {
+        "questionBlocks": ["text", "image", "answer", "solution"],
+        "sourceRegionRequired": true,
+        "status": "pending_review"
+      },
+      "takeoverPoints": [
+        "manual_box_selection",
+        "split_or_merge_adjustment",
+        "skip_page",
+        "rerun_adapter"
+      ]
+    },
+    {
+      "sampleId": "answer-split",
+      "format": "text_pdf",
+      "capabilityFocus": ["answer_solution_separation", "teacher_confirmation"],
+      "sourceType": "synthetic",
+      "authorization": "synthetic_local_regression_allowed",
+      "expectedOutput": {
+        "questionBlocks": ["text", "answer", "solution"],
+        "sourceRegionRequired": true,
+        "status": "draft_test"
+      },
+      "takeoverPoints": ["manual_rebind_answer_solution"]
+    }
+  ]
+}
+

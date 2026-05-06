@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "s004c-authorized-anonymized-proxy.v1",
+  "mode": "proxy_validation",
+  "materials": [
+    {
+      "materialId": "s004c-textbook-anonymized",
+      "sourceType": "textbook",
+      "sourceTitle": "脱敏教材片段样本",
+      "localPath": "tmp/s004c-proxy/material-textbook.txt",
+      "licenseOrPermission": "internal_authorized",
+      "containsStudentPii": false,
+      "anonymizationStatus": "anonymized"
+    },
+    {
+      "materialId": "s004c-exam-anonymized",
+      "sourceType": "local_exam_paper",
+      "sourceTitle": "脱敏试卷片段样本",
+      "localPath": "tmp/s004c-proxy/material-exam.txt",
+      "licenseOrPermission": "internal_authorized",
+      "containsStudentPii": false,
+      "anonymizationStatus": "anonymized"
+    }
+  ]
+}

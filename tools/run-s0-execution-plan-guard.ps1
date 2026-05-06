@@ -81,6 +81,32 @@ foreach ($group in ($rows | Group-Object parent_id | Sort-Object Name)) { $byPar
 $byWave = [ordered]@{}
 foreach ($group in ($rows | Group-Object wave | Sort-Object Name)) { $byWave[$group.Name] = $group.Count }
 
+$todoRows = @($rows | Where-Object { $_.status -eq '待办' } | Sort-Object id)
+$firstExecutableTask = $null
+foreach ($candidate in $todoRows) {
+    $deps = @()
+    if (-not [string]::IsNullOrWhiteSpace($candidate.depends_on)) {
+        $deps = @($candidate.depends_on -split ';' | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+    }
+
+    $allDepsSatisfied = $true
+    foreach ($dep in $deps) {
+        if ($planIds.ContainsKey($dep) -and $planIds[$dep].status -ne '已完成') {
+            $allDepsSatisfied = $false
+            break
+        }
+    }
+
+    if ($allDepsSatisfied) {
+        $firstExecutableTask = $candidate.id
+        break
+    }
+}
+
+if ($null -eq $firstExecutableTask) {
+    $firstExecutableTask = 'none'
+}
+
 $report = [ordered]@{
     status = 'pass'
     task = 'S0 execution plan guard'
@@ -89,7 +115,7 @@ $report = [ordered]@{
     rowCount = $rows.Count
     parentCoverage = $byParent
     waveCoverage = $byWave
-    firstExecutableTask = 'S002A'
+    firstExecutableTask = $firstExecutableTask
     lastReleaseGateTask = 'S012C'
     conclusion = 'S002-S012 have been decomposed into smaller executable subtasks and remain gated by completion-state evidence before P001'
 }

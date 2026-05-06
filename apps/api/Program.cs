@@ -826,112 +826,98 @@ app.MapGet("/questions/{id:guid}/sources", async (
 })
 .WithName("GetQuestionSources");
 
-app.MapPost("/paper-requests/parse", (PaperRequestParseRequest request) =>
+app.MapPost("/paper-requests/parse", (PaperRequestParseRequest request, IPaperWorkflowService workflowService) =>
 {
     if (string.IsNullOrWhiteSpace(request.TeacherRequest))
     {
         return Results.BadRequest(new { error = "teacher_request_required" });
     }
 
-    var normalized = request.TeacherRequest.Trim();
-    var scope = InferPaperRequestScope(normalized);
-    var questionTypePlan = new[]
-    {
-        new PaperQuestionTypePlan("single_choice", 5, 15m),
-        new PaperQuestionTypePlan("calculation", 2, 10m),
-        new PaperQuestionTypePlan("experiment", 1, 5m)
-    };
-    var blueprint = questionTypePlan.Select(item => new PaperBlueprintRow(
-        item.QuestionType,
-        item.Count,
-        item.Score,
-        scope,
-        "draft_dynamic_asset",
-        "pending_review")).ToArray();
-
+    var result = workflowService.ParsePaperRequest(request.TeacherRequest, request.TextbookVersion);
     return Results.Ok(new PaperRequestParseResponse(
-        Mode: "draft_test",
-        ProductionEligible: false,
-        AllowRealModelCalls: false,
-        SchemaVersion: "schemas/ai/natural_language_paper_request.schema.json",
-        PromptVersion: "prompt.e002.draft-test.v1",
-        SystemUnderstanding: $"按初中物理 draft 动态资产生成组卷理解：{normalized}",
-        PaperType: normalized.Contains("复习", StringComparison.OrdinalIgnoreCase) ? "review_practice" : "unit_practice",
-        Subject: "physics",
-        Grade: normalized.Contains("九") ? "grade_9" : "grade_8",
-        TextbookVersion: request.TextbookVersion,
-        Scope: scope,
-        TotalScore: 30,
-        DifficultyTarget: normalized.Contains("偏难") ? "medium_hard" : "medium",
-        QuestionTypePlan: questionTypePlan,
-        Blueprint: blueprint,
-        Constraints: new PaperRequestConstraints(
-            KnowledgeStatus: "draft",
-            SourceTypes: ["synthetic"],
-            ReviewRequired: true,
-            BlocksProductionPaper: true),
-        ReviewQuestions:
-        [
-            "是否需要限定教材版本或章节范围？",
-            "是否需要排除最近已练过的题目？",
-            "是否确认使用 draft_test 细目表继续生成试卷草稿？"
-        ]));
+        Mode: result.Mode,
+        ProductionEligible: result.ProductionEligible,
+        AllowRealModelCalls: result.AllowRealModelCalls,
+        SchemaVersion: result.SchemaVersion,
+        PromptVersion: result.PromptVersion,
+        SystemUnderstanding: result.SystemUnderstanding,
+        PaperType: result.PaperType,
+        Subject: result.Subject,
+        Grade: result.Grade,
+        TextbookVersion: result.TextbookVersion,
+        Scope: result.Scope,
+        TotalScore: result.TotalScore,
+        DifficultyTarget: result.DifficultyTarget,
+        QuestionTypePlan: result.QuestionTypePlan.Select(x => new PaperQuestionTypePlan(x.QuestionType, x.Count, x.Score)).ToArray(),
+        Blueprint: result.Blueprint.Select(x => new PaperBlueprintRow(x.QuestionType, x.Count, x.Score, x.Scope, x.AssetStatus, x.ReviewStatus)).ToArray(),
+        Constraints: new PaperRequestConstraints(result.Constraints.KnowledgeStatus, result.Constraints.SourceTypes, result.Constraints.ReviewRequired, result.Constraints.BlocksProductionPaper),
+        ReviewQuestions: result.ReviewQuestions));
 })
 .WithName("ParsePaperRequest");
 
-app.MapPost("/paper-requests/replace-question", (PaperQuestionReplacementRequest request) =>
+app.MapPost("/paper-requests/replace-question", (PaperQuestionReplacementRequest request, IPaperWorkflowService workflowService) =>
 {
     if (request.CurrentQuestion is null)
     {
         return Results.BadRequest(new { error = "current_question_required" });
     }
 
-    var current = request.CurrentQuestion;
-    var constraints = new PaperQuestionReplacementConstraints(
-        SameKnowledge: true,
-        SameQuestionType: true,
-        SimilarDifficulty: true,
-        SameScore: true,
-        ExcludeCurrentPaperDuplicates: true,
-        ExcludeRecentlyUsed: true,
-        KnowledgeStatus: "draft",
-        BlocksProductionPaper: true);
+    var serviceRequest = new PaperReplaceRequest(new PaperDraftQuestionServiceItem(
+        request.CurrentQuestion.Id,
+        request.CurrentQuestion.StemPreview,
+        request.CurrentQuestion.QuestionType,
+        request.CurrentQuestion.Score,
+        request.CurrentQuestion.DifficultyEstimated,
+        request.CurrentQuestion.PrimaryKnowledgeId,
+        request.CurrentQuestion.PrimaryKnowledgeTitle,
+        request.CurrentQuestion.SourceType,
+        request.CurrentQuestion.RecentUseStatus));
+    var result = workflowService.ReplaceQuestion(serviceRequest);
+
     var replacement = new PaperDraftQuestion(
-        Id: "draft-replacement-" + current.Id,
-        StemPreview: BuildReplacementPreview(current.StemPreview),
-        QuestionType: current.QuestionType,
-        Score: current.Score,
-        DifficultyEstimated: ClampDifficulty((current.DifficultyEstimated ?? 0.6) + 0.03),
-        PrimaryKnowledgeId: current.PrimaryKnowledgeId,
-        PrimaryKnowledgeTitle: current.PrimaryKnowledgeTitle,
-        SourceType: "synthetic",
-        RecentUseStatus: "not_recently_used");
-    var undo = new PaperQuestionUndoSnapshot(
-        UndoToken: "undo-" + Guid.NewGuid().ToString("N"),
-        BeforeQuestion: current,
-        AfterQuestion: replacement,
-        RevertAction: "restore_before_question");
+        result.Replacement.Id,
+        result.Replacement.StemPreview,
+        result.Replacement.QuestionType,
+        result.Replacement.Score,
+        result.Replacement.DifficultyEstimated,
+        result.Replacement.PrimaryKnowledgeId,
+        result.Replacement.PrimaryKnowledgeTitle,
+        result.Replacement.SourceType,
+        result.Replacement.RecentUseStatus);
+    var before = new PaperDraftQuestion(
+        result.Undo.BeforeQuestion.Id,
+        result.Undo.BeforeQuestion.StemPreview,
+        result.Undo.BeforeQuestion.QuestionType,
+        result.Undo.BeforeQuestion.Score,
+        result.Undo.BeforeQuestion.DifficultyEstimated,
+        result.Undo.BeforeQuestion.PrimaryKnowledgeId,
+        result.Undo.BeforeQuestion.PrimaryKnowledgeTitle,
+        result.Undo.BeforeQuestion.SourceType,
+        result.Undo.BeforeQuestion.RecentUseStatus);
+    var undo = new PaperQuestionUndoSnapshot(result.Undo.UndoToken, before, replacement, result.Undo.RevertAction);
 
     return Results.Ok(new PaperQuestionReplacementResponse(
-        Mode: "draft_test",
-        ProductionEligible: false,
-        AllowRealModelCalls: false,
-        Action: "replace_question",
-        Reason: "same_knowledge_type_difficulty_score",
-        Constraints: constraints,
-        Replacement: replacement,
-        Undo: undo,
-        AuditTrail:
-        [
-            "kept primary knowledge constraint",
-            "kept question type constraint",
-            "kept score constraint",
-            "kept draft_test non-production boundary"
-        ]));
+        result.Mode,
+        result.ProductionEligible,
+        result.AllowRealModelCalls,
+        result.Action,
+        result.Reason,
+        new PaperQuestionReplacementConstraints(
+            result.Constraints.SameKnowledge,
+            result.Constraints.SameQuestionType,
+            result.Constraints.SimilarDifficulty,
+            result.Constraints.SameScore,
+            result.Constraints.ExcludeCurrentPaperDuplicates,
+            result.Constraints.ExcludeRecentlyUsed,
+            result.Constraints.KnowledgeStatus,
+            result.Constraints.BlocksProductionPaper),
+        replacement,
+        undo,
+        result.AuditTrail));
 })
 .WithName("ReplacePaperQuestion");
 
-app.MapPost("/knowledge-version-explanations/resolve", (KnowledgeVersionExplanationRequest request) =>
+app.MapPost("/knowledge-version-explanations/resolve", (KnowledgeVersionExplanationRequest request, IPaperWorkflowService workflowService) =>
 {
     if (string.IsNullOrWhiteSpace(request.ArtifactType))
     {
@@ -958,62 +944,40 @@ app.MapPost("/knowledge-version-explanations/resolve", (KnowledgeVersionExplanat
         return Results.BadRequest(new { error = "current_knowledge_version_required" });
     }
 
-    var currentTargets = request.CurrentKnowledgeStableIds
-        .Where(id => !string.IsNullOrWhiteSpace(id))
-        .Select(id => id.Trim())
-        .Distinct(StringComparer.OrdinalIgnoreCase)
-        .ToArray();
-
-    if (currentTargets.Length == 0)
+    if (request.CurrentKnowledgeStableIds.Count == 0)
     {
         return Results.BadRequest(new { error = "current_knowledge_stable_ids_required" });
     }
 
-    var artifactType = NormalizeToken(request.ArtifactType, "question");
-    var mappingType = string.IsNullOrWhiteSpace(request.MappingType)
-        ? "equivalent"
-        : NormalizeToken(request.MappingType, "equivalent");
-    var historicalVersion = request.HistoricalKnowledgeVersion.Trim();
-    var currentVersion = request.CurrentKnowledgeVersion.Trim();
-    var currentVersionDifferent = !string.Equals(
-        historicalVersion,
-        currentVersion,
-        StringComparison.OrdinalIgnoreCase);
-    var explanationText = BuildKnowledgeVersionExplanationText(
-        artifactType,
-        request.HistoricalKnowledgeStableId.Trim(),
-        historicalVersion,
-        currentVersion,
-        mappingType,
-        currentTargets,
-        request.AffectsHistoricalAnalysis);
+    var serviceResult = workflowService.ResolveKnowledgeVersionExplanation(new KnowledgeVersionExplanationServiceRequest(
+        request.ArtifactType,
+        request.ArtifactId,
+        request.HistoricalKnowledgeStableId,
+        request.HistoricalKnowledgeVersion,
+        request.CurrentKnowledgeVersion,
+        request.MappingType,
+        request.CurrentKnowledgeStableIds,
+        request.AffectsHistoricalAnalysis));
 
     var response = new KnowledgeVersionExplanationResponse(
-        Mode: "historical_version_explanation_contract",
-        ProductionEligible: false,
-        ReadOnly: true,
-        RealStudentDataUsed: false,
-        WritesProductionHistory: false,
-        ArtifactType: artifactType,
-        ArtifactId: request.ArtifactId.Trim(),
-        HistoricalKnowledgeStableId: request.HistoricalKnowledgeStableId.Trim(),
-        HistoricalKnowledgeVersion: historicalVersion,
-        CurrentKnowledgeVersion: currentVersion,
-        MappingType: mappingType,
-        CurrentKnowledgeStableIds: currentTargets,
-        FrozenHistoricalView: true,
-        CurrentVersionDifferent: currentVersionDifferent,
-        AffectsHistoricalAnalysis: request.AffectsHistoricalAnalysis,
-        ExplanationText: explanationText,
-        TeacherVisibleSummary: currentVersionDifferent
-            ? $"此{artifactType}保留生成时的历史知识版本；当前版本已通过 {mappingType} 映射到 {string.Join(", ", currentTargets)}。"
-            : $"此{artifactType}使用的知识版本仍是当前版本，可直接按 {string.Join(", ", currentTargets)} 理解。",
-        AuditTrail:
-        [
-            $"preserve_historical_view:{historicalVersion}",
-            $"resolve_current_mapping:{currentVersion}:{mappingType}",
-            "block_production_history_rewrite"
-        ]);
+        serviceResult.Mode,
+        serviceResult.ProductionEligible,
+        serviceResult.ReadOnly,
+        serviceResult.RealStudentDataUsed,
+        serviceResult.WritesProductionHistory,
+        serviceResult.ArtifactType,
+        serviceResult.ArtifactId,
+        serviceResult.HistoricalKnowledgeStableId,
+        serviceResult.HistoricalKnowledgeVersion,
+        serviceResult.CurrentKnowledgeVersion,
+        serviceResult.MappingType,
+        serviceResult.CurrentKnowledgeStableIds,
+        serviceResult.FrozenHistoricalView,
+        serviceResult.CurrentVersionDifferent,
+        serviceResult.AffectsHistoricalAnalysis,
+        serviceResult.ExplanationText,
+        serviceResult.TeacherVisibleSummary,
+        serviceResult.AuditTrail);
 
     return Results.Ok(response);
 })
@@ -1274,66 +1238,6 @@ static string GetBlockPreview(QuestionBlock block)
     {
         return block.Content;
     }
-}
-
-static IReadOnlyList<string> InferPaperRequestScope(string teacherRequest)
-{
-    var scope = new List<string>();
-    if (teacherRequest.Contains("牛顿") || teacherRequest.Contains("惯性"))
-    {
-        scope.Add("牛顿第一定律与惯性");
-    }
-
-    if (teacherRequest.Contains("速度"))
-    {
-        scope.Add("速度与平均速度");
-    }
-
-    if (teacherRequest.Contains("压强"))
-    {
-        scope.Add("压强");
-    }
-
-    if (scope.Count == 0)
-    {
-        scope.Add("初中物理 draft L2/L3 范围");
-    }
-
-    return scope;
-}
-
-static string BuildReplacementPreview(string currentPreview)
-{
-    if (string.IsNullOrWhiteSpace(currentPreview))
-    {
-        return "同知识点、同题型、相近难度的替换题草稿。";
-    }
-
-    return currentPreview.Contains("惯性", StringComparison.OrdinalIgnoreCase)
-        ? "关于惯性的理解，下列说法正确的是哪一项？"
-        : $"替换题草稿：{currentPreview}";
-}
-
-static double ClampDifficulty(double value)
-{
-    return Math.Max(0.0, Math.Min(1.0, value));
-}
-
-static string BuildKnowledgeVersionExplanationText(
-    string artifactType,
-    string historicalKnowledgeStableId,
-    string historicalKnowledgeVersion,
-    string currentKnowledgeVersion,
-    string mappingType,
-    IReadOnlyList<string> currentKnowledgeStableIds,
-    bool affectsHistoricalAnalysis)
-{
-    var currentTargets = string.Join(", ", currentKnowledgeStableIds);
-    var analysisNote = affectsHistoricalAnalysis
-        ? "历史学情结论保持冻结，只展示当前版本映射解释，不回写旧统计口径。"
-        : "历史对象保持原始归属，教师可按当前版本映射继续检索和理解。";
-
-    return $"此{artifactType}生成时使用历史知识版本 {historicalKnowledgeVersion}，知识点为 {historicalKnowledgeStableId}。当前知识版本为 {currentKnowledgeVersion}，通过 {mappingType} 映射到 {currentTargets}。{analysisNote}";
 }
 
 static AiJobResponse ToAiJobResponse(AIJob job)

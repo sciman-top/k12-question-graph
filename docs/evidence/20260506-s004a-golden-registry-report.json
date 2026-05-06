@@ -1,0 +1,15 @@
+{
+  "status": "pass",
+  "taskId": "S004A",
+  "checkedAt": "2026-05-06T20:14:20+08:00",
+  "registry": "tests/golden-import/registry.json",
+  "guard": "tools/run-s004a-golden-registry-guard.ps1",
+  "coverage": {
+    "formats": ["docx", "text_pdf", "scanned_pdf"],
+    "focus": ["formula", "table_or_image", "cross_page", "answer_solution_split", "ocr_takeover"],
+    "sourceType": "synthetic"
+  },
+  "verification": [
+    "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-s004a-golden-registry-guard.ps1"
+  ]
+}

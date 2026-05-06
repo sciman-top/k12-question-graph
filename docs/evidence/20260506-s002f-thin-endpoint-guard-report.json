@@ -1,0 +1,22 @@
+{
+  "status": "partial_pass",
+  "taskId": "S002F",
+  "checkedAt": "2026-05-06T20:40:00+08:00",
+  "changes": [
+    "apps/api/Program.cs",
+    "apps/api/Application/Workflows/PaperWorkflowService.cs",
+    "tools/run-s002f-thin-endpoint-guard.ps1"
+  ],
+  "verification": {
+    "thinEndpointGuard": "pass",
+    "dotnetBuild": "platform_na"
+  },
+  "platform_na": {
+    "reason": "dotnet build blocked by host TLS/auth issue to nuget.org (NU1301)",
+    "alternative_verification": [
+      "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-s002f-thin-endpoint-guard.ps1"
+    ],
+    "evidence_link": "docs/evidence/20260506-s002f-thin-endpoint-guard-report.json",
+    "expires_at": "2026-05-13"
+  }
+}
