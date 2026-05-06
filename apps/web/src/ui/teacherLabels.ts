@@ -24,6 +24,11 @@ const teacherText: Record<string, string> = {
   synthetic: '示例来源',
   unit_practice: '单元练习',
   uploaded_metadata: '已记录元数据',
+  manual_review: '需人工接管',
+  split: '拆分',
+  merge: '合并',
+  skip: '跳过',
+  rerun: '重跑',
 }
 
 export const teacherLabelFor = (value: string) => teacherText[value] ?? value

@@ -2,7 +2,7 @@
   "status": "pass",
   "task": "C002N",
   "extractorVersion": "c002n-source-chunk-cache.v1",
-  "generatedAt": "2026-05-06T12:56:49.897101+00:00",
+  "generatedAt": "2026-05-06T13:08:58.544958+00:00",
   "sourceReport": "docs\\evidence\\c002-source-material-import-report.json",
   "sourceRootOverride": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2016_2025",
   "cacheRoot": "tmp\\c002n-source-chunk-cache",

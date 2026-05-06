@@ -1,11 +1,15 @@
 import type {
   ApiResult,
+  CutCandidateGenerationContract,
+  CutCandidateListContract,
   ImportJobContract,
   ReadyHealthContract,
   SourceDocumentPreviewContract,
   SourceMaterialListContract,
 } from './contracts'
 import {
+  normalizeCutCandidateGenerationResponse,
+  normalizeCutCandidateListResponse,
   normalizeImportJobResponse,
   normalizeReadyHealthResponse,
   normalizeSourceDocumentPreviewResponse,
@@ -74,4 +78,49 @@ export async function getSourceDocumentPreview(id: string): Promise<ApiResult<So
     `/source-documents/${encodeURIComponent(id)}/preview`,
     normalizeSourceDocumentPreviewResponse,
   )
+}
+
+export async function getCutCandidates(id: string): Promise<ApiResult<CutCandidateListContract>> {
+  return requestJson(
+    `/source-documents/${encodeURIComponent(id)}/cut-candidates`,
+    normalizeCutCandidateListResponse,
+  )
+}
+
+export async function generateCutCandidates(
+  id: string,
+): Promise<ApiResult<CutCandidateGenerationContract>> {
+  try {
+    const response = await fetch(
+      buildApiUrl(`/source-documents/${encodeURIComponent(id)}/cut-candidates/generate`),
+      {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+        },
+      },
+    )
+    if (!response.ok) {
+      return {
+        ok: false,
+        error: {
+          code: 'network_error',
+          message: `HTTP ${response.status}`,
+        },
+      }
+    }
+    const json: unknown = await response.json()
+    return {
+      ok: true,
+      data: normalizeCutCandidateGenerationResponse(json),
+    }
+  } catch (error) {
+    return {
+      ok: false,
+      error: {
+        code: 'network_error',
+        message: error instanceof Error ? error.message : 'Unknown network error',
+      },
+    }
+  }
 }

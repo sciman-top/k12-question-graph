@@ -14,7 +14,7 @@ S004B,S004,W3,文档解析,adapter benchmark report,synthetic_done,teacher_valid
 S004C,S004,W3,文档解析,真实材料代理验收,synthetic_done,teacher_validated,已完成,S004B,用授权或脱敏材料跑解析并记录不可自动处理项 不把失败伪装成通过,E2E proxy evidence,docs/evidence tools
 S005A,S005,W4,切题,切题候选数据模型,contract_done,db_backed_done,已完成,S004C,候选题段 置信度 来源区域 失败原因 状态和人工接管动作可持久化,dotnet build + migration/contract review,apps/api docs/05_DomainModel.md tools
 S005B,S005,W4,切题,候选生成服务,synthetic_done,db_backed_done,已完成,S005A,从 DocumentModel 生成候选 不宣称全自动 低置信度进入确认队列,API contract + J006 update,apps/api workers/document tools
-S005C,S005,W4,切题,切题候选 UI,db_backed_done,ui_productized,待办,S005B,教师能看到候选边界 置信度 失败原因并进入合并 拆分 跳过 重跑,UI contract + npm build,apps/web tools
+S005C,S005,W4,切题,切题候选 UI,db_backed_done,ui_productized,已完成,S005B,教师能看到候选边界 置信度 失败原因并进入合并 拆分 跳过 重跑,UI contract + npm build,apps/web tools
 S006A,S006,W5,人机协作,审核队列 API,contract_done,db_backed_done,待办,S005C,review queue 支持筛选 排序 批量低风险确认 高风险逐项确认和审计记录,API smoke + auth audit check,apps/api tools
 S006B,S006,W5,人机协作,人工接管工作台 API/UI,synthetic_done,ui_productized,待办,S006A,合并 拆分 跳过 重跑 题图关联 撤销 保存题目形成真实操作闭环,UI + API smoke + golden scenario,apps/web apps/api tools
 S006C,S006,W5,人机协作,题目保存来源回看闭环,db_backed_done,ui_productized,待办,S006B,保存题目后可立即回看来源 缺图 缺区域和权限错误有明确回退,API/UI smoke,apps/web apps/api docs/evidence

@@ -1,5 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
-import { getImportJob, getReadyHealth, getSourceDocumentPreview, getSourceMaterials } from './client'
+import {
+  getCutCandidates,
+  getImportJob,
+  getReadyHealth,
+  getSourceDocumentPreview,
+  getSourceMaterials,
+} from './client'
 
 export const serverStateQueryKeys = {
   readyHealth: ['server-state', 'ready-health'] as const,
@@ -7,6 +13,8 @@ export const serverStateQueryKeys = {
   importJob: (id: string) => ['server-state', 'import-job', id] as const,
   sourcePreview: (sourceDocumentId: string) =>
     ['server-state', 'source-preview', sourceDocumentId] as const,
+  cutCandidates: (sourceDocumentId: string) =>
+    ['server-state', 'cut-candidates', sourceDocumentId] as const,
 } as const
 
 export function useReadyHealthQuery() {
@@ -43,6 +51,16 @@ export function useSourcePreviewQuery(sourceDocumentId: string, enabled = true) 
     queryFn: () => getSourceDocumentPreview(sourceDocumentId),
     retry: false,
     staleTime: 15_000,
+    enabled: enabled && sourceDocumentId.length > 0,
+  })
+}
+
+export function useCutCandidatesQuery(sourceDocumentId: string, enabled = true) {
+  return useQuery({
+    queryKey: serverStateQueryKeys.cutCandidates(sourceDocumentId),
+    queryFn: () => getCutCandidates(sourceDocumentId),
+    retry: false,
+    staleTime: 10_000,
     enabled: enabled && sourceDocumentId.length > 0,
   })
 }

@@ -28,7 +28,9 @@ import {
 } from '@ant-design/icons'
 import './App.css'
 import { apiContractSnapshot } from './api/contracts'
+import { generateCutCandidates } from './api/client'
 import {
+  useCutCandidatesQuery,
   useImportJobQuery,
   useReadyHealthQuery,
   useSourceMaterialsQuery,
@@ -89,6 +91,10 @@ const initialSegments = [
     page: '第 1 页',
     region: 'x10 y12 w62 h18',
     asset: '',
+    confidence: 0.9,
+    failureReason: '',
+    takeoverAction: 'skip',
+    status: 'pending_review',
   },
   {
     id: 'q-02',
@@ -96,6 +102,10 @@ const initialSegments = [
     page: '第 1-2 页',
     region: 'x8 y76 w70 h20',
     asset: '',
+    confidence: 0.78,
+    failureReason: 'cross_page_split_required',
+    takeoverAction: 'split',
+    status: 'pending_review',
   },
   {
     id: 'q-03',
@@ -103,6 +113,10 @@ const initialSegments = [
     page: '第 2 页',
     region: 'x8 y6 w70 h24',
     asset: '',
+    confidence: 0.82,
+    failureReason: 'cross_page_merge_required',
+    takeoverAction: 'merge',
+    status: 'pending_review',
   },
 ]
 
@@ -313,6 +327,11 @@ function App() {
   const sourceMaterials =
     sourceMaterialsQuery.data?.ok ? sourceMaterialsQuery.data.data.sourceDocuments : []
   const previewQuery = useSourcePreviewQuery(selectedSourceDocumentId, selectedSourceDocumentId.length > 0)
+  const cutCandidatesQuery = useCutCandidatesQuery(
+    selectedSourceDocumentId,
+    selectedSourceDocumentId.length > 0,
+  )
+  const cutCandidates = cutCandidatesQuery.data?.ok ? cutCandidatesQuery.data.data : undefined
   const sourcePreview = previewQuery.data?.ok ? previewQuery.data.data : undefined
   const importJob = importJobQuery.data?.ok ? importJobQuery.data.data : undefined
   const readyHealthStatusLabel = readyHealth?.status === 'ok' ? '正常' : '服务未连接'
@@ -366,6 +385,12 @@ function App() {
       page: selectedSegments.map((segment) => segment.page).join(' / '),
       region: selectedSegments.map((segment) => segment.region).join(' + '),
       asset: selectedSegments.find((segment) => segment.asset)?.asset ?? '',
+      confidence:
+        selectedSegments.reduce((sum, segment) => sum + segment.confidence, 0) /
+        selectedSegments.length,
+      failureReason: '',
+      takeoverAction: 'manual_review',
+      status: 'pending_review',
     }
     const selected = new Set(selectedIds)
     setSegments((current) => [merged, ...current.filter((segment) => !selected.has(segment.id))])
@@ -381,8 +406,20 @@ function App() {
 
     const [target] = selectedSegments
     const split = [
-      { ...target, id: `${target.id}-a`, title: `${target.title} A`, region: `${target.region} 上半` },
-      { ...target, id: `${target.id}-b`, title: `${target.title} B`, region: `${target.region} 下半` },
+      {
+        ...target,
+        id: `${target.id}-a`,
+        title: `${target.title} A`,
+        region: `${target.region} 上半`,
+        confidence: Math.max(0.1, target.confidence - 0.05),
+      },
+      {
+        ...target,
+        id: `${target.id}-b`,
+        title: `${target.title} B`,
+        region: `${target.region} 下半`,
+        confidence: Math.max(0.1, target.confidence - 0.05),
+      },
     ]
     setSegments((current) =>
       current.flatMap((segment) => (segment.id === target.id ? split : [segment])),
@@ -415,7 +452,12 @@ function App() {
   }
 
   const selectExceptionItems = () => {
-    setSelectedIds(segments.slice(0, 2).map((segment) => segment.id))
+    setSelectedIds(
+      segments
+        .filter((segment) => segment.confidence < 0.85 || segment.failureReason.length > 0)
+        .slice(0, 5)
+        .map((segment) => segment.id),
+    )
     trackImportAction()
     appendLog('已筛选需要确认的异常项')
   }
@@ -435,6 +477,59 @@ function App() {
     setSelectedIds(['q-02', 'q-03'])
     trackImportAction()
     setActionLog((current) => [`已撤销：${current[0] ?? '最近操作'}`, ...current.slice(1)])
+  }
+
+  const runCutCandidateGeneration = async () => {
+    const sourceDocumentId = selectedSourceDocumentId.trim()
+    if (!sourceDocumentId) {
+      appendLog('请先输入来源文档 ID 再生成候选')
+      return
+    }
+
+    trackImportAction()
+    const result = await generateCutCandidates(sourceDocumentId)
+    if (!result.ok) {
+      appendLog(`候选生成失败：${result.error.message}`)
+      return
+    }
+
+    appendLog(
+      `候选生成完成：${result.data.generatedCount} 条，低置信度 ${result.data.lowConfidenceReviewQueueCount} 条`,
+    )
+    const refreshed = await cutCandidatesQuery.refetch()
+    const latest = refreshed.data?.ok ? refreshed.data.data : undefined
+    if (latest && latest.items.length > 0) {
+      applyCutCandidatesToWorkspace(latest.items)
+    }
+  }
+
+  const applyCutCandidatesToWorkspace = (
+    items: Array<{
+      id: string
+      sourceRegionId: string | null
+      sequenceNo: number
+      segmentType: string
+      confidence: number
+      failureReason: string
+      takeoverAction: string
+      status: string
+    }>,
+  ) => {
+    const nextSegments = items.map((row) => ({
+      id: row.id,
+      title: `候选片段 ${row.sequenceNo}`,
+      page: row.sourceRegionId ? '来源区域已关联' : '待补来源区域',
+      region: row.segmentType,
+      asset: '',
+      confidence: row.confidence,
+      failureReason: row.failureReason,
+      takeoverAction: row.takeoverAction,
+      status: row.status,
+    }))
+
+    setSegments(nextSegments)
+    setSelectedIds(nextSegments.slice(0, Math.min(2, nextSegments.length)).map((x) => x.id))
+    appendLog(`已加载候选 ${nextSegments.length} 条到人工确认队列`)
   }
 
   const parsePaperRequest = () => {
@@ -679,6 +774,34 @@ function App() {
                   查询预览
                 </Button>
               </Space.Compact>
+              <Space size="small" wrap>
+                <Button
+                  type="primary"
+                  onClick={runCutCandidateGeneration}
+                  disabled={!selectedSourceDocumentId.trim()}
+                  data-action="generate-cut-candidates"
+                >
+                  生成候选
+                </Button>
+                <Button
+                  onClick={() => cutCandidatesQuery.refetch()}
+                  disabled={!selectedSourceDocumentId.trim()}
+                  data-action="load-cut-candidates"
+                >
+                  查询候选
+                </Button>
+                <Button
+                  onClick={() =>
+                    cutCandidates?.items.length
+                      ? applyCutCandidatesToWorkspace(cutCandidates.items)
+                      : appendLog('当前没有可加载的候选，请先生成或查询')
+                  }
+                  disabled={!selectedSourceDocumentId.trim()}
+                  data-action="apply-cut-candidates"
+                >
+                  应用候选
+                </Button>
+              </Space>
             </div>
 
             <div className="score-field-mapping" data-contract="s003b-import-job-query">
@@ -1220,6 +1343,10 @@ function App() {
                     <Typography.Text type="secondary">预计处理</Typography.Text>
                     <strong>8 分钟</strong>
                   </span>
+                  <span>
+                    <Typography.Text type="secondary">低置信度</Typography.Text>
+                    <strong>{segments.filter((segment) => segment.takeoverAction === 'manual_review').length}</strong>
+                  </span>
                 </div>
 
                 <div className="review-toolbar" aria-label="人工确认操作">
@@ -1288,11 +1415,15 @@ function App() {
                         <span>
                           <strong>{segment.title}</strong>
                           <small>
-                            {segment.page} · {segment.region}
+                            {segment.page} · {segment.region} · {teacherDifficultyLabelFor(segment.confidence)}
                           </small>
+                          {segment.failureReason ? <small>失败原因：{segment.failureReason}</small> : null}
                         </span>
                         <Tag color={segment.asset ? 'green' : undefined}>
                           {segment.asset || '未关联题图'}
+                        </Tag>
+                        <Tag color={segment.takeoverAction === 'manual_review' ? 'orange' : 'green'}>
+                          {segment.takeoverAction === 'manual_review' ? '需人工接管' : teacherLabelFor(segment.takeoverAction)}
                         </Tag>
                       </button>
                     )
