@@ -60,6 +60,30 @@ export interface SourceDocumentPreviewContract {
   pages: SourcePreviewPageContract[]
 }
 
+export interface CutCandidateContract {
+  id: string
+  sourceDocumentId: string
+  sourceRegionId: string | null
+  status: string
+  confidence: number
+  segmentType: string
+  sequenceNo: number
+  failureReason: string
+  takeoverAction: string
+}
+
+export interface CutCandidateListContract {
+  sourceDocumentId: string
+  items: CutCandidateContract[]
+}
+
+export interface CutCandidateGenerationContract {
+  sourceDocumentId: string
+  generatedCount: number
+  lowConfidenceReviewQueueCount: number
+  lowConfidenceThreshold: number
+}
+
 export interface ImportJobContract {
   id: string
   inputFileAssetId: string
@@ -160,5 +184,34 @@ export function normalizeSourceDocumentPreviewResponse(value: unknown): SourceDo
         screenshotRelativePath: readNullableStringField(region, 'screenshotRelativePath'),
       })),
     })),
+  }
+}
+
+export function normalizeCutCandidateListResponse(value: unknown): CutCandidateListContract {
+  const rows = readArrayField(value, 'items')
+  return {
+    sourceDocumentId: readStringField(value, 'sourceDocumentId') ?? '',
+    items: rows.map((row) => ({
+      id: readStringField(row, 'id') ?? '',
+      sourceDocumentId: readStringField(row, 'sourceDocumentId') ?? '',
+      sourceRegionId: readNullableStringField(row, 'sourceRegionId'),
+      status: readStringField(row, 'status') ?? 'pending_review',
+      confidence: readNumberField(row, 'confidence'),
+      segmentType: readStringField(row, 'segmentType') ?? 'question_stem',
+      sequenceNo: readNumberField(row, 'sequenceNo'),
+      failureReason: readStringField(row, 'failureReason') ?? '',
+      takeoverAction: readStringField(row, 'takeoverAction') ?? 'manual_review',
+    })),
+  }
+}
+
+export function normalizeCutCandidateGenerationResponse(
+  value: unknown,
+): CutCandidateGenerationContract {
+  return {
+    sourceDocumentId: readStringField(value, 'sourceDocumentId') ?? '',
+    generatedCount: readNumberField(value, 'generatedCount'),
+    lowConfidenceReviewQueueCount: readNumberField(value, 'lowConfidenceReviewQueueCount'),
+    lowConfidenceThreshold: readNumberField(value, 'lowConfidenceThreshold'),
   }
 }

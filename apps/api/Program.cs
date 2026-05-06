@@ -26,6 +26,7 @@ builder.Services.AddDbContext<KqgDbContext>(options =>
 builder.Services.AddScoped<IFileStore, LocalFileStore>();
 builder.Services.AddScoped<IDocumentWorkerClient, DocumentWorkerClient>();
 builder.Services.AddScoped<IImportReviewWorkflowService, ImportReviewWorkflowService>();
+builder.Services.AddScoped<ICutCandidateGenerationService, CutCandidateGenerationService>();
 builder.Services.AddScoped<IPaperWorkflowService, PaperWorkflowService>();
 builder.Services.AddScoped<IScoreAnalysisWorkflowService, ScoreAnalysisWorkflowService>();
 builder.Services.AddSingleton<IAiModelRouter, AiModelRouter>();
@@ -451,6 +452,53 @@ app.MapGet("/source-documents/{id:guid}/preview", async (
     return Results.Ok(new SourceDocumentPreviewResponse(id, pages));
 })
 .WithName("GetSourceDocumentPreview");
+
+app.MapPost("/source-documents/{id:guid}/cut-candidates/generate", async (
+    Guid id,
+    ICutCandidateGenerationService service,
+    CancellationToken cancellationToken) =>
+{
+    try
+    {
+        var result = await service.GenerateAsync(id, cancellationToken);
+        return Results.Ok(new CutCandidateGenerationResponse(
+            result.SourceDocumentId,
+            result.GeneratedCount,
+            result.LowConfidenceReviewQueueCount,
+            result.LowConfidenceThreshold));
+    }
+    catch (InvalidOperationException ex) when (ex.Message == "source_document_not_found")
+    {
+        return Results.NotFound(new { error = "source_document_not_found" });
+    }
+})
+.WithName("GenerateCutCandidates");
+
+app.MapGet("/source-documents/{id:guid}/cut-candidates", async (
+    Guid id,
+    KqgDbContext dbContext,
+    CancellationToken cancellationToken) =>
+{
+    var sourceExists = await dbContext.SourceDocuments
+        .AsNoTracking()
+        .AnyAsync(x => x.Id == id, cancellationToken);
+    if (!sourceExists)
+    {
+        return Results.NotFound(new { error = "source_document_not_found" });
+    }
+
+    var rows = await dbContext.CutCandidates
+        .AsNoTracking()
+        .Where(x => x.SourceDocumentId == id)
+        .OrderBy(x => x.SequenceNo)
+        .ThenBy(x => x.CreatedAt)
+        .ToListAsync(cancellationToken);
+
+    return Results.Ok(new CutCandidateListResponse(
+        id,
+        rows.Select(CutCandidateResponse.From).ToArray()));
+})
+.WithName("ListCutCandidates");
 
 app.MapPost("/questions", async (
     QuestionCreateRequest request,
@@ -1597,6 +1645,48 @@ public sealed record SourceMaterialResponse(
             file.RelativePath,
             file.Sha256,
             file.SizeBytes);
+    }
+}
+
+public sealed record CutCandidateGenerationResponse(
+    Guid SourceDocumentId,
+    int GeneratedCount,
+    int LowConfidenceReviewQueueCount,
+    decimal LowConfidenceThreshold);
+
+public sealed record CutCandidateListResponse(
+    Guid SourceDocumentId,
+    IReadOnlyList<CutCandidateResponse> Items);
+
+public sealed record CutCandidateResponse(
+    Guid Id,
+    Guid SourceDocumentId,
+    Guid? SourceRegionId,
+    Guid? SuggestedQuestionItemId,
+    string Status,
+    decimal Confidence,
+    string SegmentType,
+    int SequenceNo,
+    JsonElement CandidatePayload,
+    string FailureReason,
+    string TakeoverAction,
+    JsonElement Metadata)
+{
+    public static CutCandidateResponse From(CutCandidate row)
+    {
+        return new CutCandidateResponse(
+            row.Id,
+            row.SourceDocumentId,
+            row.SourceRegionId,
+            row.SuggestedQuestionItemId,
+            row.Status,
+            row.Confidence,
+            row.SegmentType,
+            row.SequenceNo,
+            JsonHelpers.ParseJsonElement(row.CandidatePayload),
+            row.FailureReason,
+            row.TakeoverAction,
+            JsonHelpers.ParseJsonElement(row.Metadata));
     }
 }
 
