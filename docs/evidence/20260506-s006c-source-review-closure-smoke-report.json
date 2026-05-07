@@ -1,0 +1,15 @@
+{
+  "status": "pass",
+  "taskId": "S006C",
+  "checkedAt": "2026-05-06T22:43:48",
+  "sourceReview": {
+    "questionId": "1ad5f07a-834a-4f40-95bf-5c735d9d84bc",
+    "sourceRegionCount": 1
+  },
+  "fallbackCases": {
+    "missingScreenshotStatus": 409,
+    "missingRegionCount": 0,
+    "notFoundStatus": 404
+  },
+  "conclusion": "source review closure is available after save_question; missing screenshot, missing region, and inaccessible question fallback are explicit"
+}

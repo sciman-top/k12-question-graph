@@ -1,0 +1,17 @@
+{
+  "status": "pass",
+  "taskId": "S008B",
+  "checkedAt": "2026-05-07T22:59:02",
+  "ui": "apps/web/src/App.tsx",
+  "apiClient": "apps/web/src/api/client.ts",
+  "contracts": "apps/web/src/api/contracts.ts",
+  "query": "apps/web/src/api/queries.ts",
+  "checkedMarkers": [
+    "real-api-question-cards",
+    "active-version",
+    "empty-state",
+    "error-state",
+    "refresh-action"
+  ],
+  "conclusion": "question card UI is wired to typed real API query with source version difficulty media flags empty state and error state"
+}

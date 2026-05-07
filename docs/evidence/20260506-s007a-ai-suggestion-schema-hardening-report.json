@@ -1,0 +1,42 @@
+{
+  "status": "pass",
+  "taskId": "S007A",
+  "checkedAt": "2026-05-06T22:45:06",
+  "schemaPath": "schemas/ai/ai_suggestion_envelope.schema.json",
+  "suggestionTypes": [
+    "knowledge_tagging",
+    "question_type",
+    "difficulty_estimation",
+    "answer_verification"
+  ],
+  "requiredRoot": [
+    "suggestion_type",
+    "source",
+    "confidence",
+    "review",
+    "cost",
+    "cache",
+    "payload"
+  ],
+  "requiredSource": [
+    "source_document_id",
+    "source_region_ids",
+    "model_route",
+    "prompt_version"
+  ],
+  "requiredReview": [
+    "required",
+    "status",
+    "review_queue_id"
+  ],
+  "requiredCost": [
+    "input_tokens",
+    "output_tokens",
+    "estimated_usd"
+  ],
+  "requiredCache": [
+    "cache_key",
+    "cache_hit"
+  ],
+  "conclusion": "ai suggestion schema hardened with source confidence cost cache and human review fields"
+}

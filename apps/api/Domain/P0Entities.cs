@@ -784,6 +784,58 @@ public sealed class QuestionAsset
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 }
 
+public sealed class PaperBasket
+{
+    public Guid Id { get; set; }
+
+    public string Title { get; set; } = string.Empty;
+
+    public string Subject { get; set; } = "physics";
+
+    public string Stage { get; set; } = "junior_middle_school";
+
+    public string? Grade { get; set; }
+
+    public string Status { get; set; } = "draft";
+
+    public string KnowledgeVersionStatus { get; set; } = KnowledgeStatuses.Active;
+
+    public int KnowledgeVersion { get; set; } = 1;
+
+    public string Structure { get; set; } = "{}";
+
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+
+    public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class PaperBasketItem
+{
+    public Guid Id { get; set; }
+
+    public Guid PaperBasketId { get; set; }
+
+    public Guid QuestionItemId { get; set; }
+
+    public int SectionNo { get; set; } = 1;
+
+    public int QuestionNo { get; set; } = 1;
+
+    public string? SubQuestionNo { get; set; }
+
+    public decimal Score { get; set; }
+
+    public int SortOrder { get; set; }
+
+    public string KnowledgeVersionStatus { get; set; } = KnowledgeStatuses.Active;
+
+    public int KnowledgeVersion { get; set; } = 1;
+
+    public string Snapshot { get; set; } = "{}";
+
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
 public sealed class CutCandidate
 {
     public Guid Id { get; set; }

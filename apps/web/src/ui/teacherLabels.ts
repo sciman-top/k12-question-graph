@@ -1,5 +1,7 @@
 const teacherText: Record<string, string> = {
   calculation: '计算题',
+  active: '当前版本',
+  draft: '草稿',
   draft_dynamic_asset: '示例约束',
   draft_test: '示例流程',
   experiment: '实验题',
@@ -29,6 +31,7 @@ const teacherText: Record<string, string> = {
   merge: '合并',
   skip: '跳过',
   rerun: '重跑',
+  save_question: '保存题目',
 }
 
 export const teacherLabelFor = (value: string) => teacherText[value] ?? value

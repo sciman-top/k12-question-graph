@@ -1,0 +1,23 @@
+{
+  "status": "pass",
+  "taskId": "S008A",
+  "checkedAt": "2026-05-06T23:18:35",
+  "defaultKnowledge": {
+    "status": "active",
+    "version": 1
+  },
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 0
+  },
+  "cardFlags": {
+    "hasFormula": true,
+    "hasTable": true,
+    "hasImage": true,
+    "sourceTypes": [
+      "school_paper"
+    ]
+  },
+  "conclusion": "question search defaults to C002 active v1 and returns paginated cards with source summary and formula/table/image flags"
+}

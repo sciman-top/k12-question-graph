@@ -84,6 +84,62 @@ export interface CutCandidateGenerationContract {
   lowConfidenceThreshold: number
 }
 
+export interface ReviewWorkbenchActionContract {
+  action: string
+  sourceDocumentId: string
+  touchedIds: string[]
+  createdCandidateIds: string[]
+  skippedIds: string[]
+  createdQuestionId: string | null
+}
+
+export interface QuestionSourceRegionContract {
+  id: string
+  sourceDocumentId: string
+  pageNumber: number
+  regionType: string
+  screenshotRelativePath: string | null
+}
+
+export interface QuestionSourceReviewContract {
+  questionId: string
+  sourceRegions: QuestionSourceRegionContract[]
+}
+
+export interface QuestionCardContract {
+  id: string
+  questionType: string
+  difficultyEstimated: number | null
+  status: string
+  primaryKnowledge: {
+    id: string
+    title: string
+    status: string
+    version: number
+  } | null
+  preview: string
+  blockCount: number
+  assetCount: number
+  sources: {
+    titles: string[]
+    types: string[]
+  }
+  hasFormula: boolean
+  hasTable: boolean
+  hasImage: boolean
+}
+
+export interface QuestionSearchContract {
+  mode: string
+  productionEligible: boolean
+  total: number
+  page: number
+  limit: number
+  knowledgeStatus: string
+  knowledgeVersion: number | null
+  items: QuestionCardContract[]
+}
+
 export interface ImportJobContract {
   id: string
   inputFileAssetId: string
@@ -139,6 +195,15 @@ function readNumberField(value: unknown, field: string): number {
 
   const record = value as Record<string, unknown>
   return typeof record[field] === 'number' ? record[field] : 0
+}
+
+function readBooleanField(value: unknown, field: string): boolean {
+  if (!value || typeof value !== 'object' || !(field in value)) {
+    return false
+  }
+
+  const record = value as Record<string, unknown>
+  return record[field] === true
 }
 
 export function normalizeSourceMaterialListResponse(value: unknown): SourceMaterialListContract {
@@ -213,5 +278,84 @@ export function normalizeCutCandidateGenerationResponse(
     generatedCount: readNumberField(value, 'generatedCount'),
     lowConfidenceReviewQueueCount: readNumberField(value, 'lowConfidenceReviewQueueCount'),
     lowConfidenceThreshold: readNumberField(value, 'lowConfidenceThreshold'),
+  }
+}
+
+export function normalizeReviewWorkbenchActionResponse(
+  value: unknown,
+): ReviewWorkbenchActionContract {
+  return {
+    action: readStringField(value, 'action') ?? '',
+    sourceDocumentId: readStringField(value, 'sourceDocumentId') ?? '',
+    touchedIds: readArrayField(value, 'touchedIds').map((x) => String(x)),
+    createdCandidateIds: readArrayField(value, 'createdCandidateIds').map((x) => String(x)),
+    skippedIds: readArrayField(value, 'skippedIds').map((x) => String(x)),
+    createdQuestionId: readNullableStringField(value, 'createdQuestionId'),
+  }
+}
+
+export function normalizeQuestionSourceReviewResponse(
+  value: unknown,
+): QuestionSourceReviewContract {
+  const rows = readArrayField(value, 'sourceRegions')
+  return {
+    questionId: readStringField(value, 'questionId') ?? '',
+    sourceRegions: rows.map((row) => ({
+      id: readStringField(row, 'id') ?? '',
+      sourceDocumentId: readStringField(row, 'sourceDocumentId') ?? '',
+      pageNumber: readNumberField(row, 'pageNumber'),
+      regionType: readStringField(row, 'regionType') ?? 'question',
+      screenshotRelativePath: readNullableStringField(row, 'screenshotRelativePath'),
+    })),
+  }
+}
+
+export function normalizeQuestionSearchResponse(value: unknown): QuestionSearchContract {
+  const rows = readArrayField(value, 'items')
+  return {
+    mode: readStringField(value, 'mode') ?? 'unknown',
+    productionEligible: readBooleanField(value, 'productionEligible'),
+    total: readNumberField(value, 'total'),
+    page: readNumberField(value, 'page'),
+    limit: readNumberField(value, 'limit'),
+    knowledgeStatus: readStringField(value, 'knowledgeStatus') ?? 'unknown',
+    knowledgeVersion:
+      readNumberField(value, 'knowledgeVersion') === 0 ? null : readNumberField(value, 'knowledgeVersion'),
+    items: rows.map((row) => {
+      const primaryKnowledge = row && typeof row === 'object'
+        ? (row as Record<string, unknown>).primaryKnowledge
+        : null
+      const sources = row && typeof row === 'object'
+        ? (row as Record<string, unknown>).sources
+        : null
+      return {
+        id: readStringField(row, 'id') ?? '',
+        questionType: readStringField(row, 'questionType') ?? 'unknown',
+        difficultyEstimated:
+          readNumberField(row, 'difficultyEstimated') === 0
+            ? null
+            : readNumberField(row, 'difficultyEstimated'),
+        status: readStringField(row, 'status') ?? 'unknown',
+        primaryKnowledge:
+          primaryKnowledge && typeof primaryKnowledge === 'object'
+            ? {
+                id: readStringField(primaryKnowledge, 'id') ?? '',
+                title: readStringField(primaryKnowledge, 'title') ?? '',
+                status: readStringField(primaryKnowledge, 'status') ?? '',
+                version: readNumberField(primaryKnowledge, 'version'),
+              }
+            : null,
+        preview: readStringField(row, 'preview') ?? '',
+        blockCount: readNumberField(row, 'blockCount'),
+        assetCount: readNumberField(row, 'assetCount'),
+        sources: {
+          titles: readArrayField(sources, 'titles').map((x) => String(x)),
+          types: readArrayField(sources, 'types').map((x) => String(x)),
+        },
+        hasFormula: readBooleanField(row, 'hasFormula'),
+        hasTable: readBooleanField(row, 'hasTable'),
+        hasImage: readBooleanField(row, 'hasImage'),
+      }
+    }),
   }
 }

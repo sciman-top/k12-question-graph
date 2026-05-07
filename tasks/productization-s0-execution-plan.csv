@@ -15,15 +15,15 @@ S004C,S004,W3,文档解析,真实材料代理验收,synthetic_done,teacher_valid
 S005A,S005,W4,切题,切题候选数据模型,contract_done,db_backed_done,已完成,S004C,候选题段 置信度 来源区域 失败原因 状态和人工接管动作可持久化,dotnet build + migration/contract review,apps/api docs/05_DomainModel.md tools
 S005B,S005,W4,切题,候选生成服务,synthetic_done,db_backed_done,已完成,S005A,从 DocumentModel 生成候选 不宣称全自动 低置信度进入确认队列,API contract + J006 update,apps/api workers/document tools
 S005C,S005,W4,切题,切题候选 UI,db_backed_done,ui_productized,已完成,S005B,教师能看到候选边界 置信度 失败原因并进入合并 拆分 跳过 重跑,UI contract + npm build,apps/web tools
-S006A,S006,W5,人机协作,审核队列 API,contract_done,db_backed_done,待办,S005C,review queue 支持筛选 排序 批量低风险确认 高风险逐项确认和审计记录,API smoke + auth audit check,apps/api tools
-S006B,S006,W5,人机协作,人工接管工作台 API/UI,synthetic_done,ui_productized,待办,S006A,合并 拆分 跳过 重跑 题图关联 撤销 保存题目形成真实操作闭环,UI + API smoke + golden scenario,apps/web apps/api tools
-S006C,S006,W5,人机协作,题目保存来源回看闭环,db_backed_done,ui_productized,待办,S006B,保存题目后可立即回看来源 缺图 缺区域和权限错误有明确回退,API/UI smoke,apps/web apps/api docs/evidence
-S007A,S007,W6,AI标注,AI suggestion schema hardening,synthetic_done,contract_done,待办,S006C;L007,知识点 题型 难度 答案校验建议 schema 含来源 置信度 成本 缓存和人工审核字段,AI eval + schema parse,schemas tools docs/evidence
-S007B,S007,W6,AI标注,DB-backed suggestion queue,contract_done,db_backed_done,待办,S007A,AI 建议入队 pending_review 不直接写题目 教师修改生成反馈事件,API contract + no active write guard,apps/api tools
-S007C,S007,W6,AI标注,教师确认写入题目,db_backed_done,ui_productized,待办,S007B,教师确认后才写入 QuestionItem KnowledgeMapping 并可撤销,API/UI smoke + audit evidence,apps/api apps/web tools
-S008A,S008,W7,题库检索,QuestionSearch API productization,db_backed_done,db_backed_done,待办,S007C;K001,检索默认使用 C002 active 支持来源 版本 题图公式表格状态和分页,API contract + DB query evidence,apps/api tools
-S008B,S008,W7,题库检索,题卡 UI 接真实 API,db_backed_done,ui_productized,待办,S008A,题卡展示真实题目 来源 版本 难度 题图公式状态 空态和错误态,UI contract + npm build,apps/web tools
-S009A,S009,W8,组卷,PaperBasket persistence,contract_done,db_backed_done,待办,S008B,题篮 试卷结构 题号 分值 小问 版本引用可保存和复现,dotnet build + API contract,apps/api docs/05_DomainModel.md tools
+S006A,S006,W5,人机协作,审核队列 API,contract_done,db_backed_done,已完成,S005C,review queue 支持筛选 排序 批量低风险确认 高风险逐项确认和审计记录,API smoke + auth audit check,apps/api tools
+S006B,S006,W5,人机协作,人工接管工作台 API/UI,synthetic_done,ui_productized,已完成,S006A,合并 拆分 跳过 重跑 题图关联 撤销 保存题目形成真实操作闭环,UI + API smoke + golden scenario,apps/web apps/api tools
+S006C,S006,W5,人机协作,题目保存来源回看闭环,db_backed_done,ui_productized,已完成,S006B,保存题目后可立即回看来源 缺图 缺区域和权限错误有明确回退,API/UI smoke,apps/web apps/api docs/evidence
+S007A,S007,W6,AI标注,AI suggestion schema hardening,synthetic_done,contract_done,已完成,S006C;L007,知识点 题型 难度 答案校验建议 schema 含来源 置信度 成本 缓存和人工审核字段,AI eval + schema parse,schemas tools docs/evidence
+S007B,S007,W6,AI标注,DB-backed suggestion queue,contract_done,db_backed_done,已完成,S007A,AI 建议入队 pending_review 不直接写题目 教师修改生成反馈事件,API contract + no active write guard,apps/api tools
+S007C,S007,W6,AI标注,教师确认写入题目,db_backed_done,ui_productized,已完成,S007B,教师确认后才写入 QuestionItem KnowledgeMapping 并可撤销,API/UI smoke + audit evidence,apps/api apps/web tools
+S008A,S008,W7,题库检索,QuestionSearch API productization,db_backed_done,db_backed_done,已完成,S007C;K001,检索默认使用 C002 active 支持来源 版本 题图公式表格状态和分页,API contract + DB query evidence,apps/api tools
+S008B,S008,W7,题库检索,题卡 UI 接真实 API,db_backed_done,ui_productized,已完成,S008A,题卡展示真实题目 来源 版本 难度 题图公式状态 空态和错误态,UI contract + npm build,apps/web tools
+S009A,S009,W8,组卷,PaperBasket persistence,contract_done,db_backed_done,已完成,S008B,题篮 试卷结构 题号 分值 小问 版本引用可保存和复现,dotnet build + API contract,apps/api docs/05_DomainModel.md tools
 S009B,S009,W8,组卷,Blueprint review workflow,synthetic_done,db_backed_done,待办,S009A,自然语言只生成可审查细目表 教师确认后才取题,API smoke + no opaque generation guard,apps/api tools docs/evidence
 S009C,S009,W8,组卷,组卷 UI 产品化,db_backed_done,ui_productized,待办,S009B,教师能保存题篮 换题 撤销 复现并看到约束不满足原因,UI smoke + teacher workflow evidence,apps/web apps/api tools
 S010A,S010,W9,导出,Export preflight API,contract_done,db_backed_done,待办,S009C,导出前检查题图 公式 表格 答案 解析 来源授权 版本引用和缺失风险,API contract + export regression,apps/api tools

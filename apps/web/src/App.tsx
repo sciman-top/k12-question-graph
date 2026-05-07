@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Alert,
   Badge,
@@ -28,11 +28,12 @@ import {
 } from '@ant-design/icons'
 import './App.css'
 import { apiContractSnapshot } from './api/contracts'
-import { generateCutCandidates } from './api/client'
+import { applyReviewWorkbenchAction, generateCutCandidates, getQuestionSources } from './api/client'
 import {
   useCutCandidatesQuery,
   useImportJobQuery,
   useReadyHealthQuery,
+  useQuestionSearchQuery,
   useSourceMaterialsQuery,
   useSourcePreviewQuery,
 } from './api/queries'
@@ -195,27 +196,6 @@ const questionSearchFilterChips = [
   { filter: 'source', label: '示例来源' },
 ]
 
-const questionCards = [
-  {
-    id: 'draft_test-card-001',
-    title: '关于惯性的说法，下列哪项正确？',
-    knowledge: '牛顿第一定律与惯性',
-    type: 'single_choice',
-    difficulty: '0.62',
-    source: 'synthetic',
-    status: 'draft_test',
-  },
-  {
-    id: 'draft_test-card-002',
-    title: '速度与平均速度计算',
-    knowledge: '速度与平均速度',
-    type: 'calculation',
-    difficulty: '0.55',
-    source: 'golden',
-    status: 'draft_test',
-  },
-]
-
 const labelFor = teacherLabelFor
 
 const initialPaperRequest =
@@ -306,6 +286,10 @@ function App() {
   const [selectedIds, setSelectedIds] = useState<string[]>(['q-02', 'q-03'])
   const [selectedAsset, setSelectedAsset] = useState(sharedAssets[0])
   const [actionLog, setActionLog] = useState<string[]>([])
+  const [savedQuestionSourceSummary, setSavedQuestionSourceSummary] = useState('尚未保存题目')
+  const [savedQuestionSourceRegions, setSavedQuestionSourceRegions] = useState<
+    Array<{ id: string; pageNumber: number; regionType: string; screenshotRelativePath: string | null }>
+  >([])
   const [paperRequest, setPaperRequest] = useState(initialPaperRequest)
   const [paperUnderstanding, setPaperUnderstanding] = useState(initialPaperUnderstanding)
   const [paperDraft, setPaperDraft] = useState(initialPaperDraft)
@@ -314,6 +298,7 @@ function App() {
   const [importActionCount, setImportActionCount] = useState(0)
   const [failureTakeoverCount, setFailureTakeoverCount] = useState(0)
   const [lastTakeoverAction, setLastTakeoverAction] = useState<string | null>(null)
+  const localIdRef = useRef(0)
 
   const selectedSegments = useMemo(
     () => segments.filter((segment) => selectedIds.includes(segment.id)),
@@ -331,7 +316,9 @@ function App() {
     selectedSourceDocumentId,
     selectedSourceDocumentId.length > 0,
   )
+  const questionSearchQuery = useQuestionSearchQuery(1, 10)
   const cutCandidates = cutCandidatesQuery.data?.ok ? cutCandidatesQuery.data.data : undefined
+  const questionSearch = questionSearchQuery.data?.ok ? questionSearchQuery.data.data : undefined
   const sourcePreview = previewQuery.data?.ok ? previewQuery.data.data : undefined
   const importJob = importJobQuery.data?.ok ? importJobQuery.data.data : undefined
   const readyHealthStatusLabel = readyHealth?.status === 'ok' ? '正常' : '服务未连接'
@@ -363,6 +350,11 @@ function App() {
     setActionLog((current) => [message, ...current].slice(0, 5))
   }
 
+  const nextLocalId = (prefix: string) => {
+    localIdRef.current += 1
+    return `${prefix}-${localIdRef.current}`
+  }
+
   const trackImportAction = () => {
     setImportActionCount((count) => count + 1)
   }
@@ -374,13 +366,21 @@ function App() {
     )
   }
 
-  const mergeSelected = () => {
+  const mergeSelected = async () => {
+    const sourceDocumentId = selectedSourceDocumentId.trim()
+    if (sourceDocumentId && selectedSegments.length >= 2) {
+      const result = await runWorkbenchAction('merge')
+      if (result) {
+        return
+      }
+    }
+
     if (selectedSegments.length < 2) {
       return
     }
 
     const merged = {
-      id: `q-${Date.now()}`,
+      id: nextLocalId('q'),
       title: `${selectedSegments[0].title} 合并题`,
       page: selectedSegments.map((segment) => segment.page).join(' / '),
       region: selectedSegments.map((segment) => segment.region).join(' + '),
@@ -399,7 +399,15 @@ function App() {
     appendLog(`已合并 ${selectedSegments.length} 个片段为 ${merged.title}`)
   }
 
-  const splitSelected = () => {
+  const splitSelected = async () => {
+    const sourceDocumentId = selectedSourceDocumentId.trim()
+    if (sourceDocumentId && selectedSegments.length === 1) {
+      const result = await runWorkbenchAction('split')
+      if (result) {
+        return
+      }
+    }
+
     if (selectedSegments.length !== 1) {
       return
     }
@@ -429,7 +437,14 @@ function App() {
     appendLog(`已拆分 ${target.title}`)
   }
 
-  const associateAsset = () => {
+  const associateAsset = async () => {
+    if (selectedSourceDocumentId.trim() && selectedIds.length > 0) {
+      const result = await runWorkbenchAction('associate')
+      if (result) {
+        return
+      }
+    }
+
     if (selectedIds.length === 0) {
       return
     }
@@ -444,7 +459,21 @@ function App() {
     appendLog(`已关联 ${selectedAsset} 到 ${selectedIds.length} 个片段`)
   }
 
-  const takeoverFailure = (action: string) => {
+  const takeoverFailure = async (action: string) => {
+    if (selectedSourceDocumentId.trim() && selectedIds.length > 0) {
+      const mappedAction = action.includes('重跑')
+        ? 'rerun'
+        : action.includes('跳过')
+          ? 'skip'
+          : undefined
+      if (mappedAction) {
+        const result = await runWorkbenchAction(mappedAction)
+        if (result) {
+          return
+        }
+      }
+    }
+
     trackImportAction()
     setFailureTakeoverCount((count) => count + 1)
     setLastTakeoverAction(action)
@@ -462,7 +491,14 @@ function App() {
     appendLog('已筛选需要确认的异常项')
   }
 
-  const batchConfirmSelected = () => {
+  const batchConfirmSelected = async () => {
+    if (selectedSourceDocumentId.trim() && selectedIds.length > 0) {
+      const result = await runWorkbenchAction('save_question')
+      if (result) {
+        return
+      }
+    }
+
     if (selectedIds.length === 0) {
       return
     }
@@ -472,7 +508,14 @@ function App() {
     setSelectedIds([])
   }
 
-  const undoLast = () => {
+  const undoLast = async () => {
+    if (selectedSourceDocumentId.trim() && selectedIds.length > 0) {
+      const result = await runWorkbenchAction('undo')
+      if (result) {
+        return
+      }
+    }
+
     setSegments(initialSegments)
     setSelectedIds(['q-02', 'q-03'])
     trackImportAction()
@@ -501,6 +544,59 @@ function App() {
     if (latest && latest.items.length > 0) {
       applyCutCandidatesToWorkspace(latest.items)
     }
+  }
+
+  const runWorkbenchAction = async (
+    action: 'merge' | 'split' | 'skip' | 'rerun' | 'associate' | 'undo' | 'save_question',
+  ) => {
+    const sourceDocumentId = selectedSourceDocumentId.trim()
+    if (!sourceDocumentId || selectedIds.length === 0) {
+      return false
+    }
+
+    const result = await applyReviewWorkbenchAction({
+      action,
+      sourceDocumentId,
+      candidateIds: selectedIds,
+      assetLabel: action === 'associate' ? selectedAsset : undefined,
+      reviewedBy: 'teacher_workbench',
+      reason: `ui_${action}`,
+    })
+    if (!result.ok) {
+      appendLog(`工作台操作失败：${result.error.message}`)
+      return false
+    }
+
+    await cutCandidatesQuery.refetch()
+    appendLog(`工作台操作完成：${teacherLabelFor(action)}，影响 ${result.data.touchedIds.length} 项`)
+    if (result.data.createdQuestionId) {
+      appendLog(`已保存题目：${result.data.createdQuestionId}`)
+      const sourceResult = await getQuestionSources(result.data.createdQuestionId)
+      if (sourceResult.ok) {
+        if (sourceResult.data.sourceRegions.length === 0) {
+          setSavedQuestionSourceSummary('来源回看失败：题目缺少来源区域，请先在人工接管中补齐来源区域后重试保存。')
+          setSavedQuestionSourceRegions([])
+        } else {
+          setSavedQuestionSourceSummary(
+            `来源回看成功：共 ${sourceResult.data.sourceRegions.length} 个区域，可按页码和区域继续核对。`,
+          )
+          setSavedQuestionSourceRegions(sourceResult.data.sourceRegions)
+        }
+      } else if (sourceResult.error.message.includes('HTTP 409')) {
+        setSavedQuestionSourceSummary('来源回看失败：来源截图缺失，请恢复截图文件后重试。')
+        setSavedQuestionSourceRegions([])
+      } else if (sourceResult.error.message.includes('HTTP 403')) {
+        setSavedQuestionSourceSummary('来源回看失败：当前账号无权限访问该来源，请联系管理员授权。')
+        setSavedQuestionSourceRegions([])
+      } else if (sourceResult.error.message.includes('HTTP 404')) {
+        setSavedQuestionSourceSummary('来源回看失败：题目不存在或已不可访问，请刷新后重试。')
+        setSavedQuestionSourceRegions([])
+      } else {
+        setSavedQuestionSourceSummary(`来源回看失败：${sourceResult.error.message}`)
+        setSavedQuestionSourceRegions([])
+      }
+    }
+    return true
   }
 
   const applyCutCandidatesToWorkspace = (
@@ -544,7 +640,7 @@ function App() {
   const replacePaperQuestion = () => {
     const replacement = {
       ...paperDraft.currentQuestion,
-      id: `paper-q-replacement-${Date.now()}`,
+      id: nextLocalId('paper-q-replacement'),
       stemPreview: '关于惯性的理解，下列说法正确的是哪一项？',
       difficultyEstimated: Math.min(1, paperDraft.currentQuestion.difficultyEstimated + 0.03),
       recentUseStatus: 'not_recently_used',
@@ -553,7 +649,7 @@ function App() {
       ...current,
       replacementQuestion: replacement,
       undoSnapshot: {
-        undoToken: `undo-${Date.now()}`,
+        undoToken: nextLocalId('undo'),
         revertAction: 'restore_before_question',
       },
       auditTrail: [
@@ -1018,10 +1114,22 @@ function App() {
               <div>
                 <Typography.Title level={2}>题库检索</Typography.Title>
                 <Typography.Text type="secondary">
-                  先用示例题卡熟悉筛选方式，正式资料启用后自动使用校本题库。
+                  默认使用当前校本题库，保留来源、版本、难度和题图公式状态。
                 </Typography.Text>
               </div>
-              <Button icon={<SearchOutlined />}>检索</Button>
+              <Space size="small" wrap>
+                <Tag data-contract="s008b-active-version">
+                  {questionSearch ? `${teacherLabelFor(questionSearch.knowledgeStatus)} v${questionSearch.knowledgeVersion ?? '-'}` : '校本题库'}
+                </Tag>
+                <Button
+                  icon={<SearchOutlined />}
+                  loading={questionSearchQuery.isFetching}
+                  onClick={() => questionSearchQuery.refetch()}
+                  data-action="question-search-refresh"
+                >
+                  检索
+                </Button>
+              </Space>
             </div>
 
             <div className="filter-row" aria-label="筛选条件">
@@ -1032,17 +1140,45 @@ function App() {
               ))}
             </div>
 
-            <div className="question-card-list" aria-label="题目卡片">
-              {questionCards.map((card) => (
+            <div
+              className="question-card-list"
+              aria-label="题目卡片"
+              data-contract="s008b-real-api-question-cards"
+            >
+              {questionSearchQuery.data?.ok === false ? (
+                <Alert
+                  showIcon
+                  type="warning"
+                  message="题库暂时无法连接"
+                  description="可先继续组卷草稿，稍后重新检索。"
+                  data-state="question-search-error"
+                />
+              ) : null}
+              {questionSearch && questionSearch.items.length === 0 ? (
+                <Alert
+                  showIcon
+                  type="info"
+                  message="暂无可用题目"
+                  description="完成导入和确认后，题目会出现在这里。"
+                  data-state="question-search-empty"
+                />
+              ) : null}
+              {questionSearch?.items.map((card) => (
                 <button className="question-card" data-card="question-card" key={card.id} type="button">
                   <span>
-                    <strong>{card.title}</strong>
-                    <small>{card.knowledge}</small>
+                    <strong>{card.preview || '未命名题目'}</strong>
+                    <small>
+                      {card.primaryKnowledge?.title ?? '待补知识点'} · {card.sources.titles[0] ?? '来源待补'}
+                    </small>
                   </span>
                   <span className="question-meta">
-                    <Tag>{teacherLabelFor(card.type)}</Tag>
-                    <Tag>{teacherDifficultyLabelFor(card.difficulty)}</Tag>
-                    <Tag>{teacherLabelFor(card.source)}</Tag>
+                    <Tag>{teacherLabelFor(card.questionType)}</Tag>
+                    <Tag>{teacherDifficultyLabelFor(card.difficultyEstimated ?? 0)}</Tag>
+                    <Tag>{card.primaryKnowledge ? `v${card.primaryKnowledge.version}` : '待定版本'}</Tag>
+                    <Tag>{card.sources.types[0] ? teacherLabelFor(card.sources.types[0]) : '来源待补'}</Tag>
+                    {card.hasImage ? <Tag color="green">题图</Tag> : <Tag>无题图</Tag>}
+                    {card.hasFormula ? <Tag color="blue">公式</Tag> : null}
+                    {card.hasTable ? <Tag color="cyan">表格</Tag> : null}
                     <Tag color="green">{teacherLabelFor(card.status)}</Tag>
                   </span>
                 </button>
@@ -1439,6 +1575,18 @@ function App() {
                   ) : (
                     actionLog.map((item) => <Typography.Text key={item}>{item}</Typography.Text>)
                   )}
+                </div>
+
+                <div className="revision-log" aria-label="保存后来源回看" data-contract="s006c-source-review">
+                  <Typography.Text type="secondary">保存后来源回看</Typography.Text>
+                  <Typography.Text>{savedQuestionSourceSummary}</Typography.Text>
+                  {savedQuestionSourceRegions.slice(0, 3).map((region) => (
+                    <Typography.Text key={region.id}>
+                      {`第 ${region.pageNumber} 页 · ${region.regionType} · ${
+                        region.screenshotRelativePath ?? '无截图路径'
+                      }`}
+                    </Typography.Text>
+                  ))}
                 </div>
 
                 <div

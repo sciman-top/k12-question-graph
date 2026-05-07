@@ -55,6 +55,10 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
 
     public DbSet<QuestionAsset> QuestionAssets => Set<QuestionAsset>();
 
+    public DbSet<PaperBasket> PaperBaskets => Set<PaperBasket>();
+
+    public DbSet<PaperBasketItem> PaperBasketItems => Set<PaperBasketItem>();
+
     public DbSet<CutCandidate> CutCandidates => Set<CutCandidate>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -86,6 +90,8 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
         ConfigureDomainAssetMigration(modelBuilder.Entity<DomainAssetMigration>());
         ConfigureQuestionBlock(modelBuilder.Entity<QuestionBlock>());
         ConfigureQuestionAsset(modelBuilder.Entity<QuestionAsset>());
+        ConfigurePaperBasket(modelBuilder.Entity<PaperBasket>());
+        ConfigurePaperBasketItem(modelBuilder.Entity<PaperBasketItem>());
         ConfigureCutCandidate(modelBuilder.Entity<CutCandidate>());
     }
 
@@ -584,6 +590,50 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
         entity.HasOne<QuestionItem>().WithMany().HasForeignKey(x => x.QuestionItemId).OnDelete(DeleteBehavior.Cascade);
         entity.HasOne<FileAsset>().WithMany().HasForeignKey(x => x.FileAssetId).OnDelete(DeleteBehavior.Restrict);
         entity.HasOne<SourceRegion>().WithMany().HasForeignKey(x => x.SourceRegionId).OnDelete(DeleteBehavior.Restrict);
+    }
+
+    private static void ConfigurePaperBasket(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<PaperBasket> entity)
+    {
+        entity.ToTable("paper_baskets");
+        entity.HasKey(x => x.Id);
+        entity.HasIndex(x => new { x.Subject, x.Stage, x.Status });
+        entity.Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
+        entity.Property(x => x.Title).HasMaxLength(256).IsRequired();
+        entity.Property(x => x.Subject).HasMaxLength(64).HasDefaultValue("physics");
+        entity.Property(x => x.Stage).HasMaxLength(64).HasDefaultValue("junior_middle_school");
+        entity.Property(x => x.Grade).HasMaxLength(64);
+        entity.Property(x => x.Status).HasMaxLength(32).HasDefaultValue("draft");
+        entity.Property(x => x.KnowledgeVersionStatus).HasMaxLength(32).HasDefaultValue(KnowledgeStatuses.Active);
+        entity.Property(x => x.KnowledgeVersion).HasDefaultValue(1);
+        entity.Property(x => x.Structure).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.ToTable(x =>
+        {
+            x.HasCheckConstraint("ck_paper_baskets_status", "status in ('draft','ready','archived')");
+            x.HasCheckConstraint("ck_paper_baskets_knowledge_version", "knowledge_version >= 1");
+        });
+    }
+
+    private static void ConfigurePaperBasketItem(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<PaperBasketItem> entity)
+    {
+        entity.ToTable("paper_basket_items");
+        entity.HasKey(x => x.Id);
+        entity.HasIndex(x => new { x.PaperBasketId, x.SortOrder });
+        entity.HasIndex(x => x.QuestionItemId);
+        entity.Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
+        entity.Property(x => x.SubQuestionNo).HasMaxLength(32);
+        entity.Property(x => x.KnowledgeVersionStatus).HasMaxLength(32).HasDefaultValue(KnowledgeStatuses.Active);
+        entity.Property(x => x.KnowledgeVersion).HasDefaultValue(1);
+        entity.Property(x => x.Snapshot).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.HasOne<PaperBasket>().WithMany().HasForeignKey(x => x.PaperBasketId).OnDelete(DeleteBehavior.Cascade);
+        entity.HasOne<QuestionItem>().WithMany().HasForeignKey(x => x.QuestionItemId).OnDelete(DeleteBehavior.Restrict);
+        entity.ToTable(x =>
+        {
+            x.HasCheckConstraint("ck_paper_basket_items_section_no", "section_no >= 1");
+            x.HasCheckConstraint("ck_paper_basket_items_question_no", "question_no >= 1");
+            x.HasCheckConstraint("ck_paper_basket_items_score", "score >= 0");
+            x.HasCheckConstraint("ck_paper_basket_items_sort_order", "sort_order >= 0");
+            x.HasCheckConstraint("ck_paper_basket_items_knowledge_version", "knowledge_version >= 1");
+        });
     }
 
     private static void ConfigureCutCandidate(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<CutCandidate> entity)

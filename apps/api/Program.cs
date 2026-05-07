@@ -239,6 +239,333 @@ app.MapPost("/internal/ai/jobs/stub", async (
 })
 .WithName("CreateStubAiJob");
 
+app.MapPost("/ai-suggestions/enqueue", async (
+    AiSuggestionEnqueueRequest request,
+    KqgDbContext dbContext,
+    CancellationToken cancellationToken) =>
+{
+    if (string.IsNullOrWhiteSpace(request.SuggestionType))
+    {
+        return Results.BadRequest(new { error = "suggestion_type_required" });
+    }
+
+    if (request.SourceDocumentId == Guid.Empty)
+    {
+        return Results.BadRequest(new { error = "source_document_id_required" });
+    }
+
+    var sourceExists = await dbContext.SourceDocuments
+        .AsNoTracking()
+        .AnyAsync(x => x.Id == request.SourceDocumentId, cancellationToken);
+    if (!sourceExists)
+    {
+        return Results.NotFound(new { error = "source_document_not_found" });
+    }
+
+    var payloadJson = request.Payload?.GetRawText() ?? "{}";
+    var inputJson = JsonSerializer.Serialize(new
+    {
+        request.SuggestionType,
+        request.SourceDocumentId,
+        request.SourceRegionIds,
+        payload = payloadJson,
+        request.ModelRoute,
+        request.PromptVersion,
+        request.Cost,
+        request.Cache
+    });
+    var inputHash = Sha256Hex(inputJson);
+    var idempotencyKey = string.IsNullOrWhiteSpace(request.IdempotencyKey)
+        ? $"s007b:{NormalizeToken(request.SuggestionType, "suggestion")}:{request.SourceDocumentId}:{inputHash}"
+        : request.IdempotencyKey.Trim();
+
+    var existing = await dbContext.AIJobs
+        .AsNoTracking()
+        .FirstOrDefaultAsync(x => x.IdempotencyKey == idempotencyKey, cancellationToken);
+    if (existing is not null)
+    {
+        return Results.Ok(new AiSuggestionEnqueueResponse(
+            existing.Id,
+            Guid.Empty,
+            existing.ReviewStatus,
+            existing.TeacherModified,
+            existing.CreatedAt));
+    }
+
+    var now = DateTimeOffset.UtcNow;
+    var job = new AIJob
+    {
+        JobType = NormalizeToken(request.SuggestionType, "suggestion"),
+        Status = JobStatuses.Succeeded,
+        IdempotencyKey = idempotencyKey,
+        ModelRoute = string.IsNullOrWhiteSpace(request.ModelRoute) ? "draft_test_stub" : request.ModelRoute.Trim(),
+        ModelProvider = "stub",
+        ModelName = "suggestion_stub",
+        RoutingVersion = "s007b.v1",
+        PromptVersion = string.IsNullOrWhiteSpace(request.PromptVersion) ? "s007b.prompt.v1" : request.PromptVersion.Trim(),
+        SchemaVersion = "ai_suggestion_envelope.schema.v1",
+        InputHash = inputHash,
+        EstimatedCost = request.Cost?.EstimatedUsd,
+        ActualCost = request.Cost?.EstimatedUsd,
+        Confidence = request.Confidence?.Score,
+        InputTokens = request.Cost?.InputTokens,
+        OutputTokens = request.Cost?.OutputTokens,
+        CachedTokens = request.Cache?.CacheHit == true ? request.Cost?.InputTokens : 0,
+        LatencyMs = 0,
+        ReviewStatus = ReviewStatuses.Open,
+        TeacherModified = false,
+        Input = inputJson,
+        Result = payloadJson,
+        FinishedAt = now
+    };
+
+    dbContext.AIJobs.Add(job);
+
+    var queuePayload = SerializeJson(new
+    {
+        suggestionType = NormalizeToken(request.SuggestionType, "suggestion"),
+        sourceDocumentId = request.SourceDocumentId,
+        sourceRegionIds = request.SourceRegionIds,
+        confidence = request.Confidence?.Score,
+        confidenceThreshold = request.Confidence?.Threshold,
+        riskLevel = "medium",
+        requiredAction = "teacher_review",
+        reason = "ai_suggestion_pending_review",
+        cost = request.Cost,
+        cache = request.Cache,
+        aiJobId = job.Id
+    });
+    var queueItem = new ReviewQueueItem
+    {
+        ReviewType = "ai_suggestion",
+        Status = ReviewStatuses.Open,
+        Payload = queuePayload,
+        CreatedAt = now
+    };
+    dbContext.ReviewQueueItems.Add(queueItem);
+    await dbContext.SaveChangesAsync(cancellationToken);
+
+    return Results.Created(
+        $"/ai-suggestions/enqueue/{job.Id}",
+        new AiSuggestionEnqueueResponse(job.Id, queueItem.Id, job.ReviewStatus, job.TeacherModified, now));
+})
+.WithName("EnqueueAiSuggestion");
+
+app.MapPost("/ai-suggestions/{id:guid}/feedback", async (
+    Guid id,
+    AiSuggestionFeedbackRequest request,
+    KqgDbContext dbContext,
+    CancellationToken cancellationToken) =>
+{
+    var job = await dbContext.AIJobs.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+    if (job is null)
+    {
+        return Results.NotFound(new { error = "ai_suggestion_not_found" });
+    }
+
+    if (string.IsNullOrWhiteSpace(request.Decision))
+    {
+        return Results.BadRequest(new { error = "decision_required" });
+    }
+
+    var now = DateTimeOffset.UtcNow;
+    var decision = NormalizeToken(request.Decision, "approve");
+    var nextReviewStatus = decision is "approve" or "approved" ? ReviewStatuses.Resolved : ReviewStatuses.Dismissed;
+
+    job.TeacherModified = request.TeacherModified;
+    job.ReviewStatus = nextReviewStatus;
+    job.FinishedAt = now;
+
+    var relatedQueueItems = await dbContext.ReviewQueueItems
+        .Where(x => x.ReviewType == "ai_suggestion" && x.Status == ReviewStatuses.Open)
+        .OrderByDescending(x => x.CreatedAt)
+        .ToListAsync(cancellationToken);
+    var resolvedQueueItemIds = new List<Guid>();
+    foreach (var item in relatedQueueItems)
+    {
+        var payload = JsonHelpers.ParseJsonElement(item.Payload);
+        if (!payload.TryGetProperty("aiJobId", out var aiJobIdElement) || aiJobIdElement.ValueKind != JsonValueKind.String)
+        {
+            continue;
+        }
+
+        if (!Guid.TryParse(aiJobIdElement.GetString(), out var aiJobId) || aiJobId != id)
+        {
+            continue;
+        }
+
+        item.Status = nextReviewStatus;
+        item.ResolvedAt = now;
+        item.Payload = ReviewQueuePayloadHelpers.WithReviewAudit(item.Payload, request.ReviewedBy, decision, request.Reason, now);
+        resolvedQueueItemIds.Add(item.Id);
+    }
+
+    await dbContext.SaveChangesAsync(cancellationToken);
+    return Results.Ok(new AiSuggestionFeedbackResponse(
+        job.Id,
+        decision,
+        job.ReviewStatus,
+        job.TeacherModified,
+        resolvedQueueItemIds,
+        now));
+})
+.WithName("FeedbackAiSuggestion");
+
+app.MapPost("/ai-suggestions/{id:guid}/confirm", async (
+    Guid id,
+    AiSuggestionConfirmRequest request,
+    KqgDbContext dbContext,
+    CancellationToken cancellationToken) =>
+{
+    var job = await dbContext.AIJobs.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+    if (job is null)
+    {
+        return Results.NotFound(new { error = "ai_suggestion_not_found" });
+    }
+
+    if (job.ReviewStatus != ReviewStatuses.Resolved && job.ReviewStatus != ReviewStatuses.Open)
+    {
+        return Results.Conflict(new { error = "ai_suggestion_not_reviewable" });
+    }
+
+    var knowledgeNodeId = request.KnowledgeNodeId;
+    if (knowledgeNodeId is null)
+    {
+        knowledgeNodeId = await dbContext.KnowledgeNodes
+            .AsNoTracking()
+            .OrderBy(x => x.CreatedAt)
+            .Select(x => (Guid?)x.Id)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+    if (knowledgeNodeId is null)
+    {
+        return Results.Conflict(new { error = "knowledge_node_required_for_confirm" });
+    }
+
+    var knowledgeExists = await dbContext.KnowledgeNodes
+        .AsNoTracking()
+        .AnyAsync(x => x.Id == knowledgeNodeId.Value, cancellationToken);
+    if (!knowledgeExists)
+    {
+        return Results.BadRequest(new { error = "knowledge_node_not_found" });
+    }
+
+    var now = DateTimeOffset.UtcNow;
+    var question = new QuestionItem
+    {
+        Id = Guid.NewGuid(),
+        Subject = string.IsNullOrWhiteSpace(request.Subject) ? "physics" : request.Subject.Trim(),
+        Stage = string.IsNullOrWhiteSpace(request.Stage) ? "junior_middle_school" : request.Stage.Trim(),
+        Grade = string.IsNullOrWhiteSpace(request.Grade) ? "grade_8" : request.Grade.Trim(),
+        QuestionType = string.IsNullOrWhiteSpace(request.QuestionType) ? "single_choice" : request.QuestionType.Trim(),
+        DifficultyEstimated = request.DifficultyEstimated,
+        DefaultScore = request.DefaultScore,
+        Status = QuestionStatuses.Draft,
+        Blocks = "[]",
+        QualitySignals = SerializeJson(new
+        {
+            source = "ai_suggestion_teacher_confirmed",
+            aiJobId = job.Id,
+            reviewedBy = request.ReviewedBy,
+            reviewedAt = now.ToString("O")
+        }),
+        CreatedAt = now,
+        UpdatedAt = now
+    };
+    dbContext.QuestionItems.Add(question);
+
+    var mapping = new KnowledgeMapping
+    {
+        Id = Guid.NewGuid(),
+        QuestionItemId = question.Id,
+        KnowledgeNodeId = knowledgeNodeId.Value,
+        MappingSource = KnowledgeMappingSources.Manual,
+        IsPrimary = true,
+        Confidence = request.MappingConfidence,
+        Version = 1,
+        Evidence = SerializeJson(new
+        {
+            source = "ai_suggestion_teacher_confirmed",
+            aiJobId = job.Id,
+            reviewedBy = request.ReviewedBy,
+            reason = request.Reason
+        }),
+        CreatedAt = now
+    };
+    dbContext.KnowledgeMappings.Add(mapping);
+
+    job.TeacherModified = true;
+    job.ReviewStatus = ReviewStatuses.Resolved;
+    job.Result = ReviewWorkbenchMutationHelpers.WithPatch(
+        job.Result,
+        new Dictionary<string, object?>
+        {
+            ["confirmedQuestionId"] = question.Id,
+            ["confirmedKnowledgeMappingId"] = mapping?.Id,
+            ["confirmReason"] = request.Reason,
+            ["confirmReviewedBy"] = request.ReviewedBy,
+            ["confirmAt"] = now.ToString("O")
+        });
+
+    await dbContext.SaveChangesAsync(cancellationToken);
+    return Results.Ok(new AiSuggestionConfirmResponse(
+        job.Id,
+        question.Id,
+        mapping?.Id,
+        "confirmed",
+        now));
+})
+.WithName("ConfirmAiSuggestionToQuestion");
+
+app.MapPost("/ai-suggestions/{id:guid}/undo-confirm", async (
+    Guid id,
+    AiSuggestionUndoRequest request,
+    KqgDbContext dbContext,
+    CancellationToken cancellationToken) =>
+{
+    var job = await dbContext.AIJobs.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+    if (job is null)
+    {
+        return Results.NotFound(new { error = "ai_suggestion_not_found" });
+    }
+
+    var payload = JsonHelpers.ParseJsonElement(job.Result);
+    if (!payload.TryGetProperty("confirmedQuestionId", out var questionIdElement) ||
+        questionIdElement.ValueKind != JsonValueKind.String ||
+        !Guid.TryParse(questionIdElement.GetString(), out var questionId))
+    {
+        return Results.Conflict(new { error = "ai_suggestion_not_confirmed" });
+    }
+
+    var question = await dbContext.QuestionItems.FirstOrDefaultAsync(x => x.Id == questionId, cancellationToken);
+    if (question is null)
+    {
+        return Results.NotFound(new { error = "confirmed_question_not_found" });
+    }
+
+    var mappings = await dbContext.KnowledgeMappings
+        .Where(x => x.QuestionItemId == questionId)
+        .ToListAsync(cancellationToken);
+    dbContext.KnowledgeMappings.RemoveRange(mappings);
+    dbContext.QuestionItems.Remove(question);
+
+    var now = DateTimeOffset.UtcNow;
+    job.Result = ReviewWorkbenchMutationHelpers.WithPatch(
+        job.Result,
+        new Dictionary<string, object?>
+        {
+            ["undoReason"] = request.Reason,
+            ["undoReviewedBy"] = request.ReviewedBy,
+            ["undoAt"] = now.ToString("O"),
+            ["confirmedQuestionId"] = null,
+            ["confirmedKnowledgeMappingId"] = null
+        });
+
+    await dbContext.SaveChangesAsync(cancellationToken);
+    return Results.Ok(new AiSuggestionUndoResponse(job.Id, questionId, mappings.Count, "undone", now));
+})
+.WithName("UndoConfirmAiSuggestionToQuestion");
+
 app.MapPost("/files", async (HttpRequest request, IFileStore fileStore, CancellationToken cancellationToken) =>
 {
     var form = await request.ReadFormAsync(cancellationToken);
@@ -500,6 +827,386 @@ app.MapGet("/source-documents/{id:guid}/cut-candidates", async (
 })
 .WithName("ListCutCandidates");
 
+app.MapGet("/review-queue", async (
+    string? status,
+    string? reviewType,
+    string? sortBy,
+    string? order,
+    int? limit,
+    KqgDbContext dbContext,
+    CancellationToken cancellationToken) =>
+{
+    var normalizedStatus = string.IsNullOrWhiteSpace(status) ? ReviewStatuses.Open : NormalizeToken(status, ReviewStatuses.Open);
+    var normalizedSortBy = string.IsNullOrWhiteSpace(sortBy) ? "created_at" : NormalizeToken(sortBy, "created_at");
+    var descending = !string.Equals(order, "asc", StringComparison.OrdinalIgnoreCase);
+    var takeCount = Math.Clamp(limit ?? 100, 1, 200);
+
+    var query = dbContext.ReviewQueueItems.AsNoTracking().Where(x => x.Status == normalizedStatus);
+    if (!string.IsNullOrWhiteSpace(reviewType))
+    {
+        var normalizedReviewType = NormalizeToken(reviewType, string.Empty);
+        query = query.Where(x => x.ReviewType == normalizedReviewType);
+    }
+
+    var rows = await query.ToListAsync(cancellationToken);
+    var mapped = rows.Select(ReviewQueueItemResponse.From).ToList();
+    mapped = normalizedSortBy switch
+    {
+        "risk" => descending
+            ? mapped.OrderByDescending(x => x.RiskLevel).ThenByDescending(x => x.CreatedAt).ToList()
+            : mapped.OrderBy(x => x.RiskLevel).ThenBy(x => x.CreatedAt).ToList(),
+        _ => descending
+            ? mapped.OrderByDescending(x => x.CreatedAt).ToList()
+            : mapped.OrderBy(x => x.CreatedAt).ToList(),
+    };
+
+    return Results.Ok(new ReviewQueueListResponse(mapped.Take(takeCount).ToArray(), mapped.Count));
+})
+.WithName("ListReviewQueueItems");
+
+app.MapPost("/review-queue/batch-resolve", async (
+    ReviewQueueBatchResolveRequest request,
+    KqgDbContext dbContext,
+    CancellationToken cancellationToken) =>
+{
+    if (request.ItemIds.Count == 0)
+    {
+        return Results.BadRequest(new { error = "item_ids_required" });
+    }
+
+    if (string.IsNullOrWhiteSpace(request.ReviewedBy))
+    {
+        return Results.BadRequest(new { error = "reviewed_by_required" });
+    }
+
+    if (string.IsNullOrWhiteSpace(request.Reason))
+    {
+        return Results.BadRequest(new { error = "reason_required" });
+    }
+
+    var itemIds = request.ItemIds.Distinct().ToArray();
+    var rows = await dbContext.ReviewQueueItems
+        .Where(x => itemIds.Contains(x.Id))
+        .ToListAsync(cancellationToken);
+
+    var skippedHighRisk = new List<Guid>();
+    var resolvedIds = new List<Guid>();
+    var now = DateTimeOffset.UtcNow;
+    foreach (var row in rows)
+    {
+        if (!string.Equals(row.Status, ReviewStatuses.Open, StringComparison.OrdinalIgnoreCase))
+        {
+            continue;
+        }
+
+        var riskLevel = ReviewQueuePayloadHelpers.ResolveRiskLevel(row.Payload);
+        if (riskLevel == "high")
+        {
+            skippedHighRisk.Add(row.Id);
+            continue;
+        }
+
+        row.Status = request.Decision == "dismissed" ? ReviewStatuses.Dismissed : ReviewStatuses.Resolved;
+        row.ResolvedAt = now;
+        row.Payload = ReviewQueuePayloadHelpers.WithReviewAudit(
+            row.Payload,
+            request.ReviewedBy.Trim(),
+            request.Decision,
+            request.Reason.Trim(),
+            now);
+        resolvedIds.Add(row.Id);
+    }
+
+    await dbContext.SaveChangesAsync(cancellationToken);
+    return Results.Ok(new ReviewQueueBatchResolveResponse(resolvedIds, skippedHighRisk));
+})
+.WithName("BatchResolveReviewQueueItems");
+
+app.MapPost("/review-queue/{id:guid}/resolve", async (
+    Guid id,
+    ReviewQueueResolveRequest request,
+    KqgDbContext dbContext,
+    CancellationToken cancellationToken) =>
+{
+    if (string.IsNullOrWhiteSpace(request.ReviewedBy))
+    {
+        return Results.BadRequest(new { error = "reviewed_by_required" });
+    }
+
+    if (string.IsNullOrWhiteSpace(request.Reason))
+    {
+        return Results.BadRequest(new { error = "reason_required" });
+    }
+
+    var row = await dbContext.ReviewQueueItems.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+    if (row is null)
+    {
+        return Results.NotFound(new { error = "review_queue_item_not_found" });
+    }
+
+    if (!string.Equals(row.Status, ReviewStatuses.Open, StringComparison.OrdinalIgnoreCase))
+    {
+        return Results.Conflict(new { error = "review_queue_item_not_open", status = row.Status });
+    }
+
+    var now = DateTimeOffset.UtcNow;
+    row.Status = request.Decision == "dismissed" ? ReviewStatuses.Dismissed : ReviewStatuses.Resolved;
+    row.ResolvedAt = now;
+    row.Payload = ReviewQueuePayloadHelpers.WithReviewAudit(
+        row.Payload,
+        request.ReviewedBy.Trim(),
+        request.Decision,
+        request.Reason.Trim(),
+        now);
+    await dbContext.SaveChangesAsync(cancellationToken);
+
+    return Results.Ok(ReviewQueueItemResponse.From(row));
+})
+.WithName("ResolveReviewQueueItem");
+
+app.MapPost("/review-workbench/actions", async (
+    ReviewWorkbenchActionRequest request,
+    KqgDbContext dbContext,
+    CancellationToken cancellationToken) =>
+{
+    if (string.IsNullOrWhiteSpace(request.Action))
+    {
+        return Results.BadRequest(new { error = "action_required" });
+    }
+
+    if (request.CandidateIds.Count == 0)
+    {
+        return Results.BadRequest(new { error = "candidate_ids_required" });
+    }
+
+    var sourceExists = await dbContext.SourceDocuments
+        .AsNoTracking()
+        .AnyAsync(x => x.Id == request.SourceDocumentId, cancellationToken);
+    if (!sourceExists)
+    {
+        return Results.NotFound(new { error = "source_document_not_found" });
+    }
+
+    var normalizedAction = NormalizeToken(request.Action, string.Empty);
+    var candidates = await dbContext.CutCandidates
+        .Where(x => x.SourceDocumentId == request.SourceDocumentId && request.CandidateIds.Contains(x.Id))
+        .OrderBy(x => x.SequenceNo)
+        .ToListAsync(cancellationToken);
+
+    if (candidates.Count == 0)
+    {
+        return Results.NotFound(new { error = "cut_candidates_not_found" });
+    }
+
+    var now = DateTimeOffset.UtcNow;
+    var touchedIds = new List<Guid>();
+    Guid? createdQuestionId = null;
+    var createdCandidateIds = new List<Guid>();
+    var skippedIds = new List<Guid>();
+
+    switch (normalizedAction)
+    {
+        case "merge":
+            if (candidates.Count < 2)
+            {
+                return Results.BadRequest(new { error = "merge_requires_at_least_two_candidates" });
+            }
+
+            {
+                var primary = candidates[0];
+                var mergedIds = candidates.Skip(1).Select(x => x.Id).ToArray();
+                primary.CandidatePayload = ReviewWorkbenchMutationHelpers.WithPatch(primary.CandidatePayload, new Dictionary<string, object?>
+                {
+                    ["mergedFromCandidateIds"] = mergedIds,
+                    ["mergedAt"] = now.ToString("O")
+                });
+                primary.UpdatedAt = now;
+                touchedIds.Add(primary.Id);
+
+                foreach (var candidate in candidates.Skip(1))
+                {
+                    candidate.Status = CutCandidateStatuses.Rejected;
+                    candidate.FailureReason = "merged_into_primary";
+                    candidate.TakeoverAction = "manual_review";
+                    candidate.UpdatedAt = now;
+                    touchedIds.Add(candidate.Id);
+                }
+            }
+            break;
+
+        case "split":
+            if (candidates.Count != 1)
+            {
+                return Results.BadRequest(new { error = "split_requires_exactly_one_candidate" });
+            }
+
+            {
+                var target = candidates[0];
+                var maxSequence = await dbContext.CutCandidates
+                    .Where(x => x.SourceDocumentId == request.SourceDocumentId)
+                    .MaxAsync(x => (int?)x.SequenceNo, cancellationToken) ?? 0;
+
+                var left = ReviewWorkbenchMutationHelpers.CloneCandidate(target, maxSequence + 1, now, "split_part_a");
+                var right = ReviewWorkbenchMutationHelpers.CloneCandidate(target, maxSequence + 2, now, "split_part_b");
+                dbContext.CutCandidates.Add(left);
+                dbContext.CutCandidates.Add(right);
+                createdCandidateIds.Add(left.Id);
+                createdCandidateIds.Add(right.Id);
+
+                target.Status = CutCandidateStatuses.Rejected;
+                target.FailureReason = "split_into_two_candidates";
+                target.UpdatedAt = now;
+                touchedIds.Add(target.Id);
+            }
+            break;
+
+        case "skip":
+            foreach (var candidate in candidates)
+            {
+                candidate.Status = CutCandidateStatuses.Rejected;
+                candidate.FailureReason = "skipped_by_teacher";
+                candidate.UpdatedAt = now;
+                touchedIds.Add(candidate.Id);
+            }
+            break;
+
+        case "rerun":
+            foreach (var candidate in candidates)
+            {
+                candidate.Status = CutCandidateStatuses.RetryRequired;
+                candidate.FailureReason = "rerun_requested";
+                candidate.TakeoverAction = "rerun";
+                candidate.UpdatedAt = now;
+                touchedIds.Add(candidate.Id);
+            }
+            break;
+
+        case "associate":
+            if (string.IsNullOrWhiteSpace(request.AssetLabel))
+            {
+                return Results.BadRequest(new { error = "asset_label_required_for_associate" });
+            }
+
+            foreach (var candidate in candidates)
+            {
+                candidate.Metadata = ReviewWorkbenchMutationHelpers.WithPatch(candidate.Metadata, new Dictionary<string, object?>
+                {
+                    ["associatedAssetLabel"] = request.AssetLabel.Trim(),
+                    ["associatedAt"] = now.ToString("O")
+                });
+                candidate.UpdatedAt = now;
+                touchedIds.Add(candidate.Id);
+            }
+            break;
+
+        case "undo":
+            foreach (var candidate in candidates)
+            {
+                candidate.Status = CutCandidateStatuses.PendingReview;
+                candidate.FailureReason = string.Empty;
+                candidate.TakeoverAction = "manual_review";
+                candidate.SuggestedQuestionItemId = null;
+                candidate.UpdatedAt = now;
+                touchedIds.Add(candidate.Id);
+            }
+            break;
+
+        case "save_question":
+            {
+                var blocks = candidates
+                    .Select((x, index) => new QuestionBlock
+                    {
+                        QuestionItemId = Guid.Empty,
+                        BlockType = "text",
+                        SortOrder = index,
+                        Content = JsonSerializer.Serialize(new
+                        {
+                            text = $"候选片段 {x.SequenceNo}",
+                            candidateId = x.Id
+                        }),
+                        SourceRegionId = x.SourceRegionId,
+                        CreatedAt = now
+                    })
+                    .ToArray();
+
+                var question = new QuestionItem
+                {
+                    Subject = "physics",
+                    Stage = "junior_middle_school",
+                    Status = QuestionStatuses.Draft,
+                    QuestionType = "short_answer",
+                    Blocks = JsonSerializer.Serialize(blocks.Select(x => new
+                    {
+                        x.BlockType,
+                        x.SortOrder,
+                        x.SourceRegionId
+                    })),
+                    CreatedAt = now,
+                    UpdatedAt = now
+                };
+
+                dbContext.QuestionItems.Add(question);
+                await dbContext.SaveChangesAsync(cancellationToken);
+                createdQuestionId = question.Id;
+
+                foreach (var block in blocks)
+                {
+                    block.QuestionItemId = question.Id;
+                }
+
+                dbContext.QuestionBlocks.AddRange(blocks);
+                foreach (var candidate in candidates)
+                {
+                    candidate.Status = CutCandidateStatuses.Accepted;
+                    candidate.SuggestedQuestionItemId = question.Id;
+                    candidate.UpdatedAt = now;
+                    touchedIds.Add(candidate.Id);
+                }
+            }
+            break;
+
+        default:
+            return Results.BadRequest(new { error = "unsupported_action" });
+    }
+
+    var reviewQueueRows = await dbContext.ReviewQueueItems
+        .Where(x => x.ReviewType == "cut_candidate" && x.Status == ReviewStatuses.Open)
+        .ToListAsync(cancellationToken);
+
+    var candidateSourceRegionIds = candidates
+        .Where(x => x.SourceRegionId.HasValue)
+        .Select(x => x.SourceRegionId!.Value)
+        .ToHashSet();
+
+    foreach (var row in reviewQueueRows)
+    {
+        if (!ReviewWorkbenchMutationHelpers.QueueItemMatchesCandidates(row.Payload, candidateSourceRegionIds))
+        {
+            continue;
+        }
+
+        row.Status = normalizedAction is "skip" ? ReviewStatuses.Dismissed : ReviewStatuses.Resolved;
+        row.ResolvedAt = now;
+        row.Payload = ReviewQueuePayloadHelpers.WithReviewAudit(
+            row.Payload,
+            string.IsNullOrWhiteSpace(request.ReviewedBy) ? "workbench" : request.ReviewedBy.Trim(),
+            normalizedAction,
+            string.IsNullOrWhiteSpace(request.Reason) ? "workbench_action" : request.Reason.Trim(),
+            now);
+        touchedIds.Add(row.Id);
+    }
+
+    await dbContext.SaveChangesAsync(cancellationToken);
+    return Results.Ok(new ReviewWorkbenchActionResponse(
+        normalizedAction,
+        request.SourceDocumentId,
+        touchedIds.Distinct().ToArray(),
+        createdCandidateIds,
+        skippedIds,
+        createdQuestionId));
+})
+.WithName("ApplyReviewWorkbenchAction");
+
 app.MapPost("/questions", async (
     QuestionCreateRequest request,
     KqgDbContext dbContext,
@@ -634,6 +1341,9 @@ app.MapGet("/questions", async (
     double? difficultyMin,
     double? difficultyMax,
     string? sourceType,
+    string? knowledgeStatus,
+    int? knowledgeVersion,
+    int? page,
     int? limit,
     KqgDbContext dbContext,
     CancellationToken cancellationToken) =>
@@ -674,6 +1384,18 @@ app.MapGet("/questions", async (
     {
         query = query.Where(x => x.PrimaryKnowledgeId == primaryKnowledgeId.Value);
     }
+    else
+    {
+        var normalizedKnowledgeStatus = string.IsNullOrWhiteSpace(knowledgeStatus)
+            ? KnowledgeStatuses.Active
+            : NormalizeToken(knowledgeStatus, KnowledgeStatuses.Active);
+        var normalizedKnowledgeVersion = knowledgeVersion.GetValueOrDefault(1);
+        var knowledgeIds = dbContext.KnowledgeNodes
+            .AsNoTracking()
+            .Where(x => x.Status == normalizedKnowledgeStatus && x.Version == normalizedKnowledgeVersion)
+            .Select(x => x.Id);
+        query = query.Where(x => x.PrimaryKnowledgeId.HasValue && knowledgeIds.Contains(x.PrimaryKnowledgeId.Value));
+    }
 
     if (difficultyMin.HasValue)
     {
@@ -707,10 +1429,13 @@ app.MapGet("/questions", async (
     }
 
     var pageSize = Math.Clamp(limit ?? 20, 1, 50);
+    var pageIndex = Math.Max(1, page ?? 1);
+    var offset = (pageIndex - 1) * pageSize;
     var total = await query.CountAsync(cancellationToken);
     var items = await query
         .OrderByDescending(x => x.UpdatedAt)
         .ThenByDescending(x => x.CreatedAt)
+        .Skip(offset)
         .Take(pageSize)
         .ToListAsync(cancellationToken);
 
@@ -752,6 +1477,18 @@ app.MapGet("/questions", async (
 
     var blockByQuestionId = blocks.GroupBy(x => x.QuestionItemId).ToDictionary(x => x.Key, x => x.ToArray());
     var assetCountByQuestionId = assets.GroupBy(x => x.QuestionItemId).ToDictionary(x => x.Key, x => x.Count());
+    var hasFormulaByQuestionId = blocks
+        .Where(x => x.BlockType == "formula")
+        .GroupBy(x => x.QuestionItemId)
+        .ToDictionary(x => x.Key, _ => true);
+    var hasTableByQuestionId = blocks
+        .Where(x => x.BlockType == "table")
+        .GroupBy(x => x.QuestionItemId)
+        .ToDictionary(x => x.Key, _ => true);
+    var hasImageByQuestionId = assets
+        .Where(x => x.AssetType == "image")
+        .GroupBy(x => x.QuestionItemId)
+        .ToDictionary(x => x.Key, _ => true);
     var sourceByQuestionId = sourceRows
         .GroupBy(x => x.QuestionItemId)
         .ToDictionary(
@@ -782,14 +1519,24 @@ app.MapGet("/questions", async (
             GetQuestionPreview(itemBlocks ?? []),
             itemBlocks?.Length ?? 0,
             assetCount,
-            sourceSummary ?? new SourceSummaryResponse([], []));
+            sourceSummary ?? new SourceSummaryResponse([], []),
+            hasFormulaByQuestionId.ContainsKey(item.Id),
+            hasTableByQuestionId.ContainsKey(item.Id),
+            hasImageByQuestionId.ContainsKey(item.Id));
     }).ToArray();
 
     return Results.Ok(new QuestionSearchResponse(
         Mode: "draft_test",
         ProductionEligible: false,
         Total: total,
+        Page: pageIndex,
         Limit: pageSize,
+        KnowledgeStatus: primaryKnowledgeId.HasValue
+            ? "by_primary_knowledge_id"
+            : (string.IsNullOrWhiteSpace(knowledgeStatus) ? KnowledgeStatuses.Active : NormalizeToken(knowledgeStatus, KnowledgeStatuses.Active)),
+        KnowledgeVersion: primaryKnowledgeId.HasValue
+            ? null
+            : (knowledgeVersion ?? 1),
         Items: cards));
 })
 .WithName("SearchQuestionCards");
@@ -873,6 +1620,119 @@ app.MapGet("/questions/{id:guid}/sources", async (
         }).ToArray()));
 })
 .WithName("GetQuestionSources");
+
+app.MapPost("/paper-baskets", async (
+    PaperBasketCreateRequest request,
+    KqgDbContext dbContext,
+    CancellationToken cancellationToken) =>
+{
+    if (request.Items.Count == 0)
+    {
+        return Results.BadRequest(new { error = "paper_basket_items_required" });
+    }
+
+    var questionIds = request.Items.Select(x => x.QuestionItemId).Distinct().ToArray();
+    var questions = await dbContext.QuestionItems
+        .AsNoTracking()
+        .Where(x => questionIds.Contains(x.Id))
+        .ToDictionaryAsync(x => x.Id, cancellationToken);
+    if (questions.Count != questionIds.Length)
+    {
+        return Results.Conflict(new { error = "paper_basket_question_missing" });
+    }
+
+    var now = DateTimeOffset.UtcNow;
+    var normalizedKnowledgeStatus = string.IsNullOrWhiteSpace(request.KnowledgeVersionStatus)
+        ? KnowledgeStatuses.Active
+        : NormalizeToken(request.KnowledgeVersionStatus, KnowledgeStatuses.Active);
+    var knowledgeVersion = request.KnowledgeVersion ?? 1;
+    var orderedItems = request.Items
+        .Select((item, index) => new { Item = item, SortOrder = item.SortOrder ?? index })
+        .OrderBy(x => x.SortOrder)
+        .ToArray();
+
+    var basket = new PaperBasket
+    {
+        Title = string.IsNullOrWhiteSpace(request.Title) ? "未命名试卷" : request.Title.Trim(),
+        Subject = NormalizeToken(request.Subject, "physics"),
+        Stage = NormalizeToken(request.Stage, "junior_middle_school"),
+        Grade = string.IsNullOrWhiteSpace(request.Grade) ? null : request.Grade.Trim(),
+        Status = "draft",
+        KnowledgeVersionStatus = normalizedKnowledgeStatus,
+        KnowledgeVersion = knowledgeVersion,
+        Structure = SerializeJson(new
+        {
+            itemCount = orderedItems.Length,
+            totalScore = orderedItems.Sum(x => x.Item.Score),
+            sections = orderedItems.GroupBy(x => x.Item.SectionNo).Select(group => new
+            {
+                sectionNo = group.Key,
+                questionCount = group.Count(),
+                score = group.Sum(x => x.Item.Score)
+            }),
+            knowledgeVersionStatus = normalizedKnowledgeStatus,
+            knowledgeVersion
+        }),
+        CreatedAt = now,
+        UpdatedAt = now
+    };
+    dbContext.PaperBaskets.Add(basket);
+    await dbContext.SaveChangesAsync(cancellationToken);
+
+    var basketItems = orderedItems.Select(row =>
+    {
+        var question = questions[row.Item.QuestionItemId];
+        return new PaperBasketItem
+        {
+            PaperBasketId = basket.Id,
+            QuestionItemId = question.Id,
+            SectionNo = row.Item.SectionNo,
+            QuestionNo = row.Item.QuestionNo,
+            SubQuestionNo = string.IsNullOrWhiteSpace(row.Item.SubQuestionNo) ? null : row.Item.SubQuestionNo.Trim(),
+            Score = row.Item.Score,
+            SortOrder = row.SortOrder,
+            KnowledgeVersionStatus = normalizedKnowledgeStatus,
+            KnowledgeVersion = knowledgeVersion,
+            Snapshot = SerializeJson(new
+            {
+                question.Subject,
+                question.Stage,
+                question.Grade,
+                question.QuestionType,
+                question.DifficultyEstimated,
+                question.PrimaryKnowledgeId,
+                question.UpdatedAt
+            }),
+            CreatedAt = now
+        };
+    }).ToArray();
+    dbContext.PaperBasketItems.AddRange(basketItems);
+    await dbContext.SaveChangesAsync(cancellationToken);
+
+    return Results.Created($"/paper-baskets/{basket.Id}", PaperBasketResponse.From(basket, basketItems));
+})
+.WithName("CreatePaperBasket");
+
+app.MapGet("/paper-baskets/{id:guid}", async (
+    Guid id,
+    KqgDbContext dbContext,
+    CancellationToken cancellationToken) =>
+{
+    var basket = await dbContext.PaperBaskets.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+    if (basket is null)
+    {
+        return Results.NotFound();
+    }
+
+    var items = await dbContext.PaperBasketItems
+        .AsNoTracking()
+        .Where(x => x.PaperBasketId == id)
+        .OrderBy(x => x.SortOrder)
+        .ToListAsync(cancellationToken);
+
+    return Results.Ok(PaperBasketResponse.From(basket, items));
+})
+.WithName("GetPaperBasket");
 
 app.MapPost("/paper-requests/parse", (PaperRequestParseRequest request, IPaperWorkflowService workflowService) =>
 {
@@ -1690,6 +2550,70 @@ public sealed record CutCandidateResponse(
     }
 }
 
+public sealed record ReviewQueueListResponse(
+    IReadOnlyList<ReviewQueueItemResponse> Items,
+    int TotalCount);
+
+public sealed record ReviewQueueItemResponse(
+    Guid Id,
+    string ReviewType,
+    string Status,
+    string RiskLevel,
+    string RequiredAction,
+    decimal? Confidence,
+    string? Reason,
+    JsonElement Payload,
+    DateTimeOffset CreatedAt,
+    DateTimeOffset? ResolvedAt)
+{
+    public static ReviewQueueItemResponse From(ReviewQueueItem row)
+    {
+        var payload = JsonHelpers.ParseJsonElement(row.Payload);
+        return new ReviewQueueItemResponse(
+            row.Id,
+            row.ReviewType,
+            row.Status,
+            ReviewQueuePayloadHelpers.ResolveRiskLevel(payload),
+            ReviewQueuePayloadHelpers.ResolveRequiredAction(payload),
+            ReviewQueuePayloadHelpers.ResolveConfidence(payload),
+            ReviewQueuePayloadHelpers.ResolveReason(payload),
+            payload,
+            row.CreatedAt,
+            row.ResolvedAt);
+    }
+}
+
+public sealed record ReviewQueueBatchResolveRequest(
+    IReadOnlyList<Guid> ItemIds,
+    string ReviewedBy,
+    string Decision,
+    string Reason);
+
+public sealed record ReviewQueueBatchResolveResponse(
+    IReadOnlyList<Guid> ResolvedIds,
+    IReadOnlyList<Guid> SkippedHighRiskIds);
+
+public sealed record ReviewQueueResolveRequest(
+    string ReviewedBy,
+    string Decision,
+    string Reason);
+
+public sealed record ReviewWorkbenchActionRequest(
+    string Action,
+    Guid SourceDocumentId,
+    IReadOnlyList<Guid> CandidateIds,
+    string? AssetLabel,
+    string? ReviewedBy,
+    string? Reason);
+
+public sealed record ReviewWorkbenchActionResponse(
+    string Action,
+    Guid SourceDocumentId,
+    IReadOnlyList<Guid> TouchedIds,
+    IReadOnlyList<Guid> CreatedCandidateIds,
+    IReadOnlyList<Guid> SkippedIds,
+    Guid? CreatedQuestionId);
+
 public sealed record QuestionCreateRequest(
     string Subject,
     string Stage,
@@ -1793,7 +2717,10 @@ public sealed record QuestionSearchResponse(
     string Mode,
     bool ProductionEligible,
     int Total,
+    int Page,
     int Limit,
+    string KnowledgeStatus,
+    int? KnowledgeVersion,
     IReadOnlyList<QuestionCardResponse> Items);
 
 public sealed record QuestionCardResponse(
@@ -1809,7 +2736,10 @@ public sealed record QuestionCardResponse(
     string Preview,
     int BlockCount,
     int AssetCount,
-    SourceSummaryResponse Sources);
+    SourceSummaryResponse Sources,
+    bool HasFormula,
+    bool HasTable,
+    bool HasImage);
 
 public sealed record KnowledgeNodeCardResponse(
     Guid Id,
@@ -1860,6 +2790,83 @@ public sealed record QuestionSourceRegionResponse(
             region.CoordinateUnit,
             region.ScreenshotRelativePath,
             region.RegionType);
+    }
+}
+
+public sealed record PaperBasketCreateRequest(
+    string Title,
+    string Subject,
+    string Stage,
+    string? Grade,
+    string? KnowledgeVersionStatus,
+    int? KnowledgeVersion,
+    IReadOnlyList<PaperBasketCreateItem> Items);
+
+public sealed record PaperBasketCreateItem(
+    Guid QuestionItemId,
+    int SectionNo,
+    int QuestionNo,
+    string? SubQuestionNo,
+    decimal Score,
+    int? SortOrder);
+
+public sealed record PaperBasketResponse(
+    Guid Id,
+    string Title,
+    string Subject,
+    string Stage,
+    string? Grade,
+    string Status,
+    string KnowledgeVersionStatus,
+    int KnowledgeVersion,
+    JsonElement Structure,
+    IReadOnlyList<PaperBasketItemResponse> Items,
+    DateTimeOffset CreatedAt,
+    DateTimeOffset UpdatedAt)
+{
+    public static PaperBasketResponse From(PaperBasket basket, IReadOnlyList<PaperBasketItem> items)
+    {
+        return new PaperBasketResponse(
+            basket.Id,
+            basket.Title,
+            basket.Subject,
+            basket.Stage,
+            basket.Grade,
+            basket.Status,
+            basket.KnowledgeVersionStatus,
+            basket.KnowledgeVersion,
+            JsonHelpers.ParseJsonElement(basket.Structure),
+            items.Select(PaperBasketItemResponse.From).ToArray(),
+            basket.CreatedAt,
+            basket.UpdatedAt);
+    }
+}
+
+public sealed record PaperBasketItemResponse(
+    Guid Id,
+    Guid QuestionItemId,
+    int SectionNo,
+    int QuestionNo,
+    string? SubQuestionNo,
+    decimal Score,
+    int SortOrder,
+    string KnowledgeVersionStatus,
+    int KnowledgeVersion,
+    JsonElement Snapshot)
+{
+    public static PaperBasketItemResponse From(PaperBasketItem item)
+    {
+        return new PaperBasketItemResponse(
+            item.Id,
+            item.QuestionItemId,
+            item.SectionNo,
+            item.QuestionNo,
+            item.SubQuestionNo,
+            item.Score,
+            item.SortOrder,
+            item.KnowledgeVersionStatus,
+            item.KnowledgeVersion,
+            JsonHelpers.ParseJsonElement(item.Snapshot));
     }
 }
 
@@ -1981,6 +2988,174 @@ public static class JsonHelpers
     {
         using var document = JsonDocument.Parse(value);
         return document.RootElement.Clone();
+    }
+}
+
+public static class ReviewQueuePayloadHelpers
+{
+    public static string ResolveRiskLevel(string payloadJson)
+    {
+        try
+        {
+            var payload = JsonHelpers.ParseJsonElement(payloadJson);
+            return ResolveRiskLevel(payload);
+        }
+        catch
+        {
+            return "high";
+        }
+    }
+
+    public static string ResolveRiskLevel(JsonElement payload)
+    {
+        if (ResolveConfidence(payload) is { } confidence)
+        {
+            return confidence < 0.6m ? "high" : confidence < 0.85m ? "medium" : "low";
+        }
+
+        return "high";
+    }
+
+    public static string ResolveRequiredAction(JsonElement payload)
+    {
+        if (payload.ValueKind == JsonValueKind.Object &&
+            payload.TryGetProperty("requiredAction", out var actionElement) &&
+            actionElement.ValueKind == JsonValueKind.String)
+        {
+            return actionElement.GetString() ?? "manual_review";
+        }
+
+        return "manual_review";
+    }
+
+    public static decimal? ResolveConfidence(JsonElement payload)
+    {
+        if (payload.ValueKind == JsonValueKind.Object &&
+            payload.TryGetProperty("confidence", out var confidenceElement) &&
+            confidenceElement.TryGetDecimal(out var confidence))
+        {
+            return confidence;
+        }
+
+        return null;
+    }
+
+    public static string? ResolveReason(JsonElement payload)
+    {
+        if (payload.ValueKind == JsonValueKind.Object &&
+            payload.TryGetProperty("reason", out var reasonElement) &&
+            reasonElement.ValueKind == JsonValueKind.String)
+        {
+            return reasonElement.GetString();
+        }
+
+        return null;
+    }
+
+    public static string WithReviewAudit(
+        string payloadJson,
+        string reviewedBy,
+        string decision,
+        string reason,
+        DateTimeOffset reviewedAt)
+    {
+        Dictionary<string, object?> payload;
+        try
+        {
+            payload = JsonSerializer.Deserialize<Dictionary<string, object?>>(payloadJson) ?? new Dictionary<string, object?>();
+        }
+        catch
+        {
+            payload = new Dictionary<string, object?>();
+        }
+
+        payload["reviewAudit"] = new
+        {
+            reviewedBy,
+            decision,
+            reason,
+            reviewedAt = reviewedAt.ToString("O")
+        };
+
+        return JsonSerializer.Serialize(payload);
+    }
+}
+
+public static class ReviewWorkbenchMutationHelpers
+{
+    public static string WithPatch(string json, Dictionary<string, object?> patch)
+    {
+        Dictionary<string, object?> payload;
+        try
+        {
+            payload = JsonSerializer.Deserialize<Dictionary<string, object?>>(json) ?? new Dictionary<string, object?>();
+        }
+        catch
+        {
+            payload = new Dictionary<string, object?>();
+        }
+
+        foreach (var pair in patch)
+        {
+            payload[pair.Key] = pair.Value;
+        }
+
+        return JsonSerializer.Serialize(payload);
+    }
+
+    public static CutCandidate CloneCandidate(CutCandidate source, int sequenceNo, DateTimeOffset now, string splitTag)
+    {
+        return new CutCandidate
+        {
+            SourceDocumentId = source.SourceDocumentId,
+            SourceRegionId = source.SourceRegionId,
+            SuggestedQuestionItemId = null,
+            Status = CutCandidateStatuses.PendingReview,
+            Confidence = Math.Max(0m, source.Confidence - 0.05m),
+            SegmentType = source.SegmentType,
+            SequenceNo = sequenceNo,
+            CandidatePayload = WithPatch(source.CandidatePayload, new Dictionary<string, object?>
+            {
+                ["splitTag"] = splitTag,
+                ["splitFromCandidateId"] = source.Id
+            }),
+            FailureReason = "requires_manual_review_after_split",
+            TakeoverAction = "manual_review",
+            Metadata = WithPatch(source.Metadata, new Dictionary<string, object?>
+            {
+                ["generatedBy"] = "s006b-split",
+                ["generatedAt"] = now.ToString("O")
+            }),
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+    }
+
+    public static bool QueueItemMatchesCandidates(string payloadJson, HashSet<Guid> candidateSourceRegionIds)
+    {
+        try
+        {
+            using var document = JsonDocument.Parse(payloadJson);
+            var payload = document.RootElement;
+            if (payload.ValueKind != JsonValueKind.Object ||
+                !payload.TryGetProperty("sourceRegionId", out var sourceRegionElement) ||
+                sourceRegionElement.ValueKind != JsonValueKind.String)
+            {
+                return false;
+            }
+
+            var sourceRegionId = sourceRegionElement.GetString();
+            if (string.IsNullOrWhiteSpace(sourceRegionId) || !Guid.TryParse(sourceRegionId, out var parsedRegionId))
+            {
+                return false;
+            }
+
+            return candidateSourceRegionIds.Contains(parsedRegionId);
+        }
+        catch
+        {
+            return false;
+        }
     }
 }
 

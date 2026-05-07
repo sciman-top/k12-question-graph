@@ -3,7 +3,10 @@ import type {
   CutCandidateGenerationContract,
   CutCandidateListContract,
   ImportJobContract,
+  QuestionSearchContract,
+  QuestionSourceReviewContract,
   ReadyHealthContract,
+  ReviewWorkbenchActionContract,
   SourceDocumentPreviewContract,
   SourceMaterialListContract,
 } from './contracts'
@@ -11,7 +14,10 @@ import {
   normalizeCutCandidateGenerationResponse,
   normalizeCutCandidateListResponse,
   normalizeImportJobResponse,
+  normalizeQuestionSearchResponse,
+  normalizeQuestionSourceReviewResponse,
   normalizeReadyHealthResponse,
+  normalizeReviewWorkbenchActionResponse,
   normalizeSourceDocumentPreviewResponse,
   normalizeSourceMaterialListResponse,
 } from './contracts'
@@ -123,4 +129,76 @@ export async function generateCutCandidates(
       },
     }
   }
+}
+
+export async function applyReviewWorkbenchAction(request: {
+  action: string
+  sourceDocumentId: string
+  candidateIds: string[]
+  assetLabel?: string
+  reviewedBy?: string
+  reason?: string
+}): Promise<ApiResult<ReviewWorkbenchActionContract>> {
+  try {
+    const response = await fetch(buildApiUrl('/review-workbench/actions'), {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(request),
+    })
+    if (!response.ok) {
+      return {
+        ok: false,
+        error: {
+          code: 'network_error',
+          message: `HTTP ${response.status}`,
+        },
+      }
+    }
+    const json: unknown = await response.json()
+    return {
+      ok: true,
+      data: normalizeReviewWorkbenchActionResponse(json),
+    }
+  } catch (error) {
+    return {
+      ok: false,
+      error: {
+        code: 'network_error',
+        message: error instanceof Error ? error.message : 'Unknown network error',
+      },
+    }
+  }
+}
+
+export async function getQuestionSources(
+  questionId: string,
+): Promise<ApiResult<QuestionSourceReviewContract>> {
+  return requestJson(
+    `/questions/${encodeURIComponent(questionId)}/sources`,
+    normalizeQuestionSourceReviewResponse,
+  )
+}
+
+export async function searchQuestions(params: {
+  page?: number
+  limit?: number
+  questionType?: string
+  sourceType?: string
+} = {}): Promise<ApiResult<QuestionSearchContract>> {
+  const query = new URLSearchParams()
+  query.set('subject', 'physics')
+  query.set('stage', 'junior_middle_school')
+  query.set('page', String(params.page ?? 1))
+  query.set('limit', String(params.limit ?? 10))
+  if (params.questionType) {
+    query.set('questionType', params.questionType)
+  }
+  if (params.sourceType) {
+    query.set('sourceType', params.sourceType)
+  }
+
+  return requestJson(`/questions?${query.toString()}`, normalizeQuestionSearchResponse)
 }
