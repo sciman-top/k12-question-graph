@@ -1,14 +1,14 @@
 {
   "status": "pass",
   "task": "S001",
-  "checkedAt": "2026-05-07T23:43:42",
+  "checkedAt": "2026-05-07T23:56:14",
   "dashboardPath": "tasks/completion-state-dashboard.csv",
   "backlogPath": "tasks/backlog.csv",
   "areaCount": 22,
   "stateCounts": {
     "contract_done": 6,
-    "synthetic_done": 8,
-    "db_backed_done": 6,
+    "synthetic_done": 7,
+    "db_backed_done": 7,
     "ui_productized": 2,
     "teacher_validated": 0,
     "release_ready": 0
@@ -18,7 +18,7 @@
     "medium": 5,
     "high": 16
   },
-  "notNormallyUsableCount": 13,
+  "notNormallyUsableCount": 12,
   "teacherVisibleValidatedOrReleaseReadyCount": 0,
   "nextTaskCounts": {
     "P001": 2,

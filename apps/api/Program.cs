@@ -1734,6 +1734,25 @@ app.MapGet("/paper-baskets/{id:guid}", async (
 })
 .WithName("GetPaperBasket");
 
+app.MapPost("/paper-baskets/{id:guid}/export-preflight", async (
+    Guid id,
+    PaperExportPreflightRequest request,
+    IPaperWorkflowService workflowService,
+    CancellationToken cancellationToken) =>
+{
+    var result = await workflowService.RunExportPreflightAsync(
+        id,
+        request.ExportFormat,
+        cancellationToken);
+    if (result is null)
+    {
+        return Results.NotFound();
+    }
+
+    return Results.Ok(PaperExportPreflightResponse.From(result));
+})
+.WithName("RunPaperExportPreflight");
+
 app.MapPost("/paper-requests/parse", (PaperRequestParseRequest request, IPaperWorkflowService workflowService) =>
 {
     if (string.IsNullOrWhiteSpace(request.TeacherRequest))
@@ -2922,6 +2941,107 @@ public sealed record PaperBasketItemResponse(
             item.KnowledgeVersionStatus,
             item.KnowledgeVersion,
             JsonHelpers.ParseJsonElement(item.Snapshot));
+    }
+}
+
+public sealed record PaperExportPreflightRequest(string ExportFormat);
+
+public sealed record PaperExportPreflightResponse(
+    Guid PaperBasketId,
+    string Title,
+    string ExportFormat,
+    string Status,
+    bool ProductionEligible,
+    int ItemCount,
+    IReadOnlyList<PaperExportPreflightItemResponse> Items,
+    IReadOnlyDictionary<string, int> IssueCounts,
+    PaperExportPreflightSummaryResponse Summary,
+    string TeacherMessage,
+    IReadOnlyList<string> AuditTrail)
+{
+    public static PaperExportPreflightResponse From(PaperExportPreflightServiceResult result)
+    {
+        return new PaperExportPreflightResponse(
+            result.PaperBasketId,
+            result.Title,
+            result.ExportFormat,
+            result.Status,
+            result.ProductionEligible,
+            result.ItemCount,
+            result.Items.Select(PaperExportPreflightItemResponse.From).ToArray(),
+            result.IssueCounts,
+            PaperExportPreflightSummaryResponse.From(result.Summary),
+            result.TeacherMessage,
+            result.AuditTrail);
+    }
+}
+
+public sealed record PaperExportPreflightSummaryResponse(
+    int ImageReadyCount,
+    int FormulaReadyCount,
+    int TableReadyCount,
+    int AnswerReadyCount,
+    int SolutionReadyCount,
+    int AuthorizedSourceCount,
+    int ActiveKnowledgeVersionCount)
+{
+    public static PaperExportPreflightSummaryResponse From(PaperExportPreflightSummary summary)
+    {
+        return new PaperExportPreflightSummaryResponse(
+            summary.ImageReadyCount,
+            summary.FormulaReadyCount,
+            summary.TableReadyCount,
+            summary.AnswerReadyCount,
+            summary.SolutionReadyCount,
+            summary.AuthorizedSourceCount,
+            summary.ActiveKnowledgeVersionCount);
+    }
+}
+
+public sealed record PaperExportPreflightItemResponse(
+    Guid QuestionItemId,
+    int QuestionNo,
+    string? SubQuestionNo,
+    decimal Score,
+    string KnowledgeVersionStatus,
+    int KnowledgeVersion,
+    bool HasImage,
+    bool HasFormula,
+    bool HasTable,
+    bool HasAnswer,
+    bool HasSolution,
+    string SourceAuthorizationStatus,
+    bool HasKnowledgeVersionReference,
+    IReadOnlyList<PaperExportPreflightIssueResponse> Issues)
+{
+    public static PaperExportPreflightItemResponse From(PaperExportPreflightItemServiceResult item)
+    {
+        return new PaperExportPreflightItemResponse(
+            item.QuestionItemId,
+            item.QuestionNo,
+            item.SubQuestionNo,
+            item.Score,
+            item.KnowledgeVersionStatus,
+            item.KnowledgeVersion,
+            item.HasImage,
+            item.HasFormula,
+            item.HasTable,
+            item.HasAnswer,
+            item.HasSolution,
+            item.SourceAuthorizationStatus,
+            item.HasKnowledgeVersionReference,
+            item.Issues.Select(PaperExportPreflightIssueResponse.From).ToArray());
+    }
+}
+
+public sealed record PaperExportPreflightIssueResponse(
+    string Code,
+    string Severity,
+    string Message)
+{
+    public static PaperExportPreflightIssueResponse From(PaperExportPreflightIssueServiceItem issue)
+    {
+        return new PaperExportPreflightIssueResponse(issue.Code, issue.Severity, issue.Message);
     }
 }
 

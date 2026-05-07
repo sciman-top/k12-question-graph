@@ -310,6 +310,10 @@ try {
     Invoke-GateStep 's009c paper workbench ui contract' {
         .\tools\run-s009c-paper-workbench-ui-contract.ps1 | Write-Host
     }
+    Invoke-GateStep 's010a export preflight api smoke' {
+        $port = Get-FreeTcpPort
+        .\tools\run-s010a-export-preflight-api-smoke.ps1 -ApiPort $port | Write-Host
+    }
     Invoke-GateStep 'm003 replacement production constraints' {
         .\tools\run-m003-replacement-production-constraints.ps1 | Write-Host
     }

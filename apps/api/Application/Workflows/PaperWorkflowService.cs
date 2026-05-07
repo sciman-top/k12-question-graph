@@ -17,6 +17,10 @@ public interface IPaperWorkflowService
         Guid blueprintReviewId,
         string teacherConfirmedBy,
         CancellationToken cancellationToken);
+    Task<PaperExportPreflightServiceResult?> RunExportPreflightAsync(
+        Guid paperBasketId,
+        string exportFormat,
+        CancellationToken cancellationToken);
     PaperRequestParseServiceResult ParsePaperRequest(string teacherRequest, string? textbookVersion);
     PaperReplaceServiceResult ReplaceQuestion(PaperReplaceRequest request);
     KnowledgeVersionExplanationServiceResult ResolveKnowledgeVersionExplanation(KnowledgeVersionExplanationServiceRequest request);
@@ -242,6 +246,101 @@ public sealed class PaperWorkflowService(KqgDbContext dbContext) : IPaperWorkflo
             ["teacher_confirmed_blueprint", "created_draft_paper_basket", "no_opaque_generation"]);
     }
 
+    public async Task<PaperExportPreflightServiceResult?> RunExportPreflightAsync(
+        Guid paperBasketId,
+        string exportFormat,
+        CancellationToken cancellationToken)
+    {
+        var basket = await dbContext.PaperBaskets
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == paperBasketId, cancellationToken);
+        if (basket is null)
+        {
+            return null;
+        }
+
+        var basketItems = await dbContext.PaperBasketItems
+            .AsNoTracking()
+            .Where(x => x.PaperBasketId == paperBasketId)
+            .OrderBy(x => x.SortOrder)
+            .ToListAsync(cancellationToken);
+
+        var questionIds = basketItems.Select(x => x.QuestionItemId).Distinct().ToArray();
+        var questions = await dbContext.QuestionItems
+            .AsNoTracking()
+            .Where(x => questionIds.Contains(x.Id))
+            .ToDictionaryAsync(x => x.Id, cancellationToken);
+        var blocks = await dbContext.QuestionBlocks
+            .AsNoTracking()
+            .Where(x => questionIds.Contains(x.QuestionItemId))
+            .OrderBy(x => x.SortOrder)
+            .ToListAsync(cancellationToken);
+        var assets = await dbContext.QuestionAssets
+            .AsNoTracking()
+            .Where(x => questionIds.Contains(x.QuestionItemId))
+            .ToListAsync(cancellationToken);
+
+        var sourceRegionIds = blocks.Select(x => x.SourceRegionId)
+            .Concat(assets.Select(x => x.SourceRegionId))
+            .Where(x => x.HasValue)
+            .Select(x => x!.Value)
+            .Distinct()
+            .ToArray();
+        var regions = await dbContext.SourceRegions
+            .AsNoTracking()
+            .Where(x => sourceRegionIds.Contains(x.Id))
+            .ToDictionaryAsync(x => x.Id, cancellationToken);
+        var sourceDocumentIds = regions.Values.Select(x => x.SourceDocumentId).Distinct().ToArray();
+        var documents = await dbContext.SourceDocuments
+            .AsNoTracking()
+            .Where(x => sourceDocumentIds.Contains(x.Id))
+            .ToDictionaryAsync(x => x.Id, cancellationToken);
+
+        var blocksByQuestion = blocks.GroupBy(x => x.QuestionItemId).ToDictionary(x => x.Key, x => x.ToArray());
+        var assetsByQuestion = assets.GroupBy(x => x.QuestionItemId).ToDictionary(x => x.Key, x => x.ToArray());
+        var itemResults = basketItems.Select(item =>
+        {
+            questions.TryGetValue(item.QuestionItemId, out var question);
+            blocksByQuestion.TryGetValue(item.QuestionItemId, out var itemBlocks);
+            assetsByQuestion.TryGetValue(item.QuestionItemId, out var itemAssets);
+            return BuildExportPreflightItem(item, question, itemBlocks ?? [], itemAssets ?? [], regions, documents);
+        }).ToArray();
+
+        var issueCounts = itemResults
+            .SelectMany(x => x.Issues)
+            .GroupBy(x => x.Code, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(x => x.Key, x => x.Count(), StringComparer.OrdinalIgnoreCase);
+        var blocked = itemResults.SelectMany(x => x.Issues).Any(x => string.Equals(x.Severity, "blocker", StringComparison.OrdinalIgnoreCase));
+
+        return new PaperExportPreflightServiceResult(
+            basket.Id,
+            basket.Title,
+            NormalizeToken(exportFormat, "docx"),
+            blocked ? "blocked" : "ready_for_review",
+            false,
+            itemResults.Length,
+            itemResults,
+            issueCounts,
+            new PaperExportPreflightSummary(
+                itemResults.Count(x => x.HasImage),
+                itemResults.Count(x => x.HasFormula),
+                itemResults.Count(x => x.HasTable),
+                itemResults.Count(x => x.HasAnswer),
+                itemResults.Count(x => x.HasSolution),
+                itemResults.Count(x => string.Equals(x.SourceAuthorizationStatus, "authorized", StringComparison.OrdinalIgnoreCase)),
+                itemResults.Count(x => x.HasKnowledgeVersionReference)),
+            blocked
+                ? "导出前仍有答案、解析、来源授权或版本引用问题，请先处理后再生成文件。"
+                : "导出前审校通过，可进入 Word/PDF 产物生成。",
+            [
+                "checked_question_images",
+                "checked_formula_table_blocks",
+                "checked_answer_solution",
+                "checked_source_authorization",
+                "checked_knowledge_version_reference"
+            ]);
+    }
+
     public PaperRequestParseServiceResult ParsePaperRequest(string teacherRequest, string? textbookVersion)
     {
         var normalized = teacherRequest.Trim();
@@ -451,6 +550,156 @@ public sealed class PaperWorkflowService(KqgDbContext dbContext) : IPaperWorkflo
         return normalized.Length <= 48 ? normalized : normalized[..48];
     }
 
+    private static PaperExportPreflightItemServiceResult BuildExportPreflightItem(
+        PaperBasketItem item,
+        QuestionItem? question,
+        IReadOnlyList<QuestionBlock> blocks,
+        IReadOnlyList<QuestionAsset> assets,
+        IReadOnlyDictionary<Guid, SourceRegion> regions,
+        IReadOnlyDictionary<Guid, SourceDocument> documents)
+    {
+        if (question is null)
+        {
+            return new PaperExportPreflightItemServiceResult(
+                item.QuestionItemId,
+                item.QuestionNo,
+                item.SubQuestionNo,
+                item.Score,
+                item.KnowledgeVersionStatus,
+                item.KnowledgeVersion,
+                false,
+                false,
+                false,
+                false,
+                false,
+                "missing",
+                false,
+                [new PaperExportPreflightIssueServiceItem("question_missing", "blocker", "题目不存在，无法导出。")]);
+        }
+
+        var issues = new List<PaperExportPreflightIssueServiceItem>();
+        var hasImage = assets.Any(x =>
+            string.Equals(x.AssetType, "image", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(x.AssetType, "figure", StringComparison.OrdinalIgnoreCase));
+        var hasFormula = blocks.Any(x =>
+            string.Equals(x.BlockType, "formula", StringComparison.OrdinalIgnoreCase) ||
+            ContentContainsAny(x.Content, "latex", "formula"));
+        var hasTable = blocks.Any(x =>
+            string.Equals(x.BlockType, "table", StringComparison.OrdinalIgnoreCase) ||
+            ContentContainsAny(x.Content, "rows", "columns", "table"));
+        var hasAnswer = CustomFieldHasValue(question.CustomFields, "answer");
+        var hasSolution = CustomFieldHasValue(question.CustomFields, "solution");
+        var sourceDocuments = ResolveSourceDocuments(blocks, assets, regions, documents);
+        var sourceAuthorizationStatus = GetSourceAuthorizationStatus(sourceDocuments);
+        var hasKnowledgeVersionReference =
+            string.Equals(item.KnowledgeVersionStatus, KnowledgeStatuses.Active, StringComparison.OrdinalIgnoreCase) &&
+            item.KnowledgeVersion >= 1 &&
+            question.PrimaryKnowledgeId is not null;
+
+        if (!hasImage)
+        {
+            issues.Add(new PaperExportPreflightIssueServiceItem("image_not_attached", "warning", "本题没有题图附件；若原题含图，请先补齐。"));
+        }
+        if (!hasAnswer)
+        {
+            issues.Add(new PaperExportPreflightIssueServiceItem("answer_missing", "blocker", "缺少答案，不能生成教师版或答案版。"));
+        }
+        if (!hasSolution)
+        {
+            issues.Add(new PaperExportPreflightIssueServiceItem("solution_missing", "blocker", "缺少解析，不能进入导出。"));
+        }
+        if (sourceDocuments.Count == 0)
+        {
+            issues.Add(new PaperExportPreflightIssueServiceItem("source_missing", "blocker", "缺少来源区域或来源资料，不能确认授权。"));
+        }
+        else if (!string.Equals(sourceAuthorizationStatus, "authorized", StringComparison.OrdinalIgnoreCase))
+        {
+            issues.Add(new PaperExportPreflightIssueServiceItem("source_authorization_risk", "blocker", "来源授权或隐私状态不满足导出要求。"));
+        }
+        if (!hasKnowledgeVersionReference)
+        {
+            issues.Add(new PaperExportPreflightIssueServiceItem("knowledge_version_reference_missing", "blocker", "缺少可复现的当前知识版本引用。"));
+        }
+
+        return new PaperExportPreflightItemServiceResult(
+            item.QuestionItemId,
+            item.QuestionNo,
+            item.SubQuestionNo,
+            item.Score,
+            item.KnowledgeVersionStatus,
+            item.KnowledgeVersion,
+            hasImage,
+            hasFormula,
+            hasTable,
+            hasAnswer,
+            hasSolution,
+            sourceAuthorizationStatus,
+            hasKnowledgeVersionReference,
+            issues);
+    }
+
+    private static IReadOnlyList<SourceDocument> ResolveSourceDocuments(
+        IReadOnlyList<QuestionBlock> blocks,
+        IReadOnlyList<QuestionAsset> assets,
+        IReadOnlyDictionary<Guid, SourceRegion> regions,
+        IReadOnlyDictionary<Guid, SourceDocument> documents)
+    {
+        return blocks.Select(x => x.SourceRegionId)
+            .Concat(assets.Select(x => x.SourceRegionId))
+            .Where(x => x.HasValue)
+            .Select(x => x!.Value)
+            .Distinct()
+            .Select(regionId => regions.TryGetValue(regionId, out var region) ? region.SourceDocumentId : (Guid?)null)
+            .Where(x => x.HasValue)
+            .Select(x => x!.Value)
+            .Distinct()
+            .Select(documentId => documents.TryGetValue(documentId, out var document) ? document : null)
+            .Where(x => x is not null)
+            .Select(x => x!)
+            .ToArray();
+    }
+
+    private static string GetSourceAuthorizationStatus(IReadOnlyList<SourceDocument> documents)
+    {
+        if (documents.Count == 0)
+        {
+            return "missing";
+        }
+
+        var allAuthorized = documents.All(x =>
+            x.SharingAllowed &&
+            !string.Equals(x.LicenseOrPermission, "unknown", StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(x.LicenseOrPermission, "none", StringComparison.OrdinalIgnoreCase) &&
+            (!x.ContainsStudentPii ||
+             string.Equals(x.AnonymizationStatus, "anonymized", StringComparison.OrdinalIgnoreCase) ||
+             string.Equals(x.AnonymizationStatus, "not_applicable", StringComparison.OrdinalIgnoreCase)));
+        return allAuthorized ? "authorized" : "risk";
+    }
+
+    private static bool CustomFieldHasValue(string customFields, string field)
+    {
+        try
+        {
+            using var document = JsonDocument.Parse(customFields);
+            if (!document.RootElement.TryGetProperty(field, out var value) ||
+                value.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
+            {
+                return false;
+            }
+
+            return value.ValueKind != JsonValueKind.Object || value.EnumerateObject().Any();
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
+
+    private static bool ContentContainsAny(string content, params string[] tokens)
+    {
+        return tokens.Any(token => content.Contains(token, StringComparison.OrdinalIgnoreCase));
+    }
+
     private static string BuildKnowledgeVersionExplanationText(
         string artifactType,
         string historicalKnowledgeStableId,
@@ -536,6 +785,49 @@ public sealed record PaperBlueprintConfirmServiceResult(
     string? ErrorCode,
     string TeacherMessage,
     IReadOnlyList<string> AuditTrail);
+
+public sealed record PaperExportPreflightServiceResult(
+    Guid PaperBasketId,
+    string Title,
+    string ExportFormat,
+    string Status,
+    bool ProductionEligible,
+    int ItemCount,
+    IReadOnlyList<PaperExportPreflightItemServiceResult> Items,
+    IReadOnlyDictionary<string, int> IssueCounts,
+    PaperExportPreflightSummary Summary,
+    string TeacherMessage,
+    IReadOnlyList<string> AuditTrail);
+
+public sealed record PaperExportPreflightSummary(
+    int ImageReadyCount,
+    int FormulaReadyCount,
+    int TableReadyCount,
+    int AnswerReadyCount,
+    int SolutionReadyCount,
+    int AuthorizedSourceCount,
+    int ActiveKnowledgeVersionCount);
+
+public sealed record PaperExportPreflightItemServiceResult(
+    Guid QuestionItemId,
+    int QuestionNo,
+    string? SubQuestionNo,
+    decimal Score,
+    string KnowledgeVersionStatus,
+    int KnowledgeVersion,
+    bool HasImage,
+    bool HasFormula,
+    bool HasTable,
+    bool HasAnswer,
+    bool HasSolution,
+    string SourceAuthorizationStatus,
+    bool HasKnowledgeVersionReference,
+    IReadOnlyList<PaperExportPreflightIssueServiceItem> Issues);
+
+public sealed record PaperExportPreflightIssueServiceItem(
+    string Code,
+    string Severity,
+    string Message);
 
 public sealed record PaperDraftQuestionServiceItem(
     string Id,
