@@ -59,6 +59,8 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
 
     public DbSet<PaperBasketItem> PaperBasketItems => Set<PaperBasketItem>();
 
+    public DbSet<PaperBlueprintReview> PaperBlueprintReviews => Set<PaperBlueprintReview>();
+
     public DbSet<CutCandidate> CutCandidates => Set<CutCandidate>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -92,6 +94,7 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
         ConfigureQuestionAsset(modelBuilder.Entity<QuestionAsset>());
         ConfigurePaperBasket(modelBuilder.Entity<PaperBasket>());
         ConfigurePaperBasketItem(modelBuilder.Entity<PaperBasketItem>());
+        ConfigurePaperBlueprintReview(modelBuilder.Entity<PaperBlueprintReview>());
         ConfigureCutCandidate(modelBuilder.Entity<CutCandidate>());
     }
 
@@ -633,6 +636,30 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
             x.HasCheckConstraint("ck_paper_basket_items_score", "score >= 0");
             x.HasCheckConstraint("ck_paper_basket_items_sort_order", "sort_order >= 0");
             x.HasCheckConstraint("ck_paper_basket_items_knowledge_version", "knowledge_version >= 1");
+        });
+    }
+
+    private static void ConfigurePaperBlueprintReview(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<PaperBlueprintReview> entity)
+    {
+        entity.ToTable("paper_blueprint_reviews");
+        entity.HasKey(x => x.Id);
+        entity.HasIndex(x => new { x.Subject, x.Stage, x.Status });
+        entity.HasIndex(x => x.ConfirmedPaperBasketId);
+        entity.Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
+        entity.Property(x => x.RequestText).HasMaxLength(2048).IsRequired();
+        entity.Property(x => x.Subject).HasMaxLength(64).HasDefaultValue("physics");
+        entity.Property(x => x.Stage).HasMaxLength(64).HasDefaultValue("junior_middle_school");
+        entity.Property(x => x.Grade).HasMaxLength(64);
+        entity.Property(x => x.TextbookVersion).HasMaxLength(128);
+        entity.Property(x => x.Status).HasMaxLength(32).HasDefaultValue(WorkflowReviewStatuses.PendingReview);
+        entity.Property(x => x.Blueprint).HasColumnType("jsonb").HasDefaultValueSql("'[]'::jsonb");
+        entity.Property(x => x.Constraints).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.Property(x => x.ReviewQuestions).HasColumnType("jsonb").HasDefaultValueSql("'[]'::jsonb");
+        entity.Property(x => x.TeacherConfirmedBy).HasMaxLength(128);
+        entity.HasOne<PaperBasket>().WithMany().HasForeignKey(x => x.ConfirmedPaperBasketId).OnDelete(DeleteBehavior.Restrict);
+        entity.ToTable(x =>
+        {
+            x.HasCheckConstraint("ck_paper_blueprint_reviews_status", "status in ('pending_review','confirmed','rejected')");
         });
     }
 

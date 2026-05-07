@@ -303,6 +303,10 @@ try {
     Invoke-GateStep 'm002 nl to blueprint production chain' {
         .\tools\run-m002-nl-to-blueprint-production-chain.ps1 | Write-Host
     }
+    Invoke-GateStep 's009b blueprint review workflow smoke' {
+        $port = Get-FreeTcpPort
+        .\tools\run-s009b-blueprint-review-workflow-smoke.ps1 -ApiPort $port | Write-Host
+    }
     Invoke-GateStep 'm003 replacement production constraints' {
         .\tools\run-m003-replacement-production-constraints.ps1 | Write-Host
     }

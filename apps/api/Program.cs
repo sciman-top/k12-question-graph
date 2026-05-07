@@ -1763,6 +1763,61 @@ app.MapPost("/paper-requests/parse", (PaperRequestParseRequest request, IPaperWo
 })
 .WithName("ParsePaperRequest");
 
+app.MapPost("/paper-blueprints", async (
+    PaperBlueprintReviewCreateRequest request,
+    IPaperWorkflowService workflowService,
+    CancellationToken cancellationToken) =>
+{
+    if (string.IsNullOrWhiteSpace(request.TeacherRequest))
+    {
+        return Results.BadRequest(new { error = "teacher_request_required" });
+    }
+
+    var result = await workflowService.CreateBlueprintReviewAsync(
+        request.TeacherRequest,
+        request.TextbookVersion,
+        cancellationToken);
+
+    return Results.Created($"/paper-blueprints/{result.Id}", PaperBlueprintReviewResponse.From(result));
+})
+.WithName("CreatePaperBlueprintReview");
+
+app.MapPost("/paper-blueprints/{id:guid}/confirm", async (
+    Guid id,
+    PaperBlueprintConfirmRequest request,
+    IPaperWorkflowService workflowService,
+    CancellationToken cancellationToken) =>
+{
+    if (string.IsNullOrWhiteSpace(request.TeacherConfirmedBy))
+    {
+        return Results.BadRequest(new { error = "teacher_confirmed_by_required" });
+    }
+
+    var result = await workflowService.ConfirmBlueprintReviewAsync(
+        id,
+        request.TeacherConfirmedBy,
+        cancellationToken);
+    if (result is null)
+    {
+        return Results.NotFound();
+    }
+
+    if (!result.Confirmed)
+    {
+        return Results.Conflict(new
+        {
+            error = result.ErrorCode,
+            result.Status,
+            result.SelectedQuestionCount,
+            result.TeacherMessage,
+            result.AuditTrail
+        });
+    }
+
+    return Results.Ok(PaperBlueprintConfirmResponse.From(result));
+})
+.WithName("ConfirmPaperBlueprintReview");
+
 app.MapPost("/paper-requests/replace-question", (PaperQuestionReplacementRequest request, IPaperWorkflowService workflowService) =>
 {
     if (request.CurrentQuestion is null)
@@ -2911,6 +2966,86 @@ public sealed record PaperRequestConstraints(
     IReadOnlyList<string> SourceTypes,
     bool ReviewRequired,
     bool BlocksProductionPaper);
+
+public sealed record PaperBlueprintReviewCreateRequest(
+    string TeacherRequest,
+    string? TextbookVersion);
+
+public sealed record PaperBlueprintReviewResponse(
+    Guid Id,
+    string Status,
+    string Mode,
+    bool ProductionEligible,
+    bool AllowRealModelCalls,
+    string RequestText,
+    string Subject,
+    string Grade,
+    string? TextbookVersion,
+    IReadOnlyList<string> Scope,
+    int TotalScore,
+    string DifficultyTarget,
+    IReadOnlyList<PaperBlueprintRow> Blueprint,
+    PaperRequestConstraints Constraints,
+    IReadOnlyList<string> ReviewQuestions,
+    bool MustConfirmBeforeTakingQuestions,
+    bool OpaqueGenerationAllowed,
+    Guid? ConfirmedPaperBasketId,
+    DateTimeOffset CreatedAt,
+    DateTimeOffset UpdatedAt)
+{
+    public static PaperBlueprintReviewResponse From(PaperBlueprintReviewServiceResult result)
+    {
+        return new PaperBlueprintReviewResponse(
+            result.Id,
+            result.Status,
+            result.Mode,
+            result.ProductionEligible,
+            result.AllowRealModelCalls,
+            result.RequestText,
+            result.Subject,
+            result.Grade,
+            result.TextbookVersion,
+            result.Scope,
+            result.TotalScore,
+            result.DifficultyTarget,
+            result.Blueprint.Select(x => new PaperBlueprintRow(x.QuestionType, x.Count, x.Score, x.Scope, x.AssetStatus, x.ReviewStatus)).ToArray(),
+            new PaperRequestConstraints(
+                result.Constraints.KnowledgeStatus,
+                result.Constraints.SourceTypes,
+                result.Constraints.ReviewRequired,
+                result.Constraints.BlocksProductionPaper),
+            result.ReviewQuestions,
+            result.MustConfirmBeforeTakingQuestions,
+            result.OpaqueGenerationAllowed,
+            result.ConfirmedPaperBasketId,
+            result.CreatedAt,
+            result.UpdatedAt);
+    }
+}
+
+public sealed record PaperBlueprintConfirmRequest(string TeacherConfirmedBy);
+
+public sealed record PaperBlueprintConfirmResponse(
+    Guid Id,
+    string Status,
+    bool Confirmed,
+    Guid? PaperBasketId,
+    int SelectedQuestionCount,
+    string TeacherMessage,
+    IReadOnlyList<string> AuditTrail)
+{
+    public static PaperBlueprintConfirmResponse From(PaperBlueprintConfirmServiceResult result)
+    {
+        return new PaperBlueprintConfirmResponse(
+            result.Id,
+            result.Status,
+            result.Confirmed,
+            result.PaperBasketId,
+            result.SelectedQuestionCount,
+            result.TeacherMessage,
+            result.AuditTrail);
+    }
+}
 
 public sealed record PaperQuestionReplacementRequest(PaperDraftQuestion CurrentQuestion);
 

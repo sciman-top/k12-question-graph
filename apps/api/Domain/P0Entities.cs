@@ -135,6 +135,13 @@ public static class CutCandidateStatuses
     public const string RetryRequired = "retry_required";
 }
 
+public static class WorkflowReviewStatuses
+{
+    public const string PendingReview = "pending_review";
+    public const string Confirmed = "confirmed";
+    public const string Rejected = "rejected";
+}
+
 public sealed class TeacherPreference
 {
     public Guid Id { get; set; }
@@ -834,6 +841,39 @@ public sealed class PaperBasketItem
     public string Snapshot { get; set; } = "{}";
 
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class PaperBlueprintReview
+{
+    public Guid Id { get; set; }
+
+    public string RequestText { get; set; } = string.Empty;
+
+    public string Subject { get; set; } = "physics";
+
+    public string Stage { get; set; } = "junior_middle_school";
+
+    public string? Grade { get; set; }
+
+    public string? TextbookVersion { get; set; }
+
+    public string Status { get; set; } = WorkflowReviewStatuses.PendingReview;
+
+    public string Blueprint { get; set; } = "[]";
+
+    public string Constraints { get; set; } = "{}";
+
+    public string ReviewQuestions { get; set; } = "[]";
+
+    public string? TeacherConfirmedBy { get; set; }
+
+    public DateTimeOffset? TeacherConfirmedAt { get; set; }
+
+    public Guid? ConfirmedPaperBasketId { get; set; }
+
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+
+    public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
 }
 
 public sealed class CutCandidate
