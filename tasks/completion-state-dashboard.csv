@@ -11,7 +11,7 @@ ai-extraction,AI 提炼与抽取,false,synthetic_done,不可生产使用,"C002O-
 ai-tagging,AI 知识点标注建议,true,synthetic_done,不可正常使用,"L004 pilot D003 eval review required","缺少 DB-backed review queue 和教师确认写入题目",S007,high
 review-queue,审核队列,true,contract_done,不可正常使用,"ReviewQueueItem entity and UI contract evidence","缺少统一教师审核 API 状态流和批量处理闭环",S006,high
 question-search,题库检索与题卡,true,db_backed_done,后端部分可用,"/questions search K001 active query E001 contract","教师 UI 仍显示示例题卡 未完整接真实 API 空态错误态",S008,high
-paper-assembly,智能组卷和题篮,true,db_backed_done,后端部分可用,"S009A PaperBasket persistence and S009B blueprint review workflow smoke","组卷 UI 产品化 S009C 未完成 导出前审校仍未接通",S009,high
+paper-assembly,智能组卷和题篮,true,ui_productized,部分可用,"S009A PaperBasket persistence S009B blueprint review workflow smoke S009C paper workbench UI contract","导出前审校 S010A/S010B 未完成",S010,high
 paper-export,Word PDF 导出,true,synthetic_done,不可正常使用,"E004 M004 M005 export contracts","导出仍是示例预览 缺少真实题卷审校和可下载产物链",S010,high
 score-import,成绩 Excel 导入,true,synthetic_done,不可正常使用,"F001-F003 N001-N005 synthetic and privacy gates","教师 UI/API 真实成绩导入 异常行 模板复用未闭环",S011,high
 analysis-report,学情分析与讲评报告,true,synthetic_done,不可正常使用,"F003 N004 report MVP gates","真实数据准入和讲评导出未与教师操作闭环连接",S011,high

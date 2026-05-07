@@ -28,7 +28,13 @@ import {
 } from '@ant-design/icons'
 import './App.css'
 import { apiContractSnapshot } from './api/contracts'
-import { applyReviewWorkbenchAction, generateCutCandidates, getQuestionSources } from './api/client'
+import {
+  applyReviewWorkbenchAction,
+  confirmPaperBlueprintReview,
+  createPaperBlueprintReview,
+  generateCutCandidates,
+  getQuestionSources,
+} from './api/client'
 import {
   useCutCandidatesQuery,
   useImportJobQuery,
@@ -292,6 +298,11 @@ function App() {
   >([])
   const [paperRequest, setPaperRequest] = useState(initialPaperRequest)
   const [paperUnderstanding, setPaperUnderstanding] = useState(initialPaperUnderstanding)
+  const [paperBlueprintReviewId, setPaperBlueprintReviewId] = useState('')
+  const [paperBasketId, setPaperBasketId] = useState('')
+  const [paperWorkflowMessage, setPaperWorkflowMessage] = useState('生成细目表后，确认按钮才会取题并保存题篮。')
+  const [paperConstraintMessage, setPaperConstraintMessage] = useState('需要先确认细目表，不会直接生成不可解释试卷。')
+  const [paperWorkflowBusy, setPaperWorkflowBusy] = useState(false)
   const [paperDraft, setPaperDraft] = useState(initialPaperDraft)
   const [importStartedAt] = useState<Date>(() => new Date())
   const [nowMs, setNowMs] = useState<number>(() => Date.now())
@@ -628,13 +639,69 @@ function App() {
     appendLog(`已加载候选 ${nextSegments.length} 条到人工确认队列`)
   }
 
-  const parsePaperRequest = () => {
-    setPaperUnderstanding((current) => ({
-      ...current,
-      systemUnderstanding: `按初中物理要求生成组卷理解：${paperRequest}`,
-      scope: paperRequest.includes('速度') ? ['速度与平均速度'] : ['牛顿第一定律与惯性'],
-      difficultyTarget: paperRequest.includes('偏难') ? 'medium_hard' : 'medium',
-    }))
+  const parsePaperRequest = async () => {
+    setPaperWorkflowBusy(true)
+    setPaperWorkflowMessage('正在生成可确认细目表...')
+    const result = await createPaperBlueprintReview({
+      teacherRequest: paperRequest,
+      textbookVersion: '人教版八年级',
+    })
+    setPaperWorkflowBusy(false)
+
+    if (!result.ok) {
+      setPaperBlueprintReviewId('')
+      setPaperBasketId('')
+      setPaperConstraintMessage('题库服务暂时无法连接，请稍后重试；本页仍保留当前填写内容。')
+      setPaperWorkflowMessage(`细目表生成失败：${result.error.message}`)
+      return
+    }
+
+    const review = result.data
+    setPaperBlueprintReviewId(review.id)
+    setPaperBasketId(review.confirmedPaperBasketId ?? '')
+    setPaperConstraintMessage(
+      review.mustConfirmBeforeTakingQuestions && !review.opaqueGenerationAllowed
+        ? '已生成可确认细目表；确认前不会取题，也不会生成不可解释试卷。'
+        : '请先人工核对细目表约束，再继续取题。',
+    )
+    setPaperWorkflowMessage(`细目表已生成：${review.blueprint.length} 行，等待确认。`)
+    setPaperUnderstanding({
+      mode: review.mode,
+      productionEligible: review.productionEligible,
+      allowRealModelCalls: review.allowRealModelCalls,
+      systemUnderstanding: `按当前题库生成组卷理解：${review.requestText}`,
+      paperType: 'unit_practice',
+      subject: review.subject,
+      grade: review.grade,
+      totalScore: review.totalScore,
+      difficultyTarget: review.difficultyTarget,
+      scope: review.scope,
+      blueprint: review.blueprint,
+      reviewQuestions: review.reviewQuestions,
+    })
+  }
+
+  const confirmPaperBlueprint = async () => {
+    if (!paperBlueprintReviewId) {
+      setPaperWorkflowMessage('请先生成细目表，再确认取题。')
+      return
+    }
+
+    setPaperWorkflowBusy(true)
+    setPaperWorkflowMessage('正在确认细目表并保存题篮...')
+    const result = await confirmPaperBlueprintReview(paperBlueprintReviewId, 'teacher-paper-workbench')
+    setPaperWorkflowBusy(false)
+
+    if (!result.ok) {
+      setPaperWorkflowMessage(`确认失败：${result.error.message}`)
+      setPaperConstraintMessage('题目不足或服务不可用时，请先调整细目表或补充题库。')
+      return
+    }
+
+    setPaperBasketId(result.data.paperBasketId ?? '')
+    setPaperWorkflowMessage(result.data.teacherMessage || `已保存题篮，包含 ${result.data.selectedQuestionCount} 题。`)
+    setPaperConstraintMessage('题篮由已确认细目表生成，可继续换题、撤销和导出前审校。')
+    appendLog(`已确认细目表并保存题篮：${result.data.selectedQuestionCount} 题`)
   }
 
   const replacePaperQuestion = () => {
@@ -1102,10 +1169,30 @@ function App() {
               {paperWorkbenchSummaryCards.map(([contract, title, value, detail]) => (
                 <div data-contract={contract} key={contract}>
                   <Typography.Text type="secondary">{title}</Typography.Text>
-                  <strong>{value}</strong>
+                  <strong>
+                    {contract === 'question-basket' && paperBasketId ? '已保存' : value}
+                  </strong>
                   <small>{detail}</small>
                 </div>
               ))}
+            </div>
+
+            <div
+              className="paper-workflow-status"
+              data-contract="s009c-real-blueprint-api"
+              data-blueprint-review-id={paperBlueprintReviewId}
+              data-paper-basket-id={paperBasketId}
+            >
+              <span>
+                <Typography.Text type="secondary">当前题篮</Typography.Text>
+                <strong data-contract="confirmed-paper-basket">
+                  {paperBasketId ? '已保存题篮' : '等待确认细目表'}
+                </strong>
+              </span>
+              <span>
+                <Typography.Text type="secondary">约束</Typography.Text>
+                <strong data-contract="paper-constraint-visible">{paperConstraintMessage}</strong>
+              </span>
             </div>
           </section>
 
@@ -1216,10 +1303,20 @@ function App() {
                 <Button
                   type="primary"
                   icon={<FileSearchOutlined />}
+                  loading={paperWorkflowBusy}
                   onClick={parsePaperRequest}
                   data-action="parse-paper-request"
                 >
                   生成理解
+                </Button>
+                <Button
+                  icon={<CheckCircleOutlined />}
+                  loading={paperWorkflowBusy}
+                  disabled={!paperBlueprintReviewId || Boolean(paperBasketId)}
+                  onClick={confirmPaperBlueprint}
+                  data-action="confirm-paper-blueprint"
+                >
+                  确认细目表
                 </Button>
               </div>
 
@@ -1229,6 +1326,13 @@ function App() {
                   type="info"
                   title="系统理解"
                   description={paperUnderstanding.systemUnderstanding}
+                />
+                <Alert
+                  showIcon
+                  type={paperBasketId ? 'success' : paperBlueprintReviewId ? 'warning' : 'info'}
+                  message={paperWorkflowMessage}
+                  description={paperConstraintMessage}
+                  data-state="s009c-paper-workflow-message"
                 />
                 <div className="paper-summary">
                   <span>

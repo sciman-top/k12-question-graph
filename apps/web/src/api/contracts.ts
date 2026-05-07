@@ -140,6 +140,45 @@ export interface QuestionSearchContract {
   items: QuestionCardContract[]
 }
 
+export interface PaperBlueprintRowContract {
+  questionType: string
+  count: number
+  score: number
+  scope: string[]
+  assetStatus: string
+  reviewStatus: string
+}
+
+export interface PaperBlueprintReviewContract {
+  id: string
+  status: string
+  mode: string
+  productionEligible: boolean
+  allowRealModelCalls: boolean
+  requestText: string
+  subject: string
+  grade: string
+  textbookVersion: string | null
+  scope: string[]
+  totalScore: number
+  difficultyTarget: string
+  blueprint: PaperBlueprintRowContract[]
+  reviewQuestions: string[]
+  mustConfirmBeforeTakingQuestions: boolean
+  opaqueGenerationAllowed: boolean
+  confirmedPaperBasketId: string | null
+}
+
+export interface PaperBlueprintConfirmContract {
+  id: string
+  status: string
+  confirmed: boolean
+  paperBasketId: string | null
+  selectedQuestionCount: number
+  teacherMessage: string
+  auditTrail: string[]
+}
+
 export interface ImportJobContract {
   id: string
   inputFileAssetId: string
@@ -204,6 +243,17 @@ function readBooleanField(value: unknown, field: string): boolean {
 
   const record = value as Record<string, unknown>
   return record[field] === true
+}
+
+function normalizeBlueprintRows(value: unknown): PaperBlueprintRowContract[] {
+  return readArrayField(value, 'blueprint').map((row) => ({
+    questionType: readStringField(row, 'questionType') ?? 'unknown',
+    count: readNumberField(row, 'count'),
+    score: readNumberField(row, 'score'),
+    scope: readArrayField(row, 'scope').map(String),
+    assetStatus: readStringField(row, 'assetStatus') ?? 'unknown',
+    reviewStatus: readStringField(row, 'reviewStatus') ?? 'unknown',
+  }))
 }
 
 export function normalizeSourceMaterialListResponse(value: unknown): SourceMaterialListContract {
@@ -357,5 +407,39 @@ export function normalizeQuestionSearchResponse(value: unknown): QuestionSearchC
         hasImage: readBooleanField(row, 'hasImage'),
       }
     }),
+  }
+}
+
+export function normalizePaperBlueprintReviewResponse(value: unknown): PaperBlueprintReviewContract {
+  return {
+    id: readStringField(value, 'id') ?? '',
+    status: readStringField(value, 'status') ?? 'unknown',
+    mode: readStringField(value, 'mode') ?? 'unknown',
+    productionEligible: readBooleanField(value, 'productionEligible'),
+    allowRealModelCalls: readBooleanField(value, 'allowRealModelCalls'),
+    requestText: readStringField(value, 'requestText') ?? '',
+    subject: readStringField(value, 'subject') ?? 'physics',
+    grade: readStringField(value, 'grade') ?? '',
+    textbookVersion: readNullableStringField(value, 'textbookVersion'),
+    scope: readArrayField(value, 'scope').map(String),
+    totalScore: readNumberField(value, 'totalScore'),
+    difficultyTarget: readStringField(value, 'difficultyTarget') ?? 'medium',
+    blueprint: normalizeBlueprintRows(value),
+    reviewQuestions: readArrayField(value, 'reviewQuestions').map(String),
+    mustConfirmBeforeTakingQuestions: readBooleanField(value, 'mustConfirmBeforeTakingQuestions'),
+    opaqueGenerationAllowed: readBooleanField(value, 'opaqueGenerationAllowed'),
+    confirmedPaperBasketId: readNullableStringField(value, 'confirmedPaperBasketId'),
+  }
+}
+
+export function normalizePaperBlueprintConfirmResponse(value: unknown): PaperBlueprintConfirmContract {
+  return {
+    id: readStringField(value, 'id') ?? '',
+    status: readStringField(value, 'status') ?? 'unknown',
+    confirmed: readBooleanField(value, 'confirmed'),
+    paperBasketId: readNullableStringField(value, 'paperBasketId'),
+    selectedQuestionCount: readNumberField(value, 'selectedQuestionCount'),
+    teacherMessage: readStringField(value, 'teacherMessage') ?? '',
+    auditTrail: readArrayField(value, 'auditTrail').map(String),
   }
 }

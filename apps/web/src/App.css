@@ -382,6 +382,28 @@
   font-size: 18px;
 }
 
+.paper-workflow-status {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.72fr) minmax(0, 1.28fr);
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.paper-workflow-status span {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  padding: 14px;
+}
+
+.paper-workflow-status strong {
+  color: var(--ink);
+  line-height: 1.45;
+}
+
 .teacher-step-list,
 .analysis-summary-grid,
 .score-workbench {
@@ -1661,6 +1683,7 @@
   .mapping-review-grid,
   .paper-workbench-flow,
   .paper-workbench-summary,
+  .paper-workflow-status,
   .page-preview {
     grid-template-columns: 1fr;
   }

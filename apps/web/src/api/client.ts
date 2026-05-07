@@ -3,6 +3,8 @@ import type {
   CutCandidateGenerationContract,
   CutCandidateListContract,
   ImportJobContract,
+  PaperBlueprintConfirmContract,
+  PaperBlueprintReviewContract,
   QuestionSearchContract,
   QuestionSourceReviewContract,
   ReadyHealthContract,
@@ -14,6 +16,8 @@ import {
   normalizeCutCandidateGenerationResponse,
   normalizeCutCandidateListResponse,
   normalizeImportJobResponse,
+  normalizePaperBlueprintConfirmResponse,
+  normalizePaperBlueprintReviewResponse,
   normalizeQuestionSearchResponse,
   normalizeQuestionSourceReviewResponse,
   normalizeReadyHealthResponse,
@@ -38,6 +42,47 @@ async function requestJson<T>(path: string, normalize: (value: unknown) => T): P
       headers: {
         Accept: 'application/json',
       },
+    })
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        error: {
+          code: 'network_error',
+          message: `HTTP ${response.status}`,
+        },
+      }
+    }
+
+    const json: unknown = await response.json()
+    return {
+      ok: true,
+      data: normalize(json),
+    }
+  } catch (error) {
+    return {
+      ok: false,
+      error: {
+        code: 'network_error',
+        message: error instanceof Error ? error.message : 'Unknown network error',
+      },
+    }
+  }
+}
+
+async function postJson<T>(
+  path: string,
+  body: unknown,
+  normalize: (value: unknown) => T,
+): Promise<ApiResult<T>> {
+  try {
+    const response = await fetch(buildApiUrl(path), {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
     })
 
     if (!response.ok) {
@@ -201,4 +246,22 @@ export async function searchQuestions(params: {
   }
 
   return requestJson(`/questions?${query.toString()}`, normalizeQuestionSearchResponse)
+}
+
+export async function createPaperBlueprintReview(request: {
+  teacherRequest: string
+  textbookVersion?: string
+}): Promise<ApiResult<PaperBlueprintReviewContract>> {
+  return postJson('/paper-blueprints', request, normalizePaperBlueprintReviewResponse)
+}
+
+export async function confirmPaperBlueprintReview(
+  id: string,
+  teacherConfirmedBy: string,
+): Promise<ApiResult<PaperBlueprintConfirmContract>> {
+  return postJson(
+    `/paper-blueprints/${encodeURIComponent(id)}/confirm`,
+    { teacherConfirmedBy },
+    normalizePaperBlueprintConfirmResponse,
+  )
 }

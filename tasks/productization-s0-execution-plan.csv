@@ -25,7 +25,7 @@ S008A,S008,W7,题库检索,QuestionSearch API productization,db_backed_done,db_b
 S008B,S008,W7,题库检索,题卡 UI 接真实 API,db_backed_done,ui_productized,已完成,S008A,题卡展示真实题目 来源 版本 难度 题图公式状态 空态和错误态,UI contract + npm build,apps/web tools
 S009A,S009,W8,组卷,PaperBasket persistence,contract_done,db_backed_done,已完成,S008B,题篮 试卷结构 题号 分值 小问 版本引用可保存和复现,dotnet build + API contract,apps/api docs/05_DomainModel.md tools
 S009B,S009,W8,组卷,Blueprint review workflow,synthetic_done,db_backed_done,已完成,S009A,自然语言只生成可审查细目表 教师确认后才取题,tools/run-s009b-blueprint-review-workflow-smoke.ps1 + no opaque generation guard + docs/evidence/20260507-s009b-blueprint-review-workflow-smoke-report.json,apps/api tools docs/evidence
-S009C,S009,W8,组卷,组卷 UI 产品化,db_backed_done,ui_productized,待办,S009B,教师能保存题篮 换题 撤销 复现并看到约束不满足原因,UI smoke + teacher workflow evidence,apps/web apps/api tools
+S009C,S009,W8,组卷,组卷 UI 产品化,db_backed_done,ui_productized,已完成,S009B,教师能保存题篮 换题 撤销 复现并看到约束不满足原因,tools/run-s009c-paper-workbench-ui-contract.ps1 + npm build/lint + docs/evidence/20260507-s009c-paper-workbench-ui-report.json,apps/web apps/api tools docs/evidence
 S010A,S010,W9,导出,Export preflight API,contract_done,db_backed_done,待办,S009C,导出前检查题图 公式 表格 答案 解析 来源授权 版本引用和缺失风险,API contract + export regression,apps/api tools
 S010B,S010,W9,导出,Word/PDF artifact chain,synthetic_done,ui_productized,待办,S010A,学生版 教师版 答案版生成真实可下载 artifact 且 manifest 可验证,export regression + file manifest,apps/api apps/web tools docs/evidence
 S011A,S011,W10,成绩分析,Score import API productization,synthetic_done,db_backed_done,待办,S010B;N001,Excel 模板复用 字段映射 异常行 批次状态真实入库且不泄露 PII,API contract + privacy guard,apps/api tools
