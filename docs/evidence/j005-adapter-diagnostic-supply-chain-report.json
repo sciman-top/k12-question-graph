@@ -12,9 +12,9 @@
       "adapterVersion": "0.1",
       "toolName": "python",
       "toolVersion": "3.13.7",
-      "durationMs": 3,
-      "inputSha256": "e234d72aaeb4443ea36373d52cb22a2a2f4a48e846c9f19e2f4a112b60b59d8c",
-      "outputSha256": "0a380fa46f6f388f903f0ad9556904f423dc466817e753b5d312b87f4b4ac880",
+      "durationMs": 5,
+      "inputSha256": "0a2cebf6327fe1dbedb066ebe22d8a08057f65b60442927f8370d2dc5e732b28",
+      "outputSha256": "672636d4b77a12f4567419cf799d85fa962652698574d6a2f3f3c266f47c9de1",
       "warningCount": 0,
       "errorCount": 0,
       "commandArgs": {
@@ -28,7 +28,7 @@
       "adapterVersion": "0.1",
       "toolName": "python",
       "toolVersion": "3.13.7",
-      "durationMs": 2,
+      "durationMs": 3,
       "inputSha256": "f3081ad4685c9e5330cc0be5874fc240af9d0181113b68787e82774739ef0b29",
       "outputSha256": "c5dff7d72debea928bbd9072ab6d4c758e19854cbbf017b135398601c14b9383",
       "warningCount": 0,
@@ -118,6 +118,6 @@
     "rawInputsStayUnder": "tmp\\j005-adapter-diagnostics"
   },
   "rollback": "git restore tracked files; remove tools/j005_adapter_diagnostic_supply_chain.py, tools/run-j005-adapter-diagnostic-supply-chain-contract.ps1, docs/90_J005_AdapterDiagnosticSupplyChain.md, docs/evidence/j005-adapter-diagnostic-supply-chain-report.json, and tmp/j005-adapter-diagnostics",
-  "createdAt": "2026-05-08T15:10:56.339189+00:00",
+  "createdAt": "2026-05-08T15:18:58.952004+00:00",
   "summaryChinese": "J005 已验证所有当前 worker adapter 均记录版本、命令参数、输入输出 hash、耗时、warnings 和 errors；当前供应链为本地 Python/stdlib synthetic gate，不调用外部 OCR、Docling、网络或真实 AI。"
 }

@@ -1,0 +1,133 @@
+{
+  "schemaVersion": "s012a-e2e-proxy-fixture-pack.v1",
+  "taskId": "S012A",
+  "mode": "non_site_proxy_fixture_pack",
+  "productionEligible": false,
+  "realStudentDataUsed": false,
+  "containsStudentPii": false,
+  "authorization": {
+    "status": "synthetic_or_anonymized_only",
+    "ownerScope": "local_development",
+    "externalRedistributionAllowed": false,
+    "notes": "This pack is a deterministic proxy for non-site E2E rehearsal. Replace localPath values with authorized or anonymized school materials before S012B."
+  },
+  "materials": [
+    {
+      "materialId": "s012a-document-import-proxy",
+      "workflowStep": "import",
+      "sourceType": "synthetic_docx_text_pdf_proxy",
+      "localPath": "tests/golden-import/s004c-proxy-materials.json",
+      "licenseOrPermission": "synthetic_local_regression",
+      "containsStudentPii": false,
+      "anonymizationStatus": "synthetic",
+      "expectedPath": "upload -> import job -> source preview",
+      "evidenceCommand": "tools/run-s004c-authorized-anonymized-proxy.ps1"
+    },
+    {
+      "materialId": "s012a-cut-review-tagging-proxy",
+      "workflowStep": "cut",
+      "sourceType": "synthetic_question_segmentation_proxy",
+      "localPath": "tests/golden-import/s004c-proxy-materials.json",
+      "licenseOrPermission": "synthetic_local_regression",
+      "containsStudentPii": false,
+      "anonymizationStatus": "synthetic",
+      "expectedPath": "document model -> cut candidates -> review queue -> source review",
+      "evidenceCommand": "tools/run-p1-proxy-scenario.ps1"
+    },
+    {
+      "materialId": "s012a-review-workbench-proxy",
+      "workflowStep": "review",
+      "sourceType": "synthetic_manual_takeover_proxy",
+      "localPath": "docs/evidence/j006-import-accuracy-workload-report.json",
+      "licenseOrPermission": "synthetic_local_regression",
+      "containsStudentPii": false,
+      "anonymizationStatus": "synthetic",
+      "expectedPath": "low confidence items -> merge split associate skip rerun",
+      "evidenceCommand": "tools/run-j006-import-accuracy-workload-contract.ps1"
+    },
+    {
+      "materialId": "s012a-tagging-save-proxy",
+      "workflowStep": "tagging",
+      "sourceType": "synthetic_knowledge_tagging_proxy",
+      "localPath": "docs/evidence/20260506-s007c-teacher-confirm-writeback-smoke-report.json",
+      "licenseOrPermission": "synthetic_local_regression",
+      "containsStudentPii": false,
+      "anonymizationStatus": "synthetic",
+      "expectedPath": "pending suggestion -> teacher confirm -> question and knowledge mapping write",
+      "evidenceCommand": "tools/run-s007c-teacher-confirm-writeback-smoke.ps1"
+    },
+    {
+      "materialId": "s012a-save-question-proxy",
+      "workflowStep": "save",
+      "sourceType": "synthetic_question_save_proxy",
+      "localPath": "docs/evidence/20260506-s006b-manual-takeover-smoke-report.json",
+      "licenseOrPermission": "synthetic_local_regression",
+      "containsStudentPii": false,
+      "anonymizationStatus": "synthetic",
+      "expectedPath": "reviewed item -> save question -> source trace preserved",
+      "evidenceCommand": "tools/run-s006b-manual-takeover-smoke.ps1"
+    },
+    {
+      "materialId": "s012a-paper-assembly-proxy",
+      "workflowStep": "paper",
+      "sourceType": "synthetic_paper_basket_proxy",
+      "localPath": "docs/evidence/20260507-s009b-blueprint-review-workflow-smoke-report.json",
+      "licenseOrPermission": "synthetic_local_regression",
+      "containsStudentPii": false,
+      "anonymizationStatus": "synthetic",
+      "expectedPath": "natural language request -> blueprint review -> confirmed basket",
+      "evidenceCommand": "tools/run-s009b-blueprint-review-workflow-smoke.ps1"
+    },
+    {
+      "materialId": "s012a-export-proxy",
+      "workflowStep": "export",
+      "sourceType": "synthetic_word_pdf_export_proxy",
+      "localPath": "docs/evidence/20260508-s010b-word-pdf-artifact-chain-report.json",
+      "licenseOrPermission": "synthetic_local_regression",
+      "containsStudentPii": false,
+      "anonymizationStatus": "synthetic",
+      "expectedPath": "basket -> export preflight -> docx/pdf artifacts -> manifest hash",
+      "evidenceCommand": "tools/run-s010b-word-pdf-artifact-chain-smoke.ps1"
+    },
+    {
+      "materialId": "s012a-score-import-proxy",
+      "workflowStep": "score",
+      "sourceType": "synthetic_score_sheet_proxy",
+      "localPath": "docs/evidence/20260508-s011a-score-import-api-smoke-report.json",
+      "licenseOrPermission": "synthetic_local_regression",
+      "containsStudentPii": false,
+      "anonymizationStatus": "synthetic",
+      "expectedPath": "score template -> import batch -> item scores -> exception rows",
+      "evidenceCommand": "tools/run-s011a-score-import-api-smoke.ps1"
+    },
+    {
+      "materialId": "s012a-analysis-report-proxy",
+      "workflowStep": "analysis",
+      "sourceType": "synthetic_commentary_report_proxy",
+      "localPath": "docs/evidence/20260508-s011c-commentary-report-export-report.json",
+      "licenseOrPermission": "synthetic_local_regression",
+      "containsStudentPii": false,
+      "anonymizationStatus": "synthetic",
+      "expectedPath": "item mapping -> deterministic metrics -> commentary report draft",
+      "evidenceCommand": "tools/run-s011c-commentary-report-export-smoke.ps1"
+    }
+  ],
+  "expectedWorkflow": [
+    "import",
+    "cut",
+    "review",
+    "tagging",
+    "save",
+    "paper",
+    "export",
+    "score",
+    "analysis"
+  ],
+  "s012bAdmission": {
+    "requiresAuthorizedOrAnonymizedReplacement": true,
+    "requiresElapsedTimeCapture": true,
+    "requiresRollbackEvidence": true,
+    "requiresBackupRestoreEvidence": true,
+    "blocksLivePilot": true
+  }
+}
