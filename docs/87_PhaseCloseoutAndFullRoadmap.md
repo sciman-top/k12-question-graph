@@ -54,7 +54,7 @@ AI 推荐：现在应当做阶段收口，然后重建下一轮任务清单。
 |---|---|---|
 | H0 阶段收口 | 把 A-G 旧 backlog 收成可追溯基线 | fresh gate 或明确 gate_na、证据包、回滚包、主分支状态、下一轮 backlog 均完成 |
 | I0 教师工作流产品化 | 四个教师入口形成顺滑页面闭环 | 导入、组卷、成绩导入、分析均能代理完成，普通教师不接触脚本、证据术语、知识治理工作台、内部状态枚举或数值难度区间 |
-| J0 真实文档解析 | docx、PDF、扫描件进入稳定 Adapter | 黄金样本可复跑，输出 DocumentModel、SourceRegion、diagnostics 和人工接管报告 |
+| J0 真实文档解析 | docx、PDF、扫描件进入稳定 Adapter | 黄金样本可复跑，按 OpenXML/OMML、PDF text/layout、Docling、PaddleOCR、PP-FormulaNet、云端可选兜底顺序输出 DocumentModel、SourceRegion、diagnostics 和人工接管报告 |
 | K0 C002 生产使用 | active C002 真正服务检索、组卷、分析和修订 | 版本引用、映射审核、历史解释和 C002R 修订演练通过 |
 | L0 真实 AI 受控试点 | 小批量真实模型只产候选，不写 active | 数据边界、预算、缓存、人工审核、no active write 和成本证据齐备 |
 | M0 组卷导出生产闭环 | 教师 10 分钟内获得可打印试卷 | 自然语言、细目表、题篮、换题、审校、Word/PDF 导出通过场景验收 |

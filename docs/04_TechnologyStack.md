@@ -43,6 +43,14 @@ Ops: Windows Service + Task Scheduler + Robocopy + independent backup/restore sc
 | 备份 | pg_dump + 文件仓库复制 + manifest + hash | 数据库与文件同时恢复 |
 | Windows 运维 | Windows Service、Task Scheduler、Robocopy、WinPE | 符合学校环境 |
 
+文档、OCR 和公式识别属于专用 Adapter，不属于 AI agent。默认选择顺序如下：
+
+1. `.docx` 文本、表格、图片和 Office 公式优先走 OpenXML/OMML，不先转图片 OCR。
+2. 文本型 PDF 优先走 PDF text/layout extraction 和 Docling 版面结构化，不先 OCR。
+3. 扫描版 PDF、图片和低质量页面才进入本地 PaddleOCR PP-OCRv5 / PP-StructureV3。
+4. 图片公式和扫描公式进入 PaddleOCR FormulaRecognition，默认先评估 `PP-FormulaNet_plus-M`，准确率或吞吐不够且有 GPU/离线批处理条件时再评估 `PP-FormulaNet_plus-L`。
+5. Mathpix、Azure Document Intelligence 等云端 OCR/公式识别只作为可选对照或人工确认后的兜底，必须先过隐私、成本、授权、缓存和回滚准入，不作为默认生产依赖。
+
 ## 3. 版本与兼容策略
 
 2026-05-02 外部复核结论：.NET 10/EF Core 10 主线成立，但必须把“当前推荐”落成可检查版本锁和回退条件。

@@ -98,7 +98,7 @@ P6 已开始进入运维闭环。G001 已完成 draft/test 备份共享演练：
 
 交付：
 
-- Docling/OpenXML/PaddleOCR Adapter 契约和占位实现。
+- Docling/OpenXML/PaddleOCR Adapter 契约和占位实现；后续真实质量基线按 OpenXML/OMML、PDF text/layout、Docling、PaddleOCR PP-OCRv5/PP-StructureV3、PaddleOCR FormulaRecognition/PP-FormulaNet、云端可选兜底的顺序推进。
 - 页面预览与 `SourceRegion` 坐标模型。
 - 题号锚点、题目边界、题干/选项/答案/解析的候选结构。
 - 人工确认队列：合并、拆分、题图关联、标记答案/解析开始、跳过页、重跑。
@@ -113,7 +113,7 @@ P6 已开始进入运维闭环。G001 已完成 draft/test 备份共享演练：
 - 教师可以修正候选切题结果并保存为题目。
 - 保存后的题目能回看原始页码和区域。
 - 失败路径不会丢原始文件，可转人工框选继续。
-- 黄金样本至少覆盖共用题图、跨页题、公式密集、扫描版和答案解析分离。
+- 黄金样本至少覆盖共用题图、跨页题、公式密集、扫描版和答案解析分离，并分别记录 docx 原生公式、文本 PDF、扫描 OCR、图片公式和云端兜底是否触发。
 
 ## P2 · 初中物理知识本体闭环
 
