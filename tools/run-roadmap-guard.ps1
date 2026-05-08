@@ -460,6 +460,12 @@ foreach ($requiredDependency in @('S012', 'O004B', 'O006', 'O007')) {
     }
 }
 
+$automationFirstGuard = Join-Path $PSScriptRoot 'run-automation-first-feature-contract-guard.ps1'
+if (-not (Test-Path -LiteralPath $automationFirstGuard)) {
+    throw "automation-first feature contract guard is missing"
+}
+& $automationFirstGuard | Out-Null
+
 if ($i009.status -eq '已完成') {
     $i009Evidence = Join-Path $repoRoot 'docs\evidence\20260505-i009-teacher-visible-terminology.md'
     if (-not (Test-Path -LiteralPath $i009Evidence)) {
@@ -558,6 +564,7 @@ if ($c002.acceptance -notmatch '教师录入|导入|来源|教材|课程标准|�
     simplificationBlockersChecked = @('I008', 'I009', 'I010', 'O004B', 'P001')
     o004Status = $o004.status
     o004bStatus = $o004b.status
+    automationFirstGate = 'tasks/automation-first-contract.csv'
     s0ProductizationGate = 'S001-S012'
     s0Statuses = @($s001, $s002, $s003, $s004, $s005, $s006, $s007, $s008, $s009, $s010, $s011, $s012) | ForEach-Object {
         [ordered]@{

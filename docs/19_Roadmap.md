@@ -10,10 +10,13 @@ AI 推荐保留当前 P0-P6 大方向，但调整顺序和验收口径：
 - 动态元素的正式数据、正式映射和生产激活可以后置；系统骨架、API/UI、schema、测试、门禁、导入/导出/分析流程不得因此搁置。
 - 每个阶段必须形成用户可验证闭环，不以“模型已建好”或“页面已画好”作为完成。
 - 功能范围裁决以 `docs/28_FunctionScopeReview.md` 为准；新功能未通过准入卡前不得插入当前阶段。
+- 所有阶段执行 automation-first：先用规则、脚本、schema、SQL、hash/cache、Adapter、专用 API/UI、typed client、模板和 contract 覆盖确定性部分；AI/agent 只能作为语义候选、复杂映射、异常复核或外层编排，不得替代业务规则、来源证据、人工审核、回滚和正式写入守卫。
 
 截至 2026-05-04，旧 A000-G004 backlog 已全部进入 `已完成`。下一步不再继续扩写旧 P0-P6，而是按 `docs/87_PhaseCloseoutAndFullRoadmap.md` 做 H0 阶段收口，并把 H001-R007 作为下一轮长期主线。近期执行范围只到 H/I/J：阶段证据刷新、教师工作流产品化、真实文档解析。K 以后必须等待前置证据通过后再进入。`docs/88_EngineeringEndStateExternalReview_20260504.md` 已把官方文档、成熟项目和最佳实践复核后的补强项纳入 backlog。
 
 截至 2026-05-05，路线图执行顺序追加减法阻断：进入 L0 真实 AI、M0 生产组卷、N0 真实成绩、O0/P0-live 发布试点前，必须先完成并持续保持 `I010` 教师 shell 后台边界收口；进入 P0-live 前还必须完成 `O004B` 角色权限与审计日志剩余闭环。`O004` 仅表示 admin/internal 裸接口 fail-closed guard 已完成，不代表角色、审计和 UI 权限体系完成。
+
+截至 2026-05-08，路线图新增横向 automation-first 阻断：所有未完成 backlog 任务和 S0 子任务必须在 `tasks/automation-first-contract.csv` 中声明确定性预检、专用功能面、AI/agent 允许范围、例外策略和 evidence 命令，并通过 `tools/run-automation-first-feature-contract-guard.ps1`。缺少该合同的任务不得继续推进到实现或发布试点。
 
 ## 动态元素不停工原则
 

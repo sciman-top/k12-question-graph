@@ -24,6 +24,8 @@ Windows/LAN first teacher workstation
 -> 题库检索 -> 组卷 -> 导出 -> 成绩导入 -> 讲评分析 -> 备份恢复 -> 试点发布
 ```
 
+同时新增横向 automation-first 约束：S0、P0-live、Q0、R0 的所有待办任务都必须先落到规则、脚本、专用 API/UI、Adapter、schema、SQL、hash/cache、typed client、模板或可复跑 contract；AI/agent 只做语义候选、复杂映射、异常复核或外层编排。机器可读合同是 `tasks/automation-first-contract.csv`，门禁是 `tools/run-automation-first-feature-contract-guard.ps1`。
+
 ## 2. 完成态分级
 
 后续路线图和任务清单必须区分以下状态，不能再把 contract 完成直接写成生产可用：
@@ -140,6 +142,7 @@ S0 每个任务都必须至少有：
 - `tools/run-roadmap-guard.ps1` 中的主线一致性检查。
 - 证据文件，包含命令、关键输出、风险、回滚。
 - 教师效率说明：减少哪一步，失败后如何继续，是否增加配置负担。
+- automation-first 合同覆盖：确定性预检、专用功能面、AI/agent 允许范围、例外策略和 evidence 命令。
 
 S0 结束时必须通过：
 
@@ -148,6 +151,7 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-gates.ps1
 pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-roadmap-guard.ps1
 pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-s001-completion-state-dashboard.ps1
 pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-s0-execution-plan-guard.ps1
+pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-automation-first-feature-contract-guard.ps1
 ```
 
 ## 10. 回滚

@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "task": "S0 execution plan guard",
-  "checkedAt": "2026-05-08T20:04:27",
+  "checkedAt": "2026-05-08T20:30:05",
   "planPath": "tasks/productization-s0-execution-plan.csv",
   "rowCount": 35,
   "parentCoverage": {
@@ -32,5 +32,6 @@
   },
   "firstExecutableTask": "S011A",
   "lastReleaseGateTask": "S012C",
+  "automationFirstContract": "tasks/automation-first-contract.csv",
   "conclusion": "S002-S012 have been decomposed into smaller executable subtasks and remain gated by completion-state evidence before P001"
 }

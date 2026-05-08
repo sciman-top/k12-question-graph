@@ -4,6 +4,8 @@
 
 动态元素不停工口径：知识点、标签、题型、难度、能力维度、评分规则、组卷规则、导出模板、Excel 字段映射、AI prompt/schema/model routing、分析指标、组织权限和隐私策略都可能变化，但这不能阻断系统搭建。相关任务应先完成 `draft/test` 系统能力和 gate，使用 synthetic fixture、draft bootstrap、sample config 或少量临时资料；正式资料录入后再通过映射、替换、迁移影响报告、人工审核和回滚快照更新。只有生产 `active` 激活、正式统计口径、真实学生数据和真实外部 AI 自动写入必须等待正式资料和人工确认。
 
+Automation-first 任务口径：每个任务在编码前必须先说明哪些部分由确定性规则、脚本、schema、SQL、hash/cache、Adapter、专用 API/UI、typed client、模板或 contract 覆盖；AI/agent 只允许进入语义候选、复杂映射、异常复核、低置信度分流或外层并行编排。机器可读覆盖表为 `tasks/automation-first-contract.csv`，守卫入口为 `tools/run-automation-first-feature-contract-guard.ps1`；缺少覆盖的待办任务不得继续实现。
+
 ## A · P0 工程骨架与最小上传纵切
 
 ### A000 P0 准入预检与决策锁定

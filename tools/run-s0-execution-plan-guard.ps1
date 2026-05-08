@@ -52,9 +52,20 @@ foreach ($row in $rows) {
     Assert-True (-not [string]::IsNullOrWhiteSpace($row.likely_touched)) "likely_touched required for $($row.id)"
 }
 
+$automationFirstRows = @()
+$automationFirstPath = Join-Path $repoRoot 'tasks\automation-first-contract.csv'
+Assert-True (Test-Path -LiteralPath $automationFirstPath) 'automation-first contract missing: tasks/automation-first-contract.csv'
+$automationFirstRows = @(Import-Csv -LiteralPath $automationFirstPath -Encoding UTF8)
+$automationFirstIds = @{}
+foreach ($row in $automationFirstRows) { $automationFirstIds[$row.task_id] = $row }
+
 foreach ($parentId in @('S002','S003','S004','S005','S006','S007','S008','S009','S010','S011','S012')) {
     $children = @($rows | Where-Object parent_id -eq $parentId)
     Assert-True ($children.Count -gt 0) "parent has no executable subtasks: $parentId"
+}
+
+foreach ($row in ($rows | Where-Object { $_.status -ne '已完成' })) {
+    Assert-True ($automationFirstIds.ContainsKey($row.id)) "open S0 subtask missing automation-first coverage: $($row.id)"
 }
 
 foreach ($row in $rows) {
@@ -117,6 +128,7 @@ $report = [ordered]@{
     waveCoverage = $byWave
     firstExecutableTask = $firstExecutableTask
     lastReleaseGateTask = 'S012C'
+    automationFirstContract = 'tasks/automation-first-contract.csv'
     conclusion = 'S002-S012 have been decomposed into smaller executable subtasks and remain gated by completion-state evidence before P001'
 }
 

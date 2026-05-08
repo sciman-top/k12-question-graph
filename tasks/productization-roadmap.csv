@@ -9,5 +9,5 @@ S007,S0,AI标注,AI 标注建议审核队列,db_backed_done,待办,S006;L007,AI 
 S008,S0,题库检索,题库生产检索与题卡,ui_productized,待办,S007;K001,题库检索默认使用 C002 active 展示来源 版本 题图公式表格状态和授权边界,API search contract + UI contract + roadmap guard,apps/api apps/web tools docs/evidence
 S009,S0,组卷,组卷持久化与题篮,db_backed_done,待办,S008,自然语言理解 细目表 题篮 换题 撤销和版本引用可保存与复现,API persistence contract + UI smoke,apps/api apps/web tools docs/evidence
 S010,S0,导出,导出前审校与 Word/PDF 产品化,ui_productized,待办,S009,学生版 教师版 答案版导出前可审校 公式题图表格和授权风险不丢,export regression + UI contract,apps/api apps/web tools docs/evidence
-S011,S0,成绩分析,成绩导入到讲评报告闭环,ui_productized,待办,S010;N001,Excel 模板复用 小题分映射 异常行 讲评报告 分层练习建议接真实 UI/API,score import contract + analysis report smoke,apps/api apps/web tools docs/evidence
-S012,S0,端到端,非现场端到端发布演练,teacher_validated,待办,S011,用授权或脱敏材料完成导入 切题 审核 标注 入库 组卷 导出 成绩 分析 备份恢复并记录耗时 失败 回滚 教师效率,full gate + E2E proxy evidence + roadmap guard,tools docs/evidence tasks/backlog.csv
+S011,S0,成绩分析,成绩导入到讲评报告闭环,ui_productized,待办,S010;N001,Excel 模板复用 小题分映射 异常行 讲评报告 分层练习建议接真实 UI/API 且先由 Excel parser SQL 分析规则和专用 UI/API 覆盖 AI 只可做 draft 文案或练习建议,score import contract + analysis report smoke + automation-first guard,apps/api apps/web tools docs/evidence
+S012,S0,端到端,非现场端到端发布演练,teacher_validated,待办,S011,用授权或脱敏材料完成导入 切题 审核 标注 入库 组卷 导出 成绩 分析 备份恢复并记录耗时 失败 回滚 教师效率 且每段链路均记录规则脚本或专用功能证据,full gate + E2E proxy evidence + roadmap guard + automation-first guard,tools docs/evidence tasks/backlog.csv tasks/automation-first-contract.csv

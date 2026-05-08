@@ -249,6 +249,10 @@ try {
         .\tools\run-s0-execution-plan-guard.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'automation-first feature contract guard' {
+        .\tools\run-automation-first-feature-contract-guard.ps1 | Write-Host
+    }
+
     Invoke-GateStep 'local-first ai consumption guard' {
         .\tools\run-local-first-ai-guard.ps1 | Write-Host
     }

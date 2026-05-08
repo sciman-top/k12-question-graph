@@ -16,6 +16,8 @@
 
 大模型提炼候选体系要先走本地优先审查、chunk/hash/cache、schema/eval、模型路由预算和小批量 dry-run，不直接把 33 个 PDF 全量送入高强模型。文件 hash、来源 metadata、CSV/JSON/YAML/schema、SQL、导入幂等、active guard、chunk cache、token 预算和中文显示 guard 都应先由本地工具 100% 覆盖；真实模型输出仍只能进入 `candidate/pending_review`，不得直接 active。
 
+2026-05-08 起，所有后续功能推进采用横向 automation-first 合同：确定性规则、脚本、专用 API/UI、Adapter、schema、SQL、hash/cache、typed client、模板和 contract 先覆盖可确定部分；AI/agent 只能作为语义候选、复杂映射、异常复核或外层并行编排。机器可读合同为 `tasks/automation-first-contract.csv`，门禁为 `tools/run-automation-first-feature-contract-guard.ps1`，并纳入 unified gate。
+
 ## 当前启动与门禁
 
 API:
@@ -173,6 +175,7 @@ tests/      自动化测试与黄金样本
 - `apps/web`: 已提供 `npm run dev --prefix apps/web`。
 - `workers/document`: 提供 worker smoke entry。
 - `tools/run-gates.ps1`: 统一门禁入口。
+- `tools/run-automation-first-feature-contract-guard.ps1`: 功能实现 automation-first 合同守卫，确保待办任务先声明规则、脚本、专用功能和 evidence，再限定 AI/agent 使用范围。
 - `tools/run-c002-dry-run-suite.ps1`: 无数据库的 C002 动态资产 dry-run 入口。
 - `tools/run-d001-model-router-contract.ps1`: D001 draft/test ModelRouter 合同。
 - `tools/run-d003-structured-output-eval.ps1`: D003 draft/test 结构化输出 eval smoke。
@@ -233,6 +236,7 @@ python -c "import pathlib, yaml; [yaml.safe_load(p.read_text(encoding='utf-8')) 
 - `docs/87_PhaseCloseoutAndFullRoadmap.md`：A-G 完成后的阶段收口、长期路线图和 H-R 下一轮任务清单。
 - `docs/88_EngineeringEndStateExternalReview_20260504.md`：工程终态、技术栈、架构和长期路线图的外部复核与补强项。
 - `docs/99_ProductizationFullRoadmapAndTaskPlan.md`：把合同完成、产品完成和教师验证拆开的长期产品化全程路线图与 S0 任务计划。
+- `tasks/automation-first-contract.csv`：待办功能的 automation-first 机器可读合同，声明确定性预检、专用功能面、AI/agent 允许范围、例外策略和 evidence 命令。
 - `docs/78_SubjectDomainAssetActivationRunbook.md`：后续新学科动态资产激活统一 runbook。
 - `docs/79_TeacherCandidateReviewAndActivationGuide.md`：教师候选复核和激活确认操作指南。
 - `docs/80_SubjectActivationWorkbenchV0.md`：学科激活工作台 v0 的教师侧边界、UI 合同和验证方式。

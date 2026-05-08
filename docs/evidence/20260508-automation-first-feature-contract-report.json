@@ -1,0 +1,19 @@
+{
+  "status": "pass",
+  "task": "automation-first feature contract guard",
+  "checkedAt": "2026-05-08T20:30:05",
+  "contractPath": "tasks/automation-first-contract.csv",
+  "contractRows": 36,
+  "openBacklogTasksChecked": 29,
+  "openS0SubtasksChecked": 6,
+  "policy": "deterministic rules scripts dedicated surfaces first and AI agent only as bounded assistance",
+  "requiredDocs": [
+    "docs/25_FeatureAdmissionCriteria.md",
+    "docs/19_Roadmap.md",
+    "docs/20_TaskBreakdown.md",
+    "docs/99_ProductizationFullRoadmapAndTaskPlan.md",
+    "docs/01_PRD.md",
+    "README.md"
+  ],
+  "conclusion": "future feature implementation is blocked unless automation-first contract coverage and evidence commands are present"
+}
