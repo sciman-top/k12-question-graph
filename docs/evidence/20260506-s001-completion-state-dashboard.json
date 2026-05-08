@@ -1,15 +1,15 @@
 {
   "status": "pass",
   "task": "S001",
-  "checkedAt": "2026-05-07T23:56:14",
+  "checkedAt": "2026-05-08T20:04:27",
   "dashboardPath": "tasks/completion-state-dashboard.csv",
   "backlogPath": "tasks/backlog.csv",
   "areaCount": 22,
   "stateCounts": {
     "contract_done": 6,
     "synthetic_done": 7,
-    "db_backed_done": 7,
-    "ui_productized": 2,
+    "db_backed_done": 6,
+    "ui_productized": 3,
     "teacher_validated": 0,
     "release_ready": 0
   },
@@ -31,8 +31,7 @@
     "S006": 3,
     "S007": 2,
     "S008": 2,
-    "S010": 2,
-    "S011": 2,
+    "S011": 4,
     "S012": 2
   },
   "s001Status": "已完成",

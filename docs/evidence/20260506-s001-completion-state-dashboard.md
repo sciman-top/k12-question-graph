@@ -1,7 +1,7 @@
 # S001 完成态看板证据
 
 - status: pass
-- checked_at: 2026-05-07T23:56:14
+- checked_at: 2026-05-08T20:04:27
 - area_count: 22
 - not_normally_usable_count: 12
 - teacher_visible_validated_or_release_ready_count: 0
@@ -10,8 +10,8 @@
 ## State Counts
 - contract_done: 6
 - synthetic_done: 7
-- db_backed_done: 7
-- ui_productized: 2
+- db_backed_done: 6
+- ui_productized: 3
 - teacher_validated: 0
 - release_ready: 0
 
@@ -26,8 +26,8 @@
 - ai-tagging: synthetic_done -> S007; 缺少 DB-backed review queue 和教师确认写入题目
 - review-queue: contract_done -> S006; 缺少统一教师审核 API 状态流和批量处理闭环
 - question-search: db_backed_done -> S008; 教师 UI 仍显示示例题卡 未完整接真实 API 空态错误态
-- paper-assembly: ui_productized -> S010; 导出前审校 S010A/S010B 未完成
-- paper-export: db_backed_done -> S010; Word/PDF artifact chain S010B 未完成
+- paper-assembly: ui_productized -> S011; 成绩导入与讲评链路 S011 未完成
+- paper-export: ui_productized -> S011; 成绩导入与讲评 S011 未完成 E2E release S012 未完成
 - score-import: synthetic_done -> S011; 教师 UI/API 真实成绩导入 异常行 模板复用未闭环
 - analysis-report: synthetic_done -> S011; 真实数据准入和讲评导出未与教师操作闭环连接
 - deployment-install: contract_done -> P001; 隔离机器真实安装与 smoke 仍未执行

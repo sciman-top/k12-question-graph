@@ -314,6 +314,10 @@ try {
         $port = Get-FreeTcpPort
         .\tools\run-s010a-export-preflight-api-smoke.ps1 -ApiPort $port | Write-Host
     }
+    Invoke-GateStep 's010b word pdf artifact chain smoke' {
+        $port = Get-FreeTcpPort
+        .\tools\run-s010b-word-pdf-artifact-chain-smoke.ps1 -ApiPort $port | Write-Host
+    }
     Invoke-GateStep 'm003 replacement production constraints' {
         .\tools\run-m003-replacement-production-constraints.ps1 | Write-Host
     }
