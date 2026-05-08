@@ -32,8 +32,10 @@ import {
   applyReviewWorkbenchAction,
   confirmPaperBlueprintReview,
   createPaperBlueprintReview,
+  exportCommentaryReport,
   generateCutCandidates,
   getQuestionSources,
+  previewItemScoreMappings,
 } from './api/client'
 import {
   useCutCandidatesQuery,
@@ -172,6 +174,45 @@ const scoreAnalysisHighlights = [
   ['区分度可用', '讲评参考报告'],
 ]
 
+const initialItemScoreMappingPreview = {
+  teacherMessage: '输入成绩批次后，可集中预览小题到题目和知识点的映射。',
+  itemCount: 2,
+  mappedCount: 1,
+  unclearCount: 1,
+  rows: [
+    {
+      questionNo: 'Q1',
+      scoreRecordCount: 2,
+      averageScoreRate: 0.8,
+      questionPreview: '关于惯性的选择题',
+      primaryKnowledge: { title: '牛顿第一定律与惯性', status: 'active', version: 1 },
+      status: 'mapped',
+      issueCodes: [] as string[],
+    },
+    {
+      questionNo: 'Q2',
+      scoreRecordCount: 2,
+      averageScoreRate: 0.77,
+      questionPreview: null as string | null,
+      primaryKnowledge: null as null | { title: string; status: string; version: number },
+      status: 'needs_review',
+      issueCodes: ['question_mapping_missing'],
+    },
+  ],
+}
+
+const initialCommentaryReportPreview = {
+  teacherMessage: '小题映射确认后，可导出讲评报告草稿。',
+  status: 'draft',
+  artifactPath: '',
+  manifestSha256: '',
+  sections: [
+    { sectionId: 'class_summary', title: '班级概览', summary: '等待生成' },
+    { sectionId: 'weak_points', title: '优先讲评', summary: '等待生成' },
+    { sectionId: 'practice_plan', title: '巩固练习', summary: '等待生成' },
+  ],
+}
+
 const scoreWorkbenchActions = [
   { action: 'upload-score-sheet', label: '上传 Excel', icon: <FileTextOutlined />, kind: 'primary' },
   { action: 'generate-score-analysis', label: '生成分析', icon: <BarChartOutlined /> },
@@ -304,6 +345,10 @@ function App() {
   const [paperConstraintMessage, setPaperConstraintMessage] = useState('需要先确认细目表，不会直接生成不可解释试卷。')
   const [paperWorkflowBusy, setPaperWorkflowBusy] = useState(false)
   const [paperDraft, setPaperDraft] = useState(initialPaperDraft)
+  const [scoreMappingAssessmentId, setScoreMappingAssessmentId] = useState('')
+  const [scoreMappingMessage, setScoreMappingMessage] = useState(initialItemScoreMappingPreview.teacherMessage)
+  const [itemScoreMappingPreview, setItemScoreMappingPreview] = useState(initialItemScoreMappingPreview)
+  const [commentaryReportPreview, setCommentaryReportPreview] = useState(initialCommentaryReportPreview)
   const [importStartedAt] = useState<Date>(() => new Date())
   const [nowMs, setNowMs] = useState<number>(() => Date.now())
   const [importActionCount, setImportActionCount] = useState(0)
@@ -739,6 +784,87 @@ function App() {
     appendLog('已撤销换题并恢复原题')
   }
 
+  const previewScoreMappings = async () => {
+    const assessmentId = scoreMappingAssessmentId.trim()
+    if (!assessmentId) {
+      setScoreMappingMessage('请先输入成绩批次 ID，再预览小题映射。')
+      return
+    }
+
+    const result = await previewItemScoreMappings({
+      assessmentId,
+      mappings: [
+        { questionNo: 'Q1', questionItemId: null },
+        { questionNo: 'Q2', questionItemId: null },
+      ],
+    })
+    if (!result.ok) {
+      setScoreMappingMessage(`映射预览失败：${result.error.message}`)
+      return
+    }
+
+    setScoreMappingMessage(result.data.teacherMessage)
+    setItemScoreMappingPreview({
+      teacherMessage: result.data.teacherMessage,
+      itemCount: result.data.itemCount,
+      mappedCount: result.data.mappedCount,
+      unclearCount: result.data.unclearCount,
+      rows: result.data.rows.map((row) => ({
+        questionNo: row.questionNo,
+        scoreRecordCount: row.scoreRecordCount,
+        averageScoreRate: row.averageScoreRate,
+        questionPreview: row.questionPreview,
+        primaryKnowledge: row.primaryKnowledge
+          ? {
+              title: row.primaryKnowledge.title,
+              status: row.primaryKnowledge.status,
+              version: row.primaryKnowledge.version,
+            }
+          : null,
+        status: row.status,
+        issueCodes: row.issueCodes,
+      })),
+    })
+  }
+
+  const exportScoreReport = async () => {
+    const assessmentId = scoreMappingAssessmentId.trim()
+    if (!assessmentId) {
+      setCommentaryReportPreview({
+        ...initialCommentaryReportPreview,
+        teacherMessage: '请先输入成绩批次 ID，再导出讲评报告草稿。',
+        status: 'blocked',
+      })
+      return
+    }
+
+    const result = await exportCommentaryReport({
+      assessmentId,
+      format: 'md',
+      allowAiDraftText: false,
+      mappings: [
+        { questionNo: 'Q1', questionItemId: null },
+        { questionNo: 'Q2', questionItemId: null },
+      ],
+    })
+    if (!result.ok) {
+      setCommentaryReportPreview({
+        ...initialCommentaryReportPreview,
+        teacherMessage: `讲评报告暂未生成：${result.error.message}`,
+        status: 'blocked',
+      })
+      return
+    }
+
+    setCommentaryReportPreview({
+      teacherMessage: result.data.teacherMessage,
+      status: result.data.status,
+      artifactPath: result.data.artifactPath ?? '',
+      manifestSha256: result.data.manifestSha256 ?? '',
+      sections: result.data.sections,
+    })
+  }
+
   const exportPaper = (format: 'docx' | 'pdf') => {
     appendLog(`已生成 ${format.toUpperCase()} 示例导出工件`)
   }
@@ -1049,6 +1175,7 @@ function App() {
                     key={item.action}
                     type={item.kind === 'primary' ? 'primary' : 'default'}
                     icon={item.icon}
+                    onClick={item.action === 'export-score-report' ? exportScoreReport : undefined}
                     data-action={item.action}
                   >
                     {item.label}
@@ -1077,6 +1204,73 @@ function App() {
                 <small>有效记录 2 行，异常 1 行；教师只处理异常，不重填整张表。</small>
               </div>
 
+              <div
+                className="item-score-mapping-preview"
+                data-flow="item-score-mapping-workbench"
+                data-contract="s011b-item-score-mapping-ui-api"
+              >
+                <Typography.Text type="secondary">小题映射预览</Typography.Text>
+                <div className="score-mapping-controls">
+                  <Input
+                    aria-label="成绩批次 ID"
+                    placeholder="成绩批次 ID"
+                    value={scoreMappingAssessmentId}
+                    onChange={(event) => setScoreMappingAssessmentId(event.target.value)}
+                    data-contract="s011b-assessment-id-input"
+                  />
+                  <Button
+                    icon={<LinkOutlined />}
+                    onClick={previewScoreMappings}
+                    data-action="preview-item-score-mapping"
+                  >
+                    预览映射
+                  </Button>
+                </div>
+                <Alert
+                  showIcon
+                  type={itemScoreMappingPreview.unclearCount > 0 ? 'warning' : 'success'}
+                  message={scoreMappingMessage}
+                  data-contract="centralized-unclear-item-score-mappings"
+                />
+                <div className="analysis-summary-grid compact">
+                  <span>
+                    <strong>{itemScoreMappingPreview.itemCount}</strong>
+                    <small>小题</small>
+                  </span>
+                  <span>
+                    <strong>{itemScoreMappingPreview.mappedCount}</strong>
+                    <small>已映射</small>
+                  </span>
+                  <span>
+                    <strong>{itemScoreMappingPreview.unclearCount}</strong>
+                    <small>待集中处理</small>
+                  </span>
+                </div>
+                <div className="item-score-mapping-list">
+                  {itemScoreMappingPreview.rows.map((row) => (
+                    <div className="item-score-mapping-row" key={row.questionNo}>
+                      <span>
+                        <strong>{row.questionNo}</strong>
+                        <small>
+                          {row.scoreRecordCount} 条成绩 · 得分率 {Math.round(row.averageScoreRate * 100)}%
+                        </small>
+                      </span>
+                      <span>
+                        <strong>{row.questionPreview ?? '题目未确认'}</strong>
+                        <small>
+                          {row.primaryKnowledge
+                            ? `${row.primaryKnowledge.title} · ${teacherLabelFor(row.primaryKnowledge.status)} v${row.primaryKnowledge.version}`
+                            : '知识点待确认'}
+                        </small>
+                      </span>
+                      <Tag color={row.status === 'mapped' ? 'green' : 'orange'}>
+                        {row.status === 'mapped' ? '已映射' : '需确认'}
+                      </Tag>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               <div className="score-analysis-summary" data-contract="knowledge-analysis-summary">
                 <Typography.Text type="secondary">知识点分析</Typography.Text>
                 <div className="analysis-summary-grid compact">
@@ -1091,8 +1285,26 @@ function App() {
 
               <div className="score-report-path" data-contract="analysis-report-export-path">
                 <Typography.Text type="secondary">报告导出路径</Typography.Text>
-                <strong>导入后直接生成讲评摘要，再导出给备课使用。</strong>
-                <small>不使用真实学生数据，不写正式历史学情。</small>
+                <Alert
+                  showIcon
+                  type={commentaryReportPreview.status === 'ready' ? 'success' : 'info'}
+                  message={commentaryReportPreview.teacherMessage}
+                  data-contract="s011c-commentary-report-export"
+                />
+                <strong>{commentaryReportPreview.artifactPath || '导入后直接生成讲评摘要，再导出给备课使用。'}</strong>
+                <small>
+                  {commentaryReportPreview.manifestSha256
+                    ? `manifest: ${commentaryReportPreview.manifestSha256.slice(0, 12)}`
+                    : '不使用真实学生数据，不写正式历史学情。'}
+                </small>
+                <div className="commentary-section-list">
+                  {commentaryReportPreview.sections.map((section) => (
+                    <span key={section.sectionId}>
+                      <strong>{section.title}</strong>
+                      <small>{section.summary}</small>
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
 

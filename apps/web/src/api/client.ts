@@ -1,8 +1,10 @@
 import type {
   ApiResult,
+  CommentaryReportExportContract,
   CutCandidateGenerationContract,
   CutCandidateListContract,
   ImportJobContract,
+  ItemScoreMappingPreviewContract,
   PaperBlueprintConfirmContract,
   PaperBlueprintReviewContract,
   QuestionSearchContract,
@@ -13,9 +15,11 @@ import type {
   SourceMaterialListContract,
 } from './contracts'
 import {
+  normalizeCommentaryReportExportResponse,
   normalizeCutCandidateGenerationResponse,
   normalizeCutCandidateListResponse,
   normalizeImportJobResponse,
+  normalizeItemScoreMappingPreviewResponse,
   normalizePaperBlueprintConfirmResponse,
   normalizePaperBlueprintReviewResponse,
   normalizeQuestionSearchResponse,
@@ -263,5 +267,33 @@ export async function confirmPaperBlueprintReview(
     `/paper-blueprints/${encodeURIComponent(id)}/confirm`,
     { teacherConfirmedBy },
     normalizePaperBlueprintConfirmResponse,
+  )
+}
+
+export async function previewItemScoreMappings(request: {
+  assessmentId: string
+  mappings: Array<{ questionNo: string; questionItemId: string | null }>
+}): Promise<ApiResult<ItemScoreMappingPreviewContract>> {
+  return postJson(
+    `/assessments/${encodeURIComponent(request.assessmentId)}/item-score-mappings/preview`,
+    { mappings: request.mappings },
+    normalizeItemScoreMappingPreviewResponse,
+  )
+}
+
+export async function exportCommentaryReport(request: {
+  assessmentId: string
+  format: string
+  allowAiDraftText: boolean
+  mappings: Array<{ questionNo: string; questionItemId: string | null }>
+}): Promise<ApiResult<CommentaryReportExportContract>> {
+  return postJson(
+    `/assessments/${encodeURIComponent(request.assessmentId)}/commentary-report/export`,
+    {
+      format: request.format,
+      allowAiDraftText: request.allowAiDraftText,
+      mappings: request.mappings,
+    },
+    normalizeCommentaryReportExportResponse,
   )
 }

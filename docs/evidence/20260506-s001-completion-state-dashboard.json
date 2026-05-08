@@ -1,15 +1,15 @@
 {
   "status": "pass",
   "task": "S001",
-  "checkedAt": "2026-05-08T20:44:17",
+  "checkedAt": "2026-05-08T23:11:00",
   "dashboardPath": "tasks/completion-state-dashboard.csv",
   "backlogPath": "tasks/backlog.csv",
   "areaCount": 22,
   "stateCounts": {
     "contract_done": 6,
-    "synthetic_done": 6,
-    "db_backed_done": 7,
-    "ui_productized": 3,
+    "synthetic_done": 5,
+    "db_backed_done": 6,
+    "ui_productized": 5,
     "teacher_validated": 0,
     "release_ready": 0
   },
@@ -18,7 +18,7 @@
     "medium": 5,
     "high": 16
   },
-  "notNormallyUsableCount": 11,
+  "notNormallyUsableCount": 10,
   "teacherVisibleValidatedOrReleaseReadyCount": 0,
   "nextTaskCounts": {
     "P001": 2,
@@ -31,8 +31,8 @@
     "S006": 3,
     "S007": 2,
     "S008": 2,
-    "S011": 4,
-    "S012": 2
+    "S011": 2,
+    "S012": 4
   },
   "s001Status": "已完成",
   "nextProductizationTask": "S002",

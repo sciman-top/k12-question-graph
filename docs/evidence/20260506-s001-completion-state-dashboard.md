@@ -1,17 +1,17 @@
 # S001 完成态看板证据
 
 - status: pass
-- checked_at: 2026-05-08T20:44:17
+- checked_at: 2026-05-08T23:11:00
 - area_count: 22
-- not_normally_usable_count: 11
+- not_normally_usable_count: 10
 - teacher_visible_validated_or_release_ready_count: 0
 - next_productization_task: S002
 
 ## State Counts
 - contract_done: 6
-- synthetic_done: 6
-- db_backed_done: 7
-- ui_productized: 3
+- synthetic_done: 5
+- db_backed_done: 6
+- ui_productized: 5
 - teacher_validated: 0
 - release_ready: 0
 
@@ -28,8 +28,8 @@
 - question-search: db_backed_done -> S008; 教师 UI 仍显示示例题卡 未完整接真实 API 空态错误态
 - paper-assembly: ui_productized -> S011; 成绩导入与讲评链路 S011 未完成
 - paper-export: ui_productized -> S011; 成绩导入与讲评 S011 未完成 E2E release S012 未完成
-- score-import: db_backed_done -> S011; 教师 UI 小题分映射 S011B 和讲评报告 S011C 未完成
-- analysis-report: synthetic_done -> S011; 真实数据准入和讲评导出未与教师操作闭环连接
+- score-import: ui_productized -> S012; S012 非现场 E2E 发布演练未完成
+- analysis-report: ui_productized -> S012; S012 非现场 E2E 发布演练未完成 不写正式历史学情
 - deployment-install: contract_done -> P001; 隔离机器真实安装与 smoke 仍未执行
 - live-pilot: contract_done -> P001; S012 未完成 不允许进入现场或发布
 

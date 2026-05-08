@@ -1,0 +1,30 @@
+{
+  "status": "pass",
+  "taskId": "S011B",
+  "checkedAt": "2026-05-08T23:11:53",
+  "endpoint": "/assessments/{assessmentId}/item-score-mappings/preview",
+  "assessmentId": "660bd550-5a57-418c-afbb-a3185b33e535",
+  "questionId": "ca432a2e-5d1f-4d13-b4be-f3a20163f20b",
+  "knowledgeId": "d8f168c9-a6e9-4a70-96f6-4b7156d78af1",
+  "itemCount": 2,
+  "mappedCount": 1,
+  "unclearCount": 1,
+  "issueCodes": [
+    "question_mapping_missing"
+  ],
+  "auditTrail": [
+    "deterministic_item_score_mapping_preview",
+    "centralized_unclear_mappings",
+    "no_real_student_data",
+    "no_production_history_write",
+    "no_ai_runtime_dependency"
+  ],
+  "uiMarkers": [
+    "item-score-mapping-workbench",
+    "s011b-item-score-mapping-ui-api",
+    "centralized-unclear-item-score-mappings"
+  ],
+  "teacherMessage": "部分小题映射不清，请集中处理后再生成讲评草稿。",
+  "conclusion": "item scores can be preview-mapped to questions and active knowledge nodes, while unclear mappings are centralized for teacher review before analysis/export",
+  "rollback": "revert the S011B preview endpoint/service/client/UI/gate changes and remove docs/evidence/20260508-s011b-item-score-mapping-ui-api-report.json; no migration is required"
+}

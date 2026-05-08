@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "task": "PQR orchestration consistency guard",
-  "checkedDate": "2026-05-07",
+  "checkedDate": "2026-05-08",
   "targetCount": 18,
   "gateScript": "tools/run-gates.ps1",
   "report": "docs/evidence/20260505-pqr-orchestration-consistency-report.json"

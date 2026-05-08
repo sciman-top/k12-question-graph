@@ -669,6 +669,7 @@
 .score-upload-lane,
 .score-field-mapping,
 .score-exception-list,
+.item-score-mapping-preview,
 .score-analysis-summary,
 .score-report-path {
   border: 1px solid var(--line);
@@ -686,6 +687,7 @@
 
 .score-field-mapping,
 .score-exception-list,
+.item-score-mapping-preview,
 .score-report-path {
   display: grid;
   gap: 10px;
@@ -713,9 +715,50 @@
 
 .exception-row span,
 .score-exception-list small,
+.item-score-mapping-preview small,
 .score-report-path small {
   color: var(--muted);
   line-height: 1.45;
+}
+
+.score-mapping-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.item-score-mapping-list {
+  display: grid;
+  gap: 8px;
+}
+
+.item-score-mapping-row {
+  display: grid;
+  grid-template-columns: minmax(64px, 0.6fr) minmax(0, 1.4fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+.item-score-mapping-row span {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.commentary-section-list {
+  display: grid;
+  gap: 8px;
+}
+
+.commentary-section-list span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
 }
 
 .score-report-path strong {
@@ -1680,6 +1723,8 @@
   .replacement-workspace,
   .export-workspace,
   .score-workbench,
+  .score-mapping-controls,
+  .item-score-mapping-row,
   .mapping-review-grid,
   .paper-workbench-flow,
   .paper-workbench-summary,

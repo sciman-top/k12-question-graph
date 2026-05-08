@@ -1,0 +1,26 @@
+{
+  "status": "pass",
+  "taskId": "S011C",
+  "checkedAt": "2026-05-08T23:12:04",
+  "endpoint": "/assessments/{assessmentId}/commentary-report/export",
+  "assessmentId": "d40d4aaa-8b25-4d89-94ee-f708bd93f3e5",
+  "artifactPath": "draft://commentary-reports/d40d4aaa8b254d8994eef708bd93f3e5.md",
+  "manifestSha256": "0d295bfa5375c611b9aee62f5b215151ff5dedaaa4fa623fb6d2fbf1e5c465df",
+  "sectionCount": 3,
+  "weakKnowledgePointCount": 2,
+  "practiceSuggestionCount": 2,
+  "auditTrail": [
+    "deterministic_score_metrics",
+    "draft_commentary_report_export",
+    "no_real_student_data",
+    "no_production_history_write",
+    "no_ai_runtime_dependency"
+  ],
+  "uiMarkers": [
+    "s011c-commentary-report-export",
+    "export-score-report"
+  ],
+  "teacherMessage": "讲评报告草稿已生成，可导出给备课使用。",
+  "conclusion": "commentary report export uses deterministic score metrics after item-score mapping, returns a draft/test artifact manifest, and does not write formal history",
+  "rollback": "revert the S011C export endpoint/service/client/UI/gate changes and remove docs/evidence/20260508-s011c-commentary-report-export-report.json; no migration is required"
+}

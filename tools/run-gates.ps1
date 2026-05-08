@@ -344,6 +344,14 @@ try {
         $port = Get-FreeTcpPort
         .\tools\run-s011a-score-import-api-smoke.ps1 -ApiPort $port | Write-Host
     }
+    Invoke-GateStep 's011b item score mapping ui api smoke' {
+        $port = Get-FreeTcpPort
+        .\tools\run-s011b-item-score-mapping-ui-api-smoke.ps1 -ApiPort $port | Write-Host
+    }
+    Invoke-GateStep 's011c commentary report export smoke' {
+        $port = Get-FreeTcpPort
+        .\tools\run-s011c-commentary-report-export-smoke.ps1 -ApiPort $port | Write-Host
+    }
     Invoke-GateStep 'n003 item score mapping workbench' {
         .\tools\run-n003-item-score-mapping-workbench.ps1 | Write-Host
     }

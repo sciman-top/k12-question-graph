@@ -2,6 +2,8 @@ using K12QuestionGraph.Api.Application.Workflows.Contracts;
 using K12QuestionGraph.Api.Data;
 using K12QuestionGraph.Api.Domain;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 
 namespace K12QuestionGraph.Api.Application.Workflows;
@@ -11,6 +13,8 @@ public interface IScoreAnalysisWorkflowService
     Task<ScoreWorkflowDto> GetScoreImportSummaryAsync(Guid assessmentId, CancellationToken cancellationToken);
     Task<AnalysisWorkflowDto> GetAnalysisSummaryAsync(Guid assessmentId, CancellationToken cancellationToken);
     Task<ScoreImportServiceResult> ImportScoresAsync(ScoreImportServiceRequest request, CancellationToken cancellationToken);
+    Task<ItemScoreMappingPreviewServiceResult?> PreviewItemScoreMappingsAsync(Guid assessmentId, ItemScoreMappingPreviewServiceRequest request, CancellationToken cancellationToken);
+    Task<CommentaryReportExportServiceResult?> ExportCommentaryReportAsync(Guid assessmentId, CommentaryReportExportServiceRequest request, CancellationToken cancellationToken);
 }
 
 public sealed class ScoreAnalysisWorkflowService(KqgDbContext dbContext) : IScoreAnalysisWorkflowService
@@ -240,6 +244,251 @@ public sealed class ScoreAnalysisWorkflowService(KqgDbContext dbContext) : IScor
             ]);
     }
 
+    public async Task<ItemScoreMappingPreviewServiceResult?> PreviewItemScoreMappingsAsync(
+        Guid assessmentId,
+        ItemScoreMappingPreviewServiceRequest request,
+        CancellationToken cancellationToken)
+    {
+        var assessment = await dbContext.Assessments
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == assessmentId, cancellationToken);
+        if (assessment is null)
+        {
+            return null;
+        }
+
+        var itemScores = await (
+            from scoreRecord in dbContext.ScoreRecords.AsNoTracking()
+            join itemScore in dbContext.ItemScores.AsNoTracking() on scoreRecord.Id equals itemScore.ScoreRecordId
+            where scoreRecord.AssessmentId == assessmentId
+            select new
+            {
+                itemScore.QuestionNo,
+                itemScore.FieldName,
+                itemScore.Score,
+                itemScore.MaxScore
+            })
+            .ToListAsync(cancellationToken);
+
+        var groupedScores = itemScores
+            .GroupBy(x => x.QuestionNo)
+            .OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        var requestedMappings = (request.Mappings ?? Array.Empty<ItemScoreMappingRequestItem>())
+            .Where(x => !string.IsNullOrWhiteSpace(x.QuestionNo))
+            .ToDictionary(x => NormalizeQuestionNo(x.QuestionNo), x => x, StringComparer.OrdinalIgnoreCase);
+
+        var questionIds = requestedMappings.Values
+            .Select(x => x.QuestionItemId)
+            .Where(x => x.HasValue && x.Value != Guid.Empty)
+            .Select(x => x!.Value)
+            .Distinct()
+            .ToArray();
+
+        var questions = await dbContext.QuestionItems
+            .AsNoTracking()
+            .Where(x => questionIds.Contains(x.Id))
+            .ToDictionaryAsync(x => x.Id, cancellationToken);
+
+        var knowledgeRows = await (
+            from mapping in dbContext.KnowledgeMappings.AsNoTracking()
+            join node in dbContext.KnowledgeNodes.AsNoTracking() on mapping.KnowledgeNodeId equals node.Id
+            where questionIds.Contains(mapping.QuestionItemId) && mapping.IsPrimary
+            select new { mapping.QuestionItemId, node.Id, node.Title, node.Status, node.Version })
+            .ToListAsync(cancellationToken);
+        var primaryKnowledge = knowledgeRows
+            .GroupBy(x => x.QuestionItemId)
+            .ToDictionary(x => x.Key, x => x.OrderByDescending(row => row.Version).First());
+
+        var rows = new List<ItemScoreMappingPreviewRow>();
+        foreach (var scoreGroup in groupedScores)
+        {
+            var questionNo = NormalizeQuestionNo(scoreGroup.Key);
+            requestedMappings.TryGetValue(questionNo, out var requestedMapping);
+
+            QuestionItem? question = null;
+            if (requestedMapping?.QuestionItemId is { } questionItemId)
+            {
+                questions.TryGetValue(questionItemId, out question);
+            }
+
+            ItemScoreKnowledgePreview? knowledge = null;
+            if (question is not null && primaryKnowledge.TryGetValue(question.Id, out var knowledgeRow))
+            {
+                knowledge = new ItemScoreKnowledgePreview(
+                    knowledgeRow.Id,
+                    knowledgeRow.Title,
+                    knowledgeRow.Status,
+                    knowledgeRow.Version);
+            }
+
+            var issueCodes = new List<string>();
+            if (requestedMapping is null || requestedMapping.QuestionItemId is null || requestedMapping.QuestionItemId == Guid.Empty)
+            {
+                issueCodes.Add("question_mapping_missing");
+            }
+            else if (question is null)
+            {
+                issueCodes.Add("question_not_found");
+            }
+
+            if (question is not null && knowledge is null)
+            {
+                issueCodes.Add("knowledge_mapping_missing");
+            }
+
+            var scoreCount = scoreGroup.Count();
+            var maxScore = scoreGroup.Max(x => x.MaxScore);
+            var averageScoreRate = scoreGroup.Sum(x => x.Score) / Math.Max(1, scoreGroup.Sum(x => x.MaxScore));
+            rows.Add(new ItemScoreMappingPreviewRow(
+                questionNo,
+                scoreGroup.Select(x => x.FieldName).Distinct(StringComparer.OrdinalIgnoreCase).ToArray(),
+                scoreCount,
+                maxScore,
+                decimal.Round(averageScoreRate, 4),
+                question?.Id,
+                question is null ? null : ResolveQuestionPreview(question),
+                knowledge,
+                issueCodes.Count == 0 ? "mapped" : "needs_review",
+                issueCodes));
+        }
+
+        var unresolved = rows.Where(x => x.Status != "mapped").ToArray();
+        return new ItemScoreMappingPreviewServiceResult(
+            "draft_test",
+            ProductionEligible: false,
+            RealStudentDataUsed: false,
+            WritesProductionHistory: false,
+            assessment.Id,
+            assessment.Title,
+            rows.Count,
+            rows.Count - unresolved.Length,
+            unresolved.Length,
+            rows,
+            unresolved.Select(x => new ItemScoreMappingIssue(x.QuestionNo, x.IssueCodes)).ToArray(),
+            unresolved.Length == 0
+                ? "小题分已映射到题目和知识点，可继续生成讲评草稿。"
+                : "部分小题映射不清，请集中处理后再生成讲评草稿。",
+            [
+                "deterministic_item_score_mapping_preview",
+                "centralized_unclear_mappings",
+                "no_real_student_data",
+                "no_production_history_write",
+                "no_ai_runtime_dependency"
+            ]);
+    }
+
+    public async Task<CommentaryReportExportServiceResult?> ExportCommentaryReportAsync(
+        Guid assessmentId,
+        CommentaryReportExportServiceRequest request,
+        CancellationToken cancellationToken)
+    {
+        var mappingPreview = await PreviewItemScoreMappingsAsync(
+            assessmentId,
+            new ItemScoreMappingPreviewServiceRequest(request.Mappings),
+            cancellationToken);
+        if (mappingPreview is null)
+        {
+            return null;
+        }
+
+        if (mappingPreview.UnclearCount > 0)
+        {
+            return new CommentaryReportExportServiceResult(
+                "blocked",
+                mappingPreview.Mode,
+                ProductionEligible: false,
+                RealStudentDataUsed: false,
+                WritesProductionHistory: false,
+                AllowAiDraftText: false,
+                mappingPreview.AssessmentId,
+                mappingPreview.AssessmentTitle,
+                "md",
+                ArtifactPath: null,
+                ManifestSha256: null,
+                ReportMarkdown: string.Empty,
+                Sections: [],
+                WeakKnowledgePoints: [],
+                PracticeSuggestions: [],
+                BlockingIssues: mappingPreview.Issues.Select(x => new CommentaryReportIssue(x.QuestionNo, x.Codes)).ToArray(),
+                TeacherMessage: "小题映射仍不清，讲评报告暂不生成。",
+                AuditTrail:
+                [
+                    "blocked_unclear_item_score_mapping",
+                    "no_real_student_data",
+                    "no_production_history_write",
+                    "no_ai_runtime_dependency"
+                ]);
+        }
+
+        var weakRows = mappingPreview.Rows
+            .Where(x => x.PrimaryKnowledge is not null)
+            .OrderBy(x => x.AverageScoreRate)
+            .Take(3)
+            .Select(x => new CommentaryWeakKnowledgePoint(
+                x.PrimaryKnowledge!.KnowledgeNodeId,
+                x.PrimaryKnowledge.Title,
+                x.PrimaryKnowledge.Version,
+                x.AverageScoreRate,
+                x.QuestionNo))
+            .ToArray();
+
+        var sections = new[]
+        {
+            new CommentaryReportSection("class_summary", "班级概览", $"已导入 {mappingPreview.ItemCount} 个小题，{mappingPreview.MappedCount} 个已映射。"),
+            new CommentaryReportSection("weak_points", "优先讲评", weakRows.Length == 0 ? "暂无薄弱知识点。" : string.Join("；", weakRows.Select(x => $"{x.Title} {decimal.Round(x.ScoreRate * 100, 1)}%"))),
+            new CommentaryReportSection("practice_plan", "巩固练习", "按已确认知识点生成 draft/test 练习建议，教师确认后再使用。")
+        };
+        var suggestions = weakRows
+            .Select(x => new CommentaryPracticeSuggestion(
+                x.KnowledgeNodeId,
+                x.Title,
+                $"补充 2 道 {x.Title} 的基础巩固题，先用于课堂讲评草稿。"))
+            .ToArray();
+        var markdown = BuildCommentaryMarkdown(mappingPreview, sections, suggestions);
+        var manifest = new
+        {
+            task = "S011C",
+            assessmentId,
+            format = NormalizeToken(request.Format, "md"),
+            sections = sections.Select(x => x.SectionId).ToArray(),
+            weakKnowledgePointCount = weakRows.Length,
+            noRealStudentData = true,
+            noProductionHistoryWrite = true,
+            generatedAt = DateTimeOffset.UtcNow.ToString("O")
+        };
+        var manifestJson = SerializeJson(manifest);
+        var sha256 = Sha256Hex($"{manifestJson}\n{markdown}");
+
+        return new CommentaryReportExportServiceResult(
+            "ready",
+            mappingPreview.Mode,
+            ProductionEligible: false,
+            RealStudentDataUsed: false,
+            WritesProductionHistory: false,
+            AllowAiDraftText: request.AllowAiDraftText,
+            mappingPreview.AssessmentId,
+            mappingPreview.AssessmentTitle,
+            NormalizeToken(request.Format, "md"),
+            $"draft://commentary-reports/{assessmentId:N}.{NormalizeToken(request.Format, "md")}",
+            sha256,
+            markdown,
+            sections,
+            weakRows,
+            suggestions,
+            BlockingIssues: [],
+            TeacherMessage: "讲评报告草稿已生成，可导出给备课使用。",
+            AuditTrail:
+            [
+                "deterministic_score_metrics",
+                "draft_commentary_report_export",
+                "no_real_student_data",
+                "no_production_history_write",
+                request.AllowAiDraftText ? "ai_draft_text_allowed_after_metrics" : "no_ai_runtime_dependency"
+            ]);
+    }
+
     private static ScoreImportServiceResult Blocked(ScoreImportServiceRequest request, IReadOnlyList<ScoreImportRowError> errors)
     {
         return new ScoreImportServiceResult(
@@ -380,6 +629,73 @@ public sealed class ScoreAnalysisWorkflowService(KqgDbContext dbContext) : IScor
         return $"{safe}-{Guid.NewGuid():N}";
     }
 
+    private static string NormalizeQuestionNo(string value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim().ToUpperInvariant();
+    }
+
+    private static string ResolveQuestionPreview(QuestionItem question)
+    {
+        try
+        {
+            using var document = JsonDocument.Parse(question.Blocks);
+            foreach (var block in document.RootElement.EnumerateArray())
+            {
+                if (!block.TryGetProperty("content", out var content) ||
+                    !content.TryGetProperty("text", out var textElement) ||
+                    textElement.ValueKind != JsonValueKind.String)
+                {
+                    continue;
+                }
+
+                var text = textElement.GetString();
+                if (!string.IsNullOrWhiteSpace(text))
+                {
+                    return text.Length > 80 ? text[..80] : text;
+                }
+            }
+        }
+        catch
+        {
+            return $"题目 {question.Id:N}";
+        }
+
+        return $"题目 {question.Id:N}";
+    }
+
+    private static string BuildCommentaryMarkdown(
+        ItemScoreMappingPreviewServiceResult mappingPreview,
+        IReadOnlyList<CommentaryReportSection> sections,
+        IReadOnlyList<CommentaryPracticeSuggestion> suggestions)
+    {
+        var builder = new StringBuilder();
+        builder.AppendLine($"# {mappingPreview.AssessmentTitle} 讲评草稿");
+        builder.AppendLine();
+        foreach (var section in sections)
+        {
+            builder.AppendLine($"## {section.Title}");
+            builder.AppendLine(section.Summary);
+            builder.AppendLine();
+        }
+
+        if (suggestions.Count > 0)
+        {
+            builder.AppendLine("## 分层练习建议");
+            foreach (var suggestion in suggestions)
+            {
+                builder.AppendLine($"- {suggestion.KnowledgeTitle}: {suggestion.Suggestion}");
+            }
+        }
+
+        return builder.ToString().TrimEnd();
+    }
+
+    private static string Sha256Hex(string value)
+    {
+        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(value));
+        return Convert.ToHexString(bytes).ToLowerInvariant();
+    }
+
     private static string SerializeJson<T>(T value)
     {
         return JsonSerializer.Serialize(value, JsonOptions);
@@ -432,6 +748,96 @@ public sealed record ScoreImportRowError(
     string Code,
     string Message,
     IReadOnlyList<string> Fields);
+
+public sealed record ItemScoreMappingPreviewServiceRequest(
+    IReadOnlyList<ItemScoreMappingRequestItem>? Mappings);
+
+public sealed record ItemScoreMappingRequestItem(
+    string QuestionNo,
+    Guid? QuestionItemId);
+
+public sealed record ItemScoreMappingPreviewServiceResult(
+    string Mode,
+    bool ProductionEligible,
+    bool RealStudentDataUsed,
+    bool WritesProductionHistory,
+    Guid AssessmentId,
+    string AssessmentTitle,
+    int ItemCount,
+    int MappedCount,
+    int UnclearCount,
+    IReadOnlyList<ItemScoreMappingPreviewRow> Rows,
+    IReadOnlyList<ItemScoreMappingIssue> Issues,
+    string TeacherMessage,
+    IReadOnlyList<string> AuditTrail);
+
+public sealed record ItemScoreMappingPreviewRow(
+    string QuestionNo,
+    IReadOnlyList<string> FieldNames,
+    int ScoreRecordCount,
+    decimal MaxScore,
+    decimal AverageScoreRate,
+    Guid? QuestionItemId,
+    string? QuestionPreview,
+    ItemScoreKnowledgePreview? PrimaryKnowledge,
+    string Status,
+    IReadOnlyList<string> IssueCodes);
+
+public sealed record ItemScoreKnowledgePreview(
+    Guid KnowledgeNodeId,
+    string Title,
+    string Status,
+    int Version);
+
+public sealed record ItemScoreMappingIssue(
+    string QuestionNo,
+    IReadOnlyList<string> Codes);
+
+public sealed record CommentaryReportExportServiceRequest(
+    string Format,
+    bool AllowAiDraftText,
+    IReadOnlyList<ItemScoreMappingRequestItem>? Mappings);
+
+public sealed record CommentaryReportExportServiceResult(
+    string Status,
+    string Mode,
+    bool ProductionEligible,
+    bool RealStudentDataUsed,
+    bool WritesProductionHistory,
+    bool AllowAiDraftText,
+    Guid AssessmentId,
+    string AssessmentTitle,
+    string Format,
+    string? ArtifactPath,
+    string? ManifestSha256,
+    string ReportMarkdown,
+    IReadOnlyList<CommentaryReportSection> Sections,
+    IReadOnlyList<CommentaryWeakKnowledgePoint> WeakKnowledgePoints,
+    IReadOnlyList<CommentaryPracticeSuggestion> PracticeSuggestions,
+    IReadOnlyList<CommentaryReportIssue> BlockingIssues,
+    string TeacherMessage,
+    IReadOnlyList<string> AuditTrail);
+
+public sealed record CommentaryReportSection(
+    string SectionId,
+    string Title,
+    string Summary);
+
+public sealed record CommentaryWeakKnowledgePoint(
+    Guid KnowledgeNodeId,
+    string Title,
+    int Version,
+    decimal ScoreRate,
+    string QuestionNo);
+
+public sealed record CommentaryPracticeSuggestion(
+    Guid KnowledgeNodeId,
+    string KnowledgeTitle,
+    string Suggestion);
+
+public sealed record CommentaryReportIssue(
+    string QuestionNo,
+    IReadOnlyList<string> Codes);
 
 internal sealed record ParsedScoreImportRow(
     string StudentKey,

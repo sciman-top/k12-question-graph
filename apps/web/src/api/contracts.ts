@@ -189,6 +189,61 @@ export interface ImportJobContract {
   createdAt: string
 }
 
+export interface ItemScoreMappingPreviewRowContract {
+  questionNo: string
+  fieldNames: string[]
+  scoreRecordCount: number
+  maxScore: number
+  averageScoreRate: number
+  questionItemId: string | null
+  questionPreview: string | null
+  primaryKnowledge: {
+    knowledgeNodeId: string
+    title: string
+    status: string
+    version: number
+  } | null
+  status: string
+  issueCodes: string[]
+}
+
+export interface ItemScoreMappingPreviewContract {
+  mode: string
+  productionEligible: boolean
+  realStudentDataUsed: boolean
+  writesProductionHistory: boolean
+  assessmentId: string
+  assessmentTitle: string
+  itemCount: number
+  mappedCount: number
+  unclearCount: number
+  rows: ItemScoreMappingPreviewRowContract[]
+  issues: Array<{ questionNo: string; codes: string[] }>
+  teacherMessage: string
+  auditTrail: string[]
+}
+
+export interface CommentaryReportExportContract {
+  status: string
+  mode: string
+  productionEligible: boolean
+  realStudentDataUsed: boolean
+  writesProductionHistory: boolean
+  allowAiDraftText: boolean
+  assessmentId: string
+  assessmentTitle: string
+  format: string
+  artifactPath: string | null
+  manifestSha256: string | null
+  reportMarkdown: string
+  sections: Array<{ sectionId: string; title: string; summary: string }>
+  weakKnowledgePoints: Array<{ title: string; version: number; scoreRate: number; questionNo: string }>
+  practiceSuggestions: Array<{ knowledgeTitle: string; suggestion: string }>
+  blockingIssues: Array<{ questionNo: string; codes: string[] }>
+  teacherMessage: string
+  auditTrail: string[]
+}
+
 function readStringField(value: unknown, field: string): string | undefined {
   if (!value || typeof value !== 'object' || !(field in value)) {
     return undefined
@@ -439,6 +494,95 @@ export function normalizePaperBlueprintConfirmResponse(value: unknown): PaperBlu
     confirmed: readBooleanField(value, 'confirmed'),
     paperBasketId: readNullableStringField(value, 'paperBasketId'),
     selectedQuestionCount: readNumberField(value, 'selectedQuestionCount'),
+    teacherMessage: readStringField(value, 'teacherMessage') ?? '',
+    auditTrail: readArrayField(value, 'auditTrail').map(String),
+  }
+}
+
+export function normalizeItemScoreMappingPreviewResponse(
+  value: unknown,
+): ItemScoreMappingPreviewContract {
+  const rows = readArrayField(value, 'rows')
+  const issues = readArrayField(value, 'issues')
+  return {
+    mode: readStringField(value, 'mode') ?? 'unknown',
+    productionEligible: readBooleanField(value, 'productionEligible'),
+    realStudentDataUsed: readBooleanField(value, 'realStudentDataUsed'),
+    writesProductionHistory: readBooleanField(value, 'writesProductionHistory'),
+    assessmentId: readStringField(value, 'assessmentId') ?? '',
+    assessmentTitle: readStringField(value, 'assessmentTitle') ?? '',
+    itemCount: readNumberField(value, 'itemCount'),
+    mappedCount: readNumberField(value, 'mappedCount'),
+    unclearCount: readNumberField(value, 'unclearCount'),
+    rows: rows.map((row) => {
+      const primaryKnowledge = row && typeof row === 'object'
+        ? (row as Record<string, unknown>).primaryKnowledge
+        : null
+      return {
+        questionNo: readStringField(row, 'questionNo') ?? '',
+        fieldNames: readArrayField(row, 'fieldNames').map(String),
+        scoreRecordCount: readNumberField(row, 'scoreRecordCount'),
+        maxScore: readNumberField(row, 'maxScore'),
+        averageScoreRate: readNumberField(row, 'averageScoreRate'),
+        questionItemId: readNullableStringField(row, 'questionItemId'),
+        questionPreview: readNullableStringField(row, 'questionPreview'),
+        primaryKnowledge:
+          primaryKnowledge && typeof primaryKnowledge === 'object'
+            ? {
+                knowledgeNodeId: readStringField(primaryKnowledge, 'knowledgeNodeId') ?? '',
+                title: readStringField(primaryKnowledge, 'title') ?? '',
+                status: readStringField(primaryKnowledge, 'status') ?? 'unknown',
+                version: readNumberField(primaryKnowledge, 'version'),
+              }
+            : null,
+        status: readStringField(row, 'status') ?? 'needs_review',
+        issueCodes: readArrayField(row, 'issueCodes').map(String),
+      }
+    }),
+    issues: issues.map((issue) => ({
+      questionNo: readStringField(issue, 'questionNo') ?? '',
+      codes: readArrayField(issue, 'codes').map(String),
+    })),
+    teacherMessage: readStringField(value, 'teacherMessage') ?? '',
+    auditTrail: readArrayField(value, 'auditTrail').map(String),
+  }
+}
+
+export function normalizeCommentaryReportExportResponse(
+  value: unknown,
+): CommentaryReportExportContract {
+  return {
+    status: readStringField(value, 'status') ?? 'unknown',
+    mode: readStringField(value, 'mode') ?? 'unknown',
+    productionEligible: readBooleanField(value, 'productionEligible'),
+    realStudentDataUsed: readBooleanField(value, 'realStudentDataUsed'),
+    writesProductionHistory: readBooleanField(value, 'writesProductionHistory'),
+    allowAiDraftText: readBooleanField(value, 'allowAiDraftText'),
+    assessmentId: readStringField(value, 'assessmentId') ?? '',
+    assessmentTitle: readStringField(value, 'assessmentTitle') ?? '',
+    format: readStringField(value, 'format') ?? 'md',
+    artifactPath: readNullableStringField(value, 'artifactPath'),
+    manifestSha256: readNullableStringField(value, 'manifestSha256'),
+    reportMarkdown: readStringField(value, 'reportMarkdown') ?? '',
+    sections: readArrayField(value, 'sections').map((section) => ({
+      sectionId: readStringField(section, 'sectionId') ?? '',
+      title: readStringField(section, 'title') ?? '',
+      summary: readStringField(section, 'summary') ?? '',
+    })),
+    weakKnowledgePoints: readArrayField(value, 'weakKnowledgePoints').map((point) => ({
+      title: readStringField(point, 'title') ?? '',
+      version: readNumberField(point, 'version'),
+      scoreRate: readNumberField(point, 'scoreRate'),
+      questionNo: readStringField(point, 'questionNo') ?? '',
+    })),
+    practiceSuggestions: readArrayField(value, 'practiceSuggestions').map((suggestion) => ({
+      knowledgeTitle: readStringField(suggestion, 'knowledgeTitle') ?? '',
+      suggestion: readStringField(suggestion, 'suggestion') ?? '',
+    })),
+    blockingIssues: readArrayField(value, 'blockingIssues').map((issue) => ({
+      questionNo: readStringField(issue, 'questionNo') ?? '',
+      codes: readArrayField(issue, 'codes').map(String),
+    })),
     teacherMessage: readStringField(value, 'teacherMessage') ?? '',
     auditTrail: readArrayField(value, 'auditTrail').map(String),
   }
