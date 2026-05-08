@@ -340,6 +340,10 @@ try {
     Invoke-GateStep 'n002 excel template reuse' {
         .\tools\run-n002-excel-template-reuse.ps1 | Write-Host
     }
+    Invoke-GateStep 's011a score import api smoke' {
+        $port = Get-FreeTcpPort
+        .\tools\run-s011a-score-import-api-smoke.ps1 -ApiPort $port | Write-Host
+    }
     Invoke-GateStep 'n003 item score mapping workbench' {
         .\tools\run-n003-item-score-mapping-workbench.ps1 | Write-Host
     }

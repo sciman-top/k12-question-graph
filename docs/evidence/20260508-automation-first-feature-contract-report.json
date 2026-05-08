@@ -1,11 +1,11 @@
 {
   "status": "pass",
   "task": "automation-first feature contract guard",
-  "checkedAt": "2026-05-08T20:30:05",
+  "checkedAt": "2026-05-08T20:44:17",
   "contractPath": "tasks/automation-first-contract.csv",
   "contractRows": 36,
   "openBacklogTasksChecked": 29,
-  "openS0SubtasksChecked": 6,
+  "openS0SubtasksChecked": 5,
   "policy": "deterministic rules scripts dedicated surfaces first and AI agent only as bounded assistance",
   "requiredDocs": [
     "docs/25_FeatureAdmissionCriteria.md",

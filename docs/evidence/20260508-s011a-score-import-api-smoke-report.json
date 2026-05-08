@@ -1,0 +1,33 @@
+{
+  "status": "pass",
+  "taskId": "S011A",
+  "checkedAt": "2026-05-08T20:45:05",
+  "endpoint": "/score-imports",
+  "assessmentId": "553a2ac4-b4e0-464c-b93d-152a0324bd50",
+  "templateId": "82b0da7c-08fc-4901-a005-6f67d6984522",
+  "batchId": "4798c1d4-4efe-4510-aeb0-9d3500673b85",
+  "rowCount": 3,
+  "importedCount": 2,
+  "errorCount": 1,
+  "errorCodes": [
+    "item_score_out_of_range"
+  ],
+  "dbCounts": {
+    "batch": 1,
+    "scoreRecords": 2,
+    "itemScores": 4,
+    "piiRecords": 0,
+    "blockedPiiBatches": 0
+  },
+  "blockedPiiStatusCode": 400,
+  "auditTrail": [
+    "used_deterministic_excel_field_mapping",
+    "blocked_pii",
+    "centralized_abnormal_rows",
+    "wrote_draft_test_score_records",
+    "no_ai_runtime_dependency"
+  ],
+  "teacherMessage": "成绩已导入，部分异常行已集中列出，请先处理异常行。",
+  "conclusion": "score import API writes draft/test synthetic batches, centralizes abnormal rows, blocks PII before database write, and has no AI runtime dependency",
+  "rollback": "revert the S011A service/API/gate changes and remove docs/evidence/20260508-s011a-score-import-api-smoke-report.json; no migration is required"
+}

@@ -1734,6 +1734,46 @@ app.MapGet("/paper-baskets/{id:guid}", async (
 })
 .WithName("GetPaperBasket");
 
+app.MapPost("/score-imports", async (
+    ScoreImportRequest request,
+    IScoreAnalysisWorkflowService workflowService,
+    CancellationToken cancellationToken) =>
+{
+    var fieldMapping = request.FieldMapping ?? new ScoreImportFieldMappingRequest(
+        string.Empty,
+        string.Empty,
+        new Dictionary<string, string>());
+    var rows = request.Rows ?? Array.Empty<ScoreImportRowApiRequest>();
+    var result = await workflowService.ImportScoresAsync(
+        new ScoreImportServiceRequest(
+            request.AssessmentKey,
+            request.AssessmentTitle,
+            request.Subject,
+            request.Stage,
+            request.Grade,
+            request.TemplateKey,
+            request.TemplateDisplayName,
+            request.SourceFileName,
+            request.ContainsStudentPii,
+            request.ProductionEligible,
+            request.MaxTotalScore,
+            new ScoreImportFieldMapping(
+                fieldMapping.StudentKey,
+                fieldMapping.TotalScore,
+                fieldMapping.ItemScores ?? new Dictionary<string, string>()),
+            request.ItemMaxScores ?? new Dictionary<string, decimal>(),
+            rows.Select(x => new ScoreImportRowRequest(
+                x.RowNumber,
+                x.Values ?? new Dictionary<string, string>())).ToArray()),
+        cancellationToken);
+
+    var response = ScoreImportResponse.From(result);
+    return result.Status == "blocked"
+        ? Results.BadRequest(response)
+        : Results.Created($"/score-imports/{result.BatchId}", response);
+})
+.WithName("ImportScores");
+
 app.MapPost("/paper-baskets/{id:guid}/export-preflight", async (
     Guid id,
     PaperExportPreflightRequest request,
@@ -3042,6 +3082,79 @@ public sealed record PaperExportPreflightIssueResponse(
     public static PaperExportPreflightIssueResponse From(PaperExportPreflightIssueServiceItem issue)
     {
         return new PaperExportPreflightIssueResponse(issue.Code, issue.Severity, issue.Message);
+    }
+}
+
+public sealed record ScoreImportRequest(
+    string? AssessmentKey,
+    string? AssessmentTitle,
+    string? Subject,
+    string? Stage,
+    string? Grade,
+    string? TemplateKey,
+    string? TemplateDisplayName,
+    string? SourceFileName,
+    bool ContainsStudentPii,
+    bool ProductionEligible,
+    decimal MaxTotalScore,
+    ScoreImportFieldMappingRequest FieldMapping,
+    IReadOnlyDictionary<string, decimal> ItemMaxScores,
+    IReadOnlyList<ScoreImportRowApiRequest> Rows);
+
+public sealed record ScoreImportFieldMappingRequest(
+    string StudentKey,
+    string TotalScore,
+    IReadOnlyDictionary<string, string> ItemScores);
+
+public sealed record ScoreImportRowApiRequest(
+    int RowNumber,
+    IReadOnlyDictionary<string, string> Values);
+
+public sealed record ScoreImportResponse(
+    string Status,
+    string Mode,
+    bool ProductionEligible,
+    bool RealStudentDataUsed,
+    bool ContainsStudentPii,
+    Guid? AssessmentId,
+    Guid? TemplateId,
+    Guid? BatchId,
+    int RowCount,
+    int ImportedCount,
+    int ErrorCount,
+    IReadOnlyList<ScoreImportRowErrorResponse> Errors,
+    string TeacherMessage,
+    IReadOnlyList<string> AuditTrail)
+{
+    public static ScoreImportResponse From(ScoreImportServiceResult result)
+    {
+        return new ScoreImportResponse(
+            result.Status,
+            result.Mode,
+            result.ProductionEligible,
+            result.RealStudentDataUsed,
+            result.ContainsStudentPii,
+            result.AssessmentId,
+            result.TemplateId,
+            result.BatchId,
+            result.RowCount,
+            result.ImportedCount,
+            result.ErrorCount,
+            result.Errors.Select(ScoreImportRowErrorResponse.From).ToArray(),
+            result.TeacherMessage,
+            result.AuditTrail);
+    }
+}
+
+public sealed record ScoreImportRowErrorResponse(
+    int RowNumber,
+    string Code,
+    string Message,
+    IReadOnlyList<string> Fields)
+{
+    public static ScoreImportRowErrorResponse From(ScoreImportRowError error)
+    {
+        return new ScoreImportRowErrorResponse(error.RowNumber, error.Code, error.Message, error.Fields);
     }
 }
 
