@@ -13,8 +13,8 @@
       "toolName": "python",
       "toolVersion": "3.13.7",
       "durationMs": 4,
-      "inputSha256": "2c953999910def8fa7c3b5b72bfd9ee6a178cb7975c88287d5c7a4fe5d26bc9c",
-      "outputSha256": "e3c6d5d535cb5522dbca8303109124ef663710d94d7609395cbd2565ddc0b2b3",
+      "inputSha256": "31cd99df620688a43fecca72b22df5bc48a309cfd10a12d3cb08408107dcc7b8",
+      "outputSha256": "dafc154b85eb1600d61fca8c5d308e803fefc60d0603d4e692dad9102a6050d7",
       "warningCount": 0,
       "errorCount": 0,
       "commandArgs": {
@@ -118,6 +118,6 @@
     "rawInputsStayUnder": "tmp\\j005-adapter-diagnostics"
   },
   "rollback": "git restore tracked files; remove tools/j005_adapter_diagnostic_supply_chain.py, tools/run-j005-adapter-diagnostic-supply-chain-contract.ps1, docs/90_J005_AdapterDiagnosticSupplyChain.md, docs/evidence/j005-adapter-diagnostic-supply-chain-report.json, and tmp/j005-adapter-diagnostics",
-  "createdAt": "2026-05-09T04:59:38.204039+00:00",
+  "createdAt": "2026-05-09T05:29:39.312245+00:00",
   "summaryChinese": "J005 已验证所有当前 worker adapter 均记录版本、命令参数、输入输出 hash、耗时、warnings 和 errors；当前供应链为本地 Python/stdlib synthetic gate，不调用外部 OCR、Docling、网络或真实 AI。"
 }

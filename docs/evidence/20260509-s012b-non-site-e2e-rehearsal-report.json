@@ -1,18 +1,18 @@
 {
   "status": "pass",
   "taskId": "S012B",
-  "checkedAt": "2026-05-09T13:02:37",
+  "checkedAt": "2026-05-09T13:32:31",
   "mode": "non_site_e2e_rehearsal",
   "productionEligible": false,
   "realStudentDataUsed": false,
   "fixtureManifest": "tests/e2e/s012a-proxy-fixture-pack.json",
   "preRunBackup": {
-    "manifest": "tmp\\s012b\\pre-run-backup\\20260509-130103\\manifest.json",
+    "manifest": "tmp\\s012b\\pre-run-backup\\20260509-133057\\manifest.json",
     "verified": true,
-    "rollbackCommand": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/restore-backup.ps1 -ManifestPath 'tmp\\s012b\\pre-run-backup\\20260509-130103\\manifest.json'"
+    "rollbackCommand": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/restore-backup.ps1 -ManifestPath 'tmp\\s012b\\pre-run-backup\\20260509-133057\\manifest.json'"
   },
   "elapsed": {
-    "totalMs": 94330,
+    "totalMs": 93918,
     "totalMinutes": 1.57
   },
   "workflowSteps": [
@@ -20,7 +20,7 @@
       "name": "S012A fixture pack admission",
       "workflowStep": "admission",
       "status": "pass",
-      "durationMs": 633,
+      "durationMs": 619,
       "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-s012a-e2e-proxy-fixture-pack.ps1",
       "evidencePath": "docs/evidence/20260508-s012a-e2e-proxy-fixture-pack-report.json",
       "evidenceExists": true,
@@ -33,7 +33,7 @@
       "name": "P1 import cut review save source proxy",
       "workflowStep": "import_cut_review_save",
       "status": "pass",
-      "durationMs": 6666,
+      "durationMs": 6864,
       "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-p1-proxy-scenario.ps1 -DatabaseName k12_question_graph -DatabaseUser postgres -DatabaseHost 127.0.0.1 -DatabasePort 5432 -DatabasePassword <redacted> -FileStoreRoot D:\\KQG_Data\\file_store",
       "evidencePath": "",
       "evidenceExists": true,
@@ -50,7 +50,7 @@
       "name": "S007C tagging writeback undo",
       "workflowStep": "tagging",
       "status": "pass",
-      "durationMs": 6533,
+      "durationMs": 6375,
       "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-s007c-teacher-confirm-writeback-smoke.ps1 -DatabaseName k12_question_graph -DatabaseUser postgres -DatabaseHost 127.0.0.1 -DatabasePort 5432 -DatabasePassword <redacted> -ApiPort 5312",
       "evidencePath": "docs/evidence/20260506-s007c-teacher-confirm-writeback-smoke-report.json",
       "evidenceExists": true,
@@ -64,7 +64,7 @@
       "name": "S006B manual takeover workbench",
       "workflowStep": "review_save",
       "status": "pass",
-      "durationMs": 6420,
+      "durationMs": 6360,
       "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-s006b-manual-takeover-smoke.ps1 -DatabaseName k12_question_graph -DatabaseUser postgres -DatabaseHost 127.0.0.1 -DatabasePort 5432 -DatabasePassword <redacted> -ApiPort 5313",
       "evidencePath": "docs/evidence/20260506-s006b-manual-takeover-smoke-report.json",
       "evidenceExists": true,
@@ -80,7 +80,7 @@
       "name": "S009B blueprint review",
       "workflowStep": "paper",
       "status": "pass",
-      "durationMs": 11987,
+      "durationMs": 11924,
       "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-s009b-blueprint-review-workflow-smoke.ps1 -DatabaseName k12_question_graph -DatabaseUser postgres -DatabaseHost 127.0.0.1 -DatabasePort 5432 -DatabasePassword <redacted> -ApiPort 5314 -PgBin C:\\Program Files\\PostgreSQL\\17\\bin",
       "evidencePath": "docs/evidence/20260507-s009b-blueprint-review-workflow-smoke-report.json",
       "evidenceExists": true,
@@ -94,7 +94,7 @@
       "name": "S010B word pdf artifact chain",
       "workflowStep": "export",
       "status": "pass",
-      "durationMs": 12289,
+      "durationMs": 13508,
       "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-s010b-word-pdf-artifact-chain-smoke.ps1 -DatabaseName k12_question_graph -DatabaseUser postgres -DatabaseHost 127.0.0.1 -DatabasePort 5432 -DatabasePassword <redacted> -ApiPort 5315 -PgBin C:\\Program Files\\PostgreSQL\\17\\bin",
       "evidencePath": "docs/evidence/20260508-s010b-word-pdf-artifact-chain-report.json",
       "evidenceExists": true,
@@ -108,7 +108,7 @@
       "name": "S011A score import",
       "workflowStep": "score",
       "status": "pass",
-      "durationMs": 11677,
+      "durationMs": 11701,
       "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-s011a-score-import-api-smoke.ps1 -DatabaseName k12_question_graph -DatabaseUser postgres -DatabaseHost 127.0.0.1 -DatabasePort 5432 -DatabasePassword <redacted> -ApiPort 5316 -PgBin C:\\Program Files\\PostgreSQL\\17\\bin",
       "evidencePath": "docs/evidence/20260508-s011a-score-import-api-smoke-report.json",
       "evidenceExists": true,
@@ -122,7 +122,7 @@
       "name": "S011B item score mapping preview",
       "workflowStep": "score_mapping",
       "status": "pass",
-      "durationMs": 12942,
+      "durationMs": 12087,
       "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-s011b-item-score-mapping-ui-api-smoke.ps1 -DatabaseName k12_question_graph -DatabaseUser postgres -DatabaseHost 127.0.0.1 -DatabasePort 5432 -DatabasePassword <redacted> -ApiPort 5317 -PgBin C:\\Program Files\\PostgreSQL\\17\\bin",
       "evidencePath": "docs/evidence/20260508-s011b-item-score-mapping-ui-api-report.json",
       "evidenceExists": true,
@@ -135,7 +135,7 @@
       "name": "S011C commentary export",
       "workflowStep": "analysis",
       "status": "pass",
-      "durationMs": 12588,
+      "durationMs": 12279,
       "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-s011c-commentary-report-export-smoke.ps1 -DatabaseName k12_question_graph -DatabaseUser postgres -DatabaseHost 127.0.0.1 -DatabasePort 5432 -DatabasePassword <redacted> -ApiPort 5318 -PgBin C:\\Program Files\\PostgreSQL\\17\\bin",
       "evidencePath": "docs/evidence/20260508-s011c-commentary-report-export-report.json",
       "evidenceExists": true,
@@ -149,7 +149,7 @@
       "name": "O003 backup restore drill",
       "workflowStep": "backup_restore",
       "status": "pass",
-      "durationMs": 8508,
+      "durationMs": 8089,
       "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-o003-recovery-drill-contract.ps1 -BackupRoot tmp/s012b/o003-backup-root -FileStoreRoot D:\\KQG_Data\\file_store -PgBin C:\\Program Files\\PostgreSQL\\17\\bin -DatabaseName k12_question_graph -DatabaseHost 127.0.0.1 -DatabasePort 5432 -DatabaseUser postgres -ReportPath docs/evidence/20260509-s012b-o003-recovery-drill-report.json",
       "evidencePath": "docs/evidence/20260509-s012b-o003-recovery-drill-report.json",
       "evidenceExists": true,
@@ -163,50 +163,50 @@
   "databaseChanges": [
     {
       "table": "assessments",
-      "before": 48,
-      "after": 51,
+      "before": 54,
+      "after": 57,
       "delta": 3
     },
     {
       "table": "item_scores",
-      "before": 192,
-      "after": 204,
+      "before": 216,
+      "after": 228,
       "delta": 12
     },
     {
       "table": "paper_baskets",
-      "before": 62,
-      "after": 64,
+      "before": 67,
+      "after": 69,
       "delta": 2
     },
     {
       "table": "score_records",
-      "before": 96,
-      "after": 102,
+      "before": 108,
+      "after": 114,
       "delta": 6
     },
     {
       "table": "question_items",
-      "before": 1845,
-      "after": 1864,
-      "delta": 19
+      "before": 1903,
+      "after": 1921,
+      "delta": 18
     },
     {
       "table": "source_documents",
-      "before": 2121,
-      "after": 2128,
-      "delta": 7
+      "before": 2162,
+      "after": 2168,
+      "delta": 6
     },
     {
       "table": "knowledge_mappings",
-      "before": 47,
-      "after": 50,
+      "before": 53,
+      "after": 56,
       "delta": 3
     },
     {
       "table": "paper_basket_items",
-      "before": 241,
-      "after": 250,
+      "before": 261,
+      "after": 270,
       "delta": 9
     }
   ],
