@@ -1,0 +1,73 @@
+{
+  "status": "pass",
+  "task": "P0-live preflight refresh",
+  "checkedDate": "2026-05-09",
+  "checkedAt": "2026-05-09T13:17:21",
+  "total": 6,
+  "passCount": 6,
+  "nonPassCount": 0,
+  "boundary": "preflight_only; no live pilot execution, no backlog status transition",
+  "nextAction": "collect isolated-machine pilot evidence for P001, then execute P002-P006 in sequence",
+  "results": [
+    {
+      "id": "P001",
+      "script": "tools/run-p001-live-pilot-readiness-preflight-contract.ps1",
+      "status": "pass",
+      "mode": "preflight_only",
+      "boundary": "productization S012 and isolated-machine live rehearsal are not executed in this contract; keep P001 as todo until productized E2E and site run evidence are complete",
+      "checklistPath": "docs/templates/p001-live-pilot-release-checklist.md",
+      "evidencePath": "docs/evidence/20260505-p001-live-pilot-readiness-preflight.md",
+      "checkedAt": "2026-05-09T13:17:18"
+    },
+    {
+      "id": "P002",
+      "script": "tools/run-p002-teacher-proxy-pilot-preflight-contract.ps1",
+      "status": "pass",
+      "mode": "preflight_only",
+      "boundary": "teacher proxy pilot not executed in this contract; keep P002 as todo until P001 closes and proxy evidence is complete",
+      "checklistPath": "docs/templates/p002-teacher-proxy-pilot-checklist.md",
+      "evidencePath": "docs/evidence/20260505-p002-teacher-proxy-pilot-preflight.md",
+      "checkedAt": "2026-05-09T13:17:19"
+    },
+    {
+      "id": "P003",
+      "script": "tools/run-p003-onsite-pilot-admission-preflight-contract.ps1",
+      "status": "pass",
+      "mode": "preflight_only",
+      "boundary": "onsite pilot admission is not executed in this contract; keep P003 as todo until P002 closes and admission card is complete",
+      "checklistPath": "docs/templates/p003-onsite-pilot-admission-checklist.md",
+      "evidencePath": "docs/evidence/20260505-p003-onsite-pilot-admission-preflight.md",
+      "checkedAt": "2026-05-09T13:17:19"
+    },
+    {
+      "id": "P004",
+      "script": "tools/run-p004-onsite-pilot-round1-preflight-contract.ps1",
+      "status": "pass",
+      "mode": "preflight_only",
+      "boundary": "onsite pilot round1 is not executed in this contract; keep P004 as todo until P003 closes and teacher pilot evidence is complete",
+      "checklistPath": "docs/templates/p004-onsite-pilot-round1-checklist.md",
+      "evidencePath": "docs/evidence/20260505-p004-onsite-pilot-round1-preflight.md",
+      "checkedAt": "2026-05-09T13:17:20"
+    },
+    {
+      "id": "P005",
+      "script": "tools/run-p005-pilot-feedback-backlog-preflight-contract.ps1",
+      "status": "pass",
+      "mode": "preflight_only",
+      "boundary": "pilot feedback triage is not executed in this contract; keep P005 as todo until P004 closes and backlog triage evidence is complete",
+      "checklistPath": "docs/templates/p005-pilot-feedback-backlog-checklist.md",
+      "evidencePath": "docs/evidence/20260505-p005-pilot-feedback-backlog-preflight.md",
+      "checkedAt": "2026-05-09T13:17:20"
+    },
+    {
+      "id": "P006",
+      "script": "tools/run-p006-release-decision-preflight-contract.ps1",
+      "status": "pass",
+      "mode": "preflight_only",
+      "boundary": "release decision is not executed in this contract; keep P006 as todo until P005 closes and decision evidence is complete",
+      "checklistPath": "docs/templates/p006-release-decision-checklist.md",
+      "evidencePath": "docs/evidence/20260505-p006-release-decision-preflight.md",
+      "checkedAt": "2026-05-09T13:17:21"
+    }
+  ]
+}
