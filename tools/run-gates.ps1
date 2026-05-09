@@ -355,6 +355,9 @@ try {
     Invoke-GateStep 's012a e2e proxy fixture pack' {
         .\tools\run-s012a-e2e-proxy-fixture-pack.ps1 | Write-Host
     }
+    Invoke-GateStep 's012b non-site e2e rehearsal' {
+        .\tools\run-s012b-non-site-e2e-rehearsal.ps1 | Write-Host
+    }
     Invoke-GateStep 'n003 item score mapping workbench' {
         .\tools\run-n003-item-score-mapping-workbench.ps1 | Write-Host
     }

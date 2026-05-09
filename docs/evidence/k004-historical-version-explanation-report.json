@@ -2,7 +2,7 @@
   "rule_id": "K004",
   "risk_level": "low",
   "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-k004-historical-version-explanation-contract.ps1",
-  "api_base_url": "http://127.0.0.1:8449",
+  "api_base_url": "http://127.0.0.1:6423",
   "fixture_path": "configs/domain-assets/k004-historical-version-explanation.sample.json",
   "endpoint": "POST /knowledge-version-explanations/resolve",
   "case_count": 3,
@@ -20,5 +20,5 @@
   "real_student_data_used": false,
   "writes_production_history": false,
   "rollback": "git revert the K004 commit; no database, active asset, or production history writes are performed",
-  "generated_at_utc": "2026-05-08T15:19:03.2584379Z"
+  "generated_at_utc": "2026-05-09T04:28:11.3596379Z"
 }

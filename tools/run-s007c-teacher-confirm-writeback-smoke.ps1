@@ -5,6 +5,7 @@ param(
     [int] $DatabasePort = 5432,
     [string] $DatabasePassword = $env:PGPASSWORD,
     [int] $ApiPort = 5292,
+    [string] $PgBin = 'C:\Program Files\PostgreSQL\17\bin',
     [string] $ReportPath = 'docs/evidence/20260506-s007c-teacher-confirm-writeback-smoke-report.json'
 )
 
@@ -13,6 +14,13 @@ $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 . (Join-Path $PSScriptRoot 'database-env.ps1')
 $DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword
 if ([string]::IsNullOrWhiteSpace($DatabasePassword)) { throw 'DatabasePassword or PGPASSWORD is required for S007C smoke' }
+
+function Invoke-ScalarSql([string] $Sql) {
+    $psql = Join-Path $PgBin 'psql.exe'
+    $value = & $psql -h $DatabaseHost -p $DatabasePort -U $DatabaseUser -d $DatabaseName -t -A -v ON_ERROR_STOP=1 -c $Sql
+    if ($LASTEXITCODE -ne 0) { throw "S007C SQL failed: $Sql" }
+    return (($value | Select-Object -First 1) ?? '').Trim()
+}
 
 $apiUrl = "http://127.0.0.1:$ApiPort"
 $logOut = Join-Path $repoRoot 'docs/evidence/s007c-smoke-api.out.log'
@@ -34,8 +42,7 @@ try {
     $sourceId = [string]$sourceList.items[0].id
     if ([string]::IsNullOrWhiteSpace($sourceId)) { throw 'S007C needs at least one source document' }
 
-    $before = Invoke-RestMethod -Uri "$apiUrl/questions?subject=physics&stage=junior_middle_school&limit=1" -TimeoutSec 10
-    $beforeTotal = [int]$before.total
+    $beforeTotal = [int](Invoke-ScalarSql 'select count(*) from question_items;')
 
     $enqueueBody = @{
         suggestionType = 'answer_verification'
@@ -65,16 +72,16 @@ try {
     } | ConvertTo-Json
     $confirm = Invoke-RestMethod -Method Post -Uri "$apiUrl/ai-suggestions/$($enqueue.aiJobId)/confirm" -ContentType 'application/json' -Body $confirmBody -TimeoutSec 10
 
-    $afterConfirm = Invoke-RestMethod -Uri "$apiUrl/questions?subject=physics&stage=junior_middle_school&limit=1" -TimeoutSec 10
-    $afterConfirmTotal = [int]$afterConfirm.total
+    $afterConfirmTotal = [int](Invoke-ScalarSql 'select count(*) from question_items;')
     if ($afterConfirmTotal -ne ($beforeTotal + 1)) { throw "S007C confirm should create one question ($beforeTotal -> $afterConfirmTotal)" }
+    $loadedQuestion = Invoke-RestMethod -Uri "$apiUrl/questions/$($confirm.questionItemId)" -TimeoutSec 10
+    if ([string]$loadedQuestion.id -ne [string]$confirm.questionItemId) { throw 'S007C confirmed question could not be loaded by id' }
 
     $undoBody = @{ reviewedBy = 'teacher_s007c'; reason = 'undo_for_safety_check' } | ConvertTo-Json
     $undo = Invoke-RestMethod -Method Post -Uri "$apiUrl/ai-suggestions/$($enqueue.aiJobId)/undo-confirm" -ContentType 'application/json' -Body $undoBody -TimeoutSec 10
     if ($undo.removedKnowledgeMappingCount -lt 1) { throw 'S007C undo should remove linked knowledge mapping' }
 
-    $afterUndo = Invoke-RestMethod -Uri "$apiUrl/questions?subject=physics&stage=junior_middle_school&limit=1" -TimeoutSec 10
-    $afterUndoTotal = [int]$afterUndo.total
+    $afterUndoTotal = [int](Invoke-ScalarSql 'select count(*) from question_items;')
     if ($afterUndoTotal -ne $beforeTotal) { throw "S007C undo should restore question count ($afterUndoTotal != $beforeTotal)" }
 
     $report = [ordered]@{

@@ -4,10 +4,10 @@
   "mode": "draft_test",
   "productionEligible": false,
   "backup": {
-    "manifest": "tmp\\o003\\backup-root\\20260509-123321\\manifest.json",
-    "backupDir": "tmp\\o003\\backup-root\\20260509-123321",
-    "databaseDump": "tmp\\o003\\backup-root\\20260509-123321\\database.dump",
-    "fileCount": 914,
+    "manifest": "tmp\\s012b\\o003-backup-root\\20260509-123041\\manifest.json",
+    "backupDir": "tmp\\s012b\\o003-backup-root\\20260509-123041",
+    "databaseDump": "tmp\\s012b\\o003-backup-root\\20260509-123041\\database.dump",
+    "fileCount": 912,
     "configCount": 3
   },
   "recoveryDrill": {
@@ -19,7 +19,7 @@
       "schemaExtractOk": true
     },
     "fileStore": {
-      "restoredFileCount": 914,
+      "restoredFileCount": 912,
       "targetRoot": "tmp\\o003\\restore-drill\\file_store"
     },
     "configs": {
@@ -38,7 +38,7 @@
     }
   },
   "rollback": {
-    "deleteBackupRoot": "Remove-Item -LiteralPath 'D:\\CODE\\k12-question-graph\\tmp\\o003\\backup-root' -Recurse -Force",
+    "deleteBackupRoot": "Remove-Item -LiteralPath 'D:\\CODE\\k12-question-graph\\tmp\\s012b\\o003-backup-root' -Recurse -Force",
     "deleteDrillRoot": "Remove-Item -LiteralPath 'D:\\CODE\\k12-question-graph\\tmp\\o003\\restore-drill' -Recurse -Force"
   },
   "summaryChinese": {
