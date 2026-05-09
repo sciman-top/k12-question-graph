@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "real-pdf-import-core-slice.v1",
+  "checkedAt": "2026-05-09T18:39:11.0600141+08:00",
+  "boundary": "No Baidu Cloud OCR token; local-first document parsing only.",
+  "implemented": [
+    "workers/document pdf_text_adapter now uses local pdftotext layout extraction for text PDFs",
+    "API worker-smoke seeds SourceRegion and CutCandidate from worker documentModel layoutBlocks",
+    "DocumentWorkerClient drains stdout/stderr concurrently and forces UTF-8",
+    "review-workbench save_question writes candidatePayload.textPreview into QuestionBlock content",
+    "5173 upload button posts /imports, runs worker-smoke, and loads cut candidates",
+    "Vite dev proxy now forwards import/source/question/review/paper/assessment API paths to 127.0.0.1:5275"
+  ],
+  "livePdf": {
+    "path": "D:\\2015广州中考.pdf",
+    "adapter": "pdf_text_adapter",
+    "sourceDocumentId": "5a88e809-8f10-4e6b-8351-7f29e45265e8",
+    "cutCandidateCount": 27,
+    "lowConfidenceReviewQueueCount": 4,
+    "savedCandidatePreview": "1. 咸鱼放在冰箱冷冻室里一晚，冷冻室内有咸鱼味. 这表明 ...",
+    "createdQuestionId": "6e74364d-0018-4d6d-8ae1-ae9304fed273",
+    "sourceRegionCountForSavedQuestion": 1
+  },
+  "browser5173": {
+    "uploadedWorkspaceCopy": "D:\\CODE\\k12-question-graph\\tmp\\2015广州中考.pdf",
+    "sourceDocumentInput": "55a5591d-a09b-4959-8c35-5a654369b6d6",
+    "importJobInput": "12ba8765-c5ec-46e7-803a-de58b7ecbcb1",
+    "firstVisibleQuestionText": "1. 咸鱼放在冰箱冷冻室里一晚，冷冻室内有咸鱼味.",
+    "api404AfterProxyFix": false,
+    "remainingConsoleWarning": "antd Alert message deprecated warning only"
+  },
+  "localOcrToolCheck": {
+    "pdftotext": "D:\\texlive\\2023\\bin\\windows\\pdftotext.exe",
+    "pdftoppm": "D:\\texlive\\2023\\bin\\windows\\pdftoppm.exe",
+    "tesseract": null,
+    "paddleocr": null,
+    "pythonModules": {
+      "paddleocr": false,
+      "paddle": false,
+      "cv2": false,
+      "PIL": false,
+      "numpy": true,
+      "pytesseract": false,
+      "pix2tex": false,
+      "torch": false
+    }
+  },
+  "verification": [
+    "dotnet build apps/api/K12QuestionGraph.Api.csproj => pass",
+    "npm run build => pass",
+    "npm run lint => pass",
+    "tools/run-roadmap-guard.ps1 => pass",
+    "tools/run-gates.ps1 => pass",
+    "Playwright 5173 upload flow => loaded real question text into manual review queue"
+  ],
+  "remainingGaps": [
+    "Scanned PDF/image OCR is still not real: J003 remains takeover adapter without OCR engine.",
+    "Formula recognition for scanned/image formulas is not real: PP-FormulaNet/pix2tex not installed or integrated.",
+    "Cutting is deterministic text-PDF first pass, not a teacher-validated accuracy baseline.",
+    "Question save now stores text, but metadata tagging, answer binding, option structuring, and difficulty tagging still need real workflow hardening."
+  ]
+}

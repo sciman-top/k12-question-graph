@@ -1,0 +1,454 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - text: K12 Question Graph
+      - heading "校本题谱" [level=1] [ref=e6]
+    - generic [ref=e7]:
+      - generic [ref=e9]: 本机可用
+      - generic [ref=e11]: 初中物理
+      - generic [ref=e13]: 服务状态 正常
+  - main [ref=e14]:
+    - region "普通教师入口" [ref=e15]:
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - heading "今天要做什么" [level=2] [ref=e18]
+          - text: 默认只放四件常用事，其他设置交给管理员。
+        - button "inbox 打开导入" [ref=e19] [cursor=pointer]:
+          - img "inbox" [ref=e21]:
+            - img [ref=e22]
+          - generic [ref=e24]: 打开导入
+      - generic [ref=e25]:
+        - button "cloud-upload 导入试卷 上传文件，只处理异常项 常用" [pressed] [ref=e26] [cursor=pointer]:
+          - img "cloud-upload" [ref=e28]:
+            - img [ref=e29]
+          - generic [ref=e32]:
+            - strong [ref=e33]: 导入试卷
+            - generic [ref=e34]: 上传文件，只处理异常项
+          - generic [ref=e35]: 常用
+        - button "file-search 找题组卷 找题、换题、导出样卷 10 分钟目标" [ref=e36] [cursor=pointer]:
+          - img "file-search" [ref=e38]:
+            - img [ref=e39]
+          - generic [ref=e41]:
+            - strong [ref=e42]: 找题组卷
+            - generic [ref=e43]: 找题、换题、导出样卷
+          - generic [ref=e44]: 10 分钟目标
+        - button "file-text 导入成绩 上传 Excel，复用字段映射 模板复用" [ref=e45] [cursor=pointer]:
+          - img "file-text" [ref=e47]:
+            - img [ref=e48]
+          - generic [ref=e50]:
+            - strong [ref=e51]: 导入成绩
+            - generic [ref=e52]: 上传 Excel，复用字段映射
+          - generic [ref=e53]: 模板复用
+        - button "bar-chart 查看分析 查看薄弱点和讲评摘要 讲评" [ref=e54] [cursor=pointer]:
+          - img "bar-chart" [ref=e56]:
+            - img [ref=e57]
+          - generic [ref=e59]:
+            - strong [ref=e60]: 查看分析
+            - generic [ref=e61]: 查看薄弱点和讲评摘要
+          - generic [ref=e62]: 讲评
+      - generic [ref=e63]:
+        - generic [ref=e64]:
+          - text: 新手示例
+          - heading "用默认样例跑一遍" [level=3] [ref=e65]
+        - generic [ref=e66]:
+          - button "1 导入样卷 使用示例试卷，不需要先准备真实资料" [ref=e67] [cursor=pointer]:
+            - strong [ref=e68]: "1"
+            - generic [ref=e69]:
+              - generic [ref=e70]: 导入样卷
+              - generic [ref=e71]: 使用示例试卷，不需要先准备真实资料
+          - button "2 生成样卷 默认初中物理、力学基础、30 分" [ref=e72] [cursor=pointer]:
+            - strong [ref=e73]: "2"
+            - generic [ref=e74]:
+              - generic [ref=e75]: 生成样卷
+              - generic [ref=e76]: 默认初中物理、力学基础、30 分
+          - button "3 导入样例成绩 字段映射自动匹配，异常行集中处理" [ref=e77] [cursor=pointer]:
+            - strong [ref=e78]: "3"
+            - generic [ref=e79]:
+              - generic [ref=e80]: 导入样例成绩
+              - generic [ref=e81]: 字段映射自动匹配，异常行集中处理
+          - button "4 查看讲评摘要 直接看到薄弱知识点和导出入口" [ref=e82] [cursor=pointer]:
+            - strong [ref=e83]: "4"
+            - generic [ref=e84]:
+              - generic [ref=e85]: 查看讲评摘要
+              - generic [ref=e86]: 直接看到薄弱知识点和导出入口
+      - generic [ref=e87]:
+        - generic [ref=e88]: 服务状态自动同步
+        - generic [ref=e89]: 教师修改留在当前页面
+        - generic [ref=e90]: 重要操作会先确认
+    - region "系统状态" [ref=e91]:
+      - generic [ref=e92]:
+        - generic [ref=e93]:
+          - text: 导入向导
+          - heading "4 步" [level=3] [ref=e94]
+        - generic [ref=e95]: 可继续
+      - alert [ref=e97]:
+        - img "info-circle" [ref=e99]:
+          - img [ref=e100]
+        - generic [ref=e102]:
+          - generic [ref=e103]: 可以开始处理
+          - generic [ref=e104]: 上传后会显示处理进度；失败时保留原文件，可继续人工处理。
+      - generic [ref=e105]:
+        - generic [ref=e106]:
+          - strong [ref=e107]: "1"
+          - generic [ref=e108]:
+            - generic [ref=e109]: 上传文件
+            - generic [ref=e110]: Word、PDF、图片
+        - generic [ref=e111]:
+          - strong [ref=e112]: "2"
+          - generic [ref=e113]:
+            - generic [ref=e114]: 查看状态
+            - generic [ref=e115]: 排队、处理中、失败、等待重试
+        - generic [ref=e116]:
+          - strong [ref=e117]: "3"
+          - generic [ref=e118]:
+            - generic [ref=e119]: 确认异常
+            - generic [ref=e120]: 只处理跨页、误切、共用题图
+        - generic [ref=e121]:
+          - strong [ref=e122]: "4"
+          - generic [ref=e123]:
+            - generic [ref=e124]: 回看来源
+            - generic [ref=e125]: 页码、区域和原文件可追溯
+      - button "cloud-upload 上传试卷 选择文件后自动上传、解析并生成切题候选。" [ref=e126] [cursor=pointer]:
+        - img "cloud-upload" [ref=e127]:
+          - img [ref=e128]
+        - generic [ref=e131]:
+          - strong [ref=e132]: 上传试卷
+          - generic [ref=e133]: 选择文件后自动上传、解析并生成切题候选。
+      - generic [ref=e134]:
+        - generic [ref=e135]: 来源资料（真实 API）
+        - generic [ref=e136]:
+          - button "全 部" [ref=e138] [cursor=pointer]:
+            - generic [ref=e139]: 全 部
+          - button "textbook" [ref=e141] [cursor=pointer]:
+            - generic [ref=e142]: textbook
+          - button "local_exam_paper" [ref=e144] [cursor=pointer]:
+            - generic [ref=e145]: local_exam_paper
+        - generic [ref=e146]:
+          - generic [ref=e147]:
+            - generic [ref=e148]: 查询状态
+            - strong [ref=e149]: 已加载
+          - generic [ref=e150]:
+            - generic [ref=e151]: 来源条数
+            - strong [ref=e152]: "0"
+        - generic [ref=e153]:
+          - textbox "输入 SourceDocumentId 查询预览" [ref=e154]: 55a5591d-a09b-4959-8c35-5a654369b6d6
+          - button "查询预览" [ref=e155] [cursor=pointer]:
+            - generic [ref=e332]: 查询预览
+        - generic [ref=e156]:
+          - button "生成候选" [ref=e158] [cursor=pointer]:
+            - generic [ref=e333]: 生成候选
+          - button "查询候选" [ref=e160] [cursor=pointer]:
+            - generic [ref=e334]: 查询候选
+          - button "应用候选" [ref=e162] [cursor=pointer]:
+            - generic [ref=e335]: 应用候选
+      - generic [ref=e163]:
+        - generic [ref=e164]: 导入任务状态（真实 API）
+        - generic [ref=e165]:
+          - textbox "输入 ImportJobId" [ref=e166]: 12ba8765-c5ec-46e7-803a-de58b7ecbcb1
+          - button "查询任务" [ref=e167] [cursor=pointer]:
+            - generic [ref=e336]: 查询任务
+        - generic [ref=e168]:
+          - generic [ref=e169]:
+            - generic [ref=e170]: 任务状态
+            - strong [ref=e171]: succeeded
+          - generic [ref=e172]:
+            - generic [ref=e173]: 错误码
+            - strong [ref=e174]: "-"
+      - generic [ref=e175]:
+        - generic [ref=e176]:
+          - generic [ref=e177]: 排队中
+          - progressbar [ref=e178]
+          - strong [ref=e181]: "0"
+        - generic [ref=e182]:
+          - generic [ref=e183]: 处理中
+          - progressbar [ref=e184]
+          - strong [ref=e187]: "0"
+        - generic [ref=e188]:
+          - generic [ref=e189]: 失败
+          - progressbar [ref=e190]
+          - strong [ref=e193]: "0"
+        - generic [ref=e194]:
+          - generic [ref=e195]: 等待重试
+          - progressbar [ref=e196]
+          - strong [ref=e199]: "0"
+      - generic [ref=e200]:
+        - text: 导入效率摘要
+        - generic [ref=e201]:
+          - generic [ref=e202]:
+            - strong [ref=e203]: 1 分钟
+            - text: 上传到当前耗时
+          - generic [ref=e204]:
+            - strong [ref=e205]: "1"
+            - text: 关键操作次数
+          - generic [ref=e206]:
+            - strong [ref=e207]: "0"
+            - text: 失败接管次数
+        - text: 证据摘要（S003D）
+        - generic "s003d-evidence-summary" [ref=e208]: "{ \"contract\": \"s003d-import-efficiency\", \"elapsedMinutes\": 1, \"actionCount\": 1, \"failureTakeoverCount\": 0, \"lastTakeoverAction\": null, \"sourceMaterialCount\": 0, \"importJobStatus\": \"succeeded\", \"updatedAt\": \"2026-05-09T10:28:08.072Z\" }"
+    - region "导入确认" [ref=e209]:
+      - generic [ref=e210]:
+        - generic [ref=e211]:
+          - heading "异常确认与来源回看" [level=2] [ref=e212]
+          - text: 处理跨页、误切和共用题图，只记录必要修正。
+        - generic [ref=e213]: B004
+      - generic [ref=e214]:
+        - generic "来源页预览" [ref=e215]:
+          - generic [ref=e216]:
+            - generic [ref=e217]:
+              - generic [ref=e218]: 预览状态
+              - strong [ref=e219]: 已加载
+            - generic [ref=e220]:
+              - generic [ref=e221]: 页数
+              - strong [ref=e222]: "0"
+            - generic [ref=e223]:
+              - generic [ref=e224]: 区域数
+              - strong [ref=e225]: "0"
+          - generic [ref=e226]:
+            - generic [ref=e227]: 第 1 页
+            - button "第 1 题" [ref=e228] [cursor=pointer]
+            - button "第 2 题上" [ref=e229] [cursor=pointer]
+          - generic [ref=e230]:
+            - generic [ref=e231]: 第 2 页
+            - button "第 2 题下" [ref=e232] [cursor=pointer]
+        - generic [ref=e233]:
+          - generic [ref=e234]:
+            - generic [ref=e235]:
+              - generic [ref=e236]: 待确认
+              - strong [ref=e237]: "27"
+            - generic [ref=e238]:
+              - generic [ref=e239]: 已选择
+              - strong [ref=e240]: "2"
+            - generic [ref=e241]:
+              - generic [ref=e242]: 预计处理
+              - strong [ref=e243]: 8 分钟
+            - generic [ref=e244]:
+              - generic [ref=e245]: 低置信度
+              - strong [ref=e246]: "4"
+          - generic "人工确认操作" [ref=e247]:
+            - button "search 只看异常" [ref=e248] [cursor=pointer]:
+              - img "search" [ref=e250]:
+                - img [ref=e251]
+              - generic [ref=e253]: 只看异常
+            - button "merge-cells 合并" [ref=e254] [cursor=pointer]:
+              - img "merge-cells" [ref=e256]:
+                - img [ref=e257]
+              - generic [ref=e259]: 合并
+            - button "split-cells 拆分" [disabled] [ref=e260]:
+              - generic:
+                - img "split-cells":
+                  - img
+              - generic: 拆分
+            - combobox "共用题图" [ref=e261]:
+              - option "图 A：滑轮组示意图" [selected]
+              - option "图 B：电路图"
+              - option "表 1：实验数据"
+            - button "link 关联" [ref=e262] [cursor=pointer]:
+              - img "link" [ref=e264]:
+                - img [ref=e265]
+              - generic [ref=e267]: 关联
+            - button "undo 撤销" [ref=e268] [cursor=pointer]:
+              - img "undo" [ref=e270]:
+                - img [ref=e271]
+              - generic [ref=e273]: 撤销
+            - button "check-circle 批量确认" [ref=e274] [cursor=pointer]:
+              - img "check-circle" [ref=e276]:
+                - img [ref=e277]
+              - generic [ref=e280]: 批量确认
+          - generic "题目片段" [ref=e281]:
+            - button "………………………………………………………………………………………………………………... 第 1 页 · document_header / 来源区域已关联 · 难度略高 失败原因：requires_manual_review 未关联题图 需人工接管" [ref=e337] [cursor=pointer]:
+              - generic [ref=e338]:
+                - strong [ref=e339]: ………………………………………………………………………………………………………………...
+                - generic [ref=e340]: 第 1 页 · document_header / 来源区域已关联 · 难度略高
+                - generic [ref=e341]: 失败原因：requires_manual_review
+              - generic [ref=e342]: 未关联题图
+              - generic [ref=e343]: 需人工接管
+            - button "1. 咸鱼放在冰箱冷冻室里一晚，冷冻室内有咸鱼味. 这表明 订 ... 第 1 页 · question_stem / 来源区域已关联 · 难度略高 未关联题图 跳过" [ref=e344] [cursor=pointer]:
+              - generic [ref=e345]:
+                - strong [ref=e346]: 1. 咸鱼放在冰箱冷冻室里一晚，冷冻室内有咸鱼味. 这表明 订 ...
+                - generic [ref=e347]: 第 1 页 · question_stem / 来源区域已关联 · 难度略高
+              - generic [ref=e348]: 未关联题图
+              - generic [ref=e349]: 跳过
+            - button "2. 图 1 所示电路，L1 的电阻比 L2 的大. 开关闭合，灯均发光，则 考生号... 第 1 页 · question_stem / 来源区域已关联 · 难度略高 未关联题图 跳过" [ref=e350] [cursor=pointer]:
+              - generic [ref=e351]:
+                - strong [ref=e352]: 2. 图 1 所示电路，L1 的电阻比 L2 的大. 开关闭合，灯均发光，则 考生号...
+                - generic [ref=e353]: 第 1 页 · question_stem / 来源区域已关联 · 难度略高
+              - generic [ref=e354]: 未关联题图
+              - generic [ref=e355]: 跳过
+            - button "3. 把餐巾纸摩擦过的塑料吸管放在支架上，吸管能在水平面自由转动. 如图 2 所示，... 第 2 页 · question_stem / 来源区域已关联 · 难度略高 未关联题图 跳过" [ref=e356] [cursor=pointer]:
+              - generic [ref=e357]:
+                - strong [ref=e358]: 3. 把餐巾纸摩擦过的塑料吸管放在支架上，吸管能在水平面自由转动. 如图 2 所示，...
+                - generic [ref=e359]: 第 2 页 · question_stem / 来源区域已关联 · 难度略高
+              - generic [ref=e360]: 未关联题图
+              - generic [ref=e361]: 跳过
+            - button "4. 图 3 是电磁波家族，真空中各种电磁波的传播速度相同. 某类恒星温度较低，呈暗... 第 2 页 · question_stem / 来源区域已关联 · 难度略高 未关联题图 跳过" [ref=e362] [cursor=pointer]:
+              - generic [ref=e363]:
+                - strong [ref=e364]: 4. 图 3 是电磁波家族，真空中各种电磁波的传播速度相同. 某类恒星温度较低，呈暗...
+                - generic [ref=e365]: 第 2 页 · question_stem / 来源区域已关联 · 难度略高
+              - generic [ref=e366]: 未关联题图
+              - generic [ref=e367]: 跳过
+            - button "5. 如图 4 所示，相同的水下录音装置 A、B 录下在海里同一位置的鲸发出的同一段... 第 2 页 · question_stem / 来源区域已关联 · 难度略高 未关联题图 跳过" [ref=e368] [cursor=pointer]:
+              - generic [ref=e369]:
+                - strong [ref=e370]: 5. 如图 4 所示，相同的水下录音装置 A、B 录下在海里同一位置的鲸发出的同一段...
+                - generic [ref=e371]: 第 2 页 · question_stem / 来源区域已关联 · 难度略高
+              - generic [ref=e372]: 未关联题图
+              - generic [ref=e373]: 跳过
+            - button "6. 如图 5 所示，在一个配有活塞的厚玻璃筒内放一小团硝化棉. 迅速下压活塞，硝化... 第 2 页 · question_stem / 来源区域已关联 · 难度略高 未关联题图 跳过" [ref=e374] [cursor=pointer]:
+              - generic [ref=e375]:
+                - strong [ref=e376]: 6. 如图 5 所示，在一个配有活塞的厚玻璃筒内放一小团硝化棉. 迅速下压活塞，硝化...
+                - generic [ref=e377]: 第 2 页 · question_stem / 来源区域已关联 · 难度略高
+              - generic [ref=e378]: 未关联题图
+              - generic [ref=e379]: 跳过
+            - button "7. 如图 6 所示，线圈 abcd 位于磁场中. K 与 1 接通时，ab 段导线... 第 3 页 · question_stem / 来源区域已关联 · 难度略高 未关联题图 跳过" [ref=e380] [cursor=pointer]:
+              - generic [ref=e381]:
+                - strong [ref=e382]: 7. 如图 6 所示，线圈 abcd 位于磁场中. K 与 1 接通时，ab 段导线...
+                - generic [ref=e383]: 第 3 页 · question_stem / 来源区域已关联 · 难度略高
+              - generic [ref=e384]: 未关联题图
+              - generic [ref=e385]: 跳过
+            - button "8. 通过热传递，某物体从固态变为液态. 图 7 是该过程物体的温度随时间变化图象.... 第 3 页 · question_stem / 来源区域已关联 · 难度略高 未关联题图 跳过" [ref=e386] [cursor=pointer]:
+              - generic [ref=e387]:
+                - strong [ref=e388]: 8. 通过热传递，某物体从固态变为液态. 图 7 是该过程物体的温度随时间变化图象....
+                - generic [ref=e389]: 第 3 页 · question_stem / 来源区域已关联 · 难度略高
+              - generic [ref=e390]: 未关联题图
+              - generic [ref=e391]: 跳过
+            - button "9. 图 8 所示玻璃管两端开口处蒙的橡皮膜绷紧程度相同. 将此装置置于水中，图 9... 第 3 页 · question_stem / 来源区域已关联 · 难度略高 未关联题图 跳过" [ref=e392] [cursor=pointer]:
+              - generic [ref=e393]:
+                - strong [ref=e394]: 9. 图 8 所示玻璃管两端开口处蒙的橡皮膜绷紧程度相同. 将此装置置于水中，图 9...
+                - generic [ref=e395]: 第 3 页 · question_stem / 来源区域已关联 · 难度略高
+              - generic [ref=e396]: 未关联题图
+              - generic [ref=e397]: 跳过
+            - button "10. 规格相同的瓶装了不同的液体，放在横梁已平衡 的天平上，如图 10 所示. 则... 第 3 页 · question_stem / 来源区域已关联 · 难度略高 未关联题图 跳过" [ref=e398] [cursor=pointer]:
+              - generic [ref=e399]:
+                - strong [ref=e400]: 10. 规格相同的瓶装了不同的液体，放在横梁已平衡 的天平上，如图 10 所示. 则...
+                - generic [ref=e401]: 第 3 页 · question_stem / 来源区域已关联 · 难度略高
+              - generic [ref=e402]: 未关联题图
+              - generic [ref=e403]: 跳过
+            - button "11. AC 硬棒质量忽略不计，在棒的 B、C 两点施加力 F1、F2，F2 的方向... 第 4 页 · question_stem / 来源区域已关联 · 难度略高 未关联题图 跳过" [ref=e404] [cursor=pointer]:
+              - generic [ref=e405]:
+                - strong [ref=e406]: 11. AC 硬棒质量忽略不计，在棒的 B、C 两点施加力 F1、F2，F2 的方向...
+                - generic [ref=e407]: 第 4 页 · question_stem / 来源区域已关联 · 难度略高
+              - generic [ref=e408]: 未关联题图
+              - generic [ref=e409]: 跳过
+            - button "12. 巨磁电阻（GMR）在磁场中，电阻会随着磁场的增大而急剧减小. 用 GMR 组... 第 4 页 · question_stem / 来源区域已关联 · 难度略高 未关联题图 跳过" [ref=e410] [cursor=pointer]:
+              - generic [ref=e411]:
+                - strong [ref=e412]: 12. 巨磁电阻（GMR）在磁场中，电阻会随着磁场的增大而急剧减小. 用 GMR 组...
+                - generic [ref=e413]: 第 4 页 · question_stem / 来源区域已关联 · 难度略高
+              - generic [ref=e414]: 未关联题图
+              - generic [ref=e415]: 跳过
+            - button "13. 如图 13 所示，墙壁上的平面镜前立有一硬杆. ... 第 4 页 · question_stem / 来源区域已关联 · 难度略高 未关联题图 跳过" [ref=e416] [cursor=pointer]:
+              - generic [ref=e417]:
+                - strong [ref=e418]: 13. 如图 13 所示，墙壁上的平面镜前立有一硬杆. ...
+                - generic [ref=e419]: 第 4 页 · question_stem / 来源区域已关联 · 难度略高
+              - generic [ref=e420]: 未关联题图
+              - generic [ref=e421]: 跳过
+            - button "14.(1)在图 14 中标示出物距. . . (2)画出图 14 中所示的两条光线... 第 4 页 · question_stem / 来源区域已关联 · 难度略高 未关联题图 跳过" [ref=e422] [cursor=pointer]:
+              - generic [ref=e423]:
+                - strong [ref=e424]: 14.(1)在图 14 中标示出物距. . . (2)画出图 14 中所示的两条光线...
+                - generic [ref=e425]: 第 4 页 · question_stem / 来源区域已关联 · 难度略高
+              - generic [ref=e426]: 未关联题图
+              - generic [ref=e427]: 跳过
+            - button "15. 墙上的喜羊羊是实像还是虚像？________. 该像相对于物是“正立”还是“... 第 4 页 · question_stem / 来源区域已关联 · 难度略高 未关联题图 跳过" [ref=e428] [cursor=pointer]:
+              - generic [ref=e429]:
+                - strong [ref=e430]: 15. 墙上的喜羊羊是实像还是虚像？________. 该像相对于物是“正立”还是“...
+                - generic [ref=e431]: 第 4 页 · question_stem / 来源区域已关联 · 难度略高
+              - generic [ref=e432]: 未关联题图
+              - generic [ref=e433]: 跳过
+            - button "16. 小球在没有空气阻力的情况下，沿无摩擦轨 道运动. ... 第 5 页 · question_stem / 来源区域已关联 · 难度略高 未关联题图 跳过" [ref=e434] [cursor=pointer]:
+              - generic [ref=e435]:
+                - strong [ref=e436]: 16. 小球在没有空气阻力的情况下，沿无摩擦轨 道运动. ...
+                - generic [ref=e437]: 第 5 页 · question_stem / 来源区域已关联 · 难度略高
+              - generic [ref=e438]: 未关联题图
+              - generic [ref=e439]: 跳过
+            - button "17. 如图 18 所示，往装满 CO2 的软矿泉水瓶加水，迅速拧紧瓶盖， 水 震荡... 第 5 页 · question_stem / 来源区域已关联 · 难度略高 未关联题图 跳过" [ref=e440] [cursor=pointer]:
+              - generic [ref=e441]:
+                - strong [ref=e442]: 17. 如图 18 所示，往装满 CO2 的软矿泉水瓶加水，迅速拧紧瓶盖， 水 震荡...
+                - generic [ref=e443]: 第 5 页 · question_stem / 来源区域已关联 · 难度略高
+              - generic [ref=e444]: 未关联题图
+              - generic [ref=e445]: 跳过
+            - button "18. 图 19 中质量为 10kg 的物体 A 静止在水平地面，与地面接触面积为 ... 第 5 页 · question_stem / 来源区域已关联 · 难度略高 未关联题图 跳过" [ref=e446] [cursor=pointer]:
+              - generic [ref=e447]:
+                - strong [ref=e448]: 18. 图 19 中质量为 10kg 的物体 A 静止在水平地面，与地面接触面积为 ...
+                - generic [ref=e449]: 第 5 页 · question_stem / 来源区域已关联 · 难度略高
+              - generic [ref=e450]: 未关联题图
+              - generic [ref=e451]: 跳过
+            - button "19. 如图 20 所示，手用 F1 的力直接将物体 B 匀速提升 h，F1 做功为... 第 5 页 · question_stem / 来源区域已关联 · 难度略高 未关联题图 跳过" [ref=e452] [cursor=pointer]:
+              - generic [ref=e453]:
+                - strong [ref=e454]: 19. 如图 20 所示，手用 F1 的力直接将物体 B 匀速提升 h，F1 做功为...
+                - generic [ref=e455]: 第 5 页 · question_stem / 来源区域已关联 · 难度略高
+              - generic [ref=e456]: 未关联题图
+              - generic [ref=e457]: 跳过
+            - button "三、解析题（共 24 分） 解析题应写出必要的文字说明、公式和重要演算步骤。只写出最... 第 6 页 · explanation / 来源区域已关联 · 难度略高 失败原因：requires_manual_review 未关联题图 需人工接管" [ref=e458] [cursor=pointer]:
+              - generic [ref=e459]:
+                - strong [ref=e460]: 三、解析题（共 24 分） 解析题应写出必要的文字说明、公式和重要演算步骤。只写出最...
+                - generic [ref=e461]: 第 6 页 · explanation / 来源区域已关联 · 难度略高
+                - generic [ref=e462]: 失败原因：requires_manual_review
+              - generic [ref=e463]: 未关联题图
+              - generic [ref=e464]: 需人工接管
+            - button "20. 如图21所示，用水平向右的力 F 拉着物体，使其匀速直线运动了5m，运动时间... 第 6 页 · question_stem / 来源区域已关联 · 难度略高 未关联题图 跳过" [ref=e465] [cursor=pointer]:
+              - generic [ref=e466]:
+                - strong [ref=e467]: 20. 如图21所示，用水平向右的力 F 拉着物体，使其匀速直线运动了5m，运动时间...
+                - generic [ref=e468]: 第 6 页 · question_stem / 来源区域已关联 · 难度略高
+              - generic [ref=e469]: 未关联题图
+              - generic [ref=e470]: 跳过
+            - button "四、实验 探究题（共 19 分） 第 7 页 · document_header / 来源区域已关联 · 难度略高 失败原因：requires_manual_review 未关联题图 需人工接管" [ref=e471] [cursor=pointer]:
+              - generic [ref=e472]:
+                - strong [ref=e473]: 四、实验 探究题（共 19 分）
+                - generic [ref=e474]: 第 7 页 · document_header / 来源区域已关联 · 难度略高
+                - generic [ref=e475]: 失败原因：requires_manual_review
+              - generic [ref=e476]: 未关联题图
+              - generic [ref=e477]: 需人工接管
+            - button "22. （1）图 24 中未挂重物的弹簧测力计的示数是_______N，若没作任何调... 第 7 页 · question_stem / 来源区域已关联 · 难度略高 未关联题图 跳过" [ref=e478] [cursor=pointer]:
+              - generic [ref=e479]:
+                - strong [ref=e480]: 22. （1）图 24 中未挂重物的弹簧测力计的示数是_______N，若没作任何调...
+                - generic [ref=e481]: 第 7 页 · question_stem / 来源区域已关联 · 难度略高
+              - generic [ref=e482]: 未关联题图
+              - generic [ref=e483]: 跳过
+            - button "23. 测量小灯泡的电功率实验（小灯泡额定电压 2.5V）. （1）请根据实验目的，... 第 7 页 · question_stem / 来源区域已关联 · 难度略高 未关联题图 跳过" [ref=e484] [cursor=pointer]:
+              - generic [ref=e485]:
+                - strong [ref=e486]: 23. 测量小灯泡的电功率实验（小灯泡额定电压 2.5V）. （1）请根据实验目的，...
+                - generic [ref=e487]: 第 7 页 · question_stem / 来源区域已关联 · 难度略高
+              - generic [ref=e488]: 未关联题图
+              - generic [ref=e489]: 跳过
+            - button "………………………………………………………………………………………………………………... 第 8 页 · document_header / 来源区域已关联 · 难度略高 失败原因：requires_manual_review 未关联题图 需人工接管" [ref=e490] [cursor=pointer]:
+              - generic [ref=e491]:
+                - strong [ref=e492]: ………………………………………………………………………………………………………………...
+                - generic [ref=e493]: 第 8 页 · document_header / 来源区域已关联 · 难度略高
+                - generic [ref=e494]: 失败原因：requires_manual_review
+              - generic [ref=e495]: 未关联题图
+              - generic [ref=e496]: 需人工接管
+            - button "24. 除图 30 中的器材外，还可提供足够的水（密度为 ρ 水） ．．在水面的玩... 第 8 页 · question_stem / 来源区域已关联 · 难度略高 未关联题图 跳过" [ref=e497] [cursor=pointer]:
+              - generic [ref=e498]:
+                - strong [ref=e499]: 24. 除图 30 中的器材外，还可提供足够的水（密度为 ρ 水） ．．在水面的玩...
+                - generic [ref=e500]: 第 8 页 · question_stem / 来源区域已关联 · 难度略高
+              - generic [ref=e501]: 未关联题图
+              - generic [ref=e502]: 跳过
+          - separator [ref=e302]
+          - generic "修订记录" [ref=e303]:
+            - generic [ref=e304]: 修订记录
+            - generic [ref=e503]: 已加载候选 27 条到人工确认队列
+            - generic [ref=e504]: 本地解析完成：succeeded
+            - generic [ref=e505]: 已创建导入任务：12ba8765-c5ec-46e7-803a-de58b7ecbcb1
+            - generic [ref=e506]: 正在上传：2015广州中考.pdf
+          - generic "保存后来源回看" [ref=e306]:
+            - generic [ref=e307]: 保存后来源回看
+            - generic [ref=e308]: 尚未保存题目
+          - generic "失败接管" [ref=e309]:
+            - alert [ref=e310]:
+              - img "exclamation-circle" [ref=e312]:
+                - img [ref=e313]
+              - generic [ref=e315]:
+                - generic [ref=e316]: 解析器失败可人工接管
+                - generic [ref=e317]: 保留原始文件、来源区域和诊断信息，教师继续处理当前导入。
+            - generic [ref=e318]:
+              - generic [ref=e319]: 解析器失败
+              - generic [ref=e320]: 诊断：版面块解析超时
+            - generic [ref=e321]:
+              - button "框 选" [ref=e322] [cursor=pointer]:
+                - generic [ref=e323]: 框 选
+              - button "拆 分" [ref=e324] [cursor=pointer]:
+                - generic [ref=e325]: 拆 分
+              - button "合 并" [ref=e326] [cursor=pointer]:
+                - generic [ref=e327]: 合 并
+              - button "跳 过" [ref=e328] [cursor=pointer]:
+                - generic [ref=e329]: 跳 过
+              - button "重 跑" [ref=e330] [cursor=pointer]:
+                - generic [ref=e331]: 重 跑

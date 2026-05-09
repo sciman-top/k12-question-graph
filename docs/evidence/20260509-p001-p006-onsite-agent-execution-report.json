@@ -1,0 +1,284 @@
+{
+  "status": "partial_pass_human_blocked",
+  "checkedAt": "2026-05-09T17:44:15",
+  "taskRange": "P001-P006",
+  "mode": "onsite_agent_execution_with_authorized_materials_pending_review",
+  "currentRepoStatus": "existing dirty evidence files were not modified by this runner",
+  "sourceMaterials": [
+    {
+      "path": "D:\\CODE\\k12-question-graph\\tmp\\p001-p006-onsite-agent\\广州中考真题\\2015广州中考.pdf",
+      "fileName": "2015广州中考.pdf",
+      "sizeBytes": 700514,
+      "sha256": "534d8eee3b99446d514af736aaf4cd8e36f2803154f7778c0f656f1832b7510c",
+      "pages": 8,
+      "encrypted": "no",
+      "pdfInfo": {
+        "Creator": "Microsoft® Word 适用于 Microsoft 365",
+        "Producer": "Microsoft® Word 适用于 Microsoft 365",
+        "CreationDate": "Sun May  3 16:23:09 2026 �й���׼ʱ��",
+        "ModDate": "Sun May  3 16:23:09 2026 �й���׼ʱ��",
+        "Custom Metadata": "no",
+        "Metadata Stream": "yes",
+        "Tagged": "yes",
+        "UserProperties": "no",
+        "Suspects": "no",
+        "Form": "none",
+        "JavaScript": "no",
+        "Pages": "8",
+        "Encrypted": "no",
+        "Page size": "595.32 x 841.92 pts (A4)",
+        "Page rot": "0",
+        "File size": "0 bytes",
+        "Optimized": "no",
+        "PDF version": "1.7"
+      },
+      "extractedTextLength": 6248,
+      "extractedTextPreview": "…………………………………………………………………………………………………………………………………………………………………………… 密 姓 名： 封 装 考生号： 订 秘密★启用前 2015 年广州市初中毕业生学业考试 物 理 本试卷分第一部分和第二部分。第一部分第 1 至第 4 页,第二部分第 4 至第 8 页，共 8 页。 总分 100 分。考试时间 80 分钟。 注意事项: 1. 答题前，考生务必在答题卡上用黑色字迹的签字笔或钢笔填写自己的考生号、姓名； 填写考点考场号"
+    },
+    {
+      "path": "D:\\CODE\\k12-question-graph\\tmp\\p001-p006-onsite-agent\\广州中考真题\\2015广州中考答案.pdf",
+      "fileName": "2015广州中考答案.pdf",
+      "sizeBytes": 400792,
+      "sha256": "065a6293b5c1019ed2da199736df44c6d0304797d0a986a750449197ca9ba88d",
+      "pages": 4,
+      "encrypted": "no",
+      "pdfInfo": {
+        "Creator": "Microsoft® Word 适用于 Microsoft 365",
+        "Producer": "Microsoft® Word 适用于 Microsoft 365",
+        "CreationDate": "Sun May  3 16:23:11 2026 �й���׼ʱ��",
+        "ModDate": "Sun May  3 16:23:11 2026 �й���׼ʱ��",
+        "Custom Metadata": "no",
+        "Metadata Stream": "yes",
+        "Tagged": "yes",
+        "UserProperties": "no",
+        "Suspects": "no",
+        "Form": "none",
+        "JavaScript": "no",
+        "Pages": "4",
+        "Encrypted": "no",
+        "Page size": "595.32 x 841.92 pts (A4)",
+        "Page rot": "0",
+        "File size": "0 bytes",
+        "Optimized": "no",
+        "PDF version": "1.7"
+      },
+      "extractedTextLength": 1266,
+      "extractedTextPreview": "2015 年广州市初中毕业生学业考试 物理参考答案 第一部分 一、选择题 题号 1 2 3 4 5 6 7 8 9 10 11 12 答案 B A C B A D A D B C C D 第二部分 二、填空 13.（1） 作图题 A A＇ 平面镜 （2）0.5； 向左移；不变 14.（1）（2）如图示 印有喜羊羊 凸透镜 图案的胶片 物距 F F 光源 速度 15. 实像，倒立 16.（1）为零； （2） 等于；图象如右图所示 17.小于； 不变； 变小 0 18. 100 "
+    }
+  ],
+  "materialPolicy": {
+    "materialBatchKey": "guangzhou_physics_2015_onsite_p001_p006",
+    "licenseOrPermission": "pending_source_workbench_review",
+    "sharingAllowed": false,
+    "containsStudentPii": false,
+    "externalAiAllowed": false,
+    "productionActiveWrite": false
+  },
+  "steps": [
+    {
+      "name": "build",
+      "status": "pass",
+      "durationMs": 2110,
+      "result": {
+        "command": "dotnet build apps/api/K12QuestionGraph.Api.csproj",
+        "keyOutput": "  所有项目均是最新的，无法还原。\n  K12QuestionGraph.Api -> D:\\CODE\\k12-question-graph\\apps\\api\\bin\\Debug\\net10.0\\K12QuestionGraph.Api.dll\n\n已成功生成。\n    0 个警告\n    0 个错误\n\n已用时间 00:00:01.75"
+      }
+    },
+    {
+      "name": "pre-run backup",
+      "status": "pass",
+      "durationMs": 4397,
+      "result": {
+        "manifest": "tmp\\p001-p006-onsite-agent\\pre-run-backup\\20260509-174353\\manifest.json",
+        "verified": true
+      }
+    },
+    {
+      "name": "api upload and worker smoke",
+      "status": "pass",
+      "durationMs": 13796,
+      "result": {
+        "apiUrl": "http://127.0.0.1:11010",
+        "uploadCount": 2,
+        "sourceDocumentListCount": 7,
+        "uploads": [
+          {
+            "title": "2015广州中考",
+            "importJobId": "12ba8765-c5ec-46e7-803a-de58b7ecbcb1",
+            "importStatus": "succeeded",
+            "inputFileAssetId": "5fd283c7-3a40-4c16-9a65-04522655c89f",
+            "fileAssetId": "5fd283c7-3a40-4c16-9a65-04522655c89f",
+            "sourceDocumentId": "31d61a4a-1938-4867-ac31-a1df0a23d547",
+            "sha256": "534d8eee3b99446d514af736aaf4cd8e36f2803154f7778c0f656f1832b7510c",
+            "isDuplicate": true,
+            "sourceDocument": {
+              "id": "31d61a4a-1938-4867-ac31-a1df0a23d547",
+              "fileAssetId": "5fd283c7-3a40-4c16-9a65-04522655c89f",
+              "sourceType": "local_exam_paper",
+              "sourceTitle": "2015广州中考",
+              "region": "Guangzhou",
+              "year": 2015,
+              "gradeOrScope": "grade_9",
+              "editionOrVersion": "2015",
+              "materialBatchKey": "guangzhou_physics_2015_onsite_p001_p006",
+              "ownerScope": "school",
+              "licenseOrPermission": "pending_source_workbench_review",
+              "sharingAllowed": false,
+              "containsStudentPii": false,
+              "anonymizationStatus": "not_applicable",
+              "externalAiAllowed": false,
+              "mayUseForKnowledgeExtraction": true,
+              "mayUseForExamPointExtraction": true,
+              "mayUseForTrendAnalysis": true
+            },
+            "workerStatus": "succeeded",
+            "workerExitCode": null,
+            "workerAdapter": "scanned_ocr_review_adapter",
+            "workerWarnings": "OCR engine unavailable; scanned PDF page requires manual review takeover"
+          },
+          {
+            "title": "2015广州中考答案",
+            "importJobId": "fbd286b7-53cc-4fce-81cf-d7e3ecd15167",
+            "importStatus": "succeeded",
+            "inputFileAssetId": "558ca1fd-78e2-4f1b-80de-99caf9014ef2",
+            "fileAssetId": "558ca1fd-78e2-4f1b-80de-99caf9014ef2",
+            "sourceDocumentId": "9f7ad06c-5bf3-4f68-9130-4771ab719cf2",
+            "sha256": "065a6293b5c1019ed2da199736df44c6d0304797d0a986a750449197ca9ba88d",
+            "isDuplicate": true,
+            "sourceDocument": {
+              "id": "9f7ad06c-5bf3-4f68-9130-4771ab719cf2",
+              "fileAssetId": "558ca1fd-78e2-4f1b-80de-99caf9014ef2",
+              "sourceType": "local_exam_paper",
+              "sourceTitle": "2015广州中考答案",
+              "region": "Guangzhou",
+              "year": 2015,
+              "gradeOrScope": "grade_9",
+              "editionOrVersion": "2015",
+              "materialBatchKey": "guangzhou_physics_2015_onsite_p001_p006",
+              "ownerScope": "school",
+              "licenseOrPermission": "pending_source_workbench_review",
+              "sharingAllowed": false,
+              "containsStudentPii": false,
+              "anonymizationStatus": "not_applicable",
+              "externalAiAllowed": false,
+              "mayUseForKnowledgeExtraction": true,
+              "mayUseForExamPointExtraction": true,
+              "mayUseForTrendAnalysis": true
+            },
+            "workerStatus": "succeeded",
+            "workerExitCode": null,
+            "workerAdapter": "scanned_ocr_review_adapter",
+            "workerWarnings": "OCR engine unavailable; scanned PDF page requires manual review takeover"
+          }
+        ]
+      }
+    },
+    {
+      "name": "P001-P006 preflight contracts",
+      "status": "pass",
+      "durationMs": 4874,
+      "result": {
+        "status": "pass",
+        "task": "P0-live preflight refresh",
+        "checkedDate": "2026-05-09",
+        "checkedAt": "2026-05-09T17:44:15",
+        "total": 6,
+        "passCount": 6,
+        "nonPassCount": 0,
+        "boundary": "preflight_only; no live pilot execution, no backlog status transition",
+        "nextAction": "collect isolated-machine pilot evidence for P001, then execute P002-P006 in sequence",
+        "results": [
+          {
+            "id": "P001",
+            "script": "tools/run-p001-live-pilot-readiness-preflight-contract.ps1",
+            "status": "pass",
+            "mode": "preflight_only",
+            "boundary": "productization S012 and isolated-machine live rehearsal are not executed in this contract; keep P001 as todo until productized E2E and site run evidence are complete",
+            "checklistPath": "docs/templates/p001-live-pilot-release-checklist.md",
+            "evidencePath": "docs/evidence/20260505-p001-live-pilot-readiness-preflight.md",
+            "checkedAt": "2026-05-09T17:44:12"
+          },
+          {
+            "id": "P002",
+            "script": "tools/run-p002-teacher-proxy-pilot-preflight-contract.ps1",
+            "status": "pass",
+            "mode": "preflight_only",
+            "boundary": "teacher proxy pilot not executed in this contract; keep P002 as todo until P001 closes and proxy evidence is complete",
+            "checklistPath": "docs/templates/p002-teacher-proxy-pilot-checklist.md",
+            "evidencePath": "docs/evidence/20260505-p002-teacher-proxy-pilot-preflight.md",
+            "checkedAt": "2026-05-09T17:44:12"
+          },
+          {
+            "id": "P003",
+            "script": "tools/run-p003-onsite-pilot-admission-preflight-contract.ps1",
+            "status": "pass",
+            "mode": "preflight_only",
+            "boundary": "onsite pilot admission is not executed in this contract; keep P003 as todo until P002 closes and admission card is complete",
+            "checklistPath": "docs/templates/p003-onsite-pilot-admission-checklist.md",
+            "evidencePath": "docs/evidence/20260505-p003-onsite-pilot-admission-preflight.md",
+            "checkedAt": "2026-05-09T17:44:13"
+          },
+          {
+            "id": "P004",
+            "script": "tools/run-p004-onsite-pilot-round1-preflight-contract.ps1",
+            "status": "pass",
+            "mode": "preflight_only",
+            "boundary": "onsite pilot round1 is not executed in this contract; keep P004 as todo until P003 closes and teacher pilot evidence is complete",
+            "checklistPath": "docs/templates/p004-onsite-pilot-round1-checklist.md",
+            "evidencePath": "docs/evidence/20260505-p004-onsite-pilot-round1-preflight.md",
+            "checkedAt": "2026-05-09T17:44:14"
+          },
+          {
+            "id": "P005",
+            "script": "tools/run-p005-pilot-feedback-backlog-preflight-contract.ps1",
+            "status": "pass",
+            "mode": "preflight_only",
+            "boundary": "pilot feedback triage is not executed in this contract; keep P005 as todo until P004 closes and backlog triage evidence is complete",
+            "checklistPath": "docs/templates/p005-pilot-feedback-backlog-checklist.md",
+            "evidencePath": "docs/evidence/20260505-p005-pilot-feedback-backlog-preflight.md",
+            "checkedAt": "2026-05-09T17:44:14"
+          },
+          {
+            "id": "P006",
+            "script": "tools/run-p006-release-decision-preflight-contract.ps1",
+            "status": "pass",
+            "mode": "preflight_only",
+            "boundary": "release decision is not executed in this contract; keep P006 as todo until P005 closes and decision evidence is complete",
+            "checklistPath": "docs/templates/p006-release-decision-checklist.md",
+            "evidencePath": "docs/evidence/20260505-p006-release-decision-preflight.md",
+            "checkedAt": "2026-05-09T17:44:15"
+          }
+        ]
+      }
+    }
+  ],
+  "humanRequired": [
+    {
+      "taskId": "P003",
+      "reason": "现场教师试点准入需要真实教师参与边界、数据授权、支持人、回滚方案和反馈模板签收",
+      "status": "blocked_by_human_admission"
+    },
+    {
+      "taskId": "P004",
+      "reason": "现场教师第 1 轮需要真实教师操作耗时、卡点、文案困惑和回滚事件记录",
+      "status": "blocked_by_human_pilot_round"
+    },
+    {
+      "taskId": "P005",
+      "reason": "反馈转 backlog 需要来自 P004 的真实反馈项",
+      "status": "blocked_by_missing_pilot_feedback"
+    },
+    {
+      "taskId": "P006",
+      "reason": "发布裁决必须等待 P005 反馈分流、隐私/备份/恢复/教师效率全部通过",
+      "status": "blocked_by_release_decision_inputs"
+    }
+  ],
+  "rollback": {
+    "code": "remove tmp/run-p001-p006-onsite-agent.ps1 and generated evidence if this rehearsal is discarded",
+    "data": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/restore-backup.ps1 -ManifestPath 'tmp\\p001-p006-onsite-agent\\pre-run-backup\\20260509-174353\\manifest.json'",
+    "files": "delete tmp/p001-p006-onsite-agent staging directory and generated logs"
+  },
+  "conclusion": "Agent-side P001/P002 material admission and import-worker smoke executed with the 2015 paper and answer PDFs. P003-P006 cannot truthfully close without human onsite admission, teacher round evidence, feedback triage, and release decision inputs.",
+  "elapsedMs": 25454
+}

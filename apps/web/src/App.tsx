@@ -34,8 +34,11 @@ import {
   createPaperBlueprintReview,
   exportCommentaryReport,
   generateCutCandidates,
+  getCutCandidates,
   getQuestionSources,
   previewItemScoreMappings,
+  runDocumentWorkerSmoke,
+  uploadImportFile,
 } from './api/client'
 import {
   useCutCandidatesQuery,
@@ -354,7 +357,9 @@ function App() {
   const [importActionCount, setImportActionCount] = useState(0)
   const [failureTakeoverCount, setFailureTakeoverCount] = useState(0)
   const [lastTakeoverAction, setLastTakeoverAction] = useState<string | null>(null)
+  const [importUploadBusy, setImportUploadBusy] = useState(false)
   const localIdRef = useRef(0)
+  const uploadInputRef = useRef<HTMLInputElement | null>(null)
 
   const selectedSegments = useMemo(
     () => segments.filter((segment) => selectedIds.includes(segment.id)),
@@ -413,6 +418,54 @@ function App() {
 
   const trackImportAction = () => {
     setImportActionCount((count) => count + 1)
+  }
+
+  const handlePaperUploadFile = async (file: File) => {
+    if (importUploadBusy) {
+      return
+    }
+
+    setImportUploadBusy(true)
+    trackImportAction()
+    appendLog(`正在上传：${file.name}`)
+
+    const uploadResult = await uploadImportFile(file)
+    if (!uploadResult.ok) {
+      appendLog(`上传失败：${uploadResult.error.message}`)
+      setImportUploadBusy(false)
+      return
+    }
+
+    const importJobId = uploadResult.data.id
+    const sourceDocumentId = uploadResult.data.sourceDocumentId
+    setImportJobLookupId(importJobId)
+    if (sourceDocumentId) {
+      setSelectedSourceDocumentId(sourceDocumentId)
+    }
+    appendLog(`已创建导入任务：${importJobId}`)
+
+    const workerResult = await runDocumentWorkerSmoke(importJobId)
+    if (!workerResult.ok) {
+      appendLog(`本地解析失败：${workerResult.error.message}`)
+      setImportUploadBusy(false)
+      return
+    }
+
+    appendLog(`本地解析完成：${workerResult.data.status}`)
+    await sourceMaterialsQuery.refetch()
+
+    if (sourceDocumentId) {
+      const candidateResult = await getCutCandidates(sourceDocumentId)
+      if (candidateResult.ok && candidateResult.data.items.length > 0) {
+        applyCutCandidatesToWorkspace(candidateResult.data.items)
+      } else if (candidateResult.ok) {
+        appendLog('本地解析未生成候选，请进入人工接管补切。')
+      } else {
+        appendLog(`候选查询失败：${candidateResult.error.message}`)
+      }
+    }
+
+    setImportUploadBusy(false)
   }
 
   const toggleSegment = (id: string) => {
@@ -662,6 +715,8 @@ function App() {
       sequenceNo: number
       segmentType: string
       confidence: number
+      pageNumber: number
+      textPreview: string
       failureReason: string
       takeoverAction: string
       status: string
@@ -669,9 +724,13 @@ function App() {
   ) => {
     const nextSegments = items.map((row) => ({
       id: row.id,
-      title: `候选片段 ${row.sequenceNo}`,
-      page: row.sourceRegionId ? '来源区域已关联' : '待补来源区域',
-      region: row.segmentType,
+      title: row.textPreview
+        ? row.textPreview.length > 42
+          ? `${row.textPreview.slice(0, 42)}...`
+          : row.textPreview
+        : `候选片段 ${row.sequenceNo}`,
+      page: row.pageNumber > 0 ? `第 ${row.pageNumber} 页` : '页码待确认',
+      region: row.sourceRegionId ? `${row.segmentType} / 来源区域已关联` : row.segmentType,
       asset: '',
       confidence: row.confidence,
       failureReason: row.failureReason,
@@ -1008,15 +1067,26 @@ function App() {
               className="upload-dropzone"
               type="button"
               data-action="upload-paper"
-              onClick={() => {
-                trackImportAction()
-                appendLog('已触发上传入口，等待文件选择')
-              }}
+              disabled={importUploadBusy}
+              onClick={() => uploadInputRef.current?.click()}
             >
+              <input
+                ref={uploadInputRef}
+                type="file"
+                accept=".pdf,.docx,.png,.jpg,.jpeg"
+                hidden
+                onChange={(event) => {
+                  const file = event.currentTarget.files?.[0]
+                  event.currentTarget.value = ''
+                  if (file) {
+                    void handlePaperUploadFile(file)
+                  }
+                }}
+              />
               <CloudUploadOutlined />
               <span>
-                <strong>上传试卷</strong>
-                <small>选择文件后自动进入任务状态和异常确认。</small>
+                <strong>{importUploadBusy ? '正在处理' : '上传试卷'}</strong>
+                <small>选择文件后自动上传、解析并生成切题候选。</small>
               </span>
             </button>
 

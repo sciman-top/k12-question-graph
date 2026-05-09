@@ -4,6 +4,35 @@ $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 $fileRoot = Join-Path $repoRoot 'tmp\j003-scanned-ocr'
 $reportPath = Join-Path $repoRoot 'docs\evidence\j003-scanned-ocr-adapter-report.json'
 
+function Assert-RealOcrResult {
+    param(
+        [Parameter(Mandatory=$true)]$Json,
+        [Parameter(Mandatory=$true)][string]$CaseName,
+        [Parameter(Mandatory=$true)][string]$ExpectedAdapter
+    )
+
+    if ($Json.status -ne 'ok') { throw "$CaseName worker status is not ok" }
+    if ($Json.adapterDiagnostics[0].adapterName -ne $ExpectedAdapter) {
+        throw "$CaseName must use $ExpectedAdapter"
+    }
+
+    $pages = @($Json.documentModel.pages)
+    if ($pages.Count -lt 1) { throw "$CaseName must output at least one OCR page" }
+
+    $blocks = @($pages | ForEach-Object { $_.layoutBlocks })
+    if ($blocks.Count -lt 1) { throw "$CaseName must output at least one recognized text block" }
+    $joined = ($blocks | ForEach-Object { [string]$_.textPreview }) -join "`n"
+    if ($joined -notmatch '咸鱼|冷冻室|分子') {
+        throw "$CaseName must recognize real Chinese OCR text; got: $joined"
+    }
+    foreach ($block in $blocks) {
+        if ([decimal]$block.confidence -le 0.5) { throw "$CaseName confidence must come from OCR and be > 0.5" }
+        if ($block.reviewStatus -ne 'pending_review') { throw "$CaseName must enter pending_review" }
+        if ($null -eq $block.sourceRegion) { throw "$CaseName missing sourceRegion" }
+        if ($block.sourceRegion.source -notmatch 'rapidocr') { throw "$CaseName sourceRegion must record rapidocr source" }
+    }
+}
+
 function Assert-OcrReviewResult {
     param(
         [Parameter(Mandatory=$true)]$Json,
@@ -40,14 +69,20 @@ try {
 
     $pdf = python workers\document\worker.py --job-id j003-scanned --relative-path j003-scanned.pdf --file-root $fileRoot | ConvertFrom-Json
     if ($LASTEXITCODE -ne 0) { throw "J003 scanned PDF worker failed" }
-    Assert-OcrReviewResult -Json $pdf -CaseName 'J003 scanned PDF'
+    Assert-RealOcrResult -Json $pdf -CaseName 'J003 scanned PDF' -ExpectedAdapter 'rapidocr_scanned_pdf_adapter'
+
+    $image = python workers\document\worker.py --job-id j003-image --relative-path j003-scanned.png --file-root $fileRoot | ConvertFrom-Json
+    if ($LASTEXITCODE -ne 0) { throw "J003 scanned image worker failed" }
+    Assert-RealOcrResult -Json $image -CaseName 'J003 scanned image' -ExpectedAdapter 'rapidocr_image_adapter'
 
     $invalid = python workers\document\worker.py --job-id j003-invalid --relative-path j003-invalid.png --file-root $fileRoot | ConvertFrom-Json
     if ($LASTEXITCODE -ne 0) { throw "J003 invalid image worker failed" }
     Assert-OcrReviewResult -Json $invalid -CaseName 'J003 invalid image'
 
     $pdfBlocks = @($pdf.documentModel.pages | ForEach-Object { $_.layoutBlocks })
+    $imageBlocks = @($image.documentModel.pages | ForEach-Object { $_.layoutBlocks })
     $invalidBlocks = @($invalid.documentModel.pages | ForEach-Object { $_.layoutBlocks })
+    $recognizedPreview = ($pdfBlocks | Select-Object -First 3 | ForEach-Object { [string]$_.textPreview }) -join "`n"
     $report = [ordered]@{
         status = 'pass'
         task = 'J003'
@@ -55,13 +90,16 @@ try {
         adapterVersion = $pdf.adapterDiagnostics[0].adapterVersion
         scannedPdfPageCount = @($pdf.documentModel.pages).Count
         scannedPdfBlockCount = $pdfBlocks.Count
+        scannedImageAdapterName = $image.adapterDiagnostics[0].adapterName
+        scannedImageBlockCount = $imageBlocks.Count
         invalidTakeoverBlockCount = $invalidBlocks.Count
-        lowConfidence = $true
+        lowConfidence = $false
         reviewStatus = 'pending_review'
         takeoverRequired = $true
-        ocrEngineAvailable = $false
-        realOcrTextRecognized = $false
-        source = 'synthetic scanned pdf and invalid image'
+        ocrEngineAvailable = $true
+        realOcrTextRecognized = $true
+        recognizedPreview = $recognizedPreview
+        source = 'synthetic scanned pdf, synthetic scanned image, and invalid image'
         productionEligible = $false
     }
     $report | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $reportPath -Encoding utf8

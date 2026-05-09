@@ -22,15 +22,16 @@ J006 形成导入准确率与人工工作量的代理基线。它用于后续 L0
 - Block preservation accuracy: 100%
 - Automated cut case count: 0
 - Auto cut accuracy: N/A
+- Real OCR text recognized: true
 - Confirmation items: 6
 - Failure takeover steps: 6
-- Estimated teacher minutes: 8
+- Estimated teacher minutes: 7
 
-`autoCutAccuracy` 保持 N/A 是有意设计：当前 J0 未启用真实 OCR/AI 自动切题，扫描件进入 `pending_review/takeoverRequired`，因此不能宣称自动切题准确率。
+`autoCutAccuracy` 保持 N/A 是有意设计：当前 J0 已启用本地 OCR 识别，但尚未建立扫描件自动切题 golden accuracy；因此不能宣称自动切题准确率。
 
 ## 教师效率边界
 
-当前导入链路可证明来源、block、公式、表格和题图不会在 synthetic gate 中丢失；但教师仍需处理合并、拆分、题图关联、公式密集项、扫描件占位和答案解析分离。
+当前导入链路可证明来源、block、公式、表格和题图不会在 synthetic gate 中丢失，扫描文本可由本地 OCR 预填；但教师仍需处理合并、拆分、题图关联、公式密集项、扫描件校正和答案解析分离。
 
 后续真实提升必须继续减少这些人工确认项，而不是把它们改名为 AI 自动完成。
 

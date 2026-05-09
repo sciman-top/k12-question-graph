@@ -2,7 +2,7 @@
 
 J005 锁定文档解析 adapter 的诊断字段和供应链边界。目标是每次解析都能追溯使用了哪个 adapter、哪个工具版本、什么输入参数、输入输出 hash、耗时、warnings 和 errors。
 
-本合同只使用 synthetic fixture，不使用真实学生数据，不调用外部 AI，不调用外部 OCR/Docling，也不需要网络。
+本合同只使用 synthetic fixture，不使用真实学生数据，不调用外部 AI，不调用云端 OCR/Docling，也不需要网络。扫描件 OCR 使用本地 `rapidocr_onnxruntime`。
 
 ## 合同
 
@@ -15,6 +15,8 @@ J005 锁定文档解析 adapter 的诊断字段和供应链边界。目标是每
 
 - `openxml_docx_adapter`
 - `pdf_text_adapter`
+- `rapidocr_scanned_pdf_adapter`
+- `rapidocr_image_adapter`
 - `scanned_ocr_review_adapter`
 - `placeholder_document_adapter`
 
@@ -33,7 +35,7 @@ J005 锁定文档解析 adapter 的诊断字段和供应链边界。目标是每
 
 ## 边界
 
-当前 worker adapter 是本地 deterministic gate。扫描件在没有 OCR 引擎时必须 fail-closed 到 `pending_review/takeoverRequired`，并记录 warning；不能把 OCR 缺失伪装成自动识别成功。
+当前 worker adapter 是本地 deterministic gate。扫描 PDF 先经 `pdftoppm` 渲染页图，再由 `rapidocr_onnxruntime` 识别；图片直接进入 `rapidocr_onnxruntime`。无效图片、OCR 引擎缺失或识别失败必须 fail-closed 到 `pending_review/takeoverRequired`，并记录 warning；不能把 OCR 缺失伪装成自动识别成功。
 
 ## 回滚
 

@@ -12,9 +12,9 @@
       "adapterVersion": "0.1",
       "toolName": "python",
       "toolVersion": "3.13.7",
-      "durationMs": 4,
-      "inputSha256": "31cd99df620688a43fecca72b22df5bc48a309cfd10a12d3cb08408107dcc7b8",
-      "outputSha256": "dafc154b85eb1600d61fca8c5d308e803fefc60d0603d4e692dad9102a6050d7",
+      "durationMs": 3,
+      "inputSha256": "20158417de5d18004b1b195865267538646ca20ed29e9189f8259600188c5c29",
+      "outputSha256": "268483753484396978863adae018f68872f6e731f22a8fba4e80e493c32524f7",
       "warningCount": 0,
       "errorCount": 0,
       "commandArgs": {
@@ -28,7 +28,7 @@
       "adapterVersion": "0.1",
       "toolName": "python",
       "toolVersion": "3.13.7",
-      "durationMs": 3,
+      "durationMs": 34,
       "inputSha256": "f3081ad4685c9e5330cc0be5874fc240af9d0181113b68787e82774739ef0b29",
       "outputSha256": "c5dff7d72debea928bbd9072ab6d4c758e19854cbbf017b135398601c14b9383",
       "warningCount": 0,
@@ -40,17 +40,33 @@
     },
     {
       "caseId": "scanned_pdf",
-      "adapterName": "scanned_ocr_review_adapter",
+      "adapterName": "rapidocr_scanned_pdf_adapter",
       "adapterVersion": "0.1",
       "toolName": "python",
       "toolVersion": "3.13.7",
-      "durationMs": 3,
-      "inputSha256": "0f9f7cf68105cd76311ecdafae176a344e4b689636e8d880a50c6c14f97632b2",
-      "outputSha256": "cb3c023fc4a4aa9e2787f457c27ba1c2881e25668840e5860b0b0980a4fd4fb9",
+      "durationMs": 2436,
+      "inputSha256": "32bee51f490d4e36f41c837178d48d947dfd4fe299eeabce687b8c54b6c44ab7",
+      "outputSha256": "69621537112d7a59bcd596cf9fc5f7557b31dc8f7edd822035d2980a6244f521",
       "warningCount": 1,
       "errorCount": 0,
       "commandArgs": {
         "relativePath": "j005-scanned.pdf",
+        "simulateFailure": false
+      }
+    },
+    {
+      "caseId": "scanned_image",
+      "adapterName": "rapidocr_image_adapter",
+      "adapterVersion": "0.1",
+      "toolName": "python",
+      "toolVersion": "3.13.7",
+      "durationMs": 2145,
+      "inputSha256": "fe9f21e24f0e0b389109c6bd0ae320de2eeb19a2008b2d3c07eeb5d84086fe21",
+      "outputSha256": "d9493f64e7b18bd3b5e51a76f930b7dac5bc457bbae284839961f8150cb8bc0a",
+      "warningCount": 1,
+      "errorCount": 0,
+      "commandArgs": {
+        "relativePath": "j005-scanned.png",
         "simulateFailure": false
       }
     },
@@ -60,10 +76,10 @@
       "adapterVersion": "0.1",
       "toolName": "python",
       "toolVersion": "3.13.7",
-      "durationMs": 2,
+      "durationMs": 886,
       "inputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "outputSha256": "9bd2725635f0e81498fbb6098ebb8c28fc7cc2182c9118755f65bf515fa8685f",
-      "warningCount": 1,
+      "warningCount": 2,
       "errorCount": 0,
       "commandArgs": {
         "relativePath": "j005-invalid.png",
@@ -76,7 +92,7 @@
       "adapterVersion": "0.1",
       "toolName": "python",
       "toolVersion": "3.13.7",
-      "durationMs": 2,
+      "durationMs": 1,
       "inputSha256": "ada1417bcda1de941b67f9e958945207bb4db82fb15b3baa4523833cbc819274",
       "outputSha256": "96a091844f7589f30e0e6f7c5f384ed9e5137e541b66ed80741d869ef0a694a1",
       "warningCount": 1,
@@ -91,6 +107,8 @@
     "openxml_docx_adapter",
     "pdf_text_adapter",
     "placeholder_document_adapter",
+    "rapidocr_image_adapter",
+    "rapidocr_scanned_pdf_adapter",
     "scanned_ocr_review_adapter"
   ],
   "toolVersions": [
@@ -112,12 +130,14 @@
     "runtimeTool": "python",
     "runtimeToolVersion": "3.13.7",
     "externalOcrEngineInvoked": false,
+    "localOcrEngineInvoked": true,
+    "localOcrEngine": "rapidocr_onnxruntime",
     "doclingInvoked": false,
     "networkAccessRequired": false,
-    "stdlibOnlyFixtureAdapters": true,
+    "stdlibOnlyFixtureAdapters": false,
     "rawInputsStayUnder": "tmp\\j005-adapter-diagnostics"
   },
   "rollback": "git restore tracked files; remove tools/j005_adapter_diagnostic_supply_chain.py, tools/run-j005-adapter-diagnostic-supply-chain-contract.ps1, docs/90_J005_AdapterDiagnosticSupplyChain.md, docs/evidence/j005-adapter-diagnostic-supply-chain-report.json, and tmp/j005-adapter-diagnostics",
-  "createdAt": "2026-05-09T05:29:39.312245+00:00",
-  "summaryChinese": "J005 已验证所有当前 worker adapter 均记录版本、命令参数、输入输出 hash、耗时、warnings 和 errors；当前供应链为本地 Python/stdlib synthetic gate，不调用外部 OCR、Docling、网络或真实 AI。"
+  "createdAt": "2026-05-09T11:39:39.930794+00:00",
+  "summaryChinese": "J005 已验证所有当前 worker adapter 均记录版本、命令参数、输入输出 hash、耗时、warnings 和 errors；当前供应链调用本地 rapidocr_onnxruntime，不调用云端 OCR、Docling、网络或真实 AI。"
 }

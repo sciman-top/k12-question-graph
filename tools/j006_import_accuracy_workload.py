@@ -66,7 +66,7 @@ def main() -> int:
     automated_cut_cases = 0
     human_review_cases = sample_count
     scanned_cases = sum(1 for sample in samples if sample.get("id") == "scanned")
-    fail_closed_cases = scanned_cases
+    fail_closed_cases = 1 if j003.get("takeoverRequired") else 0
     source_region_accuracy = 1.0 if source_review_cases == sample_count else source_review_cases / sample_count
     block_preservation_accuracy = 1.0 if saved_block_cases == expected_block_cases else saved_block_cases / expected_block_cases
     auto_cut_accuracy = None
@@ -78,9 +78,9 @@ def main() -> int:
             ("confirmationItems", confirmation_items),
             ("failureTakeoverStepCount", len(failure_takeover_steps)),
             ("failureTakeoverSteps", failure_takeover_steps),
-            ("estimatedTeacherMinutes", 8),
+            ("estimatedTeacherMinutes", 7),
             ("manualReviewRequired", True),
-            ("manualReviewReason", "当前 J0 只证明 adapter/导入/来源回看合同；扫描件和复杂切题仍进入人工确认，不虚报 AI 自动切题。"),
+            ("manualReviewReason", "当前 J0 已证明本地 OCR adapter 可识别扫描文本；复杂切题、公式和结构化标注仍进入人工确认，不虚报 AI 自动切题。"),
         ]
     )
 
@@ -89,8 +89,9 @@ def main() -> int:
             ("sourceRegionAccuracy", source_region_accuracy),
             ("blockPreservationAccuracy", block_preservation_accuracy),
             ("autoCutAccuracy", auto_cut_accuracy),
-            ("autoCutAccuracyReason", "未启用真实 OCR/AI 自动切题；当前 automated_cut_cases=0，不能计算或宣称自动切题准确率。"),
+            ("autoCutAccuracyReason", "已启用本地 OCR 识别，但尚未建立扫描件自动切题 golden accuracy；当前 automated_cut_cases=0，不能宣称自动切题准确率。"),
             ("automatedCutCaseCount", automated_cut_cases),
+            ("realOcrTextRecognized", bool(j003["realOcrTextRecognized"])),
             ("humanReviewCaseCount", human_review_cases),
             ("failClosedCaseCount", fail_closed_cases),
             ("scannedCaseCount", scanned_cases),
@@ -115,6 +116,7 @@ def main() -> int:
                 "reviewStatus": j003["reviewStatus"],
                 "takeoverRequired": j003["takeoverRequired"],
                 "realOcrTextRecognized": j003["realOcrTextRecognized"],
+                "recognizedPreview": j003.get("recognizedPreview", ""),
             }),
             ("j004", {
                 "importHasFormula": j004["importChecks"]["hasFormulaBlock"],
@@ -127,6 +129,8 @@ def main() -> int:
                 "adapterNames": j005["adapterNames"],
                 "networkAccessRequired": j005["supplyChain"]["networkAccessRequired"],
                 "externalOcrEngineInvoked": j005["supplyChain"]["externalOcrEngineInvoked"],
+                "localOcrEngineInvoked": j005["supplyChain"].get("localOcrEngineInvoked", False),
+                "localOcrEngine": j005["supplyChain"].get("localOcrEngine", ""),
             }),
         ]
     )
@@ -136,9 +140,11 @@ def main() -> int:
     if accuracy["blockPreservationAccuracy"] < 1.0:
         raise AssertionError("J006 blockPreservationAccuracy baseline must preserve all synthetic blocks")
     if accuracy["automatedCutCaseCount"] != 0:
-        raise AssertionError("J006 must not claim automated cutting without AI/OCR evidence")
-    if not j003["takeoverRequired"] or j003["realOcrTextRecognized"]:
-        raise AssertionError("J006 scanned baseline must stay fail-closed to manual takeover")
+        raise AssertionError("J006 must not claim automated cutting before golden-set cut accuracy exists")
+    if not j003["takeoverRequired"]:
+        raise AssertionError("J006 invalid scanned baseline must keep a fail-closed takeover path")
+    if not j003["realOcrTextRecognized"]:
+        raise AssertionError("J006 scanned baseline must include real local OCR recognition")
     if j005["supplyChain"]["networkAccessRequired"] or j005["supplyChain"]["externalOcrEngineInvoked"]:
         raise AssertionError("J006 baseline must remain local and deterministic")
 
@@ -155,13 +161,13 @@ def main() -> int:
             ("teacherWorkload", workload),
             ("evidence", evidence),
             ("hotspot", {
-                "teacherEfficiencyImpact": "导入链路当前可稳定保留来源、block、公式、表格和题图；教师仍需处理 6 个确认项，扫描件必须人工接管。",
+                "teacherEfficiencyImpact": "导入链路当前可稳定保留来源、block、公式、表格和题图；扫描文本可由本地 OCR 预填，教师仍需处理 6 个确认项和复杂结构校正。",
                 "doesNotClaimAiAutomation": True,
-                "nextMeasurement": "后续 L003/M006/P002/P004 才能在真实授权材料、真实 OCR/AI 或现场教师代理下重新测量自动切题准确率和耗时。",
+                "nextMeasurement": "后续 L003/M006/P002/P004 必须用真实授权材料和 golden set 重新测量 OCR 识别率、自动切题准确率和教师修正耗时。",
             }),
             ("rollback", "git restore tracked files; remove tools/j006_import_accuracy_workload.py, tools/run-j006-import-accuracy-workload-contract.ps1, docs/91_J006_ImportAccuracyWorkload.md, docs/evidence/j006-import-accuracy-workload-report.json"),
             ("createdAt", datetime.now(timezone.utc).isoformat()),
-            ("summaryChinese", "J006 形成导入准确率与人工工作量代理基线：source region 与 block 保存为 100%，但自动切题样本数为 0，扫描件 fail-closed 到人工接管；不虚报 AI 自动化。"),
+            ("summaryChinese", "J006 形成导入准确率与人工工作量代理基线：source region 与 block 保存为 100%，本地 OCR 已能识别扫描文本，但自动切题样本数仍为 0；不虚报 AI 自动化或生产级切题准确率。"),
         ]
     )
     write_json(args.report, report)

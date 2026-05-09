@@ -4,8 +4,11 @@ import json
 import pathlib
 import platform
 import re
+import shutil
+import subprocess
 import sys
 import time
+import tempfile
 import zipfile
 import xml.etree.ElementTree as ET
 
@@ -223,6 +226,110 @@ def parse_text_pdf_pages(target: pathlib.Path) -> tuple[list[dict], list[str]]:
     return pages, warnings
 
 
+def split_pdf_text_blocks(text: str, page_number: int, body_started: bool) -> tuple[list[dict], bool]:
+    lines = [line.strip() for line in text.splitlines()]
+    groups: list[tuple[str, list[str]]] = []
+    current_kind = "document_header"
+    current_lines: list[str] = []
+    question_pattern = re.compile(r"^(\d{1,2})\s*[\.．、]\s*(.+)$")
+    section_pattern = re.compile(r"((第一|第二|第三|第四)部分\s*[（(]|[一二三四]、|参考答案)")
+
+    for line in lines:
+        if not line:
+            continue
+
+        if not body_started:
+            current_kind = "document_header"
+            current_lines.append(line)
+            if section_pattern.search(line):
+                body_started = True
+            continue
+
+        match = question_pattern.match(line)
+        if match and current_lines:
+            groups.append((current_kind, current_lines))
+            current_lines = []
+
+        if match:
+            current_kind = "question_stem"
+        elif not current_lines:
+            if line.startswith(("答案", "参考答案")) or "参考答案" in line:
+                current_kind = "answer"
+            elif "解析" in line:
+                current_kind = "explanation"
+            else:
+                current_kind = "document_header"
+
+        current_lines.append(line)
+
+    if current_lines:
+        groups.append((current_kind, current_lines))
+
+    blocks = []
+    for index, (block_type, block_lines) in enumerate(groups):
+        preview = " ".join(block_lines).strip()
+        if not preview:
+            continue
+        blocks.append(
+            {
+                "id": f"block_{len(blocks) + 1:04d}",
+                "pageNumber": page_number,
+                "blockType": block_type,
+                "textPreview": preview[:1000],
+                "confidence": 0.88 if block_type == "question_stem" else 0.78,
+                "reviewStatus": "pending_review",
+                "takeoverRequired": block_type != "question_stem",
+                "sourceRegion": {
+                    "source": "pdftotext_layout",
+                    "pageNumber": page_number,
+                    "textGroupIndex": index,
+                },
+            }
+        )
+
+    return blocks, body_started
+
+
+def parse_pdf_with_pdftotext(target: pathlib.Path) -> tuple[list[dict], list[str]]:
+    pdftotext = shutil.which("pdftotext")
+    if not pdftotext:
+        return [], ["pdftotext unavailable; falling back to internal PDF parser"]
+
+    with tempfile.TemporaryDirectory() as tmp:
+        output_path = pathlib.Path(tmp) / "document.txt"
+        completed = subprocess.run(
+            [pdftotext, "-layout", "-enc", "UTF-8", str(target), str(output_path)],
+            text=True,
+            capture_output=True,
+        )
+        if completed.returncode != 0:
+            warning = completed.stderr.strip() or completed.stdout.strip() or "pdftotext failed"
+            return [], [warning]
+
+        text = output_path.read_text(encoding="utf-8", errors="replace")
+
+    pages = []
+    body_started = False
+    for page_number, page_text in enumerate(text.split("\f"), start=1):
+        blocks, body_started = split_pdf_text_blocks(page_text, page_number, body_started)
+        if not blocks and not page_text.strip():
+            continue
+        pages.append(
+            {
+                "pageNumber": page_number,
+                "width": None,
+                "height": None,
+                "unit": "unknown",
+                "layoutBlocks": blocks,
+            }
+        )
+
+    if not pages or not any(page["layoutBlocks"] for page in pages):
+        return [], ["pdftotext produced no usable text blocks"]
+
+    return pages, []
+
+
 def pdf_page_object_ids(payload: bytes) -> list[int]:
     objects = parse_pdf_objects(payload)
     page_ids = []
@@ -272,6 +379,169 @@ def build_ocr_review_pages(page_count: int, source: str, warning: str, page_obje
     return pages
 
 
+def load_rapidocr_engine():
+    try:
+        from rapidocr_onnxruntime import RapidOCR
+    except Exception as exc:
+        return None, f"rapidocr_onnxruntime unavailable: {exc}"
+
+    try:
+        return RapidOCR(), ""
+    except Exception as exc:
+        return None, f"RapidOCR initialization failed: {exc}"
+
+
+def normalize_rapidocr_result(result) -> list[dict]:
+    lines: list[dict] = []
+    if not result:
+        return lines
+
+    for item in result:
+        if not isinstance(item, (list, tuple)) or len(item) < 3:
+            continue
+        box, text, confidence = item[0], str(item[1]).strip(), item[2]
+        if not text:
+            continue
+        try:
+            confidence_value = float(confidence)
+        except (TypeError, ValueError):
+            confidence_value = 0.0
+
+        xs = [float(point[0]) for point in box if isinstance(point, (list, tuple)) and len(point) >= 2]
+        ys = [float(point[1]) for point in box if isinstance(point, (list, tuple)) and len(point) >= 2]
+        source_region = {
+            "source": "rapidocr_onnxruntime",
+            "confidence": round(confidence_value, 4),
+            "reviewStatus": "pending_review",
+            "takeoverRequired": confidence_value < 0.9,
+        }
+        if xs and ys:
+            source_region.update(
+                {
+                    "x": min(xs),
+                    "y": min(ys),
+                    "width": max(xs) - min(xs),
+                    "height": max(ys) - min(ys),
+                    "unit": "pixel",
+                }
+            )
+
+        lines.append(
+            {
+                "text": text,
+                "confidence": confidence_value,
+                "sourceRegion": source_region,
+            }
+        )
+    return lines
+
+
+def ocr_lines_to_pages(page_lines: list[list[dict]], source: str) -> list[dict]:
+    pages: list[dict] = []
+    for page_index, lines in enumerate(page_lines):
+        page_number = page_index + 1
+        blocks = []
+        for line_index, line in enumerate(lines):
+            confidence = line["confidence"]
+            blocks.append(
+                {
+                    "id": f"block_{line_index + 1:04d}",
+                    "pageNumber": page_number,
+                    "blockType": paragraph_type(line["text"]),
+                    "textPreview": line["text"][:500],
+                    "confidence": round(confidence, 4),
+                    "reviewStatus": "pending_review",
+                    "takeoverRequired": confidence < 0.9,
+                    "sourceRegion": line["sourceRegion"] | {"pageNumber": page_number, "source": source},
+                }
+            )
+        pages.append(
+            {
+                "pageNumber": page_number,
+                "width": None,
+                "height": None,
+                "unit": "pixel",
+                "layoutBlocks": blocks,
+            }
+        )
+    return pages
+
+
+def parse_image_with_rapidocr(target: pathlib.Path) -> tuple[list[dict], list[str]]:
+    engine, error = load_rapidocr_engine()
+    if engine is None:
+        return [], [error]
+
+    try:
+        result, elapsed = engine(str(target))
+    except Exception as exc:
+        return [], [f"RapidOCR image recognition failed: {exc}"]
+
+    lines = normalize_rapidocr_result(result)
+    warnings = [f"RapidOCR elapsed={elapsed}"]
+    if not lines:
+        warnings.append("RapidOCR produced no text lines")
+    return ocr_lines_to_pages([lines], "rapidocr_image_ocr"), warnings
+
+
+def render_pdf_pages_with_pdftoppm(target: pathlib.Path, output_dir: pathlib.Path) -> tuple[list[pathlib.Path], list[str]]:
+    pdftoppm = shutil.which("pdftoppm")
+    if pdftoppm is None:
+        return [], ["pdftoppm unavailable; scanned PDF cannot be rendered for local OCR"]
+
+    prefix = output_dir / "page"
+    command = [pdftoppm, "-r", "200", "-png", str(target), str(prefix)]
+    try:
+        completed = subprocess.run(command, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=60)
+    except subprocess.TimeoutExpired:
+        return [], ["pdftoppm timed out while rendering scanned PDF"]
+    except OSError as exc:
+        return [], [f"pdftoppm failed to start: {exc}"]
+
+    warnings: list[str] = []
+    if completed.returncode != 0:
+        message = completed.stderr.strip() or completed.stdout.strip() or f"exit_code={completed.returncode}"
+        warnings.append(f"pdftoppm failed: {message}")
+        return [], warnings
+
+    rendered = sorted(output_dir.glob("page-*.png"))
+    if not rendered:
+        warnings.append("pdftoppm produced no page images")
+    return rendered, warnings
+
+
+def parse_scanned_pdf_with_rapidocr(target: pathlib.Path) -> tuple[list[dict], list[str]]:
+    engine, error = load_rapidocr_engine()
+    if engine is None:
+        return [], [error]
+
+    with tempfile.TemporaryDirectory(prefix="kqg-pdf-ocr-") as temp_dir:
+        page_images, warnings = render_pdf_pages_with_pdftoppm(target, pathlib.Path(temp_dir))
+        if not page_images:
+            return [], warnings
+
+        page_lines: list[list[dict]] = []
+        for page_image in page_images:
+            try:
+                result, elapsed = engine(str(page_image))
+            except Exception as exc:
+                warnings.append(f"RapidOCR PDF page recognition failed for {page_image.name}: {exc}")
+                page_lines.append([])
+                continue
+
+            lines = normalize_rapidocr_result(result)
+            if not lines:
+                warnings.append(f"RapidOCR produced no text lines for {page_image.name}")
+            else:
+                warnings.append(f"RapidOCR {page_image.name} elapsed={elapsed}")
+            page_lines.append(lines)
+
+    pages = ocr_lines_to_pages(page_lines, "rapidocr_pdf_ocr")
+    if not any(page["layoutBlocks"] for page in pages):
+        return [], warnings + ["RapidOCR produced no usable scanned PDF text blocks"]
+    return pages, warnings
+
+
 def parse_scanned_pdf_ocr_review(target: pathlib.Path) -> tuple[list[dict], list[str]]:
     payload = target.read_bytes()
     page_objects = pdf_page_object_ids(payload)
@@ -301,19 +571,31 @@ def build_document_model(job_id: str, relative_path: str, target: pathlib.Path) 
         adapter_name = "openxml_docx_adapter"
         adapter_version = "0.1"
     elif target.suffix.lower() == ".pdf":
-        pages, warnings = parse_text_pdf_pages(target)
+        pages, warnings = parse_pdf_with_pdftotext(target)
+        if not any(page["layoutBlocks"] for page in pages):
+            pages, warnings = parse_text_pdf_pages(target)
         blocks = []
         adapter_name = "pdf_text_adapter"
         adapter_version = "0.1"
         if not any(page["layoutBlocks"] for page in pages):
-            pages, warnings = parse_scanned_pdf_ocr_review(target)
-            adapter_name = "scanned_ocr_review_adapter"
+            pages, warnings = parse_scanned_pdf_with_rapidocr(target)
+            adapter_name = "rapidocr_scanned_pdf_adapter"
             adapter_version = "0.1"
+            if not any(page["layoutBlocks"] for page in pages):
+                review_pages, review_warnings = parse_scanned_pdf_ocr_review(target)
+                pages = review_pages
+                warnings = warnings + review_warnings
+                adapter_name = "scanned_ocr_review_adapter"
     elif target.suffix.lower() in {".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff"}:
-        pages, warnings = parse_scanned_image_ocr_review(target)
+        pages, warnings = parse_image_with_rapidocr(target)
         blocks = []
-        adapter_name = "scanned_ocr_review_adapter"
+        adapter_name = "rapidocr_image_adapter"
         adapter_version = "0.1"
+        if not any(page["layoutBlocks"] for page in pages):
+            review_pages, review_warnings = parse_scanned_image_ocr_review(target)
+            pages = review_pages
+            warnings = warnings + review_warnings
+            adapter_name = "scanned_ocr_review_adapter"
     else:
         preview = read_text_preview(target)
         blocks = [
@@ -357,6 +639,11 @@ def build_document_model(job_id: str, relative_path: str, target: pathlib.Path) 
 
 
 def main() -> int:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(encoding="utf-8")
+
     started = time.perf_counter()
     parser = argparse.ArgumentParser()
     parser.add_argument("--job-id", required=True)

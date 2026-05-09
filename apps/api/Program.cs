@@ -1121,7 +1121,7 @@ app.MapPost("/review-workbench/actions", async (
                         SortOrder = index,
                         Content = JsonSerializer.Serialize(new
                         {
-                            text = $"候选片段 {x.SequenceNo}",
+                            text = ResolveCandidateText(x),
                             candidateId = x.Id
                         }),
                         SourceRegionId = x.SourceRegionId,
@@ -2120,19 +2120,25 @@ app.MapPost("/imports/{id:guid}/worker-smoke", async (
         return Results.Conflict(new { error = "input_file_asset_missing" });
     }
 
-    if (!ImportJobTransitions.IsAllowed(job.Status, JobStatuses.Running))
+    var canStartWorker = ImportJobTransitions.IsAllowed(job.Status, JobStatuses.Running);
+    var canReplaySucceededJob = job.Status == JobStatuses.Succeeded && simulateFailure != true;
+    var canRetryFailedJob = job.Status == JobStatuses.Failed && simulateFailure != true;
+    if (!canStartWorker && !canReplaySucceededJob && !canRetryFailedJob)
     {
         return Results.Conflict(new { error = "invalid_status_transition", from = job.Status, to = JobStatuses.Running });
     }
 
     var now = DateTimeOffset.UtcNow;
-    job.Status = JobStatuses.Running;
-    job.StartedAt ??= now;
-    job.FinishedAt = null;
-    job.AttemptCount += 1;
-    job.LockedBy = "document-worker-smoke";
-    job.LockedUntil = now.AddMinutes(5);
-    await dbContext.SaveChangesAsync(cancellationToken);
+    if (canStartWorker || canRetryFailedJob)
+    {
+        job.Status = JobStatuses.Running;
+        job.StartedAt ??= now;
+        job.FinishedAt = null;
+        job.AttemptCount += 1;
+        job.LockedBy = "document-worker-smoke";
+        job.LockedUntil = now.AddMinutes(5);
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
     var result = await workerClient.RunSmokeAsync(job.Id, fileAsset.RelativePath, simulateFailure == true, cancellationToken);
     if (result.ExitCode == 0)
@@ -2151,6 +2157,15 @@ app.MapPost("/imports/{id:guid}/worker-smoke", async (
     job.LockedBy = null;
     job.LockedUntil = null;
     job.FinishedAt = DateTimeOffset.UtcNow;
+
+    var sourceDocument = await dbContext.SourceDocuments
+        .Where(x => x.FileAssetId == fileAsset.Id)
+        .OrderByDescending(x => x.CreatedAt)
+        .FirstOrDefaultAsync(cancellationToken);
+    var processing = result.ExitCode == 0 && sourceDocument is not null
+        ? await SeedLocalImportCandidatesAsync(dbContext, sourceDocument, result.StandardOutput, cancellationToken)
+        : ImportWorkerProcessingSummary.Empty;
+
     await dbContext.SaveChangesAsync(cancellationToken);
 
     return Results.Ok(new
@@ -2159,7 +2174,8 @@ app.MapPost("/imports/{id:guid}/worker-smoke", async (
         job.Status,
         result.ExitCode,
         result.StandardOutput,
-        result.StandardError
+        result.StandardError,
+        Processing = processing
     });
 })
 .WithName("RunDocumentWorkerSmoke");
@@ -2202,6 +2218,234 @@ static bool FormBool(IFormCollection form, string key, bool fallback)
     return form.TryGetValue(key, out var value) && bool.TryParse(value.ToString(), out var parsed)
         ? parsed
         : fallback;
+}
+
+static async Task<ImportWorkerProcessingSummary> SeedLocalImportCandidatesAsync(
+    KqgDbContext dbContext,
+    SourceDocument sourceDocument,
+    string workerOutput,
+    CancellationToken cancellationToken)
+{
+    if (string.IsNullOrWhiteSpace(workerOutput))
+    {
+        return ImportWorkerProcessingSummary.Empty;
+    }
+
+    using var document = JsonDocument.Parse(workerOutput);
+    var root = document.RootElement;
+    var adapterName = ReadFirstAdapterName(root);
+    if (!root.TryGetProperty("documentModel", out var documentModel) ||
+        !documentModel.TryGetProperty("pages", out var pages) ||
+        pages.ValueKind != JsonValueKind.Array)
+    {
+        return ImportWorkerProcessingSummary.Empty with { AdapterName = adapterName };
+    }
+
+    var previousCandidates = await dbContext.CutCandidates
+        .Where(x => x.SourceDocumentId == sourceDocument.Id)
+        .ToListAsync(cancellationToken);
+    var previousLocalCandidates = previousCandidates
+        .Where(x => x.Metadata.Contains("document_worker_local", StringComparison.OrdinalIgnoreCase))
+        .ToArray();
+    var previousLocalRegionIds = previousLocalCandidates
+        .Where(x => x.SourceRegionId.HasValue)
+        .Select(x => x.SourceRegionId!.Value)
+        .ToArray();
+    if (previousLocalCandidates.Length > 0)
+    {
+        dbContext.CutCandidates.RemoveRange(previousLocalCandidates);
+    }
+
+    if (previousLocalRegionIds.Length > 0)
+    {
+        var previousRegions = await dbContext.SourceRegions
+            .Where(x => previousLocalRegionIds.Contains(x.Id) && x.RegionType == "document_block")
+            .ToListAsync(cancellationToken);
+        dbContext.SourceRegions.RemoveRange(previousRegions);
+    }
+
+    const int maxCandidates = 120;
+    var now = DateTimeOffset.UtcNow;
+    var sequenceNo = 1;
+    var regions = new List<SourceRegion>();
+    var candidates = new List<CutCandidate>();
+    var queueItems = new List<ReviewQueueItem>();
+
+    foreach (var page in pages.EnumerateArray())
+    {
+        var pageNumber = ReadInt(page, "pageNumber", 1);
+        if (!page.TryGetProperty("layoutBlocks", out var blocks) ||
+            blocks.ValueKind != JsonValueKind.Array)
+        {
+            continue;
+        }
+
+        var blockIndex = 0;
+        foreach (var block in blocks.EnumerateArray())
+        {
+            if (candidates.Count >= maxCandidates)
+            {
+                break;
+            }
+
+            var textPreview = ReadString(block, "textPreview", string.Empty).Trim();
+            var blockType = NormalizeToken(ReadString(block, "blockType", "document_block"), "document_block");
+            if (string.IsNullOrWhiteSpace(textPreview))
+            {
+                continue;
+            }
+
+            var confidence = ReadDecimal(block, "confidence", blockType == "question_stem" ? 0.88m : 0.78m);
+            var takeoverRequired = ReadBool(block, "takeoverRequired", confidence < 0.85m);
+            var region = new SourceRegion
+            {
+                Id = Guid.NewGuid(),
+                SourceDocumentId = sourceDocument.Id,
+                PageNumber = pageNumber,
+                X = 0,
+                Y = Math.Min(95, blockIndex * 6),
+                Width = 100,
+                Height = 5,
+                CoordinateUnit = "percent",
+                RegionType = "document_block",
+                CreatedAt = now
+            };
+            regions.Add(region);
+
+            var candidate = new CutCandidate
+            {
+                Id = Guid.NewGuid(),
+                SourceDocumentId = sourceDocument.Id,
+                SourceRegionId = region.Id,
+                Status = CutCandidateStatuses.PendingReview,
+                Confidence = confidence,
+                SegmentType = blockType,
+                SequenceNo = sequenceNo++,
+                CandidatePayload = JsonSerializer.Serialize(new
+                {
+                    extractionMode = "document_worker_local",
+                    adapterName,
+                    pageNumber,
+                    blockType,
+                    textPreview,
+                    takeoverRequired,
+                    sourceRegionId = region.Id
+                }),
+                FailureReason = takeoverRequired ? "requires_manual_review" : string.Empty,
+                TakeoverAction = takeoverRequired ? "manual_review" : "skip",
+                Metadata = JsonSerializer.Serialize(new
+                {
+                    generatedBy = "document_worker_local",
+                    generatedAt = now,
+                    adapterName,
+                    source = "ImportJob.worker-smoke"
+                }),
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+            candidates.Add(candidate);
+
+            if (takeoverRequired)
+            {
+                queueItems.Add(new ReviewQueueItem
+                {
+                    ReviewType = "cut_candidate",
+                    Status = ReviewStatuses.Open,
+                    Payload = JsonSerializer.Serialize(new
+                    {
+                        sourceDocumentId = sourceDocument.Id,
+                        sourceRegionId = region.Id,
+                        candidateId = candidate.Id,
+                        confidence,
+                        requiredAction = "manual_review",
+                        reason = "document_worker_low_confidence_or_header",
+                        textPreview
+                    }),
+                    CreatedAt = now
+                });
+            }
+
+            blockIndex += 1;
+        }
+    }
+
+    if (regions.Count == 0 || candidates.Count == 0)
+    {
+        return ImportWorkerProcessingSummary.Empty with { AdapterName = adapterName };
+    }
+
+    dbContext.SourceRegions.AddRange(regions);
+    dbContext.CutCandidates.AddRange(candidates);
+    if (queueItems.Count > 0)
+    {
+        dbContext.ReviewQueueItems.AddRange(queueItems);
+    }
+
+    return new ImportWorkerProcessingSummary(
+        AdapterName: adapterName,
+        SourceRegionCount: regions.Count,
+        CutCandidateCount: candidates.Count,
+        LowConfidenceReviewQueueCount: queueItems.Count);
+}
+
+static string ReadFirstAdapterName(JsonElement root)
+{
+    if (root.TryGetProperty("adapterDiagnostics", out var diagnostics) &&
+        diagnostics.ValueKind == JsonValueKind.Array &&
+        diagnostics.GetArrayLength() > 0)
+    {
+        return ReadString(diagnostics[0], "adapterName", string.Empty);
+    }
+
+    return string.Empty;
+}
+
+static string ReadString(JsonElement element, string propertyName, string fallback)
+{
+    return element.TryGetProperty(propertyName, out var value) && value.ValueKind == JsonValueKind.String
+        ? value.GetString() ?? fallback
+        : fallback;
+}
+
+static int ReadInt(JsonElement element, string propertyName, int fallback)
+{
+    return element.TryGetProperty(propertyName, out var value) && value.TryGetInt32(out var parsed)
+        ? parsed
+        : fallback;
+}
+
+static decimal ReadDecimal(JsonElement element, string propertyName, decimal fallback)
+{
+    return element.TryGetProperty(propertyName, out var value) && value.TryGetDecimal(out var parsed)
+        ? parsed
+        : fallback;
+}
+
+static bool ReadBool(JsonElement element, string propertyName, bool fallback)
+{
+    return element.TryGetProperty(propertyName, out var value) && value.ValueKind is JsonValueKind.True or JsonValueKind.False
+        ? value.GetBoolean()
+        : fallback;
+}
+
+static string ResolveCandidateText(CutCandidate candidate)
+{
+    try
+    {
+        using var document = JsonDocument.Parse(candidate.CandidatePayload);
+        var root = document.RootElement;
+        var textPreview = ReadString(root, "textPreview", string.Empty).Trim();
+        if (!string.IsNullOrWhiteSpace(textPreview))
+        {
+            return textPreview;
+        }
+    }
+    catch (JsonException)
+    {
+        return $"候选片段 {candidate.SequenceNo}";
+    }
+
+    return $"候选片段 {candidate.SequenceNo}";
 }
 
 static int? FormInt(IFormCollection form, string key, int? fallback)
@@ -2676,6 +2920,19 @@ public sealed record CutCandidateGenerationResponse(
     int GeneratedCount,
     int LowConfidenceReviewQueueCount,
     decimal LowConfidenceThreshold);
+
+public sealed record ImportWorkerProcessingSummary(
+    string AdapterName,
+    int SourceRegionCount,
+    int CutCandidateCount,
+    int LowConfidenceReviewQueueCount)
+{
+    public static ImportWorkerProcessingSummary Empty { get; } = new(
+        AdapterName: string.Empty,
+        SourceRegionCount: 0,
+        CutCandidateCount: 0,
+        LowConfidenceReviewQueueCount: 0);
+}
 
 public sealed record CutCandidateListResponse(
     Guid SourceDocumentId,

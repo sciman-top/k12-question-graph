@@ -1,15 +1,23 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
+const localApiProxy = {
+  target: 'http://127.0.0.1:5275',
+  changeOrigin: true,
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/health': {
-        target: 'http://127.0.0.1:5275',
-        changeOrigin: true,
-      },
+      '/health': localApiProxy,
+      '/imports': localApiProxy,
+      '/source-documents': localApiProxy,
+      '/questions': localApiProxy,
+      '/review-workbench': localApiProxy,
+      '/paper-blueprints': localApiProxy,
+      '/assessments': localApiProxy,
     },
   },
   build: {

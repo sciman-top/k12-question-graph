@@ -1,0 +1,72 @@
+{
+  "date": "2026-05-09",
+  "slice": "local_rapidocr_scanned_pdf_image_core",
+  "boundary": "No Baidu Cloud OCR token and no cloud OCR. Local rapidocr_onnxruntime only.",
+  "implemented": [
+    "workers/document scans image inputs with rapidocr_onnxruntime",
+    "workers/document renders scanned PDFs through local pdftoppm and scans page images with rapidocr_onnxruntime",
+    "invalid image and OCR engine failure paths remain fail-closed to pending_review takeover",
+    "J003/J005/J006 contracts now distinguish real local OCR recognition from unmeasured automatic cutting accuracy"
+  ],
+  "localDependencies": {
+    "python": "3.13.7",
+    "rapidocr_onnxruntime": "1.2.3",
+    "pdftoppm": "D:\\texlive\\2023\\bin\\windows\\pdftoppm.exe",
+    "cloudOcrTokenUsed": false,
+    "networkRequiredAtRuntime": false
+  },
+  "contractEvidence": {
+    "j003": {
+      "status": "pass",
+      "adapterName": "rapidocr_scanned_pdf_adapter",
+      "scannedPdfBlockCount": 2,
+      "scannedImageAdapterName": "rapidocr_image_adapter",
+      "scannedImageBlockCount": 2,
+      "invalidTakeoverBlockCount": 1,
+      "ocrEngineAvailable": true,
+      "realOcrTextRecognized": true,
+      "recognizedPreview": "1．咸鱼放在冰箱冷冻室里一晚，冷冻室内有咸鱼味。\n问：这说明分子在不停地做无规则运动。"
+    },
+    "j005": {
+      "status": "pass",
+      "diagnosticCaseCount": 6,
+      "localOcrEngineInvoked": true,
+      "localOcrEngine": "rapidocr_onnxruntime",
+      "externalOcrEngineInvoked": false,
+      "networkAccessRequired": false
+    },
+    "j006": {
+      "status": "pass",
+      "realOcrTextRecognized": true,
+      "automatedCutCaseCount": 0,
+      "autoCutAccuracy": null,
+      "estimatedTeacherMinutes": 7
+    }
+  },
+  "liveApiEvidence": {
+    "importJobId": "8e49064b-c788-4ba0-97be-4ea218317fb1",
+    "sourceDocumentId": "9335f1ba-889b-44d3-8a99-75be36b60c4c",
+    "workerStatus": "succeeded",
+    "adapter": "rapidocr_image_adapter",
+    "sourceRegionCount": 3,
+    "cutCandidateCount": 3,
+    "queriedCandidateCount": 3,
+    "firstCandidateTextPreview": "1．咸鱼放在冰箱冷冻室里一晚，冷冻室内有咸鱼味。",
+    "firstCandidateConfidence": 0.9256
+  },
+  "commands": [
+    "python -m pip install rapidocr_onnxruntime",
+    "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-j003-scanned-ocr-adapter-contract.ps1",
+    "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-j005-adapter-diagnostic-supply-chain-contract.ps1",
+    "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-j006-import-accuracy-workload-contract.ps1",
+    "POST http://127.0.0.1:5275/imports with tmp/api-ocr-live/live-scanned-unique.png",
+    "POST http://127.0.0.1:5275/imports/8e49064b-c788-4ba0-97be-4ea218317fb1/worker-smoke",
+    "GET http://127.0.0.1:5275/source-documents/9335f1ba-889b-44d3-8a99-75be36b60c4c/cut-candidates"
+  ],
+  "remainingGaps": [
+    "Formula recognition for scanned/image-only formulas is still not implemented.",
+    "Automatic cutting accuracy remains unmeasured; automatedCutCaseCount stays 0 until a golden set exists.",
+    "OCR text still requires teacher review before production eligibility.",
+    "The local Python dependency must be installed from workers/document/requirements.txt on a fresh machine."
+  ]
+}

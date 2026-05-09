@@ -202,6 +202,19 @@ public sealed class LocalFileStore(KqgDbContext dbContext, IOptions<KqgPathsOpti
             return false;
         }
 
+        if (!metadata.SharingAllowed)
+        {
+            return false;
+        }
+
+        var license = metadata.LicenseOrPermission.Trim();
+        if (string.Equals(license, "unknown", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(license, "none", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(license, "pending_source_workbench_review", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
         if (metadata.ContainsStudentPii && metadata.AnonymizationStatus is not ("anonymized" or "synthetic"))
         {
             return false;

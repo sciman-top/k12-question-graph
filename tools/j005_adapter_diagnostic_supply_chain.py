@@ -12,7 +12,7 @@ from typing import Any
 
 from j001_openxml_docx_fixture import create_fixture as create_docx_fixture
 from j002_text_pdf_fixture import create_fixture as create_text_pdf_fixture
-from j003_scanned_ocr_fixture import create_invalid_image, create_scanned_pdf
+from j003_scanned_ocr_fixture import create_invalid_image, create_scanned_image, create_scanned_pdf
 
 
 DEFAULT_FILE_ROOT = Path("tmp/j005-adapter-diagnostics")
@@ -130,6 +130,7 @@ def main() -> int:
     create_docx_fixture(args.file_root / "j005-openxml.docx")
     create_text_pdf_fixture(args.file_root / "j005-text.pdf")
     create_scanned_pdf(args.file_root / "j005-scanned.pdf")
+    create_scanned_image(args.file_root / "j005-scanned.png")
     create_invalid_image(args.file_root / "j005-invalid.png")
     raw_path = args.file_root / "j005-raw.txt"
     raw_path.write_text("J005 raw adapter diagnostic smoke\n", encoding="utf-8")
@@ -137,7 +138,8 @@ def main() -> int:
     cases = [
         ("openxml_docx", "j005-openxml.docx", "openxml_docx_adapter", False),
         ("text_pdf", "j005-text.pdf", "pdf_text_adapter", False),
-        ("scanned_pdf", "j005-scanned.pdf", "scanned_ocr_review_adapter", True),
+        ("scanned_pdf", "j005-scanned.pdf", "rapidocr_scanned_pdf_adapter", True),
+        ("scanned_image", "j005-scanned.png", "rapidocr_image_adapter", True),
         ("invalid_image", "j005-invalid.png", "scanned_ocr_review_adapter", True),
         ("raw_document", "j005-raw.txt", "placeholder_document_adapter", True),
     ]
@@ -176,14 +178,16 @@ def main() -> int:
                 "runtimeTool": "python",
                 "runtimeToolVersion": sys.version.split()[0],
                 "externalOcrEngineInvoked": False,
+                "localOcrEngineInvoked": True,
+                "localOcrEngine": "rapidocr_onnxruntime",
                 "doclingInvoked": False,
                 "networkAccessRequired": False,
-                "stdlibOnlyFixtureAdapters": True,
+                "stdlibOnlyFixtureAdapters": False,
                 "rawInputsStayUnder": str(args.file_root),
             }),
             ("rollback", "git restore tracked files; remove tools/j005_adapter_diagnostic_supply_chain.py, tools/run-j005-adapter-diagnostic-supply-chain-contract.ps1, docs/90_J005_AdapterDiagnosticSupplyChain.md, docs/evidence/j005-adapter-diagnostic-supply-chain-report.json, and tmp/j005-adapter-diagnostics"),
             ("createdAt", datetime.now(timezone.utc).isoformat()),
-            ("summaryChinese", "J005 已验证所有当前 worker adapter 均记录版本、命令参数、输入输出 hash、耗时、warnings 和 errors；当前供应链为本地 Python/stdlib synthetic gate，不调用外部 OCR、Docling、网络或真实 AI。"),
+            ("summaryChinese", "J005 已验证所有当前 worker adapter 均记录版本、命令参数、输入输出 hash、耗时、warnings 和 errors；当前供应链调用本地 rapidocr_onnxruntime，不调用云端 OCR、Docling、网络或真实 AI。"),
         ]
     )
     write_json(args.report, report)

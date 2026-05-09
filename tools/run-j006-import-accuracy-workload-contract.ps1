@@ -29,12 +29,13 @@ try {
     if ([decimal]$report.accuracy.sourceRegionAccuracy -lt 1) { throw "J006 source region baseline regressed" }
     if ([decimal]$report.accuracy.blockPreservationAccuracy -lt 1) { throw "J006 block preservation baseline regressed" }
     if ($report.accuracy.automatedCutCaseCount -ne 0) { throw "J006 must not claim automated cutting cases" }
-    if ($null -ne $report.accuracy.autoCutAccuracy) { throw "J006 autoCutAccuracy must stay null without AI/OCR evidence" }
+    if ($null -ne $report.accuracy.autoCutAccuracy) { throw "J006 autoCutAccuracy must stay null before golden-set cut accuracy exists" }
+    if (-not $report.accuracy.realOcrTextRecognized) { throw "J006 must record real local OCR text recognition" }
     if ($report.teacherWorkload.confirmationItemCount -lt 1) { throw "J006 confirmation item count missing" }
     if ($report.teacherWorkload.failureTakeoverStepCount -lt 1) { throw "J006 failure takeover steps missing" }
     if (-not $report.hotspot.doesNotClaimAiAutomation) { throw "J006 must explicitly avoid AI automation claims" }
     if (-not $report.evidence.j003.takeoverRequired) { throw "J006 scanned baseline must require takeover" }
-    if ($report.evidence.j003.realOcrTextRecognized) { throw "J006 must not claim scanned OCR text recognition" }
+    if (-not $report.evidence.j003.realOcrTextRecognized) { throw "J006 must claim scanned OCR text recognition after J003 local OCR landed" }
 
     [ordered]@{
         status = 'pass'
@@ -43,6 +44,7 @@ try {
         sampleCount = [int]$report.accuracy.goldenSamples.Count
         sourceRegionAccuracy = [decimal]$report.accuracy.sourceRegionAccuracy
         blockPreservationAccuracy = [decimal]$report.accuracy.blockPreservationAccuracy
+        realOcrTextRecognized = [bool]$report.accuracy.realOcrTextRecognized
         automatedCutCaseCount = [int]$report.accuracy.automatedCutCaseCount
         confirmationItemCount = [int]$report.teacherWorkload.confirmationItemCount
         failureTakeoverStepCount = [int]$report.teacherWorkload.failureTakeoverStepCount

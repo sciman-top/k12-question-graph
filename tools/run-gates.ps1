@@ -658,17 +658,21 @@ try {
 
             $first = curl.exe -s -F "file=@$sample;filename=physics-paper.docx" -F "sourceType=school_paper" -F "sourceTitle=Gate Source" -F "ownerScope=school" -F "licenseOrPermission=internal_authorized" -F "sharingAllowed=true" -F "containsStudentPii=false" -F "anonymizationStatus=not_applicable" "$apiUrl/files" | ConvertFrom-Json
             $second = curl.exe -s -F "file=@$sample;filename=renamed-paper.pdf" -F "sourceType=unknown" -F "sourceTitle=Unknown Duplicate" -F "ownerScope=teacher_private" -F "licenseOrPermission=unknown" -F "sharingAllowed=true" -F "containsStudentPii=true" -F "anonymizationStatus=none" "$apiUrl/files" | ConvertFrom-Json
+            $pending = curl.exe -s -F "file=@$sample;filename=pending-review-source.pdf" -F "sourceType=school_paper" -F "sourceTitle=Pending Review Duplicate" -F "ownerScope=school" -F "licenseOrPermission=pending_source_workbench_review" -F "sharingAllowed=false" -F "containsStudentPii=false" -F "anonymizationStatus=not_applicable" "$apiUrl/files" | ConvertFrom-Json
 
             if ($first.isDuplicate) { throw "first upload unexpectedly marked duplicate" }
             if (-not $second.isDuplicate) { throw "second upload was not marked duplicate" }
             if ($first.id -ne $second.id) { throw "duplicate upload returned a different file asset id" }
+            if (-not $first.sourceDocument.externalAiAllowed) { throw "authorized non-PII source was not external-AI eligible" }
             if ($second.sourceDocument.sharingAllowed) { throw "unknown PII source remained shareable" }
             if ($second.sourceDocument.externalAiAllowed) { throw "unknown PII source remained external-AI eligible" }
+            if ($pending.sourceDocument.sharingAllowed) { throw "pending-review source remained shareable" }
+            if ($pending.sourceDocument.externalAiAllowed) { throw "pending-review source remained external-AI eligible" }
 
             $psql = Join-Path $PgBin 'psql.exe'
             $rowCount = & $psql -h $DatabaseHost -p $DatabasePort -U $DatabaseUser -d $DatabaseName -t -A -c "select count(*) from source_documents where file_asset_id = '$($first.id)';"
             if ($LASTEXITCODE -ne 0) { throw "source document query failed" }
-            if ([int]$rowCount -lt 2) { throw "expected at least two source document rows for duplicate upload" }
+            if ([int]$rowCount -lt 3) { throw "expected at least three source document rows for duplicate upload" }
         }
         finally {
             Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue

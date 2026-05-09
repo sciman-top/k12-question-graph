@@ -128,6 +128,57 @@ export async function getImportJob(id: string): Promise<ApiResult<ImportJobContr
   return requestJson(`/imports/${encodeURIComponent(id)}`, normalizeImportJobResponse)
 }
 
+export async function uploadImportFile(file: File): Promise<ApiResult<ImportJobContract>> {
+  const form = new FormData()
+  form.append('file', file)
+  form.append('sourceType', 'local_exam_paper')
+  form.append('sourceTitle', file.name)
+  form.append('ownerScope', 'school')
+  form.append('licenseOrPermission', 'pending_source_workbench_review')
+  form.append('sharingAllowed', 'false')
+  form.append('containsStudentPii', 'false')
+  form.append('anonymizationStatus', 'not_applicable')
+  form.append('materialBatchKey', 'teacher_upload')
+
+  try {
+    const response = await fetch(buildApiUrl('/imports'), {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+      },
+      body: form,
+    })
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        error: {
+          code: 'network_error',
+          message: `HTTP ${response.status}`,
+        },
+      }
+    }
+
+    const json: unknown = await response.json()
+    return {
+      ok: true,
+      data: normalizeImportJobResponse(json),
+    }
+  } catch (error) {
+    return {
+      ok: false,
+      error: {
+        code: 'network_error',
+        message: error instanceof Error ? error.message : 'Unknown network error',
+      },
+    }
+  }
+}
+
+export async function runDocumentWorkerSmoke(id: string): Promise<ApiResult<ImportJobContract>> {
+  return postJson(`/imports/${encodeURIComponent(id)}/worker-smoke`, {}, normalizeImportJobResponse)
+}
+
 export async function getSourceDocumentPreview(id: string): Promise<ApiResult<SourceDocumentPreviewContract>> {
   return requestJson(
     `/source-documents/${encodeURIComponent(id)}/preview`,

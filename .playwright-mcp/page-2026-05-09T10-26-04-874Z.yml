@@ -1,0 +1,305 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - text: K12 Question Graph
+      - heading "校本题谱" [level=1] [ref=e6]
+    - generic [ref=e7]:
+      - generic [ref=e9]: 本机可用
+      - generic [ref=e11]: 初中物理
+      - generic [ref=e13]: 服务状态 服务未连接
+  - main [ref=e14]:
+    - region "普通教师入口" [ref=e15]:
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - heading "今天要做什么" [level=2] [ref=e18]
+          - text: 默认只放四件常用事，其他设置交给管理员。
+        - button "inbox 打开导入" [ref=e19] [cursor=pointer]:
+          - img "inbox" [ref=e21]:
+            - img [ref=e22]
+          - generic [ref=e24]: 打开导入
+      - generic [ref=e25]:
+        - button "cloud-upload 导入试卷 上传文件，只处理异常项 常用" [pressed] [ref=e26] [cursor=pointer]:
+          - img "cloud-upload" [ref=e28]:
+            - img [ref=e29]
+          - generic [ref=e32]:
+            - strong [ref=e33]: 导入试卷
+            - generic [ref=e34]: 上传文件，只处理异常项
+          - generic [ref=e35]: 常用
+        - button "file-search 找题组卷 找题、换题、导出样卷 10 分钟目标" [ref=e36] [cursor=pointer]:
+          - img "file-search" [ref=e38]:
+            - img [ref=e39]
+          - generic [ref=e41]:
+            - strong [ref=e42]: 找题组卷
+            - generic [ref=e43]: 找题、换题、导出样卷
+          - generic [ref=e44]: 10 分钟目标
+        - button "file-text 导入成绩 上传 Excel，复用字段映射 模板复用" [ref=e45] [cursor=pointer]:
+          - img "file-text" [ref=e47]:
+            - img [ref=e48]
+          - generic [ref=e50]:
+            - strong [ref=e51]: 导入成绩
+            - generic [ref=e52]: 上传 Excel，复用字段映射
+          - generic [ref=e53]: 模板复用
+        - button "bar-chart 查看分析 查看薄弱点和讲评摘要 讲评" [ref=e54] [cursor=pointer]:
+          - img "bar-chart" [ref=e56]:
+            - img [ref=e57]
+          - generic [ref=e59]:
+            - strong [ref=e60]: 查看分析
+            - generic [ref=e61]: 查看薄弱点和讲评摘要
+          - generic [ref=e62]: 讲评
+      - generic [ref=e63]:
+        - generic [ref=e64]:
+          - text: 新手示例
+          - heading "用默认样例跑一遍" [level=3] [ref=e65]
+        - generic [ref=e66]:
+          - button "1 导入样卷 使用示例试卷，不需要先准备真实资料" [ref=e67] [cursor=pointer]:
+            - strong [ref=e68]: "1"
+            - generic [ref=e69]:
+              - generic [ref=e70]: 导入样卷
+              - generic [ref=e71]: 使用示例试卷，不需要先准备真实资料
+          - button "2 生成样卷 默认初中物理、力学基础、30 分" [ref=e72] [cursor=pointer]:
+            - strong [ref=e73]: "2"
+            - generic [ref=e74]:
+              - generic [ref=e75]: 生成样卷
+              - generic [ref=e76]: 默认初中物理、力学基础、30 分
+          - button "3 导入样例成绩 字段映射自动匹配，异常行集中处理" [ref=e77] [cursor=pointer]:
+            - strong [ref=e78]: "3"
+            - generic [ref=e79]:
+              - generic [ref=e80]: 导入样例成绩
+              - generic [ref=e81]: 字段映射自动匹配，异常行集中处理
+          - button "4 查看讲评摘要 直接看到薄弱知识点和导出入口" [ref=e82] [cursor=pointer]:
+            - strong [ref=e83]: "4"
+            - generic [ref=e84]:
+              - generic [ref=e85]: 查看讲评摘要
+              - generic [ref=e86]: 直接看到薄弱知识点和导出入口
+      - generic [ref=e87]:
+        - generic [ref=e88]: 服务状态自动同步
+        - generic [ref=e89]: 教师修改留在当前页面
+        - generic [ref=e90]: 重要操作会先确认
+    - region "系统状态" [ref=e91]:
+      - generic [ref=e92]:
+        - generic [ref=e93]:
+          - text: 导入向导
+          - heading "4 步" [level=3] [ref=e94]
+        - generic [ref=e95]: 可继续
+      - alert [ref=e97]:
+        - img "info-circle" [ref=e99]:
+          - img [ref=e100]
+        - generic [ref=e102]:
+          - generic [ref=e103]: 可以开始处理
+          - generic [ref=e104]: 上传后会显示处理进度；失败时保留原文件，可继续人工处理。
+      - generic [ref=e105]:
+        - generic [ref=e106]:
+          - strong [ref=e107]: "1"
+          - generic [ref=e108]:
+            - generic [ref=e109]: 上传文件
+            - generic [ref=e110]: Word、PDF、图片
+        - generic [ref=e111]:
+          - strong [ref=e112]: "2"
+          - generic [ref=e113]:
+            - generic [ref=e114]: 查看状态
+            - generic [ref=e115]: 排队、处理中、失败、等待重试
+        - generic [ref=e116]:
+          - strong [ref=e117]: "3"
+          - generic [ref=e118]:
+            - generic [ref=e119]: 确认异常
+            - generic [ref=e120]: 只处理跨页、误切、共用题图
+        - generic [ref=e121]:
+          - strong [ref=e122]: "4"
+          - generic [ref=e123]:
+            - generic [ref=e124]: 回看来源
+            - generic [ref=e125]: 页码、区域和原文件可追溯
+      - button "cloud-upload 上传试卷 选择文件后自动上传、解析并生成切题候选。" [ref=e126] [cursor=pointer]:
+        - img "cloud-upload" [ref=e127]:
+          - img [ref=e128]
+        - generic [ref=e131]:
+          - strong [ref=e132]: 上传试卷
+          - generic [ref=e133]: 选择文件后自动上传、解析并生成切题候选。
+      - generic [ref=e134]:
+        - generic [ref=e135]: 来源资料（真实 API）
+        - generic [ref=e136]:
+          - button "全 部" [ref=e138] [cursor=pointer]:
+            - generic [ref=e139]: 全 部
+          - button "textbook" [ref=e141] [cursor=pointer]:
+            - generic [ref=e142]: textbook
+          - button "local_exam_paper" [ref=e144] [cursor=pointer]:
+            - generic [ref=e145]: local_exam_paper
+        - generic [ref=e146]:
+          - generic [ref=e147]:
+            - generic [ref=e148]: 查询状态
+            - strong [ref=e149]: 已加载
+          - generic [ref=e150]:
+            - generic [ref=e151]: 来源条数
+            - strong [ref=e152]: "0"
+        - generic [ref=e153]:
+          - textbox "输入 SourceDocumentId 查询预览" [ref=e154]
+          - button "查询预览" [disabled] [ref=e155]:
+            - generic: 查询预览
+        - generic [ref=e156]:
+          - button "生成候选" [disabled] [ref=e158]:
+            - generic: 生成候选
+          - button "查询候选" [disabled] [ref=e160]:
+            - generic: 查询候选
+          - button "应用候选" [disabled] [ref=e162]:
+            - generic: 应用候选
+      - generic [ref=e163]:
+        - generic [ref=e164]: 导入任务状态（真实 API）
+        - generic [ref=e165]:
+          - textbox "输入 ImportJobId" [ref=e166]
+          - button "查询任务" [disabled] [ref=e167]:
+            - generic: 查询任务
+        - generic [ref=e168]:
+          - generic [ref=e169]:
+            - generic [ref=e170]: 任务状态
+            - strong [ref=e171]: 未查询
+          - generic [ref=e172]:
+            - generic [ref=e173]: 错误码
+            - strong [ref=e174]: "-"
+      - generic [ref=e175]:
+        - generic [ref=e176]:
+          - generic [ref=e177]: 排队中
+          - progressbar [ref=e178]
+          - strong [ref=e181]: "0"
+        - generic [ref=e182]:
+          - generic [ref=e183]: 处理中
+          - progressbar [ref=e184]
+          - strong [ref=e187]: "0"
+        - generic [ref=e188]:
+          - generic [ref=e189]: 失败
+          - progressbar [ref=e190]
+          - strong [ref=e193]: "0"
+        - generic [ref=e194]:
+          - generic [ref=e195]: 等待重试
+          - progressbar [ref=e196]
+          - strong [ref=e199]: "0"
+      - generic [ref=e200]:
+        - text: 导入效率摘要
+        - generic [ref=e201]:
+          - generic [ref=e202]:
+            - strong [ref=e203]: 0 分钟
+            - text: 上传到当前耗时
+          - generic [ref=e204]:
+            - strong [ref=e205]: "0"
+            - text: 关键操作次数
+          - generic [ref=e206]:
+            - strong [ref=e207]: "0"
+            - text: 失败接管次数
+        - text: 证据摘要（S003D）
+        - generic "s003d-evidence-summary" [ref=e208]: "{ \"contract\": \"s003d-import-efficiency\", \"elapsedMinutes\": 0, \"actionCount\": 0, \"failureTakeoverCount\": 0, \"lastTakeoverAction\": null, \"sourceMaterialCount\": 0, \"importJobStatus\": \"not_queried\", \"updatedAt\": \"2026-05-09T10:26:04.444Z\" }"
+    - region "导入确认" [ref=e209]:
+      - generic [ref=e210]:
+        - generic [ref=e211]:
+          - heading "异常确认与来源回看" [level=2] [ref=e212]
+          - text: 处理跨页、误切和共用题图，只记录必要修正。
+        - generic [ref=e213]: B004
+      - generic [ref=e214]:
+        - generic "来源页预览" [ref=e215]:
+          - generic [ref=e216]:
+            - generic [ref=e217]:
+              - generic [ref=e218]: 预览状态
+              - strong [ref=e219]: 未查询
+            - generic [ref=e220]:
+              - generic [ref=e221]: 页数
+              - strong [ref=e222]: "0"
+            - generic [ref=e223]:
+              - generic [ref=e224]: 区域数
+              - strong [ref=e225]: "0"
+          - generic [ref=e226]:
+            - generic [ref=e227]: 第 1 页
+            - button "第 1 题" [ref=e228] [cursor=pointer]
+            - button "第 2 题上" [ref=e229] [cursor=pointer]
+          - generic [ref=e230]:
+            - generic [ref=e231]: 第 2 页
+            - button "第 2 题下" [ref=e232] [cursor=pointer]
+        - generic [ref=e233]:
+          - generic [ref=e234]:
+            - generic [ref=e235]:
+              - generic [ref=e236]: 待确认
+              - strong [ref=e237]: "3"
+            - generic [ref=e238]:
+              - generic [ref=e239]: 已选择
+              - strong [ref=e240]: "2"
+            - generic [ref=e241]:
+              - generic [ref=e242]: 预计处理
+              - strong [ref=e243]: 8 分钟
+            - generic [ref=e244]:
+              - generic [ref=e245]: 低置信度
+              - strong [ref=e246]: "0"
+          - generic "人工确认操作" [ref=e247]:
+            - button "search 只看异常" [ref=e248] [cursor=pointer]:
+              - img "search" [ref=e250]:
+                - img [ref=e251]
+              - generic [ref=e253]: 只看异常
+            - button "merge-cells 合并" [ref=e254] [cursor=pointer]:
+              - img "merge-cells" [ref=e256]:
+                - img [ref=e257]
+              - generic [ref=e259]: 合并
+            - button "split-cells 拆分" [disabled] [ref=e260]:
+              - generic:
+                - img "split-cells":
+                  - img
+              - generic: 拆分
+            - combobox "共用题图" [ref=e261]:
+              - option "图 A：滑轮组示意图" [selected]
+              - option "图 B：电路图"
+              - option "表 1：实验数据"
+            - button "link 关联" [ref=e262] [cursor=pointer]:
+              - img "link" [ref=e264]:
+                - img [ref=e265]
+              - generic [ref=e267]: 关联
+            - button "undo 撤销" [ref=e268] [cursor=pointer]:
+              - img "undo" [ref=e270]:
+                - img [ref=e271]
+              - generic [ref=e273]: 撤销
+            - button "check-circle 批量确认" [ref=e274] [cursor=pointer]:
+              - img "check-circle" [ref=e276]:
+                - img [ref=e277]
+              - generic [ref=e280]: 批量确认
+          - generic "题目片段" [ref=e281]:
+            - button "第 1 题 第 1 页 · x10 y12 w62 h18 · 难度略高 未关联题图 跳过" [ref=e282] [cursor=pointer]:
+              - generic [ref=e283]:
+                - strong [ref=e284]: 第 1 题
+                - generic [ref=e285]: 第 1 页 · x10 y12 w62 h18 · 难度略高
+              - generic [ref=e286]: 未关联题图
+              - generic [ref=e287]: 跳过
+            - button "第 2 题上半部分 第 1-2 页 · x8 y76 w70 h20 · 难度略高 失败原因：cross_page_split_required 未关联题图 拆分" [ref=e288] [cursor=pointer]:
+              - generic [ref=e289]:
+                - strong [ref=e290]: 第 2 题上半部分
+                - generic [ref=e291]: 第 1-2 页 · x8 y76 w70 h20 · 难度略高
+                - generic [ref=e292]: 失败原因：cross_page_split_required
+              - generic [ref=e293]: 未关联题图
+              - generic [ref=e294]: 拆分
+            - button "第 2 题下半部分 第 2 页 · x8 y6 w70 h24 · 难度略高 失败原因：cross_page_merge_required 未关联题图 合并" [ref=e295] [cursor=pointer]:
+              - generic [ref=e296]:
+                - strong [ref=e297]: 第 2 题下半部分
+                - generic [ref=e298]: 第 2 页 · x8 y6 w70 h24 · 难度略高
+                - generic [ref=e299]: 失败原因：cross_page_merge_required
+              - generic [ref=e300]: 未关联题图
+              - generic [ref=e301]: 合并
+          - separator [ref=e302]
+          - generic "修订记录" [ref=e303]:
+            - generic [ref=e304]: 修订记录
+            - generic [ref=e305]: 暂无修正
+          - generic "保存后来源回看" [ref=e306]:
+            - generic [ref=e307]: 保存后来源回看
+            - generic [ref=e308]: 尚未保存题目
+          - generic "失败接管" [ref=e309]:
+            - alert [ref=e310]:
+              - img "exclamation-circle" [ref=e312]:
+                - img [ref=e313]
+              - generic [ref=e315]:
+                - generic [ref=e316]: 解析器失败可人工接管
+                - generic [ref=e317]: 保留原始文件、来源区域和诊断信息，教师继续处理当前导入。
+            - generic [ref=e318]:
+              - generic [ref=e319]: 解析器失败
+              - generic [ref=e320]: 诊断：版面块解析超时
+            - generic [ref=e321]:
+              - button "框 选" [ref=e322] [cursor=pointer]:
+                - generic [ref=e323]: 框 选
+              - button "拆 分" [ref=e324] [cursor=pointer]:
+                - generic [ref=e325]: 拆 分
+              - button "合 并" [ref=e326] [cursor=pointer]:
+                - generic [ref=e327]: 合 并
+              - button "跳 过" [ref=e328] [cursor=pointer]:
+                - generic [ref=e329]: 跳 过
+              - button "重 跑" [ref=e330] [cursor=pointer]:
+                - generic [ref=e331]: 重 跑

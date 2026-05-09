@@ -1,18 +1,33 @@
 from pathlib import Path
 
+from PIL import Image, ImageDraw, ImageFont
+
+
+OCR_FIXTURE_TEXT = "1. 咸鱼放在冰箱冷冻室里一晚，冷冻室内有咸鱼味。"
+
+
+def load_font(size: int) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
+    for candidate in (Path(r"C:\Windows\Fonts\simhei.ttf"), Path(r"C:\Windows\Fonts\simsun.ttc")):
+        if candidate.exists():
+            return ImageFont.truetype(str(candidate), size)
+    return ImageFont.load_default()
+
+
+def create_scanned_image(path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    image = Image.new("RGB", (1100, 220), "white")
+    draw = ImageDraw.Draw(image)
+    font = load_font(42)
+    draw.text((30, 42), OCR_FIXTURE_TEXT, fill="black", font=font)
+    draw.text((30, 116), "问：这说明分子在不停地做无规则运动。", fill="black", font=font)
+    image.save(path)
+
 
 def create_scanned_pdf(path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    image_payload = "synthetic scanned page image bytes"
-    objects = [
-        "1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n",
-        "2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n",
-        "3 0 obj\n<< /Type /Page /Parent 2 0 R /Resources << /XObject << /Im1 4 0 R >> >> /Contents 5 0 R >>\nendobj\n",
-        f"4 0 obj\n<< /Type /XObject /Subtype /Image /Width 64 /Height 64 /ColorSpace /DeviceGray /BitsPerComponent 8 /Length {len(image_payload)} >>\nstream\n{image_payload}\nendstream\nendobj\n",
-        "5 0 obj\n<< /Length 16 >>\nstream\nq /Im1 Do Q\nendstream\nendobj\n",
-    ]
-    payload = "%PDF-1.4\n" + "".join(objects) + "trailer\n<< /Root 1 0 R >>\n%%EOF\n"
-    path.write_bytes(payload.encode("latin-1"))
+    image_path = path.with_suffix(".png")
+    create_scanned_image(image_path)
+    Image.open(image_path).save(path, "PDF", resolution=200.0)
 
 
 def create_invalid_image(path: Path) -> None:
@@ -23,4 +38,5 @@ def create_invalid_image(path: Path) -> None:
 if __name__ == "__main__":
     root = Path("tmp/j003-scanned-ocr")
     create_scanned_pdf(root / "j003-scanned.pdf")
+    create_scanned_image(root / "j003-scanned.png")
     create_invalid_image(root / "j003-invalid.png")

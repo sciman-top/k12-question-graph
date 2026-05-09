@@ -68,6 +68,8 @@ export interface CutCandidateContract {
   confidence: number
   segmentType: string
   sequenceNo: number
+  pageNumber: number
+  textPreview: string
   failureReason: string
   takeoverAction: string
 }
@@ -182,6 +184,7 @@ export interface PaperBlueprintConfirmContract {
 export interface ImportJobContract {
   id: string
   inputFileAssetId: string
+  sourceDocumentId: string | null
   status: string
   idempotencyKey: string
   lastErrorCode: string | null
@@ -282,6 +285,17 @@ function readNullableStringField(value: unknown, field: string): string | null {
   return typeof record[field] === 'string' ? record[field] : null
 }
 
+function readObjectField(value: unknown, field: string): Record<string, unknown> | null {
+  if (!value || typeof value !== 'object' || !(field in value)) {
+    return null
+  }
+
+  const record = value as Record<string, unknown>
+  return record[field] && typeof record[field] === 'object'
+    ? (record[field] as Record<string, unknown>)
+    : null
+}
+
 function readNumberField(value: unknown, field: string): number {
   if (!value || typeof value !== 'object' || !(field in value)) {
     return 0
@@ -329,9 +343,13 @@ export function normalizeSourceMaterialListResponse(value: unknown): SourceMater
 }
 
 export function normalizeImportJobResponse(value: unknown): ImportJobContract {
+  const file = readObjectField(value, 'file')
+  const sourceDocument = file ? readObjectField(file, 'sourceDocument') : null
+
   return {
     id: readStringField(value, 'id') ?? '',
     inputFileAssetId: readStringField(value, 'inputFileAssetId') ?? '',
+    sourceDocumentId: sourceDocument ? readStringField(sourceDocument, 'id') ?? null : null,
     status: readStringField(value, 'status') ?? 'unknown',
     idempotencyKey: readStringField(value, 'idempotencyKey') ?? '',
     lastErrorCode: readNullableStringField(value, 'lastErrorCode'),
@@ -361,17 +379,22 @@ export function normalizeCutCandidateListResponse(value: unknown): CutCandidateL
   const rows = readArrayField(value, 'items')
   return {
     sourceDocumentId: readStringField(value, 'sourceDocumentId') ?? '',
-    items: rows.map((row) => ({
-      id: readStringField(row, 'id') ?? '',
-      sourceDocumentId: readStringField(row, 'sourceDocumentId') ?? '',
-      sourceRegionId: readNullableStringField(row, 'sourceRegionId'),
-      status: readStringField(row, 'status') ?? 'pending_review',
-      confidence: readNumberField(row, 'confidence'),
-      segmentType: readStringField(row, 'segmentType') ?? 'question_stem',
-      sequenceNo: readNumberField(row, 'sequenceNo'),
-      failureReason: readStringField(row, 'failureReason') ?? '',
-      takeoverAction: readStringField(row, 'takeoverAction') ?? 'manual_review',
-    })),
+    items: rows.map((row) => {
+      const candidatePayload = readObjectField(row, 'candidatePayload')
+      return {
+        id: readStringField(row, 'id') ?? '',
+        sourceDocumentId: readStringField(row, 'sourceDocumentId') ?? '',
+        sourceRegionId: readNullableStringField(row, 'sourceRegionId'),
+        status: readStringField(row, 'status') ?? 'pending_review',
+        confidence: readNumberField(row, 'confidence'),
+        segmentType: readStringField(row, 'segmentType') ?? 'question_stem',
+        sequenceNo: readNumberField(row, 'sequenceNo'),
+        pageNumber: candidatePayload ? readNumberField(candidatePayload, 'pageNumber') : 0,
+        textPreview: candidatePayload ? readStringField(candidatePayload, 'textPreview') ?? '' : '',
+        failureReason: readStringField(row, 'failureReason') ?? '',
+        takeoverAction: readStringField(row, 'takeoverAction') ?? 'manual_review',
+      }
+    }),
   }
 }
 

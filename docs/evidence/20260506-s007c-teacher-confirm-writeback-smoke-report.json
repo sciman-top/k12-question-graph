@@ -1,22 +1,22 @@
 {
   "status": "pass",
   "taskId": "S007C",
-  "checkedAt": "2026-05-09T13:31:15",
-  "aiJobId": "ab5d9bbc-6552-4f17-bde9-7b5a972d1c6e",
+  "checkedAt": "2026-05-09T19:41:25",
+  "aiJobId": "ee5129c6-fb15-4c66-8147-305dc0743988",
   "confirm": {
-    "questionItemId": "fdb5b829-775c-4bf4-a5ce-b1ad5414fa28",
-    "knowledgeMappingId": "871bdd60-25e0-4d50-8f0e-758d19bbab67",
+    "questionItemId": "793fa15e-8638-4b08-8d8c-8efedaff7400",
+    "knowledgeMappingId": "7bdd02a5-04c6-42f5-a443-29df45f577f7",
     "status": "confirmed"
   },
   "undo": {
-    "removedQuestionItemId": "fdb5b829-775c-4bf4-a5ce-b1ad5414fa28",
+    "removedQuestionItemId": "793fa15e-8638-4b08-8d8c-8efedaff7400",
     "removedKnowledgeMappingCount": 1,
     "status": "undone"
   },
   "questionCount": {
-    "before": 1908,
-    "afterConfirm": 1909,
-    "afterUndo": 1908
+    "before": 2115,
+    "afterConfirm": 2116,
+    "afterUndo": 2115
   },
   "conclusion": "teacher confirmation writes QuestionItem and KnowledgeMapping only after review, and undo restores previous state"
 }
