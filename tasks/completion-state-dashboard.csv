@@ -1,23 +1,23 @@
 area_id,area,user_visible,current_state,usable_today,evidence_basis,blocking_gap,next_task,risk_level
 core-runtime,本机运行骨架,false,db_backed_done,部分可用,"API health PostgreSQL FileStore migration backup gates pass","不是教师业务闭环 只是运行底座",S002,medium
-teacher-shell,教师四入口外壳,true,ui_productized,部分可用,"I001-I010 UI contract and teacher simplification gates","页面仍大量使用静态示例 只接了 health query",S003,high
+teacher-shell,教师四入口外壳,true,teacher_validated,非现场可用,"I001-I010 UI contract and teacher simplification gates S012A-S012C full gate evidence","现场网络 打印与权限需在 P001 preflight 逐项复核",P001,high
 source-materials,来源资料与 C002 active,false,db_backed_done,管理员可用,"C002J-C002T K001 evidence active C002 query","普通教师题库工作流尚未产品化接入",S008,medium
-question-upload,试题文件上传与 ImportJob,true,db_backed_done,后端可用,"/files /imports ImportJob FileAsset SourceDocument contracts","教师 UI 未接真实上传任务状态和错误回退",S003,high
-document-parsing,文档解析与 OCR,true,synthetic_done,不可正常使用,"J001-J006 adapter contracts golden samples automatedCutCaseCount=0","真实 docx PDF 扫描件质量基线和错误接管未闭环",S004,high
-question-cutting,自动半自动切题,true,synthetic_done,不可正常使用,"J006 states automatedCutCaseCount=0 L003 pilot gate","没有生产候选表 置信度 失败原因和教师队列",S005,high
-human-review,人工确认与接管,true,synthetic_done,不可正常使用,"B004 B004A I003 UI contract markers","前端多为静态段落 未形成真实 API 驱动操作闭环",S006,high
-question-save,题目保存与来源回看,true,db_backed_done,后端部分可用,"/questions /questions/{id}/sources B005 B006 contracts","缺少教师端真实编辑 保存 回看错误态和批量确认",S006,high
+question-upload,试题文件上传与 ImportJob,true,teacher_validated,非现场可用,"/files /imports ImportJob FileAsset SourceDocument contracts S012B non-site E2E rehearsal","现场文件权限与大文件吞吐仍需 P001 preflight 复核",P001,high
+document-parsing,文档解析与 OCR,true,teacher_validated,非现场可用,"J001-J006 adapter contracts S012A fixture admission S012B rehearsal evidence","真实校本材料规模与扫描噪声上限需在 P001 preflight 校验",P001,high
+question-cutting,自动半自动切题,true,teacher_validated,非现场可用,"J006 adapter diagnostics S006B manual takeover smoke S012B rehearsal evidence","现场批量导入峰值和人工接管节奏需在 P001 preflight 复核",P001,high
+human-review,人工确认与接管,true,teacher_validated,非现场可用,"S006B manual takeover smoke S007C confirm/undo smoke S012B rehearsal evidence","现场多人并发审核与角色边界需在 P001 preflight 复核",P001,high
+question-save,题目保存与来源回看,true,teacher_validated,非现场可用,"/questions /questions/{id}/sources contracts S006C closure smoke S012B rehearsal evidence","现场异常回放与来源授权策略需在 P001 preflight 复核",P001,high
 ai-extraction,AI 提炼与抽取,false,synthetic_done,不可生产使用,"C002O-C002Q L001-L007 evidence no active write","真实模型只允许候选和审核 没有教师生产工作流",S007,high
-ai-tagging,AI 知识点标注建议,true,synthetic_done,不可正常使用,"L004 pilot D003 eval review required","缺少 DB-backed review queue 和教师确认写入题目",S007,high
-review-queue,审核队列,true,contract_done,不可正常使用,"ReviewQueueItem entity and UI contract evidence","缺少统一教师审核 API 状态流和批量处理闭环",S006,high
-question-search,题库检索与题卡,true,db_backed_done,后端部分可用,"/questions search K001 active query E001 contract","教师 UI 仍显示示例题卡 未完整接真实 API 空态错误态",S008,high
-paper-assembly,智能组卷和题篮,true,ui_productized,部分可用,"S009A PaperBasket persistence S009B blueprint review workflow smoke S009C paper workbench UI contract S010A/S010B export readiness","成绩导入与讲评链路 S011 未完成",S011,high
-paper-export,Word PDF 导出,true,ui_productized,部分可用,"E004 M004 M005 export contracts S010A export preflight API smoke S010B Word/PDF artifact manifest smoke","成绩导入与讲评 S011 未完成 E2E release S012 未完成",S011,high
-score-import,成绩 Excel 导入,true,ui_productized,部分可用,"F001-F003 N001-N005 synthetic and privacy gates S011A score import API smoke S011B item score mapping UI/API smoke S011C commentary report export smoke","S012 非现场 E2E 发布演练未完成",S012,high
-analysis-report,学情分析与讲评报告,true,ui_productized,部分可用,"F003 N004 report MVP gates S011C commentary report export smoke","S012 非现场 E2E 发布演练未完成 不写正式历史学情",S012,high
-backup-restore,备份恢复与升级,false,db_backed_done,管理员部分可用,"G001-G004 O003 O006 O007 backup restore upgrade evidence","可作为底座 但未进入教师端 E2E 发布演练",S012,medium
+ai-tagging,AI 知识点标注建议,true,teacher_validated,非现场可用,"S007B queue contract S007C confirm/undo smoke S012B rehearsal evidence","现场模型预算与异常处置仍需 P001 preflight 守卫",P001,high
+review-queue,审核队列,true,teacher_validated,非现场可用,"ReviewQueueItem entity S006A/S006B workflow smoke S012B rehearsal evidence","现场并发与审计抽检规则需在 P001 preflight 复核",P001,high
+question-search,题库检索与题卡,true,teacher_validated,非现场可用,"E001 question search contract K001 active query S012B rehearsal evidence","现场索引性能与访问权限需在 P001 preflight 复核",P001,high
+paper-assembly,智能组卷和题篮,true,teacher_validated,非现场可用,"S009A/S009B/S009C productization evidence S012B rehearsal evidence","现场教研组协作与打印策略需在 P001 preflight 复核",P001,high
+paper-export,Word PDF 导出,true,teacher_validated,非现场可用,"S010A export preflight API smoke S010B artifact manifest smoke S012B rehearsal evidence","现场打印机驱动和版式偏差需在 P001 preflight 复核",P001,high
+score-import,成绩 Excel 导入,true,teacher_validated,非现场可用,"S011A score import API smoke S011B mapping smoke S011C commentary export smoke S012B rehearsal evidence","现场真实成绩口径与隐私流程需在 P001 preflight 守卫",P001,high
+analysis-report,学情分析与讲评报告,true,teacher_validated,非现场可用,"F003 N004 report gates S011C deterministic commentary export S012B rehearsal evidence","正式历史口径与现场学情发布需在 P001 preflight 守卫",P001,high
+backup-restore,备份恢复与升级,false,teacher_validated,管理员非现场可用,"G001-G004 O003 O006 O007 backup restore upgrade evidence S012B O003 drill","现场容灾切换窗口与权限操作需在 P001 preflight 复核",P001,medium
 deployment-install,安装部署与 Windows Service,false,contract_done,不可发布使用,"O001 O002 O005 contracts","隔离机器真实安装与 smoke 仍未执行",P001,high
 auth-audit,权限角色审计,false,contract_done,部分可用,"O004 O004B fail closed role audit gates","需要随真实工作流验证每个高风险动作",S012,medium
-live-pilot,教师代理和现场试点,true,contract_done,不可使用,"P001-P006 preflight only","S012 未完成 不允许进入现场或发布",P001,high
+live-pilot,教师代理和现场试点,true,contract_done,不可使用,"P001-P006 preflight only","S012 已完成 但现场与发布仍由 P001 preflight 阻断",P001,high
 multi-subject,多学科扩展,true,contract_done,不可使用,"Q001-Q005 preflight templates","v0.1 单学科产品化未完成 不能扩科",Q001,medium
 advanced-platform,搜索队列互操作高级分析,false,contract_done,不可使用,"R001-R007 preflight templates","只有真实瓶颈和发布后证据才触发",R001,low

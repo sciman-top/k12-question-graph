@@ -1,16 +1,16 @@
 {
   "status": "pass",
   "task": "S001",
-  "checkedAt": "2026-05-09T12:28:12",
+  "checkedAt": "2026-05-09T12:42:42",
   "dashboardPath": "tasks/completion-state-dashboard.csv",
   "backlogPath": "tasks/backlog.csv",
   "areaCount": 22,
   "stateCounts": {
-    "contract_done": 6,
-    "synthetic_done": 5,
-    "db_backed_done": 6,
-    "ui_productized": 5,
-    "teacher_validated": 0,
+    "contract_done": 5,
+    "synthetic_done": 1,
+    "db_backed_done": 2,
+    "ui_productized": 0,
+    "teacher_validated": 14,
     "release_ready": 0
   },
   "riskCounts": {
@@ -18,23 +18,18 @@
     "medium": 5,
     "high": 16
   },
-  "notNormallyUsableCount": 10,
-  "teacherVisibleValidatedOrReleaseReadyCount": 0,
+  "notNormallyUsableCount": 5,
+  "teacherVisibleValidatedOrReleaseReadyCount": 13,
   "nextTaskCounts": {
-    "P001": 2,
+    "P001": 16,
     "Q001": 1,
     "R001": 1,
     "S002": 1,
-    "S003": 2,
-    "S004": 1,
-    "S005": 1,
-    "S006": 3,
-    "S007": 2,
-    "S008": 2,
-    "S011": 2,
-    "S012": 4
+    "S007": 1,
+    "S008": 1,
+    "S012": 1
   },
   "s001Status": "已完成",
-  "nextProductizationTask": "S002",
-  "conclusion": "当前项目拥有可验证底座和合同能力 但教师可直接连续使用的 release_ready 板块为 0 必须先执行 S002-S012"
+  "nextProductizationTask": "P001",
+  "conclusion": "S012 已完成并将核心教师板块推进到 teacher_validated；现场与发布仍由 P001 preflight 阻断"
 }

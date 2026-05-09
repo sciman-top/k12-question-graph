@@ -1,37 +1,37 @@
 # S001 完成态看板证据
 
 - status: pass
-- checked_at: 2026-05-09T12:28:12
+- checked_at: 2026-05-09T12:42:42
 - area_count: 22
-- not_normally_usable_count: 10
-- teacher_visible_validated_or_release_ready_count: 0
-- next_productization_task: S002
+- not_normally_usable_count: 5
+- teacher_visible_validated_or_release_ready_count: 13
+- next_productization_task: P001
 
 ## State Counts
-- contract_done: 6
-- synthetic_done: 5
-- db_backed_done: 6
-- ui_productized: 5
-- teacher_validated: 0
+- contract_done: 5
+- synthetic_done: 1
+- db_backed_done: 2
+- ui_productized: 0
+- teacher_validated: 14
 - release_ready: 0
 
 ## High Risk Gaps
-- teacher-shell: ui_productized -> S003; 页面仍大量使用静态示例 只接了 health query
-- question-upload: db_backed_done -> S003; 教师 UI 未接真实上传任务状态和错误回退
-- document-parsing: synthetic_done -> S004; 真实 docx PDF 扫描件质量基线和错误接管未闭环
-- question-cutting: synthetic_done -> S005; 没有生产候选表 置信度 失败原因和教师队列
-- human-review: synthetic_done -> S006; 前端多为静态段落 未形成真实 API 驱动操作闭环
-- question-save: db_backed_done -> S006; 缺少教师端真实编辑 保存 回看错误态和批量确认
+- teacher-shell: teacher_validated -> P001; 现场网络 打印与权限需在 P001 preflight 逐项复核
+- question-upload: teacher_validated -> P001; 现场文件权限与大文件吞吐仍需 P001 preflight 复核
+- document-parsing: teacher_validated -> P001; 真实校本材料规模与扫描噪声上限需在 P001 preflight 校验
+- question-cutting: teacher_validated -> P001; 现场批量导入峰值和人工接管节奏需在 P001 preflight 复核
+- human-review: teacher_validated -> P001; 现场多人并发审核与角色边界需在 P001 preflight 复核
+- question-save: teacher_validated -> P001; 现场异常回放与来源授权策略需在 P001 preflight 复核
 - ai-extraction: synthetic_done -> S007; 真实模型只允许候选和审核 没有教师生产工作流
-- ai-tagging: synthetic_done -> S007; 缺少 DB-backed review queue 和教师确认写入题目
-- review-queue: contract_done -> S006; 缺少统一教师审核 API 状态流和批量处理闭环
-- question-search: db_backed_done -> S008; 教师 UI 仍显示示例题卡 未完整接真实 API 空态错误态
-- paper-assembly: ui_productized -> S011; 成绩导入与讲评链路 S011 未完成
-- paper-export: ui_productized -> S011; 成绩导入与讲评 S011 未完成 E2E release S012 未完成
-- score-import: ui_productized -> S012; S012 非现场 E2E 发布演练未完成
-- analysis-report: ui_productized -> S012; S012 非现场 E2E 发布演练未完成 不写正式历史学情
+- ai-tagging: teacher_validated -> P001; 现场模型预算与异常处置仍需 P001 preflight 守卫
+- review-queue: teacher_validated -> P001; 现场并发与审计抽检规则需在 P001 preflight 复核
+- question-search: teacher_validated -> P001; 现场索引性能与访问权限需在 P001 preflight 复核
+- paper-assembly: teacher_validated -> P001; 现场教研组协作与打印策略需在 P001 preflight 复核
+- paper-export: teacher_validated -> P001; 现场打印机驱动和版式偏差需在 P001 preflight 复核
+- score-import: teacher_validated -> P001; 现场真实成绩口径与隐私流程需在 P001 preflight 守卫
+- analysis-report: teacher_validated -> P001; 正式历史口径与现场学情发布需在 P001 preflight 守卫
 - deployment-install: contract_done -> P001; 隔离机器真实安装与 smoke 仍未执行
-- live-pilot: contract_done -> P001; S012 未完成 不允许进入现场或发布
+- live-pilot: contract_done -> P001; S012 已完成 但现场与发布仍由 P001 preflight 阻断
 
 ## Conclusion
-当前项目拥有可验证底座和合同能力 但教师可直接连续使用的 release_ready 板块为 0 必须先执行 S002-S012
+S012 已完成并将核心教师板块推进到 teacher_validated；现场与发布仍由 P001 preflight 阻断
