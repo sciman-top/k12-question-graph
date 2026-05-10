@@ -31,6 +31,19 @@
 - Docling OCR/table example: https://docling-project.github.io/docling/examples/full_page_ocr/
 - PaddleOCR: https://github.com/PaddlePaddle/PaddleOCR
 - PaddleOCR PP-Structure: https://paddlepaddle.github.io/PaddleOCR/main/en/version3.x/algorithm/PP-StructureV3/PP-StructureV3.html
+- PaddleOCR installation and Docker/pip options: https://www.paddleocr.ai/latest/en/version3.x/installation.html
+- PaddleOCR FAQ installation and virtual environment guidance: https://www.paddleocr.ai/main/en/FAQ.html
+- RapidOCR installation and usage: https://rapidai.github.io/RapidOCRDocs/install_usage/rapidocr/install/
+- ONNX Runtime installation matrix: https://onnxruntime.ai/docs/install/
+- Python venv: https://docs.python.org/3/library/venv.html
+- uv project environments: https://docs.astral.sh/uv/guides/projects/
+- uv run: https://docs.astral.sh/uv/concepts/projects/run/
+- conda managing environments: https://docs.conda.io/en/latest/user-guide/tasks/manage-environments.html
+- Docker bind mounts: https://docs.docker.com/engine/storage/bind-mounts/
+- Docker volumes: https://docs.docker.com/engine/storage/volumes/
+- Docker run mounts: https://docs.docker.com/engine/containers/run/
+- Microsoft WSL FAQ: https://learn.microsoft.com/en-us/windows/wsl/faq
+- Microsoft WSL file permissions: https://learn.microsoft.com/en-us/windows/wsl/file-permissions
 - Pandoc Manual: https://pandoc.org/MANUAL.html
 - KaTeX: https://katex.org/
 - MathJax: https://docs.mathjax.org/

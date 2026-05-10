@@ -44,8 +44,12 @@ try {
 
     $pgpassConfig = [string]$cfg.references.pgpass_config
     $pgpassGate = [string]$cfg.references.pgpass_gate
+    $workerProfileDiagnosticGate = [string]$cfg.references.worker_profile_diagnostic_gate
+    $hostCapabilityDiagnosticGate = [string]$cfg.references.host_capability_diagnostic_gate
     Assert-Condition (Test-Path -LiteralPath $pgpassConfig) "missing pgpass config: $pgpassConfig"
     Assert-Condition (Test-Path -LiteralPath $pgpassGate) "missing pgpass gate script: $pgpassGate"
+    Assert-Condition (Test-Path -LiteralPath $workerProfileDiagnosticGate) "missing worker profile diagnostic gate script: $workerProfileDiagnosticGate"
+    Assert-Condition (Test-Path -LiteralPath $hostCapabilityDiagnosticGate) "missing host capability diagnostic gate script: $hostCapabilityDiagnosticGate"
 
     Assert-Condition (-not [string]::IsNullOrWhiteSpace($DatabasePassword)) 'DatabasePassword or PGPASSWORD is required for O002 installer init dry-run'
 
@@ -53,6 +57,18 @@ try {
     & pwsh -NoProfile -ExecutionPolicy Bypass -File $pgpassGate -DatabasePassword $DatabasePassword -Config $pgpassConfig -Report $pgpassReport | Out-Null
     Assert-Condition ($LASTEXITCODE -eq 0) 'embedded G004 pgpass dry-run failed'
     Assert-Condition (Test-Path -LiteralPath $pgpassReport) 'missing embedded pgpass evidence report'
+
+    $workerProfileReport = 'docs\evidence\o002-worker-profile-diagnostic-report.json'
+    & pwsh -NoProfile -ExecutionPolicy Bypass -File $workerProfileDiagnosticGate -Report $workerProfileReport | Out-Null
+    Assert-Condition ($LASTEXITCODE -eq 0) 'embedded worker profile diagnostic failed'
+    Assert-Condition (Test-Path -LiteralPath $workerProfileReport) 'missing embedded worker profile diagnostic report'
+    $workerProfileJson = Get-Content -LiteralPath $workerProfileReport -Raw | ConvertFrom-Json
+
+    $hostCapabilityReport = 'docs\evidence\o002-host-capability-diagnostic-report.json'
+    & pwsh -NoProfile -ExecutionPolicy Bypass -File $hostCapabilityDiagnosticGate -Config $Config -Report $hostCapabilityReport | Out-Null
+    Assert-Condition ($LASTEXITCODE -eq 0) 'embedded host capability diagnostic failed'
+    Assert-Condition (Test-Path -LiteralPath $hostCapabilityReport) 'missing embedded host capability diagnostic report'
+    $hostCapabilityJson = Get-Content -LiteralPath $hostCapabilityReport -Raw | ConvertFrom-Json
 
     $adminKey = [Convert]::ToBase64String((1..24 | ForEach-Object { Get-Random -Minimum 0 -Maximum 256 }))
     $adminKeySha256 = [BitConverter]::ToString([System.Security.Cryptography.SHA256]::Create().ComputeHash([System.Text.Encoding]::UTF8.GetBytes($adminKey))).Replace('-', '').ToLowerInvariant()
@@ -84,6 +100,35 @@ try {
                 gate = $pgpassGate
                 report = $pgpassReport
                 status = 'pass'
+            }
+            workerProfile = [ordered]@{
+                adaptiveOnNewHost = [bool]$cfg.worker_profiles.adaptive_on_new_host
+                gate = $workerProfileDiagnosticGate
+                report = $workerProfileReport
+                recommendedDefaultProfile = [string]$workerProfileJson.recommendation.recommendedDefaultProfile
+                availableProfileCandidates = @($workerProfileJson.recommendation.availableProfileCandidates)
+                productionDefaultChanged = [bool]$workerProfileJson.guardrail.productionDefaultChanged
+            }
+            localSystemProfile = [ordered]@{
+                adaptiveOnNewHost = [bool]$cfg.local_system_profile.adaptive_on_new_host
+                gate = $hostCapabilityDiagnosticGate
+                report = $hostCapabilityReport
+                profileSet = [string]$hostCapabilityJson.bestConfiguration.profileSet
+                runtimeProfile = [string]$hostCapabilityJson.recommendedProfiles.runtimeProfile.recommended
+                databaseProfile = [string]$hostCapabilityJson.recommendedProfiles.databaseProfile.recommended
+                storageBackupProfile = [string]$hostCapabilityJson.recommendedProfiles.storageBackupProfile.recommended
+                workerOcrProfile = [string]$hostCapabilityJson.recommendedProfiles.workerOcrProfile.recommended
+                exportPrintProfile = [string]$hostCapabilityJson.recommendedProfiles.exportPrintProfile.recommended
+                aiNetworkProfile = [string]$hostCapabilityJson.recommendedProfiles.aiNetworkProfile.recommended
+                aiLocalModelProfile = [string]$hostCapabilityJson.recommendedProfiles.aiLocalModelProfile.recommended
+                aiLocalModelStatus = [string]$hostCapabilityJson.recommendedProfiles.aiLocalModelProfile.status
+                searchProfile = [string]$hostCapabilityJson.recommendedProfiles.searchProfile.recommended
+                queueProfile = [string]$hostCapabilityJson.recommendedProfiles.queueProfile.recommended
+                securityProfile = [string]$hostCapabilityJson.recommendedProfiles.securityProfile.recommended
+                noInstallPerformed = [bool]$hostCapabilityJson.guardrail.noInstallPerformed
+                modelWeightsDownloaded = [bool]$hostCapabilityJson.guardrail.modelWeightsDownloaded
+                localAiDefaultChanged = [bool]$hostCapabilityJson.guardrail.localAiDefaultChanged
+                productionDefaultChanged = [bool]$hostCapabilityJson.guardrail.productionDefaultChanged
             }
             bootstrapAdmin = [ordered]@{
                 mode = [string]$cfg.security.bootstrap_admin.mode

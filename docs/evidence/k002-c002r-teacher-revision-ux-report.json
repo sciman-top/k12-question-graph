@@ -2,7 +2,7 @@
   "status": "pass",
   "task": "K002",
   "mode": "ui_contract",
-  "checkedAt": "2026-05-09T11:39:40.8566761Z",
+  "checkedAt": "2026-05-10T02:25:05.1086052Z",
   "activeKnowledgeVersion": "junior-physics-guangzhou-source-derived-v1",
   "requiredTeacherFields": [
     "changeSummary",

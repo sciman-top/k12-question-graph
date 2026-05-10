@@ -26,11 +26,43 @@
       "report": "docs\\evidence\\o002-installer-pgpass-dry-run-report.json",
       "status": "pass"
     },
+    "workerProfile": {
+      "adaptiveOnNewHost": true,
+      "gate": "tools\\run-worker-profile-diagnostic-contract.ps1",
+      "report": "docs\\evidence\\o002-worker-profile-diagnostic-report.json",
+      "recommendedDefaultProfile": "direct_venv_lite",
+      "availableProfileCandidates": [
+        "direct_venv_lite",
+        "wsl_or_docker_heavy"
+      ],
+      "productionDefaultChanged": false
+    },
+    "localSystemProfile": {
+      "adaptiveOnNewHost": true,
+      "gate": "tools\\run-host-capability-diagnostic-contract.ps1",
+      "report": "docs\\evidence\\o002-host-capability-diagnostic-report.json",
+      "profileSet": "local_system_profile.v1",
+      "runtimeProfile": "windows_service_with_explicit_content_root",
+      "databaseProfile": "local_postgresql_with_pg_dump_restore",
+      "storageBackupProfile": "local_ntfs_file_store_plus_manifest_backup",
+      "workerOcrProfile": "direct_venv_lite",
+      "exportPrintProfile": "docx_pdf_artifact_chain_with_preflight_manifest",
+      "aiNetworkProfile": "offline_first_no_cloud_token_by_default",
+      "aiLocalModelProfile": "optional_local_llm_3b_7b_quantized_eval_only",
+      "aiLocalModelStatus": "medium_config_optional",
+      "searchProfile": "postgresql_fts_pg_trgm_first_pgvector_only_after_eval",
+      "queueProfile": "postgresql_job_store_backgroundservice_first",
+      "securityProfile": "admin_key_bootstrap_then_rbac_audit_before_live",
+      "noInstallPerformed": true,
+      "modelWeightsDownloaded": false,
+      "localAiDefaultChanged": false,
+      "productionDefaultChanged": false
+    },
     "bootstrapAdmin": {
       "mode": "admin_internal_guard_key",
       "rotateRequiredOnFirstLogin": true,
       "persistedPlaintext": false,
-      "adminKeySha256": "1b317cefdb886650bbdeaf0e5f1200561313a6d0bc85e998a10d75937827c0bd"
+      "adminKeySha256": "752c061f5434b16d8a6604e1348297a6f914082f62d20341d2e012892f00e75a"
     }
   },
   "guardrail": {

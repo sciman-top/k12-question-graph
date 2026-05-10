@@ -38,10 +38,13 @@ try {
     Assert-Condition ($LASTEXITCODE -eq 0) 'dotnet tool restore failed'
 
     $bundleExe = Join-Path $bundleRoot 'efbundle.exe'
-    dotnet ef migrations list --project apps/api/K12QuestionGraph.Api.csproj --startup-project apps/api/K12QuestionGraph.Api.csproj | Write-Host
+    dotnet build apps/api/K12QuestionGraph.Api.csproj --configuration Release --no-restore | Write-Host
+    Assert-Condition ($LASTEXITCODE -eq 0) 'dotnet release build failed before ef migrations list'
+
+    dotnet ef migrations list --project apps/api/K12QuestionGraph.Api.csproj --startup-project apps/api/K12QuestionGraph.Api.csproj --configuration Release --no-build | Write-Host
     Assert-Condition ($LASTEXITCODE -eq 0) 'dotnet ef migrations list failed'
 
-    dotnet ef migrations bundle --project apps/api/K12QuestionGraph.Api.csproj --startup-project apps/api/K12QuestionGraph.Api.csproj --target-runtime win-x64 --output $bundleExe | Write-Host
+    dotnet ef migrations bundle --project apps/api/K12QuestionGraph.Api.csproj --startup-project apps/api/K12QuestionGraph.Api.csproj --configuration Release --target-runtime win-x64 --output $bundleExe --no-build | Write-Host
     Assert-Condition ($LASTEXITCODE -eq 0) 'dotnet ef migrations bundle failed'
     Assert-Condition (Test-Path -LiteralPath $bundleExe) 'efbundle.exe not found after bundle generation'
 

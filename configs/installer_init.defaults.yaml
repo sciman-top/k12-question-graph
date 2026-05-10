@@ -19,3 +19,44 @@ security:
 references:
   pgpass_config: "configs\\installer_credentials.defaults.yaml"
   pgpass_gate: "tools\\run-g004-pgpass-installer-dry-run.ps1"
+  worker_profile_diagnostic_gate: "tools\\run-worker-profile-diagnostic-contract.ps1"
+  host_capability_diagnostic_gate: "tools\\run-host-capability-diagnostic-contract.ps1"
+worker_profiles:
+  adaptive_on_new_host: true
+  default_profile_order:
+    - "direct_venv_lite"
+    - "uv_venv_lite"
+    - "conda_paddle_cpu"
+    - "wsl_or_docker_heavy"
+  model_cache_relative: "cache\\ocr-models"
+  production_default_requires_golden_set: true
+  fail_closed_on_missing_engine: true
+local_system_profile:
+  adaptive_on_new_host: true
+  profile_set: "local_system_profile.v1"
+  required_profiles:
+    - "runtimeProfile"
+    - "databaseProfile"
+    - "storageBackupProfile"
+    - "workerOcrProfile"
+    - "exportPrintProfile"
+    - "aiNetworkProfile"
+    - "aiLocalModelProfile"
+    - "searchProfile"
+    - "queueProfile"
+    - "securityProfile"
+  diagnostic_no_network: true
+  production_change_requires_full_gate: true
+  production_change_requires_backup_restore_evidence: true
+local_ai_models:
+  detect_on_new_host: true
+  install_by_default: false
+  download_models_by_default: false
+  production_default_requires_eval: true
+  no_active_write: true
+  allowed_runtime_candidates:
+    - "ollama"
+    - "llama.cpp"
+    - "vllm"
+    - "lm_studio"
+    - "custom_http"
