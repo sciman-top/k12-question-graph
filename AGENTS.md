@@ -40,6 +40,7 @@
 - 规则变更后用新 Codex run/session 复核，不假定当前会话热加载。
 - 诊断优先：`codex --version`、`codex --help`；加载链可疑时新会话询问已加载规则来源，并记录 `active_rule_path`。
 - `AGENTS.md` 是上下文规则；危险命令、权限、沙箱和重复 allowlist 应落到 `.codex/rules/*.rules`、控制仓门禁、hooks 或 CI。
+- 未经用户在当前任务中明确确认，不得重启、停止、杀掉或自动拉起 `Codex App`、`codex`、`Claude Code`、`Claude Desktop`、`claude`；provider/auth/API 修复先做文件级状态、dry-run、连通性探针和证据记录，确需重启时先说明影响、会话历史可见性风险和回滚入口。
 
 ## C. 项目差异
 ### C.1 门禁命令与顺序

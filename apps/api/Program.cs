@@ -2186,7 +2186,7 @@ static SourceDocumentMetadata SourceMetadataFromForm(IFormCollection form, strin
 {
     var defaults = SourceDocumentMetadata.Defaults(Path.GetFileName(originalFileName));
 
-    return defaults with
+    var metadata = defaults with
     {
         SourceType = FormValue(form, "sourceType", defaults.SourceType),
         SourceTitle = FormValue(form, "sourceTitle", defaults.SourceTitle),
@@ -2204,6 +2204,8 @@ static SourceDocumentMetadata SourceMetadataFromForm(IFormCollection form, strin
         MayUseForExamPointExtraction = FormBool(form, "mayUseForExamPointExtraction", defaults.MayUseForExamPointExtraction),
         MayUseForTrendAnalysis = FormBool(form, "mayUseForTrendAnalysis", defaults.MayUseForTrendAnalysis)
     };
+
+    return SourceMaterialClassifier.Classify(metadata, originalFileName);
 }
 
 static string FormValue(IFormCollection form, string key, string fallback)

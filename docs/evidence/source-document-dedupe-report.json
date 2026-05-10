@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "source-document-dedupe.v0.1",
+  "generatedAt": "2026-05-10T07:56:32.516967+00:00",
+  "mode": "dry_run",
+  "status": "dry_run",
+  "scope": {
+    "reclassifiedSha256": [
+      "534d8eee3b99446d514af736aaf4cd8e36f2803154f7778c0f656f1832b7510c",
+      "065a6293b5c1019ed2da199736df44c6d0304797d0a986a750449197ca9ba88d"
+    ],
+    "reclassifiedOriginalFileNames": [
+      "2015广州中考.pdf",
+      "2015广州中考答案.pdf"
+    ],
+    "dedupePartitionColumns": [
+      "file_asset_id",
+      "source_type",
+      "source_title",
+      "region",
+      "year",
+      "grade_or_scope",
+      "edition_or_version",
+      "material_batch_key",
+      "owner_scope",
+      "license_or_permission",
+      "sharing_allowed",
+      "contains_student_pii",
+      "anonymization_status",
+      "external_ai_allowed",
+      "may_use_for_knowledge_extraction",
+      "may_use_for_exam_point_extraction",
+      "may_use_for_trend_analysis"
+    ]
+  },
+  "before": {
+    "sourceDocuments": 1105,
+    "exactDuplicateGroups": 0,
+    "guangzhou2015SourceDocuments": 2
+  },
+  "actions": {
+    "reclassified2015GuangzhouDocuments": 2,
+    "duplicateSourceDocumentsMapped": 0,
+    "sourceRegionsUpdated": 0,
+    "cutCandidatesUpdated": 0,
+    "importJobsUpdated": 0,
+    "sourceDocumentsDeleted": 0
+  },
+  "after": {
+    "sourceDocuments": 1105,
+    "exactDuplicateGroups": 0,
+    "guangzhou2015SourceDocuments": 2,
+    "guangzhou2015ByTitle": [
+      {
+        "source_title": "2015广州中考",
+        "count": 1
+      },
+      {
+        "source_title": "2015广州中考答案",
+        "count": 1
+      }
+    ]
+  }
+}

@@ -373,5 +373,19 @@
       ]
     }
   ],
-  "gate_timeout_seconds": 300
+  "gate_timeout_seconds": 300,
+  "full_gate_optimization": {
+    "status": "planned",
+    "reason": "Full gate is a long serial repo-local script that mixes build, UI contracts, worker smoke, PostgreSQL-backed API contracts, PQR preflight, and backup checks. A target-local grouped gate entrypoint now exists for fast feedback, but affected-path routing, parallel-safe groups, and coverage-equivalence proof are not complete yet.",
+    "recommended_target_entrypoint": "tools/run-gate-group.ps1",
+    "required_capabilities": [
+      "gate_groups",
+      "affected_path_routing",
+      "parallel_safe_groups",
+      "db_fixture_reuse",
+      "fallback_to_tools_run_gates"
+    ],
+    "fallback_full_gate_command": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-gates.ps1",
+    "control_repo_next_action": "Wire catalog group metadata and affected-path routing after the target repo proves the grouped runner preserves full-gate coverage."
+  }
 }

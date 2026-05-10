@@ -2,7 +2,7 @@
   "status": "pass",
   "task": "K003",
   "mode": "ui_contract",
-  "checkedAt": "2026-05-10T07:17:13.2373667Z",
+  "checkedAt": "2026-05-10T07:52:39.7825078Z",
   "dependency": {
     "c002hStatus": "pass",
     "c002hPlanId": "C002H_SAMPLE_MAPPING_REVIEW_WORKBENCH",

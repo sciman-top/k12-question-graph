@@ -114,6 +114,34 @@ public sealed class LocalFileStore(KqgDbContext dbContext, IOptions<KqgPathsOpti
         CancellationToken cancellationToken)
     {
         var normalized = Normalize(metadata);
+        var externalAiAllowed = ComputeExternalAiAllowed(normalized);
+        var existing = await dbContext.SourceDocuments
+            .Where(x =>
+                x.FileAssetId == fileAssetId &&
+                x.SourceType == normalized.SourceType &&
+                x.SourceTitle == normalized.SourceTitle &&
+                x.Region == normalized.Region &&
+                x.Year == normalized.Year &&
+                x.GradeOrScope == normalized.GradeOrScope &&
+                x.EditionOrVersion == normalized.EditionOrVersion &&
+                x.MaterialBatchKey == normalized.MaterialBatchKey &&
+                x.OwnerScope == normalized.OwnerScope &&
+                x.LicenseOrPermission == normalized.LicenseOrPermission &&
+                x.SharingAllowed == normalized.SharingAllowed &&
+                x.ContainsStudentPii == normalized.ContainsStudentPii &&
+                x.AnonymizationStatus == normalized.AnonymizationStatus &&
+                x.ExternalAiAllowed == externalAiAllowed &&
+                x.MayUseForKnowledgeExtraction == normalized.MayUseForKnowledgeExtraction &&
+                x.MayUseForExamPointExtraction == normalized.MayUseForExamPointExtraction &&
+                x.MayUseForTrendAnalysis == normalized.MayUseForTrendAnalysis)
+            .OrderBy(x => x.CreatedAt)
+            .ThenBy(x => x.Id)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (existing is not null)
+        {
+            return existing;
+        }
+
         var sourceDocument = new SourceDocument
         {
             FileAssetId = fileAssetId,
@@ -129,7 +157,7 @@ public sealed class LocalFileStore(KqgDbContext dbContext, IOptions<KqgPathsOpti
             SharingAllowed = normalized.SharingAllowed,
             ContainsStudentPii = normalized.ContainsStudentPii,
             AnonymizationStatus = normalized.AnonymizationStatus,
-            ExternalAiAllowed = ComputeExternalAiAllowed(normalized),
+            ExternalAiAllowed = externalAiAllowed,
             MayUseForKnowledgeExtraction = normalized.MayUseForKnowledgeExtraction,
             MayUseForExamPointExtraction = normalized.MayUseForExamPointExtraction,
             MayUseForTrendAnalysis = normalized.MayUseForTrendAnalysis

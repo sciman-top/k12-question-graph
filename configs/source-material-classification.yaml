@@ -1,0 +1,51 @@
+schemaVersion: source-material-classification.v0.1
+defaultPolicy:
+  duplicateKey:
+    - sha256
+    - sizeBytes
+    - sourceType
+    - sourceTitle
+    - region
+    - year
+    - gradeOrScope
+    - editionOrVersion
+    - materialBatchKey
+  duplicateHandling: reuse_existing_source_document
+families:
+  - sourceFamilyKey: guangzhou_physics_zhongkao
+    displayName: Guangzhou physics zhongkao
+    stage: junior_middle_school
+    subject: physics
+    examType: zhongkao
+    region: guangzhou
+    gradeOrScope: grade_9
+    materialBatchKey: guangzhou_physics_zhongkao
+    filenameHints:
+      required:
+        - Guangzhou
+        - zhongkao
+      aliases:
+        Guangzhou:
+          - 广州
+          - 廣州
+        zhongkao:
+          - 中考
+    sourceTypes:
+      local_exam_paper:
+        filenameHints:
+          - 真题
+          - 中考
+          - 答案
+          - 参考答案
+          - 解析
+        mayUseForKnowledgeExtraction: true
+        mayUseForExamPointExtraction: true
+        mayUseForTrendAnalysis: true
+      exam_analysis_report:
+        filenameHints:
+          - 年报
+          - 质量分析
+          - 分析报告
+        mayUseForKnowledgeExtraction: false
+        mayUseForExamPointExtraction: true
+        mayUseForTrendAnalysis: true
