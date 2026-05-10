@@ -29,7 +29,7 @@ foreach ($row in $rows) {
     $byId[$row.id] = $row
 }
 
-foreach ($requiredTaskId in @('S012', 'O004B', 'O006', 'O007', 'P001')) {
+foreach ($requiredTaskId in @('S012', 'O004B', 'O006', 'O007', 'O008', 'P001')) {
     Assert-True ($byId.ContainsKey($requiredTaskId)) "P001 prerequisite task missing: $requiredTaskId"
 }
 
@@ -38,9 +38,10 @@ $s012 = $byId['S012']
 $o004b = $byId['O004B']
 $o006 = $byId['O006']
 $o007 = $byId['O007']
+$o008 = $byId['O008']
 
 $dependencies = @($p001.depends_on -split ';' | ForEach-Object { $_.Trim() } | Where-Object { $_ })
-foreach ($required in @('S012', 'O004B', 'O006', 'O007')) {
+foreach ($required in @('S012', 'O004B', 'O006', 'O007', 'O008')) {
     Assert-True ($dependencies -contains $required) "P001 depends_on must include $required"
 }
 
@@ -49,6 +50,7 @@ Assert-True ($s012.status -eq '待办' -or $s012.status -eq '已完成') 'S012 m
 Assert-True ($o004b.status -eq '已完成') 'O004B must be completed before P001 preflight can pass'
 Assert-True ($o006.status -eq '已完成') 'O006 must be completed before P001 preflight can pass'
 Assert-True ($o007.status -eq '已完成') 'O007 must be completed before P001 preflight can pass'
+Assert-True ($o008.status -eq '已完成') 'O008 must be completed before P001 preflight can pass'
 
 $checklistText = Get-Content -LiteralPath $checklistFullPath -Raw
 foreach ($keyword in @('隔离机器', '安装向导', '备份', '恢复', '权限审计', '教师入口 smoke', 'release checklist', 'evidence')) {
@@ -71,6 +73,7 @@ foreach ($keyword in @('preflight', 'P001', 'platform_na', 'gate_na', '隔离机
         O004B = $o004b.status
         O006 = $o006.status
         O007 = $o007.status
+        O008 = $o008.status
     }
     checklistPath = $ChecklistPath
     evidencePath = $EvidencePath

@@ -18,6 +18,8 @@ AI 推荐保留当前 P0-P6 大方向，但调整顺序和验收口径：
 
 截至 2026-05-08，路线图新增横向 automation-first 阻断：所有未完成 backlog 任务和 S0 子任务必须在 `tasks/automation-first-contract.csv` 中声明确定性预检、专用功能面、AI/agent 允许范围、例外策略和 evidence 命令，并通过 `tools/run-automation-first-feature-contract-guard.ps1`。缺少该合同的任务不得继续推进到实现或发布试点。
 
+截至 2026-05-10，路线图新增 `O008` 技术情报刷新与候选准入目录。新硬件、新 OCR/公式识别引擎、新本地推理 runtime 和新模型只能先进入可信来源清单、capability taxonomy、model/OCR candidate catalog 和 `report_only` evidence；AI API 只允许摘要公开资料、生成候选和 eval checklist，不得安装依赖、下载模型、切换默认路由、处理真实未脱敏材料或自动写入生产。
+
 ## 动态元素不停工原则
 
 知识点只是动态元素之一。凡是允许未来变化的对象，包括题型、标签、难度/能力维度、rubric、组卷规则、导出模板、AI prompt/schema/model routing、文档解析 pipeline、分析指标、Excel 字段映射、隐私策略、学校组织和权限，都必须先抽象为可版本化、可映射、可迁移、可回滚资产。
@@ -29,7 +31,7 @@ AI 推荐保留当前 P0-P6 大方向，但调整顺序和验收口径：
 - 验收写清楚“完成系统能力”，不写成“正式数据/正式口径已完成”。
 - 正式资料录入后，通过 mapping、impact report、review workbench、rollback snapshot 更新已有系统。
 
-只有这些动作必须等待正式资料或人工确认：`active` 生产激活、正式统计口径改写、真实学生数据处理、真实外部 AI 自动写入、影响历史学情或校级共享权限的批量迁移。
+只有这些动作必须等待正式资料或人工确认：`active` 生产激活、正式统计口径改写、真实学生数据处理、真实外部 AI 自动写入、影响历史学情或校级共享权限的批量迁移、下载本地模型权重、安装未知系统依赖、切换默认 OCR/AI 路由。
 
 ## 阶段准入与退出
 

@@ -69,7 +69,7 @@ function Wait-ApiReady([System.Diagnostics.Process] $Process, [string] $ApiUrl, 
 Push-Location $repoRoot
 try {
     Invoke-GateStep 'backend build' {
-        dotnet build apps\api\K12QuestionGraph.Api.csproj | Write-Host
+        dotnet build apps\api\K12QuestionGraph.Api.csproj -c Release | Write-Host
         if ($LASTEXITCODE -ne 0) { throw "dotnet build failed" }
     }
 
@@ -561,6 +561,10 @@ try {
         .\tools\run-o006-offline-emergency-runbook-tabletop-contract.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'o008 technology refresh candidate admission contract' {
+        .\tools\run-technology-refresh-contract.ps1 | Write-Host
+    }
+
     Invoke-GateStep 'p001 live pilot readiness preflight contract' {
         .\tools\run-p001-live-pilot-readiness-preflight-contract.ps1 | Write-Host
     }
@@ -649,7 +653,7 @@ try {
         $logErr = Join-Path $repoRoot 'docs\evidence\b001-gate-api.err.log'
         $previousConnectionString = $env:KQG_CONNECTION_STRING
         $env:KQG_CONNECTION_STRING = "Host=$DatabaseHost;Port=$DatabasePort;Database=$DatabaseName;Username=$DatabaseUser;Password=$DatabasePassword"
-        $process = Start-Process -FilePath dotnet -ArgumentList @('run','--project','apps\api\K12QuestionGraph.Api.csproj','--urls',$apiUrl) -PassThru -WindowStyle Hidden -RedirectStandardOutput $logOut -RedirectStandardError $logErr
+        $process = Start-Process -FilePath dotnet -ArgumentList @('run','--project','apps\api\K12QuestionGraph.Api.csproj','-c','Release','--no-build','--urls',$apiUrl) -PassThru -WindowStyle Hidden -RedirectStandardOutput $logOut -RedirectStandardError $logErr
         try {
             Wait-ApiReady -Process $process -ApiUrl $apiUrl -LogErr $logErr
 
@@ -691,7 +695,7 @@ try {
         $logErr = Join-Path $repoRoot 'docs\evidence\b003-gate-api.err.log'
         $previousConnectionString = $env:KQG_CONNECTION_STRING
         $env:KQG_CONNECTION_STRING = "Host=$DatabaseHost;Port=$DatabasePort;Database=$DatabaseName;Username=$DatabaseUser;Password=$DatabasePassword"
-        $process = Start-Process -FilePath dotnet -ArgumentList @('run','--project','apps\api\K12QuestionGraph.Api.csproj','--urls',$apiUrl) -PassThru -WindowStyle Hidden -RedirectStandardOutput $logOut -RedirectStandardError $logErr
+        $process = Start-Process -FilePath dotnet -ArgumentList @('run','--project','apps\api\K12QuestionGraph.Api.csproj','-c','Release','--no-build','--urls',$apiUrl) -PassThru -WindowStyle Hidden -RedirectStandardOutput $logOut -RedirectStandardError $logErr
         try {
             Wait-ApiReady -Process $process -ApiUrl $apiUrl -LogErr $logErr
 
@@ -743,7 +747,7 @@ try {
         $logErr = Join-Path $repoRoot 'docs\evidence\b005-gate-api.err.log'
         $previousConnectionString = $env:KQG_CONNECTION_STRING
         $env:KQG_CONNECTION_STRING = "Host=$DatabaseHost;Port=$DatabasePort;Database=$DatabaseName;Username=$DatabaseUser;Password=$DatabasePassword"
-        $process = Start-Process -FilePath dotnet -ArgumentList @('run','--project','apps\api\K12QuestionGraph.Api.csproj','--urls',$apiUrl) -PassThru -WindowStyle Hidden -RedirectStandardOutput $logOut -RedirectStandardError $logErr
+        $process = Start-Process -FilePath dotnet -ArgumentList @('run','--project','apps\api\K12QuestionGraph.Api.csproj','-c','Release','--no-build','--urls',$apiUrl) -PassThru -WindowStyle Hidden -RedirectStandardOutput $logOut -RedirectStandardError $logErr
         try {
             Wait-ApiReady -Process $process -ApiUrl $apiUrl -LogErr $logErr
 
@@ -812,7 +816,7 @@ try {
         $logErr = Join-Path $repoRoot 'docs\evidence\b006-gate-api.err.log'
         $previousConnectionString = $env:KQG_CONNECTION_STRING
         $env:KQG_CONNECTION_STRING = "Host=$DatabaseHost;Port=$DatabasePort;Database=$DatabaseName;Username=$DatabaseUser;Password=$DatabasePassword"
-        $process = Start-Process -FilePath dotnet -ArgumentList @('run','--project','apps\api\K12QuestionGraph.Api.csproj','--urls',$apiUrl) -PassThru -WindowStyle Hidden -RedirectStandardOutput $logOut -RedirectStandardError $logErr
+        $process = Start-Process -FilePath dotnet -ArgumentList @('run','--project','apps\api\K12QuestionGraph.Api.csproj','-c','Release','--no-build','--urls',$apiUrl) -PassThru -WindowStyle Hidden -RedirectStandardOutput $logOut -RedirectStandardError $logErr
         try {
             Wait-ApiReady -Process $process -ApiUrl $apiUrl -LogErr $logErr
 

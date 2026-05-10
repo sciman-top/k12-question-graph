@@ -1,0 +1,45 @@
+schemaVersion: ocr-engine-admission.catalog.v0.1
+mode: candidate_catalog
+defaultRouteChangeAllowed: false
+installAllowedByAutomation: false
+admissionRequiredEvidence:
+  - official_docs_or_owner_release
+  - license_and_offline_use_check
+  - hardware_profile_match
+  - golden_set_eval
+  - formula_table_figure_regression
+  - teacher_takeover_path
+  - rollback_plan
+candidates:
+  - id: rapidocr_onnxruntime
+    status: current_eval
+    profileFit:
+      - cpu_low
+      - cpu_standard
+      - gpu_entry
+      - gpu_high
+    allowedUse: local_eval_and_draft_test
+    productionEligible: false
+  - id: paddleocr_ppocr
+    status: candidate
+    profileFit:
+      - cpu_standard
+      - gpu_entry
+      - gpu_high
+    allowedUse: eval_only
+    productionEligible: false
+  - id: docling_layout_pipeline
+    status: candidate
+    profileFit:
+      - cpu_standard
+      - gpu_entry
+      - gpu_high
+    allowedUse: eval_only
+    productionEligible: false
+  - id: formula_recognition_engine
+    status: candidate
+    profileFit:
+      - gpu_entry
+      - gpu_high
+    allowedUse: eval_only
+    productionEligible: false

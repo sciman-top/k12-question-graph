@@ -1,0 +1,36 @@
+schemaVersion: capability-taxonomy.v0.1
+profiles:
+  - id: cpu_low
+    minRamGb: 8
+    minVramGb: 0
+    recommendedUses:
+      - pdf_text_layout
+      - lightweight_ocr
+    avoid:
+      - local_llm_default_route
+      - heavy_formula_recognition_batch
+  - id: cpu_standard
+    minRamGb: 16
+    minVramGb: 0
+    recommendedUses:
+      - rapidocr_onnxruntime
+      - docling_eval
+      - small_local_llm_experiment
+  - id: gpu_entry
+    minRamGb: 16
+    minVramGb: 4
+    recommendedUses:
+      - paddleocr_eval
+      - quantized_3b_7b_local_llm_eval
+    restrictions:
+      - no_default_route_without_golden_set_pass
+  - id: gpu_high
+    minRamGb: 32
+    minVramGb: 12
+    recommendedUses:
+      - paddleocr_batch_eval
+      - formula_recognition_eval
+      - local_llm_7b_14b_eval
+    restrictions:
+      - install_requires_manual_confirmation
+      - model_download_requires_manual_confirmation

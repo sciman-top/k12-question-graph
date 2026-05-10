@@ -10,6 +10,7 @@
 ## 1. 安装与初始化
 - [ ] 执行安装向导，记录安装包版本、安装目录、数据目录和备份目录。
 - [ ] 验证 PostgreSQL 连接与 pgpass 非交互可用，不在日志写明文密码。
+- [ ] 运行 host capability diagnostic、worker profile diagnostic 和 O008 technology refresh `report_only`，记录新硬件/OCR/模型候选但不安装、不下载、不切默认。
 - [ ] 保存初始化日志路径和关键输出摘要。
 
 ## 2. 备份与恢复

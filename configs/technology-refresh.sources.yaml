@@ -1,0 +1,46 @@
+schemaVersion: technology-refresh.sources.v0.1
+mode: report_only
+networkAccessDefault: false
+aiApiAllowedUses:
+  - summarize_public_release_notes
+  - draft_candidate_catalog_entries
+  - draft_eval_checklist
+forbiddenActions:
+  - install_system_dependency
+  - download_model_weights
+  - modify_path
+  - enable_docker_or_wsl
+  - change_default_ocr_route
+  - change_default_ai_route
+  - process_real_unredacted_material
+  - write_active_production_config
+sourceTiers:
+  - id: official_vendor_docs
+    trustLevel: high
+    examples:
+      - PaddleOCR official documentation
+      - ONNX Runtime official documentation
+      - Microsoft hardware and driver documentation
+      - NVIDIA CUDA documentation
+      - AMD ROCm documentation
+  - id: official_model_cards
+    trustLevel: high
+    examples:
+      - Hugging Face model card
+      - GitHub release page from the model owner
+  - id: community_reference_projects
+    trustLevel: medium
+    examples:
+      - active GitHub repositories with reproducible benchmarks
+      - community deployment guides with pinned versions
+  - id: social_posts_or_unverified_benchmarks
+    trustLevel: low
+    admission: evidence_only_not_decision_source
+refreshCadence:
+  default: monthly
+  urgentTriggers:
+    - major_ocr_release
+    - major_formula_recognition_release
+    - new_local_llm_runtime
+    - new_gpu_driver_stack
+    - security_advisory

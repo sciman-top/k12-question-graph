@@ -1,0 +1,34 @@
+schemaVersion: model-admission.catalog.v0.1
+mode: candidate_catalog
+defaultRouteChangeAllowed: false
+downloadAllowedByAutomation: false
+admissionRequiredEvidence:
+  - official_model_card_or_owner_release
+  - license_and_local_use_check
+  - hardware_profile_match
+  - golden_set_eval
+  - cost_latency_memory_report
+  - rollback_plan
+candidates:
+  - id: local_llm_3b_7b_quantized
+    status: candidate
+    profileFit:
+      - gpu_entry
+      - gpu_high
+    allowedUse: eval_only
+    productionEligible: false
+  - id: local_llm_7b_14b_quantized
+    status: candidate
+    profileFit:
+      - gpu_high
+    allowedUse: eval_only
+    productionEligible: false
+  - id: cloud_ai_api_report_only
+    status: candidate
+    profileFit:
+      - cpu_low
+      - cpu_standard
+      - gpu_entry
+      - gpu_high
+    allowedUse: public_document_summary_only
+    productionEligible: false

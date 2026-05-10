@@ -27,7 +27,7 @@ $env:ASPNETCORE_ENVIRONMENT = "Development"
 
 $process = Start-Process `
     -FilePath "dotnet" `
-    -ArgumentList @("run", "--project", $apiProject, "--no-launch-profile") `
+    -ArgumentList @("run", "--project", $apiProject, "-c", "Release", "--no-build", "--no-launch-profile") `
     -WorkingDirectory $repoRoot `
     -PassThru `
     -WindowStyle Hidden `

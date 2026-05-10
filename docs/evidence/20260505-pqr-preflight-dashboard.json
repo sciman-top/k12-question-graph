@@ -24,7 +24,7 @@
       {
         "id": "P001",
         "status": "待办",
-        "depends_on": "S012;O004B;O006;O007"
+        "depends_on": "S012;O004B;O006;O007;O008"
       },
       {
         "id": "P002",

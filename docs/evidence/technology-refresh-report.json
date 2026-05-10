@@ -1,0 +1,57 @@
+{
+  "status": "pass",
+  "task": "O008",
+  "mode": "report_only",
+  "checkedAt": "2026-05-10T15:23:37",
+  "sources": {
+    "path": "configs/technology-refresh.sources.yaml",
+    "sourceTierCount": 4,
+    "aiApiAllowedUses": [
+      "summarize_public_release_notes",
+      "draft_candidate_catalog_entries",
+      "draft_eval_checklist"
+    ],
+    "forbiddenActions": [
+      "install_system_dependency",
+      "download_model_weights",
+      "modify_path",
+      "enable_docker_or_wsl",
+      "change_default_ocr_route",
+      "change_default_ai_route",
+      "process_real_unredacted_material",
+      "write_active_production_config"
+    ]
+  },
+  "capabilityTaxonomy": {
+    "path": "configs/capability-taxonomy.yaml",
+    "profiles": [
+      "cpu_low",
+      "cpu_standard",
+      "gpu_entry",
+      "gpu_high"
+    ]
+  },
+  "modelCatalog": {
+    "path": "configs/model-admission.catalog.yaml",
+    "candidateCount": 3,
+    "defaultRouteChangeAllowed": false,
+    "downloadAllowedByAutomation": false
+  },
+  "ocrCatalog": {
+    "path": "configs/ocr-engine-admission.catalog.yaml",
+    "candidateCount": 4,
+    "defaultRouteChangeAllowed": false,
+    "installAllowedByAutomation": false
+  },
+  "boundaries": {
+    "noInstall": true,
+    "noDownload": true,
+    "noDefaultRouteChange": true,
+    "noRealMaterialProcessing": true,
+    "noProductionWrite": true
+  },
+  "rollback": {
+    "docs": "git revert O008 roadmap/catalog changes",
+    "runtime": "no runtime, dependency, model, OCR route, or production config was changed by this contract"
+  }
+}

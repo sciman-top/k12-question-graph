@@ -13,8 +13,8 @@
       "toolName": "python",
       "toolVersion": "3.13.7",
       "durationMs": 2,
-      "inputSha256": "a11d86713217cd40f17f18c7a5cbd58245e1874e241c533d245d7dc192d0da21",
-      "outputSha256": "1204423cc6d6b6239c4f597a8a4ef58336caa2e3f57fe3bb3d1a58e0a006f8a0",
+      "inputSha256": "1638f8e2d510f45f37bb10260e588adb30b94fadeb53df920110b6f500ee266d",
+      "outputSha256": "65ef6ed67624f7131e81a32115a3dc66c714ed9eed0073ad9cda7226aab39970",
       "warningCount": 0,
       "errorCount": 0,
       "commandArgs": {
@@ -28,7 +28,7 @@
       "adapterVersion": "0.1",
       "toolName": "python",
       "toolVersion": "3.13.7",
-      "durationMs": 26,
+      "durationMs": 24,
       "inputSha256": "f3081ad4685c9e5330cc0be5874fc240af9d0181113b68787e82774739ef0b29",
       "outputSha256": "c5dff7d72debea928bbd9072ab6d4c758e19854cbbf017b135398601c14b9383",
       "warningCount": 0,
@@ -44,9 +44,9 @@
       "adapterVersion": "0.1",
       "toolName": "python",
       "toolVersion": "3.13.7",
-      "durationMs": 2199,
-      "inputSha256": "8e0909631eda80b2aa58c3ca5018b14dd9fabf23f825f2db7739fc0977483146",
-      "outputSha256": "6061a56300f02934f23db6bdebd2607f797bc36a70c59ee4d73e8052b93f93d8",
+      "durationMs": 1968,
+      "inputSha256": "c779c5aa791c1b005b48a95c6f1bcb52f2a238f6753dacfb1b324544f2ff4d8e",
+      "outputSha256": "8c26ab03ecf5263142efd5e17d1ab03bb3819b0defd11159bc30fc2a96fc2722",
       "warningCount": 1,
       "errorCount": 0,
       "commandArgs": {
@@ -60,7 +60,7 @@
       "adapterVersion": "0.1",
       "toolName": "python",
       "toolVersion": "3.13.7",
-      "durationMs": 2129,
+      "durationMs": 1881,
       "inputSha256": "fe9f21e24f0e0b389109c6bd0ae320de2eeb19a2008b2d3c07eeb5d84086fe21",
       "outputSha256": "d9493f64e7b18bd3b5e51a76f930b7dac5bc457bbae284839961f8150cb8bc0a",
       "warningCount": 1,
@@ -76,7 +76,7 @@
       "adapterVersion": "0.1",
       "toolName": "python",
       "toolVersion": "3.13.7",
-      "durationMs": 778,
+      "durationMs": 804,
       "inputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "outputSha256": "9bd2725635f0e81498fbb6098ebb8c28fc7cc2182c9118755f65bf515fa8685f",
       "warningCount": 2,
@@ -138,6 +138,6 @@
     "rawInputsStayUnder": "tmp\\j005-adapter-diagnostics"
   },
   "rollback": "git restore tracked files; remove tools/j005_adapter_diagnostic_supply_chain.py, tools/run-j005-adapter-diagnostic-supply-chain-contract.ps1, docs/90_J005_AdapterDiagnosticSupplyChain.md, docs/evidence/j005-adapter-diagnostic-supply-chain-report.json, and tmp/j005-adapter-diagnostics",
-  "createdAt": "2026-05-10T02:25:03.974546+00:00",
+  "createdAt": "2026-05-10T07:17:12.323442+00:00",
   "summaryChinese": "J005 已验证所有当前 worker adapter 均记录版本、命令参数、输入输出 hash、耗时、warnings 和 errors；当前供应链调用本地 rapidocr_onnxruntime，不调用云端 OCR、Docling、网络或真实 AI。"
 }
