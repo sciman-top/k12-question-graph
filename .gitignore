@@ -4,6 +4,7 @@ Thumbs.db
 desktop.ini
 .vscode/
 .idea/
+.playwright-mcp/
 
 # Logs and runtime artifacts
 *.log

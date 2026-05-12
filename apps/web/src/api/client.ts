@@ -10,6 +10,8 @@ import type {
   QuestionSearchContract,
   QuestionSourceReviewContract,
   ReadyHealthContract,
+  ReviewQueueItemContract,
+  ReviewQueueListContract,
   ReviewWorkbenchActionContract,
   SourceDocumentPreviewContract,
   SourceMaterialListContract,
@@ -25,6 +27,8 @@ import {
   normalizeQuestionSearchResponse,
   normalizeQuestionSourceReviewResponse,
   normalizeReadyHealthResponse,
+  normalizeReviewQueueItemResponse,
+  normalizeReviewQueueListResponse,
   normalizeReviewWorkbenchActionResponse,
   normalizeSourceDocumentPreviewResponse,
   normalizeSourceMaterialListResponse,
@@ -271,6 +275,36 @@ export async function applyReviewWorkbenchAction(request: {
       },
     }
   }
+}
+
+export async function getReviewQueueItems(params: {
+  status?: string
+  reviewType?: string
+  limit?: number
+} = {}): Promise<ApiResult<ReviewQueueListContract>> {
+  const query = new URLSearchParams()
+  query.set('status', params.status ?? 'open')
+  query.set('limit', String(params.limit ?? 100))
+  if (params.reviewType) {
+    query.set('reviewType', params.reviewType)
+  }
+
+  return requestJson(`/review-queue?${query.toString()}`, normalizeReviewQueueListResponse)
+}
+
+export async function resolveReviewQueueItem(
+  id: string,
+  request: {
+    reviewedBy: string
+    decision: 'resolved' | 'dismissed'
+    reason: string
+  },
+): Promise<ApiResult<ReviewQueueItemContract>> {
+  return postJson(
+    `/review-queue/${encodeURIComponent(id)}/resolve`,
+    request,
+    normalizeReviewQueueItemResponse,
+  )
 }
 
 export async function getQuestionSources(

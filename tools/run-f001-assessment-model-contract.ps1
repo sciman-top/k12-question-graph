@@ -25,7 +25,7 @@ try {
     $env:PGPASSWORD = $DatabasePassword
 
     try {
-        dotnet ef database update --project apps\api\K12QuestionGraph.Api.csproj --startup-project apps\api\K12QuestionGraph.Api.csproj | Write-Host
+        dotnet ef database update --project apps\api\K12QuestionGraph.Api.csproj --startup-project apps\api\K12QuestionGraph.Api.csproj --configuration Release --no-build | Write-Host
         if ($LASTEXITCODE -ne 0) {
             throw "dotnet ef database update failed"
         }

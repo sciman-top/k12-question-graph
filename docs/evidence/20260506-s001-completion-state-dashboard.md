@@ -1,8 +1,8 @@
 # S001 完成态看板证据
 
 - status: pass
-- checked_at: 2026-05-12T19:13:38
-- area_count: 22
+- checked_at: 2026-05-12T21:51:53
+- area_count: 23
 - not_normally_usable_count: 5
 - teacher_visible_validated_or_release_ready_count: 13
 - next_productization_task: P001
@@ -10,7 +10,7 @@
 ## State Counts
 - contract_done: 5
 - synthetic_done: 1
-- db_backed_done: 2
+- db_backed_done: 3
 - ui_productized: 0
 - teacher_validated: 14
 - release_ready: 0
@@ -22,6 +22,7 @@
 - question-cutting: teacher_validated -> P001; 现场批量导入峰值和人工接管节奏需在 P001 preflight 复核
 - human-review: teacher_validated -> P001; 现场多人并发审核与角色边界需在 P001 preflight 复核
 - question-save: teacher_validated -> P001; 现场异常回放与来源授权策略需在 P001 preflight 复核
+- real-guangzhou-2015: db_backed_done -> REAL002; 只完成 1-18 题 DB 写入和 pending_review 队列 Web 已有确认/退回 smoke 但教师修订 第 19-24 题 题图精切 2016-2025 批量仍未完成
 - ai-extraction: synthetic_done -> S007; 真实模型只允许候选和审核 没有教师生产工作流
 - ai-tagging: teacher_validated -> P001; 现场模型预算与异常处置仍需 P001 preflight 守卫
 - review-queue: teacher_validated -> P001; 现场并发与审计抽检规则需在 P001 preflight 复核

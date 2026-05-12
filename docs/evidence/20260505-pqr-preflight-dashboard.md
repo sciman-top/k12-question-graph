@@ -1,6 +1,6 @@
 # 20260505 PQR preflight dashboard
 
-- checkedDate: 2026-05-10
+- checkedDate: 2026-05-12
 - totals: all=18, todo=18, completed=0
 
 ## Blockers
@@ -18,7 +18,7 @@
 ## Task Snapshot
 | Group | Task | Status | Depends On |
 |---|---|---|---|
-| P | P001 | 待办 | S012;O004B;O006;O007;O008 |
+| P | P001 | 待办 | S012;O004B;O006;O007;O008;REAL001 |
 | P | P002 | 待办 | P001 |
 | P | P003 | 待办 | P002 |
 | P | P004 | 待办 | P003 |

@@ -20,6 +20,8 @@ AI 推荐保留当前 P0-P6 大方向，但调整顺序和验收口径：
 
 截至 2026-05-10，路线图新增 `O008` 技术情报刷新与候选准入目录。新硬件、新 OCR/公式识别引擎、新本地推理 runtime 和新模型只能先进入可信来源清单、capability taxonomy、model/OCR candidate catalog 和 `report_only` evidence；AI API 只允许摘要公开资料、生成候选和 eval checklist，不得安装依赖、下载模型、切换默认路由、处理真实未脱敏材料或自动写入生产。
 
+截至 2026-05-12，路线图新增 `REAL001-REAL004` 真卷闭环纠偏主线。此前 `S012` 只能证明非现场代理/合同链路，不等于 2015-2025 广州中考真卷已经逐题可用。`REAL001` 已用本机 `SourceDocument/FileAsset` 中的 2015 广州中考物理试卷和答案实跑 worker、题号切分、答案对齐、规则标注和 DB 写入，覆盖第 1-18 题并全部进入 `pending_review`；但这只是 `db_backed_done`，不是教师验收完成。`REAL004` 已补到可查 2015 真卷审核队列、查看题干/答案/标签/来源、确认或退回并写入 audit 的 smoke 级证据；仍未完成教师编辑式修订和人工验收。进入 `P001` 试点部署前，至少必须保留 `REAL001` 证据；第 19-24 题、截图级精切、2016-2025 批量和教师确认闭环由 `REAL002-REAL004` 继续推进。
+
 ## 动态元素不停工原则
 
 知识点只是动态元素之一。凡是允许未来变化的对象，包括题型、标签、难度/能力维度、rubric、组卷规则、导出模板、AI prompt/schema/model routing、文档解析 pipeline、分析指标、Excel 字段映射、隐私策略、学校组织和权限，都必须先抽象为可版本化、可映射、可迁移、可回滚资产。
@@ -62,6 +64,8 @@ C002 active 前必须先完成 C002S 正式化前审查闭环：抽样核对 201
 大模型提炼候选体系不得直接全量读取 33 个 PDF 后生成正式知识体系。执行顺序必须是 C002N0-C002Q：先完成本地优先 AI 消耗削减审查，再做本地 chunk/hash/cache，然后定义结构化 schema 和 eval，再配置分层模型路由预算门禁，再通过 C002Q0 检查真实模型调用 readiness 和 outer subagent 编排合同，最后只做小批量 AI extract dry-run。C002N 已完成本地证据层：`docs/evidence/c002n-source-chunk-cache-report.json` 覆盖 33 份来源 PDF、1478 页级 chunk、缓存复跑命中 33/33、外部 AI 调用 0。C002O 已完成结构化输出边界：`schemas/ai/c002_candidate_extraction.schema.json` 与 `docs/evidence/c002o-candidate-extraction-eval-report.json` 覆盖知识点、课标条目、教材章节、考点、趋势摘要和映射建议，全部保持 `pending_review/productionEligible=false`。C002P 已完成预算门禁：33 份来源 `estimatedInputTokens=520612`、`chunkCount=1478` 超过 C002Q dry-run 上限，full extraction 必须有显式预算报告和人工预算确认。C002Q0 已完成 readiness：`configs/ai-evals/c002q0-outer-ai-readiness.sample.json` 与 `docs/evidence/c002q0-outer-ai-readiness-report.json` 固化批次 manifest、模型角色、reasoning、预算、sample rate、输入/输出 artifact、evidence anchor、cache hit、no active write、人工审核和 subagent 外层编排边界，且证明 readiness 本身外部 AI 调用为 0、项目运行时真实模型调用仍禁用、subagent 不成为运行时依赖。C002Q 已完成 contract dry-run：`configs/ai-evals/c002q-ai-extract-dry-run.sample.json` 与 `docs/evidence/c002q-ai-extract-dry-run-report.json` 抽样课程标准、教材、年报、真题 4 类来源共 12 个 cache-hit chunks，生成候选输出、模型层级 trace、token/cost/cache 证据，保持 `allowRealModelCalls=false/externalAiCalls=0/noActiveWrite=true`，不覆盖 C002K。分层策略为 L0 本地抽取不调用模型，L1 低成本筛查用低 reasoning，L2 结构化初提炼用 medium reasoning，L3 体系合并/冲突判断用 medium/high reasoning，L4 高风险仲裁才允许强模型 high/extra high。所有输出必须保持 `candidate/pending_review/production_eligible=false`，并记录模型、reasoning、token、成本、缓存和来源证据。subagent 只作为外层并行执行和复核编排，不成为项目运行时依赖。教师可见界面、报告摘要、导入/导出结果和失败原因默认中文；内部枚举、schema 字段和 API contract 可以保留英文但不得直接暴露给普通教师。
 
 真实导入是中风险持久化动作，执行顺序固定为：确认 `git status`、设置正确 `PGPASSWORD/KQG_CONNECTION_STRING`、先运行 dry-run、执行备份或至少生成可恢复 manifest、再运行 `tools/import-c002-source-materials.ps1 -Apply`。若数据库密码缺失或不匹配，导入必须停在 dry-run 和任务更新层，不得绕过来源证据链直接导入候选知识点。
+
+真卷入库同样按中风险处理。`REAL001` 的可复跑入口是 `tools/run-guangzhou-2015-real-ingest-slice.ps1`：默认 dry-run 在事务内验证后回滚，`-Apply` 才写入本机数据库；报告必须记录 `question_items/cut_candidates/source_regions/review_queue_items` 数量、外部 AI 调用数、真实学生数据使用情况、剩余缺口和 targeted rollback SQL。任何乱码、缺题、缺答案、缺来源或跳过 `pending_review` 的结果都不得标成闭环。
 
 P5 已在 draft/test 模式完成 F001-F003：学生/班级/考试模型、synthetic Excel 字段映射导入、得分率、区分度和知识点掌握摘要均已通过合同门禁。当前 F003 只写 `docs/evidence/f003-knowledge-mastery-analysis-report.json` 和临时 summary，不写正式历史学情，不使用真实学生数据。
 

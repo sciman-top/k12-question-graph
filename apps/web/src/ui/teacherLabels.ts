@@ -27,11 +27,15 @@ const teacherText: Record<string, string> = {
   unit_practice: '单元练习',
   uploaded_metadata: '已记录元数据',
   manual_review: '需人工接管',
+  teacher_review: '需教师确认',
   split: '拆分',
   merge: '合并',
   skip: '跳过',
   rerun: '重跑',
   save_question: '保存题目',
+  risk_high: '高风险',
+  risk_medium: '需核对',
+  risk_low: '低风险',
 }
 
 export const teacherLabelFor = (value: string) => teacherText[value] ?? value

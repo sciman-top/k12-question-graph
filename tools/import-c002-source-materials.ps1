@@ -200,12 +200,12 @@ try {
         $env:KQG_CONNECTION_STRING = "Host=$DatabaseHost;Port=$DatabasePort;Database=$DatabaseName;Username=$DatabaseUser;Password=$DatabasePassword"
         $env:KqgPaths__FileStoreRoot = $FileStoreRoot
 
-        dotnet ef database update --project apps\api\K12QuestionGraph.Api.csproj --startup-project apps\api\K12QuestionGraph.Api.csproj | Write-Host
+        dotnet ef database update --project apps\api\K12QuestionGraph.Api.csproj --startup-project apps\api\K12QuestionGraph.Api.csproj --configuration Release --no-build | Write-Host
         if ($LASTEXITCODE -ne 0) {
             throw "dotnet ef database update failed"
         }
 
-        $apiProcess = Start-Process -FilePath dotnet -ArgumentList @('run','--project','apps\api\K12QuestionGraph.Api.csproj','--urls',$baseUrl) -PassThru -WindowStyle Hidden -RedirectStandardOutput $logOut -RedirectStandardError $logErr
+        $apiProcess = Start-Process -FilePath dotnet -ArgumentList @('run','--project','apps\api\K12QuestionGraph.Api.csproj','-c','Release','--no-build','--urls',$baseUrl) -PassThru -WindowStyle Hidden -RedirectStandardOutput $logOut -RedirectStandardError $logErr
         Wait-ApiReady -Process $apiProcess -ReadyUrl $baseUrl -LogErr $logErr
     }
     elseif ($Apply -and [string]::IsNullOrWhiteSpace($baseUrl)) {

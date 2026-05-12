@@ -92,7 +92,7 @@ try {
     $env:AdminInternalGuard__ApiKey = 'o004-contract-secret'
     $env:AdminInternalGuard__AllowUnguardedDraftTest = 'false'
 
-    $process = Start-Process -FilePath dotnet -ArgumentList @('run','--project','apps\api\K12QuestionGraph.Api.csproj','--urls',$apiUrl,'--no-launch-profile') -PassThru -WindowStyle Hidden -RedirectStandardOutput $logOut -RedirectStandardError $logErr
+    $process = Start-Process -FilePath dotnet -ArgumentList @('run','--project','apps\api\K12QuestionGraph.Api.csproj','-c','Release','--no-build','--urls',$apiUrl,'--no-launch-profile') -PassThru -WindowStyle Hidden -RedirectStandardOutput $logOut -RedirectStandardError $logErr
     try {
         Wait-HttpReady -Url "$apiUrl/health" -Process $process -LogErr $logErr
 

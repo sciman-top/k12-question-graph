@@ -1634,6 +1634,84 @@
   padding: 4px 8px;
 }
 
+.real-exam-review {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  padding: 16px;
+}
+
+.panel-heading.compact {
+  margin-bottom: 0;
+}
+
+.real-exam-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  max-height: 260px;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.real-exam-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(100px, 0.4fr) minmax(0, 1.1fr) minmax(0, 1.2fr);
+  gap: 8px;
+}
+
+.real-exam-detail span {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #f9fbf8;
+  padding: 10px;
+}
+
+.real-exam-detail strong {
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.real-exam-row {
+  display: flex;
+  min-height: 62px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+  padding: 10px 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.real-exam-row.active {
+  border-color: var(--accent);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.real-exam-row span {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.real-exam-row small {
+  overflow: hidden;
+  color: var(--muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .segment-list {
   display: grid;
   gap: 10px;
@@ -1729,6 +1807,8 @@
   .paper-workbench-flow,
   .paper-workbench-summary,
   .paper-workflow-status,
+  .real-exam-detail,
+  .real-exam-list,
   .page-preview {
     grid-template-columns: 1fr;
   }

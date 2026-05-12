@@ -14,6 +14,7 @@ foreach ($requiredId in @(
     'I008', 'I009', 'I010',
     'O004', 'O004B',
     'S001', 'S002', 'S003', 'S004', 'S005', 'S006', 'S007', 'S008', 'S009', 'S010', 'S011', 'S012',
+    'REAL001',
     'P001'
 )) {
     if (-not $byId.ContainsKey($requiredId)) {
@@ -65,6 +66,7 @@ $s009 = $byId['S009']
 $s010 = $byId['S010']
 $s011 = $byId['S011']
 $s012 = $byId['S012']
+$real001 = $byId['REAL001']
 $p001 = $byId['P001']
 if ($d001.depends_on -eq 'C002') {
     throw "D001 must not depend on formal C002; use the dynamic asset draft/test gate such as C002H"
@@ -460,6 +462,27 @@ foreach ($requiredDependency in @('S012', 'O004B', 'O006', 'O007')) {
     }
 }
 
+if ($p001Dependencies -notcontains 'REAL001') {
+    throw "P001 must depend on REAL001 real Guangzhou 2015 ingest evidence before live readiness"
+}
+
+if ($real001.status -eq '已完成') {
+    $real001Report = Join-Path $repoRoot 'docs\evidence\20260512-guangzhou-2015-real-ingest-slice-report.json'
+    if (-not (Test-Path -LiteralPath $real001Report)) {
+        throw "REAL001 is completed but evidence is missing: docs/evidence/20260512-guangzhou-2015-real-ingest-slice-report.json"
+    }
+    $report = Get-Content -LiteralPath $real001Report -Raw | ConvertFrom-Json
+    if ($report.status -ne 'pass' -or $report.mode -ne 'apply') {
+        throw "REAL001 report must be an applied pass, got status=$($report.status) mode=$($report.mode)"
+    }
+    if ($report.after.questionCount -ne 18 -or $report.after.cutCandidateCount -ne 18 -or $report.after.openReviewQueueCount -ne 18) {
+        throw "REAL001 report must prove 18 questions, 18 cut candidates, and 18 open review items"
+    }
+    if ($report.verification.allHaveAnswers -ne $true -or $report.verification.allHaveKnowledgeTags -ne $true -or $report.verification.allRequireTeacherReview -ne $true) {
+        throw "REAL001 report must prove answer/tag presence and teacher review boundary"
+    }
+}
+
 $automationFirstGuard = Join-Path $PSScriptRoot 'run-automation-first-feature-contract-guard.ps1'
 if (-not (Test-Path -LiteralPath $automationFirstGuard)) {
     throw "automation-first feature contract guard is missing"
@@ -566,6 +589,7 @@ if ($c002.acceptance -notmatch '教师录入|导入|来源|教材|课程标准|�
     o004bStatus = $o004b.status
     automationFirstGate = 'tasks/automation-first-contract.csv'
     s0ProductizationGate = 'S001-S012'
+    realPaperGate = 'REAL001'
     s0Statuses = @($s001, $s002, $s003, $s004, $s005, $s006, $s007, $s008, $s009, $s010, $s011, $s012) | ForEach-Object {
         [ordered]@{
             id = $_.id

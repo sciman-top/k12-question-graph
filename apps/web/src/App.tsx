@@ -36,10 +36,13 @@ import {
   generateCutCandidates,
   getCutCandidates,
   getQuestionSources,
+  getReviewQueueItems,
   previewItemScoreMappings,
+  resolveReviewQueueItem,
   runDocumentWorkerSmoke,
   uploadImportFile,
 } from './api/client'
+import type { ReviewQueueItemContract } from './api/contracts'
 import {
   useCutCandidatesQuery,
   useImportJobQuery,
@@ -248,6 +251,16 @@ const questionSearchFilterChips = [
 
 const labelFor = teacherLabelFor
 
+const reviewRiskColorFor = (riskLevel: string) => {
+  if (riskLevel === 'high') {
+    return 'red'
+  }
+  if (riskLevel === 'medium') {
+    return 'orange'
+  }
+  return 'green'
+}
+
 const initialPaperRequest =
   '八年级物理，牛顿第一定律与惯性，单选 5 题、计算 2 题、实验 1 题，总分 30 分，难度中等'
 
@@ -331,6 +344,12 @@ function App() {
   const [sourceTypeFilter, setSourceTypeFilter] = useState('all')
   const [importJobLookupId, setImportJobLookupId] = useState('')
   const [selectedSourceDocumentId, setSelectedSourceDocumentId] = useState('')
+  const [realExamQueue, setRealExamQueue] = useState<ReviewQueueItemContract[]>([])
+  const [realExamQueueTotal, setRealExamQueueTotal] = useState(0)
+  const [realExamQueueBusy, setRealExamQueueBusy] = useState(false)
+  const [realExamQueueMessage, setRealExamQueueMessage] = useState('尚未查询 2015 真卷复核队列')
+  const [selectedRealExamReviewId, setSelectedRealExamReviewId] = useState('')
+  const [realExamReviewNote, setRealExamReviewNote] = useState('已核对题干、答案、标签和来源')
   const [activeTeacherView, setActiveTeacherView] = useState<TeacherView>('import')
   const [segments, setSegments] = useState(initialSegments)
   const [selectedIds, setSelectedIds] = useState<string[]>(['q-02', 'q-03'])
@@ -382,6 +401,7 @@ function App() {
   const questionSearch = questionSearchQuery.data?.ok ? questionSearchQuery.data.data : undefined
   const sourcePreview = previewQuery.data?.ok ? previewQuery.data.data : undefined
   const importJob = importJobQuery.data?.ok ? importJobQuery.data.data : undefined
+  const selectedRealExamReview = realExamQueue.find((item) => item.id === selectedRealExamReviewId)
   const readyHealthStatusLabel = readyHealth?.status === 'ok' ? '正常' : '服务未连接'
   const importElapsedMinutes = Math.max(
     0,
@@ -741,6 +761,95 @@ function App() {
     setSegments(nextSegments)
     setSelectedIds(nextSegments.slice(0, Math.min(2, nextSegments.length)).map((x) => x.id))
     appendLog(`已加载候选 ${nextSegments.length} 条到人工确认队列`)
+  }
+
+  const loadRealExamReviewQueue = async () => {
+    setRealExamQueueBusy(true)
+    const result = await getReviewQueueItems({
+      status: 'open',
+      reviewType: 'guangzhou_2015_question_review',
+      limit: 50,
+    })
+    setRealExamQueueBusy(false)
+
+    if (!result.ok) {
+      setRealExamQueueMessage(`真卷队列查询失败：${result.error.message}`)
+      return
+    }
+
+    setRealExamQueue(result.data.items)
+    setRealExamQueueTotal(result.data.totalCount)
+    setRealExamQueueMessage(`已加载 ${result.data.items.length} 条 2015 真卷待复核题目`)
+    if (!selectedRealExamReviewId && result.data.items.length > 0) {
+      setSelectedRealExamReviewId(result.data.items[0].id)
+    }
+  }
+
+  const loadRealExamReviewItem = async (item: ReviewQueueItemContract) => {
+    const payload = item.payload
+    setSelectedRealExamReviewId(item.id)
+    setRealExamReviewNote(
+      payload.questionNo
+        ? `第 ${payload.questionNo} 题已核对题干、答案、标签和来源`
+        : '已核对题干、答案、标签和来源',
+    )
+    if (payload.sourceDocumentId) {
+      setSelectedSourceDocumentId(payload.sourceDocumentId)
+    }
+    if (payload.candidateId) {
+      setSelectedIds([payload.candidateId])
+      setSegments([
+        {
+          id: payload.candidateId,
+          title: `第 ${payload.questionNo || '?'} 题`,
+          page: '真卷来源页待回看',
+          region: payload.sourceRegionId ? '已关联来源区域' : '来源区域待确认',
+          asset: '',
+          confidence: item.confidence ?? payload.confidence ?? 0.86,
+          failureReason: item.reason ?? payload.reason,
+          takeoverAction: item.requiredAction || payload.requiredAction || 'manual_review',
+          status: item.status,
+        },
+      ])
+    }
+
+    if (payload.questionItemId) {
+      const sourceResult = await getQuestionSources(payload.questionItemId)
+      if (sourceResult.ok) {
+        setSavedQuestionSourceSummary(
+          `第 ${payload.questionNo} 题来源回看：${sourceResult.data.sourceRegions.length} 个区域`,
+        )
+        setSavedQuestionSourceRegions(sourceResult.data.sourceRegions)
+      } else {
+        setSavedQuestionSourceSummary(`第 ${payload.questionNo} 题来源回看失败：${sourceResult.error.message}`)
+        setSavedQuestionSourceRegions([])
+      }
+    }
+    appendLog(`已载入 2015 真卷第 ${payload.questionNo || '?'} 题`)
+  }
+
+  const finishRealExamReviewItem = async (
+    item: ReviewQueueItemContract,
+    decision: 'resolved' | 'dismissed',
+  ) => {
+    const note = realExamReviewNote.trim()
+    const result = await resolveReviewQueueItem(item.id, {
+      reviewedBy: 'teacher-real-exam-workbench',
+      decision,
+      reason: note || (decision === 'resolved' ? 'ui_real_exam_review_confirmed' : 'ui_real_exam_review_returned'),
+    })
+    if (!result.ok) {
+      setRealExamQueueMessage(`${decision === 'resolved' ? '确认' : '退回'}失败：${result.error.message}`)
+      return
+    }
+
+    setRealExamQueue((current) => current.filter((row) => row.id !== item.id))
+    setRealExamQueueTotal((count) => Math.max(0, count - 1))
+    setSelectedRealExamReviewId('')
+    setRealExamReviewNote('已核对题干、答案、标签和来源')
+    const verb = decision === 'resolved' ? '确认' : '退回'
+    setRealExamQueueMessage(`已${verb}第 ${item.payload.questionNo || '?'} 题，队列已记录审核人、时间和说明`)
+    appendLog(`2015 真卷第 ${item.payload.questionNo || '?'} 题已${verb}`)
   }
 
   const parsePaperRequest = async () => {
@@ -1161,6 +1270,135 @@ function App() {
                   应用候选
                 </Button>
               </Space>
+            </div>
+
+            <div className="real-exam-review" data-contract="real-guangzhou-2015-review-workbench">
+              <div className="panel-heading compact">
+                <div>
+                  <Typography.Text type="secondary">2015 广州真卷</Typography.Text>
+                  <Typography.Title level={3}>逐题复核</Typography.Title>
+                </div>
+                <Tag color={realExamQueue.length > 0 ? 'orange' : 'default'}>
+                  {realExamQueue.length > 0 ? `${realExamQueue.length} 待确认` : '未加载'}
+                </Tag>
+              </div>
+              <div className="review-summary" data-contract="real-exam-review-summary">
+                <span>
+                  <Typography.Text type="secondary">队列总数</Typography.Text>
+                  <strong>{realExamQueueTotal}</strong>
+                </span>
+                <span>
+                  <Typography.Text type="secondary">当前题号</Typography.Text>
+                  <strong>{selectedRealExamReview?.payload.questionNo || '-'}</strong>
+                </span>
+                <span>
+                  <Typography.Text type="secondary">状态</Typography.Text>
+                  <strong>{realExamQueueBusy ? '查询中' : realExamQueue.length > 0 ? '待确认' : '未加载'}</strong>
+                </span>
+              </div>
+              <Typography.Text>{realExamQueueMessage}</Typography.Text>
+              <div className="real-exam-detail" data-contract="real-exam-review-detail">
+                <span>
+                  <Typography.Text type="secondary">题干预览</Typography.Text>
+                  <strong>{selectedRealExamReview?.payload.textPreview || '请选择一题后载入'}</strong>
+                </span>
+                <span>
+                  <Typography.Text type="secondary">答案</Typography.Text>
+                  <strong>{selectedRealExamReview?.payload.answer || '-'}</strong>
+                </span>
+                <span>
+                  <Typography.Text type="secondary">标签</Typography.Text>
+                  <strong>
+                    {selectedRealExamReview?.payload.primaryKnowledgeLabel || '-'}
+                    {selectedRealExamReview?.payload.knowledgeTags.length
+                      ? ` · ${selectedRealExamReview.payload.knowledgeTags.join(' / ')}`
+                      : ''}
+                  </strong>
+                </span>
+                <span>
+                  <Typography.Text type="secondary">来源</Typography.Text>
+                  <strong>{savedQuestionSourceSummary}</strong>
+                </span>
+              </div>
+              <Input.TextArea
+                aria-label="2015 真卷审核说明"
+                data-action="real-guangzhou-2015-review-note"
+                value={realExamReviewNote}
+                onChange={(event) => setRealExamReviewNote(event.target.value)}
+                autoSize={{ minRows: 2, maxRows: 4 }}
+                placeholder="填写确认或退回说明"
+              />
+              <Space size="small" wrap>
+                <Button
+                  icon={<FileSearchOutlined />}
+                  onClick={loadRealExamReviewQueue}
+                  disabled={realExamQueueBusy}
+                  data-action="load-real-guangzhou-2015-review-queue"
+                >
+                  查询真卷队列
+                </Button>
+                <Button
+                  icon={<SearchOutlined />}
+                  onClick={() =>
+                    selectedRealExamReview
+                      ? void loadRealExamReviewItem(selectedRealExamReview)
+                      : setRealExamQueueMessage('请先选择一题')
+                  }
+                  disabled={!selectedRealExamReview}
+                  data-action="load-real-guangzhou-2015-review-item"
+                >
+                  载入当前题
+                </Button>
+                <Button
+                  type="primary"
+                  icon={<CheckCircleOutlined />}
+                  onClick={() =>
+                    selectedRealExamReview
+                      ? void finishRealExamReviewItem(selectedRealExamReview, 'resolved')
+                      : setRealExamQueueMessage('请先选择一题')
+                  }
+                  disabled={!selectedRealExamReview}
+                  data-action="confirm-real-guangzhou-2015-review-item"
+                >
+                  确认当前题
+                </Button>
+                <Button
+                  icon={<UndoOutlined />}
+                  onClick={() =>
+                    selectedRealExamReview
+                      ? void finishRealExamReviewItem(selectedRealExamReview, 'dismissed')
+                      : setRealExamQueueMessage('请先选择一题')
+                  }
+                  disabled={!selectedRealExamReview}
+                  data-action="dismiss-real-guangzhou-2015-review-item"
+                >
+                  退回当前题
+                </Button>
+              </Space>
+              <div className="real-exam-list" aria-label="2015 广州真卷待复核题目">
+                {realExamQueue.slice(0, 18).map((item) => {
+                  const selected = item.id === selectedRealExamReviewId
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      className={selected ? 'real-exam-row active' : 'real-exam-row'}
+                      onClick={() => setSelectedRealExamReviewId(item.id)}
+                      data-review-type={item.reviewType}
+                    >
+                      <span>
+                        <strong>第 {item.payload.questionNo || '?'} 题</strong>
+                        <small>
+                          真卷复核 · {teacherLabelFor(item.requiredAction)}
+                        </small>
+                      </span>
+                      <Tag color={reviewRiskColorFor(item.riskLevel)}>
+                        {teacherLabelFor(`risk_${item.riskLevel}`)}
+                      </Tag>
+                    </button>
+                  )
+                })}
+              </div>
             </div>
 
             <div className="score-field-mapping" data-contract="s003b-import-job-query">

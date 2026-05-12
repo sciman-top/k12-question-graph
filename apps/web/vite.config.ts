@@ -15,6 +15,7 @@ export default defineConfig({
       '/imports': localApiProxy,
       '/source-documents': localApiProxy,
       '/questions': localApiProxy,
+      '/review-queue': localApiProxy,
       '/review-workbench': localApiProxy,
       '/paper-blueprints': localApiProxy,
       '/assessments': localApiProxy,

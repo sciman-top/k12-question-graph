@@ -111,7 +111,7 @@ try {
     $env:KqgPaths__LogsRoot = $resolved.LogsRoot
     $env:KqgPaths__CacheRoot = $resolved.CacheRoot
 
-    $process = Start-Process -FilePath dotnet -ArgumentList @('run','--project','apps\api\K12QuestionGraph.Api.csproj','--urls',$apiUrl) -PassThru -WindowStyle Hidden -RedirectStandardOutput $logOut -RedirectStandardError $logErr
+    $process = Start-Process -FilePath dotnet -ArgumentList @('run','--project','apps\api\K12QuestionGraph.Api.csproj','-c','Release','--no-build','--urls',$apiUrl) -PassThru -WindowStyle Hidden -RedirectStandardOutput $logOut -RedirectStandardError $logErr
     try {
         Wait-HttpOk -Url "$apiUrl/health" -Process $process -LogErr $logErr | Out-Null
 

@@ -36,7 +36,7 @@ try {
     $apiUrl = "http://127.0.0.1:$port"
     $logOut = Join-Path $repoRoot 'docs\evidence\d001-gate-api.out.log'
     $logErr = Join-Path $repoRoot 'docs\evidence\d001-gate-api.err.log'
-    $process = Start-Process -FilePath dotnet -ArgumentList @('run','--project','apps\api\K12QuestionGraph.Api.csproj','--urls',$apiUrl) -PassThru -WindowStyle Hidden -RedirectStandardOutput $logOut -RedirectStandardError $logErr
+    $process = Start-Process -FilePath dotnet -ArgumentList @('run','--project','apps\api\K12QuestionGraph.Api.csproj','-c','Release','--no-build','--urls',$apiUrl) -PassThru -WindowStyle Hidden -RedirectStandardOutput $logOut -RedirectStandardError $logErr
 
     try {
         Wait-ApiStarted -Process $process -ApiUrl $apiUrl -LogErr $logErr

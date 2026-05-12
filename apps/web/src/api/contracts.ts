@@ -95,6 +95,43 @@ export interface ReviewWorkbenchActionContract {
   createdQuestionId: string | null
 }
 
+export interface ReviewQueuePayloadContract {
+  sourceWorkflowKey: string
+  questionNo: number
+  sourceDocumentId: string
+  answerSourceDocumentId: string
+  sourceRegionId: string
+  answerRegionId: string
+  candidateId: string
+  questionItemId: string
+  confidence: number
+  requiredAction: string
+  reason: string
+  riskLevel: string
+  textPreview: string
+  answer: string
+  primaryKnowledgeLabel: string
+  knowledgeTags: string[]
+}
+
+export interface ReviewQueueItemContract {
+  id: string
+  reviewType: string
+  status: string
+  riskLevel: string
+  requiredAction: string
+  confidence: number | null
+  reason: string | null
+  payload: ReviewQueuePayloadContract
+  createdAt: string
+  resolvedAt: string | null
+}
+
+export interface ReviewQueueListContract {
+  items: ReviewQueueItemContract[]
+  totalCount: number
+}
+
 export interface QuestionSourceRegionContract {
   id: string
   sourceDocumentId: string
@@ -419,6 +456,51 @@ export function normalizeReviewWorkbenchActionResponse(
     createdCandidateIds: readArrayField(value, 'createdCandidateIds').map((x) => String(x)),
     skippedIds: readArrayField(value, 'skippedIds').map((x) => String(x)),
     createdQuestionId: readNullableStringField(value, 'createdQuestionId'),
+  }
+}
+
+function normalizeReviewQueuePayload(value: unknown): ReviewQueuePayloadContract {
+  return {
+    sourceWorkflowKey: readStringField(value, 'sourceWorkflowKey') ?? '',
+    questionNo: readNumberField(value, 'questionNo'),
+    sourceDocumentId: readStringField(value, 'sourceDocumentId') ?? '',
+    answerSourceDocumentId: readStringField(value, 'answerSourceDocumentId') ?? '',
+    sourceRegionId: readStringField(value, 'sourceRegionId') ?? '',
+    answerRegionId: readStringField(value, 'answerRegionId') ?? '',
+    candidateId: readStringField(value, 'candidateId') ?? '',
+    questionItemId: readStringField(value, 'questionItemId') ?? '',
+    confidence: readNumberField(value, 'confidence'),
+    requiredAction: readStringField(value, 'requiredAction') ?? 'manual_review',
+    reason: readStringField(value, 'reason') ?? '',
+    riskLevel: readStringField(value, 'riskLevel') ?? 'medium',
+    textPreview: readStringField(value, 'textPreview') ?? '',
+    answer: readStringField(value, 'answer') ?? '',
+    primaryKnowledgeLabel: readStringField(value, 'primaryKnowledgeLabel') ?? '',
+    knowledgeTags: readArrayField(value, 'knowledgeTags').map((tag) => String(tag)),
+  }
+}
+
+export function normalizeReviewQueueItemResponse(value: unknown): ReviewQueueItemContract {
+  const payload = readObjectField(value, 'payload') ?? {}
+  const confidence = readNumberField(value, 'confidence')
+  return {
+    id: readStringField(value, 'id') ?? '',
+    reviewType: readStringField(value, 'reviewType') ?? '',
+    status: readStringField(value, 'status') ?? 'open',
+    riskLevel: readStringField(value, 'riskLevel') ?? 'medium',
+    requiredAction: readStringField(value, 'requiredAction') ?? 'manual_review',
+    confidence: confidence === 0 ? null : confidence,
+    reason: readNullableStringField(value, 'reason'),
+    payload: normalizeReviewQueuePayload(payload),
+    createdAt: readStringField(value, 'createdAt') ?? '',
+    resolvedAt: readNullableStringField(value, 'resolvedAt'),
+  }
+}
+
+export function normalizeReviewQueueListResponse(value: unknown): ReviewQueueListContract {
+  return {
+    items: readArrayField(value, 'items').map(normalizeReviewQueueItemResponse),
+    totalCount: readNumberField(value, 'totalCount'),
   }
 }
 

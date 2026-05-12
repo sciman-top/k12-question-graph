@@ -48,7 +48,7 @@ $logOut = Join-Path $repoRoot 'docs\evidence\s006c-smoke-api.out.log'
 $logErr = Join-Path $repoRoot 'docs\evidence\s006c-smoke-api.err.log'
 $previousConnectionString = $env:KQG_CONNECTION_STRING
 $env:KQG_CONNECTION_STRING = "Host=$DatabaseHost;Port=$DatabasePort;Database=$DatabaseName;Username=$DatabaseUser;Password=$DatabasePassword"
-$process = Start-Process -FilePath dotnet -ArgumentList @('run','--project','apps\api\K12QuestionGraph.Api.csproj','--urls',$apiUrl) -PassThru -WindowStyle Hidden -RedirectStandardOutput $logOut -RedirectStandardError $logErr
+$process = Start-Process -FilePath dotnet -ArgumentList @('run','--project','apps\api\K12QuestionGraph.Api.csproj','-c','Release','--no-build','--urls',$apiUrl) -PassThru -WindowStyle Hidden -RedirectStandardOutput $logOut -RedirectStandardError $logErr
 
 try {
     Wait-ApiReady -ProcessId $process.Id -ApiUrl $apiUrl -LogErr $logErr

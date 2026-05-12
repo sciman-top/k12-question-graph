@@ -1,10 +1,10 @@
 {
   "status": "pass",
   "task": "automation-first feature contract guard",
-  "checkedAt": "2026-05-12T19:13:38",
+  "checkedAt": "2026-05-12T21:51:53",
   "contractPath": "tasks/automation-first-contract.csv",
-  "contractRows": 37,
-  "openBacklogTasksChecked": 18,
+  "contractRows": 41,
+  "openBacklogTasksChecked": 21,
   "openS0SubtasksChecked": 0,
   "policy": "deterministic rules scripts dedicated surfaces first and AI agent only as bounded assistance",
   "s004DocumentAdapterPolicy": "OpenXML OMML first PDF text layout first Docling structure PaddleOCR OCR FormulaRecognition PP-FormulaNet and cloud fallback only after admission",

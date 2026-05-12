@@ -74,6 +74,7 @@ foreach ($pattern in @(
 foreach ($pattern in @(
     'manualChunks',
     "'/health'",
+    "'/review-queue'",
     "target: 'http://127.0.0.1:5275'",
     'react-vendor',
     'antd-vendor',

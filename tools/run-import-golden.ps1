@@ -25,10 +25,22 @@ $previousConnectionString = $env:KQG_CONNECTION_STRING
 $env:KQG_CONNECTION_STRING = "Host=$DatabaseHost;Port=$DatabasePort;Database=$DatabaseName;Username=$DatabaseUser;Password=$DatabasePassword"
 
 Push-Location $repoRoot
-$process = Start-Process -FilePath dotnet -ArgumentList @('run','--project','apps\api\K12QuestionGraph.Api.csproj','--urls',$apiUrl) -PassThru -WindowStyle Hidden -RedirectStandardOutput $logOut -RedirectStandardError $logErr
+$process = Start-Process -FilePath dotnet -ArgumentList @(
+    'run',
+    '--project',
+    'apps\api\K12QuestionGraph.Api.csproj',
+    '-c',
+    'Release',
+    '--no-build',
+    '--urls',
+    $apiUrl
+) -PassThru -WindowStyle Hidden -RedirectStandardOutput $logOut -RedirectStandardError $logErr
 try {
     $ready = $false
     for ($i = 0; $i -lt 30; $i++) {
+        if ($process.HasExited) {
+            throw "API exited before ready on $apiUrl; see $logOut and $logErr"
+        }
         try {
             $health = Invoke-RestMethod -Uri "$apiUrl/health/ready" -TimeoutSec 2
             if ($health.status -eq 'ok') {
@@ -40,7 +52,7 @@ try {
             Start-Sleep -Seconds 1
         }
     }
-    if (-not $ready) { throw "API did not become ready on $apiUrl" }
+    if (-not $ready) { throw "API did not become ready on $apiUrl; see $logOut and $logErr" }
 
     $results = New-Object System.Collections.Generic.List[object]
     foreach ($sample in $samples) {

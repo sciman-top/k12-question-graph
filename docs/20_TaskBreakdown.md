@@ -8,6 +8,8 @@ Automation-first 任务口径：每个任务在编码前必须先说明哪些部
 
 技术情报刷新口径：新硬件、新 OCR/公式识别引擎、新本地推理 runtime 和新模型属于开放集合，不能写死在业务代码。它们先进入 `O008` 的可信来源清单、capability taxonomy、model/OCR candidate catalog 和 `report_only` evidence；AI API 只能摘要公开资料、生成候选和 eval checklist，不得安装依赖、下载模型、切换默认路由、处理真实未脱敏材料或自动写入生产。
 
+真卷闭环纠偏口径：`S012` 只代表非现场代理链路，不代表广州中考 2015-2025 真卷已经全量 OCR、切题、标注、入库并经教师确认。新增 `REAL001-REAL004` 作为当前真实工作流主线，先从 2015 广州中考物理试卷入手，把每一步落到可复跑脚本、DB 证据、Web/审核入口和回滚说明。完成态只允许按实际证据分级：`REAL001` 是 1-18 题 `db_backed_done/pending_review`，不是 `teacher_validated`。
+
 ## A · P0 工程骨架与最小上传纵切
 
 ### A000 P0 准入预检与决策锁定
@@ -289,6 +291,69 @@ Automation-first 任务口径：每个任务在编码前必须先说明哪些部
 
 - P1 proxy scenario walkthrough。
 - `tools/run-import-golden.ps1`
+
+## REAL · 广州中考真卷工作流纠偏
+
+### REAL001 2015 广州中考物理第 1-18 题真实来源入库 slice
+
+验收：
+
+- 以本机 `SourceDocument/FileAsset` 中的 2015 广州中考物理试卷和答案为唯一来源。
+- 实跑 worker PDF text adapter，按题号切出第 1-18 题，按答案文件对齐答案。
+- 写入 `question_items`、`question_blocks`、`cut_candidates`、`source_regions`、`review_queue_items`。
+- 18 题全部带答案和 deterministic 知识点 seed，但状态必须保持 `pending_review`。
+- 报告清楚记录外部 AI 调用为 0、真实学生数据为 0、剩余缺口和 targeted rollback SQL。
+
+验证：
+
+- `pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-guangzhou-2015-real-ingest-slice.ps1`
+- `pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-guangzhou-2015-real-ingest-slice.ps1 -Apply`
+- `docs/evidence/20260512-guangzhou-2015-real-ingest-slice-report.json`
+
+### REAL002 2015 第 19-24 题与截图级精切
+
+验收：
+
+- 补完第 19-24 题，包括实验题、作图题、计算题、跨页长题和共用图。
+- `SourceRegion` 不再只用 placeholder 百分比坐标，必须有截图级 bbox 或明确 `gate_na` 缺口。
+- 题图进入 `question_assets`，来源页和区域可回看。
+
+验证：
+
+- `tools/run-guangzhou-2015-visual-region-slice.ps1`
+- evidence report
+
+### REAL003 2016-2025 批量真卷 dry-run
+
+验收：
+
+- 每年都有来源 hash、题数、答案覆盖、adapter 质量、异常接管点和回滚说明。
+- 批量流程默认 dry-run，不直接标 active，不跳过审核队列。
+
+验证：
+
+- `tools/run-guangzhou-physics-year-batch-ingest.ps1`
+- evidence dashboard
+
+### REAL004 真卷审核队列 Web 闭环
+
+验收：
+
+- Web 能筛选 `guangzhou_2015_question_review`。
+- 教师可逐题查看原文、答案、标签、来源和风险，执行确认、退回、修订。
+- 每次确认写入 audit，不向普通教师暴露后台治理术语。
+
+验证：
+
+- `npm run build`
+- UI contract
+- `tools/run-real004-guangzhou-2015-review-smoke.ps1`
+
+当前实跑状态：
+
+- 已补 Web 真卷队列筛选、题干/答案/标签/来源展示、确认和退回入口。
+- 已补 API smoke：查 18 条 `guangzhou_2015_question_review`，载入题源，确认 1 题、退回 1 题并验证 `reviewAudit`，随后重跑 `REAL001` apply 恢复 18 条 open 队列。
+- 尚未完成教师编辑式修订答案/标签，也未解决 `REAL002` 截图级 bbox 与题图资产缺口，因此不能标为 `teacher_validated`。
 
 ## C · P2 知识本体
 

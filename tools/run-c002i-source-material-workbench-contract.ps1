@@ -71,7 +71,7 @@ try {
     $env:KQG_CONNECTION_STRING = "Host=$DatabaseHost;Port=$DatabasePort;Database=$DatabaseName;Username=$DatabaseUser;Password=$DatabasePassword"
 
     try {
-        dotnet ef database update --project $ApiProject --startup-project $ApiProject | Write-Host
+        dotnet ef database update --project $ApiProject --startup-project $ApiProject --configuration Release --no-build | Write-Host
         if ($LASTEXITCODE -ne 0) {
             throw "dotnet ef database update failed"
         }
@@ -80,7 +80,7 @@ try {
         $apiUrl = "http://127.0.0.1:$port"
         $logOut = Join-Path $repoRoot 'docs\evidence\c002i-gate-api.out.log'
         $logErr = Join-Path $repoRoot 'docs\evidence\c002i-gate-api.err.log'
-        $process = Start-Process -FilePath dotnet -ArgumentList @('run','--project',$ApiProject,'--urls',$apiUrl) -PassThru -WindowStyle Hidden -RedirectStandardOutput $logOut -RedirectStandardError $logErr
+        $process = Start-Process -FilePath dotnet -ArgumentList @('run','--project',$ApiProject,'-c','Release','--no-build','--urls',$apiUrl) -PassThru -WindowStyle Hidden -RedirectStandardOutput $logOut -RedirectStandardError $logErr
 
         try {
             Wait-ApiReady -Process $process -ApiUrl $apiUrl -LogErr $logErr
