@@ -41,6 +41,17 @@ try {
     if ($LASTEXITCODE -ne 0) {
         throw 'REAL004 setup failed while applying REAL001 ingest state'
     }
+    & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-guangzhou-2015-visual-region-slice.ps1 `
+        -DatabaseName $DatabaseName `
+        -DatabaseUser $DatabaseUser `
+        -DatabaseHost $DatabaseHost `
+        -DatabasePort $DatabasePort `
+        -DatabasePassword $DatabasePassword `
+        -FileStoreRoot $FileStoreRoot `
+        -Apply | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        throw 'REAL004 setup failed while applying REAL002 visual region state'
+    }
 
     $process = Start-Process -FilePath dotnet -ArgumentList @(
         'run',
@@ -74,8 +85,8 @@ try {
 
     $initialQueue = Invoke-RestMethod -Uri "$apiUrl/review-queue?status=open&reviewType=guangzhou_2015_question_review&limit=50" -TimeoutSec 10
     $initialItems = @($initialQueue.items)
-    if ($initialItems.Count -ne 18) {
-        throw "REAL004 smoke expects 18 open Guangzhou 2015 review items, got $($initialItems.Count)"
+    if ($initialItems.Count -ne 24) {
+        throw "REAL004 smoke expects 24 open Guangzhou 2015 review items, got $($initialItems.Count)"
     }
 
     $first = $initialItems | Sort-Object { [int]$_.payload.questionNo } | Select-Object -First 1
@@ -128,8 +139,8 @@ try {
 
     $afterActionQueue = Invoke-RestMethod -Uri "$apiUrl/review-queue?status=open&reviewType=guangzhou_2015_question_review&limit=50" -TimeoutSec 10
     $afterActionOpenCount = @($afterActionQueue.items).Count
-    if ($afterActionOpenCount -ne 16) {
-        throw "REAL004 expected 16 open review items after confirm+dismiss, got $afterActionOpenCount"
+    if ($afterActionOpenCount -ne 22) {
+        throw "REAL004 expected 22 open review items after confirm+dismiss, got $afterActionOpenCount"
     }
 
     # Restore the deterministic pending-review baseline for repeatable gates and
@@ -145,11 +156,22 @@ try {
     if ($LASTEXITCODE -ne 0) {
         throw 'REAL004 restore failed while re-applying REAL001 ingest state'
     }
+    & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-guangzhou-2015-visual-region-slice.ps1 `
+        -DatabaseName $DatabaseName `
+        -DatabaseUser $DatabaseUser `
+        -DatabaseHost $DatabaseHost `
+        -DatabasePort $DatabasePort `
+        -DatabasePassword $DatabasePassword `
+        -FileStoreRoot $FileStoreRoot `
+        -Apply | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        throw 'REAL004 restore failed while re-applying REAL002 visual region state'
+    }
 
     $restoredQueue = Invoke-RestMethod -Uri "$apiUrl/review-queue?status=open&reviewType=guangzhou_2015_question_review&limit=50" -TimeoutSec 10
     $restoredOpenCount = @($restoredQueue.items).Count
-    if ($restoredOpenCount -ne 18) {
-        throw "REAL004 restore expected 18 open review items, got $restoredOpenCount"
+    if ($restoredOpenCount -ne 24) {
+        throw "REAL004 restore expected 24 open review items, got $restoredOpenCount"
     }
 
     $report = [ordered]@{
@@ -157,7 +179,7 @@ try {
         taskId = 'REAL004'
         checkedAt = (Get-Date).ToString('s')
         apiUrl = $apiUrl
-        workflowKey = 'guangzhou_2015_real_ingest_v1'
+        workflowKey = 'guangzhou_2015_real_ingest_v1 + guangzhou_2015_visual_region_v1'
         reviewType = 'guangzhou_2015_question_review'
         initialOpenReviewItems = $initialItems.Count
         loadedQuestion = [ordered]@{
@@ -194,18 +216,23 @@ try {
             realStudentDataUsed = $false
         }
         remainingGaps = @(
-            'REAL004 smoke proves confirm and return audit for the first-18 queue, but it does not prove teacher-edited answer/tag revision.',
-            'Question source regions are still REAL001 placeholder text regions until REAL002 visual bbox and assets are implemented.',
+            'REAL004 smoke proves confirm and return audit for the full 2015 1-24 queue, but it does not prove teacher-edited answer/tag revision.',
+            'REAL002 visual regions are screenshot manifests that still require human verification against the original PDF.',
             'Teacher acceptance remains pending because this smoke uses deterministic local API calls, not a human classroom review session.'
         )
         rollback = [ordered]@{
-            restoreCommand = 'pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-guangzhou-2015-real-ingest-slice.ps1 -Apply'
+            restoreCommand = 'pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-guangzhou-2015-real-ingest-slice.ps1 -Apply; pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-guangzhou-2015-visual-region-slice.ps1 -Apply'
             targetedSql = @(
                 "delete from review_queue_items where payload::text like '%guangzhou_2015_real_ingest_v1%';",
+                "delete from review_queue_items where payload::text like '%guangzhou_2015_visual_region_v1%';",
                 "delete from question_blocks where question_item_id in (select id from question_items where custom_fields->>'sourceWorkflowKey' = 'guangzhou_2015_real_ingest_v1');",
+                "delete from question_blocks where question_item_id in (select id from question_items where custom_fields->>'sourceWorkflowKey' = 'guangzhou_2015_visual_region_v1');",
+                "delete from question_assets where question_item_id in (select id from question_items where custom_fields->>'sourceWorkflowKey' = 'guangzhou_2015_visual_region_v1');",
                 "delete from cut_candidates where metadata::text like '%guangzhou_2015_real_ingest_v1%' or candidate_payload::text like '%guangzhou_2015_real_ingest_v1%';",
+                "delete from cut_candidates where metadata::text like '%guangzhou_2015_visual_region_v1%' or candidate_payload::text like '%guangzhou_2015_visual_region_v1%';",
                 "delete from question_items where custom_fields->>'sourceWorkflowKey' = 'guangzhou_2015_real_ingest_v1';",
-                "delete from source_regions where region_type in ('guangzhou_2015_question','guangzhou_2015_answer');"
+                "delete from question_items where custom_fields->>'sourceWorkflowKey' = 'guangzhou_2015_visual_region_v1';",
+                "delete from source_regions where region_type in ('guangzhou_2015_question','guangzhou_2015_answer','guangzhou_2015_visual_question','guangzhou_2015_visual_answer','guangzhou_2015_visual_asset');"
             )
         }
     }

@@ -379,6 +379,7 @@ function App() {
   const [importUploadBusy, setImportUploadBusy] = useState(false)
   const localIdRef = useRef(0)
   const uploadInputRef = useRef<HTMLInputElement | null>(null)
+  const uploadDropzoneRef = useRef<HTMLButtonElement | null>(null)
 
   const selectedSegments = useMemo(
     () => segments.filter((segment) => selectedIds.includes(segment.id)),
@@ -438,6 +439,16 @@ function App() {
 
   const trackImportAction = () => {
     setImportActionCount((count) => count + 1)
+  }
+
+  const openTeacherView = (view: TeacherView) => {
+    setActiveTeacherView(view)
+    if (view === 'import') {
+      window.requestAnimationFrame(() => {
+        uploadDropzoneRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        uploadDropzoneRef.current?.focus({ preventScroll: true })
+      })
+    }
   }
 
   const handlePaperUploadFile = async (file: File) => {
@@ -1079,7 +1090,7 @@ function App() {
                   默认只放四件常用事，其他设置交给管理员。
                 </Typography.Text>
               </div>
-              <Button type="primary" icon={<InboxOutlined />} size="large" onClick={() => setActiveTeacherView('import')}>
+              <Button type="primary" icon={<InboxOutlined />} size="large" onClick={() => openTeacherView('import')}>
                 打开导入
               </Button>
             </div>
@@ -1090,7 +1101,7 @@ function App() {
                   className={activeTeacherView === action.view ? 'action-card active' : 'action-card'}
                   key={action.title}
                   type="button"
-                  onClick={() => setActiveTeacherView(action.view)}
+                  onClick={() => openTeacherView(action.view)}
                   aria-pressed={activeTeacherView === action.view}
                   data-action="teacher-entry"
                   data-view={action.view}
@@ -1118,7 +1129,7 @@ function App() {
                     type="button"
                     data-action="run-starter-example"
                     data-contract={step.contract}
-                    onClick={() => setActiveTeacherView(step.view)}
+                    onClick={() => openTeacherView(step.view)}
                   >
                     <strong>{index + 1}</strong>
                     <span>
@@ -1173,6 +1184,7 @@ function App() {
             </div>
 
             <button
+              ref={uploadDropzoneRef}
               className="upload-dropzone"
               type="button"
               data-action="upload-paper"
@@ -1537,7 +1549,7 @@ function App() {
                 <Alert
                   showIcon
                   type={itemScoreMappingPreview.unclearCount > 0 ? 'warning' : 'success'}
-                  message={scoreMappingMessage}
+                  title={scoreMappingMessage}
                   data-contract="centralized-unclear-item-score-mappings"
                 />
                 <div className="analysis-summary-grid compact">
@@ -1596,7 +1608,7 @@ function App() {
                 <Alert
                   showIcon
                   type={commentaryReportPreview.status === 'ready' ? 'success' : 'info'}
-                  message={commentaryReportPreview.teacherMessage}
+                  title={commentaryReportPreview.teacherMessage}
                   data-contract="s011c-commentary-report-export"
                 />
                 <strong>{commentaryReportPreview.artifactPath || '导入后直接生成讲评摘要，再导出给备课使用。'}</strong>
@@ -1756,7 +1768,7 @@ function App() {
                 <Alert
                   showIcon
                   type="warning"
-                  message="题库暂时无法连接"
+                  title="题库暂时无法连接"
                   description="可先继续组卷草稿，稍后重新检索。"
                   data-state="question-search-error"
                 />
@@ -1765,7 +1777,7 @@ function App() {
                 <Alert
                   showIcon
                   type="info"
-                  message="暂无可用题目"
+                  title="暂无可用题目"
                   description="完成导入和确认后，题目会出现在这里。"
                   data-state="question-search-empty"
                 />
@@ -1850,7 +1862,7 @@ function App() {
                 <Alert
                   showIcon
                   type={paperBasketId ? 'success' : paperBlueprintReviewId ? 'warning' : 'info'}
-                  message={paperWorkflowMessage}
+                  title={paperWorkflowMessage}
                   description={paperConstraintMessage}
                   data-state="s009c-paper-workflow-message"
                 />

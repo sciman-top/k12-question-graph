@@ -1,11 +1,11 @@
 {
   "status": "pass",
   "taskId": "REAL004",
-  "checkedAt": "2026-05-12T21:54:27",
+  "checkedAt": "2026-05-13T00:13:58",
   "apiUrl": "http://127.0.0.1:5297",
-  "workflowKey": "guangzhou_2015_real_ingest_v1",
+  "workflowKey": "guangzhou_2015_real_ingest_v1 + guangzhou_2015_visual_region_v1",
   "reviewType": "guangzhou_2015_question_review",
-  "initialOpenReviewItems": 18,
+  "initialOpenReviewItems": 24,
   "loadedQuestion": {
     "questionNo": 1,
     "questionItemId": "06e4bedf-a2be-4665-844f-8c0c02e0b1d6",
@@ -16,20 +16,20 @@
   },
   "actions": {
     "confirm": {
-      "itemId": "8d4e998a-0fd6-4381-aead-237bbaf4b352",
+      "itemId": "122461bc-2390-4946-9349-eca48ee85980",
       "status": "resolved",
       "auditReviewedBy": "teacher-real004-smoke",
       "auditReason": "checked stem answer tags and source regions"
     },
     "dismiss": {
-      "itemId": "20bfc75f-46c2-4643-adc1-dc08235d9f4f",
+      "itemId": "32979a6d-2cf2-4312-8de3-bea87dfe6618",
       "status": "dismissed",
       "auditDecision": "dismissed",
       "auditReason": "returned for precise visual crop and tag correction"
     }
   },
-  "afterActionOpenReviewItems": 16,
-  "restoredOpenReviewItems": 18,
+  "afterActionOpenReviewItems": 22,
+  "restoredOpenReviewItems": 24,
   "verification": {
     "canFilterGuangzhou2015Queue": true,
     "canLoadQuestionSources": true,
@@ -40,18 +40,23 @@
     "realStudentDataUsed": false
   },
   "remainingGaps": [
-    "REAL004 smoke proves confirm and return audit for the first-18 queue, but it does not prove teacher-edited answer/tag revision.",
-    "Question source regions are still REAL001 placeholder text regions until REAL002 visual bbox and assets are implemented.",
+    "REAL004 smoke proves confirm and return audit for the full 2015 1-24 queue, but it does not prove teacher-edited answer/tag revision.",
+    "REAL002 visual regions are screenshot manifests that still require human verification against the original PDF.",
     "Teacher acceptance remains pending because this smoke uses deterministic local API calls, not a human classroom review session."
   ],
   "rollback": {
-    "restoreCommand": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-guangzhou-2015-real-ingest-slice.ps1 -Apply",
+    "restoreCommand": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-guangzhou-2015-real-ingest-slice.ps1 -Apply; pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-guangzhou-2015-visual-region-slice.ps1 -Apply",
     "targetedSql": [
       "delete from review_queue_items where payload::text like '%guangzhou_2015_real_ingest_v1%';",
+      "delete from review_queue_items where payload::text like '%guangzhou_2015_visual_region_v1%';",
       "delete from question_blocks where question_item_id in (select id from question_items where custom_fields->>'sourceWorkflowKey' = 'guangzhou_2015_real_ingest_v1');",
+      "delete from question_blocks where question_item_id in (select id from question_items where custom_fields->>'sourceWorkflowKey' = 'guangzhou_2015_visual_region_v1');",
+      "delete from question_assets where question_item_id in (select id from question_items where custom_fields->>'sourceWorkflowKey' = 'guangzhou_2015_visual_region_v1');",
       "delete from cut_candidates where metadata::text like '%guangzhou_2015_real_ingest_v1%' or candidate_payload::text like '%guangzhou_2015_real_ingest_v1%';",
+      "delete from cut_candidates where metadata::text like '%guangzhou_2015_visual_region_v1%' or candidate_payload::text like '%guangzhou_2015_visual_region_v1%';",
       "delete from question_items where custom_fields->>'sourceWorkflowKey' = 'guangzhou_2015_real_ingest_v1';",
-      "delete from source_regions where region_type in ('guangzhou_2015_question','guangzhou_2015_answer');"
+      "delete from question_items where custom_fields->>'sourceWorkflowKey' = 'guangzhou_2015_visual_region_v1';",
+      "delete from source_regions where region_type in ('guangzhou_2015_question','guangzhou_2015_answer','guangzhou_2015_visual_question','guangzhou_2015_visual_answer','guangzhou_2015_visual_asset');"
     ]
   }
 }

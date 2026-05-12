@@ -779,8 +779,8 @@ def main() -> int:
                 raise RuntimeError(f"workflow verification failed: {report['verification']}")
 
             report["remainingGaps"] = [
-                "本 slice 只覆盖 2015 广州中考第 1-18 题；第 19-24 题的解析/实验长题跨页切分仍需下一 slice。",
-                "SourceRegion 当前使用 text group placeholder 坐标，尚未完成逐题截图级精切和题图框选。",
+                "本 slice 只覆盖 2015 广州中考第 1-18 题；第 19-24 题由 REAL002 visual-region slice 补齐。",
+                "第 1-18 题 SourceRegion 仍使用 text group placeholder 坐标；第 19-24 题已有 REAL002 screenshot manifest，但全卷仍需教师逐题复核。",
                 "知识点标签为 deterministic rule seed，状态保持 pending_review，仍需教师或教研审核确认。",
                 "没有调用外部 AI，没有处理真实学生成绩，因此不能宣称成绩分析或现场教师验收已完成。",
             ]

@@ -14,7 +14,7 @@ foreach ($requiredId in @(
     'I008', 'I009', 'I010',
     'O004', 'O004B',
     'S001', 'S002', 'S003', 'S004', 'S005', 'S006', 'S007', 'S008', 'S009', 'S010', 'S011', 'S012',
-    'REAL001',
+    'REAL001', 'REAL002', 'REAL003', 'REAL004', 'REAL005',
     'P001'
 )) {
     if (-not $byId.ContainsKey($requiredId)) {
@@ -67,6 +67,10 @@ $s010 = $byId['S010']
 $s011 = $byId['S011']
 $s012 = $byId['S012']
 $real001 = $byId['REAL001']
+$real002 = $byId['REAL002']
+$real003 = $byId['REAL003']
+$real004 = $byId['REAL004']
+$real005 = $byId['REAL005']
 $p001 = $byId['P001']
 if ($d001.depends_on -eq 'C002') {
     throw "D001 must not depend on formal C002; use the dynamic asset draft/test gate such as C002H"
@@ -466,6 +470,20 @@ if ($p001Dependencies -notcontains 'REAL001') {
     throw "P001 must depend on REAL001 real Guangzhou 2015 ingest evidence before live readiness"
 }
 
+$expectedRealDependencies = [ordered]@{
+    REAL002 = 'REAL001'
+    REAL003 = 'REAL002'
+    REAL004 = 'REAL001'
+    REAL005 = 'REAL002;REAL003;REAL004'
+}
+
+foreach ($entry in $expectedRealDependencies.GetEnumerator()) {
+    $actual = $byId[$entry.Key].depends_on
+    if ($actual -ne $entry.Value) {
+        throw "$($entry.Key) must depend on $($entry.Value); actual: $actual"
+    }
+}
+
 if ($real001.status -eq '已完成') {
     $real001Report = Join-Path $repoRoot 'docs\evidence\20260512-guangzhou-2015-real-ingest-slice-report.json'
     if (-not (Test-Path -LiteralPath $real001Report)) {
@@ -481,6 +499,40 @@ if ($real001.status -eq '已完成') {
     if ($report.verification.allHaveAnswers -ne $true -or $report.verification.allHaveKnowledgeTags -ne $true -or $report.verification.allRequireTeacherReview -ne $true) {
         throw "REAL001 report must prove answer/tag presence and teacher review boundary"
     }
+}
+
+if ($real002.status -eq '已完成') {
+    $real002Report = Join-Path $repoRoot 'docs\evidence\20260512-guangzhou-2015-visual-region-slice-report.json'
+    if (-not (Test-Path -LiteralPath $real002Report)) {
+        throw "REAL002 is completed but evidence is missing: docs/evidence/20260512-guangzhou-2015-visual-region-slice-report.json"
+    }
+    $report = Get-Content -LiteralPath $real002Report -Raw | ConvertFrom-Json
+    if ($report.status -ne 'pass' -or $report.mode -ne 'apply') {
+        throw "REAL002 report must be an applied pass, got status=$($report.status) mode=$($report.mode)"
+    }
+    $questionNumbers = @($report.after.questionNumbers | ForEach-Object { [int] $_ })
+    $expectedNumbers = @(19, 20, 21, 22, 23, 24)
+    if ((Compare-Object -ReferenceObject $expectedNumbers -DifferenceObject $questionNumbers).Count -ne 0) {
+        throw "REAL002 report must prove visual questions 19-24"
+    }
+    if ($report.after.questionCount -ne 6 -or $report.after.sourceRegionCount -lt 17 -or $report.after.questionAssetCount -lt 5 -or $report.after.openReviewQueueCount -ne 6) {
+        throw "REAL002 report must prove 6 questions, at least 17 source regions, at least 5 question assets, and 6 open review items"
+    }
+    if ($report.verification.questionRangeComplete -ne $true -or $report.verification.allHaveAnswers -ne $true -or $report.verification.allHaveKnowledgeTags -ne $true -or $report.verification.hasQuestionAssetsForVisualQuestions -ne $true) {
+        throw "REAL002 report must prove range, answers, tags, and visual question assets"
+    }
+}
+
+$real005Guard = Join-Path $PSScriptRoot 'run-real005-guangzhou-2015-2025-closure-standard.ps1'
+if (-not (Test-Path -LiteralPath $real005Guard)) {
+    throw "REAL005 closure standard guard is missing"
+}
+$real005Report = & $real005Guard | ConvertFrom-Json
+if ($real005.status -ne '已完成' -and $real005Report.closureStatus -ne 'not_closed') {
+    throw "REAL005 must remain not_closed until backlog is completed; got $($real005Report.closureStatus)"
+}
+if ($real005.status -eq '已完成' -and $real005Report.closureStatus -ne 'closed') {
+    throw "REAL005 cannot be completed until closure standard reports closed"
 }
 
 $automationFirstGuard = Join-Path $PSScriptRoot 'run-automation-first-feature-contract-guard.ps1'
@@ -590,6 +642,8 @@ if ($c002.acceptance -notmatch '教师录入|导入|来源|教材|课程标准|�
     automationFirstGate = 'tasks/automation-first-contract.csv'
     s0ProductizationGate = 'S001-S012'
     realPaperGate = 'REAL001'
+    realFullClosureGate = 'REAL005'
+    realFullClosureStatus = $real005Report.closureStatus
     s0Statuses = @($s001, $s002, $s003, $s004, $s005, $s006, $s007, $s008, $s009, $s010, $s011, $s012) | ForEach-Object {
         [ordered]@{
             id = $_.id
