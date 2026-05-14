@@ -1679,6 +1679,19 @@
   overflow-wrap: anywhere;
 }
 
+.real-exam-revision {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(180px, 0.8fr);
+  gap: 10px;
+}
+
+.real-exam-revision > div {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-width: 0;
+}
+
 .real-exam-row {
   display: flex;
   min-height: 62px;
@@ -1808,6 +1821,7 @@
   .paper-workbench-summary,
   .paper-workflow-status,
   .real-exam-detail,
+  .real-exam-revision,
   .real-exam-list,
   .page-preview {
     grid-template-columns: 1fr;

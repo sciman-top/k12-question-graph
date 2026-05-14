@@ -78,6 +78,9 @@ $knownEvidence = [ordered]@{
     REAL002 = @(
         'docs/evidence/20260512-guangzhou-2015-visual-region-slice-report.json'
     )
+    REAL003 = @(
+        'docs/evidence/20260514-real003-guangzhou-physics-year-batch-ingest-report.json'
+    )
     REAL004 = @(
         'docs/evidence/20260512-real004-guangzhou-2015-review-smoke-report.json'
     )
@@ -119,6 +122,14 @@ foreach ($item in $knownEvidence.GetEnumerator()) {
     }
 }
 
+if ($dashboardRow.current_state -ne 'teacher_validated' -and $dashboardRow.current_state -ne 'release_ready') {
+    $gaps.Add([ordered]@{
+        id = 'real-guangzhou-2015-2025-dashboard'
+        reason = "dashboard state is $($dashboardRow.current_state); gap=$($dashboardRow.blocking_gap)"
+        nextAction = 'complete yearly question evidence and update dashboard only after every REAL005 criterion is satisfied'
+    })
+}
+
 $closureStatus = if ($gaps.Count -eq 0 -and $backlogById['REAL005'].status -eq '已完成') { 'closed' } else { 'not_closed' }
 $gapItems = @($gaps | ForEach-Object { $_ })
 $criteriaItems = @($criteriaRows | ForEach-Object {
@@ -148,7 +159,7 @@ $report = [ordered]@{
     criteriaCount = $criteriaRows.Count
     requiredYears = @(2015..2025)
     fullClosureAllowed = ($closureStatus -eq 'closed')
-    currentTruth = 'S012/REAL001/REAL002/REAL004 smoke evidence is not enough to claim 2015-2025 full workflow closure'
+    currentTruth = 'S012/REAL001/REAL002/REAL003 dry-run/REAL004 review smoke evidence is not enough to claim 2015-2025 full workflow closure'
     gaps = $gapItems
     requiredCriteria = $criteriaItems
     rollback = 'git restore tracked files; remove generated REAL005 evidence reports if this standard is reverted'

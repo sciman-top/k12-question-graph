@@ -114,7 +114,13 @@ try {
     $confirmBody = @{
         reviewedBy = 'teacher-real004-smoke'
         decision = 'resolved'
-        reason = 'checked stem answer tags and source regions'
+        reason = 'checked and revised stem answer tags and source regions'
+        revision = @{
+            textPreview = "$($first.payload.textPreview) [teacher revision smoke]"
+            answer = "$($first.payload.answer) [revision checked]"
+            primaryKnowledgeLabel = "$($first.payload.primaryKnowledgeLabel) 复核"
+            knowledgeTags = @($first.payload.knowledgeTags) + @('teacher_revision_smoke')
+        }
     } | ConvertTo-Json -Depth 4
     $confirmed = Invoke-RestMethod -Method Post -Uri "$apiUrl/review-queue/$($first.id)/resolve" -ContentType 'application/json' -Body $confirmBody -TimeoutSec 10
     if ([string]$confirmed.status -ne 'resolved') {
@@ -122,6 +128,12 @@ try {
     }
     if ([string]$confirmed.payload.reviewAudit.reviewedBy -ne 'teacher-real004-smoke') {
         throw 'REAL004 confirm did not write review audit'
+    }
+    if ([string]$confirmed.payload.reviewAudit.revision.answer -notmatch 'revision checked') {
+        throw 'REAL004 confirm did not persist teacher-edited answer revision'
+    }
+    if (@($confirmed.payload.reviewAudit.revision.knowledgeTags) -notcontains 'teacher_revision_smoke') {
+        throw 'REAL004 confirm did not persist teacher-edited knowledge tags'
     }
 
     $dismissBody = @{
@@ -196,6 +208,8 @@ try {
                 status = [string]$confirmed.status
                 auditReviewedBy = [string]$confirmed.payload.reviewAudit.reviewedBy
                 auditReason = [string]$confirmed.payload.reviewAudit.reason
+                revisionAnswer = [string]$confirmed.payload.reviewAudit.revision.answer
+                revisionTags = @($confirmed.payload.reviewAudit.revision.knowledgeTags)
             }
             dismiss = [ordered]@{
                 itemId = [string]$dismissed.id
@@ -210,13 +224,13 @@ try {
             canFilterGuangzhou2015Queue = $true
             canLoadQuestionSources = $true
             canConfirmWithAudit = $true
+            canSubmitTeacherRevisionWithAudit = $true
             canReturnWithAudit = $true
             restoredRepeatableBaseline = $true
             externalAiCalls = 0
             realStudentDataUsed = $false
         }
         remainingGaps = @(
-            'REAL004 smoke proves confirm and return audit for the full 2015 1-24 queue, but it does not prove teacher-edited answer/tag revision.',
             'REAL002 visual regions are screenshot manifests that still require human verification against the original PDF.',
             'Teacher acceptance remains pending because this smoke uses deterministic local API calls, not a human classroom review session.'
         )

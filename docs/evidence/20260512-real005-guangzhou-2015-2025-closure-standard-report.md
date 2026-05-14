@@ -6,12 +6,10 @@
 - full_closure_allowed: False
 
 ## 当前结论
-REAL005 判定标准已安装并通过自检；当前真实状态是 not_closed，仍需完成 REAL003/REAL004。
+REAL005 判定标准已安装并通过自检；当前真实状态是 not_closed，仍需完成 逐年逐题闭环证据。
 
 ## 阻断缺口
-- REAL003: backlog status is 待办; next=tools/run-guangzhou-physics-year-batch-ingest.ps1 + evidence report
-- REAL004: backlog status is 待办; next=npm run build + tools/run-i003-review-queue-ui-contract.ps1 + tools/run-real004-guangzhou-2015-review-smoke.ps1
-- tools/run-guangzhou-physics-year-batch-ingest.ps1: required implementation gate script is missing; next=implement script with dry-run default, evidence report, and rollback policy
+- real-guangzhou-2015-2025-dashboard: dashboard state is contract_done; gap=REAL005 当前只能输出 not_closed 缺逐年逐题闭环证据; next=complete yearly question evidence and update dashboard only after every REAL005 criterion is satisfied
 
 ## 判定标准
 - RG001 source_manifest: source manifest report with 11 years and paper answer hash coverage

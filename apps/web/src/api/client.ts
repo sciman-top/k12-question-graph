@@ -298,6 +298,12 @@ export async function resolveReviewQueueItem(
     reviewedBy: string
     decision: 'resolved' | 'dismissed'
     reason: string
+    revision?: {
+      textPreview: string
+      answer: string
+      primaryKnowledgeLabel: string
+      knowledgeTags: string[]
+    }
   },
 ): Promise<ApiResult<ReviewQueueItemContract>> {
   return postJson(

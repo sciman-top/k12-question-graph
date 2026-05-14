@@ -336,11 +336,12 @@ Automation-first 任务口径：每个任务在编码前必须先说明哪些部
 
 - 每年都有来源 hash、题数、答案覆盖、adapter 质量、异常接管点和回滚说明。
 - 批量流程默认 dry-run，不直接标 active，不跳过审核队列。
+- 已完成首轮 dry-run：2016-2025 共 210 个候选题、210 条答案、33 个 DB SourceDocument 且全部有 hash；报告保留每年接管点和 rollback SQL，未写 active、未调用外部 AI。
 
 验证：
 
 - `tools/run-guangzhou-physics-year-batch-ingest.ps1`
-- evidence dashboard
+- `docs/evidence/20260514-real003-guangzhou-physics-year-batch-ingest-report.json`
 
 ### REAL004 真卷审核队列 Web 闭环
 
@@ -358,9 +359,9 @@ Automation-first 任务口径：每个任务在编码前必须先说明哪些部
 
 当前实跑状态：
 
-- 已补 Web 真卷队列筛选、题干/答案/标签/来源展示、确认和退回入口。
-- 已补 API smoke：查 18 条 `guangzhou_2015_question_review`，载入题源，确认 1 题、退回 1 题并验证 `reviewAudit`，随后重跑 `REAL001` apply 恢复 18 条 open 队列。
-- 尚未完成教师编辑式修订答案/标签和人工验收，因此不能标为 `teacher_validated`。
+- 已补 Web 真卷队列筛选、题干/答案/标签/来源展示、教师修订题干/答案/标签、确认和退回入口。
+- 已补 API smoke：查 24 条 `guangzhou_2015_question_review`，载入题源，确认 1 题、退回 1 题，验证 `reviewAudit.revision` 写入教师修订答案和标签，随后重跑 `REAL001/REAL002` apply 恢复 24 条 open 队列。
+- `REAL004` 已达到 Web/API smoke 级闭环；尚未完成真实教师课堂验收，因此不能标为 `teacher_validated`。
 
 ### REAL005 2015-2025 广州中考物理真卷全流程闭环判定标准
 
@@ -376,6 +377,11 @@ Automation-first 任务口径：每个任务在编码前必须先说明哪些部
 - `pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005-guangzhou-2015-2025-closure-standard.ps1`
 - `tasks/real-guangzhou-closure-criteria.csv`
 - `docs/evidence/20260512-real005-guangzhou-2015-2025-closure-standard-report.json`
+
+当前实跑状态：
+
+- `REAL005` 判定标准已安装并通过自检，当前报告仍输出 `closureStatus=not_closed`、`fullClosureAllowed=false`。
+- `not_closed` 是当前真实产品状态，不是脚本失败；它表示 2015-2025 仍缺逐年逐题闭环证据，不能宣称全流程完成。
 
 ## C · P2 知识本体
 

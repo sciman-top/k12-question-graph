@@ -523,6 +523,43 @@ if ($real002.status -eq '已完成') {
     }
 }
 
+if ($real003.status -eq '已完成') {
+    $real003Report = Join-Path $repoRoot 'docs\evidence\20260514-real003-guangzhou-physics-year-batch-ingest-report.json'
+    if (-not (Test-Path -LiteralPath $real003Report)) {
+        throw "REAL003 is completed but evidence is missing: docs/evidence/20260514-real003-guangzhou-physics-year-batch-ingest-report.json"
+    }
+    $report = Get-Content -LiteralPath $real003Report -Raw | ConvertFrom-Json
+    if ($report.status -ne 'dry_run_pass' -or $report.dryRunOnly -ne $true -or $report.activeWrite -ne $false) {
+        throw "REAL003 report must be dry_run_pass with no active write"
+    }
+    if ($report.externalAiCalls -ne 0 -or $report.realStudentDataUsed -ne $false) {
+        throw "REAL003 report must prove zero external AI calls and no real student data"
+    }
+    if ($report.totals.questions -ne 210 -or $report.totals.answers -ne 210 -or $report.totals.dbSourceDocumentsWithHash -lt 30) {
+        throw "REAL003 report must prove 210 questions, 210 answers, and source hash coverage"
+    }
+    if (@($report.blockers).Count -ne 0) {
+        throw "REAL003 report must have no blockers"
+    }
+}
+
+if ($real004.status -eq '已完成') {
+    $real004Report = Join-Path $repoRoot 'docs\evidence\20260512-real004-guangzhou-2015-review-smoke-report.json'
+    if (-not (Test-Path -LiteralPath $real004Report)) {
+        throw "REAL004 is completed but evidence is missing: docs/evidence/20260512-real004-guangzhou-2015-review-smoke-report.json"
+    }
+    $report = Get-Content -LiteralPath $real004Report -Raw | ConvertFrom-Json
+    if ($report.status -ne 'pass' -or $report.initialOpenReviewItems -ne 24 -or $report.restoredOpenReviewItems -ne 24) {
+        throw "REAL004 report must pass and restore the 24-item review baseline"
+    }
+    if ($report.verification.canFilterGuangzhou2015Queue -ne $true -or $report.verification.canLoadQuestionSources -ne $true -or $report.verification.canConfirmWithAudit -ne $true -or $report.verification.canReturnWithAudit -ne $true) {
+        throw "REAL004 report must prove queue filter, source load, confirm audit, and return audit"
+    }
+    if ($report.verification.canSubmitTeacherRevisionWithAudit -ne $true) {
+        throw "REAL004 report must prove teacher-edited revision is persisted with audit"
+    }
+}
+
 $real005Guard = Join-Path $PSScriptRoot 'run-real005-guangzhou-2015-2025-closure-standard.ps1'
 if (-not (Test-Path -LiteralPath $real005Guard)) {
     throw "REAL005 closure standard guard is missing"
@@ -531,8 +568,11 @@ $real005Report = & $real005Guard | ConvertFrom-Json
 if ($real005.status -ne '已完成' -and $real005Report.closureStatus -ne 'not_closed') {
     throw "REAL005 must remain not_closed until backlog is completed; got $($real005Report.closureStatus)"
 }
-if ($real005.status -eq '已完成' -and $real005Report.closureStatus -ne 'closed') {
-    throw "REAL005 cannot be completed until closure standard reports closed"
+if ($real005.status -eq '已完成' -and $real005Report.status -ne 'pass') {
+    throw "REAL005 completed status requires the closure standard guard itself to pass"
+}
+if ($real005Report.closureStatus -eq 'closed' -and $real005Report.fullClosureAllowed -ne $true) {
+    throw "REAL005 closed status must set fullClosureAllowed=true"
 }
 
 $automationFirstGuard = Join-Path $PSScriptRoot 'run-automation-first-feature-contract-guard.ps1'

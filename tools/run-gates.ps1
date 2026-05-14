@@ -429,6 +429,10 @@ try {
         .\tools\run-guangzhou-2015-real-ingest-slice.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -FileStoreRoot $FileStoreRoot -Output 'docs\evidence\20260512-guangzhou-2015-real-ingest-slice-dry-run-report.json' | Write-Host
     }
 
+    Invoke-GateStep 'real guangzhou 2016-2025 batch ingest dry-run' {
+        .\tools\run-guangzhou-physics-year-batch-ingest.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -FileStoreRoot $FileStoreRoot | Write-Host
+    }
+
     Invoke-GateStep 'real guangzhou 2015 review queue smoke' {
         .\tools\run-real004-guangzhou-2015-review-smoke.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -FileStoreRoot $FileStoreRoot | Write-Host
     }

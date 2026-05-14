@@ -957,7 +957,8 @@ app.MapPost("/review-queue/{id:guid}/resolve", async (
         request.ReviewedBy.Trim(),
         request.Decision,
         request.Reason.Trim(),
-        now);
+        now,
+        request.Revision);
     await dbContext.SaveChangesAsync(cancellationToken);
 
     return Results.Ok(ReviewQueueItemResponse.From(row));
@@ -3018,7 +3019,14 @@ public sealed record ReviewQueueBatchResolveResponse(
 public sealed record ReviewQueueResolveRequest(
     string ReviewedBy,
     string Decision,
-    string Reason);
+    string Reason,
+    ReviewQueueRevisionRequest? Revision);
+
+public sealed record ReviewQueueRevisionRequest(
+    string? TextPreview,
+    string? Answer,
+    string? PrimaryKnowledgeLabel,
+    IReadOnlyList<string>? KnowledgeTags);
 
 public sealed record ReviewWorkbenchActionRequest(
     string Action,
@@ -3922,7 +3930,8 @@ public static class ReviewQueuePayloadHelpers
         string reviewedBy,
         string decision,
         string reason,
-        DateTimeOffset reviewedAt)
+        DateTimeOffset reviewedAt,
+        ReviewQueueRevisionRequest? revision = null)
     {
         Dictionary<string, object?> payload;
         try
@@ -3934,12 +3943,32 @@ public static class ReviewQueuePayloadHelpers
             payload = new Dictionary<string, object?>();
         }
 
+        var trimmedTags = revision?.KnowledgeTags?
+            .Where(tag => !string.IsNullOrWhiteSpace(tag))
+            .Select(tag => tag.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+        var hasRevision = revision is not null && (
+            !string.IsNullOrWhiteSpace(revision.TextPreview) ||
+            !string.IsNullOrWhiteSpace(revision.Answer) ||
+            !string.IsNullOrWhiteSpace(revision.PrimaryKnowledgeLabel) ||
+            (trimmedTags is { Length: > 0 }));
+
         payload["reviewAudit"] = new
         {
             reviewedBy,
             decision,
             reason,
-            reviewedAt = reviewedAt.ToString("O")
+            reviewedAt = reviewedAt.ToString("O"),
+            revision = hasRevision
+                ? new
+                {
+                    textPreview = revision?.TextPreview?.Trim(),
+                    answer = revision?.Answer?.Trim(),
+                    primaryKnowledgeLabel = revision?.PrimaryKnowledgeLabel?.Trim(),
+                    knowledgeTags = trimmedTags ?? Array.Empty<string>()
+                }
+                : null
         };
 
         return JsonSerializer.Serialize(payload);

@@ -20,7 +20,7 @@ AI 推荐保留当前 P0-P6 大方向，但调整顺序和验收口径：
 
 截至 2026-05-10，路线图新增 `O008` 技术情报刷新与候选准入目录。新硬件、新 OCR/公式识别引擎、新本地推理 runtime 和新模型只能先进入可信来源清单、capability taxonomy、model/OCR candidate catalog 和 `report_only` evidence；AI API 只允许摘要公开资料、生成候选和 eval checklist，不得安装依赖、下载模型、切换默认路由、处理真实未脱敏材料或自动写入生产。
 
-截至 2026-05-12，路线图新增 `REAL001-REAL005` 真卷闭环纠偏主线。此前 `S012` 只能证明非现场代理/合同链路，不等于 2015-2025 广州中考真卷已经逐题可用。`REAL001` 已用本机 `SourceDocument/FileAsset` 中的 2015 广州中考物理试卷和答案实跑 worker、题号切分、答案对齐、规则标注和 DB 写入，覆盖第 1-18 题并全部进入 `pending_review`；`REAL002` 已补完第 19-24 题，写入 17 个截图级 visual `SourceRegion`、5 个 `question_assets`、6 条 `cut_candidates` 和 6 条开放审核队列。上述状态仍只是 `db_backed_done`，不是教师验收完成。`REAL004` 已补到可查 2015 真卷审核队列、查看题干/答案/标签/来源、确认或退回并写入 audit 的 smoke 级证据；仍未完成教师编辑式修订和人工验收。进入 `P001` 试点部署前，至少必须保留 `REAL001/REAL002` 证据；2016-2025 批量和教师确认闭环由 `REAL003-REAL004` 继续推进。`REAL005` 是新的完成判定标准：只有 `tasks/real-guangzhou-closure-criteria.csv` 的来源、adapter、题数、答案、截图区域、结构化题目、知识标注、教师审核、来源回看、检索组卷导出、学情引用、回滚隐私 12 项标准全部有证据时，才允许宣称“2015-2025 全流程功能全部实现”；当前 guard 必须输出 `not_closed`。
+截至 2026-05-14，路线图新增 `REAL001-REAL005` 真卷闭环纠偏主线。此前 `S012` 只能证明非现场代理/合同链路，不等于 2015-2025 广州中考真卷已经逐题可用。`REAL001` 已用本机 `SourceDocument/FileAsset` 中的 2015 广州中考物理试卷和答案实跑 worker、题号切分、答案对齐、规则标注和 DB 写入，覆盖第 1-18 题并全部进入 `pending_review`；`REAL002` 已补完第 19-24 题，写入 17 个截图级 visual `SourceRegion`、5 个 `question_assets`、6 条 `cut_candidates` 和 6 条开放审核队列。`REAL003` 已完成 2016-2025 首轮批量 dry-run：核对 210 个候选题、210 条答案、33 个带 hash 的 DB SourceDocument、逐年接管点和 rollback SQL，未写 active、未调用外部 AI。`REAL004` 已补到可查 2015 真卷审核队列、查看题干/答案/标签/来源、教师修订题干/答案/标签、确认或退回并写入 audit 的 smoke 级证据。上述状态仍只是 `db_backed_done/contract_done/ui_productized`，不是教师课堂验收完成。进入 `P001` 试点部署前，至少必须保留 `REAL001/REAL002/REAL003/REAL004` 证据；教师真实验收仍在 P0-live 阶段处理。`REAL005` 完成的是机器可读判定标准：只有 `tasks/real-guangzhou-closure-criteria.csv` 的来源、adapter、题数、答案、截图区域、结构化题目、知识标注、教师审核、来源回看、检索组卷导出、学情引用、回滚隐私 12 项标准全部有证据时，才允许宣称“2015-2025 全流程功能全部实现”；当前 guard 通过自检但必须输出 `not_closed`。
 
 ## 动态元素不停工原则
 
@@ -67,7 +67,7 @@ C002 active 前必须先完成 C002S 正式化前审查闭环：抽样核对 201
 
 真卷入库同样按中风险处理。`REAL001` 的可复跑入口是 `tools/run-guangzhou-2015-real-ingest-slice.ps1`：默认 dry-run 在事务内验证后回滚，`-Apply` 才写入本机数据库；报告必须记录 `question_items/cut_candidates/source_regions/review_queue_items` 数量、外部 AI 调用数、真实学生数据使用情况、剩余缺口和 targeted rollback SQL。任何乱码、缺题、缺答案、缺来源或跳过 `pending_review` 的结果都不得标成闭环。
 
-2015-2025 真卷全流程闭环不得用局部 smoke 代替。`tools/run-real005-guangzhou-2015-2025-closure-standard.ps1` 是当前判定入口：它读取 `tasks/real-guangzhou-closure-criteria.csv`、`tasks/backlog.csv` 和 `tasks/completion-state-dashboard.csv`，输出 `docs/evidence/20260512-real005-guangzhou-2015-2025-closure-standard-report.json`。只要 `REAL003/REAL004` 未完成，或逐年/逐题证据缺来源 hash、答案覆盖、截图级 SourceRegion、题图资产、教师 audit、检索组卷导出和学情引用，报告必须保持 `closureStatus=not_closed`。
+2015-2025 真卷全流程闭环不得用局部 smoke 代替。`tools/run-real005-guangzhou-2015-2025-closure-standard.ps1` 是当前判定入口：它读取 `tasks/real-guangzhou-closure-criteria.csv`、`tasks/backlog.csv` 和 `tasks/completion-state-dashboard.csv`，输出 `docs/evidence/20260512-real005-guangzhou-2015-2025-closure-standard-report.json`。只要逐年/逐题证据缺来源 hash、答案覆盖、截图级 SourceRegion、题图资产、教师 audit、检索组卷导出和学情引用，报告必须保持 `closureStatus=not_closed`。
 
 P5 已在 draft/test 模式完成 F001-F003：学生/班级/考试模型、synthetic Excel 字段映射导入、得分率、区分度和知识点掌握摘要均已通过合同门禁。当前 F003 只写 `docs/evidence/f003-knowledge-mastery-analysis-report.json` 和临时 summary，不写正式历史学情，不使用真实学生数据。
 

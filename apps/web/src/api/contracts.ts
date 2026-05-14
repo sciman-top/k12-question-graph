@@ -112,6 +112,18 @@ export interface ReviewQueuePayloadContract {
   answer: string
   primaryKnowledgeLabel: string
   knowledgeTags: string[]
+  reviewAudit: {
+    reviewedBy: string
+    decision: string
+    reason: string
+    reviewedAt: string
+    revision: {
+      textPreview: string
+      answer: string
+      primaryKnowledgeLabel: string
+      knowledgeTags: string[]
+    } | null
+  } | null
 }
 
 export interface ReviewQueueItemContract {
@@ -477,6 +489,29 @@ function normalizeReviewQueuePayload(value: unknown): ReviewQueuePayloadContract
     answer: readStringField(value, 'answer') ?? '',
     primaryKnowledgeLabel: readStringField(value, 'primaryKnowledgeLabel') ?? '',
     knowledgeTags: readArrayField(value, 'knowledgeTags').map((tag) => String(tag)),
+    reviewAudit: normalizeReviewAudit(readObjectField(value, 'reviewAudit')),
+  }
+}
+
+function normalizeReviewAudit(value: Record<string, unknown> | null): ReviewQueuePayloadContract['reviewAudit'] {
+  if (!value) {
+    return null
+  }
+
+  const revision = readObjectField(value, 'revision')
+  return {
+    reviewedBy: readStringField(value, 'reviewedBy') ?? '',
+    decision: readStringField(value, 'decision') ?? '',
+    reason: readStringField(value, 'reason') ?? '',
+    reviewedAt: readStringField(value, 'reviewedAt') ?? '',
+    revision: revision
+      ? {
+          textPreview: readStringField(revision, 'textPreview') ?? '',
+          answer: readStringField(revision, 'answer') ?? '',
+          primaryKnowledgeLabel: readStringField(revision, 'primaryKnowledgeLabel') ?? '',
+          knowledgeTags: readArrayField(revision, 'knowledgeTags').map((tag) => String(tag)),
+        }
+      : null,
   }
 }
 

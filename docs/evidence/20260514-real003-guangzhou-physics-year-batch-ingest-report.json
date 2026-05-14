@@ -1,0 +1,1102 @@
+{
+  "status": "dry_run_pass",
+  "taskId": "REAL003",
+  "checkedAt": "2026-05-14T13:52:51.734557+00:00",
+  "materialBatchKey": "guangzhou_physics_2016_2025",
+  "dryRunOnly": true,
+  "activeWrite": false,
+  "externalAiCalls": 0,
+  "realStudentDataUsed": false,
+  "yearsChecked": [
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "totals": {
+    "questions": 210,
+    "answers": 210,
+    "dbSourceDocuments": 33,
+    "dbSourceDocumentsWithHash": 33
+  },
+  "blockers": [],
+  "years": [
+    {
+      "year": 2016,
+      "expectedQuestionCount": 24,
+      "sourceMaterialRows": 3,
+      "dbSourceDocuments": 3,
+      "dbSourceDocumentsWithHash": 3,
+      "sourceHashes": [
+        {
+          "sourceDocumentId": "f9705f91-49d2-4863-93b8-c1b6b1cf5c1f",
+          "sourceType": "exam_analysis_report",
+          "title": "2016广州中考年报",
+          "fileName": "2016广州中考年报.pdf",
+          "relativePath": "original/15/e9/15e9d00bf1fe5a3a21419e58e45b99cd5b500321c72034f09e3b6c11881ae10c.pdf",
+          "sha256": "15e9d00bf1fe5a3a21419e58e45b99cd5b500321c72034f09e3b6c11881ae10c",
+          "sizeBytes": 2172260
+        },
+        {
+          "sourceDocumentId": "bced0159-4568-4814-ba9d-82f19fbf0493",
+          "sourceType": "local_exam_paper",
+          "title": "2016广州中考",
+          "fileName": "2016广州中考.pdf",
+          "relativePath": "original/37/7d/377de2f0a5c7c8a35bff908ac5a4527b671702ac4265bf9d9728e531ae541cee.pdf",
+          "sha256": "377de2f0a5c7c8a35bff908ac5a4527b671702ac4265bf9d9728e531ae541cee",
+          "sizeBytes": 821294
+        },
+        {
+          "sourceDocumentId": "12db801b-1d62-4693-a311-d0ea60f18425",
+          "sourceType": "local_exam_paper",
+          "title": "2016广州中考答案",
+          "fileName": "2016广州中考答案.pdf",
+          "relativePath": "original/fa/dc/fadc6107c2acaaf95de050f4693864a9fffcac71e456bf30a1f4593047ab408b.pdf",
+          "sha256": "fadc6107c2acaaf95de050f4693864a9fffcac71e456bf30a1f4593047ab408b",
+          "sizeBytes": 851883
+        }
+      ],
+      "questionCount": 24,
+      "answerCount": 24,
+      "answerCoverage": 1.0,
+      "questionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ],
+      "answerQuestionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ],
+      "adapterQuality": {
+        "csvParseQuality": [
+          "text_parseable_candidate"
+        ],
+        "dbFileHashCoveragePass": true,
+        "fileStoreExistencePass": true,
+        "workerProbe": "not_run_in_batch_dry_run; source hashes and structured candidate rows verified"
+      },
+      "manualTakeoverPoints": [
+        "teacher_review_required_for_all_candidate_questions",
+        "screenshot_level_source_regions_not_created_by_REAL003_dry_run",
+        "no_active_write; keep all candidate rows pending_review"
+      ],
+      "rollbackSql": [
+        "delete from review_queue_items where import_key = 'guangzhou_2016_question_review';",
+        "delete from cut_candidates where source_document_id in (select id from source_documents where material_batch_key = 'guangzhou_physics_2016_2025' and year = 2016);",
+        "delete from question_items where import_key = 'guangzhou_2016_real_batch_v1';"
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2017,
+      "expectedQuestionCount": 24,
+      "sourceMaterialRows": 3,
+      "dbSourceDocuments": 3,
+      "dbSourceDocumentsWithHash": 3,
+      "sourceHashes": [
+        {
+          "sourceDocumentId": "5a9abcc5-9a53-4944-9b02-4baa0cfe7cda",
+          "sourceType": "exam_analysis_report",
+          "title": "2017广州中考年报",
+          "fileName": "2017广州中考年报.pdf",
+          "relativePath": "original/62/5a/625a8ede241011338ed88543a787750d20512bef72253debbaf2104e77f91a65.pdf",
+          "sha256": "625a8ede241011338ed88543a787750d20512bef72253debbaf2104e77f91a65",
+          "sizeBytes": 3073807
+        },
+        {
+          "sourceDocumentId": "a2972de8-f2d2-4f96-baff-63038be89150",
+          "sourceType": "local_exam_paper",
+          "title": "2017广州中考",
+          "fileName": "2017广州中考.pdf",
+          "relativePath": "original/3f/41/3f419b1779ebec02f74c694966924a2931611f3525d3d17701946bb63abfc4fa.pdf",
+          "sha256": "3f419b1779ebec02f74c694966924a2931611f3525d3d17701946bb63abfc4fa",
+          "sizeBytes": 1019691
+        },
+        {
+          "sourceDocumentId": "abb7abf4-623a-4338-b04e-ce5fe07c47f0",
+          "sourceType": "local_exam_paper",
+          "title": "2017广州中考答案",
+          "fileName": "2017广州中考答案.pdf",
+          "relativePath": "original/f8/7c/f87c3cb8ed02969137ba916184045052ec3efecbd6331dd1d192fe52de67d207.pdf",
+          "sha256": "f87c3cb8ed02969137ba916184045052ec3efecbd6331dd1d192fe52de67d207",
+          "sizeBytes": 335295
+        }
+      ],
+      "questionCount": 24,
+      "answerCount": 24,
+      "answerCoverage": 1.0,
+      "questionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ],
+      "answerQuestionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ],
+      "adapterQuality": {
+        "csvParseQuality": [
+          "text_parseable_candidate"
+        ],
+        "dbFileHashCoveragePass": true,
+        "fileStoreExistencePass": true,
+        "workerProbe": "not_run_in_batch_dry_run; source hashes and structured candidate rows verified"
+      },
+      "manualTakeoverPoints": [
+        "teacher_review_required_for_all_candidate_questions",
+        "screenshot_level_source_regions_not_created_by_REAL003_dry_run",
+        "no_active_write; keep all candidate rows pending_review"
+      ],
+      "rollbackSql": [
+        "delete from review_queue_items where import_key = 'guangzhou_2017_question_review';",
+        "delete from cut_candidates where source_document_id in (select id from source_documents where material_batch_key = 'guangzhou_physics_2016_2025' and year = 2017);",
+        "delete from question_items where import_key = 'guangzhou_2017_real_batch_v1';"
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2018,
+      "expectedQuestionCount": 24,
+      "sourceMaterialRows": 3,
+      "dbSourceDocuments": 3,
+      "dbSourceDocumentsWithHash": 3,
+      "sourceHashes": [
+        {
+          "sourceDocumentId": "cbeeae3e-6e56-46c2-be20-c132cbc84a36",
+          "sourceType": "exam_analysis_report",
+          "title": "2018广州中考年报",
+          "fileName": "2018广州中考年报.pdf",
+          "relativePath": "original/65/4d/654d6433c1fdc18eec875a4253ade44ca6558561c6565adf2ac2d272337ad1f3.pdf",
+          "sha256": "654d6433c1fdc18eec875a4253ade44ca6558561c6565adf2ac2d272337ad1f3",
+          "sizeBytes": 5433512
+        },
+        {
+          "sourceDocumentId": "82b67da3-8ab8-493f-abc3-61428e00d74f",
+          "sourceType": "local_exam_paper",
+          "title": "2018广州中考",
+          "fileName": "2018广州中考.pdf",
+          "relativePath": "original/c4/fe/c4feff77379271fbea32404b1ab3952800ff305639c8af446fa1c8c68a2fc794.pdf",
+          "sha256": "c4feff77379271fbea32404b1ab3952800ff305639c8af446fa1c8c68a2fc794",
+          "sizeBytes": 1291035
+        },
+        {
+          "sourceDocumentId": "c7c2b85f-9139-475d-8431-1e1cfdd9e981",
+          "sourceType": "local_exam_paper",
+          "title": "2018广州中考答案",
+          "fileName": "2018广州中考答案.pdf",
+          "relativePath": "original/40/b1/40b1a15e8b70c44e862eabf265cbe4d63062151742a126133388d31a4b666ed6.pdf",
+          "sha256": "40b1a15e8b70c44e862eabf265cbe4d63062151742a126133388d31a4b666ed6",
+          "sizeBytes": 568229
+        }
+      ],
+      "questionCount": 24,
+      "answerCount": 24,
+      "answerCoverage": 1.0,
+      "questionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ],
+      "answerQuestionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ],
+      "adapterQuality": {
+        "csvParseQuality": [
+          "text_parseable_candidate"
+        ],
+        "dbFileHashCoveragePass": true,
+        "fileStoreExistencePass": true,
+        "workerProbe": "not_run_in_batch_dry_run; source hashes and structured candidate rows verified"
+      },
+      "manualTakeoverPoints": [
+        "teacher_review_required_for_all_candidate_questions",
+        "screenshot_level_source_regions_not_created_by_REAL003_dry_run",
+        "no_active_write; keep all candidate rows pending_review"
+      ],
+      "rollbackSql": [
+        "delete from review_queue_items where import_key = 'guangzhou_2018_question_review';",
+        "delete from cut_candidates where source_document_id in (select id from source_documents where material_batch_key = 'guangzhou_physics_2016_2025' and year = 2018);",
+        "delete from question_items where import_key = 'guangzhou_2018_real_batch_v1';"
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2019,
+      "expectedQuestionCount": 24,
+      "sourceMaterialRows": 3,
+      "dbSourceDocuments": 3,
+      "dbSourceDocumentsWithHash": 3,
+      "sourceHashes": [
+        {
+          "sourceDocumentId": "5c57d5aa-9f41-46d9-8ac3-4c3fb63fa2a7",
+          "sourceType": "exam_analysis_report",
+          "title": "2019广州中考年报",
+          "fileName": "2019广州中考年报.pdf",
+          "relativePath": "original/ec/37/ec37a5ee6ffa550fc57eae2d3b9c51ef642dd808bf74a37c2751091b6db84f01.pdf",
+          "sha256": "ec37a5ee6ffa550fc57eae2d3b9c51ef642dd808bf74a37c2751091b6db84f01",
+          "sizeBytes": 9312459
+        },
+        {
+          "sourceDocumentId": "e6394de7-0bb3-462f-801a-d762fa3e08ca",
+          "sourceType": "local_exam_paper",
+          "title": "2019广州中考",
+          "fileName": "2019广州中考.pdf",
+          "relativePath": "original/85/dd/85dd476db8eacd837f7a4590bac7c795ef5cf53f68a1c68a08f279e7d1731dba.pdf",
+          "sha256": "85dd476db8eacd837f7a4590bac7c795ef5cf53f68a1c68a08f279e7d1731dba",
+          "sizeBytes": 1254764
+        },
+        {
+          "sourceDocumentId": "d81871d7-f631-4d77-aac4-b54d01473026",
+          "sourceType": "local_exam_paper",
+          "title": "2019广州中考答案",
+          "fileName": "2019广州中考答案.pdf",
+          "relativePath": "original/b4/df/b4dfdef844f45be070eaf3db88961ede314eca829493b70e0ddbe17631c1d116.pdf",
+          "sha256": "b4dfdef844f45be070eaf3db88961ede314eca829493b70e0ddbe17631c1d116",
+          "sizeBytes": 697141
+        }
+      ],
+      "questionCount": 24,
+      "answerCount": 24,
+      "answerCoverage": 1.0,
+      "questionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ],
+      "answerQuestionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ],
+      "adapterQuality": {
+        "csvParseQuality": [
+          "text_parseable_candidate"
+        ],
+        "dbFileHashCoveragePass": true,
+        "fileStoreExistencePass": true,
+        "workerProbe": "not_run_in_batch_dry_run; source hashes and structured candidate rows verified"
+      },
+      "manualTakeoverPoints": [
+        "teacher_review_required_for_all_candidate_questions",
+        "screenshot_level_source_regions_not_created_by_REAL003_dry_run",
+        "no_active_write; keep all candidate rows pending_review"
+      ],
+      "rollbackSql": [
+        "delete from review_queue_items where import_key = 'guangzhou_2019_question_review';",
+        "delete from cut_candidates where source_document_id in (select id from source_documents where material_batch_key = 'guangzhou_physics_2016_2025' and year = 2019);",
+        "delete from question_items where import_key = 'guangzhou_2019_real_batch_v1';"
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2020,
+      "expectedQuestionCount": 24,
+      "sourceMaterialRows": 2,
+      "dbSourceDocuments": 2,
+      "dbSourceDocumentsWithHash": 2,
+      "sourceHashes": [
+        {
+          "sourceDocumentId": "86177e89-45dc-4f33-a5d0-b16f59764da9",
+          "sourceType": "exam_analysis_report",
+          "title": "2020广州中考年报",
+          "fileName": "2020广州中考年报.pdf",
+          "relativePath": "original/95/f1/95f18f3ec6434f074f37a4396ed621a72dc6473fae5121d736099aebd48f3c1d.pdf",
+          "sha256": "95f18f3ec6434f074f37a4396ed621a72dc6473fae5121d736099aebd48f3c1d",
+          "sizeBytes": 6982256
+        },
+        {
+          "sourceDocumentId": "fe71fada-ea61-4b68-a6f5-79efeccb78a1",
+          "sourceType": "local_exam_paper",
+          "title": "2020广州中考（含答案）",
+          "fileName": "2020广州中考（含答案）.pdf",
+          "relativePath": "original/03/b6/03b67dc46d0e37377d0ac076638e6d34b42305c8f2824489da3f664fe53875db.pdf",
+          "sha256": "03b67dc46d0e37377d0ac076638e6d34b42305c8f2824489da3f664fe53875db",
+          "sizeBytes": 1011285
+        }
+      ],
+      "questionCount": 24,
+      "answerCount": 24,
+      "answerCoverage": 1.0,
+      "questionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ],
+      "answerQuestionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ],
+      "adapterQuality": {
+        "csvParseQuality": [
+          "text_parseable_candidate"
+        ],
+        "dbFileHashCoveragePass": true,
+        "fileStoreExistencePass": true,
+        "workerProbe": "not_run_in_batch_dry_run; source hashes and structured candidate rows verified"
+      },
+      "manualTakeoverPoints": [
+        "source_material_csv_missing_local_exam_paper; check combined paper+answer source mapping",
+        "teacher_review_required_for_all_candidate_questions",
+        "screenshot_level_source_regions_not_created_by_REAL003_dry_run",
+        "no_active_write; keep all candidate rows pending_review"
+      ],
+      "rollbackSql": [
+        "delete from review_queue_items where import_key = 'guangzhou_2020_question_review';",
+        "delete from cut_candidates where source_document_id in (select id from source_documents where material_batch_key = 'guangzhou_physics_2016_2025' and year = 2020);",
+        "delete from question_items where import_key = 'guangzhou_2020_real_batch_v1';"
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2021,
+      "expectedQuestionCount": 18,
+      "sourceMaterialRows": 3,
+      "dbSourceDocuments": 3,
+      "dbSourceDocumentsWithHash": 3,
+      "sourceHashes": [
+        {
+          "sourceDocumentId": "0d2a2dd1-2c85-4ff9-b06b-fa2beb9cee39",
+          "sourceType": "exam_analysis_report",
+          "title": "2021广州中考年报",
+          "fileName": "2021广州中考年报.pdf",
+          "relativePath": "original/18/c3/18c3e88851b24578b96e657c927a9c3baaa7ad807fb9942c6140496b02d90853.pdf",
+          "sha256": "18c3e88851b24578b96e657c927a9c3baaa7ad807fb9942c6140496b02d90853",
+          "sizeBytes": 5316441
+        },
+        {
+          "sourceDocumentId": "389ac111-52c5-4a10-a340-fd03bffb2b39",
+          "sourceType": "local_exam_paper",
+          "title": "2021广州中考-参考答案",
+          "fileName": "2021广州中考-参考答案.pdf",
+          "relativePath": "original/e1/57/e157ab8a16233acd68000299b427f814687035ec1b76384f69f1cf446ed04578.pdf",
+          "sha256": "e157ab8a16233acd68000299b427f814687035ec1b76384f69f1cf446ed04578",
+          "sizeBytes": 290114
+        },
+        {
+          "sourceDocumentId": "83e3e461-318b-4293-9fc4-63ddf9c5d0cf",
+          "sourceType": "local_exam_paper",
+          "title": "2021广州中考",
+          "fileName": "2021广州中考.pdf",
+          "relativePath": "original/d4/ab/d4abb8aa48663b772abb1ee5b15935b065b8931af47bd3c62d89bdef1f83989c.pdf",
+          "sha256": "d4abb8aa48663b772abb1ee5b15935b065b8931af47bd3c62d89bdef1f83989c",
+          "sizeBytes": 1108692
+        }
+      ],
+      "questionCount": 18,
+      "answerCount": 18,
+      "answerCoverage": 1.0,
+      "questionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18
+      ],
+      "answerQuestionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18
+      ],
+      "adapterQuality": {
+        "csvParseQuality": [
+          "text_parseable_candidate"
+        ],
+        "dbFileHashCoveragePass": true,
+        "fileStoreExistencePass": true,
+        "workerProbe": "not_run_in_batch_dry_run; source hashes and structured candidate rows verified"
+      },
+      "manualTakeoverPoints": [
+        "teacher_review_required_for_all_candidate_questions",
+        "screenshot_level_source_regions_not_created_by_REAL003_dry_run",
+        "no_active_write; keep all candidate rows pending_review"
+      ],
+      "rollbackSql": [
+        "delete from review_queue_items where import_key = 'guangzhou_2021_question_review';",
+        "delete from cut_candidates where source_document_id in (select id from source_documents where material_batch_key = 'guangzhou_physics_2016_2025' and year = 2021);",
+        "delete from question_items where import_key = 'guangzhou_2021_real_batch_v1';"
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2022,
+      "expectedQuestionCount": 18,
+      "sourceMaterialRows": 3,
+      "dbSourceDocuments": 4,
+      "dbSourceDocumentsWithHash": 4,
+      "sourceHashes": [
+        {
+          "sourceDocumentId": "3796b4d9-3293-4b9b-99f5-2f6953064d49",
+          "sourceType": "curriculum_standard",
+          "title": "《义务教育物理课程标准·日常修订版》(2022年版2025年修订)",
+          "fileName": "《义务教育物理课程标准·日常修订版》(2022年版2025年修订).pdf",
+          "relativePath": "original/a9/92/a992f3c0028ff9e8b230ddef031bd6e9d224df46239a26b0a7125b560d834064.pdf",
+          "sha256": "a992f3c0028ff9e8b230ddef031bd6e9d224df46239a26b0a7125b560d834064",
+          "sizeBytes": 1224667
+        },
+        {
+          "sourceDocumentId": "32d93960-11ed-41ea-8b89-b310d0efb524",
+          "sourceType": "exam_analysis_report",
+          "title": "2022广州中考年报",
+          "fileName": "2022广州中考年报.pdf",
+          "relativePath": "original/b0/6d/b06d7c64a422852eb14c42b8d7ee434fc28f97f3a93964da340fd1283f1e7116.pdf",
+          "sha256": "b06d7c64a422852eb14c42b8d7ee434fc28f97f3a93964da340fd1283f1e7116",
+          "sizeBytes": 3894211
+        },
+        {
+          "sourceDocumentId": "f05ae8ba-3891-4ce0-b265-a1b61a1b76bf",
+          "sourceType": "local_exam_paper",
+          "title": "2022广州中考-参考答案",
+          "fileName": "2022广州中考-参考答案.pdf",
+          "relativePath": "original/51/9a/519a730083d49f576effa9f9d099c0f2731022ff94bc80bbe5e64713d2016120.pdf",
+          "sha256": "519a730083d49f576effa9f9d099c0f2731022ff94bc80bbe5e64713d2016120",
+          "sizeBytes": 1524553
+        },
+        {
+          "sourceDocumentId": "dba28439-acdc-44e5-9eac-5325a4aec896",
+          "sourceType": "local_exam_paper",
+          "title": "2022广州中考",
+          "fileName": "2022广州中考.pdf",
+          "relativePath": "original/66/c5/66c5959ae3db3fa2d521b234d371c5fa05ef84763ffc1a5a9ed8bd9adce16101.pdf",
+          "sha256": "66c5959ae3db3fa2d521b234d371c5fa05ef84763ffc1a5a9ed8bd9adce16101",
+          "sizeBytes": 1829178
+        }
+      ],
+      "questionCount": 18,
+      "answerCount": 18,
+      "answerCoverage": 1.0,
+      "questionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18
+      ],
+      "answerQuestionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18
+      ],
+      "adapterQuality": {
+        "csvParseQuality": [
+          "text_parseable_candidate"
+        ],
+        "dbFileHashCoveragePass": true,
+        "fileStoreExistencePass": true,
+        "workerProbe": "not_run_in_batch_dry_run; source hashes and structured candidate rows verified"
+      },
+      "manualTakeoverPoints": [
+        "teacher_review_required_for_all_candidate_questions",
+        "screenshot_level_source_regions_not_created_by_REAL003_dry_run",
+        "no_active_write; keep all candidate rows pending_review"
+      ],
+      "rollbackSql": [
+        "delete from review_queue_items where import_key = 'guangzhou_2022_question_review';",
+        "delete from cut_candidates where source_document_id in (select id from source_documents where material_batch_key = 'guangzhou_physics_2016_2025' and year = 2022);",
+        "delete from question_items where import_key = 'guangzhou_2022_real_batch_v1';"
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2023,
+      "expectedQuestionCount": 18,
+      "sourceMaterialRows": 3,
+      "dbSourceDocuments": 3,
+      "dbSourceDocumentsWithHash": 3,
+      "sourceHashes": [
+        {
+          "sourceDocumentId": "e4856c25-37d2-4f8d-a0b3-05405bfe4a9f",
+          "sourceType": "exam_analysis_report",
+          "title": "2023广州中考年报",
+          "fileName": "2023广州中考年报.pdf",
+          "relativePath": "original/4d/58/4d5885aa9f2dadead754d7f5124b6cd7535bc3cddc9bce53fcc6dbcdc913ecc7.pdf",
+          "sha256": "4d5885aa9f2dadead754d7f5124b6cd7535bc3cddc9bce53fcc6dbcdc913ecc7",
+          "sizeBytes": 4395760
+        },
+        {
+          "sourceDocumentId": "65468c7b-aec5-42c0-a60e-f59e9ed8e093",
+          "sourceType": "local_exam_paper",
+          "title": "2023广州中考",
+          "fileName": "2023广州中考.pdf",
+          "relativePath": "original/94/22/9422eb3c0542eeea3526717364de15288d74788c4a1348f64ff012233338acdc.pdf",
+          "sha256": "9422eb3c0542eeea3526717364de15288d74788c4a1348f64ff012233338acdc",
+          "sizeBytes": 820220
+        },
+        {
+          "sourceDocumentId": "8a7a5534-97e7-47ac-8f92-60ad70446ec1",
+          "sourceType": "local_exam_paper",
+          "title": "2023广州中考_参考答案",
+          "fileName": "2023广州中考_参考答案.pdf",
+          "relativePath": "original/f7/c3/f7c33a3e4525912de855f34e1d40e2853aa228da6d5f74be91f0627520c7d36a.pdf",
+          "sha256": "f7c33a3e4525912de855f34e1d40e2853aa228da6d5f74be91f0627520c7d36a",
+          "sizeBytes": 185817
+        }
+      ],
+      "questionCount": 18,
+      "answerCount": 18,
+      "answerCoverage": 1.0,
+      "questionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18
+      ],
+      "answerQuestionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18
+      ],
+      "adapterQuality": {
+        "csvParseQuality": [
+          "text_parseable_candidate"
+        ],
+        "dbFileHashCoveragePass": true,
+        "fileStoreExistencePass": true,
+        "workerProbe": "not_run_in_batch_dry_run; source hashes and structured candidate rows verified"
+      },
+      "manualTakeoverPoints": [
+        "teacher_review_required_for_all_candidate_questions",
+        "screenshot_level_source_regions_not_created_by_REAL003_dry_run",
+        "no_active_write; keep all candidate rows pending_review"
+      ],
+      "rollbackSql": [
+        "delete from review_queue_items where import_key = 'guangzhou_2023_question_review';",
+        "delete from cut_candidates where source_document_id in (select id from source_documents where material_batch_key = 'guangzhou_physics_2016_2025' and year = 2023);",
+        "delete from question_items where import_key = 'guangzhou_2023_real_batch_v1';"
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2024,
+      "expectedQuestionCount": 18,
+      "sourceMaterialRows": 3,
+      "dbSourceDocuments": 5,
+      "dbSourceDocumentsWithHash": 5,
+      "sourceHashes": [
+        {
+          "sourceDocumentId": "79ee9e91-220c-4d33-890a-1df15bd537c8",
+          "sourceType": "exam_analysis_report",
+          "title": "2024广州中考年报",
+          "fileName": "2024广州中考年报.pdf",
+          "relativePath": "original/50/92/509224044bc1ed8b7bbce9dda011c19e33a273e4033661a76792ce89c94fe07f.pdf",
+          "sha256": "509224044bc1ed8b7bbce9dda011c19e33a273e4033661a76792ce89c94fe07f",
+          "sizeBytes": 5039547
+        },
+        {
+          "sourceDocumentId": "90465a2a-9664-4a85-b40b-2bf3e194c8b5",
+          "sourceType": "local_exam_paper",
+          "title": "2024广州中考（解析版）",
+          "fileName": "2024广州中考（解析版）.pdf",
+          "relativePath": "original/5b/58/5b588bd2ed97be333da83a1f50031fe7f3adf66c8532506a481c97ed09adda95.pdf",
+          "sha256": "5b588bd2ed97be333da83a1f50031fe7f3adf66c8532506a481c97ed09adda95",
+          "sizeBytes": 1291410
+        },
+        {
+          "sourceDocumentId": "c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389",
+          "sourceType": "local_exam_paper",
+          "title": "2024广州中考",
+          "fileName": "2024广州中考.pdf",
+          "relativePath": "original/f6/a3/f6a3a77585343e30722ef5e09cda58795fa752e2d86c74d0dda3c89e159311ef.pdf",
+          "sha256": "f6a3a77585343e30722ef5e09cda58795fa752e2d86c74d0dda3c89e159311ef",
+          "sizeBytes": 1649497
+        },
+        {
+          "sourceDocumentId": "59f88fb9-191c-4df0-92ee-e7c4d5389c5b",
+          "sourceType": "textbook",
+          "title": "物理教材八上（2024人教）",
+          "fileName": "物理教材八上（2024人教）.pdf",
+          "relativePath": "original/6c/55/6c551bd86328b84b8a181d1da437e3b92e9fa2b469ce12d65cc75aa29ef0922b.pdf",
+          "sha256": "6c551bd86328b84b8a181d1da437e3b92e9fa2b469ce12d65cc75aa29ef0922b",
+          "sizeBytes": 15855981
+        },
+        {
+          "sourceDocumentId": "dfa4993b-db66-4900-870d-38a9095c6d93",
+          "sourceType": "textbook",
+          "title": "物理教材八下（2024人教）",
+          "fileName": "物理教材八下（2024人教）.pdf",
+          "relativePath": "original/b6/88/b68839e93194bdd91d0a3ce1ef8ef4134b8b8b0d1b7fc82f05efc0defeb6fe52.pdf",
+          "sha256": "b68839e93194bdd91d0a3ce1ef8ef4134b8b8b0d1b7fc82f05efc0defeb6fe52",
+          "sizeBytes": 10849905
+        }
+      ],
+      "questionCount": 18,
+      "answerCount": 18,
+      "answerCoverage": 1.0,
+      "questionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18
+      ],
+      "answerQuestionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18
+      ],
+      "adapterQuality": {
+        "csvParseQuality": [
+          "text_parseable_candidate"
+        ],
+        "dbFileHashCoveragePass": true,
+        "fileStoreExistencePass": true,
+        "workerProbe": "not_run_in_batch_dry_run; source hashes and structured candidate rows verified"
+      },
+      "manualTakeoverPoints": [
+        "teacher_review_required_for_all_candidate_questions",
+        "screenshot_level_source_regions_not_created_by_REAL003_dry_run",
+        "no_active_write; keep all candidate rows pending_review"
+      ],
+      "rollbackSql": [
+        "delete from review_queue_items where import_key = 'guangzhou_2024_question_review';",
+        "delete from cut_candidates where source_document_id in (select id from source_documents where material_batch_key = 'guangzhou_physics_2016_2025' and year = 2024);",
+        "delete from question_items where import_key = 'guangzhou_2024_real_batch_v1';"
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2025,
+      "expectedQuestionCount": 18,
+      "sourceMaterialRows": 3,
+      "dbSourceDocuments": 4,
+      "dbSourceDocumentsWithHash": 4,
+      "sourceHashes": [
+        {
+          "sourceDocumentId": "78545951-02e8-4350-9470-20ed0f2babd8",
+          "sourceType": "exam_analysis_report",
+          "title": "2025广州中考年报",
+          "fileName": "2025广州中考年报.pdf",
+          "relativePath": "original/12/2f/122fb00ee53e975eeeb9068a76a694747ccb5d23d89bb459a29d4c50de4a7c6f.pdf",
+          "sha256": "122fb00ee53e975eeeb9068a76a694747ccb5d23d89bb459a29d4c50de4a7c6f",
+          "sizeBytes": 3816950
+        },
+        {
+          "sourceDocumentId": "e04bc785-61b5-43d5-af7d-8f794b99549d",
+          "sourceType": "local_exam_paper",
+          "title": "2025广州中考（解析版）",
+          "fileName": "2025广州中考（解析版）.pdf",
+          "relativePath": "original/22/cc/22cc26e89bae766f1c6d9dc4497d9dcfa7a52467cdb48856c831f076805f8202.pdf",
+          "sha256": "22cc26e89bae766f1c6d9dc4497d9dcfa7a52467cdb48856c831f076805f8202",
+          "sizeBytes": 1385355
+        },
+        {
+          "sourceDocumentId": "e7930641-b925-4f00-96d7-3b900949c083",
+          "sourceType": "local_exam_paper",
+          "title": "2025广州中考",
+          "fileName": "2025广州中考.pdf",
+          "relativePath": "original/26/c8/26c8aabc95cd2ffa67ed2ea873f13c9f2cb15d8e576ca2e4d4281f00f63e0fbe.pdf",
+          "sha256": "26c8aabc95cd2ffa67ed2ea873f13c9f2cb15d8e576ca2e4d4281f00f63e0fbe",
+          "sizeBytes": 2357891
+        },
+        {
+          "sourceDocumentId": "f437151f-ff95-4156-b8df-1214b2bc45b2",
+          "sourceType": "textbook",
+          "title": "物理教材九全（2025秋.人教）",
+          "fileName": "物理教材九全（2025秋.人教）.pdf",
+          "relativePath": "original/55/eb/55eb16b9e87e5ab28c7a041cd02826ff0ab70ce647460f638ff3a84af698e605.pdf",
+          "sha256": "55eb16b9e87e5ab28c7a041cd02826ff0ab70ce647460f638ff3a84af698e605",
+          "sizeBytes": 24096900
+        }
+      ],
+      "questionCount": 18,
+      "answerCount": 18,
+      "answerCoverage": 1.0,
+      "questionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18
+      ],
+      "answerQuestionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18
+      ],
+      "adapterQuality": {
+        "csvParseQuality": [
+          "text_parseable_candidate"
+        ],
+        "dbFileHashCoveragePass": true,
+        "fileStoreExistencePass": true,
+        "workerProbe": "not_run_in_batch_dry_run; source hashes and structured candidate rows verified"
+      },
+      "manualTakeoverPoints": [
+        "teacher_review_required_for_all_candidate_questions",
+        "screenshot_level_source_regions_not_created_by_REAL003_dry_run",
+        "no_active_write; keep all candidate rows pending_review"
+      ],
+      "rollbackSql": [
+        "delete from review_queue_items where import_key = 'guangzhou_2025_question_review';",
+        "delete from cut_candidates where source_document_id in (select id from source_documents where material_batch_key = 'guangzhou_physics_2016_2025' and year = 2025);",
+        "delete from question_items where import_key = 'guangzhou_2025_real_batch_v1';"
+      ],
+      "blockers": []
+    }
+  ],
+  "completionBoundary": "REAL003 proves 2016-2025 batch ingest planning and dry-run evidence only; it does not write active data or prove teacher validation.",
+  "rollback": "git restore tracked files; for any later apply run, execute per-year rollbackSql from this report inside a reviewed transaction.",
+  "summaryChinese": "REAL003 dry-run 已核对 2016-2025 来源 hash、题数、答案覆盖、adapter 质量、异常接管点和回滚 SQL；所有候选仍为 pending_review，未写 active。"
+}

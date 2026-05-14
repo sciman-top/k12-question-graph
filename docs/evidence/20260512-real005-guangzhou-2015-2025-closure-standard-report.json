@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "task": "REAL005",
-  "checkedAt": "2026-05-13T00:50:48",
+  "checkedAt": "2026-05-14T22:19:15",
   "closureStatus": "not_closed",
   "criteriaPath": "tasks/real-guangzhou-closure-criteria.csv",
   "criteriaCount": 12,
@@ -19,22 +19,12 @@
     2025
   ],
   "fullClosureAllowed": false,
-  "currentTruth": "S012/REAL001/REAL002/REAL004 smoke evidence is not enough to claim 2015-2025 full workflow closure",
+  "currentTruth": "S012/REAL001/REAL002/REAL003 dry-run/REAL004 review smoke evidence is not enough to claim 2015-2025 full workflow closure",
   "gaps": [
     {
-      "id": "REAL003",
-      "reason": "backlog status is 待办",
-      "nextAction": "tools/run-guangzhou-physics-year-batch-ingest.ps1 + evidence report"
-    },
-    {
-      "id": "REAL004",
-      "reason": "backlog status is 待办",
-      "nextAction": "npm run build + tools/run-i003-review-queue-ui-contract.ps1 + tools/run-real004-guangzhou-2015-review-smoke.ps1"
-    },
-    {
-      "id": "tools/run-guangzhou-physics-year-batch-ingest.ps1",
-      "reason": "required implementation gate script is missing",
-      "nextAction": "implement script with dry-run default, evidence report, and rollback policy"
+      "id": "real-guangzhou-2015-2025-dashboard",
+      "reason": "dashboard state is contract_done; gap=REAL005 当前只能输出 not_closed 缺逐年逐题闭环证据",
+      "nextAction": "complete yearly question evidence and update dashboard only after every REAL005 criterion is satisfied"
     }
   ],
   "requiredCriteria": [
@@ -124,5 +114,5 @@
     }
   ],
   "rollback": "git restore tracked files; remove generated REAL005 evidence reports if this standard is reverted",
-  "summaryChinese": "REAL005 判定标准已安装并通过自检；当前真实状态是 not_closed，仍需完成 REAL003/REAL004。"
+  "summaryChinese": "REAL005 判定标准已安装并通过自检；当前真实状态是 not_closed，仍需完成 逐年逐题闭环证据。"
 }

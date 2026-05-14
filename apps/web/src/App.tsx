@@ -16,6 +16,7 @@ import {
   BarChartOutlined,
   CheckCircleOutlined,
   CloudUploadOutlined,
+  EditOutlined,
   FileSearchOutlined,
   FileTextOutlined,
   InboxOutlined,
@@ -60,6 +61,13 @@ import {
 } from './ui/teacherLabels'
 
 type TeacherView = 'import' | 'paper' | 'scores' | 'analysis'
+
+type RealExamRevisionState = {
+  textPreview: string
+  answer: string
+  primaryKnowledgeLabel: string
+  knowledgeTagsText: string
+}
 
 const teacherActions = [
   {
@@ -350,6 +358,12 @@ function App() {
   const [realExamQueueMessage, setRealExamQueueMessage] = useState('尚未查询 2015 真卷复核队列')
   const [selectedRealExamReviewId, setSelectedRealExamReviewId] = useState('')
   const [realExamReviewNote, setRealExamReviewNote] = useState('已核对题干、答案、标签和来源')
+  const [realExamRevision, setRealExamRevision] = useState<RealExamRevisionState>({
+    textPreview: '',
+    answer: '',
+    primaryKnowledgeLabel: '',
+    knowledgeTagsText: '',
+  })
   const [activeTeacherView, setActiveTeacherView] = useState<TeacherView>('import')
   const [segments, setSegments] = useState(initialSegments)
   const [selectedIds, setSelectedIds] = useState<string[]>(['q-02', 'q-03'])
@@ -792,13 +806,26 @@ function App() {
     setRealExamQueueTotal(result.data.totalCount)
     setRealExamQueueMessage(`已加载 ${result.data.items.length} 条 2015 真卷待复核题目`)
     if (!selectedRealExamReviewId && result.data.items.length > 0) {
-      setSelectedRealExamReviewId(result.data.items[0].id)
+      const firstItem = result.data.items[0]
+      setSelectedRealExamReviewId(firstItem.id)
+      setRealExamRevision({
+        textPreview: firstItem.payload.textPreview,
+        answer: firstItem.payload.answer,
+        primaryKnowledgeLabel: firstItem.payload.primaryKnowledgeLabel,
+        knowledgeTagsText: firstItem.payload.knowledgeTags.join(' / '),
+      })
     }
   }
 
   const loadRealExamReviewItem = async (item: ReviewQueueItemContract) => {
     const payload = item.payload
     setSelectedRealExamReviewId(item.id)
+    setRealExamRevision({
+      textPreview: payload.textPreview,
+      answer: payload.answer,
+      primaryKnowledgeLabel: payload.primaryKnowledgeLabel,
+      knowledgeTagsText: payload.knowledgeTags.join(' / '),
+    })
     setRealExamReviewNote(
       payload.questionNo
         ? `第 ${payload.questionNo} 题已核对题干、答案、标签和来源`
@@ -844,10 +871,20 @@ function App() {
     decision: 'resolved' | 'dismissed',
   ) => {
     const note = realExamReviewNote.trim()
+    const revision = {
+      textPreview: realExamRevision.textPreview.trim() || item.payload.textPreview,
+      answer: realExamRevision.answer.trim() || item.payload.answer,
+      primaryKnowledgeLabel: realExamRevision.primaryKnowledgeLabel.trim() || item.payload.primaryKnowledgeLabel,
+      knowledgeTags: realExamRevision.knowledgeTagsText
+        .split(/[、,，/]/)
+        .map((tag) => tag.trim())
+        .filter(Boolean),
+    }
     const result = await resolveReviewQueueItem(item.id, {
       reviewedBy: 'teacher-real-exam-workbench',
       decision,
       reason: note || (decision === 'resolved' ? 'ui_real_exam_review_confirmed' : 'ui_real_exam_review_returned'),
+      revision,
     })
     if (!result.ok) {
       setRealExamQueueMessage(`${decision === 'resolved' ? '确认' : '退回'}失败：${result.error.message}`)
@@ -858,8 +895,14 @@ function App() {
     setRealExamQueueTotal((count) => Math.max(0, count - 1))
     setSelectedRealExamReviewId('')
     setRealExamReviewNote('已核对题干、答案、标签和来源')
+    setRealExamRevision({
+      textPreview: '',
+      answer: '',
+      primaryKnowledgeLabel: '',
+      knowledgeTagsText: '',
+    })
     const verb = decision === 'resolved' ? '确认' : '退回'
-    setRealExamQueueMessage(`已${verb}第 ${item.payload.questionNo || '?'} 题，队列已记录审核人、时间和说明`)
+    setRealExamQueueMessage(`已${verb}第 ${item.payload.questionNo || '?'} 题，队列已记录审核人、时间、说明和修订内容`)
     appendLog(`2015 真卷第 ${item.payload.questionNo || '?'} 题已${verb}`)
   }
 
@@ -1332,6 +1375,58 @@ function App() {
                   <strong>{savedQuestionSourceSummary}</strong>
                 </span>
               </div>
+              <div className="real-exam-revision" data-contract="real-exam-teacher-revision">
+                <div>
+                  <Typography.Text type="secondary">修订题干</Typography.Text>
+                  <Input.TextArea
+                    aria-label="2015 真卷修订题干"
+                    data-action="real-guangzhou-2015-revision-stem"
+                    value={realExamRevision.textPreview}
+                    onChange={(event) =>
+                      setRealExamRevision((current) => ({ ...current, textPreview: event.target.value }))
+                    }
+                    autoSize={{ minRows: 2, maxRows: 5 }}
+                    placeholder="载入题目后可修订题干"
+                  />
+                </div>
+                <div>
+                  <Typography.Text type="secondary">修订答案</Typography.Text>
+                  <Input.TextArea
+                    aria-label="2015 真卷修订答案"
+                    data-action="real-guangzhou-2015-revision-answer"
+                    value={realExamRevision.answer}
+                    onChange={(event) =>
+                      setRealExamRevision((current) => ({ ...current, answer: event.target.value }))
+                    }
+                    autoSize={{ minRows: 2, maxRows: 5 }}
+                    placeholder="载入题目后可修订答案"
+                  />
+                </div>
+                <div>
+                  <Typography.Text type="secondary">修订标签</Typography.Text>
+                  <Input
+                    aria-label="2015 真卷主标签"
+                    data-action="real-guangzhou-2015-revision-primary-tag"
+                    value={realExamRevision.primaryKnowledgeLabel}
+                    onChange={(event) =>
+                      setRealExamRevision((current) => ({
+                        ...current,
+                        primaryKnowledgeLabel: event.target.value,
+                      }))
+                    }
+                    placeholder="主标签"
+                  />
+                  <Input
+                    aria-label="2015 真卷知识标签"
+                    data-action="real-guangzhou-2015-revision-tags"
+                    value={realExamRevision.knowledgeTagsText}
+                    onChange={(event) =>
+                      setRealExamRevision((current) => ({ ...current, knowledgeTagsText: event.target.value }))
+                    }
+                    placeholder="多个标签用 / 分隔"
+                  />
+                </div>
+              </div>
               <Input.TextArea
                 aria-label="2015 真卷审核说明"
                 data-action="real-guangzhou-2015-review-note"
@@ -1363,7 +1458,7 @@ function App() {
                 </Button>
                 <Button
                   type="primary"
-                  icon={<CheckCircleOutlined />}
+                  icon={<EditOutlined />}
                   onClick={() =>
                     selectedRealExamReview
                       ? void finishRealExamReviewItem(selectedRealExamReview, 'resolved')
@@ -1395,7 +1490,7 @@ function App() {
                       key={item.id}
                       type="button"
                       className={selected ? 'real-exam-row active' : 'real-exam-row'}
-                      onClick={() => setSelectedRealExamReviewId(item.id)}
+                      onClick={() => void loadRealExamReviewItem(item)}
                       data-review-type={item.reviewType}
                     >
                       <span>

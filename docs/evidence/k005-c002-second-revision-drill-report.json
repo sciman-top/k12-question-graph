@@ -3,7 +3,7 @@
   "task": "K005",
   "batchId": "K005_C002_SECOND_REVISION_SYNTHETIC_BATCH",
   "mode": "dry_run",
-  "checkedAt": "2026-05-12T16:10:34.4669163Z",
+  "checkedAt": "2026-05-14T13:50:21.2524394Z",
   "lifecycle": [
     "candidate",
     "reviewed",

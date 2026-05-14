@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "REAL004",
-  "checkedAt": "2026-05-13T00:13:58",
+  "checkedAt": "2026-05-14T22:14:15",
   "apiUrl": "http://127.0.0.1:5297",
   "workflowKey": "guangzhou_2015_real_ingest_v1 + guangzhou_2015_visual_region_v1",
   "reviewType": "guangzhou_2015_question_review",
@@ -16,13 +16,19 @@
   },
   "actions": {
     "confirm": {
-      "itemId": "122461bc-2390-4946-9349-eca48ee85980",
+      "itemId": "788ae33a-a0b7-43ed-9b7e-8523007e355e",
       "status": "resolved",
       "auditReviewedBy": "teacher-real004-smoke",
-      "auditReason": "checked stem answer tags and source regions"
+      "auditReason": "checked and revised stem answer tags and source regions",
+      "revisionAnswer": "B [revision checked]",
+      "revisionTags": [
+        "分子运动",
+        "扩散现象",
+        "teacher_revision_smoke"
+      ]
     },
     "dismiss": {
-      "itemId": "32979a6d-2cf2-4312-8de3-bea87dfe6618",
+      "itemId": "3198b217-422e-46ce-bbbd-66c70ae16614",
       "status": "dismissed",
       "auditDecision": "dismissed",
       "auditReason": "returned for precise visual crop and tag correction"
@@ -34,13 +40,13 @@
     "canFilterGuangzhou2015Queue": true,
     "canLoadQuestionSources": true,
     "canConfirmWithAudit": true,
+    "canSubmitTeacherRevisionWithAudit": true,
     "canReturnWithAudit": true,
     "restoredRepeatableBaseline": true,
     "externalAiCalls": 0,
     "realStudentDataUsed": false
   },
   "remainingGaps": [
-    "REAL004 smoke proves confirm and return audit for the full 2015 1-24 queue, but it does not prove teacher-edited answer/tag revision.",
     "REAL002 visual regions are screenshot manifests that still require human verification against the original PDF.",
     "Teacher acceptance remains pending because this smoke uses deterministic local API calls, not a human classroom review session."
   ],
