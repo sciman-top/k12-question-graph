@@ -33,6 +33,7 @@ import {
   applyReviewWorkbenchAction,
   confirmPaperBlueprintReview,
   createPaperBlueprintReview,
+  createScoreImport,
   exportCommentaryReport,
   generateCutCandidates,
   getCutCandidates,
@@ -385,6 +386,11 @@ function App() {
   const [scoreMappingMessage, setScoreMappingMessage] = useState(initialItemScoreMappingPreview.teacherMessage)
   const [itemScoreMappingPreview, setItemScoreMappingPreview] = useState(initialItemScoreMappingPreview)
   const [commentaryReportPreview, setCommentaryReportPreview] = useState(initialCommentaryReportPreview)
+  const [scoreWorkflowBusy, setScoreWorkflowBusy] = useState(false)
+  const [analysisMessage, setAnalysisMessage] = useState('点击查看摘要后，会聚焦当前讲评建议和导出状态。')
+  const [activeQuestionFilter, setActiveQuestionFilter] = useState('all')
+  const [selectedQuestionId, setSelectedQuestionId] = useState('')
+  const [questionInteractionMessage, setQuestionInteractionMessage] = useState('选择题目后，可用于组卷、换题或来源回看。')
   const [importStartedAt] = useState<Date>(() => new Date())
   const [nowMs, setNowMs] = useState<number>(() => Date.now())
   const [importActionCount, setImportActionCount] = useState(0)
@@ -1006,8 +1012,29 @@ function App() {
     appendLog('已撤销换题并恢复原题')
   }
 
-  const previewScoreMappings = async () => {
-    const assessmentId = scoreMappingAssessmentId.trim()
+  const importSampleScores = async () => {
+    setScoreWorkflowBusy(true)
+    setScoreMappingMessage('正在导入样例成绩并生成可复用字段映射...')
+    const result = await createScoreImport()
+    setScoreWorkflowBusy(false)
+
+    if (!result.ok) {
+      setScoreMappingMessage(`样例成绩导入失败：${result.error.message}`)
+      appendLog(`样例成绩导入失败：${result.error.message}`)
+      return ''
+    }
+
+    const assessmentId = result.data.assessmentId ?? ''
+    setScoreMappingAssessmentId(assessmentId)
+    setScoreMappingMessage(
+      `${result.data.teacherMessage} 已导入 ${result.data.importedCount}/${result.data.rowCount} 行，异常 ${result.data.errorCount} 行。`,
+    )
+    appendLog(`已导入样例成绩：${result.data.importedCount} 行，异常 ${result.data.errorCount} 行`)
+    return assessmentId
+  }
+
+  const previewScoreMappings = async (overrideAssessmentId?: string) => {
+    const assessmentId = (overrideAssessmentId ?? scoreMappingAssessmentId).trim()
     if (!assessmentId) {
       setScoreMappingMessage('请先输入成绩批次 ID，再预览小题映射。')
       return
@@ -1049,6 +1076,22 @@ function App() {
     })
   }
 
+  const generateScoreAnalysis = async () => {
+    let assessmentId = scoreMappingAssessmentId.trim()
+    if (!scoreMappingAssessmentId.trim()) {
+      assessmentId = await importSampleScores()
+    }
+
+    if (!assessmentId) {
+      setScoreMappingMessage('请先完成样例成绩导入，再生成分析。')
+      return
+    }
+
+    await previewScoreMappings(assessmentId)
+    setAnalysisMessage('已基于当前成绩批次刷新薄弱点摘要，可继续导出讲评报告草稿。')
+    appendLog('已生成成绩分析预览')
+  }
+
   const exportScoreReport = async () => {
     const assessmentId = scoreMappingAssessmentId.trim()
     if (!assessmentId) {
@@ -1085,6 +1128,57 @@ function App() {
       manifestSha256: result.data.manifestSha256 ?? '',
       sections: result.data.sections,
     })
+  }
+
+  const handleScoreWorkbenchAction = (action: string) => {
+    if (action === 'upload-score-sheet') {
+      void importSampleScores()
+      return
+    }
+
+    if (action === 'generate-score-analysis') {
+      void generateScoreAnalysis()
+      return
+    }
+
+    if (action === 'export-score-report') {
+      void exportScoreReport()
+    }
+  }
+
+  const openAnalysisSummary = () => {
+    setAnalysisMessage(
+      commentaryReportPreview.status === 'ready'
+        ? `讲评摘要已生成：${commentaryReportPreview.sections.map((section) => section.title).join('、')}`
+        : '当前是示例分析摘要；导入成绩并导出报告后会显示真实草稿路径。',
+    )
+    appendLog('已打开讲评摘要')
+  }
+
+  const applyQuestionFilter = (filter: string, label: string) => {
+    setActiveQuestionFilter(filter)
+    setQuestionInteractionMessage(`已应用筛选：${label}`)
+    appendLog(`已应用题库筛选：${label}`)
+  }
+
+  const selectQuestionCard = (cardId: string, preview: string) => {
+    setSelectedQuestionId(cardId)
+    setQuestionInteractionMessage(`已选择题目：${preview || cardId}`)
+    appendLog('已选择题目，可加入组卷流程')
+  }
+
+  const runStarterDemo = (step: (typeof starterDemoSteps)[number]) => {
+    openTeacherView(step.view)
+    if (step.view === 'scores') {
+      setScoreMappingMessage('已切到样例成绩工作台，可点击“上传 Excel”导入内置样例。')
+    }
+    if (step.view === 'analysis') {
+      openAnalysisSummary()
+    }
+    if (step.view === 'paper') {
+      setPaperWorkflowMessage('已载入默认组卷需求，点击“生成理解”查看细目表。')
+    }
+    appendLog(`已打开新手示例：${step.title}`)
   }
 
   const exportPaper = (format: 'docx' | 'pdf') => {
@@ -1172,7 +1266,7 @@ function App() {
                     type="button"
                     data-action="run-starter-example"
                     data-contract={step.contract}
-                    onClick={() => openTeacherView(step.view)}
+                    onClick={() => runStarterDemo(step)}
                   >
                     <strong>{index + 1}</strong>
                     <span>
@@ -1590,7 +1684,8 @@ function App() {
                     key={item.action}
                     type={item.kind === 'primary' ? 'primary' : 'default'}
                     icon={item.icon}
-                    onClick={item.action === 'export-score-report' ? exportScoreReport : undefined}
+                    loading={scoreWorkflowBusy && item.action !== 'export-score-report'}
+                    onClick={() => handleScoreWorkbenchAction(item.action)}
                     data-action={item.action}
                   >
                     {item.label}
@@ -1635,7 +1730,7 @@ function App() {
                   />
                   <Button
                     icon={<LinkOutlined />}
-                    onClick={previewScoreMappings}
+                    onClick={() => void previewScoreMappings()}
                     data-action="preview-item-score-mapping"
                   >
                     预览映射
@@ -1745,11 +1840,12 @@ function App() {
                 </Typography.Text>
               </div>
               {analysisActions.map((item) => (
-                <Button key={item.action} icon={item.icon} data-action={item.action}>
+                <Button key={item.action} icon={item.icon} onClick={openAnalysisSummary} data-action={item.action}>
                   {item.label}
                 </Button>
               ))}
             </div>
+            <Alert showIcon type="info" title={analysisMessage} data-action="analysis-summary-message" />
             <div className="analysis-summary-grid">
               {teacherAnalysisHighlights.map(([label, value, detail]) => (
                 <div key={label}>
@@ -1848,11 +1944,20 @@ function App() {
 
             <div className="filter-row" aria-label="筛选条件">
               {questionSearchFilterChips.map((item) => (
-                <button className="filter-chip" data-filter={item.filter} key={item.filter} type="button">
+                <button
+                  className={activeQuestionFilter === item.filter ? 'filter-chip active' : 'filter-chip'}
+                  data-filter={item.filter}
+                  key={item.filter}
+                  type="button"
+                  onClick={() => applyQuestionFilter(item.filter, item.label)}
+                >
                   {item.label}
                 </button>
               ))}
             </div>
+            <Typography.Text type="secondary" data-action="question-interaction-message">
+              {questionInteractionMessage}
+            </Typography.Text>
 
             <div
               className="question-card-list"
@@ -1878,7 +1983,13 @@ function App() {
                 />
               ) : null}
               {questionSearch?.items.map((card) => (
-                <button className="question-card" data-card="question-card" key={card.id} type="button">
+                <button
+                  className={selectedQuestionId === card.id ? 'question-card active' : 'question-card'}
+                  data-card="question-card"
+                  key={card.id}
+                  type="button"
+                  onClick={() => selectQuestionCard(card.id, card.preview)}
+                >
                   <span>
                     <strong>{card.preview || '未命名题目'}</strong>
                     <small>

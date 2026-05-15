@@ -19,6 +19,7 @@ export default defineConfig({
       '/review-workbench': localApiProxy,
       '/paper-blueprints': localApiProxy,
       '/assessments': localApiProxy,
+      '/score-imports': localApiProxy,
     },
   },
   build: {

@@ -18,6 +18,20 @@
 
 2026-05-08 起，所有后续功能推进采用横向 automation-first 合同：确定性规则、脚本、专用 API/UI、Adapter、schema、SQL、hash/cache、typed client、模板和 contract 先覆盖可确定部分；AI/agent 只能作为语义候选、复杂映射、异常复核或外层并行编排。机器可读合同为 `tasks/automation-first-contract.csv`，门禁为 `tools/run-automation-first-feature-contract-guard.ps1`，并纳入 unified gate。
 
+2026-05-14 起，README 的当前完成态以 `tasks/completion-state-dashboard.csv`、`tasks/backlog.csv`、`docs/19_Roadmap.md`、`docs/20_TaskBreakdown.md` 和 `docs/evidence/` 的 REAL/S0 报告为准。`S001-S012` 已完成非现场产品化闭环：教师四入口、导入/切题/人工接管、AI 标注建议、题库检索、组卷、导出、成绩导入、讲评报告和备份恢复均有合同或代理验收证据；但这不等于现场发布完成。当前发布阻断仍是 `P001` 试点部署预演、隔离机真实安装、权限/审计、现场网络/打印/文件权限、真实教师或教师代理验收和回滚演练。
+
+真实广州中考物理资料已进入 `REAL001-REAL005` 纠偏主线。`REAL001/REAL002` 已把 2015 年第 1-24 题写入数据库并进入 `pending_review` 审核队列，其中第 19-24 题已有截图级 `SourceRegion` 与题图资产；`REAL003` 已对 2016-2025 年做首轮 dry-run，核对 210 个候选题、210 条答案和 33 个带 hash 的 `SourceDocument`，未写 active、未调用外部 AI；`REAL004` 已证明 2015 真卷审核队列可筛选、加载来源、确认、退回、修订并写入 audit；`REAL005` 已安装机器可读闭环判定标准，当前真实结论必须保持 `closureStatus=not_closed`，不能宣称 2015-2025 真卷全流程已经全部完成。
+
+当前完成态速览：
+
+| 范围 | 当前完成态 | 可用性结论 | 下一阻断 |
+|---|---|---|---|
+| 教师四入口、导入、切题、人工接管、题目保存、AI 标注、检索、组卷、导出、成绩导入和讲评报告 | `teacher_validated`（非现场/代理证据） | 非现场可用，现场发布前仍需 P001 复核 | `P001` |
+| C002 初中物理 v1 与来源资料证据层 | `db_backed_done` | 管理员可用，后续修订必须走 C002R | 新 candidate/review/active switch |
+| 2015 广州真卷 1-24 题 | `ui_productized` | 可进入教师审核队列，需教师现场验收后才算可用 | `REAL005` / P0-live 验收 |
+| 2016-2025 广州真卷全流程 | `contract_done` | 不可宣称完成；REAL003 只是 dry-run | `REAL005` 输出仍为 `not_closed` |
+| 安装部署、Windows Service、现场权限审计和发布试点 | `contract_done` | 不可发布使用 | `P001` |
+
 ## 当前启动与门禁
 
 API:
@@ -61,6 +75,18 @@ C002 候选资料与真实来源资料入口：
 ```
 
 `prepare-c002-candidate-csvs.ps1` 只清洗候选 CSV，输出 cleaned candidate 输入，不写库、不激活正式资产。默认兼容旧 `c002-*` 候选包；当输入目录包含 `c003-source-material.csv` 时，会自动把完整 `c003-*full` 数据转换成既有 C002 candidate import 格式，继续保持 `candidate/pending_review/productionEligible=false`。`merge-c003-quality-review-package.ps1` 会把完整 C003 CSV 包与 `quality-review-complete-csv-package` 合并到 `D:\KQG_Data\candidate_packages\c003-merged-quality-review-2016-2025`，用于复跑 C002S 和生成新 candidate 输入。原始 PDF 统一存放在 `D:\KQG_Data\source_materials\imported\guangzhou_physics_2016_2025`；`import-c002-source-materials.ps1` 默认从该目录 dry-run。真实导入必须先设置正确 `PGPASSWORD/KQG_CONNECTION_STRING` 并保留备份证据，再用 `-Apply -StartApi` 把原始 PDF 导入 `SourceDocument/FileAsset` 证据层。C002 正式激活只走 `run-c002t-active-switch.ps1`：先 dry-run，再备份并校验 manifest，最后 `-Apply`。
+
+广州真卷 REAL 入口：
+
+```powershell
+.\tools\run-guangzhou-2015-real-ingest-slice.ps1
+.\tools\run-guangzhou-2015-visual-region-slice.ps1
+.\tools\run-guangzhou-physics-year-batch-ingest.ps1
+.\tools\run-real004-guangzhou-2015-review-smoke.ps1
+.\tools\run-real005-guangzhou-2015-2025-closure-standard.ps1
+```
+
+其中前两个脚本默认先 dry-run，只有显式 `-Apply` 才写入本机数据库；`run-guangzhou-physics-year-batch-ingest.ps1` 当前用于 2016-2025 批量 dry-run；`run-real005-guangzhou-2015-2025-closure-standard.ps1` 是能否宣称真卷全流程闭环的判定入口，当前必须输出 `not_closed` 才符合事实。
 
 候选数据写库入口：
 
@@ -133,7 +159,7 @@ v0.1 聚焦：
 
 ## 推荐实现顺序
 
-先按 `docs/19_Roadmap.md`、`docs/20_TaskBreakdown.md`、`docs/87_PhaseCloseoutAndFullRoadmap.md` 与 `tasks/backlog.csv` 执行。旧 A000-G004 已全部完成，H0/I0/J0/K0 已形成可复跑合同；进入 L0 真实 AI、M0/N0/O0 或后续发布试点前，必须保持 I008/I009/I010 教师简洁模式、教师可见术语和教师 shell 边界合同通过。O004 只代表 `/api/admin/*` 和 `/internal/ai/*` 裸接口 fail-closed guard 已完成，P0-live 前还必须完成 O004B 角色权限与审计日志剩余闭环。知识点、标签、题型、难度、组卷规则、导出模板、Excel 映射、AI prompt/schema/model routing、分析指标、组织权限和隐私策略等动态元素都不得写死，但它们的可变性也不得阻断开发：可先用示例数据、示例配置或少量临时资料完成系统能力，正式资料以后再录入、映射、审核、激活。
+先按 `docs/19_Roadmap.md`、`docs/20_TaskBreakdown.md`、`docs/87_PhaseCloseoutAndFullRoadmap.md`、`docs/99_ProductizationFullRoadmapAndTaskPlan.md`、`tasks/backlog.csv` 与 `tasks/completion-state-dashboard.csv` 执行。旧 A000-G004 已全部完成，H0/I0/J0/K0 与 S001-S012 已形成可复跑合同和非现场产品化证据；当前主线已经进入 `REAL001-REAL005` 真卷闭环纠偏与 `P001` 试点前置复核。进入 L0 真实 AI、M0/N0/O0 或发布试点前，必须保持 I008/I009/I010 教师简洁模式、教师可见术语和教师 shell 边界合同通过。O004 只代表 `/api/admin/*` 和 `/internal/ai/*` 裸接口 fail-closed guard 已完成，P0-live 前还必须完成 O004B 角色权限与审计日志剩余闭环。知识点、标签、题型、难度、组卷规则、导出模板、Excel 映射、AI prompt/schema/model routing、分析指标、组织权限和隐私策略等动态元素都不得写死，但它们的可变性也不得阻断开发：可先用示例数据、示例配置或少量临时资料完成系统能力，正式资料以后再录入、映射、审核、激活。
 
 ```text
 P0/P1: 打开应用 → 上传文件 → 创建 ImportJob → 写数据库 → 文件入仓 → 页面预览 → 人工确认 → 单题入库 → 来源回看 → 备份 manifest
@@ -150,7 +176,7 @@ P5/F001-F002 draft-test: synthetic student → class group → assessment → en
 上传文件 → AI/人工切题 → 入库 → 检索 → 组卷 → 导出 → Excel 成绩导入 → 基础分析 → 备份恢复
 ```
 
-但编码必须从 P0/P1 开始，后续阶段不得倒插高级功能。
+当前代码和合同已覆盖该闭环的非现场产品化路径，但发布判断不能只看 synthetic fixture 或局部 smoke。真实材料闭环必须继续按 `REAL005` 的 12 项标准补齐逐年逐题证据；现场发布必须继续从 `P001` 开始，后续阶段不得倒插高级功能。
 
 ## 文件结构
 
@@ -199,6 +225,11 @@ tests/      自动化测试与黄金样本
 - `tools/run-g002-storage-cleanup-contract.ps1`: G002 draft/test 存储看板 API/UI 与配置化缓存清理合同。
 - `tools/run-g003-winpe-emergency-copy-contract.ps1`: G003 draft/test WinPE 应急拷贝脚本生成合同。
 - `tools/run-g004-pgpass-installer-dry-run.ps1`: G004 draft/test PostgreSQL pgpass 非交互凭据初始化 dry-run 合同。
+- `tools/run-guangzhou-2015-real-ingest-slice.ps1`: REAL001 2015 广州真卷 1-18 题真实来源入库 dry-run / apply 入口。
+- `tools/run-guangzhou-2015-visual-region-slice.ps1`: REAL002 2015 第 19-24 题截图级 SourceRegion 与题图资产 dry-run / apply 入口。
+- `tools/run-guangzhou-physics-year-batch-ingest.ps1`: REAL003 2016-2025 广州物理真卷批量 dry-run 入口，记录来源 hash、题数、答案覆盖、接管点和回滚 SQL。
+- `tools/run-real004-guangzhou-2015-review-smoke.ps1`: REAL004 2015 真卷审核队列 API/Web smoke，验证筛选、来源加载、确认、退回、教师修订和 audit。
+- `tools/run-real005-guangzhou-2015-2025-closure-standard.ps1`: REAL005 真卷全流程闭环判定入口；当前应输出 `closureStatus=not_closed`。
 - `tools/prepare-c002-candidate-csvs.ps1`: C002 ChatGPT Web 候选 CSV 清洗和预检入口。
 - `tools/import-c002-source-materials.ps1`: C002 原始来源资料 dry-run / evidence-layer 导入入口。
 - `tools/import-c002-candidate-assets.ps1`: C002 cleaned candidate DB dry-run / apply 入口。
@@ -236,6 +267,8 @@ python -c "import pathlib, yaml; [yaml.safe_load(p.read_text(encoding='utf-8')) 
 - `docs/87_PhaseCloseoutAndFullRoadmap.md`：A-G 完成后的阶段收口、长期路线图和 H-R 下一轮任务清单。
 - `docs/88_EngineeringEndStateExternalReview_20260504.md`：工程终态、技术栈、架构和长期路线图的外部复核与补强项。
 - `docs/99_ProductizationFullRoadmapAndTaskPlan.md`：把合同完成、产品完成和教师验证拆开的长期产品化全程路线图与 S0 任务计划。
+- `tasks/completion-state-dashboard.csv`：当前各能力的完成态、可用性、证据和阻断缺口。
+- `tasks/real-guangzhou-closure-criteria.csv`：REAL005 真卷全流程闭环 12 项机器可读判定标准。
 - `tasks/automation-first-contract.csv`：待办功能的 automation-first 机器可读合同，声明确定性预检、专用功能面、AI/agent 允许范围、例外策略和 evidence 命令。
 - `docs/78_SubjectDomainAssetActivationRunbook.md`：后续新学科动态资产激活统一 runbook。
 - `docs/79_TeacherCandidateReviewAndActivationGuide.md`：教师候选复核和激活确认操作指南。

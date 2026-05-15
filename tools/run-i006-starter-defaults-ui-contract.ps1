@@ -15,7 +15,9 @@ foreach ($pattern in @(
     "view: 'import' as TeacherView",
     "view: 'paper' as TeacherView",
     "view: 'scores' as TeacherView",
-    "view: 'analysis' as TeacherView"
+    "view: 'analysis' as TeacherView",
+    'runStarterDemo',
+    'onClick={() => runStarterDemo(step)}'
 )) {
     if (-not $app.Contains($pattern)) {
         throw "missing I006 starter/default marker: $pattern"

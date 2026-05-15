@@ -3,6 +3,8 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 $app = Get-Content -LiteralPath (Join-Path $repoRoot 'apps\web\src\App.tsx') -Raw
 $css = Get-Content -LiteralPath (Join-Path $repoRoot 'apps\web\src\App.css') -Raw
+$client = Get-Content -LiteralPath (Join-Path $repoRoot 'apps\web\src\api\client.ts') -Raw
+$vite = Get-Content -LiteralPath (Join-Path $repoRoot 'apps\web\vite.config.ts') -Raw
 
 foreach ($pattern in @(
     'data-flow="score-import-workbench"',
@@ -26,6 +28,29 @@ foreach ($action in @(
     if ((-not $app.Contains("data-action=""$action""")) -and (-not $app.Contains("action: '$action'"))) {
         throw "missing I005 score analysis action marker: $action"
     }
+}
+
+foreach ($pattern in @(
+    'handleScoreWorkbenchAction',
+    'importSampleScores',
+    'generateScoreAnalysis',
+    'onClick={() => handleScoreWorkbenchAction(item.action)}',
+    "action: 'open-analysis-summary'",
+    'onClick={openAnalysisSummary}'
+)) {
+    if (-not $app.Contains($pattern)) {
+        throw "missing I005 clickable score/analysis handler: $pattern"
+    }
+}
+
+foreach ($pattern in @('createScoreImport', '/score-imports', 'normalizeScoreImportResponse')) {
+    if (-not $client.Contains($pattern)) {
+        throw "missing I005 real score import client wiring: $pattern"
+    }
+}
+
+if (-not $vite.Contains("'/score-imports'")) {
+    throw 'missing I005 Vite proxy for /score-imports'
 }
 
 foreach ($label in @('成绩导入分析工作台','字段映射预览','异常行','知识点分析','报告导出路径','不使用真实学生数据','不写正式历史学情')) {

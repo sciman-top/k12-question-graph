@@ -1,26 +1,26 @@
 {
   "status": "pass",
   "taskId": "S012B",
-  "checkedAt": "2026-05-14T21:52:31",
+  "checkedAt": "2026-05-14T23:48:22",
   "mode": "non_site_e2e_rehearsal",
   "productionEligible": false,
   "realStudentDataUsed": false,
   "fixtureManifest": "tests/e2e/s012a-proxy-fixture-pack.json",
   "preRunBackup": {
-    "manifest": "tmp\\s012b\\pre-run-backup\\20260514-215115\\manifest.json",
+    "manifest": "tmp\\s012b\\pre-run-backup\\20260514-234701\\manifest.json",
     "verified": true,
-    "rollbackCommand": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/restore-backup.ps1 -ManifestPath 'tmp\\s012b\\pre-run-backup\\20260514-215115\\manifest.json'"
+    "rollbackCommand": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/restore-backup.ps1 -ManifestPath 'tmp\\s012b\\pre-run-backup\\20260514-234701\\manifest.json'"
   },
   "elapsed": {
-    "totalMs": 76209,
-    "totalMinutes": 1.27
+    "totalMs": 80729,
+    "totalMinutes": 1.35
   },
   "workflowSteps": [
     {
       "name": "S012A fixture pack admission",
       "workflowStep": "admission",
       "status": "pass",
-      "durationMs": 655,
+      "durationMs": 632,
       "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-s012a-e2e-proxy-fixture-pack.ps1",
       "evidencePath": "docs/evidence/20260508-s012a-e2e-proxy-fixture-pack-report.json",
       "evidenceExists": true,
@@ -33,7 +33,7 @@
       "name": "P1 import cut review save source proxy",
       "workflowStep": "import_cut_review_save",
       "status": "pass",
-      "durationMs": 5732,
+      "durationMs": 6106,
       "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-p1-proxy-scenario.ps1 -DatabaseName k12_question_graph -DatabaseUser postgres -DatabaseHost 127.0.0.1 -DatabasePort 5432 -DatabasePassword <redacted> -FileStoreRoot D:\\KQG_Data\\file_store",
       "evidencePath": "",
       "evidenceExists": true,
@@ -50,8 +50,8 @@
       "name": "S007C tagging writeback undo",
       "workflowStep": "tagging",
       "status": "pass",
-      "durationMs": 5207,
-      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-s007c-teacher-confirm-writeback-smoke.ps1 -DatabaseName k12_question_graph -DatabaseUser postgres -DatabaseHost 127.0.0.1 -DatabasePort 5432 -DatabasePassword <redacted> -ApiPort 13376",
+      "durationMs": 5404,
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-s007c-teacher-confirm-writeback-smoke.ps1 -DatabaseName k12_question_graph -DatabaseUser postgres -DatabaseHost 127.0.0.1 -DatabasePort 5432 -DatabasePassword <redacted> -ApiPort 12718",
       "evidencePath": "docs/evidence/20260506-s007c-teacher-confirm-writeback-smoke-report.json",
       "evidenceExists": true,
       "takeoverPoints": [
@@ -64,8 +64,8 @@
       "name": "S006B manual takeover workbench",
       "workflowStep": "review_save",
       "status": "pass",
-      "durationMs": 5095,
-      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-s006b-manual-takeover-smoke.ps1 -DatabaseName k12_question_graph -DatabaseUser postgres -DatabaseHost 127.0.0.1 -DatabasePort 5432 -DatabasePassword <redacted> -ApiPort 13377",
+      "durationMs": 5297,
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-s006b-manual-takeover-smoke.ps1 -DatabaseName k12_question_graph -DatabaseUser postgres -DatabaseHost 127.0.0.1 -DatabasePort 5432 -DatabasePassword <redacted> -ApiPort 12719",
       "evidencePath": "docs/evidence/20260506-s006b-manual-takeover-smoke-report.json",
       "evidenceExists": true,
       "takeoverPoints": [
@@ -80,8 +80,8 @@
       "name": "S009B blueprint review",
       "workflowStep": "paper",
       "status": "pass",
-      "durationMs": 8960,
-      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-s009b-blueprint-review-workflow-smoke.ps1 -DatabaseName k12_question_graph -DatabaseUser postgres -DatabaseHost 127.0.0.1 -DatabasePort 5432 -DatabasePassword <redacted> -ApiPort 13378 -PgBin C:\\Program Files\\PostgreSQL\\17\\bin",
+      "durationMs": 9453,
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-s009b-blueprint-review-workflow-smoke.ps1 -DatabaseName k12_question_graph -DatabaseUser postgres -DatabaseHost 127.0.0.1 -DatabasePort 5432 -DatabasePassword <redacted> -ApiPort 12720 -PgBin C:\\Program Files\\PostgreSQL\\17\\bin",
       "evidencePath": "docs/evidence/20260507-s009b-blueprint-review-workflow-smoke-report.json",
       "evidenceExists": true,
       "takeoverPoints": [
@@ -94,8 +94,8 @@
       "name": "S010B word pdf artifact chain",
       "workflowStep": "export",
       "status": "pass",
-      "durationMs": 9347,
-      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-s010b-word-pdf-artifact-chain-smoke.ps1 -DatabaseName k12_question_graph -DatabaseUser postgres -DatabaseHost 127.0.0.1 -DatabasePort 5432 -DatabasePassword <redacted> -ApiPort 13379 -PgBin C:\\Program Files\\PostgreSQL\\17\\bin",
+      "durationMs": 9561,
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-s010b-word-pdf-artifact-chain-smoke.ps1 -DatabaseName k12_question_graph -DatabaseUser postgres -DatabaseHost 127.0.0.1 -DatabasePort 5432 -DatabasePassword <redacted> -ApiPort 12721 -PgBin C:\\Program Files\\PostgreSQL\\17\\bin",
       "evidencePath": "docs/evidence/20260508-s010b-word-pdf-artifact-chain-report.json",
       "evidenceExists": true,
       "takeoverPoints": [
@@ -108,8 +108,8 @@
       "name": "S011A score import",
       "workflowStep": "score",
       "status": "pass",
-      "durationMs": 8794,
-      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-s011a-score-import-api-smoke.ps1 -DatabaseName k12_question_graph -DatabaseUser postgres -DatabaseHost 127.0.0.1 -DatabasePort 5432 -DatabasePassword <redacted> -ApiPort 13380 -PgBin C:\\Program Files\\PostgreSQL\\17\\bin",
+      "durationMs": 8996,
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-s011a-score-import-api-smoke.ps1 -DatabaseName k12_question_graph -DatabaseUser postgres -DatabaseHost 127.0.0.1 -DatabasePort 5432 -DatabasePassword <redacted> -ApiPort 12722 -PgBin C:\\Program Files\\PostgreSQL\\17\\bin",
       "evidencePath": "docs/evidence/20260508-s011a-score-import-api-smoke-report.json",
       "evidenceExists": true,
       "takeoverPoints": [
@@ -122,8 +122,8 @@
       "name": "S011B item score mapping preview",
       "workflowStep": "score_mapping",
       "status": "pass",
-      "durationMs": 9019,
-      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-s011b-item-score-mapping-ui-api-smoke.ps1 -DatabaseName k12_question_graph -DatabaseUser postgres -DatabaseHost 127.0.0.1 -DatabasePort 5432 -DatabasePassword <redacted> -ApiPort 13381 -PgBin C:\\Program Files\\PostgreSQL\\17\\bin",
+      "durationMs": 10377,
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-s011b-item-score-mapping-ui-api-smoke.ps1 -DatabaseName k12_question_graph -DatabaseUser postgres -DatabaseHost 127.0.0.1 -DatabasePort 5432 -DatabasePassword <redacted> -ApiPort 12723 -PgBin C:\\Program Files\\PostgreSQL\\17\\bin",
       "evidencePath": "docs/evidence/20260508-s011b-item-score-mapping-ui-api-report.json",
       "evidenceExists": true,
       "takeoverPoints": [
@@ -135,8 +135,8 @@
       "name": "S011C commentary export",
       "workflowStep": "analysis",
       "status": "pass",
-      "durationMs": 9430,
-      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-s011c-commentary-report-export-smoke.ps1 -DatabaseName k12_question_graph -DatabaseUser postgres -DatabaseHost 127.0.0.1 -DatabasePort 5432 -DatabasePassword <redacted> -ApiPort 13382 -PgBin C:\\Program Files\\PostgreSQL\\17\\bin",
+      "durationMs": 10473,
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-s011c-commentary-report-export-smoke.ps1 -DatabaseName k12_question_graph -DatabaseUser postgres -DatabaseHost 127.0.0.1 -DatabasePort 5432 -DatabasePassword <redacted> -ApiPort 12724 -PgBin C:\\Program Files\\PostgreSQL\\17\\bin",
       "evidencePath": "docs/evidence/20260508-s011c-commentary-report-export-report.json",
       "evidenceExists": true,
       "takeoverPoints": [
@@ -149,7 +149,7 @@
       "name": "O003 backup restore drill",
       "workflowStep": "backup_restore",
       "status": "pass",
-      "durationMs": 9144,
+      "durationMs": 9798,
       "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-o003-recovery-drill-contract.ps1 -BackupRoot tmp/s012b/o003-backup-root -FileStoreRoot D:\\KQG_Data\\file_store -PgBin C:\\Program Files\\PostgreSQL\\17\\bin -DatabaseName k12_question_graph -DatabaseHost 127.0.0.1 -DatabasePort 5432 -DatabaseUser postgres -ReportPath docs/evidence/20260509-s012b-o003-recovery-drill-report.json",
       "evidencePath": "docs/evidence/20260509-s012b-o003-recovery-drill-report.json",
       "evidenceExists": true,
@@ -163,50 +163,50 @@
   "databaseChanges": [
     {
       "table": "assessments",
-      "before": 240,
-      "after": 243,
+      "before": 255,
+      "after": 258,
       "delta": 3
     },
     {
       "table": "item_scores",
-      "before": 960,
-      "after": 972,
+      "before": 1020,
+      "after": 1032,
       "delta": 12
     },
     {
       "table": "paper_baskets",
-      "before": 223,
-      "after": 225,
+      "before": 233,
+      "after": 235,
       "delta": 2
     },
     {
       "table": "score_records",
-      "before": 480,
-      "after": 486,
+      "before": 510,
+      "after": 516,
       "delta": 6
     },
     {
       "table": "question_items",
-      "before": 3216,
-      "after": 3234,
+      "before": 3294,
+      "after": 3312,
       "delta": 18
     },
     {
       "table": "source_documents",
-      "before": 1225,
-      "after": 1226,
+      "before": 1242,
+      "after": 1243,
       "delta": 1
     },
     {
       "table": "knowledge_mappings",
-      "before": 239,
-      "after": 242,
+      "before": 251,
+      "after": 254,
       "delta": 3
     },
     {
       "table": "paper_basket_items",
-      "before": 889,
-      "after": 898,
+      "before": 929,
+      "after": 938,
       "delta": 9
     }
   ],

@@ -241,6 +241,28 @@ export interface ImportJobContract {
   createdAt: string
 }
 
+export interface ScoreImportContract {
+  status: string
+  mode: string
+  productionEligible: boolean
+  realStudentDataUsed: boolean
+  containsStudentPii: boolean
+  assessmentId: string | null
+  templateId: string | null
+  batchId: string | null
+  rowCount: number
+  importedCount: number
+  errorCount: number
+  errors: Array<{
+    rowNumber: number
+    code: string
+    message: string
+    fields: string[]
+  }>
+  teacherMessage: string
+  auditTrail: string[]
+}
+
 export interface ItemScoreMappingPreviewRowContract {
   questionNo: string
   fieldNames: string[]
@@ -404,6 +426,30 @@ export function normalizeImportJobResponse(value: unknown): ImportJobContract {
     lastErrorCode: readNullableStringField(value, 'lastErrorCode'),
     lastErrorMessage: readNullableStringField(value, 'lastErrorMessage'),
     createdAt: readStringField(value, 'createdAt') ?? '',
+  }
+}
+
+export function normalizeScoreImportResponse(value: unknown): ScoreImportContract {
+  return {
+    status: readStringField(value, 'status') ?? 'unknown',
+    mode: readStringField(value, 'mode') ?? 'unknown',
+    productionEligible: readBooleanField(value, 'productionEligible'),
+    realStudentDataUsed: readBooleanField(value, 'realStudentDataUsed'),
+    containsStudentPii: readBooleanField(value, 'containsStudentPii'),
+    assessmentId: readNullableStringField(value, 'assessmentId'),
+    templateId: readNullableStringField(value, 'templateId'),
+    batchId: readNullableStringField(value, 'batchId'),
+    rowCount: readNumberField(value, 'rowCount'),
+    importedCount: readNumberField(value, 'importedCount'),
+    errorCount: readNumberField(value, 'errorCount'),
+    errors: readArrayField(value, 'errors').map((error) => ({
+      rowNumber: readNumberField(error, 'rowNumber'),
+      code: readStringField(error, 'code') ?? '',
+      message: readStringField(error, 'message') ?? '',
+      fields: readArrayField(error, 'fields').map(String),
+    })),
+    teacherMessage: readStringField(value, 'teacherMessage') ?? '',
+    auditTrail: readArrayField(value, 'auditTrail').map(String),
   }
 }
 

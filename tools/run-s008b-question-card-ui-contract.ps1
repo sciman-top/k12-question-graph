@@ -29,7 +29,11 @@ foreach ($marker in @(
     'data-contract="s008b-active-version"',
     'data-state="question-search-empty"',
     'data-state="question-search-error"',
-    'data-action="question-search-refresh"'
+    'data-action="question-search-refresh"',
+    'data-action="question-interaction-message"',
+    "className={activeQuestionFilter === item.filter ? 'filter-chip active' : 'filter-chip'}",
+    "onClick={() => applyQuestionFilter(item.filter, item.label)}",
+    "onClick={() => selectQuestionCard(card.id, card.preview)}"
 )) {
     Assert-True ($app.Contains($marker)) "S008B UI marker missing: $marker"
 }

@@ -859,6 +859,12 @@
   outline: none;
 }
 
+.filter-chip.active,
+.question-card.active {
+  border-color: var(--accent);
+  background: #eef7f3;
+}
+
 .question-card-list {
   display: grid;
   gap: 10px;
