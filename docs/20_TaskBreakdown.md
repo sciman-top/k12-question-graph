@@ -8,7 +8,7 @@ Automation-first 任务口径：每个任务在编码前必须先说明哪些部
 
 技术情报刷新口径：新硬件、新 OCR/公式识别引擎、新本地推理 runtime 和新模型属于开放集合，不能写死在业务代码。它们先进入 `O008` 的可信来源清单、capability taxonomy、model/OCR candidate catalog 和 `report_only` evidence；AI API 只能摘要公开资料、生成候选和 eval checklist，不得安装依赖、下载模型、切换默认路由、处理真实未脱敏材料或自动写入生产。
 
-真卷闭环纠偏口径：`S012` 只代表非现场代理链路，不代表广州中考 2015-2025 真卷已经全量 OCR、切题、标注、入库并经教师确认。新增 `REAL001-REAL005` 作为当前真实工作流主线，先从 2015 广州中考物理试卷入手，把每一步落到可复跑脚本、DB 证据、Web/审核入口和回滚说明。完成态只允许按实际证据分级：`REAL001` 是 1-18 题 `db_backed_done/pending_review`，不是 `teacher_validated`；`REAL005` 只定义“2015-2025 全流程全部实现”的机器判定标准，当前真实输出必须是 `not_closed`。
+真卷闭环纠偏口径：`S012` 只代表非现场代理链路，不代表广州中考 2015-2025 真卷已经全量 OCR、切题、标注、入库并经教师确认。新增 `REAL001-REAL005` 作为当前真实工作流主线，先从 2015 广州中考物理试卷入手，把每一步落到可复跑脚本、DB 证据、Web/审核入口和回滚说明。完成态只允许按实际证据分级：`REAL001` 是 1-18 题 `db_backed_done/pending_review`，不是 `teacher_validated`；`REAL005` 只定义“2015-2025 全流程全部实现”的机器判定标准，当前真实输出必须是 `not_closed`。2026-05-15 起追加 `REAL006-REAL012` 生产级整改线：截图路径必须成为导入不变量，版面噪声必须显式清洗或标记，题图/表格/公式必须从来源截图提升为结构化题目资产，Office 原生公式以 OMML 为第一真源，LaTeX 只作为网页显示和程序交换派生层，异常处理必须可编辑、可重裁、可回滚。
 
 ## A · P0 工程骨架与最小上传纵切
 
@@ -382,6 +382,113 @@ Automation-first 任务口径：每个任务在编码前必须先说明哪些部
 
 - `REAL005` 判定标准已安装并通过自检，当前报告仍输出 `closureStatus=not_closed`、`fullClosureAllowed=false`。
 - `not_closed` 是当前真实产品状态，不是脚本失败；它表示 2015-2025 仍缺逐年逐题闭环证据，不能宣称全流程完成。
+
+### REAL006 来源截图路径稳定化与静态访问不变量
+
+验收：
+
+- `REAL001/REAL002/REAL004/full gate` 任意重跑后，2015 第 1-24 题每题都必须至少有 2 个可访问 `screenshotUrl`。
+- `screenshotRelativePath` 由导入/复核脚本自动生成或回填，不依赖人工临时脚本。
+- 缺截图文件时 API 明确返回可处理错误，不静默显示空白。
+- Web 必须区分“有来源截图但尚未拆出独立题图资产”和“确实无图”。
+
+验证：
+
+- `tools/run-guangzhou-2015-source-region-screenshots.ps1 -Apply`
+- `tools/run-real004-guangzhou-2015-review-smoke.ps1`
+- `GET /questions/{id}/sources` 逐题检查 `screenshotUrl`
+
+当前实跑状态：
+
+- 已完成。`REAL004` smoke 已强制检查 24 题每题来源裁图和整页图 URL，最小恢复截图数均为 2。
+- 第 2-15、20-24 题的必需题图资产 URL 已纳入 smoke，避免题图再次退回“只有文字”。
+
+### REAL007 版面噪声清洗与 SourceRegion 语义化
+
+验收：
+
+- 页眉、页脚、考生姓名/考号区、考试注意事项、装订线、水印、页码等必须被标为 `noise/ignored` 或在题目裁剪中排除。
+- 每个保留区域必须说明 `regionType`、来源页、bbox、是否进入题干/答案/解析/题图。
+- 任一题若仍包含装订线或页脚等噪声，必须进入 `pending_review` 并显示可修正原因。
+
+验证：
+
+- `tools/run-real007-guangzhou-2015-layout-quality.ps1`
+- `docs/evidence/20260516-real007-guangzhou-2015-layout-quality-report.json`
+
+当前实跑状态：
+
+- 已完成 2015 广州物理首个生产级质量报告：67 个来源区域、24 题覆盖、缺失截图 0、JSON 占位截图 0、噪声重叠 0、必需题图资产缺失 0。
+- `tools/guangzhou_2015_source_region_screenshots.py -Apply` 每次重跑都会写入 `source_region_revision_batch` audit；幂等重跑也留痕。
+
+### REAL008 题图资产抽取与题干锚定
+
+验收：
+
+- 题图不只存在于来源截图中；需要入 `question_assets`，并记录 `source_region_id`、用途、题号、锚定 block、截图路径或派生图片路径。
+- 共用题图、跨页题图和作图题空框必须能人工关联、解除关联和重裁。
+- 题库卡片的 `hasImage` 与题目详情的题图展示来自真实 `QuestionAsset`，不是来源截图误判。
+
+验证：
+
+- `GET /questions` 抽样 `hasImage/assetCount`
+- 题图关联 UI/API smoke
+
+### REAL009 表格结构化入库与原图保留
+
+验收：
+
+- 表格必须优先保存为 `QuestionBlock.block_type=table` 的结构化 JSON，至少包含 columns/rows/caption/sourceRegion/confidence/reviewStatus。
+- 同时保留表格来源截图供核对。
+- 表格结构低置信度时进入人工确认，不能只作为普通图片丢给教师。
+
+验证：
+
+- 真实含表格题抽样导入
+- table block API/query/export smoke
+
+### REAL010 公式保真与 Office 原生公式优先
+
+验收：
+
+- DOCX/WPS 原生公式以 OMML 为第一真源保存；LaTeX、MathML 作为派生字段。
+- 文本 PDF 公式优先用文本/布局解析；扫描图片公式才走公式识别。
+- 扫描公式识别结果必须带 source crop、confidence、fallback image 和 `pending_review`；低置信度不得自动覆盖。
+- Word 导出优先还原 OMML，网页显示使用 KaTeX/LaTeX。
+
+验证：
+
+- OpenXML/OMML golden sample
+- scanned formula pending review sample
+- Word/PDF export regression
+
+### REAL011 异常编辑、重裁、合并拆分与审核审计
+
+验收：
+
+- 教师或管理员可编辑题干、答案、解析、标签、题型、分值、难度。
+- 可编辑 `SourceRegion` bbox、页码、类型并触发重裁截图。
+- 可新增/解除题图资产、表格块、公式块与题干 block 的关联。
+- 每次修改必须写入 review audit，保留原值、新值、操作者、时间和回滚提示。
+
+验证：
+
+- API patch smoke
+- Web edit/re-crop smoke
+- audit record query
+
+### REAL012 真实题生产使用闭环与质量报告
+
+验收：
+
+- 已审核真实题必须进入检索、题篮、组卷、导出前审校、Word/PDF 导出和学情引用抽样链路。
+- 每份上传试卷必须生成质量报告：题号完整性、答案覆盖、题图匹配、表格/公式数量、待人工处理项、疑似噪声残留、外部 AI 调用和回滚 SQL。
+- 报告缺项时 `REAL005` 必须继续输出 `not_closed`。
+
+验证：
+
+- real question search/paper/export/analysis smoke
+- per-paper import quality report
 
 ## C · P2 知识本体
 

@@ -48,6 +48,8 @@ export interface SourcePreviewRegionContract {
   pageNumber: number
   regionType: string
   screenshotRelativePath: string | null
+  screenshotUrl: string | null
+  pageScreenshotUrl: string | null
 }
 
 export interface SourcePreviewPageContract {
@@ -147,9 +149,17 @@ export interface ReviewQueueListContract {
 export interface QuestionSourceRegionContract {
   id: string
   sourceDocumentId: string
+  sourceTitle: string | null
   pageNumber: number
+  x: number
+  y: number
+  width: number
+  height: number
+  coordinateUnit: string
   regionType: string
   screenshotRelativePath: string | null
+  screenshotUrl: string | null
+  pageScreenshotUrl: string | null
 }
 
 export interface QuestionSourceReviewContract {
@@ -174,6 +184,8 @@ export interface QuestionCardContract {
   sources: {
     titles: string[]
     types: string[]
+    regionCount: number
+    screenshotCount: number
   }
   hasFormula: boolean
   hasTable: boolean
@@ -465,6 +477,8 @@ export function normalizeSourceDocumentPreviewResponse(value: unknown): SourceDo
         pageNumber: readNumberField(region, 'pageNumber'),
         regionType: readStringField(region, 'regionType') ?? 'preview',
         screenshotRelativePath: readNullableStringField(region, 'screenshotRelativePath'),
+        screenshotUrl: readNullableStringField(region, 'screenshotUrl'),
+        pageScreenshotUrl: readNullableStringField(region, 'pageScreenshotUrl'),
       })),
     })),
   }
@@ -594,9 +608,17 @@ export function normalizeQuestionSourceReviewResponse(
     sourceRegions: rows.map((row) => ({
       id: readStringField(row, 'id') ?? '',
       sourceDocumentId: readStringField(row, 'sourceDocumentId') ?? '',
+      sourceTitle: readNullableStringField(row, 'sourceTitle'),
       pageNumber: readNumberField(row, 'pageNumber'),
+      x: readNumberField(row, 'x'),
+      y: readNumberField(row, 'y'),
+      width: readNumberField(row, 'width'),
+      height: readNumberField(row, 'height'),
+      coordinateUnit: readStringField(row, 'coordinateUnit') ?? 'percent',
       regionType: readStringField(row, 'regionType') ?? 'question',
       screenshotRelativePath: readNullableStringField(row, 'screenshotRelativePath'),
+      screenshotUrl: readNullableStringField(row, 'screenshotUrl'),
+      pageScreenshotUrl: readNullableStringField(row, 'pageScreenshotUrl'),
     })),
   }
 }
@@ -642,6 +664,8 @@ export function normalizeQuestionSearchResponse(value: unknown): QuestionSearchC
         sources: {
           titles: readArrayField(sources, 'titles').map((x) => String(x)),
           types: readArrayField(sources, 'types').map((x) => String(x)),
+          regionCount: readNumberField(sources, 'regionCount'),
+          screenshotCount: readNumberField(sources, 'screenshotCount'),
         },
         hasFormula: readBooleanField(row, 'hasFormula'),
         hasTable: readBooleanField(row, 'hasTable'),

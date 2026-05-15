@@ -1,10 +1,10 @@
 {
   "status": "pass",
   "task": "REAL005",
-  "checkedAt": "2026-05-15T00:05:17",
+  "checkedAt": "2026-05-16T02:52:04",
   "closureStatus": "not_closed",
   "criteriaPath": "tasks/real-guangzhou-closure-criteria.csv",
-  "criteriaCount": 12,
+  "criteriaCount": 16,
   "requiredYears": [
     2015,
     2016,
@@ -111,6 +111,34 @@
       "requiredScope": "2015-2025 全批次",
       "evidenceRequired": "rollback privacy and AI boundary report",
       "blockingGapPolicy": "missing rollback or privacy evidence keeps closure not_closed"
+    },
+    {
+      "criterionId": "RG013",
+      "category": "layout_noise_cleanup",
+      "requiredScope": "2015-2025 每一页",
+      "evidenceRequired": "layout noise report with per-page noise region and retained region counts",
+      "blockingGapPolicy": "noise retained in question content without review reason keeps closure not_closed"
+    },
+    {
+      "criterionId": "RG014",
+      "category": "formula_fidelity",
+      "requiredScope": "2015-2025 每个公式",
+      "evidenceRequired": "formula fidelity report with OMML/LaTeX/fallback coverage",
+      "blockingGapPolicy": "formula OCR candidate without fallback image or reviewStatus keeps closure not_closed"
+    },
+    {
+      "criterionId": "RG015",
+      "category": "table_structuring",
+      "requiredScope": "2015-2025 每个表格",
+      "evidenceRequired": "table structure report with rows columns sourceRegion confidence reviewStatus",
+      "blockingGapPolicy": "table only stored as image without pending_review reason keeps closure not_closed"
+    },
+    {
+      "criterionId": "RG016",
+      "category": "edit_recrop_audit",
+      "requiredScope": "2015-2025 每个异常项",
+      "evidenceRequired": "edit and recrop audit report",
+      "blockingGapPolicy": "manual correction path missing or no audit keeps closure not_closed"
     }
   ],
   "rollback": "git restore tracked files; remove generated REAL005 evidence reports if this standard is reverted",

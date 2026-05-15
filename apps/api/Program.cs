@@ -7,6 +7,7 @@ using K12QuestionGraph.Api.ImportJobs;
 using K12QuestionGraph.Api.Workers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting.WindowsServices;
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -741,6 +742,100 @@ app.MapPost("/source-documents/{id:guid}/regions", async (
 })
 .WithName("CreateSourceRegion");
 
+app.MapPatch("/source-regions/{id:guid}", async (
+    Guid id,
+    SourceRegionUpdateRequest request,
+    KqgDbContext dbContext,
+    IConfiguration configuration,
+    CancellationToken cancellationToken) =>
+{
+    if (string.IsNullOrWhiteSpace(request.ReviewedBy))
+    {
+        return Results.BadRequest(new { error = "reviewed_by_required" });
+    }
+
+    if (string.IsNullOrWhiteSpace(request.Reason))
+    {
+        return Results.BadRequest(new { error = "reason_required" });
+    }
+
+    var region = await dbContext.SourceRegions.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+    if (region is null)
+    {
+        return Results.NotFound(new { error = "source_region_not_found" });
+    }
+
+    var next = new SourceRegionCreateRequest(
+        request.PageNumber ?? region.PageNumber,
+        request.X ?? region.X,
+        request.Y ?? region.Y,
+        request.Width ?? region.Width,
+        request.Height ?? region.Height,
+        request.CoordinateUnit ?? region.CoordinateUnit,
+        request.ScreenshotRelativePath ?? region.ScreenshotRelativePath,
+        request.RegionType ?? region.RegionType);
+    var validationError = ValidateSourceRegionRequest(next);
+    if (validationError is not null)
+    {
+        return Results.BadRequest(new { error = validationError });
+    }
+
+    var normalizedScreenshotPath = string.IsNullOrWhiteSpace(next.ScreenshotRelativePath)
+        ? null
+        : next.ScreenshotRelativePath.Trim().Replace('\\', '/');
+    if (!string.IsNullOrWhiteSpace(normalizedScreenshotPath))
+    {
+        var paths = configuration.GetSection("KqgPaths").Get<KqgPathsOptions>() ?? new KqgPathsOptions();
+        if (!TryResolveFileStorePath(paths.FileStoreRoot, normalizedScreenshotPath, out var screenshotPath))
+        {
+            return Results.BadRequest(new { error = "invalid_screenshot_relative_path" });
+        }
+
+        if (!File.Exists(screenshotPath))
+        {
+            return Results.Conflict(new { error = "source_region_screenshot_missing", screenshotRelativePath = normalizedScreenshotPath });
+        }
+    }
+
+    var before = SourceRegionResponse.From(region);
+    region.PageNumber = next.PageNumber;
+    region.X = next.X;
+    region.Y = next.Y;
+    region.Width = next.Width;
+    region.Height = next.Height;
+    region.CoordinateUnit = NormalizeToken(next.CoordinateUnit, "percent");
+    region.ScreenshotRelativePath = normalizedScreenshotPath;
+    region.RegionType = string.IsNullOrWhiteSpace(next.RegionType) ? "preview" : NormalizeToken(next.RegionType, "preview");
+
+    var now = DateTimeOffset.UtcNow;
+    var audit = new ReviewQueueItem
+    {
+        ReviewType = "source_region_revision",
+        Status = ReviewStatuses.Resolved,
+        ResolvedAt = now,
+        CreatedAt = now,
+        Payload = JsonSerializer.Serialize(new
+        {
+            sourceRegionId = region.Id,
+            sourceDocumentId = region.SourceDocumentId,
+            before,
+            after = SourceRegionResponse.From(region),
+            reviewAudit = new
+            {
+                reviewedBy = request.ReviewedBy.Trim(),
+                decision = "source_region_updated",
+                reason = request.Reason.Trim(),
+                reviewedAt = now.ToString("O")
+            }
+        })
+    };
+    dbContext.ReviewQueueItems.Add(audit);
+    await dbContext.SaveChangesAsync(cancellationToken);
+
+    return Results.Ok(new SourceRegionUpdateResponse(SourceRegionResponse.From(region), audit.Id));
+})
+.WithName("UpdateSourceRegion");
+
 app.MapGet("/source-documents/{id:guid}/preview", async (
     Guid id,
     KqgDbContext dbContext,
@@ -779,6 +874,76 @@ app.MapGet("/source-documents/{id:guid}/preview", async (
     return Results.Ok(new SourceDocumentPreviewResponse(id, pages));
 })
 .WithName("GetSourceDocumentPreview");
+
+app.MapGet("/source-regions/{id:guid}/screenshot", async (
+    Guid id,
+    KqgDbContext dbContext,
+    IConfiguration configuration,
+    CancellationToken cancellationToken) =>
+{
+    var region = await dbContext.SourceRegions
+        .AsNoTracking()
+        .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+    if (region is null)
+    {
+        return Results.NotFound(new { error = "source_region_not_found" });
+    }
+
+    if (string.IsNullOrWhiteSpace(region.ScreenshotRelativePath))
+    {
+        return Results.Conflict(new { error = "source_region_screenshot_not_available", regionId = id });
+    }
+
+    var paths = configuration.GetSection("KqgPaths").Get<KqgPathsOptions>() ?? new KqgPathsOptions();
+    if (!TryResolveFileStorePath(paths.FileStoreRoot, region.ScreenshotRelativePath, out var screenshotPath))
+    {
+        return Results.BadRequest(new { error = "invalid_screenshot_relative_path", regionId = id });
+    }
+
+    if (!File.Exists(screenshotPath))
+    {
+        return Results.Conflict(new { error = "source_region_screenshot_missing", regionId = id, region.ScreenshotRelativePath });
+    }
+
+    return Results.File(screenshotPath, InferContentType(screenshotPath), enableRangeProcessing: true);
+})
+.WithName("GetSourceRegionScreenshot");
+
+app.MapGet("/source-regions/{id:guid}/page-screenshot", async (
+    Guid id,
+    KqgDbContext dbContext,
+    IConfiguration configuration,
+    CancellationToken cancellationToken) =>
+{
+    var region = await dbContext.SourceRegions
+        .AsNoTracking()
+        .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+    if (region is null)
+    {
+        return Results.NotFound(new { error = "source_region_not_found" });
+    }
+
+    var relative = BuildSourcePageScreenshotRelativePath(region.SourceDocumentId, region.PageNumber);
+    var paths = configuration.GetSection("KqgPaths").Get<KqgPathsOptions>() ?? new KqgPathsOptions();
+    if (!TryResolveFileStorePath(paths.FileStoreRoot, relative, out var screenshotPath))
+    {
+        return Results.BadRequest(new { error = "invalid_page_screenshot_relative_path", regionId = id });
+    }
+
+    if (!File.Exists(screenshotPath))
+    {
+        return Results.Conflict(new
+        {
+            error = "source_region_page_screenshot_missing",
+            regionId = id,
+            pageNumber = region.PageNumber,
+            screenshotRelativePath = relative
+        });
+    }
+
+    return Results.File(screenshotPath, InferContentType(screenshotPath), enableRangeProcessing: true);
+})
+.WithName("GetSourceRegionPageScreenshot");
 
 app.MapPost("/source-documents/{id:guid}/cut-candidates/generate", async (
     Guid id,
@@ -852,6 +1017,9 @@ app.MapGet("/review-queue", async (
     var mapped = rows.Select(ReviewQueueItemResponse.From).ToList();
     mapped = normalizedSortBy switch
     {
+        "question_no" => descending
+            ? mapped.OrderByDescending(x => ReviewQueuePayloadHelpers.ResolveQuestionNo(x.Payload) ?? int.MinValue).ThenByDescending(x => x.CreatedAt).ToList()
+            : mapped.OrderBy(x => ReviewQueuePayloadHelpers.ResolveQuestionNo(x.Payload) ?? int.MaxValue).ThenBy(x => x.CreatedAt).ToList(),
         "risk" => descending
             ? mapped.OrderByDescending(x => x.RiskLevel).ThenByDescending(x => x.CreatedAt).ToList()
             : mapped.OrderBy(x => x.RiskLevel).ThenBy(x => x.CreatedAt).ToList(),
@@ -1467,13 +1635,25 @@ app.MapGet("/questions", async (
         where questionIds.Contains(block.QuestionItemId) && block.SourceRegionId != null
         join region in dbContext.SourceRegions.AsNoTracking() on block.SourceRegionId!.Value equals region.Id
         join document in dbContext.SourceDocuments.AsNoTracking() on region.SourceDocumentId equals document.Id
-        select new { block.QuestionItemId, document.SourceTitle, document.SourceType }
+        select new
+        {
+            block.QuestionItemId,
+            document.SourceTitle,
+            document.SourceType,
+            HasScreenshot = !string.IsNullOrWhiteSpace(region.ScreenshotRelativePath)
+        }
     ).Concat(
         from asset in dbContext.QuestionAssets.AsNoTracking()
         where questionIds.Contains(asset.QuestionItemId) && asset.SourceRegionId != null
         join region in dbContext.SourceRegions.AsNoTracking() on asset.SourceRegionId!.Value equals region.Id
         join document in dbContext.SourceDocuments.AsNoTracking() on region.SourceDocumentId equals document.Id
-        select new { asset.QuestionItemId, document.SourceTitle, document.SourceType }
+        select new
+        {
+            asset.QuestionItemId,
+            document.SourceTitle,
+            document.SourceType,
+            HasScreenshot = !string.IsNullOrWhiteSpace(region.ScreenshotRelativePath)
+        }
     ).ToListAsync(cancellationToken);
 
     var blockByQuestionId = blocks.GroupBy(x => x.QuestionItemId).ToDictionary(x => x.Key, x => x.ToArray());
@@ -1496,7 +1676,9 @@ app.MapGet("/questions", async (
             x => x.Key,
             x => new SourceSummaryResponse(
                 x.Select(row => row.SourceTitle).Where(value => !string.IsNullOrWhiteSpace(value)).Distinct().ToArray(),
-                x.Select(row => row.SourceType).Where(value => !string.IsNullOrWhiteSpace(value)).Distinct().ToArray()));
+                x.Select(row => row.SourceType).Where(value => !string.IsNullOrWhiteSpace(value)).Distinct().ToArray(),
+                x.Count(),
+                x.Count(row => row.HasScreenshot)));
 
     var cards = items.Select(item =>
     {
@@ -1520,7 +1702,7 @@ app.MapGet("/questions", async (
             GetQuestionPreview(itemBlocks ?? []),
             itemBlocks?.Length ?? 0,
             assetCount,
-            sourceSummary ?? new SourceSummaryResponse([], []),
+            sourceSummary ?? new SourceSummaryResponse([], [], 0, 0),
             hasFormulaByQuestionId.ContainsKey(item.Id),
             hasTableByQuestionId.ContainsKey(item.Id),
             hasImageByQuestionId.ContainsKey(item.Id));
@@ -2499,6 +2681,27 @@ static bool TryResolveFileStorePath(string fileStoreRoot, string relativePath, o
     return true;
 }
 
+static string BuildSourcePageScreenshotRelativePath(Guid sourceDocumentId, int pageNumber)
+{
+    return $"generated/guangzhou-2015/pages/{sourceDocumentId}-page-{pageNumber:000}.png";
+}
+
+static string InferContentType(string path)
+{
+    return Path.GetExtension(path).ToLowerInvariant() switch
+    {
+        ".png" => "image/png",
+        ".jpg" or ".jpeg" => "image/jpeg",
+        ".webp" => "image/webp",
+        ".gif" => "image/gif",
+        ".svg" => "image/svg+xml",
+        ".json" => "application/json; charset=utf-8",
+        ".txt" => "text/plain; charset=utf-8",
+        ".pdf" => "application/pdf",
+        _ => "application/octet-stream"
+    };
+}
+
 static string NormalizeToken(string value, string fallback)
 {
     if (string.IsNullOrWhiteSpace(value))
@@ -2834,6 +3037,20 @@ public sealed record SourceRegionCreateRequest(
     string? ScreenshotRelativePath,
     string? RegionType);
 
+public sealed record SourceRegionUpdateRequest(
+    int? PageNumber,
+    decimal? X,
+    decimal? Y,
+    decimal? Width,
+    decimal? Height,
+    string? CoordinateUnit,
+    string? ScreenshotRelativePath,
+    string? RegionType,
+    string ReviewedBy,
+    string Reason);
+
+public sealed record SourceRegionUpdateResponse(SourceRegionResponse Region, Guid AuditId);
+
 public sealed record SourceRegionResponse(
     Guid Id,
     Guid SourceDocumentId,
@@ -2844,10 +3061,15 @@ public sealed record SourceRegionResponse(
     decimal Height,
     string CoordinateUnit,
     string? ScreenshotRelativePath,
+    string? ScreenshotUrl,
+    string PageScreenshotUrl,
     string RegionType)
 {
     public static SourceRegionResponse From(SourceRegion region)
     {
+        var screenshotUrl = string.IsNullOrWhiteSpace(region.ScreenshotRelativePath)
+            ? null
+            : $"/source-regions/{region.Id}/screenshot";
         return new SourceRegionResponse(
             region.Id,
             region.SourceDocumentId,
@@ -2858,6 +3080,8 @@ public sealed record SourceRegionResponse(
             region.Height,
             region.CoordinateUnit,
             region.ScreenshotRelativePath,
+            screenshotUrl,
+            $"/source-regions/{region.Id}/page-screenshot",
             region.RegionType);
     }
 }
@@ -3191,7 +3415,11 @@ public sealed record KnowledgeNodeCardResponse(
     }
 }
 
-public sealed record SourceSummaryResponse(IReadOnlyList<string> Titles, IReadOnlyList<string> Types);
+public sealed record SourceSummaryResponse(
+    IReadOnlyList<string> Titles,
+    IReadOnlyList<string> Types,
+    int RegionCount,
+    int ScreenshotCount);
 
 public sealed record QuestionSourceRegionResponse(
     Guid Id,
@@ -3204,10 +3432,15 @@ public sealed record QuestionSourceRegionResponse(
     decimal Height,
     string CoordinateUnit,
     string? ScreenshotRelativePath,
+    string? ScreenshotUrl,
+    string PageScreenshotUrl,
     string RegionType)
 {
     public static QuestionSourceRegionResponse From(SourceRegion region, SourceDocument? document)
     {
+        var screenshotUrl = string.IsNullOrWhiteSpace(region.ScreenshotRelativePath)
+            ? null
+            : $"/source-regions/{region.Id}/screenshot";
         return new QuestionSourceRegionResponse(
             region.Id,
             region.SourceDocumentId,
@@ -3219,6 +3452,8 @@ public sealed record QuestionSourceRegionResponse(
             region.Height,
             region.CoordinateUnit,
             region.ScreenshotRelativePath,
+            screenshotUrl,
+            $"/source-regions/{region.Id}/page-screenshot",
             region.RegionType);
     }
 }
@@ -3920,6 +4155,28 @@ public static class ReviewQueuePayloadHelpers
             reasonElement.ValueKind == JsonValueKind.String)
         {
             return reasonElement.GetString();
+        }
+
+        return null;
+    }
+
+    public static int? ResolveQuestionNo(JsonElement payload)
+    {
+        if (payload.ValueKind != JsonValueKind.Object ||
+            !payload.TryGetProperty("questionNo", out var questionNoElement))
+        {
+            return null;
+        }
+
+        if (questionNoElement.TryGetInt32(out var questionNo))
+        {
+            return questionNo;
+        }
+
+        if (questionNoElement.ValueKind == JsonValueKind.String &&
+            int.TryParse(questionNoElement.GetString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out questionNo))
+        {
+            return questionNo;
         }
 
         return null;

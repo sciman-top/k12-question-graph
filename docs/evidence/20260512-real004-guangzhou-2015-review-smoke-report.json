@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "REAL004",
-  "checkedAt": "2026-05-14T23:48:52",
+  "checkedAt": "2026-05-16T02:47:24",
   "apiUrl": "http://127.0.0.1:5297",
   "workflowKey": "guangzhou_2015_real_ingest_v1 + guangzhou_2015_visual_region_v1",
   "reviewType": "guangzhou_2015_question_review",
@@ -10,13 +10,25 @@
     "questionNo": 1,
     "questionItemId": "06e4bedf-a2be-4665-844f-8c0c02e0b1d6",
     "sourceRegionCount": 2,
+    "sourceScreenshotUrlCount": 2,
     "hasTextPreview": true,
     "hasAnswer": true,
     "hasKnowledgeTags": true
   },
+  "sourceScreenshotCoverage": {
+    "initialCheckedQuestions": 24,
+    "initialMissingQuestionNos": [],
+    "restoredCheckedQuestions": 24,
+    "restoredMissingQuestionNos": [],
+    "minRestoredImageUrlCount": 2.0,
+    "maxRestoredImageUrlCount": 3.0,
+    "minRestoredPageImageUrlCount": 2.0,
+    "maxRestoredPageImageUrlCount": 3.0,
+    "restoredQuestion13AssetImageUrlCount": 1
+  },
   "actions": {
     "confirm": {
-      "itemId": "79ef8e3d-be42-4edf-b0e2-a37b46075cef",
+      "itemId": "80b88969-a657-4a38-8af4-638a2c2fdaf2",
       "status": "resolved",
       "auditReviewedBy": "teacher-real004-smoke",
       "auditReason": "checked and revised stem answer tags and source regions",
@@ -28,7 +40,7 @@
       ]
     },
     "dismiss": {
-      "itemId": "ca491f5b-282f-4aa9-91ab-2f1f9516964f",
+      "itemId": "e9149fb2-db33-4a55-b799-bc218b02e3be",
       "status": "dismissed",
       "auditDecision": "dismissed",
       "auditReason": "returned for precise visual crop and tag correction"
@@ -38,7 +50,11 @@
   "restoredOpenReviewItems": 24,
   "verification": {
     "canFilterGuangzhou2015Queue": true,
+    "canSortQueueByQuestionNo": true,
     "canLoadQuestionSources": true,
+    "allReviewItemsHaveSourceScreenshotUrls": true,
+    "allReviewItemsHavePageScreenshotUrls": true,
+    "requiredFigureQuestionsHaveAssetScreenshotUrls": true,
     "canConfirmWithAudit": true,
     "canSubmitTeacherRevisionWithAudit": true,
     "canReturnWithAudit": true,

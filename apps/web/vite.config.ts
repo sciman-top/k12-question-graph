@@ -14,6 +14,7 @@ export default defineConfig({
       '/health': localApiProxy,
       '/imports': localApiProxy,
       '/source-documents': localApiProxy,
+      '/source-regions': localApiProxy,
       '/questions': localApiProxy,
       '/review-queue': localApiProxy,
       '/review-workbench': localApiProxy,

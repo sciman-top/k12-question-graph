@@ -22,6 +22,10 @@ AI 推荐保留当前 P0-P6 大方向，但调整顺序和验收口径：
 
 截至 2026-05-14，路线图新增 `REAL001-REAL005` 真卷闭环纠偏主线。此前 `S012` 只能证明非现场代理/合同链路，不等于 2015-2025 广州中考真卷已经逐题可用。`REAL001` 已用本机 `SourceDocument/FileAsset` 中的 2015 广州中考物理试卷和答案实跑 worker、题号切分、答案对齐、规则标注和 DB 写入，覆盖第 1-18 题并全部进入 `pending_review`；`REAL002` 已补完第 19-24 题，写入 17 个截图级 visual `SourceRegion`、5 个 `question_assets`、6 条 `cut_candidates` 和 6 条开放审核队列。`REAL003` 已完成 2016-2025 首轮批量 dry-run：核对 210 个候选题、210 条答案、33 个带 hash 的 DB SourceDocument、逐年接管点和 rollback SQL，未写 active、未调用外部 AI。`REAL004` 已补到可查 2015 真卷审核队列、查看题干/答案/标签/来源、教师修订题干/答案/标签、确认或退回并写入 audit 的 smoke 级证据。上述状态仍只是 `db_backed_done/contract_done/ui_productized`，不是教师课堂验收完成。进入 `P001` 试点部署前，至少必须保留 `REAL001/REAL002/REAL003/REAL004` 证据；教师真实验收仍在 P0-live 阶段处理。`REAL005` 完成的是机器可读判定标准：只有 `tasks/real-guangzhou-closure-criteria.csv` 的来源、adapter、题数、答案、截图区域、结构化题目、知识标注、教师审核、来源回看、检索组卷导出、学情引用、回滚隐私 12 项标准全部有证据时，才允许宣称“2015-2025 全流程功能全部实现”；当前 guard 通过自检但必须输出 `not_closed`。
 
+截至 2026-05-15，真卷闭环补充 `REAL006-REAL012` 生产级整改线。`REAL001-REAL004` 证明了 DB 和 Web smoke，但还不能证明试题已完成通用版面清洗、题图/表格/公式结构化、Office 原生公式保真、人工编辑重裁和真实题进入检索组卷导出。新增整改线必须把截图回填接入 ingest/review gate，不允许重跑脚本后 `screenshotRelativePath` 回退为空；把页眉页脚、考生信息区、装订线、考试注意事项、水印等标为 noise/ignored region；把题图、表格、公式从来源截图中提升为 `QuestionAsset` 和结构化 `QuestionBlock`；DOCX/WPS 公式以 OMML 为第一真源，LaTeX 只作为网页显示和程序交换派生层，扫描公式识别必须保留原图和 `pending_review`；提供教师可用的题干、答案、解析、标签、bbox、题图归属、表格和公式编辑/重裁闭环。`REAL006-REAL012` 完成前，任何“真卷已生产级可用”的说法都必须保持 `not_closed`。
+
+截至 2026-05-16，`REAL006/REAL007` 已从症状修复推进到可复跑门禁：`REAL004` smoke 会强制检查 2015 第 1-24 题来源裁图、整页图和必需题图资产 URL；`tools/run-real007-guangzhou-2015-layout-quality.ps1` 会重建截图、写入 `source_region_revision_batch` audit，并输出缺图、JSON 占位截图、版面噪声重叠和题图资产覆盖报告。当前报告覆盖 67 个来源区域、24 题，缺图 0、占位 0、噪声重叠 0、必需题图缺失 0。`REAL008` 继续进行中，下一步要把题图资产覆盖扩展为通用导入流程和 `GET /questions` 题卡资产计数 smoke。
+
 ## 动态元素不停工原则
 
 知识点只是动态元素之一。凡是允许未来变化的对象，包括题型、标签、难度/能力维度、rubric、组卷规则、导出模板、AI prompt/schema/model routing、文档解析 pipeline、分析指标、Excel 字段映射、隐私策略、学校组织和权限，都必须先抽象为可版本化、可映射、可迁移、可回滚资产。

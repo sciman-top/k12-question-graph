@@ -1,4 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import type { ReactNode } from 'react'
+import katex from 'katex'
+import 'katex/dist/katex.min.css'
 import {
   Alert,
   Badge,
@@ -45,6 +48,7 @@ import {
   uploadImportFile,
 } from './api/client'
 import type { ReviewQueueItemContract } from './api/contracts'
+import type { QuestionSourceRegionContract } from './api/contracts'
 import {
   useCutCandidatesQuery,
   useImportJobQuery,
@@ -68,6 +72,101 @@ type RealExamRevisionState = {
   answer: string
   primaryKnowledgeLabel: string
   knowledgeTagsText: string
+}
+
+type RealExamPreviewRow = {
+  questionNo: number
+  textPreview: string
+  answer: string
+  primaryKnowledgeLabel: string
+  knowledgeTags: string[]
+  sourceLabel: string
+}
+
+const inlineMathPattern = /(\\\[[\s\S]+?\\\]|\\\([\s\S]+?\\\)|\$\$[\s\S]+?\$\$|\$[^$\n]+?\$)/g
+
+function renderMathAwareText(value: string): ReactNode[] {
+  const nodes: ReactNode[] = []
+  let lastIndex = 0
+
+  for (const match of value.matchAll(inlineMathPattern)) {
+    const raw = match[0]
+    const index = match.index ?? 0
+    if (index > lastIndex) {
+      nodes.push(value.slice(lastIndex, index))
+    }
+
+    const displayMode = raw.startsWith('$$') || raw.startsWith('\\[')
+    const latex = raw.startsWith('$$')
+      ? raw.slice(2, -2)
+      : raw.startsWith('$')
+        ? raw.slice(1, -1)
+        : raw.slice(2, -2)
+    nodes.push(
+      <span
+        key={`math-${index}`}
+        className={displayMode ? 'math-block' : 'math-inline'}
+        dangerouslySetInnerHTML={{
+          __html: katex.renderToString(latex, {
+            throwOnError: false,
+            displayMode,
+            strict: false,
+          }),
+        }}
+      />,
+    )
+    lastIndex = index + raw.length
+  }
+
+  if (lastIndex < value.length) {
+    nodes.push(value.slice(lastIndex))
+  }
+
+  return nodes
+}
+
+function splitQuestionText(value: string): string[] {
+  return value
+    .replace(/\s+([A-D])[.．、]/g, '\n$1.')
+    .replace(/\s+(图\s*\d+)/g, '\n$1')
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+}
+
+function formatRegionKind(regionType: string) {
+  if (regionType.includes('answer')) {
+    return '答案来源'
+  }
+  if (regionType.includes('asset') || regionType.includes('visual')) {
+    return '题图来源'
+  }
+  return '题干来源'
+}
+
+function sourceRegionRank(regionType: string) {
+  if (regionType.includes('question')) {
+    return 0
+  }
+  if (regionType.includes('asset') || regionType.includes('visual')) {
+    return 1
+  }
+  if (regionType.includes('answer')) {
+    return 2
+  }
+  return 3
+}
+
+function hasRenderableImage(region: { screenshotRelativePath: string | null; screenshotUrl: string | null }) {
+  return Boolean(
+    region.screenshotUrl &&
+      region.screenshotRelativePath &&
+      /\.(png|jpe?g|webp|gif|svg)$/i.test(region.screenshotRelativePath),
+  )
+}
+
+function isQuestionAssetRegion(region: QuestionSourceRegionContract) {
+  return hasRenderableImage(region) && region.regionType.includes('asset')
 }
 
 const teacherActions = [
@@ -258,6 +357,81 @@ const questionSearchFilterChips = [
   { filter: 'source', label: '示例来源' },
 ]
 
+const guangzhou2015EvidencePreview: RealExamPreviewRow[] = [
+  {
+    questionNo: 1,
+    textPreview:
+      '1. 咸鱼放在冰箱冷冻室里一晚，冷冻室内有咸鱼味。这表明 A. 分子间存在引力 B. 分子不停地运动 C. 分子间存在斥力 D. 温度越低，分子运动越慢',
+    answer: 'B',
+    primaryKnowledgeLabel: '分子热运动',
+    knowledgeTags: ['分子运动', '扩散现象'],
+    sourceLabel: '2015广州中考.pdf / 2015广州中考答案.pdf',
+  },
+  {
+    questionNo: 2,
+    textPreview:
+      '2. 图 1 所示电路，L1 的电阻比 L2 的大。开关闭合，灯均发光，则 A. V 示数等于 V1 示数 B. V1 示数大于 V2 示数 C. A 示数大于 A1 示数 D. A2 示数大于 A1 示数',
+    answer: 'A',
+    primaryKnowledgeLabel: '串并联电路电压电流',
+    knowledgeTags: ['电路识图', '电压表', '电流表'],
+    sourceLabel: 'REAL001 入库证据',
+  },
+  {
+    questionNo: 3,
+    textPreview:
+      '3. 把餐巾纸摩擦过的塑料吸管放在支架上，吸管能在水平面自由转动。手持带负电的橡胶棒靠近吸管 A 端，A 端会远离橡胶棒。',
+    answer: 'C',
+    primaryKnowledgeLabel: '摩擦起电与电荷相互作用',
+    knowledgeTags: ['静电', '电子转移'],
+    sourceLabel: 'REAL001 入库证据',
+  },
+  {
+    questionNo: 4,
+    textPreview:
+      '4. 图 3 是电磁波家族，真空中各种电磁波的传播速度相同。某类恒星温度较低呈暗红色；另一类恒星温度极高呈蓝色。',
+    answer: 'B',
+    primaryKnowledgeLabel: '电磁波谱',
+    knowledgeTags: ['电磁波', '频率', '波长'],
+    sourceLabel: 'REAL001 入库证据',
+  },
+  {
+    questionNo: 5,
+    textPreview:
+      '5. 相同的水下录音装置 A、B 录下同一段鲸声。A 录到高、低音，B 录到只有低音。可推测海洋中能传播较远距离的声音是？',
+    answer: 'A',
+    primaryKnowledgeLabel: '声音传播与频率',
+    knowledgeTags: ['音调', '频率', '海洋声传播'],
+    sourceLabel: 'REAL001 入库证据',
+  },
+  {
+    questionNo: 6,
+    textPreview:
+      '6. 在配有活塞的厚玻璃筒内放一小团硝化棉，迅速下压活塞，硝化棉燃烧。下列说法正确的是？',
+    answer: 'D',
+    primaryKnowledgeLabel: '做功改变内能',
+    knowledgeTags: ['内能', '压缩空气', '温度升高'],
+    sourceLabel: 'REAL001 入库证据',
+  },
+  {
+    questionNo: 13,
+    textPreview:
+      '13. 如图 13 所示，墙壁上的平面镜前立有一硬杆。画出杆顶 A 点在平面镜中的像；若杆在 2s 内右移 1m，求速度并判断像的移动方向和大小变化。',
+    answer: '（1）A 点像；（2）0.5；向左移；不变',
+    primaryKnowledgeLabel: '平面镜成像',
+    knowledgeTags: ['作图', '像的运动', '速度'],
+    sourceLabel: 'REAL001 入库证据',
+  },
+  {
+    questionNo: 18,
+    textPreview:
+      '18. 图 19 中质量为 10kg 的物体 A 静止在水平地面，与地面接触面积为 0.2m2。求 A 所受重力和 A 对地面的压强。',
+    answer: '100；500',
+    primaryKnowledgeLabel: '重力与固体压强',
+    knowledgeTags: ['重力计算', '压强公式'],
+    sourceLabel: 'REAL001 入库证据',
+  },
+]
+
 const labelFor = teacherLabelFor
 
 const reviewRiskColorFor = (riskLevel: string) => {
@@ -358,12 +532,15 @@ function App() {
   const [realExamQueueBusy, setRealExamQueueBusy] = useState(false)
   const [realExamQueueMessage, setRealExamQueueMessage] = useState('尚未查询 2015 真卷复核队列')
   const [selectedRealExamReviewId, setSelectedRealExamReviewId] = useState('')
+  const [selectedEvidenceQuestionNo, setSelectedEvidenceQuestionNo] = useState(
+    guangzhou2015EvidencePreview[0].questionNo,
+  )
   const [realExamReviewNote, setRealExamReviewNote] = useState('已核对题干、答案、标签和来源')
   const [realExamRevision, setRealExamRevision] = useState<RealExamRevisionState>({
-    textPreview: '',
-    answer: '',
-    primaryKnowledgeLabel: '',
-    knowledgeTagsText: '',
+    textPreview: guangzhou2015EvidencePreview[0].textPreview,
+    answer: guangzhou2015EvidencePreview[0].answer,
+    primaryKnowledgeLabel: guangzhou2015EvidencePreview[0].primaryKnowledgeLabel,
+    knowledgeTagsText: guangzhou2015EvidencePreview[0].knowledgeTags.join(' / '),
   })
   const [activeTeacherView, setActiveTeacherView] = useState<TeacherView>('import')
   const [segments, setSegments] = useState(initialSegments)
@@ -371,9 +548,7 @@ function App() {
   const [selectedAsset, setSelectedAsset] = useState(sharedAssets[0])
   const [actionLog, setActionLog] = useState<string[]>([])
   const [savedQuestionSourceSummary, setSavedQuestionSourceSummary] = useState('尚未保存题目')
-  const [savedQuestionSourceRegions, setSavedQuestionSourceRegions] = useState<
-    Array<{ id: string; pageNumber: number; regionType: string; screenshotRelativePath: string | null }>
-  >([])
+  const [savedQuestionSourceRegions, setSavedQuestionSourceRegions] = useState<QuestionSourceRegionContract[]>([])
   const [paperRequest, setPaperRequest] = useState(initialPaperRequest)
   const [paperUnderstanding, setPaperUnderstanding] = useState(initialPaperUnderstanding)
   const [paperBlueprintReviewId, setPaperBlueprintReviewId] = useState('')
@@ -400,6 +575,7 @@ function App() {
   const localIdRef = useRef(0)
   const uploadInputRef = useRef<HTMLInputElement | null>(null)
   const uploadDropzoneRef = useRef<HTMLButtonElement | null>(null)
+  const realExamAutoLoadStartedRef = useRef(false)
 
   const selectedSegments = useMemo(
     () => segments.filter((segment) => selectedIds.includes(segment.id)),
@@ -423,6 +599,44 @@ function App() {
   const sourcePreview = previewQuery.data?.ok ? previewQuery.data.data : undefined
   const importJob = importJobQuery.data?.ok ? importJobQuery.data.data : undefined
   const selectedRealExamReview = realExamQueue.find((item) => item.id === selectedRealExamReviewId)
+  const realExamPreviewRows = useMemo(() => {
+    if (realExamQueue.length === 0) {
+      return guangzhou2015EvidencePreview
+    }
+
+    return [...realExamQueue]
+      .sort((left, right) => (left.payload.questionNo || 0) - (right.payload.questionNo || 0))
+      .map<RealExamPreviewRow>((item) => ({
+        questionNo: item.payload.questionNo || 0,
+        textPreview: item.payload.textPreview,
+        answer: item.payload.answer,
+        primaryKnowledgeLabel: item.payload.primaryKnowledgeLabel,
+        knowledgeTags: item.payload.knowledgeTags,
+        sourceLabel: item.payload.sourceDocumentId ? '来自数据库复核队列' : '来源待回看',
+      }))
+  }, [realExamQueue])
+  const selectedEvidenceQuestion =
+    guangzhou2015EvidencePreview.find((item) => item.questionNo === selectedEvidenceQuestionNo) ??
+    guangzhou2015EvidencePreview[0]
+  const selectedRealExamPreview: RealExamPreviewRow = selectedRealExamReview
+    ? {
+      questionNo: selectedRealExamReview.payload.questionNo || 0,
+      textPreview: selectedRealExamReview.payload.textPreview,
+      answer: selectedRealExamReview.payload.answer,
+      primaryKnowledgeLabel: selectedRealExamReview.payload.primaryKnowledgeLabel,
+      knowledgeTags: selectedRealExamReview.payload.knowledgeTags,
+      sourceLabel: selectedRealExamReview.payload.sourceDocumentId
+        ? '来自数据库复核队列'
+        : '来源待回看',
+    }
+    : selectedEvidenceQuestion
+  const selectedQuestionAssetRegions = savedQuestionSourceRegions
+    .filter(isQuestionAssetRegion)
+    .sort(
+      (left, right) =>
+        left.pageNumber - right.pageNumber ||
+        sourceRegionRank(left.regionType) - sourceRegionRank(right.regionType),
+    )
   const readyHealthStatusLabel = readyHealth?.status === 'ok' ? '正常' : '服务未连接'
   const importElapsedMinutes = Math.max(
     0,
@@ -469,6 +683,19 @@ function App() {
         uploadDropzoneRef.current?.focus({ preventScroll: true })
       })
     }
+  }
+
+  const selectEvidenceQuestion = (item: RealExamPreviewRow) => {
+    setSelectedRealExamReviewId('')
+    setSelectedEvidenceQuestionNo(item.questionNo)
+    setRealExamRevision({
+      textPreview: item.textPreview,
+      answer: item.answer,
+      primaryKnowledgeLabel: item.primaryKnowledgeLabel,
+      knowledgeTagsText: item.knowledgeTags.join(' / '),
+    })
+    setSavedQuestionSourceSummary(item.sourceLabel)
+    setRealExamQueueMessage('当前显示本地证据预览；连接 API 后可直接确认、退回和写入审核记录。')
   }
 
   const handlePaperUploadFile = async (file: File) => {
@@ -794,17 +1021,21 @@ function App() {
     appendLog(`已加载候选 ${nextSegments.length} 条到人工确认队列`)
   }
 
-  const loadRealExamReviewQueue = async () => {
+  const loadRealExamReviewQueue = useCallback(async () => {
     setRealExamQueueBusy(true)
     const result = await getReviewQueueItems({
       status: 'open',
       reviewType: 'guangzhou_2015_question_review',
+      sortBy: 'question_no',
+      order: 'asc',
       limit: 50,
     })
     setRealExamQueueBusy(false)
 
     if (!result.ok) {
-      setRealExamQueueMessage(`真卷队列查询失败：${result.error.message}`)
+      setRealExamQueueMessage(
+        `API 未连接，暂显示本地 REAL001 证据预览；启动 5275 API 后可加载 24 条待复核真卷队列。错误：${result.error.message}`,
+      )
       return
     }
 
@@ -812,7 +1043,8 @@ function App() {
     setRealExamQueueTotal(result.data.totalCount)
     setRealExamQueueMessage(`已加载 ${result.data.items.length} 条 2015 真卷待复核题目`)
     if (!selectedRealExamReviewId && result.data.items.length > 0) {
-      const firstItem = result.data.items[0]
+      const firstItem = [...result.data.items]
+        .sort((left, right) => (left.payload.questionNo || 0) - (right.payload.questionNo || 0))[0]
       setSelectedRealExamReviewId(firstItem.id)
       setRealExamRevision({
         textPreview: firstItem.payload.textPreview,
@@ -820,8 +1052,17 @@ function App() {
         primaryKnowledgeLabel: firstItem.payload.primaryKnowledgeLabel,
         knowledgeTagsText: firstItem.payload.knowledgeTags.join(' / '),
       })
+      if (firstItem.payload.questionItemId) {
+        const sourceResult = await getQuestionSources(firstItem.payload.questionItemId)
+        if (sourceResult.ok) {
+          setSavedQuestionSourceSummary(
+            `第 ${firstItem.payload.questionNo} 题来源回看：${sourceResult.data.sourceRegions.length} 个区域`,
+          )
+          setSavedQuestionSourceRegions(sourceResult.data.sourceRegions)
+        }
+      }
     }
-  }
+  }, [selectedRealExamReviewId])
 
   const loadRealExamReviewItem = async (item: ReviewQueueItemContract) => {
     const payload = item.payload
@@ -911,6 +1152,15 @@ function App() {
     setRealExamQueueMessage(`已${verb}第 ${item.payload.questionNo || '?'} 题，队列已记录审核人、时间、说明和修订内容`)
     appendLog(`2015 真卷第 ${item.payload.questionNo || '?'} 题已${verb}`)
   }
+
+  useEffect(() => {
+    if (readyHealth?.status !== 'ok' || realExamAutoLoadStartedRef.current) {
+      return
+    }
+
+    realExamAutoLoadStartedRef.current = true
+    void loadRealExamReviewQueue()
+  }, [loadRealExamReviewQueue, readyHealth?.status])
 
   const parsePaperRequest = async () => {
     setPaperWorkflowBusy(true)
@@ -1303,10 +1553,181 @@ function App() {
 
             <Alert
               showIcon
-              type="info"
-              title="可以开始处理"
-              description="上传后会显示处理进度；失败时保留原文件，可继续人工处理。"
+              type={readyHealth?.status === 'ok' ? 'info' : 'warning'}
+              title={readyHealth?.status === 'ok' ? '可以开始处理' : 'API 未连接'}
+              description={
+                readyHealth?.status === 'ok'
+                  ? '上传后会显示处理进度；失败时保留原文件，可继续人工处理。'
+                  : '当前只能看本地证据预览；需要启动 5275 API 后才能加载数据库队列、确认或退回真卷题目。'
+              }
             />
+
+            <div className="real-exam-hero" data-contract="real-guangzhou-2015-primary-workbench">
+              <div className="real-exam-hero-head">
+                <div>
+                  <Typography.Text type="secondary">2015 广州中考物理</Typography.Text>
+                  <Typography.Title level={2}>真卷复核</Typography.Title>
+                </div>
+                <Space size="small" wrap>
+                  <Tag color={realExamQueue.length > 0 ? 'green' : 'orange'}>
+                    {realExamQueue.length > 0 ? '数据库队列' : '本地证据预览'}
+                  </Tag>
+                  <Tag>{realExamQueue.length > 0 ? `${realExamQueueTotal} 题待复核` : 'REAL001 证据'}</Tag>
+                </Space>
+              </div>
+
+              <div className="real-exam-focus">
+                <div className="real-exam-question">
+                  <span className="real-exam-number">第 {selectedRealExamPreview.questionNo || '?'} 题</span>
+                  <div className="question-text" aria-label="题干">
+                    {splitQuestionText(selectedRealExamPreview.textPreview).map((line, index) => (
+                      <p key={`${selectedRealExamPreview.questionNo}-${index}`}>
+                        {renderMathAwareText(line)}
+                      </p>
+                    ))}
+                  </div>
+                  {selectedQuestionAssetRegions.length > 0 ? (
+                    <div className="real-exam-inline-assets" aria-label="题图" data-contract="question-stem-asset-fusion">
+                      {selectedQuestionAssetRegions.map((region) => (
+                        <a
+                          key={region.id}
+                          className="real-exam-inline-asset"
+                          href={region.screenshotUrl ?? undefined}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <img
+                            src={region.screenshotUrl ?? undefined}
+                            alt={`第 ${selectedRealExamPreview.questionNo || '?'} 题题图，第 ${region.pageNumber} 页`}
+                            loading="lazy"
+                          />
+                        </a>
+                      ))}
+                    </div>
+                  ) : null}
+                  <div className="real-exam-tags">
+                    <Tag color="green">答案：{selectedRealExamPreview.answer || '-'}</Tag>
+                    <Tag color="blue">{selectedRealExamPreview.primaryKnowledgeLabel || '标签待确认'}</Tag>
+                    {selectedRealExamPreview.knowledgeTags.map((tag) => (
+                      <Tag key={tag}>{tag}</Tag>
+                    ))}
+                  </div>
+                </div>
+                <div className="real-exam-source-preview" aria-label="题图与来源区域">
+                  <div className="source-preview-head">
+                    <strong>来源回看</strong>
+                    <Tag color={savedQuestionSourceRegions.some(hasRenderableImage) ? 'green' : 'default'}>
+                      {savedQuestionSourceRegions.some(hasRenderableImage)
+                        ? '有来源图片'
+                        : '暂无可显示图片'}
+                    </Tag>
+                  </div>
+                  <div className="source-preview-list">
+                    {savedQuestionSourceRegions.length > 0 ? (
+                      [...savedQuestionSourceRegions]
+                        .sort((left, right) => sourceRegionRank(left.regionType) - sourceRegionRank(right.regionType))
+                        .map((region) => (
+                        <span key={region.id} className={hasRenderableImage(region) ? 'source-preview-card has-image' : 'source-preview-card'}>
+                          <strong>
+                            第 {region.pageNumber} 页 · {formatRegionKind(region.regionType)}
+                          </strong>
+                          {hasRenderableImage(region) ? (
+                            <span className="source-preview-image-frame">
+                              <img
+                                src={region.screenshotUrl ?? undefined}
+                                alt={`第 ${region.pageNumber} 页 ${formatRegionKind(region.regionType)}`}
+                                loading="lazy"
+                              />
+                            </span>
+                          ) : null}
+                          <span className="source-preview-actions">
+                            {region.screenshotUrl ? (
+                              <Button size="small" href={region.screenshotUrl} target="_blank" rel="noreferrer">
+                                打开裁图
+                              </Button>
+                            ) : null}
+                            {region.pageScreenshotUrl ? (
+                              <Button size="small" href={region.pageScreenshotUrl} target="_blank" rel="noreferrer">
+                                查看第 {region.pageNumber} 页
+                              </Button>
+                            ) : null}
+                          </span>
+                          <small>
+                            {region.sourceTitle ?? '来源文档'} · {region.regionType} ·{' '}
+                            {region.screenshotRelativePath ?? '未生成截图'}
+                          </small>
+                        </span>
+                      ))
+                    ) : (
+                      <span>
+                        <strong>未加载来源区域</strong>
+                        <small>点击“加载数据库队列”后显示题干和答案来源。</small>
+                      </span>
+                    )}
+                  </div>
+                  <Typography.Text type="secondary">{savedQuestionSourceSummary}</Typography.Text>
+                </div>
+                <div className="real-exam-actions">
+                  <Button
+                    type="primary"
+                    icon={<FileSearchOutlined />}
+                    onClick={loadRealExamReviewQueue}
+                    loading={realExamQueueBusy}
+                    data-action="load-real-guangzhou-2015-review-queue-primary"
+                  >
+                    加载数据库队列
+                  </Button>
+                  <Button
+                    icon={<SearchOutlined />}
+                    onClick={() =>
+                      selectedRealExamReview
+                        ? void loadRealExamReviewItem(selectedRealExamReview)
+                        : setRealExamQueueMessage('当前是本地证据预览；请先加载数据库队列再写入审核。')
+                    }
+                    disabled={!selectedRealExamReview}
+                    data-action="load-real-guangzhou-2015-review-item-primary"
+                  >
+                    载入当前题
+                  </Button>
+                  <Button
+                    icon={<EditOutlined />}
+                    onClick={() =>
+                      selectedRealExamReview
+                        ? void finishRealExamReviewItem(selectedRealExamReview, 'resolved')
+                        : setRealExamQueueMessage('当前是本地证据预览；请先加载数据库队列再确认。')
+                    }
+                    disabled={!selectedRealExamReview}
+                    data-action="confirm-real-guangzhou-2015-review-item-primary"
+                  >
+                    确认当前题
+                  </Button>
+                  <Typography.Text type="secondary">{realExamQueueMessage}</Typography.Text>
+                </div>
+              </div>
+
+              <div className="real-exam-strip" aria-label="2015 广州中考题目列表">
+                {realExamPreviewRows.slice(0, 24).map((item) => {
+                  const active = selectedRealExamReview
+                    ? selectedRealExamReview.payload.questionNo === item.questionNo
+                    : selectedEvidenceQuestionNo === item.questionNo
+                  const liveItem = realExamQueue.find((row) => row.payload.questionNo === item.questionNo)
+                  return (
+                    <button
+                      key={`${item.questionNo}-${item.answer}`}
+                      type="button"
+                      className={active ? 'real-exam-chip active' : 'real-exam-chip'}
+                      onClick={() =>
+                        liveItem ? void loadRealExamReviewItem(liveItem) : selectEvidenceQuestion(item)
+                      }
+                    >
+                      <strong>{item.questionNo}</strong>
+                      <span>{item.primaryKnowledgeLabel}</span>
+                      <small>答案 {item.answer || '-'}</small>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
 
             <div className="import-wizard" data-flow="paper-import-wizard">
               {importWizardSteps.map(([title, detail], index) => (
@@ -1577,7 +1998,10 @@ function App() {
                 </Button>
               </Space>
               <div className="real-exam-list" aria-label="2015 广州真卷待复核题目">
-                {realExamQueue.slice(0, 18).map((item) => {
+                {[...realExamQueue]
+                  .sort((left, right) => (left.payload.questionNo || 0) - (right.payload.questionNo || 0))
+                  .slice(0, 24)
+                  .map((item) => {
                   const selected = item.id === selectedRealExamReviewId
                   return (
                     <button
@@ -2002,6 +2426,9 @@ function App() {
                     <Tag>{card.primaryKnowledge ? `v${card.primaryKnowledge.version}` : '待定版本'}</Tag>
                     <Tag>{card.sources.types[0] ? teacherLabelFor(card.sources.types[0]) : '来源待补'}</Tag>
                     {card.hasImage ? <Tag color="green">题图</Tag> : <Tag>无题图</Tag>}
+                    {!card.hasImage && card.sources.screenshotCount > 0 ? (
+                      <Tag color="gold">有来源截图</Tag>
+                    ) : null}
                     {card.hasFormula ? <Tag color="blue">公式</Tag> : null}
                     {card.hasTable ? <Tag color="cyan">表格</Tag> : null}
                     <Tag color="green">{teacherLabelFor(card.status)}</Tag>
@@ -2278,32 +2705,22 @@ function App() {
                     </strong>
                   </span>
                 </div>
-                <div className="page-sheet">
-                  <span className="page-number">第 1 页</span>
-                  <button
-                    className="source-region region-a"
-                    type="button"
-                    onClick={() => toggleSegment('q-01')}
-                  >
-                    第 1 题
-                  </button>
-                  <button
-                    className="source-region region-b"
-                    type="button"
-                    onClick={() => toggleSegment('q-02')}
-                  >
-                    第 2 题上
-                  </button>
-                </div>
-                <div className="page-sheet">
-                  <span className="page-number">第 2 页</span>
-                  <button
-                    className="source-region region-c"
-                    type="button"
-                    onClick={() => toggleSegment('q-03')}
-                  >
-                    第 2 题下
-                  </button>
+                <div className="source-review-cards">
+                  {segments.slice(0, 3).map((segment) => (
+                    <button
+                      className="source-review-card"
+                      type="button"
+                      key={segment.id}
+                      onClick={() => toggleSegment(segment.id)}
+                    >
+                      <strong>{segment.title}</strong>
+                      <span>{segment.page}</span>
+                      <small>{segment.region}</small>
+                      <Tag color={segment.asset ? 'green' : undefined}>
+                        {segment.asset || '未关联题图'}
+                      </Tag>
+                    </button>
+                  ))}
                 </div>
               </div>
 

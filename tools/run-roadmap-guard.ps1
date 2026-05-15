@@ -14,7 +14,7 @@ foreach ($requiredId in @(
     'I008', 'I009', 'I010',
     'O004', 'O004B',
     'S001', 'S002', 'S003', 'S004', 'S005', 'S006', 'S007', 'S008', 'S009', 'S010', 'S011', 'S012',
-    'REAL001', 'REAL002', 'REAL003', 'REAL004', 'REAL005',
+    'REAL001', 'REAL002', 'REAL003', 'REAL004', 'REAL005', 'REAL006', 'REAL007', 'REAL008', 'REAL009', 'REAL010', 'REAL011', 'REAL012',
     'P001'
 )) {
     if (-not $byId.ContainsKey($requiredId)) {
@@ -71,6 +71,8 @@ $real002 = $byId['REAL002']
 $real003 = $byId['REAL003']
 $real004 = $byId['REAL004']
 $real005 = $byId['REAL005']
+$real006 = $byId['REAL006']
+$real007 = $byId['REAL007']
 $p001 = $byId['P001']
 if ($d001.depends_on -eq 'C002') {
     throw "D001 must not depend on formal C002; use the dynamic asset draft/test gate such as C002H"
@@ -466,8 +468,8 @@ foreach ($requiredDependency in @('S012', 'O004B', 'O006', 'O007')) {
     }
 }
 
-if ($p001Dependencies -notcontains 'REAL001') {
-    throw "P001 must depend on REAL001 real Guangzhou 2015 ingest evidence before live readiness"
+if ($p001Dependencies -notcontains 'REAL012') {
+    throw "P001 must depend on REAL012 real production-grade question flow closure before live readiness"
 }
 
 $expectedRealDependencies = [ordered]@{
@@ -475,6 +477,13 @@ $expectedRealDependencies = [ordered]@{
     REAL003 = 'REAL002'
     REAL004 = 'REAL001'
     REAL005 = 'REAL002;REAL003;REAL004'
+    REAL006 = 'REAL004'
+    REAL007 = 'REAL006'
+    REAL008 = 'REAL006'
+    REAL009 = 'REAL007'
+    REAL010 = 'REAL007'
+    REAL011 = 'REAL008;REAL009;REAL010'
+    REAL012 = 'REAL011'
 }
 
 foreach ($entry in $expectedRealDependencies.GetEnumerator()) {
@@ -557,6 +566,34 @@ if ($real004.status -eq '已完成') {
     }
     if ($report.verification.canSubmitTeacherRevisionWithAudit -ne $true) {
         throw "REAL004 report must prove teacher-edited revision is persisted with audit"
+    }
+}
+
+if ($real006.status -eq '已完成') {
+    $real004Report = Join-Path $repoRoot 'docs\evidence\20260512-real004-guangzhou-2015-review-smoke-report.json'
+    if (-not (Test-Path -LiteralPath $real004Report)) {
+        throw "REAL006 is completed but REAL004 source screenshot evidence is missing"
+    }
+    $report = Get-Content -LiteralPath $real004Report -Raw | ConvertFrom-Json
+    if ($report.verification.allReviewItemsHaveSourceScreenshotUrls -ne $true -or $report.verification.allReviewItemsHavePageScreenshotUrls -ne $true) {
+        throw "REAL006 requires every 2015 review item to have source and page screenshot URLs"
+    }
+    if ([double]$report.sourceScreenshotCoverage.minRestoredImageUrlCount -lt 2 -or [double]$report.sourceScreenshotCoverage.minRestoredPageImageUrlCount -lt 2) {
+        throw "REAL006 requires at least two restored source/page image URLs per question"
+    }
+}
+
+if ($real007.status -eq '已完成') {
+    $real007Report = Join-Path $repoRoot 'docs\evidence\20260516-real007-guangzhou-2015-layout-quality-report.json'
+    if (-not (Test-Path -LiteralPath $real007Report)) {
+        throw "REAL007 is completed but evidence is missing: docs/evidence/20260516-real007-guangzhou-2015-layout-quality-report.json"
+    }
+    $report = Get-Content -LiteralPath $real007Report -Raw | ConvertFrom-Json
+    if ($report.status -ne 'pass' -or $report.missingScreenshotCount -ne 0 -or $report.placeholderLikeScreenshotCount -ne 0 -or $report.noiseOverlapCount -ne 0) {
+        throw "REAL007 report must pass with no missing screenshots, placeholder screenshots, or noise overlaps"
+    }
+    if (@($report.missingRequiredAssetQuestionNos).Count -ne 0 -or $null -eq $report.latestRecropAudit) {
+        throw "REAL007 report must prove required figure assets and recrop audit"
     }
 }
 

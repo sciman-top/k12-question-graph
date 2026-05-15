@@ -343,6 +343,8 @@ export async function applyReviewWorkbenchAction(request: {
 export async function getReviewQueueItems(params: {
   status?: string
   reviewType?: string
+  sortBy?: string
+  order?: 'asc' | 'desc'
   limit?: number
 } = {}): Promise<ApiResult<ReviewQueueListContract>> {
   const query = new URLSearchParams()
@@ -350,6 +352,12 @@ export async function getReviewQueueItems(params: {
   query.set('limit', String(params.limit ?? 100))
   if (params.reviewType) {
     query.set('reviewType', params.reviewType)
+  }
+  if (params.sortBy) {
+    query.set('sortBy', params.sortBy)
+  }
+  if (params.order) {
+    query.set('order', params.order)
   }
 
   return requestJson(`/review-queue?${query.toString()}`, normalizeReviewQueueListResponse)

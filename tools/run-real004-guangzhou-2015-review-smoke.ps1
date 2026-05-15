@@ -24,6 +24,61 @@ $logErr = Join-Path $repoRoot 'docs/evidence/real004-review-smoke-api.err.log'
 $previousConnectionString = $env:KQG_CONNECTION_STRING
 $env:KQG_CONNECTION_STRING = "Host=$DatabaseHost;Port=$DatabasePort;Database=$DatabaseName;Username=$DatabaseUser;Password=$DatabasePassword"
 
+function Invoke-Guangzhou2015ScreenshotBackfill {
+    & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-guangzhou-2015-source-region-screenshots.ps1 `
+        -DatabaseName $DatabaseName `
+        -DatabaseUser $DatabaseUser `
+        -DatabaseHost $DatabaseHost `
+        -DatabasePort $DatabasePort `
+        -DatabasePassword $DatabasePassword `
+        -FileStoreRoot $FileStoreRoot `
+        -Apply | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        throw 'REAL004 setup failed while generating source region screenshots'
+    }
+}
+
+function Assert-Guangzhou2015SourceScreenshots {
+    param(
+        [Parameter(Mandatory = $true)]
+        [object[]] $ReviewItems,
+        [Parameter(Mandatory = $true)]
+        [string] $BaseUrl
+    )
+
+    $rows = @()
+    foreach ($reviewItem in ($ReviewItems | Sort-Object { [int]$_.payload.questionNo })) {
+        $sources = Invoke-RestMethod -Uri "$BaseUrl/questions/$($reviewItem.payload.questionItemId)/sources" -TimeoutSec 10
+        $regions = @($sources.sourceRegions)
+        $imageRegions = @($regions | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_.screenshotUrl) })
+        $pageImageRegions = @($regions | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_.pageScreenshotUrl) })
+        $assetImageRegions = @($regions | Where-Object { [string]$_.regionType -match 'asset' -and -not [string]::IsNullOrWhiteSpace([string]$_.screenshotUrl) })
+        $missingPaths = @($regions | Where-Object { [string]::IsNullOrWhiteSpace([string]$_.screenshotRelativePath) })
+        $rows += [pscustomobject]@{
+            questionNo = [int]$reviewItem.payload.questionNo
+            sourceRegionCount = $regions.Count
+            imageUrlCount = $imageRegions.Count
+            pageImageUrlCount = $pageImageRegions.Count
+            assetImageUrlCount = $assetImageRegions.Count
+            missingScreenshotPathCount = $missingPaths.Count
+        }
+    }
+
+    $missing = @($rows | Where-Object { $_.imageUrlCount -lt 2 -or $_.pageImageUrlCount -lt 2 -or $_.missingScreenshotPathCount -gt 0 })
+    if ($missing.Count -gt 0) {
+        $details = ($missing | ConvertTo-Json -Depth 5 -Compress)
+        throw "REAL004 expected every 2015 review item to have at least 2 source and page screenshot URLs; missing: $details"
+    }
+    $requiredFigureQuestionNos = @(2..15) + @(20..24)
+    $missingRequiredAssets = @($rows | Where-Object { $requiredFigureQuestionNos -contains $_.questionNo -and $_.assetImageUrlCount -lt 1 })
+    if ($missingRequiredAssets.Count -gt 0) {
+        $details = ($missingRequiredAssets | ConvertTo-Json -Depth 5 -Compress)
+        throw "REAL004 expected figure questions to expose question_assets screenshots; missing: $details"
+    }
+
+    return $rows
+}
+
 $process = $null
 try {
     Push-Location $repoRoot
@@ -52,6 +107,7 @@ try {
     if ($LASTEXITCODE -ne 0) {
         throw 'REAL004 setup failed while applying REAL002 visual region state'
     }
+    Invoke-Guangzhou2015ScreenshotBackfill
 
     $process = Start-Process -FilePath dotnet -ArgumentList @(
         'run',
@@ -88,6 +144,11 @@ try {
     if ($initialItems.Count -ne 24) {
         throw "REAL004 smoke expects 24 open Guangzhou 2015 review items, got $($initialItems.Count)"
     }
+    $orderedQueue = Invoke-RestMethod -Uri "$apiUrl/review-queue?status=open&reviewType=guangzhou_2015_question_review&sortBy=question_no&order=asc&limit=50" -TimeoutSec 10
+    $orderedQuestionNos = @($orderedQueue.items | ForEach-Object { [int]$_.payload.questionNo })
+    if (($orderedQuestionNos -join ',') -ne ((1..24) -join ',')) {
+        throw "REAL004 expected question_no ordering 1..24, got $($orderedQuestionNos -join ',')"
+    }
 
     $first = $initialItems | Sort-Object { [int]$_.payload.questionNo } | Select-Object -First 1
     $second = $initialItems | Sort-Object { [int]$_.payload.questionNo } | Select-Object -Skip 1 -First 1
@@ -110,6 +171,7 @@ try {
     if (@($firstSources.sourceRegions).Count -lt 2) {
         throw "REAL004 smoke expected question and answer source regions for question $($first.payload.questionNo)"
     }
+    $initialSourceScreenshotCoverage = Assert-Guangzhou2015SourceScreenshots -ReviewItems $initialItems -BaseUrl $apiUrl
 
     $confirmBody = @{
         reviewedBy = 'teacher-real004-smoke'
@@ -179,12 +241,14 @@ try {
     if ($LASTEXITCODE -ne 0) {
         throw 'REAL004 restore failed while re-applying REAL002 visual region state'
     }
+    Invoke-Guangzhou2015ScreenshotBackfill
 
     $restoredQueue = Invoke-RestMethod -Uri "$apiUrl/review-queue?status=open&reviewType=guangzhou_2015_question_review&limit=50" -TimeoutSec 10
     $restoredOpenCount = @($restoredQueue.items).Count
     if ($restoredOpenCount -ne 24) {
         throw "REAL004 restore expected 24 open review items, got $restoredOpenCount"
     }
+    $restoredSourceScreenshotCoverage = Assert-Guangzhou2015SourceScreenshots -ReviewItems @($restoredQueue.items) -BaseUrl $apiUrl
 
     $report = [ordered]@{
         status = 'pass'
@@ -198,9 +262,21 @@ try {
             questionNo = [int]$first.payload.questionNo
             questionItemId = [string]$first.payload.questionItemId
             sourceRegionCount = @($firstSources.sourceRegions).Count
+            sourceScreenshotUrlCount = @($firstSources.sourceRegions | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_.screenshotUrl) }).Count
             hasTextPreview = -not [string]::IsNullOrWhiteSpace([string]$first.payload.textPreview)
             hasAnswer = -not [string]::IsNullOrWhiteSpace([string]$first.payload.answer)
             hasKnowledgeTags = @($first.payload.knowledgeTags).Count -gt 0
+        }
+        sourceScreenshotCoverage = [ordered]@{
+            initialCheckedQuestions = @($initialSourceScreenshotCoverage).Count
+            initialMissingQuestionNos = @($initialSourceScreenshotCoverage | Where-Object { $_.imageUrlCount -lt 2 -or $_.missingScreenshotPathCount -gt 0 } | ForEach-Object { $_.questionNo })
+            restoredCheckedQuestions = @($restoredSourceScreenshotCoverage).Count
+            restoredMissingQuestionNos = @($restoredSourceScreenshotCoverage | Where-Object { $_.imageUrlCount -lt 2 -or $_.missingScreenshotPathCount -gt 0 } | ForEach-Object { $_.questionNo })
+            minRestoredImageUrlCount = (@($restoredSourceScreenshotCoverage) | Measure-Object -Property imageUrlCount -Minimum).Minimum
+            maxRestoredImageUrlCount = (@($restoredSourceScreenshotCoverage) | Measure-Object -Property imageUrlCount -Maximum).Maximum
+            minRestoredPageImageUrlCount = (@($restoredSourceScreenshotCoverage) | Measure-Object -Property pageImageUrlCount -Minimum).Minimum
+            maxRestoredPageImageUrlCount = (@($restoredSourceScreenshotCoverage) | Measure-Object -Property pageImageUrlCount -Maximum).Maximum
+            restoredQuestion13AssetImageUrlCount = (@($restoredSourceScreenshotCoverage | Where-Object { $_.questionNo -eq 13 }) | Select-Object -First 1).assetImageUrlCount
         }
         actions = [ordered]@{
             confirm = [ordered]@{
@@ -222,7 +298,11 @@ try {
         restoredOpenReviewItems = $restoredOpenCount
         verification = [ordered]@{
             canFilterGuangzhou2015Queue = $true
+            canSortQueueByQuestionNo = $true
             canLoadQuestionSources = $true
+            allReviewItemsHaveSourceScreenshotUrls = $true
+            allReviewItemsHavePageScreenshotUrls = $true
+            requiredFigureQuestionsHaveAssetScreenshotUrls = $true
             canConfirmWithAudit = $true
             canSubmitTeacherRevisionWithAudit = $true
             canReturnWithAudit = $true

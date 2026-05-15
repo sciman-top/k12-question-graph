@@ -1,0 +1,240 @@
+{
+  "status": "pass",
+  "task": "REAL007",
+  "scope": "2015 Guangzhou physics paper and answer source regions",
+  "workflowKeys": [
+    "guangzhou_2015_real_ingest_v1",
+    "guangzhou_2015_visual_region_v1"
+  ],
+  "linkedSourceRegionCount": 67,
+  "questionNosCovered": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24
+  ],
+  "figureQuestionNosWithAssets": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    20,
+    21,
+    22,
+    23,
+    24
+  ],
+  "missingRequiredAssetQuestionNos": [],
+  "missingScreenshotCount": 0,
+  "placeholderLikeScreenshotCount": 0,
+  "noiseOverlapCount": 0,
+  "pageSummary": [
+    {
+      "sourceGroup": "paper",
+      "pageNumber": 1,
+      "retainedRegionCount": 3,
+      "noiseRegionKinds": [
+        "top_margin",
+        "footer_page_number",
+        "binding_line",
+        "exam_instructions"
+      ]
+    },
+    {
+      "sourceGroup": "paper",
+      "pageNumber": 6,
+      "retainedRegionCount": 4,
+      "noiseRegionKinds": [
+        "top_margin",
+        "footer_page_number"
+      ]
+    },
+    {
+      "sourceGroup": "paper",
+      "pageNumber": 8,
+      "retainedRegionCount": 2,
+      "noiseRegionKinds": [
+        "top_margin",
+        "footer_page_number"
+      ]
+    },
+    {
+      "sourceGroup": "answer",
+      "pageNumber": 1,
+      "retainedRegionCount": 18,
+      "noiseRegionKinds": [
+        "top_margin",
+        "footer_page_number"
+      ]
+    },
+    {
+      "sourceGroup": "answer",
+      "pageNumber": 3,
+      "retainedRegionCount": 2,
+      "noiseRegionKinds": [
+        "top_margin",
+        "footer_page_number"
+      ]
+    },
+    {
+      "sourceGroup": "paper",
+      "pageNumber": 4,
+      "retainedRegionCount": 10,
+      "noiseRegionKinds": [
+        "top_margin",
+        "footer_page_number"
+      ]
+    },
+    {
+      "sourceGroup": "paper",
+      "pageNumber": 2,
+      "retainedRegionCount": 8,
+      "noiseRegionKinds": [
+        "top_margin",
+        "footer_page_number"
+      ]
+    },
+    {
+      "sourceGroup": "paper",
+      "pageNumber": 3,
+      "retainedRegionCount": 8,
+      "noiseRegionKinds": [
+        "top_margin",
+        "footer_page_number"
+      ]
+    },
+    {
+      "sourceGroup": "paper",
+      "pageNumber": 7,
+      "retainedRegionCount": 4,
+      "noiseRegionKinds": [
+        "top_margin",
+        "footer_page_number"
+      ]
+    },
+    {
+      "sourceGroup": "answer",
+      "pageNumber": 2,
+      "retainedRegionCount": 3,
+      "noiseRegionKinds": [
+        "top_margin",
+        "footer_page_number"
+      ]
+    },
+    {
+      "sourceGroup": "paper",
+      "pageNumber": 5,
+      "retainedRegionCount": 4,
+      "noiseRegionKinds": [
+        "top_margin",
+        "footer_page_number"
+      ]
+    },
+    {
+      "sourceGroup": "answer",
+      "pageNumber": 4,
+      "retainedRegionCount": 1,
+      "noiseRegionKinds": [
+        "top_margin",
+        "footer_page_number"
+      ]
+    }
+  ],
+  "noiseRegions": {
+    "paper": [
+      {
+        "kind": "top_margin",
+        "page": "all",
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 5.0
+      },
+      {
+        "kind": "footer_page_number",
+        "page": "all",
+        "x": 0.0,
+        "y": 94.0,
+        "width": 100.0,
+        "height": 6.0
+      },
+      {
+        "kind": "binding_line",
+        "page": 1,
+        "x": 0.0,
+        "y": 0.0,
+        "width": 10.0,
+        "height": 100.0
+      },
+      {
+        "kind": "exam_instructions",
+        "page": 1,
+        "x": 10.0,
+        "y": 0.0,
+        "width": 82.0,
+        "height": 55.0
+      }
+    ],
+    "answer": [
+      {
+        "kind": "top_margin",
+        "page": "all",
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 5.0
+      },
+      {
+        "kind": "footer_page_number",
+        "page": "all",
+        "x": 0.0,
+        "y": 94.0,
+        "width": 100.0,
+        "height": 6.0
+      }
+    ]
+  },
+  "latestRecropAudit": {
+    "id": "17406aff-2a69-4d3f-aa44-176d74320889",
+    "createdAt": "2026-05-16T02:47:35.217501+08:00",
+    "resolvedAt": "2026-05-16T02:47:35.217501+08:00"
+  },
+  "blockers": [],
+  "samples": {
+    "missingScreenshots": [],
+    "placeholderLike": [],
+    "noiseOverlaps": []
+  },
+  "rollback": "rerun tools/run-guangzhou-2015-real-ingest-slice.ps1 -Apply and tools/run-guangzhou-2015-visual-region-slice.ps1 -Apply, then rerun source screenshot backfill",
+  "summaryChinese": "2015 广州真卷来源区域已排除主要版面噪声，题图题具备 question_assets，重裁回填有 batch audit。"
+}

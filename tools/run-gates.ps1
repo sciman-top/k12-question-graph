@@ -437,6 +437,10 @@ try {
         .\tools\run-real004-guangzhou-2015-review-smoke.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -FileStoreRoot $FileStoreRoot | Write-Host
     }
 
+    Invoke-GateStep 'real guangzhou 2015 layout quality report' {
+        .\tools\run-real007-guangzhou-2015-layout-quality.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -FileStoreRoot $FileStoreRoot | Write-Host
+    }
+
     Invoke-GateStep 'c002l candidate review readiness contract' {
         .\tools\run-c002l-candidate-review-readiness.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword | Write-Host
     }
@@ -752,6 +756,23 @@ try {
             if ($preview.pages.Count -lt 1) { throw "preview did not return any page" }
             if ($preview.pages[0].pageNumber -ne 1) { throw "preview page number mismatch" }
             if ($preview.pages[0].regions.Count -lt 1) { throw "preview did not return source region" }
+
+            $updateBody = [ordered]@{
+                pageNumber = 1
+                x = 11
+                y = 16
+                width = 48
+                height = 28
+                coordinateUnit = 'percent'
+                screenshotRelativePath = $screenshotRelativePath
+                regionType = 'question'
+                reviewedBy = 'gate-source-region-editor'
+                reason = 'verify source region bbox edit audit'
+            } | ConvertTo-Json
+            $updated = Invoke-RestMethod -Method Patch -Uri "$apiUrl/source-regions/$($region.id)" -ContentType 'application/json' -Body $updateBody
+            if ($updated.region.x -ne 11) { throw "source region patch did not update x" }
+            if ($updated.region.regionType -ne 'question') { throw "source region patch did not update region type" }
+            if ([string]::IsNullOrWhiteSpace([string]$updated.auditId)) { throw "source region patch did not create audit id" }
         }
         finally {
             Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
