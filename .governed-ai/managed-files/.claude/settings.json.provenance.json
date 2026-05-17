@@ -1,5 +1,5 @@
 {
-  "expected_sha256": "a82b797d14e86dd7fbf64ffe0bf611651779bff2445fc13d35b4cd2eafd0e9f3",
+  "expected_sha256": "1ac23babffdc64fcc73f881bd85ab5fb712fd76ec4c097f7d1fdc5038ff391e6",
   "management_mode": "json_merge",
   "marker_strategy": "sidecar",
   "mode_status": "active",
@@ -9,7 +9,7 @@
   "record_kind": "target_repo_managed_file_provenance",
   "schema_version": "1.0",
   "source": "D:\\CODE\\governed-ai-coding-runtime\\docs\\targets\\templates\\claude-code\\settings.json",
-  "source_sha256": "a82b797d14e86dd7fbf64ffe0bf611651779bff2445fc13d35b4cd2eafd0e9f3",
-  "sync_revision": "2026-05-10.1",
-  "target_sha256": "a82b797d14e86dd7fbf64ffe0bf611651779bff2445fc13d35b4cd2eafd0e9f3"
+  "source_sha256": "c5c1715651e0127e266a90e43fb605c3197baa96a4e09d7006e6db8b76b35998",
+  "sync_revision": "2026-05-17.1",
+  "target_sha256": "1ac23babffdc64fcc73f881bd85ab5fb712fd76ec4c097f7d1fdc5038ff391e6"
 }

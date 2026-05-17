@@ -11,6 +11,17 @@
       "Read(**/*token*)",
       "Bash(powershell:*)",
       "Bash(powershell.exe:*)"
+    ],
+    "allow": [
+      "WebSearch",
+      "WebFetch",
+      "mcp__context7__*",
+      "mcp__github__*",
+      "mcp__microsoft-learn__*",
+      "mcp__playwright__*",
+      "mcp__web-search-prime__*",
+      "mcp__web_reader__*",
+      "mcp__zread__*"
     ]
   },
   "hooks": {
