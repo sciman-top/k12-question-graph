@@ -1,7 +1,11 @@
 param(
     [string] $BacklogPath = 'tasks/backlog.csv',
     [string] $ChecklistPath = 'docs/templates/p001-live-pilot-release-checklist.md',
-    [string] $EvidencePath = 'docs/evidence/20260505-p001-live-pilot-readiness-preflight.md'
+    [string] $EvidencePath = 'docs/evidence/20260518-p001-live-pilot-readiness-preflight.md',
+    [string] $ReportPath = 'docs/evidence/20260518-p001-live-pilot-readiness-preflight-report.json',
+    [string] $HostCapabilityReportPath = 'docs/evidence/host-capability-diagnostic-report.json',
+    [string] $WorkerProfileReportPath = 'docs/evidence/worker-profile-diagnostic-report.json',
+    [string] $TechnologyRefreshReportPath = 'docs/evidence/technology-refresh-report.json'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -15,9 +19,24 @@ function Resolve-InRepoPath([string]$RelativePath) {
     return Join-Path $repoRoot $RelativePath
 }
 
+function Read-JsonFile([string]$RelativePath) {
+    $fullPath = Resolve-InRepoPath $RelativePath
+    Assert-True (Test-Path -LiteralPath $fullPath) "JSON evidence missing: $RelativePath"
+    return Get-Content -LiteralPath $fullPath -Raw | ConvertFrom-Json
+}
+
+function Write-ContentIfChanged([string]$Path, [string]$Content) {
+    if (Test-Path -LiteralPath $Path) {
+        $existing = Get-Content -LiteralPath $Path -Raw
+        if ($existing -eq $Content) { return }
+    }
+    Set-Content -LiteralPath $Path -Value $Content -Encoding UTF8
+}
+
 $backlogFullPath = Resolve-InRepoPath $BacklogPath
 $checklistFullPath = Resolve-InRepoPath $ChecklistPath
 $evidenceFullPath = Resolve-InRepoPath $EvidencePath
+$reportFullPath = Resolve-InRepoPath $ReportPath
 
 Assert-True (Test-Path -LiteralPath $backlogFullPath) "P001 backlog file missing: $BacklogPath"
 Assert-True (Test-Path -LiteralPath $checklistFullPath) "P001 checklist missing: $ChecklistPath"
@@ -29,54 +48,162 @@ foreach ($row in $rows) {
     $byId[$row.id] = $row
 }
 
-foreach ($requiredTaskId in @('S012', 'O004B', 'O006', 'O007', 'O008', 'P001')) {
+foreach ($requiredTaskId in @('S012', 'O004B', 'O006', 'O007', 'O008', 'REAL001', 'REAL002', 'REAL003', 'REAL004', 'REAL005', 'REAL006', 'REAL007', 'REAL008', 'REAL009', 'REAL010', 'REAL011', 'REAL012', 'P001')) {
     Assert-True ($byId.ContainsKey($requiredTaskId)) "P001 prerequisite task missing: $requiredTaskId"
 }
 
 $p001 = $byId['P001']
-$s012 = $byId['S012']
-$o004b = $byId['O004B']
-$o006 = $byId['O006']
-$o007 = $byId['O007']
-$o008 = $byId['O008']
 
 $dependencies = @($p001.depends_on -split ';' | ForEach-Object { $_.Trim() } | Where-Object { $_ })
-foreach ($required in @('S012', 'O004B', 'O006', 'O007', 'O008')) {
+foreach ($required in @('S012', 'O004B', 'O006', 'O007', 'O008', 'REAL012')) {
     Assert-True ($dependencies -contains $required) "P001 depends_on must include $required"
 }
 
 Assert-True ($p001.status -eq '待办') 'P001 must remain todo until isolated-machine rehearsal is executed with live evidence'
-Assert-True ($s012.status -eq '待办' -or $s012.status -eq '已完成') 'S012 must exist as productization gate before P001'
-Assert-True ($o004b.status -eq '已完成') 'O004B must be completed before P001 preflight can pass'
-Assert-True ($o006.status -eq '已完成') 'O006 must be completed before P001 preflight can pass'
-Assert-True ($o007.status -eq '已完成') 'O007 must be completed before P001 preflight can pass'
-Assert-True ($o008.status -eq '已完成') 'O008 must be completed before P001 preflight can pass'
+
+$requiredCompleted = @('S012', 'O004B', 'O006', 'O007', 'O008', 'REAL001', 'REAL002', 'REAL003', 'REAL004', 'REAL005', 'REAL006', 'REAL007', 'REAL008', 'REAL009', 'REAL010', 'REAL011', 'REAL012')
+foreach ($required in $requiredCompleted) {
+    Assert-True ($byId[$required].status -eq '已完成') "$required must be completed before P001 preflight can pass"
+}
+
+$realEvidencePaths = [ordered]@{
+    REAL001 = 'docs/evidence/20260512-guangzhou-2015-real-ingest-slice-report.json'
+    REAL002 = 'docs/evidence/20260512-guangzhou-2015-visual-region-slice-report.json'
+    REAL003 = 'docs/evidence/20260514-real003-guangzhou-physics-year-batch-ingest-report.json'
+    REAL004 = 'docs/evidence/20260512-real004-guangzhou-2015-review-smoke-report.json'
+    REAL005 = 'docs/evidence/20260512-real005-guangzhou-2015-2025-closure-standard-report.json'
+    REAL006 = 'docs/evidence/20260512-real004-guangzhou-2015-review-smoke-report.json'
+    REAL007 = 'docs/evidence/20260516-real007-guangzhou-2015-layout-quality-report.json'
+    REAL008 = 'docs/evidence/20260518-real008-question-asset-smoke-report.json'
+    REAL009 = 'docs/evidence/20260518-real009-table-structure-smoke-report.json'
+    REAL010 = 'docs/evidence/20260518-real010-formula-fidelity-smoke-report.json'
+    REAL011 = 'docs/evidence/20260518-real011-question-edit-smoke-report.json'
+    REAL012 = 'docs/evidence/20260518-real012-production-flow-quality-report.json'
+}
+
+$realEvidenceStatus = [ordered]@{}
+foreach ($entry in $realEvidencePaths.GetEnumerator()) {
+    $json = Read-JsonFile $entry.Value
+    $realEvidenceStatus[$entry.Key] = [ordered]@{
+        path = $entry.Value
+        status = [string]$json.status
+    }
+}
+
+$real012Report = Read-JsonFile $realEvidencePaths['REAL012']
+Assert-True ($real012Report.status -eq 'pass') 'REAL012 report must pass before P001 preflight'
+Assert-True (@($real012Report.searchProbe.selectedQuestionNos).Count -ge 3) 'REAL012 must prove ordered real-question search sample'
+Assert-True ([int]$real012Report.searchProbe.hasImageCount -ge 3) 'REAL012 must prove image-backed real question cards'
+Assert-True ([int]$real012Report.paperBasket.itemCount -ge 3) 'REAL012 must prove reviewed real questions enter a paper basket'
+Assert-True ($real012Report.exportPreflight.status -eq 'ready_for_review') 'REAL012 must prove export preflight is ready for reviewed real samples'
+Assert-True ($real012Report.artifact.status -eq 'pass') 'REAL012 must prove Word/PDF draft artifacts'
+Assert-True ($real012Report.analysis.status -eq 'ready') 'REAL012 must prove analysis report readiness'
+Assert-True ($real012Report.analysis.allowAiDraftText -eq $false) 'REAL012 must keep AI draft text disabled for this real sample'
+Assert-True ($real012Report.analysis.writesProductionHistory -eq $false) 'REAL012 must not write formal history during P001 preflight'
+Assert-True ($real012Report.qualityReport.closureStatus -eq 'not_closed') 'REAL012 quality report must keep full paper closure not_closed when gaps remain'
+Assert-True ($real012Report.real005ClosureStatus -eq 'not_closed') 'REAL005 full closure must remain not_closed before live pilot'
+
+$hostReport = Read-JsonFile $HostCapabilityReportPath
+Assert-True ($hostReport.schemaVersion -eq 'host-capability-diagnostic.v1') 'host capability diagnostic schema mismatch'
+Assert-True ($hostReport.mode -eq 'read_only') 'host capability diagnostic must be read_only'
+Assert-True ([bool]$hostReport.guardrail.noInstallPerformed) 'host capability diagnostic must not install dependencies'
+Assert-True ([bool]$hostReport.guardrail.noNetworkRequired) 'host capability diagnostic must not require network'
+Assert-True (-not [bool]$hostReport.guardrail.productionDefaultChanged) 'host capability diagnostic must not change production defaults'
+Assert-True (-not [bool]$hostReport.guardrail.localAiDefaultChanged) 'host capability diagnostic must not change local AI defaults'
+Assert-True (-not [bool]$hostReport.guardrail.modelWeightsDownloaded) 'host capability diagnostic must not download model weights'
+Assert-True ([bool]$hostReport.recommendedProfiles.aiLocalModelProfile.requiresEvalBeforeDefault) 'aiLocalModelProfile must require eval before default'
+Assert-True ([bool]$hostReport.recommendedProfiles.aiLocalModelProfile.noActiveWrite) 'aiLocalModelProfile must forbid active writes'
+
+$workerReport = Read-JsonFile $WorkerProfileReportPath
+Assert-True ($workerReport.schemaVersion -eq 'worker-profile-diagnostic.v1') 'worker profile diagnostic schema mismatch'
+Assert-True ($workerReport.mode -eq 'read_only') 'worker profile diagnostic must be read_only'
+Assert-True ([bool]$workerReport.guardrail.noInstallPerformed) 'worker profile diagnostic must not install dependencies'
+Assert-True (-not [bool]$workerReport.guardrail.productionDefaultChanged) 'worker profile diagnostic must not change production default'
+Assert-True (@('direct_venv_lite','uv_venv_lite','conda_paddle_cpu','wsl_or_docker_heavy') -contains [string]$workerReport.recommendation.recommendedDefaultProfile) 'unexpected worker profile recommendation'
+
+$technologyReport = Read-JsonFile $TechnologyRefreshReportPath
+Assert-True ($technologyReport.status -eq 'pass') 'technology refresh report must pass'
+Assert-True ($technologyReport.mode -eq 'report_only') 'technology refresh must remain report_only'
+Assert-True ([bool]$technologyReport.boundaries.noInstall) 'technology refresh must not install'
+Assert-True ([bool]$technologyReport.boundaries.noDownload) 'technology refresh must not download'
+Assert-True ([bool]$technologyReport.boundaries.noDefaultRouteChange) 'technology refresh must not change default routes'
+Assert-True ([bool]$technologyReport.boundaries.noRealMaterialProcessing) 'technology refresh must not process real material'
+Assert-True ([bool]$technologyReport.boundaries.noProductionWrite) 'technology refresh must not write production config'
 
 $checklistText = Get-Content -LiteralPath $checklistFullPath -Raw
-foreach ($keyword in @('隔离机器', '安装向导', '备份', '恢复', '权限审计', '教师入口 smoke', 'release checklist', 'evidence')) {
+foreach ($keyword in @('隔离机器', '安装向导', '备份', '恢复', '权限审计', '教师入口 smoke', 'REAL001-REAL012', 'quality report', 'release checklist', 'evidence')) {
     Assert-True ($checklistText.Contains($keyword)) "P001 checklist missing keyword: $keyword"
 }
 
 $evidenceText = Get-Content -LiteralPath $evidenceFullPath -Raw
-foreach ($keyword in @('preflight', 'P001', 'platform_na', 'gate_na', '隔离机器', '下一步')) {
+foreach ($keyword in @('preflight', 'P001', 'REAL012', 'not_closed', 'host capability', 'worker profile', 'technology refresh', 'platform_na', 'gate_na', '隔离机器', '下一步')) {
     Assert-True ($evidenceText.Contains($keyword)) "P001 evidence missing keyword: $keyword"
 }
 
-[ordered]@{
+$report = [ordered]@{
     status = 'pass'
     taskId = 'P001'
     mode = 'preflight_only'
     p001Status = $p001.status
     dependencies = $dependencies
     prerequisites = [ordered]@{
-        S012 = $s012.status
-        O004B = $o004b.status
-        O006 = $o006.status
-        O007 = $o007.status
-        O008 = $o008.status
+        S012 = $byId['S012'].status
+        O004B = $byId['O004B'].status
+        O006 = $byId['O006'].status
+        O007 = $byId['O007'].status
+        O008 = $byId['O008'].status
+        REAL012 = $byId['REAL012'].status
+    }
+    realEvidence = $realEvidenceStatus
+    real012Probe = [ordered]@{
+        selectedQuestionNos = @($real012Report.searchProbe.selectedQuestionNos)
+        hasImageCount = [int]$real012Report.searchProbe.hasImageCount
+        paperBasketItemCount = [int]$real012Report.paperBasket.itemCount
+        exportPreflightStatus = [string]$real012Report.exportPreflight.status
+        artifactStatus = [string]$real012Report.artifact.status
+        analysisStatus = [string]$real012Report.analysis.status
+        qualityClosureStatus = [string]$real012Report.qualityReport.closureStatus
+        real005ClosureStatus = [string]$real012Report.real005ClosureStatus
+        gaps = @($real012Report.qualityReport.gaps)
+    }
+    diagnostics = [ordered]@{
+        hostCapability = [ordered]@{
+            path = $HostCapabilityReportPath
+            mode = [string]$hostReport.mode
+            profileSet = [string]$hostReport.bestConfiguration.profileSet
+            aiLocalModelProfile = [string]$hostReport.recommendedProfiles.aiLocalModelProfile.recommended
+            noInstallPerformed = [bool]$hostReport.guardrail.noInstallPerformed
+            productionDefaultChanged = [bool]$hostReport.guardrail.productionDefaultChanged
+        }
+        workerProfile = [ordered]@{
+            path = $WorkerProfileReportPath
+            mode = [string]$workerReport.mode
+            recommendedDefaultProfile = [string]$workerReport.recommendation.recommendedDefaultProfile
+            noInstallPerformed = [bool]$workerReport.guardrail.noInstallPerformed
+        }
+        technologyRefresh = [ordered]@{
+            path = $TechnologyRefreshReportPath
+            mode = [string]$technologyReport.mode
+            noInstall = [bool]$technologyReport.boundaries.noInstall
+            noDownload = [bool]$technologyReport.boundaries.noDownload
+            noDefaultRouteChange = [bool]$technologyReport.boundaries.noDefaultRouteChange
+        }
     }
     checklistPath = $ChecklistPath
     evidencePath = $EvidencePath
-    boundary = 'productization S012 and isolated-machine live rehearsal are not executed in this contract; keep P001 as todo until productized E2E and site run evidence are complete'
+    reportPath = $ReportPath
+    readyForIsolatedMachineRun = $true
+    p001CanClose = $false
+    blockers = @(
+        'isolated_machine_install_wizard_not_executed',
+        'isolated_machine_backup_restore_not_executed',
+        'isolated_machine_role_audit_not_executed',
+        'isolated_machine_four_teacher_entry_smoke_not_executed'
+    )
+    boundary = 'REAL001-REAL012 and read-only diagnostics are ready, but isolated-machine live rehearsal is not executed in this contract; keep P001 as todo until site-run evidence is complete'
     checkedAt = (Get-Date).ToString('s')
-} | ConvertTo-Json -Depth 6
+}
+
+$reportJson = $report | ConvertTo-Json -Depth 12
+Write-ContentIfChanged -Path $reportFullPath -Content $reportJson
+$report | ConvertTo-Json -Depth 12

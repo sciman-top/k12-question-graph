@@ -6,6 +6,7 @@
 - [ ] 目标环境为隔离机器，非开发仓库主机。
 - [ ] 本次仅执行安装向导、备份、恢复、权限审计和教师入口 smoke。
 - [ ] 执行前确认回滚路径：backup manifest + restore command + operator rollback note。
+- [ ] 带上 `REAL001-REAL012` 真卷证据包，尤其是 REAL012 `quality report`；若报告仍为 `not_closed`，不得宣称整卷或 2015-2025 全闭环完成。
 
 ## 1. 安装与初始化
 - [ ] 执行安装向导，记录安装包版本、安装目录、数据目录和备份目录。
