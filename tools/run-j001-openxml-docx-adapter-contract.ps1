@@ -35,6 +35,17 @@ try {
         throw "J001 table rows missing"
     }
 
+    $formula = $blocks | Where-Object { $_.blockType -eq 'formula' } | Select-Object -First 1
+    if (-not $formula.formula -or $formula.formula.sourceFormat -ne 'omml') {
+        throw "J001 formula OMML source format missing"
+    }
+    if (@($formula.formula.formulas).Count -lt 1 -or [string]::IsNullOrWhiteSpace([string]$formula.formula.formulas[0].omml)) {
+        throw "J001 formula OMML payload missing"
+    }
+    if ([string]$formula.formula.formulas[0].latex -ne 'F=ma') {
+        throw "J001 formula LaTeX/text derivative missing"
+    }
+
     $report = [ordered]@{
         status = 'pass'
         task = 'J001'
@@ -47,6 +58,9 @@ try {
         hasExplanation = $true
         hasTable = $true
         hasFormula = $true
+        formulaSourceFormat = [string]$formula.formula.sourceFormat
+        formulaOmmlPreserved = $true
+        formulaLatexDerivative = [string]$formula.formula.formulas[0].latex
         source = 'synthetic golden docx'
         productionEligible = $false
     }

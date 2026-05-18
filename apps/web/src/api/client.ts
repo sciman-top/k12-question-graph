@@ -398,6 +398,9 @@ export async function searchQuestions(params: {
   limit?: number
   questionType?: string
   sourceType?: string
+  status?: string
+  sortBy?: string
+  order?: 'asc' | 'desc'
 } = {}): Promise<ApiResult<QuestionSearchContract>> {
   const query = new URLSearchParams()
   query.set('subject', 'physics')
@@ -409,6 +412,15 @@ export async function searchQuestions(params: {
   }
   if (params.sourceType) {
     query.set('sourceType', params.sourceType)
+  }
+  if (params.status) {
+    query.set('status', params.status)
+  }
+  if (params.sortBy) {
+    query.set('sortBy', params.sortBy)
+  }
+  if (params.order) {
+    query.set('order', params.order)
   }
 
   return requestJson(`/questions?${query.toString()}`, normalizeQuestionSearchResponse)

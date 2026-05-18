@@ -29,7 +29,7 @@
       {
         "name": "data_root",
         "path": "D:\\CODE\\k12-question-graph\\tmp\\g002-storage\\data",
-        "bytes": 134381,
+        "bytes": 142971,
         "fileCount": 4,
         "cleanupAllowed": false
       },
@@ -50,7 +50,7 @@
       {
         "name": "logs",
         "path": "D:\\CODE\\k12-question-graph\\tmp\\g002-storage\\data\\logs",
-        "bytes": 134296,
+        "bytes": 142886,
         "fileCount": 1,
         "cleanupAllowed": false
       },
@@ -78,7 +78,7 @@
       {
         "relativePath": "old-cache.bin",
         "sizeBytes": 21,
-        "lastWriteTimeUtc": "2026-04-15T18:48:56.2630452Z"
+        "lastWriteTimeUtc": "2026-04-18T05:24:25.3373775Z"
       }
     ]
   },
@@ -97,7 +97,7 @@
       {
         "relativePath": "old-cache.bin",
         "sizeBytes": 21,
-        "lastWriteTimeUtc": "2026-04-15T18:48:56.2630452Z"
+        "lastWriteTimeUtc": "2026-04-18T05:24:25.3373775Z"
       }
     ]
   },

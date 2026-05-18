@@ -629,6 +629,99 @@ app.MapGet("/source-documents", async (
 })
 .WithName("ListSourceDocuments");
 
+app.MapPatch("/source-documents/{id:guid}/authorization", async (
+    Guid id,
+    SourceDocumentAuthorizationUpdateRequest request,
+    KqgDbContext dbContext,
+    CancellationToken cancellationToken) =>
+{
+    if (string.IsNullOrWhiteSpace(request.ReviewedBy))
+    {
+        return Results.BadRequest(new { error = "reviewed_by_required" });
+    }
+
+    if (string.IsNullOrWhiteSpace(request.Reason))
+    {
+        return Results.BadRequest(new { error = "reason_required" });
+    }
+
+    var sourceDocument = await dbContext.SourceDocuments
+        .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+    if (sourceDocument is null)
+    {
+        return Results.NotFound(new { error = "source_document_not_found" });
+    }
+    var file = await dbContext.FileAssets
+        .AsNoTracking()
+        .FirstOrDefaultAsync(x => x.Id == sourceDocument.FileAssetId, cancellationToken);
+    if (file is null)
+    {
+        return Results.Conflict(new { error = "source_file_missing", fileAssetId = sourceDocument.FileAssetId });
+    }
+
+    var before = SourceMaterialResponse.From(sourceDocument, file);
+    if (!string.IsNullOrWhiteSpace(request.LicenseOrPermission))
+    {
+        sourceDocument.LicenseOrPermission = NormalizeToken(request.LicenseOrPermission, "unknown");
+    }
+    if (request.SharingAllowed.HasValue)
+    {
+        sourceDocument.SharingAllowed = request.SharingAllowed.Value;
+    }
+    if (request.ContainsStudentPii.HasValue)
+    {
+        sourceDocument.ContainsStudentPii = request.ContainsStudentPii.Value;
+    }
+    if (!string.IsNullOrWhiteSpace(request.AnonymizationStatus))
+    {
+        sourceDocument.AnonymizationStatus = NormalizeToken(request.AnonymizationStatus, "not_applicable");
+    }
+    if (request.ExternalAiAllowed.HasValue)
+    {
+        sourceDocument.ExternalAiAllowed = request.ExternalAiAllowed.Value;
+    }
+    if (request.MayUseForKnowledgeExtraction.HasValue)
+    {
+        sourceDocument.MayUseForKnowledgeExtraction = request.MayUseForKnowledgeExtraction.Value;
+    }
+    if (request.MayUseForExamPointExtraction.HasValue)
+    {
+        sourceDocument.MayUseForExamPointExtraction = request.MayUseForExamPointExtraction.Value;
+    }
+    if (request.MayUseForTrendAnalysis.HasValue)
+    {
+        sourceDocument.MayUseForTrendAnalysis = request.MayUseForTrendAnalysis.Value;
+    }
+
+    var now = DateTimeOffset.UtcNow;
+    var after = SourceMaterialResponse.From(sourceDocument, file);
+    var audit = new ReviewQueueItem
+    {
+        ReviewType = "source_document_authorization",
+        Status = ReviewStatuses.Resolved,
+        CreatedAt = now,
+        ResolvedAt = now,
+        Payload = JsonSerializer.Serialize(new
+        {
+            sourceDocumentId = id,
+            before,
+            after,
+            reviewAudit = new
+            {
+                reviewedBy = request.ReviewedBy.Trim(),
+                decision = "source_document_authorization_updated",
+                reason = request.Reason.Trim(),
+                reviewedAt = now.ToString("O")
+            }
+        })
+    };
+    dbContext.ReviewQueueItems.Add(audit);
+    await dbContext.SaveChangesAsync(cancellationToken);
+
+    return Results.Ok(new SourceDocumentAuthorizationUpdateResponse(after, audit.Id));
+})
+.WithName("UpdateSourceDocumentAuthorization");
+
 app.MapPost("/imports", async (HttpRequest request, IFileStore fileStore, KqgDbContext dbContext, CancellationToken cancellationToken) =>
 {
     var form = await request.ReadFormAsync(cancellationToken);
@@ -874,6 +967,167 @@ app.MapGet("/source-documents/{id:guid}/preview", async (
     return Results.Ok(new SourceDocumentPreviewResponse(id, pages));
 })
 .WithName("GetSourceDocumentPreview");
+
+app.MapGet("/source-documents/{id:guid}/quality-report", async (
+    Guid id,
+    KqgDbContext dbContext,
+    CancellationToken cancellationToken) =>
+{
+    var sourceDocument = await dbContext.SourceDocuments
+        .AsNoTracking()
+        .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+    if (sourceDocument is null)
+    {
+        return Results.NotFound(new { error = "source_document_not_found" });
+    }
+
+    var blockQuestionIds =
+        from block in dbContext.QuestionBlocks.AsNoTracking()
+        where block.SourceRegionId != null
+        join region in dbContext.SourceRegions.AsNoTracking() on block.SourceRegionId!.Value equals region.Id
+        where region.SourceDocumentId == id
+        select block.QuestionItemId;
+    var assetQuestionIds =
+        from asset in dbContext.QuestionAssets.AsNoTracking()
+        where asset.SourceRegionId != null
+        join region in dbContext.SourceRegions.AsNoTracking() on asset.SourceRegionId!.Value equals region.Id
+        where region.SourceDocumentId == id
+        select asset.QuestionItemId;
+    var questionIds = await blockQuestionIds
+        .Concat(assetQuestionIds)
+        .Distinct()
+        .ToListAsync(cancellationToken);
+
+    var questions = await dbContext.QuestionItems
+        .AsNoTracking()
+        .Where(x => questionIds.Contains(x.Id))
+        .ToListAsync(cancellationToken);
+    var blocks = await dbContext.QuestionBlocks
+        .AsNoTracking()
+        .Where(x => questionIds.Contains(x.QuestionItemId))
+        .ToListAsync(cancellationToken);
+    var assets = await dbContext.QuestionAssets
+        .AsNoTracking()
+        .Where(x => questionIds.Contains(x.QuestionItemId))
+        .ToListAsync(cancellationToken);
+    var regions = await dbContext.SourceRegions
+        .AsNoTracking()
+        .Where(x => x.SourceDocumentId == id)
+        .ToListAsync(cancellationToken);
+
+    var questionIdSet = questionIds.ToHashSet();
+    var openReviewItems = await dbContext.ReviewQueueItems
+        .AsNoTracking()
+        .Where(x => x.Status == ReviewStatuses.Open)
+        .ToListAsync(cancellationToken);
+    var relatedOpenReviewItems = openReviewItems
+        .Where(x => ReviewQueuePayloadReferences(x.Payload, id, questionIdSet))
+        .ToArray();
+
+    var questionNumbers = questions
+        .Select(x => TryGetIntCustomField(x.CustomFields, "questionNo"))
+        .Where(x => x.HasValue)
+        .Select(x => x!.Value)
+        .Distinct()
+        .OrderBy(x => x)
+        .ToArray();
+    var missingQuestionNumbers = questionNumbers.Length == 0
+        ? Array.Empty<int>()
+        : Enumerable.Range(questionNumbers.Min(), questionNumbers.Max() - questionNumbers.Min() + 1)
+            .Except(questionNumbers)
+            .ToArray();
+    var linkedRegionIds = blocks
+        .Select(x => x.SourceRegionId)
+        .Concat(assets.Select(x => x.SourceRegionId))
+        .Where(x => x.HasValue)
+        .Select(x => x!.Value)
+        .Distinct()
+        .ToHashSet();
+    var linkedRegions = regions.Where(x => linkedRegionIds.Contains(x.Id)).ToArray();
+    var missingLinkedScreenshots = linkedRegions
+        .Where(x => string.IsNullOrWhiteSpace(x.ScreenshotRelativePath))
+        .Select(x => x.Id)
+        .ToArray();
+
+    var answerCoveredCount = questions.Count(x => QuestionCustomFieldHasValue(x.CustomFields, "answer"));
+    var solutionCoveredCount = questions.Count(x => QuestionCustomFieldHasValue(x.CustomFields, "solution"));
+    var tableCount = blocks.Count(x => string.Equals(x.BlockType, "table", StringComparison.OrdinalIgnoreCase));
+    var formulaCount = blocks.Count(x => string.Equals(x.BlockType, "formula", StringComparison.OrdinalIgnoreCase));
+    var imageAssets = assets.Where(x => string.Equals(x.AssetType, "image", StringComparison.OrdinalIgnoreCase)).ToArray();
+    var imageMatchedQuestionCount = imageAssets.Select(x => x.QuestionItemId).Distinct().Count();
+    var externalAiCalls = questions.Sum(x => TryGetIntCustomField(x.QualitySignals, "externalAiCalls") ?? 0);
+    var noiseRetainedBlockCount = blocks.Count(QuestionBlockLooksLikeRetainedNoise);
+
+    var gaps = new List<string>();
+    if (questions.Count == 0)
+    {
+        gaps.Add("question_items_missing");
+    }
+    if (questionNumbers.Length != questions.Count || missingQuestionNumbers.Length > 0)
+    {
+        gaps.Add("question_number_incomplete");
+    }
+    if (answerCoveredCount != questions.Count)
+    {
+        gaps.Add("answer_coverage_incomplete");
+    }
+    if (missingLinkedScreenshots.Length > 0)
+    {
+        gaps.Add("linked_source_screenshot_missing");
+    }
+    if (relatedOpenReviewItems.Length > 0)
+    {
+        gaps.Add("manual_review_pending");
+    }
+    if (noiseRetainedBlockCount > 0)
+    {
+        gaps.Add("possible_layout_noise_retained");
+    }
+
+    var metrics = new SourceDocumentQualityMetricsResponse(
+        QuestionCount: questions.Count,
+        QuestionNumberCount: questionNumbers.Length,
+        AnswerCoveredCount: answerCoveredCount,
+        SolutionCoveredCount: solutionCoveredCount,
+        SourceRegionCount: regions.Count,
+        LinkedSourceRegionCount: linkedRegions.Length,
+        LinkedSourceScreenshotCount: linkedRegions.Count(x => !string.IsNullOrWhiteSpace(x.ScreenshotRelativePath)),
+        MissingLinkedSourceScreenshotCount: missingLinkedScreenshots.Length,
+        ImageAssetCount: imageAssets.Length,
+        ImageMatchedQuestionCount: imageMatchedQuestionCount,
+        TableBlockCount: tableCount,
+        FormulaBlockCount: formulaCount,
+        PendingManualItemCount: relatedOpenReviewItems.Length,
+        NoiseRetainedBlockCount: noiseRetainedBlockCount,
+        ExternalAiCallCount: externalAiCalls);
+
+    var closureStatus = gaps.Count == 0 ? "paper_quality_pass" : "not_closed";
+    return Results.Ok(new SourceDocumentQualityReportResponse(
+        SourceDocumentId: sourceDocument.Id,
+        SourceTitle: sourceDocument.SourceTitle,
+        SourceType: sourceDocument.SourceType,
+        Region: sourceDocument.Region,
+        Year: sourceDocument.Year,
+        MaterialBatchKey: sourceDocument.MaterialBatchKey,
+        ClosureStatus: closureStatus,
+        FullClosureAllowed: false,
+        Metrics: metrics,
+        QuestionNumbers: questionNumbers,
+        MissingQuestionNumbers: missingQuestionNumbers,
+        MissingLinkedSourceRegionIds: missingLinkedScreenshots,
+        PendingReviewTypes: relatedOpenReviewItems
+            .Select(x => x.ReviewType)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(x => x)
+            .ToArray(),
+        Gaps: gaps,
+        ExternalAiPolicy: externalAiCalls == 0 ? "no_external_ai_calls" : "external_ai_calls_require_review",
+        RollbackSql: BuildSourceDocumentRollbackSql(sourceDocument.Id),
+        SummaryChinese: gaps.Count == 0
+            ? "本份试卷题号、答案、来源截图和结构化质量指标通过；全量 REAL005 仍需逐年逐题证据。"
+            : $"本份试卷仍有 {gaps.Count} 类缺口：{string.Join("、", gaps)}。"));
+})
+.WithName("GetSourceDocumentQualityReport");
 
 app.MapGet("/source-regions/{id:guid}/screenshot", async (
     Guid id,
@@ -1494,6 +1748,27 @@ app.MapPost("/questions", async (
     dbContext.QuestionBlocks.AddRange(blocks);
     dbContext.QuestionAssets.AddRange(assets);
     await dbContext.SaveChangesAsync(cancellationToken);
+
+    var tableReviewItems = blocks
+        .Where(RequiresTableBlockReview)
+        .Select(block => CreateTableBlockReviewItem(item, block, now))
+        .ToArray();
+    if (tableReviewItems.Length > 0)
+    {
+        dbContext.ReviewQueueItems.AddRange(tableReviewItems);
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    var formulaReviewItems = blocks
+        .Where(RequiresFormulaBlockReview)
+        .Select(block => CreateFormulaBlockReviewItem(item, block, now))
+        .ToArray();
+    if (formulaReviewItems.Length > 0)
+    {
+        dbContext.ReviewQueueItems.AddRange(formulaReviewItems);
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
     await transaction.CommitAsync(cancellationToken);
 
     return Results.Created($"/questions/{item.Id}", QuestionResponse.From(item, blocks, assets));
@@ -1512,6 +1787,8 @@ app.MapGet("/questions", async (
     string? sourceType,
     string? knowledgeStatus,
     int? knowledgeVersion,
+    string? sortBy,
+    string? order,
     int? page,
     int? limit,
     KqgDbContext dbContext,
@@ -1600,13 +1877,38 @@ app.MapGet("/questions", async (
     var pageSize = Math.Clamp(limit ?? 20, 1, 50);
     var pageIndex = Math.Max(1, page ?? 1);
     var offset = (pageIndex - 1) * pageSize;
-    var total = await query.CountAsync(cancellationToken);
-    var items = await query
-        .OrderByDescending(x => x.UpdatedAt)
-        .ThenByDescending(x => x.CreatedAt)
-        .Skip(offset)
-        .Take(pageSize)
-        .ToListAsync(cancellationToken);
+    var normalizedSortBy = NormalizeToken(sortBy ?? string.Empty, "updated_at");
+    var sortDescending = string.Equals(NormalizeToken(order ?? string.Empty, "desc"), "desc", StringComparison.OrdinalIgnoreCase);
+    int total;
+    List<QuestionItem> items;
+    if (normalizedSortBy is "question_no" or "exam_question_no")
+    {
+        var allItems = await query.ToListAsync(cancellationToken);
+        total = allItems.Count;
+        var sorted = sortDescending
+            ? allItems
+                .OrderByDescending(x => TryGetIntCustomField(x.CustomFields, "questionNo") ?? int.MinValue)
+                .ThenByDescending(x => x.UpdatedAt)
+                .ThenByDescending(x => x.CreatedAt)
+            : allItems
+                .OrderBy(x => TryGetIntCustomField(x.CustomFields, "questionNo") ?? int.MaxValue)
+                .ThenBy(x => x.UpdatedAt)
+                .ThenBy(x => x.CreatedAt);
+        items = sorted
+            .Skip(offset)
+            .Take(pageSize)
+            .ToList();
+    }
+    else
+    {
+        total = await query.CountAsync(cancellationToken);
+        items = await query
+            .OrderByDescending(x => x.UpdatedAt)
+            .ThenByDescending(x => x.CreatedAt)
+            .Skip(offset)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+    }
 
     var questionIds = items.Select(x => x.Id).ToArray();
     var blocks = await dbContext.QuestionBlocks
@@ -1698,6 +2000,7 @@ app.MapGet("/questions", async (
             item.DefaultScore,
             item.DifficultyEstimated,
             item.Status,
+            TryGetIntCustomField(item.CustomFields, "questionNo"),
             primaryKnowledge,
             GetQuestionPreview(itemBlocks ?? []),
             itemBlocks?.Length ?? 0,
@@ -1746,6 +2049,388 @@ app.MapGet("/questions/{id:guid}", async (Guid id, KqgDbContext dbContext, Cance
     return Results.Ok(QuestionResponse.From(item, blocks, assets));
 })
 .WithName("GetQuestion");
+
+app.MapPatch("/questions/{id:guid}", async (
+    Guid id,
+    QuestionUpdateRequest request,
+    KqgDbContext dbContext,
+    CancellationToken cancellationToken) =>
+{
+    if (string.IsNullOrWhiteSpace(request.ReviewedBy))
+    {
+        return Results.BadRequest(new { error = "reviewed_by_required" });
+    }
+
+    if (string.IsNullOrWhiteSpace(request.Reason))
+    {
+        return Results.BadRequest(new { error = "reason_required" });
+    }
+
+    var item = await dbContext.QuestionItems.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+    if (item is null)
+    {
+        return Results.NotFound(new { error = "question_not_found" });
+    }
+
+    if (request.DifficultyEstimated is < 0 or > 1)
+    {
+        return Results.BadRequest(new { error = "invalid_difficulty_estimated" });
+    }
+
+    if (request.PrimaryKnowledgeId.HasValue)
+    {
+        var knowledgeExists = await dbContext.KnowledgeNodes
+            .AsNoTracking()
+            .AnyAsync(x => x.Id == request.PrimaryKnowledgeId.Value, cancellationToken);
+        if (!knowledgeExists)
+        {
+            return Results.Conflict(new { error = "primary_knowledge_missing", primaryKnowledgeId = request.PrimaryKnowledgeId.Value });
+        }
+    }
+
+    var requestedBlocks = request.Blocks ?? [];
+    foreach (var block in requestedBlocks)
+    {
+        if (!string.IsNullOrWhiteSpace(block.BlockType) && !IsAllowedQuestionBlockType(NormalizeToken(block.BlockType, "text")))
+        {
+            return Results.BadRequest(new { error = "invalid_block_type" });
+        }
+    }
+
+    var sourceRegionIds = requestedBlocks
+        .Select(x => x.SourceRegionId)
+        .Where(x => x.HasValue)
+        .Select(x => x!.Value)
+        .Distinct()
+        .ToArray();
+    if (sourceRegionIds.Length > 0)
+    {
+        var found = await dbContext.SourceRegions
+            .AsNoTracking()
+            .Where(x => sourceRegionIds.Contains(x.Id))
+            .Select(x => x.Id)
+            .ToListAsync(cancellationToken);
+        if (found.Count != sourceRegionIds.Length)
+        {
+            return Results.Conflict(new { error = "source_region_missing" });
+        }
+    }
+
+    var blocks = await dbContext.QuestionBlocks
+        .Where(x => x.QuestionItemId == id)
+        .OrderBy(x => x.SortOrder)
+        .ToListAsync(cancellationToken);
+    var assets = await dbContext.QuestionAssets
+        .AsNoTracking()
+        .Where(x => x.QuestionItemId == id)
+        .OrderBy(x => x.CreatedAt)
+        .ToListAsync(cancellationToken);
+    var before = QuestionResponse.From(item, blocks, assets);
+
+    if (!string.IsNullOrWhiteSpace(request.QuestionType))
+    {
+        item.QuestionType = NormalizeToken(request.QuestionType, "unknown");
+    }
+    if (request.DefaultScore.HasValue)
+    {
+        item.DefaultScore = request.DefaultScore;
+    }
+    if (request.DifficultyEstimated.HasValue)
+    {
+        item.DifficultyEstimated = request.DifficultyEstimated;
+    }
+    if (!string.IsNullOrWhiteSpace(request.Status))
+    {
+        item.Status = NormalizeToken(request.Status, QuestionStatuses.Draft);
+    }
+    if (request.PrimaryKnowledgeId.HasValue)
+    {
+        item.PrimaryKnowledgeId = request.PrimaryKnowledgeId.Value;
+        var primaryMappings = await dbContext.KnowledgeMappings
+            .Where(x => x.QuestionItemId == id && x.IsPrimary)
+            .ToListAsync(cancellationToken);
+        foreach (var mapping in primaryMappings)
+        {
+            mapping.IsPrimary = false;
+        }
+
+        var targetMapping = await dbContext.KnowledgeMappings
+            .FirstOrDefaultAsync(
+                x => x.QuestionItemId == id && x.KnowledgeNodeId == request.PrimaryKnowledgeId.Value,
+                cancellationToken);
+        if (targetMapping is null)
+        {
+            dbContext.KnowledgeMappings.Add(new KnowledgeMapping
+            {
+                QuestionItemId = id,
+                KnowledgeNodeId = request.PrimaryKnowledgeId.Value,
+                MappingSource = KnowledgeMappingSources.Manual,
+                IsPrimary = true,
+                Confidence = 1.0m,
+                Version = 1,
+                Evidence = SerializeJson(new
+                {
+                    source = "question_update",
+                    reviewedBy = request.ReviewedBy.Trim(),
+                    reason = request.Reason.Trim()
+                }),
+                CreatedAt = DateTimeOffset.UtcNow
+            });
+        }
+        else
+        {
+            targetMapping.MappingSource = KnowledgeMappingSources.Manual;
+            targetMapping.IsPrimary = true;
+            targetMapping.Confidence = 1.0m;
+            targetMapping.Version = 1;
+            targetMapping.Evidence = SerializeJson(new
+            {
+                source = "question_update",
+                reviewedBy = request.ReviewedBy.Trim(),
+                reason = request.Reason.Trim()
+            });
+        }
+    }
+
+    var blockById = blocks.ToDictionary(x => x.Id);
+    var nextSortOrder = blocks.Count == 0 ? 0 : blocks.Max(x => x.SortOrder) + 1;
+    foreach (var blockPatch in requestedBlocks)
+    {
+        QuestionBlock block;
+        if (blockPatch.Id.HasValue)
+        {
+            if (!blockById.TryGetValue(blockPatch.Id.Value, out block!))
+            {
+                return Results.Conflict(new { error = "question_block_missing", blockId = blockPatch.Id.Value });
+            }
+        }
+        else
+        {
+            block = new QuestionBlock
+            {
+                QuestionItemId = id,
+                BlockType = "text",
+                SortOrder = nextSortOrder++,
+                Content = "{}",
+                CreatedAt = DateTimeOffset.UtcNow
+            };
+            dbContext.QuestionBlocks.Add(block);
+            blocks.Add(block);
+        }
+
+        if (!string.IsNullOrWhiteSpace(blockPatch.BlockType))
+        {
+            block.BlockType = NormalizeToken(blockPatch.BlockType, "text");
+        }
+        if (blockPatch.SortOrder.HasValue)
+        {
+            block.SortOrder = blockPatch.SortOrder.Value;
+        }
+        if (blockPatch.Content.HasValue)
+        {
+            block.Content = SerializeJson(blockPatch.Content.Value);
+        }
+        if (blockPatch.SourceRegionId.HasValue)
+        {
+            block.SourceRegionId = blockPatch.SourceRegionId;
+        }
+    }
+
+    var answer = request.Answer.HasValue
+        ? request.Answer.Value.Clone()
+        : TryGetCustomFieldElement(item.CustomFields, "answer");
+    var solution = request.Solution.HasValue
+        ? request.Solution.Value.Clone()
+        : TryGetCustomFieldElement(item.CustomFields, "solution");
+    item.CustomFields = MergeQuestionCustomFields(item.CustomFields, answer, solution);
+    item.Blocks = SerializeJson(blocks.OrderBy(x => x.SortOrder).Select(block => new
+    {
+        type = block.BlockType,
+        order = block.SortOrder,
+        content = JsonHelpers.ParseJsonElement(block.Content),
+        source_region_id = block.SourceRegionId
+    }));
+    item.UpdatedAt = DateTimeOffset.UtcNow;
+
+    var now = DateTimeOffset.UtcNow;
+    var audit = new ReviewQueueItem
+    {
+        ReviewType = "question_revision",
+        Status = ReviewStatuses.Resolved,
+        CreatedAt = now,
+        ResolvedAt = now,
+        Payload = JsonSerializer.Serialize(new
+        {
+            questionItemId = id,
+            before,
+            after = QuestionResponse.From(item, blocks.OrderBy(x => x.SortOrder).ToList(), assets),
+            reviewAudit = new
+            {
+                reviewedBy = request.ReviewedBy.Trim(),
+                decision = "question_updated",
+                reason = request.Reason.Trim(),
+                reviewedAt = now.ToString("O")
+            }
+        })
+    };
+    dbContext.ReviewQueueItems.Add(audit);
+
+    await dbContext.SaveChangesAsync(cancellationToken);
+    var afterBlocks = await dbContext.QuestionBlocks
+        .AsNoTracking()
+        .Where(x => x.QuestionItemId == id)
+        .OrderBy(x => x.SortOrder)
+        .ToListAsync(cancellationToken);
+    return Results.Ok(new QuestionRevisionResponse(QuestionResponse.From(item, afterBlocks, assets), audit.Id));
+})
+.WithName("UpdateQuestion");
+
+app.MapPost("/questions/{id:guid}/assets", async (
+    Guid id,
+    QuestionAssetAssociationRequest request,
+    KqgDbContext dbContext,
+    CancellationToken cancellationToken) =>
+{
+    if (string.IsNullOrWhiteSpace(request.ReviewedBy))
+    {
+        return Results.BadRequest(new { error = "reviewed_by_required" });
+    }
+
+    if (string.IsNullOrWhiteSpace(request.Reason))
+    {
+        return Results.BadRequest(new { error = "reason_required" });
+    }
+
+    var itemExists = await dbContext.QuestionItems.AsNoTracking().AnyAsync(x => x.Id == id, cancellationToken);
+    if (!itemExists)
+    {
+        return Results.NotFound(new { error = "question_not_found" });
+    }
+
+    var sourceRegionExists = await dbContext.SourceRegions
+        .AsNoTracking()
+        .AnyAsync(x => x.Id == request.SourceRegionId, cancellationToken);
+    if (!sourceRegionExists)
+    {
+        return Results.Conflict(new { error = "source_region_missing" });
+    }
+
+    if (request.FileAssetId.HasValue)
+    {
+        var fileAssetExists = await dbContext.FileAssets
+            .AsNoTracking()
+            .AnyAsync(x => x.Id == request.FileAssetId.Value, cancellationToken);
+        if (!fileAssetExists)
+        {
+            return Results.Conflict(new { error = "file_asset_missing" });
+        }
+    }
+
+    var now = DateTimeOffset.UtcNow;
+    var asset = new QuestionAsset
+    {
+        QuestionItemId = id,
+        FileAssetId = request.FileAssetId,
+        SourceRegionId = request.SourceRegionId,
+        AssetType = string.IsNullOrWhiteSpace(request.AssetType) ? "image" : NormalizeToken(request.AssetType, "image"),
+        Purpose = string.IsNullOrWhiteSpace(request.Purpose) ? "question_figure" : NormalizeToken(request.Purpose, "question_figure"),
+        Metadata = SerializeJson(request.Metadata),
+        CreatedAt = now
+    };
+    dbContext.QuestionAssets.Add(asset);
+
+    var audit = new ReviewQueueItem
+    {
+        ReviewType = "question_asset_revision",
+        Status = ReviewStatuses.Resolved,
+        CreatedAt = now,
+        ResolvedAt = now,
+        Payload = JsonSerializer.Serialize(new
+        {
+            questionItemId = id,
+            questionAssetId = asset.Id,
+            sourceRegionId = asset.SourceRegionId,
+            fileAssetId = asset.FileAssetId,
+            assetType = asset.AssetType,
+            purpose = asset.Purpose,
+            decision = "question_asset_associated",
+            reviewAudit = new
+            {
+                reviewedBy = request.ReviewedBy.Trim(),
+                decision = "question_asset_associated",
+                reason = request.Reason.Trim(),
+                reviewedAt = now.ToString("O")
+            }
+        })
+    };
+    dbContext.ReviewQueueItems.Add(audit);
+
+    await dbContext.SaveChangesAsync(cancellationToken);
+    return Results.Created($"/questions/{id}/assets/{asset.Id}", new QuestionAssetRevisionResponse(QuestionAssetResponse.From(asset), audit.Id));
+})
+.WithName("AssociateQuestionAsset");
+
+app.MapDelete("/questions/{id:guid}/assets/{assetId:guid}", async (
+    Guid id,
+    Guid assetId,
+    string reviewedBy,
+    string reason,
+    KqgDbContext dbContext,
+    CancellationToken cancellationToken) =>
+{
+    if (string.IsNullOrWhiteSpace(reviewedBy))
+    {
+        return Results.BadRequest(new { error = "reviewed_by_required" });
+    }
+
+    if (string.IsNullOrWhiteSpace(reason))
+    {
+        return Results.BadRequest(new { error = "reason_required" });
+    }
+
+    var asset = await dbContext.QuestionAssets.FirstOrDefaultAsync(x => x.Id == assetId && x.QuestionItemId == id, cancellationToken);
+    if (asset is null)
+    {
+        return Results.NotFound(new { error = "question_asset_not_found" });
+    }
+
+    var now = DateTimeOffset.UtcNow;
+    var sourceRegionId = asset.SourceRegionId;
+    var fileAssetId = asset.FileAssetId;
+    var assetType = asset.AssetType;
+    var purpose = asset.Purpose;
+    dbContext.QuestionAssets.Remove(asset);
+
+    var audit = new ReviewQueueItem
+    {
+        ReviewType = "question_asset_revision",
+        Status = ReviewStatuses.Resolved,
+        CreatedAt = now,
+        ResolvedAt = now,
+        Payload = JsonSerializer.Serialize(new
+        {
+            questionItemId = id,
+            questionAssetId = assetId,
+            sourceRegionId,
+            fileAssetId,
+            assetType,
+            purpose,
+            decision = "question_asset_unlinked",
+            reviewAudit = new
+            {
+                reviewedBy = reviewedBy.Trim(),
+                decision = "question_asset_unlinked",
+                reason = reason.Trim(),
+                reviewedAt = now.ToString("O")
+            }
+        })
+    };
+    dbContext.ReviewQueueItems.Add(audit);
+
+    await dbContext.SaveChangesAsync(cancellationToken);
+    return Results.Ok(new QuestionAssetUnlinkResponse(id, assetId, sourceRegionId, audit.Id));
+})
+.WithName("UnlinkQuestionAsset");
 
 app.MapGet("/questions/{id:guid}/sources", async (
     Guid id,
@@ -2761,6 +3446,339 @@ static string GetBlockPreview(QuestionBlock block)
     }
 }
 
+static bool RequiresTableBlockReview(QuestionBlock block)
+{
+    if (!string.Equals(block.BlockType, "table", StringComparison.OrdinalIgnoreCase))
+    {
+        return false;
+    }
+
+    try
+    {
+        using var document = JsonDocument.Parse(block.Content);
+        var root = document.RootElement;
+        var reviewStatus = TryGetStringProperty(root, "reviewStatus");
+        if (string.Equals(reviewStatus, "pending_review", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        var confidence = TryGetDoubleProperty(root, "confidence");
+        return confidence.HasValue && confidence.Value < 0.8;
+    }
+    catch (JsonException)
+    {
+        return true;
+    }
+}
+
+static ReviewQueueItem CreateTableBlockReviewItem(QuestionItem item, QuestionBlock block, DateTimeOffset now)
+{
+    double? confidence = null;
+    string? caption = null;
+    string? reviewStatus = null;
+    try
+    {
+        using var document = JsonDocument.Parse(block.Content);
+        var root = document.RootElement;
+        confidence = TryGetDoubleProperty(root, "confidence");
+        caption = TryGetStringProperty(root, "caption");
+        reviewStatus = TryGetStringProperty(root, "reviewStatus");
+    }
+    catch (JsonException)
+    {
+        reviewStatus = "pending_review";
+    }
+
+    return new ReviewQueueItem
+    {
+        ReviewType = "question_table_block_review",
+        Status = ReviewStatuses.Open,
+        CreatedAt = now,
+        Payload = JsonSerializer.Serialize(new
+        {
+            questionItemId = item.Id,
+            questionBlockId = block.Id,
+            sourceRegionId = block.SourceRegionId,
+            blockType = block.BlockType,
+            caption,
+            confidence,
+            reviewStatus = string.IsNullOrWhiteSpace(reviewStatus) ? "pending_review" : reviewStatus,
+            riskLevel = "medium",
+            requiredAction = "review_table_structure",
+            reason = "table_block_low_confidence_or_pending_review",
+            sourceWorkflowKey = "real009_table_structure"
+        })
+    };
+}
+
+static bool RequiresFormulaBlockReview(QuestionBlock block)
+{
+    if (!string.Equals(block.BlockType, "formula", StringComparison.OrdinalIgnoreCase))
+    {
+        return false;
+    }
+
+    try
+    {
+        using var document = JsonDocument.Parse(block.Content);
+        var root = document.RootElement;
+        var sourceFormat = TryGetStringProperty(root, "sourceFormat");
+        var reviewStatus = TryGetStringProperty(root, "reviewStatus");
+        var confidence = TryGetDoubleProperty(root, "confidence");
+        if (string.Equals(reviewStatus, "pending_review", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        if (confidence.HasValue && confidence.Value < 0.9)
+        {
+            return true;
+        }
+
+        if (sourceFormat is not null &&
+            !string.Equals(sourceFormat, "omml", StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(sourceFormat, "latex", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return false;
+    }
+    catch (JsonException)
+    {
+        return true;
+    }
+}
+
+static ReviewQueueItem CreateFormulaBlockReviewItem(QuestionItem item, QuestionBlock block, DateTimeOffset now)
+{
+    double? confidence = null;
+    string? sourceFormat = null;
+    string? reviewStatus = null;
+    string? fallbackImageUrl = null;
+    try
+    {
+        using var document = JsonDocument.Parse(block.Content);
+        var root = document.RootElement;
+        confidence = TryGetDoubleProperty(root, "confidence");
+        sourceFormat = TryGetStringProperty(root, "sourceFormat");
+        reviewStatus = TryGetStringProperty(root, "reviewStatus");
+        fallbackImageUrl = TryGetStringProperty(root, "fallbackImageUrl");
+    }
+    catch (JsonException)
+    {
+        reviewStatus = "pending_review";
+    }
+
+    return new ReviewQueueItem
+    {
+        ReviewType = "question_formula_block_review",
+        Status = ReviewStatuses.Open,
+        CreatedAt = now,
+        Payload = JsonSerializer.Serialize(new
+        {
+            questionItemId = item.Id,
+            questionBlockId = block.Id,
+            sourceRegionId = block.SourceRegionId,
+            blockType = block.BlockType,
+            sourceFormat = string.IsNullOrWhiteSpace(sourceFormat) ? "unknown" : sourceFormat,
+            confidence,
+            fallbackImageUrl,
+            reviewStatus = string.IsNullOrWhiteSpace(reviewStatus) ? "pending_review" : reviewStatus,
+            riskLevel = "medium",
+            requiredAction = "review_formula_structure",
+            reason = "formula_block_low_confidence_or_non_omml_candidate",
+            sourceWorkflowKey = "real010_formula_fidelity"
+        })
+    };
+}
+
+static string? TryGetStringProperty(JsonElement root, string propertyName)
+{
+    return root.ValueKind == JsonValueKind.Object &&
+        root.TryGetProperty(propertyName, out var property) &&
+        property.ValueKind == JsonValueKind.String
+        ? property.GetString()
+        : null;
+}
+
+static double? TryGetDoubleProperty(JsonElement root, string propertyName)
+{
+    if (root.ValueKind != JsonValueKind.Object || !root.TryGetProperty(propertyName, out var property))
+    {
+        return null;
+    }
+
+    if (property.ValueKind == JsonValueKind.Number && property.TryGetDouble(out var number))
+    {
+        return number;
+    }
+
+    return property.ValueKind == JsonValueKind.String &&
+        double.TryParse(property.GetString(), NumberStyles.Float, CultureInfo.InvariantCulture, out number)
+        ? number
+        : null;
+}
+
+static JsonElement? TryGetCustomFieldElement(string json, string propertyName)
+{
+    try
+    {
+        using var document = JsonDocument.Parse(json);
+        return document.RootElement.ValueKind == JsonValueKind.Object &&
+            document.RootElement.TryGetProperty(propertyName, out var property)
+            ? property.Clone()
+            : null;
+    }
+    catch (JsonException)
+    {
+        return null;
+    }
+}
+
+static int? TryGetIntCustomField(string json, string propertyName)
+{
+    return QuestionJsonMetadata.TryGetIntField(json, propertyName);
+}
+
+static string MergeQuestionCustomFields(string json, JsonElement? answer, JsonElement? solution)
+{
+    var fields = new Dictionary<string, JsonElement>(StringComparer.OrdinalIgnoreCase);
+    try
+    {
+        using var document = JsonDocument.Parse(json);
+        if (document.RootElement.ValueKind == JsonValueKind.Object)
+        {
+            foreach (var property in document.RootElement.EnumerateObject())
+            {
+                fields[property.Name] = property.Value.Clone();
+            }
+        }
+    }
+    catch (JsonException)
+    {
+        fields.Clear();
+    }
+
+    if (answer.HasValue)
+    {
+        fields["answer"] = answer.Value.Clone();
+    }
+
+    if (solution.HasValue)
+    {
+        fields["solution"] = solution.Value.Clone();
+    }
+
+    return JsonSerializer.Serialize(fields);
+}
+
+static bool QuestionCustomFieldHasValue(string json, string propertyName)
+{
+    var value = TryGetCustomFieldElement(json, propertyName);
+    if (!value.HasValue || value.Value.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
+    {
+        return false;
+    }
+
+    return value.Value.ValueKind != JsonValueKind.Object ||
+        value.Value.EnumerateObject().Any(x =>
+            x.Value.ValueKind is not JsonValueKind.Null and not JsonValueKind.Undefined &&
+            !string.IsNullOrWhiteSpace(x.Value.ToString()));
+}
+
+static bool ReviewQueuePayloadReferences(string payload, Guid sourceDocumentId, IReadOnlySet<Guid> questionIds)
+{
+    try
+    {
+        using var document = JsonDocument.Parse(payload);
+        var root = document.RootElement;
+        if (root.ValueKind != JsonValueKind.Object)
+        {
+            return false;
+        }
+
+        if (JsonPropertyEqualsGuid(root, "sourceDocumentId", sourceDocumentId))
+        {
+            return true;
+        }
+
+        if (root.TryGetProperty("questionItemId", out var questionElement) &&
+            questionElement.ValueKind == JsonValueKind.String &&
+            Guid.TryParse(questionElement.GetString(), out var questionId) &&
+            questionIds.Contains(questionId))
+        {
+            return true;
+        }
+
+        return false;
+    }
+    catch (JsonException)
+    {
+        return false;
+    }
+}
+
+static bool JsonPropertyEqualsGuid(JsonElement root, string propertyName, Guid expected)
+{
+    return root.TryGetProperty(propertyName, out var element) &&
+        element.ValueKind == JsonValueKind.String &&
+        Guid.TryParse(element.GetString(), out var actual) &&
+        actual == expected;
+}
+
+static bool QuestionBlockLooksLikeRetainedNoise(QuestionBlock block)
+{
+    if (!string.Equals(block.BlockType, "text", StringComparison.OrdinalIgnoreCase))
+    {
+        return false;
+    }
+
+    try
+    {
+        using var document = JsonDocument.Parse(block.Content);
+        if (document.RootElement.ValueKind != JsonValueKind.Object ||
+            !document.RootElement.TryGetProperty("text", out var textElement) ||
+            textElement.ValueKind != JsonValueKind.String)
+        {
+            return false;
+        }
+
+        var text = textElement.GetString() ?? string.Empty;
+        return NoiseMarkers().Any(marker => text.Contains(marker, StringComparison.OrdinalIgnoreCase));
+    }
+    catch (JsonException)
+    {
+        return false;
+    }
+}
+
+static string BuildSourceDocumentRollbackSql(Guid sourceDocumentId)
+{
+    return string.Join(Environment.NewLine,
+        $"-- REAL012 dry-run rollback reference for source_document {sourceDocumentId}",
+        "begin;",
+        "delete from review_queue_items where payload::text like '%" + sourceDocumentId + "%';",
+        "delete from question_assets where source_region_id in (select id from source_regions where source_document_id = '" + sourceDocumentId + "');",
+        "delete from question_blocks where source_region_id in (select id from source_regions where source_document_id = '" + sourceDocumentId + "');",
+        "delete from source_regions where source_document_id = '" + sourceDocumentId + "';",
+        "rollback;");
+}
+
+static string[] NoiseMarkers() =>
+[
+    "姓名",
+    "准考证",
+    "装订线",
+    "密封线",
+    "考试注意",
+    "注意事项",
+    "本试卷",
+    "水印",
+    "页码"
+];
+
 static AiJobResponse ToAiJobResponse(AIJob job)
 {
     return new AiJobResponse(
@@ -2796,28 +3814,30 @@ static string? ValidateQuestionCreateRequest(QuestionCreateRequest request)
         return "question_blocks_required";
     }
 
-    var allowedBlockTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-    {
-        "text",
-        "option",
-        "sub_question",
-        "answer",
-        "solution",
-        "formula",
-        "image",
-        "table",
-        "chart",
-        "group_ref"
-    };
     foreach (var block in request.Blocks)
     {
-        if (!allowedBlockTypes.Contains(NormalizeToken(block.BlockType, "text")))
+        if (!IsAllowedQuestionBlockType(NormalizeToken(block.BlockType, "text")))
         {
             return "invalid_block_type";
         }
     }
 
     return null;
+}
+
+static bool IsAllowedQuestionBlockType(string blockType)
+{
+    return blockType is
+        "text" or
+        "option" or
+        "sub_question" or
+        "answer" or
+        "solution" or
+        "formula" or
+        "image" or
+        "table" or
+        "chart" or
+        "group_ref";
 }
 
 public static partial class ConfigurationExtensions
@@ -3090,9 +4110,61 @@ public sealed record SourcePreviewPageResponse(int PageNumber, IReadOnlyList<Sou
 
 public sealed record SourceDocumentPreviewResponse(Guid SourceDocumentId, IReadOnlyList<SourcePreviewPageResponse> Pages);
 
+public sealed record SourceDocumentQualityReportResponse(
+    Guid SourceDocumentId,
+    string SourceTitle,
+    string SourceType,
+    string Region,
+    int? Year,
+    string MaterialBatchKey,
+    string ClosureStatus,
+    bool FullClosureAllowed,
+    SourceDocumentQualityMetricsResponse Metrics,
+    IReadOnlyList<int> QuestionNumbers,
+    IReadOnlyList<int> MissingQuestionNumbers,
+    IReadOnlyList<Guid> MissingLinkedSourceRegionIds,
+    IReadOnlyList<string> PendingReviewTypes,
+    IReadOnlyList<string> Gaps,
+    string ExternalAiPolicy,
+    string RollbackSql,
+    string SummaryChinese);
+
+public sealed record SourceDocumentQualityMetricsResponse(
+    int QuestionCount,
+    int QuestionNumberCount,
+    int AnswerCoveredCount,
+    int SolutionCoveredCount,
+    int SourceRegionCount,
+    int LinkedSourceRegionCount,
+    int LinkedSourceScreenshotCount,
+    int MissingLinkedSourceScreenshotCount,
+    int ImageAssetCount,
+    int ImageMatchedQuestionCount,
+    int TableBlockCount,
+    int FormulaBlockCount,
+    int PendingManualItemCount,
+    int NoiseRetainedBlockCount,
+    int ExternalAiCallCount);
+
 public sealed record SourceMaterialListResponse(
     string Mode,
     IReadOnlyList<SourceMaterialResponse> Items);
+
+public sealed record SourceDocumentAuthorizationUpdateRequest(
+    string? LicenseOrPermission,
+    bool? SharingAllowed,
+    bool? ContainsStudentPii,
+    string? AnonymizationStatus,
+    bool? ExternalAiAllowed,
+    bool? MayUseForKnowledgeExtraction,
+    bool? MayUseForExamPointExtraction,
+    bool? MayUseForTrendAnalysis,
+    string ReviewedBy,
+    string Reason);
+
+public sealed record SourceDocumentAuthorizationUpdateResponse(
+    SourceMaterialResponse SourceDocument,
+    Guid AuditId);
 
 public sealed record SourceMaterialResponse(
     Guid Id,
@@ -3288,12 +4360,40 @@ public sealed record QuestionBlockCreateRequest(
     JsonElement Content,
     Guid? SourceRegionId);
 
+public sealed record QuestionUpdateRequest(
+    string? QuestionType,
+    decimal? DefaultScore,
+    double? DifficultyEstimated,
+    string? Status,
+    Guid? PrimaryKnowledgeId,
+    IReadOnlyList<QuestionBlockUpdateRequest>? Blocks,
+    JsonElement? Answer,
+    JsonElement? Solution,
+    string ReviewedBy,
+    string Reason);
+
+public sealed record QuestionBlockUpdateRequest(
+    Guid? Id,
+    string? BlockType,
+    int? SortOrder,
+    JsonElement? Content,
+    Guid? SourceRegionId);
+
 public sealed record QuestionAssetCreateRequest(
     Guid? FileAssetId,
     Guid? SourceRegionId,
     string AssetType,
     string? Purpose,
     JsonElement Metadata);
+
+public sealed record QuestionAssetAssociationRequest(
+    Guid? FileAssetId,
+    Guid SourceRegionId,
+    string? AssetType,
+    string? Purpose,
+    JsonElement Metadata,
+    string ReviewedBy,
+    string Reason);
 
 public sealed record QuestionResponse(
     Guid Id,
@@ -3302,6 +4402,9 @@ public sealed record QuestionResponse(
     string? Grade,
     string? QuestionType,
     decimal? DefaultScore,
+    double? DifficultyEstimated,
+    Guid? PrimaryKnowledgeId,
+    int? QuestionNo,
     string Status,
     IReadOnlyList<QuestionBlockResponse> Blocks,
     IReadOnlyList<QuestionAssetResponse> Assets,
@@ -3316,12 +4419,17 @@ public sealed record QuestionResponse(
             item.Grade,
             item.QuestionType,
             item.DefaultScore,
+            item.DifficultyEstimated,
+            item.PrimaryKnowledgeId,
+            QuestionJsonMetadata.TryGetIntField(item.CustomFields, "questionNo"),
             item.Status,
             blocks.Select(QuestionBlockResponse.From).ToArray(),
             assets.Select(QuestionAssetResponse.From).ToArray(),
             JsonHelpers.ParseJsonElement(item.CustomFields));
     }
 }
+
+public sealed record QuestionRevisionResponse(QuestionResponse Question, Guid AuditId);
 
 public sealed record QuestionBlockResponse(
     Guid Id,
@@ -3348,22 +4456,37 @@ public sealed record QuestionAssetResponse(
     Guid QuestionItemId,
     Guid? FileAssetId,
     Guid? SourceRegionId,
+    string? SourceRegionScreenshotUrl,
+    string? SourceRegionPageScreenshotUrl,
     string AssetType,
     string Purpose,
     JsonElement Metadata)
 {
     public static QuestionAssetResponse From(QuestionAsset asset)
     {
+        var sourceRegionScreenshotUrl = asset.SourceRegionId.HasValue
+            ? $"/source-regions/{asset.SourceRegionId.Value}/screenshot"
+            : null;
+        var sourceRegionPageScreenshotUrl = asset.SourceRegionId.HasValue
+            ? $"/source-regions/{asset.SourceRegionId.Value}/page-screenshot"
+            : null;
+
         return new QuestionAssetResponse(
             asset.Id,
             asset.QuestionItemId,
             asset.FileAssetId,
             asset.SourceRegionId,
+            sourceRegionScreenshotUrl,
+            sourceRegionPageScreenshotUrl,
             asset.AssetType,
             asset.Purpose,
             JsonHelpers.ParseJsonElement(asset.Metadata));
     }
 }
+
+public sealed record QuestionAssetRevisionResponse(QuestionAssetResponse Asset, Guid AuditId);
+
+public sealed record QuestionAssetUnlinkResponse(Guid QuestionItemId, Guid AssetId, Guid? SourceRegionId, Guid AuditId);
 
 public sealed record QuestionSourceReviewResponse(Guid QuestionItemId, IReadOnlyList<QuestionSourceRegionResponse> SourceRegions);
 
@@ -3386,6 +4509,7 @@ public sealed record QuestionCardResponse(
     decimal? DefaultScore,
     double? DifficultyEstimated,
     string Status,
+    int? QuestionNo,
     KnowledgeNodeCardResponse? PrimaryKnowledge,
     string Preview,
     int BlockCount,
@@ -4306,6 +5430,36 @@ public static class ReviewWorkbenchMutationHelpers
         catch
         {
             return false;
+        }
+    }
+}
+
+internal static class QuestionJsonMetadata
+{
+    public static int? TryGetIntField(string json, string propertyName)
+    {
+        try
+        {
+            using var document = JsonDocument.Parse(json);
+            if (document.RootElement.ValueKind != JsonValueKind.Object ||
+                !document.RootElement.TryGetProperty(propertyName, out var property))
+            {
+                return null;
+            }
+
+            if (property.ValueKind == JsonValueKind.Number && property.TryGetInt32(out var number))
+            {
+                return number;
+            }
+
+            return property.ValueKind == JsonValueKind.String &&
+                int.TryParse(property.GetString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out number)
+                ? number
+                : null;
+        }
+        catch (JsonException)
+        {
+            return null;
         }
     }
 }

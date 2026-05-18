@@ -58,6 +58,32 @@ def paragraph_type(text: str) -> str:
     return "paragraph"
 
 
+def formula_payload(element: ET.Element) -> dict:
+    formulas = []
+    for formula in element.findall(".//m:oMath", WORD_NS) + element.findall(".//m:oMathPara", WORD_NS):
+        omml = ET.tostring(formula, encoding="unicode")
+        text = element_text(formula)
+        if not omml:
+            continue
+        formulas.append(
+            {
+                "sourceFormat": "omml",
+                "omml": omml,
+                "latex": text,
+                "mathml": "",
+                "text": text,
+                "confidence": 1.0,
+                "reviewStatus": "verified",
+                "fallbackImageRequired": False,
+            }
+        )
+    return {
+        "source": "openxml",
+        "sourceFormat": "omml",
+        "formulas": formulas,
+    }
+
+
 def parse_docx_blocks(target: pathlib.Path) -> tuple[list[dict], list[str]]:
     warnings: list[str] = []
     blocks: list[dict] = []
@@ -94,19 +120,20 @@ def parse_docx_blocks(target: pathlib.Path) -> tuple[list[dict], list[str]]:
 
             if text or has_formula:
                 block_type = "formula" if has_formula else paragraph_type(text)
-                blocks.append(
-                    {
-                        "id": f"block_{len(blocks) + 1:04d}",
-                        "pageNumber": 1,
-                        "blockType": block_type,
-                        "textPreview": text[:500],
-                        "sourceRegion": {
-                            "source": "openxml",
-                            "element": "w:p",
-                            "index": len(blocks),
-                        },
-                    }
-                )
+                block = {
+                    "id": f"block_{len(blocks) + 1:04d}",
+                    "pageNumber": 1,
+                    "blockType": block_type,
+                    "textPreview": text[:500],
+                    "sourceRegion": {
+                        "source": "openxml",
+                        "element": "w:p",
+                        "index": len(blocks),
+                    },
+                }
+                if has_formula:
+                    block["formula"] = formula_payload(child)
+                blocks.append(block)
 
             for rel_id in image_refs:
                 blocks.append(

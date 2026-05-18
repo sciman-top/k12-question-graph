@@ -1,0 +1,38 @@
+{
+  "status": "pass",
+  "task": "REAL010",
+  "checkedAt": "2026-05-18T13:22:44",
+  "questionId": "b59f8b99-a930-41c1-b31b-e96ff317d42b",
+  "sourceDocumentId": "cae95280-9df9-4205-8665-c4803e507501",
+  "officeFormula": {
+    "blockId": "4f08c16e-3296-473f-8809-367d0c38d26a",
+    "sourceFormat": "omml",
+    "ommlPreserved": true,
+    "latex": "F=ma",
+    "mathmlPresent": true,
+    "exportPreference": "omml",
+    "reviewStatus": "verified"
+  },
+  "scannedFormula": {
+    "blockId": "9433cd7c-4411-4bca-874d-6d28bbc809c9",
+    "sourceFormat": "scanned_formula_candidate",
+    "confidence": 0.56,
+    "reviewStatus": "pending_review",
+    "fallbackImageUrl": "/source-regions/99e8fdd2-c8a6-476e-aaf2-3c74408b09cb/screenshot",
+    "fallbackImageStatusCode": 200
+  },
+  "cardProbe": {
+    "hasFormula": true,
+    "hasImage": false,
+    "assetCount": 1
+  },
+  "reviewQueueProbe": {
+    "reviewType": "question_formula_block_review",
+    "queueItemId": "132dc7e9-236a-47a7-bdb7-1e4fa35137c7",
+    "requiredAction": "review_formula_structure",
+    "reason": "formula_block_low_confidence_or_non_omml_candidate",
+    "confidence": 0.56
+  },
+  "rollback": "delete from review_queue_items where payload->>'questionItemId' = 'b59f8b99-a930-41c1-b31b-e96ff317d42b'; delete from question_assets where question_item_id = 'b59f8b99-a930-41c1-b31b-e96ff317d42b'; delete from question_blocks where question_item_id = 'b59f8b99-a930-41c1-b31b-e96ff317d42b'; delete from question_items where id = 'b59f8b99-a930-41c1-b31b-e96ff317d42b';",
+  "summaryChinese": "Office 原生公式以 OMML 为第一真源，LaTeX/MathML 只作为派生；扫描公式保留 fallback 图并进入人工审核队列。"
+}

@@ -172,6 +172,7 @@ export interface QuestionCardContract {
   questionType: string
   difficultyEstimated: number | null
   status: string
+  questionNo: number | null
   primaryKnowledge: {
     id: string
     title: string
@@ -649,6 +650,7 @@ export function normalizeQuestionSearchResponse(value: unknown): QuestionSearchC
             ? null
             : readNumberField(row, 'difficultyEstimated'),
         status: readStringField(row, 'status') ?? 'unknown',
+        questionNo: readNumberField(row, 'questionNo') === 0 ? null : readNumberField(row, 'questionNo'),
         primaryKnowledge:
           primaryKnowledge && typeof primaryKnowledge === 'object'
             ? {

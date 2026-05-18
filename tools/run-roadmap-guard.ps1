@@ -597,6 +597,139 @@ if ($real007.status -eq '已完成') {
     }
 }
 
+if ($real008.status -eq '已完成') {
+    $real008Report = Join-Path $repoRoot 'docs\evidence\20260518-real008-question-asset-smoke-report.json'
+    if (-not (Test-Path -LiteralPath $real008Report)) {
+        throw "REAL008 is completed but evidence is missing: docs/evidence/20260518-real008-question-asset-smoke-report.json"
+    }
+    $report = Get-Content -LiteralPath $real008Report -Raw | ConvertFrom-Json
+    if ($report.status -ne 'pass') {
+        throw "REAL008 report must pass"
+    }
+    if ($report.cardProbe.beforeAssociation.hasImage -ne $false -or $report.cardProbe.beforeAssociation.assetCount -ne 0) {
+        throw "REAL008 must prove cards do not infer hasImage from source screenshots alone"
+    }
+    if ($report.cardProbe.afterAssociation.hasImage -ne $true -or $report.cardProbe.afterAssociation.assetCount -lt 1) {
+        throw "REAL008 must prove card hasImage/assetCount come from associated question_assets"
+    }
+    if ($report.cardProbe.afterUnlink.hasImage -ne $false -or $report.cardProbe.afterUnlink.assetCount -ne 0) {
+        throw "REAL008 must prove unlink removes card hasImage/assetCount"
+    }
+    if ($report.detailProbe.assetCount -lt 1 -or [string]::IsNullOrWhiteSpace([string]$report.detailProbe.sourceRegionScreenshotUrl)) {
+        throw "REAL008 must prove question detail exposes asset screenshot URL"
+    }
+    if ($report.sourceProbe.assetRegionType -ne 'question_asset' -or $report.sourceProbe.assetScreenshotStatusCode -ne 200) {
+        throw "REAL008 must prove source review returns a renderable question_asset region"
+    }
+    if ([string]::IsNullOrWhiteSpace([string]$report.auditIds.associate) -or [string]::IsNullOrWhiteSpace([string]$report.auditIds.unlink) -or [string]::IsNullOrWhiteSpace([string]$report.auditIds.reassociate)) {
+        throw "REAL008 must prove associate, unlink, and reassociate audits"
+    }
+}
+
+if ($real009.status -eq '已完成') {
+    $real009Report = Join-Path $repoRoot 'docs\evidence\20260518-real009-table-structure-smoke-report.json'
+    if (-not (Test-Path -LiteralPath $real009Report)) {
+        throw "REAL009 is completed but evidence is missing: docs/evidence/20260518-real009-table-structure-smoke-report.json"
+    }
+    $report = Get-Content -LiteralPath $real009Report -Raw | ConvertFrom-Json
+    if ($report.status -ne 'pass') {
+        throw "REAL009 report must pass"
+    }
+    if ($report.tableStructure.columnCount -lt 1 -or $report.tableStructure.rowCount -lt 1 -or [string]::IsNullOrWhiteSpace([string]$report.tableStructure.caption)) {
+        throw "REAL009 must prove table columns, rows, and caption are structured"
+    }
+    if ([string]::IsNullOrWhiteSpace([string]$report.tableStructure.sourceRegionId) -or [double]$report.tableStructure.confidence -ge 0.8 -or $report.tableStructure.reviewStatus -ne 'pending_review') {
+        throw "REAL009 must prove source region, low confidence, and pending review status"
+    }
+    if ($report.cardProbe.hasTable -ne $true -or $report.cardProbe.hasImage -ne $false -or $report.cardProbe.assetCount -ne 0) {
+        throw "REAL009 must prove table blocks are searchable as tables and not misclassified as image assets"
+    }
+    if ($report.sourceProbe.tableRegionType -ne 'question_table' -or $report.sourceProbe.tableScreenshotStatusCode -ne 200) {
+        throw "REAL009 must prove table source screenshot is renderable"
+    }
+    if ($report.reviewQueueProbe.reviewType -ne 'question_table_block_review' -or $report.reviewQueueProbe.requiredAction -ne 'review_table_structure') {
+        throw "REAL009 must prove low-confidence table review queue routing"
+    }
+}
+
+if ($real010.status -eq '已完成') {
+    $real010Report = Join-Path $repoRoot 'docs\evidence\20260518-real010-formula-fidelity-smoke-report.json'
+    if (-not (Test-Path -LiteralPath $real010Report)) {
+        throw "REAL010 is completed but evidence is missing: docs/evidence/20260518-real010-formula-fidelity-smoke-report.json"
+    }
+    $report = Get-Content -LiteralPath $real010Report -Raw | ConvertFrom-Json
+    if ($report.status -ne 'pass') {
+        throw "REAL010 report must pass"
+    }
+    if ($report.officeFormula.sourceFormat -ne 'omml' -or $report.officeFormula.ommlPreserved -ne $true -or $report.officeFormula.mathmlPresent -ne $true -or $report.officeFormula.exportPreference -ne 'omml') {
+        throw "REAL010 must prove Office formulas preserve OMML and derivative formats"
+    }
+    if ($report.scannedFormula.sourceFormat -ne 'scanned_formula_candidate' -or $report.scannedFormula.reviewStatus -ne 'pending_review' -or [double]$report.scannedFormula.confidence -ge 0.9 -or $report.scannedFormula.fallbackImageStatusCode -ne 200) {
+        throw "REAL010 must prove scanned formulas keep fallback image and pending review"
+    }
+    if ($report.cardProbe.hasFormula -ne $true -or $report.cardProbe.hasImage -ne $false) {
+        throw "REAL010 must prove formula blocks are searchable as formulas and not misclassified as question images"
+    }
+    if ($report.reviewQueueProbe.reviewType -ne 'question_formula_block_review' -or $report.reviewQueueProbe.requiredAction -ne 'review_formula_structure') {
+        throw "REAL010 must prove scanned formula review queue routing"
+    }
+}
+
+if ($real011.status -eq '已完成') {
+    $real011Report = Join-Path $repoRoot 'docs\evidence\20260518-real011-question-edit-smoke-report.json'
+    if (-not (Test-Path -LiteralPath $real011Report)) {
+        throw "REAL011 is completed but evidence is missing: docs/evidence/20260518-real011-question-edit-smoke-report.json"
+    }
+    $report = Get-Content -LiteralPath $real011Report -Raw | ConvertFrom-Json
+    if ($report.status -ne 'pass') {
+        throw "REAL011 report must pass"
+    }
+    if ($report.questionEdit.questionType -ne 'calculation' -or [double]$report.questionEdit.defaultScore -ne 6 -or [double]$report.questionEdit.difficultyEstimated -lt 0.7 -or $report.questionEdit.status -ne 'pending_review') {
+        throw "REAL011 must prove question type, score, difficulty, and status editing"
+    }
+    if ([string]::IsNullOrWhiteSpace([string]$report.questionEdit.editedStem) -or $report.questionEdit.blockCount -lt 2 -or [string]::IsNullOrWhiteSpace([string]$report.questionEdit.answer) -or [string]::IsNullOrWhiteSpace([string]$report.questionEdit.solution)) {
+        throw "REAL011 must prove stem, answer, solution, and block edits"
+    }
+    if ($report.sourceRegionEdit.regionType -ne 'question_stem_revised' -or [string]::IsNullOrWhiteSpace([string]$report.sourceRegionEdit.auditId)) {
+        throw "REAL011 must prove source region recrop edit and audit"
+    }
+    if ([string]::IsNullOrWhiteSpace([string]$report.auditProbe.questionRevisionAuditId) -or $report.auditProbe.questionAuditDecision -ne 'question_updated') {
+        throw "REAL011 must prove question revision audit"
+    }
+}
+
+if ($real012.status -eq '已完成') {
+    $real012Report = Join-Path $repoRoot 'docs\evidence\20260518-real012-production-flow-quality-report.json'
+    if (-not (Test-Path -LiteralPath $real012Report)) {
+        throw "REAL012 is completed but evidence is missing: docs/evidence/20260518-real012-production-flow-quality-report.json"
+    }
+    $report = Get-Content -LiteralPath $real012Report -Raw | ConvertFrom-Json
+    if ($report.status -ne 'pass') {
+        throw "REAL012 report must pass"
+    }
+    if (@($report.searchProbe.selectedQuestionNos).Count -lt 3 -or $report.searchProbe.hasImageCount -lt 3) {
+        throw "REAL012 must prove real question search returns ordered image-backed question cards"
+    }
+    if ($report.paperBasket.itemCount -lt 3 -or [string]::IsNullOrWhiteSpace([string]$report.paperBasket.id)) {
+        throw "REAL012 must prove real questions enter a paper basket"
+    }
+    if ($report.exportPreflight.status -ne 'ready_for_review' -or $report.exportPreflight.summary.answerReadyCount -lt 3 -or $report.exportPreflight.summary.authorizedSourceCount -lt 3) {
+        throw "REAL012 must prove export preflight is ready for the reviewed real sample"
+    }
+    if ($report.artifact.status -ne 'pass' -or [string]::IsNullOrWhiteSpace([string]$report.artifact.manifestPath)) {
+        throw "REAL012 must prove Word/PDF draft artifacts are generated"
+    }
+    if ($report.analysis.status -ne 'ready' -or $report.analysis.allowAiDraftText -ne $false -or $report.analysis.writesProductionHistory -ne $false -or $report.analysis.weakKnowledgePointCount -lt 1) {
+        throw "REAL012 must prove analysis references mapped real questions without AI draft text or formal history writes"
+    }
+    if ($report.qualityReport.closureStatus -ne 'not_closed' -or $report.qualityReport.metrics.questionCount -lt 24 -or $report.qualityReport.metrics.pendingManualItemCount -lt 1) {
+        throw "REAL012 must prove per-paper quality report and keep full closure not_closed while manual items remain"
+    }
+    if ($report.real005ClosureStatus -ne 'not_closed') {
+        throw "REAL012 must keep REAL005 full 2015-2025 closure status not_closed"
+    }
+}
+
 $real005Guard = Join-Path $PSScriptRoot 'run-real005-guangzhou-2015-2025-closure-standard.ps1'
 if (-not (Test-Path -LiteralPath $real005Guard)) {
     throw "REAL005 closure standard guard is missing"

@@ -71,7 +71,7 @@ export function useCutCandidatesQuery(sourceDocumentId: string, enabled = true) 
 export function useQuestionSearchQuery(page = 1, limit = 10) {
   return useQuery({
     queryKey: serverStateQueryKeys.questionSearch(page, limit),
-    queryFn: () => searchQuestions({ page, limit }),
+    queryFn: () => searchQuestions({ page, limit, sortBy: 'question_no', order: 'asc' }),
     retry: false,
     staleTime: 15_000,
   })

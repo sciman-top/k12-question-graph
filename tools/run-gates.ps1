@@ -441,6 +441,26 @@ try {
         .\tools\run-real007-guangzhou-2015-layout-quality.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -FileStoreRoot $FileStoreRoot | Write-Host
     }
 
+    Invoke-GateStep 'real question asset association smoke' {
+        .\tools\run-real008-question-asset-smoke.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -FileStoreRoot $FileStoreRoot | Write-Host
+    }
+
+    Invoke-GateStep 'real table structure smoke' {
+        .\tools\run-real009-table-structure-smoke.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -FileStoreRoot $FileStoreRoot | Write-Host
+    }
+
+    Invoke-GateStep 'real formula fidelity smoke' {
+        .\tools\run-real010-formula-fidelity-smoke.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -FileStoreRoot $FileStoreRoot | Write-Host
+    }
+
+    Invoke-GateStep 'real question edit audit smoke' {
+        .\tools\run-real011-question-edit-smoke.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -FileStoreRoot $FileStoreRoot | Write-Host
+    }
+
+    Invoke-GateStep 'real production flow quality smoke' {
+        .\tools\run-real012-production-flow-quality-smoke.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -FileStoreRoot $FileStoreRoot | Write-Host
+    }
+
     Invoke-GateStep 'c002l candidate review readiness contract' {
         .\tools\run-c002l-candidate-review-readiness.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword | Write-Host
     }

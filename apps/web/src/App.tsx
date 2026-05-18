@@ -2415,7 +2415,7 @@ function App() {
                   onClick={() => selectQuestionCard(card.id, card.preview)}
                 >
                   <span>
-                    <strong>{card.preview || '未命名题目'}</strong>
+                    <strong>{card.questionNo ? `第 ${card.questionNo} 题 · ` : ''}{card.preview || '未命名题目'}</strong>
                     <small>
                       {card.primaryKnowledge?.title ?? '待补知识点'} · {card.sources.titles[0] ?? '来源待补'}
                     </small>

@@ -18,6 +18,9 @@
   "hasExplanation": true,
   "hasTable": true,
   "hasFormula": true,
+  "formulaSourceFormat": "omml",
+  "formulaOmmlPreserved": true,
+  "formulaLatexDerivative": "F=ma",
   "source": "synthetic golden docx",
   "productionEligible": false
 }

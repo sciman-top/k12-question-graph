@@ -434,6 +434,11 @@ Automation-first 任务口径：每个任务在编码前必须先说明哪些部
 - `GET /questions` 抽样 `hasImage/assetCount`
 - 题图关联 UI/API smoke
 
+当前实跑状态：
+
+- 已完成 API 级题图资产闭环：`POST /questions/{id}/assets` 可把已有来源区域关联为 `QuestionAsset`，`DELETE /questions/{id}/assets/{assetId}` 可解除关联，两者都会写入 `question_asset_revision` audit。
+- `tools/run-real008-question-asset-smoke.ps1` 已证明题库卡片不会仅凭来源截图误判 `hasImage`；关联题图后 `hasImage=true/assetCount=1`，解除后恢复 `hasImage=false/assetCount=0`，重新关联后题目详情和来源回看均返回可访问的题图截图 URL。
+
 ### REAL009 表格结构化入库与原图保留
 
 验收：
@@ -446,6 +451,11 @@ Automation-first 任务口径：每个任务在编码前必须先说明哪些部
 
 - 真实含表格题抽样导入
 - table block API/query/export smoke
+
+当前实跑状态：
+
+- 已完成 API 级表格结构化闭环：`POST /questions` 保存 `QuestionBlock.blockType=table` 时，表格 JSON 保留 `columns`、`rows`、`caption`、`sourceRegionId`、`confidence`、`reviewStatus`。
+- 低置信度或 `pending_review` 表格会自动进入 `question_table_block_review` 审核队列；`tools/run-real009-table-structure-smoke.ps1` 已证明题卡 `hasTable=true`、`hasImage=false`，表格来源截图可访问，避免把表格误当普通图片或普通文本。
 
 ### REAL010 公式保真与 Office 原生公式优先
 
@@ -462,6 +472,11 @@ Automation-first 任务口径：每个任务在编码前必须先说明哪些部
 - scanned formula pending review sample
 - Word/PDF export regression
 
+当前实跑状态：
+
+- 已完成 OpenXML/OMML 第一真源验证：`workers/document/worker.py` 在 `.docx` 公式段落中输出 `formula.sourceFormat=omml`、原始 OMML、LaTeX/text 派生和 `verified` 状态；`tools/run-j001-openxml-docx-adapter-contract.ps1` 已强制检查 OMML payload。
+- 已完成扫描公式候选 API 闭环：`tools/run-real010-formula-fidelity-smoke.ps1` 证明 Office 公式保存 OMML/LaTeX/MathML 且导出偏好为 OMML；扫描公式候选必须保留 fallback source image、`confidence` 和 `pending_review`，并进入 `question_formula_block_review` 审核队列。
+
 ### REAL011 异常编辑、重裁、合并拆分与审核审计
 
 验收：
@@ -477,6 +492,11 @@ Automation-first 任务口径：每个任务在编码前必须先说明哪些部
 - Web edit/re-crop smoke
 - audit record query
 
+当前实跑状态：
+
+- 已完成 API 级异常编辑闭环：`PATCH /questions/{id}` 可修订题型、分值、难度、状态、题干 block、答案和解析，并写入 `question_revision` audit。
+- `PATCH /source-regions/{id}` 已复用为来源框 bbox/类型重裁入口；`tools/run-real011-question-edit-smoke.ps1` 已证明题目修订、SourceRegion 重裁和 audit 查询均可复跑。
+
 ### REAL012 真实题生产使用闭环与质量报告
 
 验收：
@@ -487,8 +507,16 @@ Automation-first 任务口径：每个任务在编码前必须先说明哪些部
 
 验证：
 
-- real question search/paper/export/analysis smoke
-- per-paper import quality report
+- `tools/run-real012-production-flow-quality-smoke.ps1`
+- `docs/evidence/20260518-real012-production-flow-quality-report.json`
+
+当前实跑状态：
+
+- 已完成真实 2015 广州样题抽样生产链：第 2/3/4 题进入 `sortBy=question_no` 检索、题篮、导出预检、Word/PDF 草稿产物和学情讲评引用。
+- `PATCH /questions/{id}` 已修复为保留 `questionNo/exam` 等元数据，并在绑定 `primaryKnowledgeId` 时同步写入 primary `knowledge_mappings`，避免题库详情和学情分析分裂。
+- 新增 `PATCH /source-documents/{id}/authorization`，来源授权审核会真实落库并写 `source_document_authorization` audit。
+- 新增 `GET /source-documents/{id}/quality-report`，逐卷输出题号完整性、答案/解析覆盖、题图匹配、表格/公式数量、待人工项、噪声残留、外部 AI 调用和 rollback SQL。
+- 当前 2015 逐卷质量报告仍输出 `not_closed`：25 条关联题目中 24 个题号、24 个答案、18 个解析、19 个题图资产、1 个缺截图关联区域、28 个待人工项；这是必须暴露的真实缺口，不允许推动 `REAL005` 关闭。
 
 ## C · P2 知识本体
 

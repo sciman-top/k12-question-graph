@@ -238,7 +238,14 @@ def verify_pdf(path: Path) -> dict[str, Any]:
     }
 
 
-def variant_checks_pass(variant: str, checks: OrderedDict[str, Any]) -> bool:
+def int_value(value: Any) -> int:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return 0
+
+
+def variant_checks_pass(variant: str, checks: OrderedDict[str, Any], requirements: dict[str, bool]) -> bool:
     docx = checks["docx"]
     pdf = checks["pdf"]
     common_docx = (
@@ -249,11 +256,13 @@ def variant_checks_pass(variant: str, checks: OrderedDict[str, Any]) -> bool:
     if variant in {"student", "teacher"}:
         common_docx = (
             common_docx
-            and docx["hasFormulaText"]
             and docx["hasFigureMedia"]
-            and docx["hasTable"]
             and docx["hasSourceAuthorization"]
         )
+        if requirements["requiresFormula"]:
+            common_docx = common_docx and docx["hasFormulaText"]
+        if requirements["requiresTable"]:
+            common_docx = common_docx and docx["hasTable"]
     if variant == "teacher":
         common_docx = common_docx and docx["hasAnswer"] and docx["hasSolution"]
     if variant == "answer":
@@ -274,6 +283,11 @@ def main() -> int:
 
     artifacts: OrderedDict[str, Any] = OrderedDict()
     all_checks: OrderedDict[str, Any] = OrderedDict()
+    preflight_summary = data.get("preflight", {}).get("summary", {})
+    requirements = {
+        "requiresFormula": int_value(preflight_summary.get("formulaReadyCount")) > 0,
+        "requiresTable": int_value(preflight_summary.get("tableReadyCount")) > 0,
+    }
     for variant in VARIANTS:
         docx_path = output_root / f"kqg-s010b-{variant}-paper.docx"
         pdf_path = output_root / f"kqg-s010b-{variant}-paper.pdf"
@@ -293,7 +307,7 @@ def main() -> int:
         all_checks[variant] = OrderedDict([("docx", docx_checks), ("pdf", pdf_checks)])
 
     manifest_path = output_root / "kqg-s010b-paper-artifacts.manifest.json"
-    status = "pass" if all(variant_checks_pass(variant, checks) for variant, checks in all_checks.items()) else "fail"
+    status = "pass" if all(variant_checks_pass(variant, checks, requirements) for variant, checks in all_checks.items()) else "fail"
     manifest = OrderedDict(
         [
             ("schemaVersion", "paper-artifact-manifest.s010b.v1"),
@@ -305,6 +319,7 @@ def main() -> int:
             ("productionEligible", False),
             ("variants", artifacts),
             ("checks", all_checks),
+            ("requirements", requirements),
             ("sourceAuthorizationStatus", data["preflight"]["summary"].get("authorizedSourceCount")),
             ("activeKnowledgeVersionCount", data["preflight"]["summary"].get("activeKnowledgeVersionCount")),
             ("rollback", "delete tmp/s010b-paper-artifacts and revert the S010B smoke/gate/status changes; no database migration or active switch is involved"),
@@ -324,6 +339,7 @@ def main() -> int:
             ("manifestSha256", sha256_file(manifest_path)),
             ("variants", artifacts),
             ("checks", all_checks),
+            ("requirements", requirements),
             ("conclusion", "student teacher and answer Word/PDF artifacts were generated from a ready_for_review paper basket and verified by manifest hashes"),
             ("rollback", manifest["rollback"]),
         ]

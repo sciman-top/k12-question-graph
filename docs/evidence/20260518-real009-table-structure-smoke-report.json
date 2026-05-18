@@ -1,0 +1,37 @@
+{
+  "status": "pass",
+  "task": "REAL009",
+  "checkedAt": "2026-05-18T13:22:39",
+  "questionId": "44c76e1d-1779-4e22-8f4b-3f56650874b8",
+  "sourceDocumentId": "0b36490a-a2d1-4a3f-8cd5-8bb2bf7736f6",
+  "tableBlockId": "402aa6d7-5483-49e2-a8e8-4cefa61db66d",
+  "tableSourceRegionId": "7431b2a3-347c-48d1-af1e-60365c40493a",
+  "tableStructure": {
+    "caption": "REAL009 实验数据表",
+    "columnCount": 3,
+    "rowCount": 2,
+    "confidence": 0.62,
+    "reviewStatus": "pending_review",
+    "sourceRegionId": "7431b2a3-347c-48d1-af1e-60365c40493a"
+  },
+  "cardProbe": {
+    "hasTable": true,
+    "hasImage": false,
+    "assetCount": 0
+  },
+  "sourceProbe": {
+    "sourceRegionCount": 2,
+    "tableRegionType": "question_table",
+    "tableScreenshotUrl": "/source-regions/7431b2a3-347c-48d1-af1e-60365c40493a/screenshot",
+    "tableScreenshotStatusCode": 200
+  },
+  "reviewQueueProbe": {
+    "reviewType": "question_table_block_review",
+    "queueItemId": "dffbd551-726d-41b9-a680-7a41b1f77ecd",
+    "requiredAction": "review_table_structure",
+    "reason": "table_block_low_confidence_or_pending_review",
+    "confidence": 0.62
+  },
+  "rollback": "delete from review_queue_items where payload->>'questionItemId' = '44c76e1d-1779-4e22-8f4b-3f56650874b8'; delete from question_blocks where question_item_id = '44c76e1d-1779-4e22-8f4b-3f56650874b8'; delete from question_items where id = '44c76e1d-1779-4e22-8f4b-3f56650874b8';",
+  "summaryChinese": "表格已作为 QuestionBlock table 结构化保存，保留来源截图，低置信度进入人工审核队列，且不会被当成题图资产。"
+}
