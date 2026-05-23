@@ -45,13 +45,13 @@
   },
   "evidenceChain": {
     "g003Report": "tmp/g003-winpe-recovery-media/KQG_RecoveryMedia/recovery-media-manifest.json",
-    "backupManifest": "D:\\KQG_Backups\\20260523-182000\\manifest.json",
+    "backupManifest": "D:\\KQG_Backups\\20260524-020201\\manifest.json",
     "verifyStatus": "ok",
     "restoreDryRunMode": "dry_run"
   },
   "rollback": {
     "tempCleanup": [
-      "Remove-Item -LiteralPath 'D:\\KQG_Backups\\20260523-182000' -Recurse -Force"
+      "Remove-Item -LiteralPath 'D:\\KQG_Backups\\20260524-020201' -Recurse -Force"
     ],
     "policy": "if tabletop reveals unresolved blocker, keep O006 as todo and block P001"
   },

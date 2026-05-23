@@ -94,6 +94,6 @@
     "nextMeasurement": "后续 L003/M006/P002/P004 必须用真实授权材料和 golden set 重新测量 OCR 识别率、自动切题准确率和教师修正耗时。"
   },
   "rollback": "git restore tracked files; remove tools/j006_import_accuracy_workload.py, tools/run-j006-import-accuracy-workload-contract.ps1, docs/91_J006_ImportAccuracyWorkload.md, docs/evidence/j006-import-accuracy-workload-report.json",
-  "createdAt": "2026-05-23T10:11:40.620703+00:00",
+  "createdAt": "2026-05-23T17:53:27.717900+00:00",
   "summaryChinese": "J006 形成导入准确率与人工工作量代理基线：source region 与 block 保存为 100%，本地 OCR 已能识别扫描文本，但自动切题样本数仍为 0；不虚报 AI 自动化或生产级切题准确率。"
 }

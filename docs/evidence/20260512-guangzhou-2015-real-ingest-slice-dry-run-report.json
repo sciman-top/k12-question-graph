@@ -1,7 +1,7 @@
 {
   "schemaVersion": "guangzhou-2015-real-ingest-slice.v1",
   "workflowKey": "guangzhou_2015_real_ingest_v1",
-  "generatedAt": "2026-05-23T10:15:20.968903+00:00",
+  "generatedAt": "2026-05-23T17:57:07.505863+00:00",
   "mode": "dry_run",
   "status": "dry_run_pass",
   "scope": {
@@ -194,9 +194,9 @@
     {
       "questionNo": 1,
       "questionItemId": "06e4bedf-a2be-4665-844f-8c0c02e0b1d6",
-      "cutCandidateId": "2acfc9eb-45e7-4b61-b36c-8862f79641a8",
-      "questionRegionId": "7b8b544d-44f7-43e7-a17a-f4bf981ca2f5",
-      "answerRegionId": "fe4c7633-9631-448e-b59e-fb6dbbf5bbf3",
+      "cutCandidateId": "0cbae45c-660c-4eba-b638-08cf96c5e78b",
+      "questionRegionId": "f1b08795-72f3-482f-a7e1-309d674af4ff",
+      "answerRegionId": "016d3cbe-80e8-4f0e-ab8f-961ab05562a6",
       "answer": "B",
       "primaryKnowledgeLabel": "分子热运动",
       "knowledgeTags": [
@@ -208,9 +208,9 @@
     {
       "questionNo": 2,
       "questionItemId": "ace44579-b70c-4c64-b36a-2852ba86ef97",
-      "cutCandidateId": "7ee317fc-dd93-4ef3-bddf-205d5f6f2a84",
-      "questionRegionId": "20ec2f79-f70f-40a2-8de5-e781e35910af",
-      "answerRegionId": "9a640cb0-acb4-4475-b6f4-76c9a67ca7af",
+      "cutCandidateId": "9bd6e449-f076-4be9-b3e5-dfc2da27619a",
+      "questionRegionId": "57930c6f-0b25-4524-97d8-c3ade0c64b1b",
+      "answerRegionId": "39b27824-9a1a-4cf2-baa8-773e1379f82f",
       "answer": "A",
       "primaryKnowledgeLabel": "串并联电路电压电流",
       "knowledgeTags": [
@@ -223,9 +223,9 @@
     {
       "questionNo": 3,
       "questionItemId": "84eac67d-c612-4ba5-bb7d-e871cbde356f",
-      "cutCandidateId": "bf8b0143-2517-4a34-a472-91561ef86106",
-      "questionRegionId": "2a7a0b91-4770-43a3-a2bf-6b8bc79bc383",
-      "answerRegionId": "95f7b31a-ddf4-4331-b5aa-f0d34d427439",
+      "cutCandidateId": "f9621a33-bd14-4baf-b1a9-844c655f916a",
+      "questionRegionId": "571b5514-e120-47ac-98fd-c966b1e88e95",
+      "answerRegionId": "fcaa17b4-e7b6-492b-9f4f-61fa3f004813",
       "answer": "C",
       "primaryKnowledgeLabel": "摩擦起电与电荷相互作用",
       "knowledgeTags": [
@@ -237,9 +237,9 @@
     {
       "questionNo": 4,
       "questionItemId": "027acbf1-4692-49b1-9adb-5ae7f06e31a3",
-      "cutCandidateId": "006bbeaf-f0fd-414d-82b0-1bbf259d79eb",
-      "questionRegionId": "79eb5b9c-644c-4a88-8321-c1fdf3920968",
-      "answerRegionId": "a8f67787-c54b-49fe-b4a5-c365d9788b52",
+      "cutCandidateId": "9b79e2f6-6c75-4db9-9d15-ae1a5ff71afc",
+      "questionRegionId": "efc870f8-d6a6-4034-8792-52b3cb5533d5",
+      "answerRegionId": "dca93469-04e7-4e98-864a-b561289a4ef9",
       "answer": "B",
       "primaryKnowledgeLabel": "电磁波谱",
       "knowledgeTags": [
@@ -252,9 +252,9 @@
     {
       "questionNo": 5,
       "questionItemId": "2cde8893-1e5d-4a55-b187-68682908c886",
-      "cutCandidateId": "35d3df62-77bc-4317-9a8e-bb9def9f2324",
-      "questionRegionId": "c2c8723b-68e2-4239-b675-f962057e42db",
-      "answerRegionId": "75f47eb3-7bc7-4db1-b208-8b47afe23362",
+      "cutCandidateId": "9ceb9ded-4d13-402b-b8f6-a2f2649ed9af",
+      "questionRegionId": "02961eb9-0513-4c34-888d-d2b21e43b526",
+      "answerRegionId": "13323fb0-d162-4ce4-9225-32dc631a22cd",
       "answer": "A",
       "primaryKnowledgeLabel": "声音传播与频率",
       "knowledgeTags": [
@@ -267,9 +267,9 @@
     {
       "questionNo": 6,
       "questionItemId": "f6dcaef7-37c5-439a-a7e7-3019de4be6cf",
-      "cutCandidateId": "16ddc2ad-64fa-4c41-a9cb-55db341355a6",
-      "questionRegionId": "299c669e-c4c4-4a94-bd2d-78ac6cad94dc",
-      "answerRegionId": "667d7cc7-2f96-4e56-86db-4cee12931b9a",
+      "cutCandidateId": "4a43cf73-4dfd-402b-b84e-68c45562ab00",
+      "questionRegionId": "a8883ab3-d6d2-4599-9b4c-a3d6e5b14193",
+      "answerRegionId": "434a07d4-4663-4305-a922-3a6d5420a73b",
       "answer": "D",
       "primaryKnowledgeLabel": "做功改变内能",
       "knowledgeTags": [
@@ -282,9 +282,9 @@
     {
       "questionNo": 7,
       "questionItemId": "c198df5e-85b8-4ae9-9177-94bbba4387b9",
-      "cutCandidateId": "67ce7809-dc22-4b57-93cc-2c16d760a5a2",
-      "questionRegionId": "0b47b3a1-825e-4132-83a2-d3047fb8f3f6",
-      "answerRegionId": "08d358e8-f931-47c6-baae-f848e105d1b4",
+      "cutCandidateId": "cf5852d5-b034-4e3c-94c0-826e55da23a7",
+      "questionRegionId": "8b57442f-bf17-4784-afcd-e6d8380fd23c",
+      "answerRegionId": "4cb3bb23-4359-4266-a232-9e0b0afd826f",
       "answer": "A",
       "primaryKnowledgeLabel": "磁场对通电导体的作用",
       "knowledgeTags": [
@@ -297,9 +297,9 @@
     {
       "questionNo": 8,
       "questionItemId": "ba388ca8-f00f-488c-8c22-3d00b5cfd191",
-      "cutCandidateId": "a1b28ec8-8ff9-4680-ad03-9ec8486ab8a3",
-      "questionRegionId": "3a6ca98b-8126-40b6-a9dc-38b84062b503",
-      "answerRegionId": "1be8c1b9-3e22-427a-9615-e8ac9d28dfe2",
+      "cutCandidateId": "112d8d12-fa89-4d0b-be7b-b00b061eb4d2",
+      "questionRegionId": "39f365f9-bf81-4ba6-bb2b-0e2898aa28ce",
+      "answerRegionId": "07ced7c4-11b5-4951-9af8-fc63ea5742f5",
       "answer": "D",
       "primaryKnowledgeLabel": "晶体熔化图像",
       "knowledgeTags": [
@@ -312,9 +312,9 @@
     {
       "questionNo": 9,
       "questionItemId": "5afd17a6-6045-4e45-95ff-218691ea3281",
-      "cutCandidateId": "7f8241a5-19da-41cc-81f7-206fb29c30f4",
-      "questionRegionId": "32b3b2c6-22f1-4f07-b7d5-ad3b712b5fc5",
-      "answerRegionId": "b6b2f99a-efb3-4517-8c05-8da0c63154c6",
+      "cutCandidateId": "c6a4e113-792b-4539-9710-672eeecd1a6e",
+      "questionRegionId": "01ddc91d-5d50-46a8-bd85-a4e916a408cd",
+      "answerRegionId": "f48cbe9e-a0f2-4fde-9237-353392d808db",
       "answer": "B",
       "primaryKnowledgeLabel": "液体压强",
       "knowledgeTags": [
@@ -327,9 +327,9 @@
     {
       "questionNo": 10,
       "questionItemId": "69e15ae2-db34-46a1-9c82-847c8fa6e0dd",
-      "cutCandidateId": "d80529c6-af23-4d8e-8ab9-7549a1e1e309",
-      "questionRegionId": "26c8aa9a-cef6-48c7-8d6f-87098c82839a",
-      "answerRegionId": "ec6091ce-9ef0-4637-8b9d-8cfc12025275",
+      "cutCandidateId": "c0fb639c-81a8-4a14-b84d-0d078a7f04dd",
+      "questionRegionId": "b0487378-82c1-4b9a-a0d4-c0323c2212d7",
+      "answerRegionId": "311c8e14-3862-4b05-a2db-d9ffb2dbf68d",
       "answer": "C",
       "primaryKnowledgeLabel": "质量与密度",
       "knowledgeTags": [
@@ -342,9 +342,9 @@
     {
       "questionNo": 11,
       "questionItemId": "bd618220-d434-42d2-acae-b27d5a22e10d",
-      "cutCandidateId": "0cff80c5-2e7d-4cc4-ab8c-9e0d09cb175f",
-      "questionRegionId": "37704152-8c47-45fe-9c4c-4efe72dfd286",
-      "answerRegionId": "992cec5b-f290-4341-85ab-be9442e79711",
+      "cutCandidateId": "301af86f-8d9a-45dc-ad97-fa46c04f6f42",
+      "questionRegionId": "cd615334-5917-4cc1-967c-574a5c4f79e2",
+      "answerRegionId": "dd7bdec3-67d8-47ed-add4-73a6e5671788",
       "answer": "C",
       "primaryKnowledgeLabel": "杠杆平衡与力臂",
       "knowledgeTags": [
@@ -357,9 +357,9 @@
     {
       "questionNo": 12,
       "questionItemId": "fea40f2f-7969-40b9-a8d2-dbdfc595fd7c",
-      "cutCandidateId": "f75cafb5-813d-466f-83d1-a285bf43c80c",
-      "questionRegionId": "755195f3-c83c-4ff7-8d35-d6c5fcbc6373",
-      "answerRegionId": "5b9ed142-689f-450c-ba2b-3a048637699d",
+      "cutCandidateId": "d8b14420-1ca6-42ab-b90b-a640f7746ff6",
+      "questionRegionId": "54212e19-c557-4a09-a987-d26d293c24b5",
+      "answerRegionId": "0f240d5a-2259-4f82-9a8c-9e08410456c4",
       "answer": "D",
       "primaryKnowledgeLabel": "电磁铁与巨磁电阻",
       "knowledgeTags": [
@@ -372,9 +372,9 @@
     {
       "questionNo": 13,
       "questionItemId": "49afadea-b212-4cfb-ba89-a68a80d5e0fd",
-      "cutCandidateId": "bcd1d19c-3738-4d65-811e-11d6ba3cc584",
-      "questionRegionId": "72569104-890c-407c-ad85-5c5a44ed0ca7",
-      "answerRegionId": "d44a1b39-5aa3-4f9b-8ad0-cb0492d8a72b",
+      "cutCandidateId": "97c980d7-5d3b-42ab-8208-609bab02479b",
+      "questionRegionId": "c2868b3a-452a-4fc0-945e-47590121a14c",
+      "answerRegionId": "0a669bdd-5d75-4468-be2e-e6087795be7a",
       "answer": "（1） A＇ A 平面镜 （2）0.5； 向左移；不变",
       "primaryKnowledgeLabel": "平面镜成像",
       "knowledgeTags": [
@@ -387,9 +387,9 @@
     {
       "questionNo": 14,
       "questionItemId": "47bf791e-fedd-4cc0-b958-23ce01690c48",
-      "cutCandidateId": "9687b02a-5599-4a20-b62b-d60c5c840047",
-      "questionRegionId": "a3226539-4ac7-46be-88e8-9005efb34b6e",
-      "answerRegionId": "e91db985-ad3e-490d-944c-4d65fae106d0",
+      "cutCandidateId": "bd6a2e03-ea08-4550-8d4b-0cb623a4dc29",
+      "questionRegionId": "aef83d31-e6e6-45c4-859b-4dfc0921bf40",
+      "answerRegionId": "2291e13f-4a42-445e-8655-644bbfd0e7b0",
       "answer": "（1）（2）如图示 印有喜羊羊 凸透镜 图案的胶片 物距 F F 光源",
       "primaryKnowledgeLabel": "凸透镜成像作图",
       "knowledgeTags": [
@@ -402,9 +402,9 @@
     {
       "questionNo": 15,
       "questionItemId": "3ae21bf5-65a1-42e4-b467-380ef025bc59",
-      "cutCandidateId": "f5db8d4b-b7e0-415e-808f-ab440768a71d",
-      "questionRegionId": "f188f059-d25c-4876-8333-bc79cad56fe4",
-      "answerRegionId": "c4a31c53-b1ff-439c-8afe-35b9ebe16348",
+      "cutCandidateId": "8225151f-8fe2-4d5e-9c4e-089692809e02",
+      "questionRegionId": "9c45f0d7-f98e-42e6-b7d1-eff8d5e3b7c4",
+      "answerRegionId": "dc0abccb-64d7-4375-b3d2-6572401aa698",
       "answer": "实像，倒立 速度",
       "primaryKnowledgeLabel": "凸透镜成像性质",
       "knowledgeTags": [
@@ -416,9 +416,9 @@
     {
       "questionNo": 16,
       "questionItemId": "2e9fa385-5a24-40dd-9693-e94b2542299d",
-      "cutCandidateId": "94a5cb88-def0-4b02-89fc-1ec04b9d57fc",
-      "questionRegionId": "788728d5-4b36-4a17-9c84-2f40a3eb6317",
-      "answerRegionId": "eb4eb392-c515-4ec7-afc1-e369791f17ff",
+      "cutCandidateId": "a308f86e-ad1e-48cc-9b47-3097ac26f44b",
+      "questionRegionId": "8708e21b-3683-457b-9262-c76ba48c959f",
+      "answerRegionId": "8318b96e-abf0-4b5b-a478-d5590c7c8844",
       "answer": "（1）为零； （2） 等于；图象如右图所示",
       "primaryKnowledgeLabel": "机械能守恒与速度图像",
       "knowledgeTags": [
@@ -431,9 +431,9 @@
     {
       "questionNo": 17,
       "questionItemId": "8a800849-59cf-4f8c-96fa-8184ea11c86f",
-      "cutCandidateId": "024f0ada-3b2a-4e66-8d4d-28853c2ec8c4",
-      "questionRegionId": "60fad1c8-735e-4bc6-bdcb-30d4b983ba16",
-      "answerRegionId": "7bdebd02-09d8-4016-b32e-79ba592f329f",
+      "cutCandidateId": "3db73128-1348-4b5c-8187-65889de2c6ab",
+      "questionRegionId": "20a88268-77b0-47ab-a9c0-c25b79391fc4",
+      "answerRegionId": "2d9ba750-b245-470a-a33f-01b314bce50e",
       "answer": "小于； 不变； 变小 0 时间",
       "primaryKnowledgeLabel": "气体压强变化",
       "knowledgeTags": [
@@ -446,9 +446,9 @@
     {
       "questionNo": 18,
       "questionItemId": "b3fe890c-4522-4be5-878e-c88cdb1a5db4",
-      "cutCandidateId": "cec6ee59-452c-4ebb-98b1-eabbcc2a2a4a",
-      "questionRegionId": "5b597717-3dc4-4416-833e-0a944c9d137f",
-      "answerRegionId": "91c85215-b999-4b63-9cfe-2c0f6e31f35a",
+      "cutCandidateId": "88845595-74b8-4844-8e09-65a80f10f379",
+      "questionRegionId": "2ccf4afc-9150-4b8b-8f0d-ad74b0b068b9",
+      "answerRegionId": "8a394859-3012-4965-b9c9-5ba514cac4ef",
       "answer": "100 ； 500",
       "primaryKnowledgeLabel": "重力与固体压强",
       "knowledgeTags": [
