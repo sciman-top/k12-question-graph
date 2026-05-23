@@ -1,7 +1,8 @@
 param(
     [string] $BacklogPath = 'tasks/backlog.csv',
     [string] $ChecklistPath = 'docs/templates/q001-second-subject-candidate-admission-checklist.md',
-    [string] $EvidencePath = 'docs/evidence/20260505-q001-second-subject-candidate-admission-preflight.md'
+    [string] $EvidencePath = 'docs/evidence/20260505-q001-second-subject-candidate-admission-preflight.md',
+    [string] $ReportPath = 'docs/evidence/20260523-q001-second-subject-candidate-admission-report.json'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -11,9 +12,28 @@ function Assert-True([bool]$Condition, [string]$Message) {
     if (-not $Condition) { throw $Message }
 }
 
-$backlogFullPath = Join-Path $repoRoot $BacklogPath
-$checklistFullPath = Join-Path $repoRoot $ChecklistPath
-$evidenceFullPath = Join-Path $repoRoot $EvidencePath
+function Resolve-RepoPath([string]$Path) {
+    return Join-Path $repoRoot ($Path -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+}
+
+function Write-ContentIfChanged([string]$Path, [string]$Content) {
+    $fullPath = Resolve-RepoPath $Path
+    $parent = Split-Path -Parent $fullPath
+    if (-not (Test-Path -LiteralPath $parent)) {
+        New-Item -ItemType Directory -Path $parent -Force | Out-Null
+    }
+
+    if (Test-Path -LiteralPath $fullPath) {
+        $existing = Get-Content -LiteralPath $fullPath -Raw
+        if ($existing -eq $Content) { return }
+    }
+
+    Set-Content -LiteralPath $fullPath -Value $Content -Encoding UTF8
+}
+
+$backlogFullPath = Resolve-RepoPath $BacklogPath
+$checklistFullPath = Resolve-RepoPath $ChecklistPath
+$evidenceFullPath = Resolve-RepoPath $EvidencePath
 
 Assert-True (Test-Path -LiteralPath $backlogFullPath) "Q001 backlog file missing: $BacklogPath"
 Assert-True (Test-Path -LiteralPath $checklistFullPath) "Q001 checklist missing: $ChecklistPath"
@@ -44,14 +64,38 @@ foreach ($keyword in @('preflight', 'Q001', 'platform_na', 'gate_na', '多学科
     Assert-True ($evidenceText.Contains($keyword)) "Q001 evidence missing keyword: $keyword"
 }
 
-[ordered]@{
+$report = [ordered]@{
     status = 'pass'
     taskId = 'Q001'
     mode = 'preflight_only'
+    checkedAt = (Get-Date).ToString('s')
     p006Status = $p006.status
     q001Status = $q001.status
+    closeTaskAllowed = $false
+    currentDecision = 'keep_Q001_todo_until_P006_and_second_subject_source_package_close'
     checklistPath = $ChecklistPath
     evidencePath = $EvidencePath
+    reportPath = $ReportPath
+    blockers = @(
+        'P006 release decision is not closed.',
+        'Second-subject source package and authorization evidence is not recorded.',
+        'Candidate admission manifest is not recorded; no second-subject active switch is allowed.'
+    )
+    nextRequiredEvidence = @(
+        'P006 release decision record',
+        'second-subject source package manifest',
+        'source authorization and deletion boundary',
+        'candidate-only admission report with no active write'
+    )
+    failClosedRules = @(
+        'Do not mark Q001 complete from a preflight-only run.',
+        'Do not import or activate a second-subject asset without source package evidence.',
+        'Do not advance Q002 until Q001 candidate admission evidence exists.'
+    )
     boundary = 'second-subject candidate admission is not executed in this contract; keep Q001 as todo until P006 closes and source package evidence is complete'
-    checkedAt = (Get-Date).ToString('s')
-} | ConvertTo-Json -Depth 4
+    rollback = 'revert tools/run-q001-second-subject-candidate-admission-preflight-contract.ps1, tasks/backlog.csv, and remove the generated Q001 admission report.'
+}
+
+$json = $report | ConvertTo-Json -Depth 8
+Write-ContentIfChanged -Path $ReportPath -Content $json
+$report | ConvertTo-Json -Depth 8

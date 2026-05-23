@@ -1,9 +1,9 @@
 # AGENTS.md - k12-question-graph Shared Project Rules / Codex Direct
 **项目**: k12-question-graph
 **类型**: K-12 teacher-first question graph platform
-**承接来源**: `GlobalUser/AGENTS.md v9.52`
+**承接来源**: `GlobalUser/AGENTS.md v9.53`
 **适用范围**: 项目级（仓库根）
-**最后更新**: 2026-05-04
+**最后更新**: 2026-05-23
 
 ## 1. 阅读指引
 - 本文件是三工具共同项目规则主体；Codex 直接读取，Claude/Gemini 通过各自 wrapper 的 `AGENTS.md` import 承接并只追加平台差异。

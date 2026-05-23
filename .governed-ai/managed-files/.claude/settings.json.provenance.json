@@ -10,6 +10,6 @@
   "schema_version": "1.0",
   "source": "D:\\CODE\\governed-ai-coding-runtime\\docs\\targets\\templates\\claude-code\\settings.json",
   "source_sha256": "c5c1715651e0127e266a90e43fb605c3197baa96a4e09d7006e6db8b76b35998",
-  "sync_revision": "2026-05-17.1",
+  "sync_revision": "2026-05-23.1",
   "target_sha256": "1ac23babffdc64fcc73f881bd85ab5fb712fd76ec4c097f7d1fdc5038ff391e6"
 }

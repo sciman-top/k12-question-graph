@@ -39,6 +39,6 @@
     }
   },
   "rollback": "git restore tracked files; remove tmp/j004-fidelity and docs/evidence/j004-fidelity-regression-report.json",
-  "createdAt": "2026-05-23T05:15:31.660862+00:00",
+  "createdAt": "2026-05-23T10:11:28.745286+00:00",
   "summaryChinese": "J004 已验证公式、表格、题图从 OpenXML 导入解析到 draft question 再到 Word/PDF 导出均未丢失；仅 synthetic draft/test，不具备生产资格。"
 }

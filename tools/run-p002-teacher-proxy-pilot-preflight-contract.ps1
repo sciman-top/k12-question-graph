@@ -1,7 +1,8 @@
 param(
     [string] $BacklogPath = 'tasks/backlog.csv',
     [string] $ChecklistPath = 'docs/templates/p002-teacher-proxy-pilot-checklist.md',
-    [string] $EvidencePath = 'docs/evidence/20260505-p002-teacher-proxy-pilot-preflight.md'
+    [string] $EvidencePath = 'docs/evidence/20260505-p002-teacher-proxy-pilot-preflight.md',
+    [string] $ReportPath = 'docs/evidence/20260523-p002-teacher-proxy-pilot-admission-report.json'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -11,9 +12,28 @@ function Assert-True([bool]$Condition, [string]$Message) {
     if (-not $Condition) { throw $Message }
 }
 
-$backlogFullPath = Join-Path $repoRoot $BacklogPath
-$checklistFullPath = Join-Path $repoRoot $ChecklistPath
-$evidenceFullPath = Join-Path $repoRoot $EvidencePath
+function Resolve-RepoPath([string]$Path) {
+    return Join-Path $repoRoot ($Path -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+}
+
+function Write-ContentIfChanged([string]$Path, [string]$Content) {
+    $fullPath = Resolve-RepoPath $Path
+    $parent = Split-Path -Parent $fullPath
+    if (-not (Test-Path -LiteralPath $parent)) {
+        New-Item -ItemType Directory -Path $parent -Force | Out-Null
+    }
+
+    if (Test-Path -LiteralPath $fullPath) {
+        $existing = Get-Content -LiteralPath $fullPath -Raw
+        if ($existing -eq $Content) { return }
+    }
+
+    Set-Content -LiteralPath $fullPath -Value $Content -Encoding UTF8
+}
+
+$backlogFullPath = Resolve-RepoPath $BacklogPath
+$checklistFullPath = Resolve-RepoPath $ChecklistPath
+$evidenceFullPath = Resolve-RepoPath $EvidencePath
 
 Assert-True (Test-Path -LiteralPath $backlogFullPath) "P002 backlog file missing: $BacklogPath"
 Assert-True (Test-Path -LiteralPath $checklistFullPath) "P002 checklist missing: $ChecklistPath"
@@ -44,14 +64,38 @@ foreach ($keyword in @('preflight', 'P002', 'platform_na', 'gate_na', '代理试
     Assert-True ($evidenceText.Contains($keyword)) "P002 evidence missing keyword: $keyword"
 }
 
-[ordered]@{
+$report = [ordered]@{
     status = 'pass'
     taskId = 'P002'
     mode = 'preflight_only'
+    checkedAt = (Get-Date).ToString('s')
     p001Status = $p001.status
     p002Status = $p002.status
+    closeTaskAllowed = $false
+    currentDecision = 'keep_P002_todo_until_P001_and_proxy_evidence_close'
     checklistPath = $ChecklistPath
     evidencePath = $EvidencePath
+    reportPath = $ReportPath
+    blockers = @(
+        'P001 isolated-machine rehearsal evidence is not closed.',
+        'Authorized or de-identified teacher proxy material path is not recorded.',
+        'Teacher proxy timing, rollback, import, paper export, and score import evidence is not recorded.'
+    )
+    nextRequiredEvidence = @(
+        'P001 isolated-machine release rehearsal report',
+        'authorized_or_deidentified_material_manifest',
+        'teacher proxy import to paper export to score import timing report',
+        'rollback and privacy handling evidence'
+    )
+    failClosedRules = @(
+        'Do not mark P002 complete from a local preflight-only run.',
+        'Do not use real student or school data without authorization/de-identification evidence.',
+        'Do not advance P003 onsite admission until P002 has a teacher proxy report.'
+    )
     boundary = 'teacher proxy pilot not executed in this contract; keep P002 as todo until P001 closes and proxy evidence is complete'
-    checkedAt = (Get-Date).ToString('s')
-} | ConvertTo-Json -Depth 4
+    rollback = 'revert tools/run-p002-teacher-proxy-pilot-preflight-contract.ps1, tasks/backlog.csv, and remove the generated P002 admission report.'
+}
+
+$json = $report | ConvertTo-Json -Depth 8
+Write-ContentIfChanged -Path $ReportPath -Content $json
+$report | ConvertTo-Json -Depth 8

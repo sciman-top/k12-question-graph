@@ -1,0 +1,19 @@
+# Search/context hygiene for token-efficient agent coding.
+# Source template: docs/targets/templates/search-context.ignore
+# Use `rg -u` or an explicit path when archived evidence or backlog history is the task.
+
+docs/change-evidence/**
+docs/archive/**
+docs/backlog/issue-ready-backlog.md
+docs/backlog/full-lifecycle-backlog-seeds.md
+
+operator-ui-*.png
+docs/**/*.png
+
+.playwright-mcp/**
+.pytest_cache/**
+.tmp/**
+.tmp-test/**
+.vs/**
+.runtime/**
+.worktrees/**

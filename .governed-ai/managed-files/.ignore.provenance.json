@@ -1,0 +1,15 @@
+{
+  "expected_sha256": "8793195c3570774012e85b7d0cef2be4c91a27b4045f82ce14b519fd781a681e",
+  "management_mode": "block_on_drift",
+  "marker_strategy": "sidecar",
+  "mode_status": "active",
+  "overwrite_policy": "create_missing_block_existing_drift",
+  "ownership_scope": "whole_file",
+  "path": ".ignore",
+  "record_kind": "target_repo_managed_file_provenance",
+  "schema_version": "1.0",
+  "source": "D:\\CODE\\governed-ai-coding-runtime\\docs\\targets\\templates\\search-context.ignore",
+  "source_sha256": "8793195c3570774012e85b7d0cef2be4c91a27b4045f82ce14b519fd781a681e",
+  "sync_revision": "2026-05-23.1",
+  "target_sha256": "8793195c3570774012e85b7d0cef2be4c91a27b4045f82ce14b519fd781a681e"
+}

@@ -1,0 +1,31 @@
+{
+  "status": "pass",
+  "taskId": "Q002",
+  "mode": "preflight_only",
+  "checkedAt": "2026-05-23T18:20:16",
+  "q001Status": "待办",
+  "q002Status": "待办",
+  "closeTaskAllowed": false,
+  "currentDecision": "keep_Q002_todo_until_Q001_and_teacher_review_evidence_close",
+  "checklistPath": "docs/templates/q002-second-subject-teacher-review-template-checklist.md",
+  "evidencePath": "docs/evidence/20260505-q002-second-subject-teacher-review-template-preflight.md",
+  "reportPath": "docs/evidence/20260523-q002-second-subject-teacher-review-template-report.json",
+  "blockers": [
+    "Q001 second-subject candidate admission is not closed.",
+    "Teacher review template has not been applied to real candidate knowledge points, textbook chapters, curriculum standards, and exam points.",
+    "Review evidence and teacher-efficiency impact are not recorded."
+  ],
+  "nextRequiredEvidence": [
+    "Q001 candidate admission report",
+    "teacher review checklist filled against candidate assets",
+    "review evidence for knowledge points, textbook chapters, curriculum standards, and exam points",
+    "teacher-efficiency note for review workload"
+  ],
+  "failClosedRules": [
+    "Do not mark Q002 complete from a template-only preflight.",
+    "Do not advance Q003 active drill without teacher review evidence.",
+    "Do not expose additional teacher-facing controls before the review workload is justified."
+  ],
+  "boundary": "second-subject teacher review template is not executed in this contract; keep Q002 as todo until Q001 closes and review evidence is complete",
+  "rollback": "revert tools/run-q002-second-subject-teacher-review-template-preflight-contract.ps1, tasks/backlog.csv, and remove the generated Q002 admission report."
+}

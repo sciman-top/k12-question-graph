@@ -1,0 +1,31 @@
+{
+  "status": "pass",
+  "taskId": "Q005",
+  "mode": "preflight_only",
+  "checkedAt": "2026-05-23T18:20:16",
+  "q004Status": "待办",
+  "q005Status": "待办",
+  "closeTaskAllowed": false,
+  "currentDecision": "keep_Q005_todo_until_Q004_and_multi_subject_ui_simplification_evidence_close",
+  "checklistPath": "docs/templates/q005-multi-subject-ui-simplification-checklist.md",
+  "evidencePath": "docs/evidence/20260505-q005-multi-subject-ui-simplification-preflight.md",
+  "reportPath": "docs/evidence/20260523-q005-multi-subject-ui-simplification-report.json",
+  "blockers": [
+    "Q004 cross-subject diff report is not closed.",
+    "Four teacher entry points with multi-subject defaults/templates are not smoke-tested.",
+    "Teacher-efficiency evidence is not recorded for any subject switch UI."
+  ],
+  "nextRequiredEvidence": [
+    "Q004 cross-subject diff report",
+    "four-entry UI smoke with subject defaults or templates",
+    "teacher-efficiency review for subject switching",
+    "proof that multi-subject controls do not add teacher-facing complexity"
+  ],
+  "failClosedRules": [
+    "Do not add teacher-facing subject controls without Q004 difference evidence.",
+    "Do not mark Q005 complete without four-entry UI smoke and teacher-efficiency evidence.",
+    "Do not let multi-subject work expand the ordinary teacher workflow beyond the existing simplified entry points."
+  ],
+  "boundary": "multi-subject UI simplification review is not executed in this contract; keep Q005 as todo until Q004 closes and UI evidence is complete",
+  "rollback": "revert tools/run-q005-multi-subject-ui-simplification-preflight-contract.ps1, tasks/backlog.csv, and remove the generated Q005 admission report."
+}

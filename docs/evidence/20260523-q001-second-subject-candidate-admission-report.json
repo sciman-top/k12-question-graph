@@ -1,0 +1,31 @@
+{
+  "status": "pass",
+  "taskId": "Q001",
+  "mode": "preflight_only",
+  "checkedAt": "2026-05-23T18:20:16",
+  "p006Status": "待办",
+  "q001Status": "待办",
+  "closeTaskAllowed": false,
+  "currentDecision": "keep_Q001_todo_until_P006_and_second_subject_source_package_close",
+  "checklistPath": "docs/templates/q001-second-subject-candidate-admission-checklist.md",
+  "evidencePath": "docs/evidence/20260505-q001-second-subject-candidate-admission-preflight.md",
+  "reportPath": "docs/evidence/20260523-q001-second-subject-candidate-admission-report.json",
+  "blockers": [
+    "P006 release decision is not closed.",
+    "Second-subject source package and authorization evidence is not recorded.",
+    "Candidate admission manifest is not recorded; no second-subject active switch is allowed."
+  ],
+  "nextRequiredEvidence": [
+    "P006 release decision record",
+    "second-subject source package manifest",
+    "source authorization and deletion boundary",
+    "candidate-only admission report with no active write"
+  ],
+  "failClosedRules": [
+    "Do not mark Q001 complete from a preflight-only run.",
+    "Do not import or activate a second-subject asset without source package evidence.",
+    "Do not advance Q002 until Q001 candidate admission evidence exists."
+  ],
+  "boundary": "second-subject candidate admission is not executed in this contract; keep Q001 as todo until P006 closes and source package evidence is complete",
+  "rollback": "revert tools/run-q001-second-subject-candidate-admission-preflight-contract.ps1, tasks/backlog.csv, and remove the generated Q001 admission report."
+}

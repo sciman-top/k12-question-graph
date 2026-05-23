@@ -1,0 +1,31 @@
+{
+  "status": "pass",
+  "taskId": "Q003",
+  "mode": "preflight_only",
+  "checkedAt": "2026-05-23T18:20:16",
+  "q002Status": "待办",
+  "q003Status": "待办",
+  "closeTaskAllowed": false,
+  "currentDecision": "keep_Q003_todo_until_Q002_and_second_subject_active_drill_evidence_close",
+  "checklistPath": "docs/templates/q003-second-subject-active-drill-checklist.md",
+  "evidencePath": "docs/evidence/20260505-q003-second-subject-active-drill-preflight.md",
+  "reportPath": "docs/evidence/20260523-q003-second-subject-active-drill-report.json",
+  "blockers": [
+    "Q002 teacher review evidence is not closed.",
+    "Second-subject backup readiness, reviewed state, active switch dry-run, and rollback snapshot are not recorded.",
+    "No active write is allowed from this preflight contract."
+  ],
+  "nextRequiredEvidence": [
+    "Q002 teacher review evidence",
+    "backup readiness report",
+    "reviewed-to-active dry-run report",
+    "rollback snapshot and restore command"
+  ],
+  "failClosedRules": [
+    "Do not perform a second-subject active switch from this preflight contract.",
+    "Do not mark Q003 complete without backup, reviewed, active dry-run, and rollback evidence.",
+    "Do not advance Q004 until Q003 active drill evidence exists."
+  ],
+  "boundary": "second-subject active drill is not executed in this contract; keep Q003 as todo until Q002 closes and activation evidence is complete",
+  "rollback": "revert tools/run-q003-second-subject-active-drill-preflight-contract.ps1, tasks/backlog.csv, and remove the generated Q003 admission report."
+}

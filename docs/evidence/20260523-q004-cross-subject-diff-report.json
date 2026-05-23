@@ -1,0 +1,31 @@
+{
+  "status": "pass",
+  "taskId": "Q004",
+  "mode": "preflight_only",
+  "checkedAt": "2026-05-23T18:20:16",
+  "q003Status": "待办",
+  "q004Status": "待办",
+  "closeTaskAllowed": false,
+  "currentDecision": "keep_Q004_todo_until_Q003_and_cross_subject_diff_evidence_close",
+  "checklistPath": "docs/templates/q004-cross-subject-diff-report-checklist.md",
+  "evidencePath": "docs/evidence/20260505-q004-cross-subject-diff-report-preflight.md",
+  "reportPath": "docs/evidence/20260523-q004-cross-subject-diff-report.json",
+  "blockers": [
+    "Q003 second-subject active drill evidence is not closed.",
+    "Cross-subject differences for question types, tags, scoring, export, and analysis are not recorded.",
+    "Dynamic-element updates are not mapped back to docs/58 and rollback evidence."
+  ],
+  "nextRequiredEvidence": [
+    "Q003 active drill report",
+    "cross-subject question type, tag, scoring, export, and analysis diff report",
+    "dynamic elements update for docs/58",
+    "teacher-efficiency and maintenance-load review"
+  ],
+  "failClosedRules": [
+    "Do not hard-code second-subject differences into product code.",
+    "Do not mark Q004 complete without a diff report and dynamic-element mapping.",
+    "Do not advance Q005 UI changes before Q004 proves the minimal difference set."
+  ],
+  "boundary": "cross-subject diff report is not executed in this contract; keep Q004 as todo until Q003 closes and docs evidence is complete",
+  "rollback": "revert tools/run-q004-cross-subject-diff-report-preflight-contract.ps1, tasks/backlog.csv, and remove the generated Q004 admission report."
+}

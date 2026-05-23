@@ -1,7 +1,8 @@
 param(
     [string] $BacklogPath = 'tasks/backlog.csv',
     [string] $ChecklistPath = 'docs/templates/q005-multi-subject-ui-simplification-checklist.md',
-    [string] $EvidencePath = 'docs/evidence/20260505-q005-multi-subject-ui-simplification-preflight.md'
+    [string] $EvidencePath = 'docs/evidence/20260505-q005-multi-subject-ui-simplification-preflight.md',
+    [string] $ReportPath = 'docs/evidence/20260523-q005-multi-subject-ui-simplification-report.json'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -11,9 +12,28 @@ function Assert-True([bool]$Condition, [string]$Message) {
     if (-not $Condition) { throw $Message }
 }
 
-$backlogFullPath = Join-Path $repoRoot $BacklogPath
-$checklistFullPath = Join-Path $repoRoot $ChecklistPath
-$evidenceFullPath = Join-Path $repoRoot $EvidencePath
+function Resolve-RepoPath([string]$Path) {
+    return Join-Path $repoRoot ($Path -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+}
+
+function Write-ContentIfChanged([string]$Path, [string]$Content) {
+    $fullPath = Resolve-RepoPath $Path
+    $parent = Split-Path -Parent $fullPath
+    if (-not (Test-Path -LiteralPath $parent)) {
+        New-Item -ItemType Directory -Path $parent -Force | Out-Null
+    }
+
+    if (Test-Path -LiteralPath $fullPath) {
+        $existing = Get-Content -LiteralPath $fullPath -Raw
+        if ($existing -eq $Content) { return }
+    }
+
+    Set-Content -LiteralPath $fullPath -Value $Content -Encoding UTF8
+}
+
+$backlogFullPath = Resolve-RepoPath $BacklogPath
+$checklistFullPath = Resolve-RepoPath $ChecklistPath
+$evidenceFullPath = Resolve-RepoPath $EvidencePath
 
 Assert-True (Test-Path -LiteralPath $backlogFullPath) "Q005 backlog file missing: $BacklogPath"
 Assert-True (Test-Path -LiteralPath $checklistFullPath) "Q005 checklist missing: $ChecklistPath"
@@ -44,14 +64,38 @@ foreach ($keyword in @('preflight', 'Q005', 'platform_na', 'gate_na', 'UI 简化
     Assert-True ($evidenceText.Contains($keyword)) "Q005 evidence missing keyword: $keyword"
 }
 
-[ordered]@{
+$report = [ordered]@{
     status = 'pass'
     taskId = 'Q005'
     mode = 'preflight_only'
+    checkedAt = (Get-Date).ToString('s')
     q004Status = $q004.status
     q005Status = $q005.status
+    closeTaskAllowed = $false
+    currentDecision = 'keep_Q005_todo_until_Q004_and_multi_subject_ui_simplification_evidence_close'
     checklistPath = $ChecklistPath
     evidencePath = $EvidencePath
+    reportPath = $ReportPath
+    blockers = @(
+        'Q004 cross-subject diff report is not closed.',
+        'Four teacher entry points with multi-subject defaults/templates are not smoke-tested.',
+        'Teacher-efficiency evidence is not recorded for any subject switch UI.'
+    )
+    nextRequiredEvidence = @(
+        'Q004 cross-subject diff report',
+        'four-entry UI smoke with subject defaults or templates',
+        'teacher-efficiency review for subject switching',
+        'proof that multi-subject controls do not add teacher-facing complexity'
+    )
+    failClosedRules = @(
+        'Do not add teacher-facing subject controls without Q004 difference evidence.',
+        'Do not mark Q005 complete without four-entry UI smoke and teacher-efficiency evidence.',
+        'Do not let multi-subject work expand the ordinary teacher workflow beyond the existing simplified entry points.'
+    )
     boundary = 'multi-subject UI simplification review is not executed in this contract; keep Q005 as todo until Q004 closes and UI evidence is complete'
-    checkedAt = (Get-Date).ToString('s')
-} | ConvertTo-Json -Depth 4
+    rollback = 'revert tools/run-q005-multi-subject-ui-simplification-preflight-contract.ps1, tasks/backlog.csv, and remove the generated Q005 admission report.'
+}
+
+$json = $report | ConvertTo-Json -Depth 8
+Write-ContentIfChanged -Path $ReportPath -Content $json
+$report | ConvertTo-Json -Depth 8

@@ -1,7 +1,8 @@
 param(
     [string] $BacklogPath = 'tasks/backlog.csv',
     [string] $ChecklistPath = 'docs/templates/p006-release-decision-checklist.md',
-    [string] $EvidencePath = 'docs/evidence/20260505-p006-release-decision-preflight.md'
+    [string] $EvidencePath = 'docs/evidence/20260505-p006-release-decision-preflight.md',
+    [string] $ReportPath = 'docs/evidence/20260523-p006-release-decision-admission-report.json'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -11,9 +12,28 @@ function Assert-True([bool]$Condition, [string]$Message) {
     if (-not $Condition) { throw $Message }
 }
 
-$backlogFullPath = Join-Path $repoRoot $BacklogPath
-$checklistFullPath = Join-Path $repoRoot $ChecklistPath
-$evidenceFullPath = Join-Path $repoRoot $EvidencePath
+function Resolve-RepoPath([string]$Path) {
+    return Join-Path $repoRoot ($Path -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+}
+
+function Write-ContentIfChanged([string]$Path, [string]$Content) {
+    $fullPath = Resolve-RepoPath $Path
+    $parent = Split-Path -Parent $fullPath
+    if (-not (Test-Path -LiteralPath $parent)) {
+        New-Item -ItemType Directory -Path $parent -Force | Out-Null
+    }
+
+    if (Test-Path -LiteralPath $fullPath) {
+        $existing = Get-Content -LiteralPath $fullPath -Raw
+        if ($existing -eq $Content) { return }
+    }
+
+    Set-Content -LiteralPath $fullPath -Value $Content -Encoding UTF8
+}
+
+$backlogFullPath = Resolve-RepoPath $BacklogPath
+$checklistFullPath = Resolve-RepoPath $ChecklistPath
+$evidenceFullPath = Resolve-RepoPath $EvidencePath
 
 Assert-True (Test-Path -LiteralPath $backlogFullPath) "P006 backlog file missing: $BacklogPath"
 Assert-True (Test-Path -LiteralPath $checklistFullPath) "P006 checklist missing: $ChecklistPath"
@@ -44,14 +64,39 @@ foreach ($keyword in @('preflight', 'P006', 'platform_na', 'gate_na', '发布裁
     Assert-True ($evidenceText.Contains($keyword)) "P006 evidence missing keyword: $keyword"
 }
 
-[ordered]@{
+$report = [ordered]@{
     status = 'pass'
     taskId = 'P006'
     mode = 'preflight_only'
+    checkedAt = (Get-Date).ToString('s')
     p005Status = $p005.status
     p006Status = $p006.status
+    closeTaskAllowed = $false
+    currentDecision = 'keep_P006_todo_until_release_decision_record_closes'
     checklistPath = $ChecklistPath
     evidencePath = $EvidencePath
+    reportPath = $ReportPath
+    blockers = @(
+        'P005 pilot feedback triage is not closed.',
+        'Release decision record is not recorded.',
+        'Final gate, backup/restore, teacher efficiency, privacy boundary, rollback, and tag-candidate evidence are not complete.'
+    )
+    nextRequiredEvidence = @(
+        'P005 feedback triage result',
+        'full gate and roadmap guard evidence',
+        'backup and restore evidence',
+        'teacher efficiency and privacy boundary sign-off',
+        'release decision record and tag candidate plan'
+    )
+    failClosedRules = @(
+        'Do not mark P006 complete from a preflight-only run.',
+        'Do not create a release tag candidate without release decision evidence.',
+        'Do not mark v0.1 release-ready while P001-P005 remain todo.'
+    )
     boundary = 'release decision is not executed in this contract; keep P006 as todo until P005 closes and decision evidence is complete'
-    checkedAt = (Get-Date).ToString('s')
-} | ConvertTo-Json -Depth 4
+    rollback = 'revert tools/run-p006-release-decision-preflight-contract.ps1, tasks/backlog.csv, and remove the generated P006 admission report.'
+}
+
+$json = $report | ConvertTo-Json -Depth 8
+Write-ContentIfChanged -Path $ReportPath -Content $json
+$report | ConvertTo-Json -Depth 8
