@@ -1,0 +1,103 @@
+{
+  "status": "pass",
+  "taskId": "R005",
+  "mode": "admission_preflight",
+  "checkedAt": "2026-05-23T13:24:23",
+  "p001Status": "待办",
+  "p006Status": "待办",
+  "r005Status": "待办",
+  "closeTaskAllowed": false,
+  "currentDecision": "keep_R005_todo_fail_closed_for_public_multischool",
+  "checklistPath": "docs/templates/r005-public-multischool-deploy-eval-checklist.md",
+  "evidencePath": "docs/evidence/20260505-r005-public-multischool-deploy-eval-preflight.md",
+  "referencedEvidence": {
+    "architecture": "docs/03_Architecture.md",
+    "securityPrivacy": "docs/17_SecurityPrivacyCompliance.md",
+    "n001Evidence": "docs/evidence/20260505-n001-real-privacy-boundary-admission.md",
+    "p001Report": "docs/evidence/20260518-p001-live-pilot-readiness-preflight-report.json",
+    "completionDashboard": "tasks/completion-state-dashboard.csv",
+    "automationFirstContract": "tasks/automation-first-contract.csv",
+    "decision": "docs/decisions/ADR-007-public-multischool-deploy-admission.md"
+  },
+  "currentState": {
+    "deploymentInstallState": "contract_done",
+    "deploymentInstallUsableToday": "不可发布使用",
+    "livePilotState": "contract_done",
+    "livePilotUsableToday": "不可使用",
+    "p001CanClose": false,
+    "p001ReadyForIsolatedMachineRun": true
+  },
+  "admissionMatrix": [
+    {
+      "deploymentKind": "single_school_lan",
+      "currentDecision": "preferred_default_after_p001_p006",
+      "currentEvidence": "architecture default is Windows-first/LAN/single-school; P001/P006 are still pending, so this remains the target route but not release-closeable.",
+      "requiredBeforeRelease": [
+        "P001 isolated-machine proof",
+        "P006 release decision",
+        "backup/restore rehearsal",
+        "role audit",
+        "teacher four-entry smoke"
+      ],
+      "failClosedRule": "缺 P001/P006 现场证据时不得宣称可发布。"
+    },
+    {
+      "deploymentKind": "public_internet_exposure",
+      "currentDecision": "blocked",
+      "currentEvidence": "no public exposure threat model, TLS/certificate plan, remote ops boundary, incident response owner, or traffic protection evidence.",
+      "requiredBeforeAdmission": [
+        "network exposure design",
+        "TLS/certificate ownership",
+        "auth/access-control hardening",
+        "remote-ops runbook",
+        "incident response plan",
+        "rollback/disable switch"
+      ],
+      "failClosedRule": "不得新增公网默认端口、反向代理、远程访问或公开下载入口。"
+    },
+    {
+      "deploymentKind": "multi_school_shared_deployment",
+      "currentDecision": "blocked",
+      "currentEvidence": "no cross-school data responsibility, procurement主体, support/SLA boundary, or data export/exit responsibility evidence.",
+      "requiredBeforeAdmission": [
+        "data controller/processor split",
+        "procurement owner",
+        "DPA/SLA",
+        "support responsibility",
+        "school-level data export",
+        "exit plan"
+      ],
+      "failClosedRule": "不得把单校数据、账号、备份或学情分析合并成跨校共享事实源。"
+    },
+    {
+      "deploymentKind": "multi_tenant_saas",
+      "currentDecision": "blocked",
+      "currentEvidence": "no tenant isolation, permission isolation, audit isolation, backup isolation, key rotation, or vendor exit evidence.",
+      "requiredBeforeAdmission": [
+        "tenant isolation",
+        "permission isolation",
+        "audit isolation",
+        "backup isolation",
+        "key rotation",
+        "vendor exit plan"
+      ],
+      "failClosedRule": "不得新增多租户生产 schema、跨校账号池、集中备份或 SaaS 默认运行模式。"
+    }
+  ],
+  "blockers": [
+    "R005 remains todo because P006 release decision is not closed.",
+    "P001 isolated-machine install/backup/role-audit/four-entry smoke is still not executed.",
+    "No procurement owner, DPA/SLA, cross-school data responsibility, or operator/processor contract exists.",
+    "No public network exposure threat model, TLS/certificate owner, incident response owner, or rollback/disable switch exists.",
+    "No tenant isolation, backup isolation, audit isolation, key rotation, or vendor exit evidence exists."
+  ],
+  "nextRequiredEvidence": [
+    "P001 isolated-machine evidence for install wizard, backup/restore, role audit, and four teacher-entry smokes",
+    "P006 release decision record with rollback and privacy evidence",
+    "security privacy ADR feature admission for public/multischool deployment",
+    "procurement/DPA/SLA/operator responsibility evidence",
+    "tenant/network/backup/audit isolation design with rollback and exit plan"
+  ],
+  "boundary": "R005 only refreshes public/multischool deployment admission evidence and ADR-007; it performs no network exposure, no deployment config mutation, no tenant schema change, no production write, and no release-state transition.",
+  "rollback": "revert tools/run-r005-public-multischool-deploy-eval-preflight-contract.ps1, docs/templates/r005-public-multischool-deploy-eval-checklist.md, docs/decisions/ADR-007-public-multischool-deploy-admission.md, tasks/backlog.csv, and remove the generated R005 admission report."
+}

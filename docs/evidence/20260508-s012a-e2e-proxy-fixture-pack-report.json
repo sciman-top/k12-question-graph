@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "S012A",
-  "checkedAt": "2026-05-18T21:17:06",
+  "checkedAt": "2026-05-23T13:17:21",
   "manifestPath": "tests/e2e/s012a-proxy-fixture-pack.json",
   "mode": "non_site_proxy_fixture_pack",
   "productionEligible": false,

@@ -1,0 +1,88 @@
+{
+  "status": "pass",
+  "taskId": "R002",
+  "mode": "admission_preflight",
+  "checkedAt": "2026-05-23T13:24:23",
+  "p001Status": "待办",
+  "p006Status": "待办",
+  "r002Status": "待办",
+  "closeTaskAllowed": false,
+  "currentDecision": "keep_R002_todo_backgroundservice_first_fail_closed",
+  "checklistPath": "docs/templates/r002-queue-worker-scale-eval-checklist.md",
+  "evidencePath": "docs/evidence/20260505-r002-queue-worker-scale-eval-preflight.md",
+  "referencedEvidence": {
+    "architecture": "docs/03_Architecture.md",
+    "technology": "docs/04_TechnologyStack.md",
+    "hostCapability": "docs/evidence/o002-host-capability-diagnostic-report.json",
+    "workerProfile": "docs/evidence/worker-profile-diagnostic-report.json",
+    "s012bReport": "docs/evidence/20260509-s012b-non-site-e2e-rehearsal-report.json",
+    "p001Report": "docs/evidence/20260518-p001-live-pilot-readiness-preflight-report.json",
+    "completionDashboard": "tasks/completion-state-dashboard.csv",
+    "automationFirstContract": "tasks/automation-first-contract.csv",
+    "decision": "docs/decisions/ADR-011-queue-worker-scale-admission.md"
+  },
+  "currentBaseline": {
+    "queueProfile": "postgresql_job_store_backgroundservice_first",
+    "queueProfileStatus": "backgroundservice_ok",
+    "queueFallback": "defer_hangfire_rabbitmq_until_throughput_evidence",
+    "workerDefaultProfile": "direct_venv_lite",
+    "workerDiagnosticReadOnly": true,
+    "s012bElapsedMs": 138003,
+    "s012bWorkflowStepCount": 10,
+    "p001CanClose": false,
+    "readyForIsolatedMachineRun": true
+  },
+  "admissionMatrix": [
+    {
+      "queueKind": "postgresql_job_store_backgroundservice",
+      "currentDecision": "current_default",
+      "currentEvidence": "Architecture and technology docs define PostgreSQL job store + BackgroundService first; S012B proves a scripted non-site workflow path; host diagnostic keeps queueProfile=postgresql_job_store_backgroundservice_first.",
+      "allowedAction": "maintain job table state machine, lease/retry/idempotency contracts, worker smoke, and elapsed evidence capture.",
+      "failClosedRule": "不得把非现场 rehearsal 当现场吞吐验收；P001/P006 未闭环时不得改变默认队列技术。"
+    },
+    {
+      "queueKind": "hangfire",
+      "currentDecision": "blocked_until_operational_need",
+      "currentEvidence": "no dashboard need, delayed-recurring scheduling need, retry-policy gap, throughput bottleneck, or migration owner exists.",
+      "requiredBeforeAdmission": [
+        "P006 release decision",
+        "operational dashboard requirement",
+        "retry/delay/recurrent-job gap",
+        "migration plan",
+        "rollback/disable switch",
+        "teacher workflow impact"
+      ],
+      "failClosedRule": "不得新增 Hangfire package、schema、dashboard endpoint、默认 job runner 或发布说明承诺。"
+    },
+    {
+      "queueKind": "rabbitmq_or_distributed_queue",
+      "currentDecision": "blocked",
+      "currentEvidence": "no multi-machine worker need, strict queue isolation requirement, broker ops owner, backup/restore drill, or school deployment proof exists.",
+      "requiredBeforeAdmission": [
+        "real multi-worker throughput evidence",
+        "broker ops owner",
+        "network/firewall plan",
+        "message durability and idempotency proof",
+        "backup/restore runbook",
+        "fallback to PostgreSQL job store"
+      ],
+      "failClosedRule": "不得引入 RabbitMQ/Kafka/broker service, distributed worker default, or queue schema split before evidence."
+    }
+  ],
+  "blockers": [
+    "R002 remains todo because P006 release decision is not closed.",
+    "P001 isolated-machine field evidence is still missing; S012B is non-site only.",
+    "No BackgroundService throughput p50/p95, queue depth, retry-rate, stuck-job, or worker saturation baseline exists.",
+    "No operational dashboard/recurrent-job/retry-policy gap justifies Hangfire.",
+    "No multi-machine worker or strict queue isolation evidence justifies RabbitMQ."
+  ],
+  "nextRequiredEvidence": [
+    "P006 release decision record",
+    "P001 isolated-machine run with queue depth, elapsed time, retry and stuck-job evidence",
+    "BackgroundService throughput p50/p95 and failure recovery baseline",
+    "teacher workflow impact when queue is saturated",
+    "Hangfire/RabbitMQ migration owner, rollback and disable-switch plan only if baseline proves need"
+  ],
+  "boundary": "R002 only refreshes queue/worker scale admission evidence and ADR-011; it performs no package install, no broker setup, no Hangfire schema change, no distributed worker route change, no production write, and no release-state transition.",
+  "rollback": "revert tools/run-r002-queue-worker-scale-eval-preflight-contract.ps1, docs/templates/r002-queue-worker-scale-eval-checklist.md, docs/decisions/ADR-011-queue-worker-scale-admission.md, tasks/backlog.csv, and remove the generated R002 admission report."
+}

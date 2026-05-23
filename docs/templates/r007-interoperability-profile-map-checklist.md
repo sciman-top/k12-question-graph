@@ -1,5 +1,11 @@
 # R007 interoperability profile map checklist
-- [ ] `P006` 已完成并有 release decision record。
-- [ ] 将 QuestionItem / Paper / KnowledgeNode / ScoreRecord / AnalysisEvent 映射到 QTI / CASE / OneRoster / Caliper。
-- [ ] 形成 profile map 文档。
-- [ ] 按需准备 admission card 与 optional spike。
+- [ ] `P006` 已完成并有 release decision record；未完成前只允许 profile map / admission report，不做真实导入导出 spike。
+- [ ] `QuestionItem` 映射到 QTI item profile 时，必须保留题干 blocks、答案解析、题图/表格/公式资产、来源截图、状态、分值、难度和知识点引用。
+- [ ] `Paper` / `PaperBasket` 映射到 QTI test profile 时，必须保留 section、question order、score、snapshot、knowledge version 和导出前审校状态。
+- [ ] `KnowledgeNode` / `KnowledgeMapping` 映射到 CASE profile 时，必须保留版本、状态、来源、父子关系、映射关系和 active/candidate/reviewed 语义。
+- [ ] `ScoreRecord` / `ItemScore` 映射到 OneRoster result profile 时，必须保留 assessment、student key、PII 标记、synthetic/anonymized 状态、总分、小题分和导入批次。
+- [ ] `AnalysisEvent` / `AnalysisReport` 映射到 Caliper profile 时，当前只能作为 conceptual profile；未落库前不得声称实时学习事件流可用。
+- [ ] profile map 必须标注 internal source、external profile、field status、privacy risk、lossy fields、round-trip risk 和 adapter owner。
+- [ ] import/export spike 必须先有真实第三方系统需求、样例包授权、字段差异、回滚方案和人工复核入口。
+- [ ] 标准适配层不得污染内部主模型；所有 QTI/CASE/OneRoster/Caliper 字段进入 adapter/view model 或 versioned mapping。
+- [ ] 缺少 profile map、真实需求、授权样例、privacy review 或 rollback 任一项时，R007 必须 fail-closed。

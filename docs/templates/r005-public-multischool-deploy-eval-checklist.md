@@ -1,5 +1,11 @@
 # R005 public multischool deployment evaluation checklist
-- [ ] `P006` 已完成并有 release decision record。
-- [ ] 数据责任、采购、网络与运维边界明确。
-- [ ] 评估 SaaS/多租户必要性。
-- [ ] 形成 security privacy ADR。
+- [ ] `P006` 已完成并有 release decision record，且 `P001` 隔离机器安装、备份恢复、权限审计和四入口 smoke 已完成。
+- [ ] 默认部署路线仍是 Windows-first / 校本局域网 / 单校可恢复；公网或多校部署只能作为后置 admission。
+- [ ] 数据责任边界明确：deployment jurisdiction、data controller/owner、operator/processor、学生数据最小化、保留删除策略和备份访问控制。
+- [ ] 采购边界明确：学校/区县采购主体、服务合同、SLA、数据处理协议、退出与数据导出责任。
+- [ ] 网络边界明确：公网暴露面、TLS/证书、身份认证、访问控制、日志审计、DDoS/异常流量和远程运维入口。
+- [ ] 运维边界明确：补丁升级、备份恢复、监控告警、RPO/RTO、密钥轮换、事故响应和现场支持责任人。
+- [ ] 多校或多租户评估必须先证明单校/LAN 模式无法满足真实需求，并有 tenant isolation、权限隔离、数据隔离和审计隔离方案。
+- [ ] 外部 AI/OCR/云服务只能在 privacy/cost/cache/rollback admission 后作为可禁用路径，不得成为公网部署的生产依赖。
+- [ ] security privacy ADR 必须明确 fail-closed 决策、回滚/下线开关、数据迁出和供应商退出路径。
+- [ ] 缺少 P006、数据责任、采购、网络、运维、tenant isolation 或 rollback 任一证据时，SaaS/公网/多校部署必须 fail-closed。

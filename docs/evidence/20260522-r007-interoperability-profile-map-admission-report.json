@@ -1,0 +1,206 @@
+{
+  "status": "pass",
+  "taskId": "R007",
+  "mode": "profile_map_admission_preflight",
+  "checkedAt": "2026-05-23T13:24:23",
+  "p001Status": "待办",
+  "p006Status": "待办",
+  "r003Status": "待办",
+  "r007Status": "待办",
+  "closeTaskAllowed": false,
+  "currentDecision": "keep_R007_todo_profile_map_only_fail_closed",
+  "checklistPath": "docs/templates/r007-interoperability-profile-map-checklist.md",
+  "evidencePath": "docs/evidence/20260505-r007-interoperability-profile-map-preflight.md",
+  "referencedEvidence": {
+    "scope": "docs/02_MVP_Scope_and_ScopeControl.md",
+    "technology": "docs/04_TechnologyStack.md",
+    "domainModel": "docs/05_DomainModel.md",
+    "domainEntities": "apps/api/Domain/P0Entities.cs",
+    "dbContext": "apps/api/Data/KqgDbContext.cs",
+    "p001Report": "docs/evidence/20260518-p001-live-pilot-readiness-preflight-report.json",
+    "completionDashboard": "tasks/completion-state-dashboard.csv",
+    "automationFirstContract": "tasks/automation-first-contract.csv",
+    "decision": "docs/decisions/ADR-009-interoperability-profile-map-admission.md"
+  },
+  "profileMap": [
+    {
+      "internalModel": "QuestionItem + QuestionBlock + QuestionAsset + SourceRegion",
+      "externalProfile": "QTI item",
+      "currentStatus": "internal_model_available_profile_only",
+      "keyFields": [
+        "Id",
+        "Subject",
+        "Stage",
+        "QuestionType",
+        "DefaultScore",
+        "DifficultyEstimated",
+        "Status",
+        "PrimaryKnowledgeId",
+        "Blocks",
+        "CustomFields",
+        "QualitySignals"
+      ],
+      "requiredAdapterFields": [
+        "item identifier",
+        "prompt/body",
+        "choices/subquestions",
+        "response declaration",
+        "correct response",
+        "rubric/score",
+        "media assets",
+        "source evidence"
+      ],
+      "privacyRisk": "low for public/synthetic questions; copyright/source restrictions must be preserved",
+      "roundTripRisk": "medium: formulas, tables, source screenshots, and review status may be lossy in generic QTI",
+      "decision": "profile_only_no_import_export"
+    },
+    {
+      "internalModel": "PaperBasket + PaperBasketItem + PaperBlueprintReview",
+      "externalProfile": "QTI test",
+      "currentStatus": "internal_model_available_profile_only",
+      "keyFields": [
+        "PaperBasket.Id",
+        "Title",
+        "Subject",
+        "Stage",
+        "Status",
+        "Structure",
+        "PaperBasketItem.QuestionNo",
+        "Score",
+        "SortOrder",
+        "Snapshot"
+      ],
+      "requiredAdapterFields": [
+        "test identifier",
+        "sections",
+        "item references",
+        "ordering",
+        "score weights",
+        "blueprint/review metadata"
+      ],
+      "privacyRisk": "low for paper structure; source/license restrictions inherited from items",
+      "roundTripRisk": "medium: local blueprint review and replacement history are adapter metadata, not core QTI",
+      "decision": "profile_only_no_export_spike"
+    },
+    {
+      "internalModel": "KnowledgeNode + KnowledgeEdge + KnowledgeMapping",
+      "externalProfile": "CASE framework/competency",
+      "currentStatus": "internal_model_available_profile_only",
+      "keyFields": [
+        "Code",
+        "Title",
+        "NodeType",
+        "Level",
+        "Status",
+        "Version",
+        "ParentId",
+        "QuestionItemId",
+        "KnowledgeNodeId"
+      ],
+      "requiredAdapterFields": [
+        "competency identifier",
+        "framework identifier",
+        "parent relation",
+        "association type",
+        "version/status",
+        "source provenance"
+      ],
+      "privacyRisk": "low; source curriculum license and local active/candidate status must be preserved",
+      "roundTripRisk": "high if CASE is treated as authoritative ontology instead of mapped external profile",
+      "decision": "profile_only_no_case_sync"
+    },
+    {
+      "internalModel": "ScoreRecord + ItemScore",
+      "externalProfile": "OneRoster result",
+      "currentStatus": "internal_model_available_profile_only",
+      "keyFields": [
+        "AssessmentId",
+        "StudentId",
+        "ImportBatchId",
+        "StudentKey",
+        "TotalScore",
+        "MaxScore",
+        "SyntheticFixture",
+        "ContainsStudentPii",
+        "QuestionNo",
+        "Score"
+      ],
+      "requiredAdapterFields": [
+        "user/sourcedId",
+        "class/assessment line item",
+        "result value",
+        "score scale",
+        "status",
+        "import batch"
+      ],
+      "privacyRisk": "high: student identity, class, score and education record boundaries require N001/P001 authorization",
+      "roundTripRisk": "high: student identifiers and local anonymization policy may not round-trip safely",
+      "decision": "blocked_until_real_authorized_integration_need"
+    },
+    {
+      "internalModel": "AnalysisReport / AnalysisEvent conceptual profile",
+      "externalProfile": "Caliper analytics event",
+      "currentStatus": "conceptual_only_not_persisted_as_event_stream",
+      "keyFields": [
+        "analysis status",
+        "knowledge mastery summary",
+        "commentary report reference",
+        "AIJob/FeedbackEvent provenance when available"
+      ],
+      "requiredAdapterFields": [
+        "actor",
+        "action",
+        "object",
+        "generated event time",
+        "edApp",
+        "federated session/context"
+      ],
+      "privacyRisk": "high: analytics events can reconstruct student behavior or score history",
+      "roundTripRisk": "high: no persisted AnalysisEvent stream exists; exporting would imply unsupported semantics",
+      "decision": "blocked_until_event_model_and_privacy_admission"
+    }
+  ],
+  "admissionMatrix": [
+    {
+      "standard": "QTI",
+      "currentDecision": "profile_map_only",
+      "allowedAction": "item/test field mapping and lossy-field report",
+      "blockedAction": "QTI import/export implementation or certification claim"
+    },
+    {
+      "standard": "CASE",
+      "currentDecision": "profile_map_only",
+      "allowedAction": "KnowledgeNode/KnowledgeMapping external profile mapping",
+      "blockedAction": "CASE sync or treating curriculum standard as internal ontology trunk"
+    },
+    {
+      "standard": "OneRoster",
+      "currentDecision": "blocked_until_authorized_need",
+      "allowedAction": "ScoreRecord/ItemScore field-risk mapping",
+      "blockedAction": "SIS sync, real student export, or formal roster import"
+    },
+    {
+      "standard": "Caliper",
+      "currentDecision": "conceptual_only",
+      "allowedAction": "AnalysisReport/AnalysisEvent conceptual map",
+      "blockedAction": "real-time learning event stream or student behavior export"
+    }
+  ],
+  "blockers": [
+    "R007 remains todo because P006 release decision is not closed.",
+    "R003 interop evaluation remains todo because no real third-party integration demand exists.",
+    "No authorized third-party sample package or field-difference report exists.",
+    "No adapter owner, import/export dry-run preview, privacy review, or rollback/disable switch exists.",
+    "AnalysisEvent is conceptual only; no persisted event stream exists."
+  ],
+  "nextRequiredEvidence": [
+    "P006 release decision record",
+    "real third-party integration demand source",
+    "authorized sample package for target standard/system",
+    "field difference and lossy-field report",
+    "privacy review for student/score/analytics data",
+    "adapter owner, dry-run preview, review UI, rollback/disable switch"
+  ],
+  "boundary": "R007 only refreshes interoperability profile map admission evidence and ADR-009; it performs no QTI/CASE/OneRoster/Caliper import or export, no SIS sync, no event-stream write, no schema mutation, and no release-state transition.",
+  "rollback": "revert tools/run-r007-interoperability-profile-map-preflight-contract.ps1, docs/templates/r007-interoperability-profile-map-checklist.md, docs/decisions/ADR-009-interoperability-profile-map-admission.md, tasks/backlog.csv, and remove the generated R007 admission report."
+}

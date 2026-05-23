@@ -1,6 +1,6 @@
 # 20260505 PQR preflight dashboard
 
-- checkedDate: 2026-05-18
+- checkedDate: 2026-05-23
 - totals: all=18, todo=18, completed=0
 
 ## Blockers

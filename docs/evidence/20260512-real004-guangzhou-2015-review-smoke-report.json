@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "REAL004",
-  "checkedAt": "2026-05-18T21:19:22",
+  "checkedAt": "2026-05-23T13:19:40",
   "apiUrl": "http://127.0.0.1:5297",
   "workflowKey": "guangzhou_2015_real_ingest_v1 + guangzhou_2015_visual_region_v1",
   "reviewType": "guangzhou_2015_question_review",
@@ -28,7 +28,7 @@
   },
   "actions": {
     "confirm": {
-      "itemId": "78c09800-ee9e-4807-9070-50566f349784",
+      "itemId": "eeebe21f-b4df-4bf6-b8c1-5acad6c0a20a",
       "status": "resolved",
       "auditReviewedBy": "teacher-real004-smoke",
       "auditReason": "checked and revised stem answer tags and source regions",
@@ -40,7 +40,7 @@
       ]
     },
     "dismiss": {
-      "itemId": "e4a8cbc2-cad3-4a55-95bc-615227985f60",
+      "itemId": "dab68e6f-9e3a-4baa-b87e-4bd80a2f3745",
       "status": "dismissed",
       "auditDecision": "dismissed",
       "auditReason": "returned for precise visual crop and tag correction"

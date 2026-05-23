@@ -41,6 +41,8 @@ $env:KQG_CONNECTION_STRING='Host=127.0.0.1;Port=5432;Database=k12_question_graph
 dotnet run --project apps\api\K12QuestionGraph.Api.csproj --urls http://127.0.0.1:5275
 ```
 
+本机 Codex/agent 环境中的 `postgres` MCP 可作为只读诊断入口使用；当前本机验证过的目标是 `127.0.0.1:5432/k12_question_graph`。该 MCP 连接串由用户级 `POSTGRES_CONNECTION_STRING` 提供，不在仓库、日志或证据文件写入明文密码。MCP 只用于代理侧数据库探测和排障，不是 API、Web、gate、安装器或现场发布的运行前置；产品运行仍以 `KQG_CONNECTION_STRING`、`PGPASSWORD`、pgpass 和本仓脚本为准。
+
 Web:
 
 ```powershell

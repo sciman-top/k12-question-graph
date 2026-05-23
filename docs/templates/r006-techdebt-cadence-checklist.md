@@ -1,5 +1,11 @@
 # R006 tech debt cadence checklist
-- [ ] `P006` 已完成并有 release decision record。
-- [ ] 发布周期内安排门禁维护、依赖升级、性能基线与实验清理。
-- [ ] 形成 quality dashboard 指标。
-- [ ] 保持 dependency gate 可执行。
+- [ ] `P006` 已完成并有 release decision record；`P001` 现场/隔离机器证据未完成前，不把长期节奏当作发布完成条件。
+- [ ] 每个发布周期必须保留门禁维护项：`build -> test -> contract/invariant -> hotspot`，并记录最近一次 full gate 与 roadmap guard 证据。
+- [ ] 依赖升级必须先走 trusted source / technology refresh / dependency gate，不得自动安装、下载模型、改默认 OCR/AI 路由或改生产配置。
+- [ ] 性能基线必须先记录场景、数据规模、机器规格、预算阈值、回滚动作和教师效率影响，再做优化。
+- [ ] 实验清理必须先有 inventory、owner、last-used evidence、dry-run preview 和 rollback plan。
+- [ ] 缓存清理只能触达配置化 cache root；文件仓库、备份包、学生成绩、正式题库和生产配置不得纳入自动清理。
+- [ ] quality dashboard 至少覆盖 gate health、dependency freshness、storage/cost、failed tasks、backup/restore 和 P001/P006 阻断项。
+- [ ] dependency gate 必须保持可执行；缺 NuGet/npm/Python/模型/OCR 供应链证据时只能 report-only。
+- [ ] 删除无效实验或升级依赖前必须先证明不破坏现有 schema、backup manifest、C002/C002R 版本语义和教师工作流。
+- [ ] 缺少 release cadence owner、baseline、rollback、dependency evidence 或 dry-run preview 任一项时，R006 必须 fail-closed。
