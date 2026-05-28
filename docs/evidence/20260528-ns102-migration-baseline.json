@@ -1,0 +1,107 @@
+{
+  "status": "pass",
+  "task": "NS102 migration baseline",
+  "checkedAt": "2026-05-28T21:12:33",
+  "mode": "read_only",
+  "project": "apps/api/K12QuestionGraph.Api.csproj",
+  "startupProject": "apps/api/K12QuestionGraph.Api.csproj",
+  "database": {
+    "host": "127.0.0.1",
+    "port": 5432,
+    "name": "k12_question_graph",
+    "user": "postgres",
+    "passwordPrinted": false
+  },
+  "guardrail": {
+    "noMigrationApplied": true,
+    "noSchemaWrite": true,
+    "noRealStudentDataProcessed": true,
+    "noExternalAiUsed": true
+  },
+  "migrationFiles": [
+    "20260502153148_InitialP0",
+    "20260502160722_AddSourceDocumentsForB001",
+    "20260502161648_AddSourceRegionsForB003",
+    "20260502162853_AddQuestionBlocksAssetsForB005",
+    "20260502164509_AddKnowledgeOntologyForC001",
+    "20260502175147_AddDomainAssetVersioningForC002A",
+    "20260503053704_AddAiJobCostLoggingForD002",
+    "20260503090905_AddSourceMaterialWorkbenchMetadata",
+    "20260503164725_AddAssessmentModelForF001",
+    "20260503165734_AddScoreImportForF002",
+    "20260506124446_AddCutCandidateModelForS005A",
+    "20260507150336_AddPaperBasketPersistenceForS009A",
+    "20260507152001_AddPaperBlueprintReviewForS009B"
+  ],
+  "availableMigrations": [
+    "20260502153148_InitialP0",
+    "20260502160722_AddSourceDocumentsForB001",
+    "20260502161648_AddSourceRegionsForB003",
+    "20260502162853_AddQuestionBlocksAssetsForB005",
+    "20260502164509_AddKnowledgeOntologyForC001",
+    "20260502175147_AddDomainAssetVersioningForC002A",
+    "20260503053704_AddAiJobCostLoggingForD002",
+    "20260503090905_AddSourceMaterialWorkbenchMetadata",
+    "20260503164725_AddAssessmentModelForF001",
+    "20260503165734_AddScoreImportForF002",
+    "20260506124446_AddCutCandidateModelForS005A",
+    "20260507150336_AddPaperBasketPersistenceForS009A",
+    "20260507152001_AddPaperBlueprintReviewForS009B"
+  ],
+  "appliedMigrations": [
+    "20260502153148_InitialP0",
+    "20260502160722_AddSourceDocumentsForB001",
+    "20260502161648_AddSourceRegionsForB003",
+    "20260502162853_AddQuestionBlocksAssetsForB005",
+    "20260502164509_AddKnowledgeOntologyForC001",
+    "20260502175147_AddDomainAssetVersioningForC002A",
+    "20260503053704_AddAiJobCostLoggingForD002",
+    "20260503090905_AddSourceMaterialWorkbenchMetadata",
+    "20260503164725_AddAssessmentModelForF001",
+    "20260503165734_AddScoreImportForF002",
+    "20260506124446_AddCutCandidateModelForS005A",
+    "20260507150336_AddPaperBasketPersistenceForS009A",
+    "20260507152001_AddPaperBlueprintReviewForS009B"
+  ],
+  "availableMigrationCount": 13,
+  "appliedMigrationCount": 13,
+  "latestMigration": "20260507152001_AddPaperBlueprintReviewForS009B",
+  "missingInDatabase": [],
+  "unknownInDatabase": [],
+  "studentPrivacyFixtureCheck": [
+    {
+      "table": "students",
+      "rowCount": 906,
+      "containsStudentPiiCount": 0,
+      "nonSyntheticOrProductionCount": 0
+    },
+    {
+      "table": "class_groups",
+      "rowCount": 0,
+      "containsStudentPiiCount": 0,
+      "nonSyntheticOrProductionCount": 0
+    },
+    {
+      "table": "assessments",
+      "rowCount": 453,
+      "containsStudentPiiCount": 0,
+      "nonSyntheticOrProductionCount": 0
+    },
+    {
+      "table": "score_import_batches",
+      "rowCount": 453,
+      "containsStudentPiiCount": 0,
+      "nonSyntheticOrProductionCount": 0
+    },
+    {
+      "table": "score_records",
+      "rowCount": 906,
+      "containsStudentPiiCount": 0,
+      "nonSyntheticOrProductionCount": 0
+    }
+  ],
+  "buildOutput": "正在确定要还原的项目…\n  所有项目均是最新的，无法还原。\n  K12QuestionGraph.Api -> D:\\CODE\\k12-question-graph\\apps\\api\\bin\\Debug\\net10.0\\K12QuestionGraph.Api.dll\n\n已成功生成。\n    0 个警告\n    0 个错误\n\n已用时间 00:00:02.10",
+  "efListOutput": "data:    [\ndata:      {\ndata:        \"id\": \"20260502153148_InitialP0\",\ndata:        \"name\": \"InitialP0\",\ndata:        \"safeName\": \"InitialP0\",\ndata:        \"applied\": null\ndata:      },\ndata:      {\ndata:        \"id\": \"20260502160722_AddSourceDocumentsForB001\",\ndata:        \"name\": \"AddSourceDocumentsForB001\",\ndata:        \"safeName\": \"AddSourceDocumentsForB001\",\ndata:        \"applied\": null\ndata:      },\ndata:      {\ndata:        \"id\": \"20260502161648_AddSourceRegionsForB003\",\ndata:        \"name\": \"AddSourceRegionsForB003\",\ndata:        \"safeName\": \"AddSourceRegionsForB003\",\ndata:        \"applied\": null\ndata:      },\ndata:      {\ndata:        \"id\": \"20260502162853_AddQuestionBlocksAssetsForB005\",\ndata:        \"name\": \"AddQuestionBlocksAssetsForB005\",\ndata:        \"safeName\": \"AddQuestionBlocksAssetsForB005\",\ndata:        \"applied\": null\ndata:      },\ndata:      {\ndata:        \"id\": \"20260502164509_AddKnowledgeOntologyForC001\",\ndata:        \"name\": \"AddKnowledgeOntologyForC001\",\ndata:        \"safeName\": \"AddKnowledgeOntologyForC001\",\ndata:        \"applied\": null\ndata:      },\ndata:      {\ndata:        \"id\": \"20260502175147_AddDomainAssetVersioningForC002A\",\ndata:        \"name\": \"AddDomainAssetVersioningForC002A\",\ndata:        \"safeName\": \"AddDomainAssetVersioningForC002A\",\ndata:        \"applied\": null\ndata:      },\ndata:      {\ndata:        \"id\": \"20260503053704_AddAiJobCostLoggingForD002\",\ndata:        \"name\": \"AddAiJobCostLoggingForD002\",\ndata:        \"safeName\": \"AddAiJobCostLoggingForD002\",\ndata:        \"applied\": null\ndata:      },\ndata:      {\ndata:        \"id\": \"20260503090905_AddSourceMaterialWorkbenchMetadata\",\ndata:        \"name\": \"AddSourceMaterialWorkbenchMetadata\",\ndata:        \"safeName\": \"AddSourceMaterialWorkbenchMetadata\",\ndata:        \"applied\": null\ndata:      },\ndata:      {\ndata:        \"id\": \"20260503164725_AddAssessmentModelForF001\",\ndata:        \"name\": \"AddAssessmentModelForF001\",\ndata:        \"safeName\": \"AddAssessmentModelForF001\",\ndata:        \"applied\": null\ndata:      },\ndata:      {\ndata:        \"id\": \"20260503165734_AddScoreImportForF002\",\ndata:        \"name\": \"AddScoreImportForF002\",\ndata:        \"safeName\": \"AddScoreImportForF002\",\ndata:        \"applied\": null\ndata:      },\ndata:      {\ndata:        \"id\": \"20260506124446_AddCutCandidateModelForS005A\",\ndata:        \"name\": \"AddCutCandidateModelForS005A\",\ndata:        \"safeName\": \"AddCutCandidateModelForS005A\",\ndata:        \"applied\": null\ndata:      },\ndata:      {\ndata:        \"id\": \"20260507150336_AddPaperBasketPersistenceForS009A\",\ndata:        \"name\": \"AddPaperBasketPersistenceForS009A\",\ndata:        \"safeName\": \"AddPaperBasketPersistenceForS009A\",\ndata:        \"applied\": null\ndata:      },\ndata:      {\ndata:        \"id\": \"20260507152001_AddPaperBlueprintReviewForS009B\",\ndata:        \"name\": \"AddPaperBlueprintReviewForS009B\",\ndata:        \"safeName\": \"AddPaperBlueprintReviewForS009B\",\ndata:        \"applied\": null\ndata:      }\ndata:    ]",
+  "teacherEfficiencyCheck": "database and migration baseline is current before teacher-facing import, paper, export, and score workflows are advanced",
+  "rollback": "git restore tools/run-ns102-migration-baseline.ps1 tasks/non-site-implementation-plan.csv; git clean -f -- docs/evidence/20260528-ns102-migration-baseline.json"
+}

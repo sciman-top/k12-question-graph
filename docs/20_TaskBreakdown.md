@@ -10,6 +10,8 @@ Automation-first 任务口径：每个任务在编码前必须先说明哪些部
 
 真卷闭环纠偏口径：`S012` 只代表非现场代理链路，不代表广州中考 2015-2025 真卷已经全量 OCR、切题、标注、入库并经教师确认。新增 `REAL001-REAL005` 作为当前真实工作流主线，先从 2015 广州中考物理试卷入手，把每一步落到可复跑脚本、DB 证据、Web/审核入口和回滚说明。完成态只允许按实际证据分级：`REAL001` 是 1-18 题 `db_backed_done/pending_review`，不是 `teacher_validated`；`REAL005` 只定义“2015-2025 全流程全部实现”的机器判定标准，当前真实输出必须是 `not_closed`。2026-05-15 起追加 `REAL006-REAL012` 生产级整改线：截图路径必须成为导入不变量，版面噪声必须显式清洗或标记，题图/表格/公式必须从来源截图提升为结构化题目资产，Office 原生公式以 OMML 为第一真源，LaTeX 只作为网页显示和程序交换派生层，异常处理必须可编辑、可重裁、可回滚。
 
+非现场能力落地口径：2026-05-28 起，若用户或复核发现旧完成态与真实落地不一致，先按 `docs/101_NonSiteCapabilityImplementationRoadmap.md` 执行状态重基线，并用 `tasks/non-site-implementation-plan.csv` 拆分非人工、非现场能力。任务不得只因 preflight 或历史 evidence 存在就标为产品化；必须按 `planned -> contract_only -> repo_landed -> runtime_verified -> non_site_validated` 逐级提供代码、运行、端到端和回滚证据。现场教师和隔离机任务保持 `blocked_by_onsite`，不应阻塞 NS0-NS9 的仓库内落地。
+
 ## A · P0 工程骨架与最小上传纵切
 
 ### A000 P0 准入预检与决策锁定

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "source-document-dedupe.v0.1",
-  "generatedAt": "2026-05-23T17:57:06.993895+00:00",
+  "generatedAt": "2026-05-24T13:17:19.138542+00:00",
   "mode": "dry_run",
   "status": "dry_run",
   "scope": {
@@ -33,7 +33,7 @@
     ]
   },
   "before": {
-    "sourceDocuments": 1566,
+    "sourceDocuments": 1590,
     "exactDuplicateGroups": 0,
     "guangzhou2015SourceDocuments": 2
   },
@@ -46,7 +46,7 @@
     "sourceDocumentsDeleted": 0
   },
   "after": {
-    "sourceDocuments": 1566,
+    "sourceDocuments": 1590,
     "exactDuplicateGroups": 0,
     "guangzhou2015SourceDocuments": 2,
     "guangzhou2015ByTitle": [

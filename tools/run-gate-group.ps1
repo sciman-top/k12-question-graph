@@ -57,6 +57,9 @@ function Invoke-RoadmapGroup {
     Invoke-GateCommand 'automation-first feature contract guard' {
         & (Join-Path $PSScriptRoot 'run-automation-first-feature-contract-guard.ps1') | Write-Host
     }
+    Invoke-GateCommand 'non-site implementation plan guard' {
+        & (Join-Path $PSScriptRoot 'run-non-site-implementation-plan-guard.ps1') | Write-Host
+    }
 }
 
 function Invoke-UiGroup {
@@ -78,6 +81,7 @@ function Invoke-UiGroup {
 
 function Invoke-PqrGroup {
     foreach ($scriptName in @(
+        'run-p0-live-preflight-refresh-path-contract.ps1',
         'run-pqr-preflight-pack-contract.ps1',
         'run-pqr-preflight-freshness-guard.ps1',
         'run-pqr-preflight-dashboard-contract.ps1',
@@ -97,7 +101,7 @@ try {
                 status = 'pass'
                 groups = @(
                     [ordered]@{ name = 'quick'; description = 'Database-free C002 daily feedback plus roadmap guard.' },
-                    [ordered]@{ name = 'roadmap'; description = 'Roadmap, completion-state, S0 plan, and automation-first guards.' },
+                    [ordered]@{ name = 'roadmap'; description = 'Roadmap, completion-state, S0 plan, automation-first, and non-site implementation guards.' },
                     [ordered]@{ name = 'ui'; description = 'Teacher-facing UI source-contract guards I001-I008.' },
                     [ordered]@{ name = 'pqr'; description = 'P/Q/R preflight pack, freshness, dashboard, and orchestration guards.' },
                     [ordered]@{ name = 'full'; description = 'Fallback to tools/run-gates.ps1 without changing full-gate semantics.' }

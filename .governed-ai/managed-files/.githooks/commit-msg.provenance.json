@@ -1,0 +1,15 @@
+{
+  "expected_sha256": "98f48823abf5f65553be5dc90ec20b582388f22cdc1a9f40c2251e0d11e6acb9",
+  "management_mode": "block_on_drift",
+  "marker_strategy": "sidecar",
+  "mode_status": "active",
+  "overwrite_policy": "create_missing_block_existing_drift",
+  "ownership_scope": "whole_file",
+  "path": ".githooks/commit-msg",
+  "record_kind": "target_repo_managed_file_provenance",
+  "schema_version": "1.0",
+  "source": "D:\\CODE\\governed-ai-coding-runtime\\docs\\targets\\templates\\git-hooks\\commit-msg",
+  "source_sha256": "98f48823abf5f65553be5dc90ec20b582388f22cdc1a9f40c2251e0d11e6acb9",
+  "sync_revision": "2026-05-23.1",
+  "target_sha256": "98f48823abf5f65553be5dc90ec20b582388f22cdc1a9f40c2251e0d11e6acb9"
+}

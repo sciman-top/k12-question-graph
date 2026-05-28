@@ -25,7 +25,7 @@
       "probe": {
         "available": true,
         "exitCode": 0,
-        "versionLine": "10.0.202"
+        "versionLine": "10.0.300"
       }
     },
     "node": {
@@ -307,14 +307,14 @@
       "anchor": "D:\\",
       "available": true,
       "totalGb": 930.0,
-      "freeGb": 619.95
+      "freeGb": 606.23
     },
     "backupRoot": {
       "path": "D:\\KQG_Backups",
       "anchor": "D:\\",
       "available": true,
       "totalGb": 930.0,
-      "freeGb": 619.95
+      "freeGb": 606.23
     }
   },
   "workerOcrProfile": {

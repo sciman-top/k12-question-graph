@@ -1,0 +1,134 @@
+{
+  "status": "pass",
+  "task": "NS101 runtime profile refresh",
+  "checkedAt": "2026-05-28T21:09:44",
+  "mode": "read_only",
+  "guardrail": {
+    "noInstallPerformed": true,
+    "noNetworkRequired": true,
+    "productionDefaultChanged": false,
+    "secretsPrinted": false,
+    "externalAiUsed": false
+  },
+  "probes": {
+    "dotnetInfo": {
+      "present": true,
+      "path": "C:\\Program Files\\dotnet\\dotnet.exe",
+      "source": "PATH",
+      "args": [
+        "--info"
+      ],
+      "exitCode": 0,
+      "output": ".NET SDK:\n Version:           10.0.300\n Commit:            caa81fa497\n Workload version:  10.0.300-manifests.e0989437\n MSBuild version:   18.6.3+caa81fa49\n\n运行时环境:\n OS Name:     Windows\n OS Version:  10.0.26200\n OS Platform: Windows\n RID:         win-x64\n Base Path:   C:\\Program Files\\dotnet\\sdk\\10.0.300\\\n\n已安装 .NET 工作负载:\n没有要显示的已安装工作负载。\n已配置为在安装新清单时使用 workload sets。\n未安装任何 workload sets。运行 “dotnet workload restore” 以安装工作负载集。\n\nHost:\n  Version:      10.0.8\n  Architecture: x64\n  Commit:       94ea82652c\n\n.NET SDKs installed:\n  8.0.421 [C:\\Program Files\\dotnet\\sdk]\n  10.0.300 [C:\\Program Files\\dotnet\\sdk]\n\n.NET runtimes installed:\n  Microsoft.AspNetCore.App 8.0.27 [C:\\Program Files\\dotnet\\shared\\Microsoft.AspNetCore.App]\n  Microsoft.AspNetCore.App 10.0.8 [C:\\Program Files\\dotnet\\shared\\Microsoft.AspNetCore.App]\n  Microsoft.NETCore.App 6.0.16 [C:\\Program Files\\dotnet\\shared\\Microsoft.NETCore.App]\n  Microsoft.NETCore.App 6.0.25 [C:\\Program Files\\dotnet\\shared\\Microsoft.NETCore.App]\n  Microsoft.NETCore.App 8.0.27 [C:\\Program Files\\dotnet\\shared\\Microsoft.NETCore.App]\n  Microsoft.NETCore.App 10.0.8 [C:\\Program Files\\dotnet\\shared\\Microsoft.NETCore.App]\n  Microsoft.WindowsDesktop.App 6.0.25 [C:\\Program Files\\dotnet\\shared\\Microsoft.WindowsDesktop.App]\n  Microsoft.WindowsDesktop.App 8.0.27 [C:\\Program Files\\dotnet\\shared\\Microsoft.WindowsDesktop.App]\n  Microsoft.WindowsDesktop.App 10.0.8 [C:\\Program Files\\dotnet\\shared\\Microsoft.WindowsDesktop.App]\n\nOther architectures found:\n  x86   [C:\\Program Files (x86)\\dotnet]\n    registered at [HKLM\\SOFTWARE\\dotnet\\Setup\\InstalledVersions\\x86\\InstallLocation]\n\nEnvironment variables:\n  DOTNET_ROOT                              [C:\\Program Files\\dotnet]\n  DOTNET_ROOT_X64                          [C:\\Program Files\\dotnet]\n\nglobal.json file:\n  D:\\CODE\\k12-question-graph\\global.json\n\nLearn more:\n  https://aka.ms/dotnet/info\n\nDownload .NET:\n  https://aka.ms/dotnet/download"
+    },
+    "nodeVersion": {
+      "present": true,
+      "path": "C:\\\\Program Files\\nodejs\\node.exe",
+      "source": "PATH",
+      "args": [
+        "--version"
+      ],
+      "exitCode": 0,
+      "output": "v24.12.0"
+    },
+    "npmVersion": {
+      "present": true,
+      "path": "C:\\Program Files\\nodejs\\npm.ps1",
+      "source": "PATH",
+      "args": [
+        "--version"
+      ],
+      "exitCode": 0,
+      "output": "11.7.0"
+    },
+    "pythonVersion": {
+      "present": true,
+      "path": "C:\\Users\\sciman\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+      "source": "PATH",
+      "args": [
+        "--version"
+      ],
+      "exitCode": 0,
+      "output": "Python 3.13.7"
+    },
+    "pwshVersion": {
+      "present": true,
+      "path": "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
+      "source": "PATH",
+      "args": [
+        "--version"
+      ],
+      "exitCode": 0,
+      "output": "PowerShell 7.5.5"
+    },
+    "psqlVersion": {
+      "present": true,
+      "path": "C:\\Program Files\\PostgreSQL\\17\\bin\\psql.exe",
+      "source": "fallback_path",
+      "args": [
+        "--version"
+      ],
+      "exitCode": 0,
+      "output": "psql (PostgreSQL) 17.9"
+    },
+    "pgDumpVersion": {
+      "present": true,
+      "path": "C:\\Program Files\\PostgreSQL\\17\\bin\\pg_dump.exe",
+      "source": "fallback_path",
+      "args": [
+        "--version"
+      ],
+      "exitCode": 0,
+      "output": "pg_dump (PostgreSQL) 17.9"
+    },
+    "pgRestoreVersion": {
+      "present": true,
+      "path": "C:\\Program Files\\PostgreSQL\\17\\bin\\pg_restore.exe",
+      "source": "fallback_path",
+      "args": [
+        "--version"
+      ],
+      "exitCode": 0,
+      "output": "pg_restore (PostgreSQL) 17.9"
+    }
+  },
+  "diagnosticReports": {
+    "hostCapability": "docs/evidence/20260528-ns101-host-capability-diagnostic-report.json",
+    "workerProfile": "docs/evidence/20260528-ns101-worker-profile-diagnostic-report.json"
+  },
+  "hostDiagnosticSummary": {
+    "schemaVersion": "host-capability-diagnostic.v1",
+    "runtimeProfile": "windows_service_with_explicit_content_root",
+    "databaseProfile": "local_postgresql_with_pg_dump_restore",
+    "workerOcrProfile": "direct_venv_lite",
+    "storageBackupProfile": "local_ntfs_file_store_plus_manifest_backup",
+    "exportPrintProfile": "docx_pdf_artifact_chain_with_preflight_manifest",
+    "aiNetworkProfile": "offline_first_no_cloud_token_by_default",
+    "aiLocalModelProfile": "optional_local_llm_3b_7b_quantized_eval_only",
+    "searchProfile": "postgresql_fts_pg_trgm_first_pgvector_only_after_eval",
+    "queueProfile": "postgresql_job_store_backgroundservice_first",
+    "securityProfile": "admin_key_bootstrap_then_rbac_audit_before_live"
+  },
+  "workerDiagnosticSummary": {
+    "schemaVersion": "worker-profile-diagnostic.v1",
+    "recommendedDefaultProfile": "direct_venv_lite",
+    "availableProfileCandidates": [
+      "direct_venv_lite",
+      "wsl_or_docker_heavy"
+    ],
+    "noInstallPerformed": true,
+    "productionDefaultChanged": false
+  },
+  "dataDirectories": {
+    "dataRoot": "D:\\KQG_Data",
+    "backupRoot": "D:\\KQG_Backups",
+    "fileStoreRoot": "D:\\KQG_Data\\file_store",
+    "logsRoot": "D:\\KQG_Data\\logs",
+    "cacheRoot": "D:\\KQG_Data\\cache"
+  },
+  "gaps": [],
+  "teacherEfficiencyCheck": "runtime profile refresh reduces onsite uncertainty before teacher-facing import, export, analysis, backup, and worker flows are exercised",
+  "rollback": "git restore tools/run-ns101-runtime-profile.ps1 tasks/non-site-implementation-plan.csv; git clean -f -- docs/evidence/20260528-ns101-runtime-profile.json docs/evidence/20260528-ns101-host-capability-diagnostic-report.json docs/evidence/20260528-ns101-worker-profile-diagnostic-report.json",
+  "hostDiagnosticOutput": "{\r\n  \"schemaVersion\": \"host-capability-diagnostic.v1\",\r\n  \"mode\": \"read_only\",\r\n  \"host\": {\r\n    \"platform\": \"Windows-11-10.0.26200-SP0\",\r\n    \"system\": \"Windows\",\r\n    \"release\": \"11\",\r\n    \"machine\": \"AMD64\",\r\n    \"processor\": \"AMD64 Family 23 Model 113 Stepping 0, AuthenticAMD\",\r\n    \"pythonExecutable\": \"C:\\\\Users\\\\sciman\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python313\\\\python.exe\",\r\n    \"pythonVersion\": \"3.13.7\",\r\n    \"cpuCount\": 16,\r\n    \"memoryGb\": 31.91\r\n  },\r\n  \"config\": {\r\n    \"path\": \"configs\\\\installer_init.defaults.yaml\",\r\n    \"version\": \"o002.installer-init.v1\",\r\n    \"dataRoot\": \"D:\\\\KQG_Data\",\r\n    \"backupRoot\": \"D:\\\\KQG_Backups\"\r\n  },\r\n  \"commands\": {\r\n    \"dotnet\": {\r\n      \"present\": true,\r\n      \"path\": \"C:\\\\Program Files\\\\dotnet\\\\dotnet.EXE\",\r\n      \"probe\": {\r\n        \"available\": true,\r\n        \"exitCode\": 0,\r\n        \"versionLine\": \"10.0.300\"\r\n      }\r\n    },\r\n    \"node\": {\r\n      \"present\": true,\r\n      \"path\": \"C:\\\\Program Files\\\\nodejs\\\\node.EXE\",\r\n      \"probe\": {\r\n        \"available\": true,\r\n        \"exitCode\": 0,\r\n        \"versionLine\": \"v24.12.0\"\r\n      }\r\n    },\r\n    \"npm\": {\r\n      \"present\": true,\r\n      \"path\": \"C:\\\\Program Files\\\\nodejs\\\\npm.CMD\",\r\n      \"probe\": {\r\n        \"available\": true,\r\n        \"exitCode\": 0,\r\n        \"versionLine\": \"11.7.0\"\r\n      }\r\n    },\r\n    \"pwsh\": {\r\n      \"present\": true,\r\n      \"path\": \"C:\\\\Program Files\\\\PowerShell\\\\7\\\\pwsh.EXE\",\r\n      \"probe\": {\r\n        \"available\": true,\r\n        \"exitCode\": 0,\r\n        \"versionLine\": \"PowerShell 7.5.5\"\r\n      }\r\n    },\r\n    \"powershell\": {\r\n      \"present\": true,\r\n      \"path\": \"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.EXE\",\r\n      \"probe\": {\r\n        \"available\": true,\r\n        \"exitCode\": 0,\r\n        \"versionLine\": \"5.1.26100.8521\"\r\n      }\r\n    },\r\n    \"python\": {\r\n      \"present\": true,\r\n      \"path\": \"C:\\\\Users\\\\sciman\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python313\\\\python.EXE\",\r\n      \"probe\": {\r\n        \"available\": true,\r\n        \"exitCode\": 0,\r\n        \"versionLine\": \"Python 3.13.7\"\r\n      }\r\n    },\r\n    \"uv\": {\r\n      \"present\": true,\r\n      \"path\": \"C:\\\\Users\\\\sciman\\\\.local\\\\bin\\\\uv.EXE\",\r\n      \"probe\": {\r\n        \"available\": true,\r\n        \"exitCode\": 0,\r\n        \"versionLine\": \"uv 0.10.2 (a788db7e5 2026-02-10)\"\r\n      }\r\n    },\r\n    \"conda\": {\r\n      \"present\": false,\r\n      \"path\": null,\r\n      \"probe\": {\r\n        \"available\": false,\r\n        \"exitCode\": null,\r\n        \"versionLine\": \"\"\r\n      }\r\n    },\r\n    \"docker\": {\r\n      \"present\": false,\r\n      \"path\": null,\r\n      \"probe\": {\r\n        \"available\": false,\r\n        \"exitCode\": null,\r\n        \"versionLine\": \"\"\r\n      }\r\n    },\r\n    \"wsl\": {\r\n      \"present\": true,\r\n      \"path\": \"C:\\\\Windows\\\\system32\\\\wsl.EXE\",\r\n      \"probe\": {\r\n        \"available\": true,\r\n        \"exitCode\": 0,\r\n        \"versionLine\": \"W\\u0000S\\u0000L\\u0000 \\u0000Hr,g:\\u0000 \\u00002\\u0000.\\u00006\\u0000.\\u00001\\u0000.\\u00000\\u0000\"\r\n      }\r\n    },\r\n    \"psql\": {\r\n      \"present\": false,\r\n      \"path\": null,\r\n      \"probe\": {\r\n        \"available\": false,\r\n        \"exitCode\": null,\r\n        \"versionLine\": \"\"\r\n      }\r\n    },\r\n    \"pg_dump\": {\r\n      \"present\": false,\r\n      \"path\": null,\r\n      \"probe\": {\r\n        \"available\": false,\r\n        \"exitCode\": null,\r\n        \"versionLine\": \"\"\r\n      }\r\n    },\r\n    \"pg_restore\": {\r\n      \"present\": false,\r\n      \"path\": null,\r\n      \"probe\": {\r\n        \"available\": false,\r\n        \"exitCode\": null,\r\n        \"versionLine\": \"\"\r\n      }\r\n    },\r\n    \"pg_config\": {\r\n      \"present\": false,\r\n      \"path\": null,\r\n      \"probe\": {\r\n        \"available\": false,\r\n        \"exitCode\": null,\r\n        \"versionLine\": \"\"\r\n      }\r\n    },\r\n    \"pdftotext\": {\r\n      \"present\": true,\r\n      \"path\": \"D:\\\\texlive\\\\2023\\\\bin\\\\windows\\\\pdftotext.EXE\",\r\n      \"probe\": {\r\n        \"available\": true,\r\n        \"exitCode\": 0,\r\n        \"versionLine\": \"pdftotext version 23.02.0\"\r\n      }\r\n    },\r\n    \"pdftoppm\": {\r\n      \"present\": true,\r\n      \"path\": \"D:\\\\texlive\\\\2023\\\\bin\\\\windows\\\\pdftoppm.EXE\",\r\n      \"probe\": {\r\n        \"available\": true,\r\n        \"exitCode\": 0,\r\n        \"versionLine\": \"pdftoppm version 23.02.0\"\r\n      }\r\n    },\r\n    \"tesseract\": {\r\n      \"present\": false,\r\n      \"path\": null,\r\n      \"probe\": {\r\n        \"available\": false,\r\n        \"exitCode\": null,\r\n        \"versionLine\": \"\"\r\n      }\r\n    },\r\n    \"qpdf\": {\r\n      \"present\": false,\r\n      \"path\": null,\r\n      \"probe\": {\r\n        \"available\": false,\r\n        \"exitCode\": null,\r\n        \"versionLine\": \"\"\r\n      }\r\n    },\r\n    \"gswin64c\": {\r\n      \"present\": false,\r\n      \"path\": null,\r\n      \"probe\": {\r\n        \"available\": false,\r\n        \"exitCode\": null,\r\n        \"versionLine\": \"\"\r\n      }\r\n    },\r\n    \"magick\": {\r\n      \"present\": false,\r\n      \"path\": null,\r\n      \"probe\": {\r\n        \"available\": false,\r\n        \"exitCode\": null,\r\n        \"versionLine\": \"\"\r\n      }\r\n    },\r\n    \"vips\": {\r\n      \"present\": false,\r\n      \"path\": null,\r\n      \"probe\": {\r\n        \"available\": false,\r\n        \"exitCode\": null,\r\n        \"versionLine\": \"\"\r\n      }\r\n    },\r\n    \"pandoc\": {\r\n      \"present\": true,\r\n      \"path\": \"C:\\\\Program Files\\\\Pandoc\\\\pandoc.EXE\",\r\n      \"probe\": {\r\n        \"available\": true,\r\n        \"exitCode\": 0,\r\n        \"versionLine\": \"pandoc 3.8.3\"\r\n      }\r\n    },\r\n    \"soffice\": {\r\n      \"present\": false,\r\n      \"path\": null,\r\n      \"probe\": {\r\n        \"available\": false,\r\n        \"exitCode\": null,\r\n        \"versionLine\": \"\"\r\n      }\r\n    },\r\n    \"robocopy\": {\r\n      \"present\": true,\r\n      \"path\": \"C:\\\\Windows\\\\system32\\\\robocopy.EXE\",\r\n      \"probe\": {\r\n        \"available\": false,\r\n        \"exitCode\": 16,\r\n        \"versionLine\": \"-------------------------------------------------------------------------------\"\r\n      }\r\n    },\r\n    \"nvidia-smi\": {\r\n      \"present\": true,\r\n      \"path\": \"C:\\\\Windows\\\\system32\\\\nvidia-smi.EXE\",\r\n      \"probe\": {\r\n        \"available\": true,\r\n        \"exitCode\": 0,\r\n        \"versionLine\": \"NVIDIA GeForce GTX 1650 SUPER, 4096 MiB, 591.86\"\r\n      }\r\n    },\r\n    \"ollama\": {\r\n      \"present\": false,\r\n      \"path\": null,\r\n      \"probe\": {\r\n        \"available\": false,\r\n        \"exitCode\": null,\r\n        \"versionLine\": \"\"\r\n      }\r\n    },\r\n    \"llama-server\": {\r\n      \"present\": false,\r\n      \"path\": null,\r\n      \"probe\": {\r\n        \"available\": false,\r\n        \"exitCode\": null,\r\n        \"versionLine\": \"\"\r\n      }\r\n    },\r\n    \"llama-cli\": {\r\n      \"present\": false,\r\n      \"path\": null,\r\n      \"probe\": {\r\n        \"available\": false,\r\n        \"exitCode\": null,\r\n        \"versionLine\": \"\"\r\n      }\r\n    },\r\n    \"vllm\": {\r\n      \"present\": false,\r\n      \"path\": null,\r\n      \"probe\": {\r\n        \"available\": false,\r\n        \"exitCode\": null,\r\n        \"versionLine\": \"\"\r\n      }\r\n    },\r\n    \"lms\": {\r\n      \"present\": false,\r\n      \"path\": null,\r\n      \"probe\": {\r\n        \"available\": false,\r\n        \"exitCode\": null,\r\n        \"versionLine\": \"\"\r\n      }\r\n    }\r\n  },\r\n  \"envPresence\": {\r\n    \"OPENAI_API_KEY\": false,\r\n    \"AZURE_OPENAI_API_KEY\": false,\r\n    \"ANTHROPIC_API_KEY\": false,\r\n    \"HTTP_PROXY\": true,\r\n    \"HTTPS_PROXY\": true,\r\n    \"NO_PROXY\": true,\r\n    \"PGPASSWORD\": true,\r\n    \"KQG_DATA_ROOT\": false,\r\n    \"KQG_BACKUP_ROOT\": false\r\n  },\r\n  \"storage\": {\r\n    \"dataRoot\": {\r\n      \"path\": \"D:\\\\KQG_Data\",\r\n      \"anchor\": \"D:\\\\\",\r\n      \"available\": true,\r\n      \"totalGb\": 930.0,\r\n      \"freeGb\": 586.54\r\n    },\r\n    \"backupRoot\": {\r\n      \"path\": \"D:\\\\KQG_Backups\",\r\n      \"anchor\": \"D:\\\\\",\r\n      \"available\": true,\r\n      \"totalGb\": 930.0,\r\n      \"freeGb\": 586.54\r\n    }\r\n  },\r\n  \"workerOcrProfile\": {\r\n    \"summary\": {\r\n      \"commands\": {\r\n        \"uv\": true,\r\n        \"conda\": false,\r\n        \"docker\": false,\r\n        \"wsl\": true\r\n      },\r\n      \"pythonModules\": {\r\n        \"rapidocr_onnxruntime\": true,\r\n        \"onnxruntime\": true,\r\n        \"paddleocr\": false,\r\n        \"paddle\": false\r\n      },\r\n      \"gpu\": {\r\n        \"available\": true,\r\n        \"gpus\": [\r\n          {\r\n            \"name\": \"NVIDIA GeForce GTX 1650 SUPER\",\r\n            \"memoryMb\": 4096,\r\n            \"driverVersion\": \"591.86\"\r\n          }\r\n        ],\r\n        \"raw\": {\r\n          \"available\": true,\r\n          \"exitCode\": 0,\r\n          \"stdout\": \"NVIDIA GeForce GTX 1650 SUPER, 4096, 591.86\",\r\n          \"stderr\": \"\"\r\n        }\r\n      }\r\n    },\r\n    \"recommendation\": {\r\n      \"recommendedDefaultProfile\": \"direct_venv_lite\",\r\n      \"reason\": \"RapidOCR/ONNX is available in the current interpreter; use the lightweight local profile first.\",\r\n      \"availableProfileCandidates\": [\r\n        \"direct_venv_lite\",\r\n        \"wsl_or_docker_heavy\"\r\n      ],\r\n      \"needsHumanConfirmationBefore\": [\r\n        \"system driver or GPU runtime changes\",\r\n        \"Docker Desktop or WSL installation\",\r\n        \"cloud OCR token configuration\",\r\n        \"switching the production default profile\",\r\n        \"processing real non-anonymized materials\"\r\n      ],\r\n      \"nextInstallActions\": [\r\n        \"prepare conda_paddle_cpu only after golden-set need is confirmed\",\r\n        \"generate launcher/profile with path mapping before WSL/Docker execution\"\r\n      ]\r\n    }\r\n  },\r\n  \"recommendedProfiles\": {\r\n    \"runtimeProfile\": {\r\n      \"status\": \"ready\",\r\n      \"recommended\": \"windows_service_with_explicit_content_root\",\r\n      \"fallback\": \"self_contained_publish_when_target_runtime_missing\",\r\n      \"checks\": [\r\n        \"dotnet\",\r\n        \"node\",\r\n        \"npm\",\r\n        \"pwsh\"\r\n      ]\r\n    },\r\n    \"databaseProfile\": {\r\n      \"status\": \"needs_postgresql_cli_or_path\",\r\n      \"recommended\": \"local_postgresql_with_pg_dump_restore\",\r\n      \"fallback\": \"install_postgresql_cli_or_configure_path_before_live\",\r\n      \"checks\": [\r\n        \"psql\",\r\n        \"pg_dump\",\r\n        \"pg_restore\"\r\n      ]\r\n    },\r\n    \"storageBackupProfile\": {\r\n      \"status\": \"ready\",\r\n      \"recommended\": \"local_ntfs_file_store_plus_manifest_backup\",\r\n      \"fallback\": \"choose_larger_data_or_backup_drive_before_real_materials\",\r\n      \"minimumFreeGb\": 10\r\n    },\r\n    \"workerOcrProfile\": {\r\n      \"status\": \"ready\",\r\n      \"recommended\": \"direct_venv_lite\",\r\n      \"candidates\": [\r\n        \"direct_venv_lite\",\r\n        \"wsl_or_docker_heavy\"\r\n      ],\r\n      \"fallback\": \"pending_review_takeover_required\"\r\n    },\r\n    \"exportPrintProfile\": {\r\n      \"status\": \"partial_toolchain\",\r\n      \"recommended\": \"docx_pdf_artifact_chain_with_preflight_manifest\",\r\n      \"fallback\": \"keep_docx_or_html_export_until_pdf_toolchain_admitted\",\r\n      \"checks\": [\r\n        \"pandoc\",\r\n        \"qpdf\",\r\n        \"gswin64c\",\r\n        \"magick\",\r\n        \"soffice\"\r\n      ]\r\n    },\r\n    \"aiNetworkProfile\": {\r\n      \"status\": \"offline_first\",\r\n      \"recommended\": \"offline_first_no_cloud_token_by_default\",\r\n      \"fallback\": \"cloud_provider_only_after_privacy_cost_cache_gate\",\r\n      \"secretValuesPrinted\": false\r\n    },\r\n    \"aiLocalModelProfile\": {\r\n      \"status\": \"medium_config_optional\",\r\n      \"recommended\": \"optional_local_llm_3b_7b_quantized_eval_only\",\r\n      \"modelClass\": \"3b_7b_quantized\",\r\n      \"runtimeCandidates\": {\r\n        \"ollama\": false,\r\n        \"llama_cpp_server\": false,\r\n        \"llama_cpp_cli\": false,\r\n        \"vllm\": false,\r\n        \"lm_studio_lms\": false\r\n      },\r\n      \"detectedGpuVramMb\": 4096,\r\n      \"hostCapacity\": {\r\n        \"cpuCount\": 16,\r\n        \"memoryGb\": 31.91\r\n      },\r\n      \"allowedDraftTasks\": [\r\n        \"OCR text cleanup candidates\",\r\n        \"question wording normalization candidates\",\r\n        \"knowledge tag candidates\",\r\n        \"difficulty candidates\",\r\n        \"commentary draft candidates\"\r\n      ],\r\n      \"blockedProductionTasks\": [\r\n        \"OCR or formula recognition engine replacement\",\r\n        \"direct active writes\",\r\n        \"formal analytics\",\r\n        \"authoritative tagging\",\r\n        \"backup, restore, migration, or permission decisions\"\r\n      ],\r\n      \"requiresEvalBeforeDefault\": true,\r\n      \"noModelDownloadPerformed\": true,\r\n      \"noActiveWrite\": true,\r\n      \"noCloudTokenRequired\": true,\r\n      \"fallback\": \"rules_first_structured_outputs_or_teacher_pending_review\"\r\n    },\r\n    \"searchProfile\": {\r\n      \"status\": \"postgresql_first\",\r\n      \"recommended\": \"postgresql_fts_pg_trgm_first_pgvector_only_after_eval\",\r\n      \"fallback\": \"semantic_search_gate_na_until_extension_and_benchmark\"\r\n    },\r\n    \"queueProfile\": {\r\n      \"status\": \"backgroundservice_ok\",\r\n      \"recommended\": \"postgresql_job_store_backgroundservice_first\",\r\n      \"fallback\": \"defer_hangfire_rabbitmq_until_throughput_evidence\",\r\n      \"hostCapacity\": {\r\n        \"cpuCount\": 16,\r\n        \"memoryGb\": 31.91\r\n      }\r\n    },\r\n    \"securityProfile\": {\r\n      \"status\": \"requires_live_gate\",\r\n      \"recommended\": \"admin_key_bootstrap_then_rbac_audit_before_live\",\r\n      \"fallback\": \"draft_test_only_until_o004b_and_permission_audit\"\r\n    }\r\n  },\r\n  \"bestConfiguration\": {\r\n    \"profileSet\": \"local_system_profile.v1\",\r\n    \"adaptiveOnNewHost\": true,\r\n    \"allowInstallerToWriteDraftConfig\": true,\r\n    \"productionChangesRequire\": [\r\n      \"full gate\",\r\n      \"roadmap guard\",\r\n      \"backup/restore evidence\",\r\n      \"golden OCR/import evidence where document processing changes\",\r\n      \"local model eval and no-active-write evidence when aiLocalModelProfile changes\",\r\n      \"human confirmation for admin/system/cloud/real-data changes\"\r\n    ],\r\n    \"lowRiskAgentActions\": [\r\n      \"generate draft appsettings/local profile files\",\r\n      \"create project-owned data/cache directories through installer dry-run\",\r\n      \"select draft worker profile from diagnostic output\",\r\n      \"record local model runtime candidates and recommended draft-only model class\",\r\n      \"record tool versions and missing dependencies in evidence\"\r\n    ],\r\n    \"humanConfirmationBefore\": [\r\n      \"installing system services or drivers\",\r\n      \"changing firewall, antivirus, GPU runtime, Docker Desktop, or WSL installation\",\r\n      \"configuring cloud tokens or paid providers\",\r\n      \"downloading local model weights or enabling local model as default route\",\r\n      \"processing real non-anonymized teacher/student materials\",\r\n      \"switching production active profile or release readiness status\"\r\n    ]\r\n  },\r\n  \"guardrail\": {\r\n    \"noInstallPerformed\": true,\r\n    \"noNetworkRequired\": true,\r\n    \"secretsPrinted\": false,\r\n    \"productionDefaultChanged\": false,\r\n    \"modelWeightsDownloaded\": false,\r\n    \"localAiDefaultChanged\": false,\r\n    \"failClosedPolicy\": \"missing runtime, database, worker, export, security, or storage capabilities must block live release or fall back to pending_review/takeoverRequired\"\r\n  }\r\n}\r\n{\r\n  \"status\": \"pass\",\r\n  \"task\": \"host capability diagnostic contract\",\r\n  \"report\": \"docs/evidence/20260528-ns101-host-capability-diagnostic-report.json\",\r\n  \"profileSet\": \"local_system_profile.v1\",\r\n  \"runtimeProfile\": \"windows_service_with_explicit_content_root\",\r\n  \"databaseProfile\": \"local_postgresql_with_pg_dump_restore\",\r\n  \"workerOcrProfile\": \"direct_venv_lite\",\r\n  \"aiLocalModelProfile\": \"optional_local_llm_3b_7b_quantized_eval_only\",\r\n  \"noInstallPerformed\": true,\r\n  \"localAiDefaultChanged\": false,\r\n  \"modelWeightsDownloaded\": false\r\n}",
+  "workerDiagnosticOutput": "{\r\n  \"schemaVersion\": \"worker-profile-diagnostic.v1\",\r\n  \"mode\": \"read_only\",\r\n  \"host\": {\r\n    \"platform\": \"Windows-11-10.0.26200-SP0\",\r\n    \"machine\": \"AMD64\",\r\n    \"processor\": \"AMD64 Family 23 Model 113 Stepping 0, AuthenticAMD\",\r\n    \"pythonExecutable\": \"C:\\\\Users\\\\sciman\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python313\\\\python.exe\",\r\n    \"pythonVersion\": \"3.13.7\",\r\n    \"cpuCount\": 16,\r\n    \"memoryGb\": 31.91\r\n  },\r\n  \"commands\": {\r\n    \"python\": true,\r\n    \"uv\": true,\r\n    \"conda\": false,\r\n    \"docker\": false,\r\n    \"wsl\": true,\r\n    \"pdftotext\": true,\r\n    \"pdftoppm\": true,\r\n    \"tesseract\": false\r\n  },\r\n  \"pythonModules\": {\r\n    \"rapidocr_onnxruntime\": true,\r\n    \"onnxruntime\": true,\r\n    \"paddleocr\": false,\r\n    \"paddle\": false,\r\n    \"cv2\": true,\r\n    \"PIL\": true\r\n  },\r\n  \"gpu\": {\r\n    \"available\": true,\r\n    \"gpus\": [\r\n      {\r\n        \"name\": \"NVIDIA GeForce GTX 1650 SUPER\",\r\n        \"memoryMb\": 4096,\r\n        \"driverVersion\": \"591.86\"\r\n      }\r\n    ],\r\n    \"raw\": {\r\n      \"available\": true,\r\n      \"exitCode\": 0,\r\n      \"stdout\": \"NVIDIA GeForce GTX 1650 SUPER, 4096, 591.86\",\r\n      \"stderr\": \"\"\r\n    }\r\n  },\r\n  \"recommendation\": {\r\n    \"recommendedDefaultProfile\": \"direct_venv_lite\",\r\n    \"reason\": \"RapidOCR/ONNX is available in the current interpreter; use the lightweight local profile first.\",\r\n    \"availableProfileCandidates\": [\r\n      \"direct_venv_lite\",\r\n      \"wsl_or_docker_heavy\"\r\n    ],\r\n    \"needsHumanConfirmationBefore\": [\r\n      \"system driver or GPU runtime changes\",\r\n      \"Docker Desktop or WSL installation\",\r\n      \"cloud OCR token configuration\",\r\n      \"switching the production default profile\",\r\n      \"processing real non-anonymized materials\"\r\n    ],\r\n    \"nextInstallActions\": [\r\n      \"prepare conda_paddle_cpu only after golden-set need is confirmed\",\r\n      \"generate launcher/profile with path mapping before WSL/Docker execution\"\r\n    ]\r\n  },\r\n  \"guardrail\": {\r\n    \"noInstallPerformed\": true,\r\n    \"noNetworkRequired\": true,\r\n    \"productionDefaultChanged\": false,\r\n    \"failClosedPolicy\": \"missing OCR engines must fall back to pending_review/takeoverRequired\"\r\n  }\r\n}\r\n{\r\n  \"status\": \"pass\",\r\n  \"task\": \"worker profile diagnostic contract\",\r\n  \"report\": \"docs/evidence/20260528-ns101-worker-profile-diagnostic-report.json\",\r\n  \"recommendedDefaultProfile\": \"direct_venv_lite\",\r\n  \"availableProfileCandidates\": [\r\n    \"direct_venv_lite\",\r\n    \"wsl_or_docker_heavy\"\r\n  ],\r\n  \"noInstallPerformed\": true\r\n}"
+}

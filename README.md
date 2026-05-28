@@ -20,6 +20,8 @@
 
 2026-05-14 起，README 的当前完成态以 `tasks/completion-state-dashboard.csv`、`tasks/backlog.csv`、`docs/19_Roadmap.md`、`docs/20_TaskBreakdown.md` 和 `docs/evidence/` 的 REAL/S0 报告为准。`S001-S012` 已完成非现场产品化闭环：教师四入口、导入/切题/人工接管、AI 标注建议、题库检索、组卷、导出、成绩导入、讲评报告和备份恢复均有合同或代理验收证据；但这不等于现场发布完成。当前发布阻断仍是 `P001` 试点部署预演、隔离机真实安装、权限/审计、现场网络/打印/文件权限、真实教师或教师代理验收和回滚演练。
 
+2026-05-28 起，若最新盘点发现非人工、非现场能力仍未真正落地，不再只引用旧 `S001-S012` 历史完成态作为产品化证明。新的总控入口是 `docs/101_NonSiteCapabilityImplementationRoadmap.md`，机器可读任务清单是 `tasks/non-site-implementation-plan.csv`。后续每个模块必须重新区分 `planned`、`contract_only`、`repo_landed`、`runtime_verified`、`non_site_validated` 和 `blocked_by_onsite`；只有具备代码、运行或端到端证据后，才允许回写完成态看板。
+
 真实广州中考物理资料已进入 `REAL001-REAL005` 纠偏主线。`REAL001/REAL002` 已把 2015 年第 1-24 题写入数据库并进入 `pending_review` 审核队列，其中第 19-24 题已有截图级 `SourceRegion` 与题图资产；`REAL003` 已对 2016-2025 年做首轮 dry-run，核对 210 个候选题、210 条答案和 33 个带 hash 的 `SourceDocument`，未写 active、未调用外部 AI；`REAL004` 已证明 2015 真卷审核队列可筛选、加载来源、确认、退回、修订并写入 audit；`REAL005` 已安装机器可读闭环判定标准，当前真实结论必须保持 `closureStatus=not_closed`，不能宣称 2015-2025 真卷全流程已经全部完成。
 
 当前完成态速览：
@@ -269,7 +271,9 @@ python -c "import pathlib, yaml; [yaml.safe_load(p.read_text(encoding='utf-8')) 
 - `docs/87_PhaseCloseoutAndFullRoadmap.md`：A-G 完成后的阶段收口、长期路线图和 H-R 下一轮任务清单。
 - `docs/88_EngineeringEndStateExternalReview_20260504.md`：工程终态、技术栈、架构和长期路线图的外部复核与补强项。
 - `docs/99_ProductizationFullRoadmapAndTaskPlan.md`：把合同完成、产品完成和教师验证拆开的长期产品化全程路线图与 S0 任务计划。
+- `docs/101_NonSiteCapabilityImplementationRoadmap.md`：非人工、非现场能力优先落地的长期路线图、实施计划和任务清单总控入口。
 - `tasks/completion-state-dashboard.csv`：当前各能力的完成态、可用性、证据和阻断缺口。
+- `tasks/non-site-implementation-plan.csv`：非现场能力从 planned 到 runtime/non-site 验证的细化机器可读任务清单。
 - `tasks/real-guangzhou-closure-criteria.csv`：REAL005 真卷全流程闭环 12 项机器可读判定标准。
 - `tasks/automation-first-contract.csv`：待办功能的 automation-first 机器可读合同，声明确定性预检、专用功能面、AI/agent 允许范围、例外策略和 evidence 命令。
 - `docs/78_SubjectDomainAssetActivationRunbook.md`：后续新学科动态资产激活统一 runbook。
@@ -298,4 +302,3 @@ python -c "import pathlib, yaml; [yaml.safe_load(p.read_text(encoding='utf-8')) 
 - 本项目采用 `MIT License`，见仓库根目录 [LICENSE](LICENSE)。
 - 本项目是个人开源项目，不采用付费商业许可门槛。
 - 允许个人或组织在遵守 MIT 条款前提下免费商用、分发和修改。
-

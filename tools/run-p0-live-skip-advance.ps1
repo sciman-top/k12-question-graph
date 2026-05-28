@@ -15,12 +15,12 @@ function Write-ContentIfChanged([string]$Path, [string]$Content) {
     Set-Content -LiteralPath $Path -Value $Content -Encoding UTF8
 }
 
-function Invoke-JsonScript([string]$RelativeScriptPath, [string[]]$Args = @()) {
+function Invoke-JsonScript([string]$RelativeScriptPath, [string[]]$ScriptArgs = @()) {
     $scriptPath = Join-Path $repoRoot $RelativeScriptPath
     if (-not (Test-Path -LiteralPath $scriptPath)) {
         throw "missing script: $RelativeScriptPath"
     }
-    $raw = & pwsh -NoProfile -ExecutionPolicy Bypass -File $scriptPath @Args
+    $raw = & pwsh -NoProfile -ExecutionPolicy Bypass -File $scriptPath @ScriptArgs
     if ($LASTEXITCODE -ne 0) {
         throw "script failed: $RelativeScriptPath (exit=$LASTEXITCODE)"
     }
@@ -30,11 +30,12 @@ function Invoke-JsonScript([string]$RelativeScriptPath, [string[]]$Args = @()) {
 if ([string]::IsNullOrWhiteSpace($ExpiresAt)) {
     $ExpiresAt = (Get-Date).AddDays(7).ToString('yyyy-MM-dd')
 }
+$runDate = Get-Date -Format 'yyyyMMdd'
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
-    $ReportPath = 'docs/evidence/{0}-p0-live-skip-advance-report.json' -f (Get-Date -Format 'yyyyMMdd')
+    $ReportPath = 'docs/evidence/{0}-p0-live-skip-advance-report.json' -f $runDate
 }
 
-$autoAdvance = Invoke-JsonScript -RelativeScriptPath 'tools/run-p0-live-auto-advance.ps1' -Args @('-FailOnNonPass')
+$autoAdvance = Invoke-JsonScript -RelativeScriptPath 'tools/run-p0-live-auto-advance.ps1' -ScriptArgs @('-FailOnNonPass')
 
 $summary = [ordered]@{
     status = if ($autoAdvance.status -eq 'pass') { 'pass' } else { 'warn' }
@@ -47,11 +48,11 @@ $summary = [ordered]@{
         reason = $SkipReason
         alternative_verification = 'tools/run-p0-live-auto-advance.ps1 -FailOnNonPass'
         evidence_link = @(
-            'docs/evidence/20260509-p0-live-auto-advance-report.json',
-            'docs/evidence/20260509-p0-live-preflight-refresh-report.json',
+            ('docs/evidence/{0}-p0-live-auto-advance-report.json' -f $runDate),
+            ('docs/evidence/{0}-p0-live-preflight-refresh-report.json' -f $runDate),
             'docs/evidence/20260505-pqr-preflight-pack-report.json',
             'docs/evidence/20260505-pqr-preflight-freshness-report.json',
-            'docs/evidence/20260505-pqr-preflight-dashboard.json',
+            'docs/evidence/20260505-pqr-preflight-dashboard-report.json',
             'docs/evidence/20260505-pqr-orchestration-consistency-report.json'
         )
         expires_at = $ExpiresAt

@@ -1,0 +1,16 @@
+#!/bin/sh
+set -eu
+
+HOOK_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+REPO_ROOT=$(CDPATH= cd -- "$HOOK_DIR/.." && pwd)
+
+if command -v pwsh >/dev/null 2>&1; then
+  PS_BIN=pwsh
+elif command -v powershell.exe >/dev/null 2>&1; then
+  PS_BIN=powershell.exe
+else
+  echo "commit-msg: neither pwsh nor powershell.exe was found on PATH" >&2
+  exit 1
+fi
+
+exec "$PS_BIN" -NoProfile -ExecutionPolicy Bypass -File "$REPO_ROOT/scripts/hooks/commit-msg.ps1" -CommitMessagePath "$1"

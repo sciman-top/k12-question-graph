@@ -6,13 +6,13 @@ param(
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 
-function Invoke-JsonScript([string]$RelativeScriptPath, [string[]]$Args = @()) {
+function Invoke-JsonScript([string]$RelativeScriptPath, [string[]]$ScriptArgs = @()) {
     $scriptPath = Join-Path $repoRoot $RelativeScriptPath
     if (-not (Test-Path -LiteralPath $scriptPath)) {
         throw "missing script: $RelativeScriptPath"
     }
 
-    $raw = & pwsh -NoProfile -ExecutionPolicy Bypass -File $scriptPath @Args
+    $raw = & pwsh -NoProfile -ExecutionPolicy Bypass -File $scriptPath @ScriptArgs
     if ($LASTEXITCODE -ne 0) {
         throw "script failed: $RelativeScriptPath (exit=$LASTEXITCODE)"
     }
@@ -45,7 +45,7 @@ $steps = New-Object System.Collections.Generic.List[object]
 
 $refreshArgs = @()
 if ($FailOnNonPass) { $refreshArgs += '-FailOnNonPass' }
-$refresh = Invoke-JsonScript -RelativeScriptPath 'tools/run-p0-live-preflight-refresh.ps1' -Args $refreshArgs
+$refresh = Invoke-JsonScript -RelativeScriptPath 'tools/run-p0-live-preflight-refresh.ps1' -ScriptArgs $refreshArgs
 $steps.Add([ordered]@{
     name = 'p0-live preflight refresh'
     status = $refresh.status

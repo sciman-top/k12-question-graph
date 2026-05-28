@@ -67,6 +67,7 @@ function Wait-ApiReady([System.Diagnostics.Process] $Process, [string] $ApiUrl, 
 }
 
 Push-Location $repoRoot
+$p0LiveRunDate = Get-Date -Format 'yyyyMMdd'
 try {
     Invoke-GateStep 'backend build' {
         dotnet build apps\api\K12QuestionGraph.Api.csproj -c Release | Write-Host
@@ -251,6 +252,10 @@ try {
 
     Invoke-GateStep 'automation-first feature contract guard' {
         .\tools\run-automation-first-feature-contract-guard.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'non-site implementation plan guard' {
+        .\tools\run-non-site-implementation-plan-guard.ps1 | Write-Host
     }
 
     Invoke-GateStep 'local-first ai consumption guard' {
@@ -606,27 +611,27 @@ try {
     }
 
     Invoke-GateStep 'p001 live pilot readiness preflight contract' {
-        .\tools\run-p001-live-pilot-readiness-preflight-contract.ps1 | Write-Host
+        .\tools\run-p001-live-pilot-readiness-preflight-contract.ps1 -ReportPath ('docs/evidence/{0}-p001-live-pilot-readiness-preflight-report.json' -f $p0LiveRunDate) | Write-Host
     }
 
     Invoke-GateStep 'p002 teacher proxy pilot preflight contract' {
-        .\tools\run-p002-teacher-proxy-pilot-preflight-contract.ps1 | Write-Host
+        .\tools\run-p002-teacher-proxy-pilot-preflight-contract.ps1 -ReportPath ('docs/evidence/{0}-p002-teacher-proxy-pilot-admission-report.json' -f $p0LiveRunDate) | Write-Host
     }
 
     Invoke-GateStep 'p003 onsite pilot admission preflight contract' {
-        .\tools\run-p003-onsite-pilot-admission-preflight-contract.ps1 | Write-Host
+        .\tools\run-p003-onsite-pilot-admission-preflight-contract.ps1 -ReportPath ('docs/evidence/{0}-p003-onsite-pilot-admission-report.json' -f $p0LiveRunDate) | Write-Host
     }
 
     Invoke-GateStep 'p004 onsite pilot round1 preflight contract' {
-        .\tools\run-p004-onsite-pilot-round1-preflight-contract.ps1 | Write-Host
+        .\tools\run-p004-onsite-pilot-round1-preflight-contract.ps1 -ReportPath ('docs/evidence/{0}-p004-onsite-pilot-round1-report.json' -f $p0LiveRunDate) | Write-Host
     }
 
     Invoke-GateStep 'p005 pilot feedback backlog preflight contract' {
-        .\tools\run-p005-pilot-feedback-backlog-preflight-contract.ps1 | Write-Host
+        .\tools\run-p005-pilot-feedback-backlog-preflight-contract.ps1 -ReportPath ('docs/evidence/{0}-p005-pilot-feedback-backlog-admission-report.json' -f $p0LiveRunDate) | Write-Host
     }
 
     Invoke-GateStep 'p006 release decision preflight contract' {
-        .\tools\run-p006-release-decision-preflight-contract.ps1 | Write-Host
+        .\tools\run-p006-release-decision-preflight-contract.ps1 -ReportPath ('docs/evidence/{0}-p006-release-decision-admission-report.json' -f $p0LiveRunDate) | Write-Host
     }
 
     Invoke-GateStep 'q001 second-subject candidate admission preflight contract' {
@@ -668,6 +673,9 @@ try {
     }
     Invoke-GateStep 'r007 interoperability profile map preflight contract' {
         .\tools\run-r007-interoperability-profile-map-preflight-contract.ps1 | Write-Host
+    }
+    Invoke-GateStep 'p0 live preflight refresh path contract' {
+        .\tools\run-p0-live-preflight-refresh-path-contract.ps1 | Write-Host
     }
     Invoke-GateStep 'pqr preflight pack contract' {
         .\tools\run-pqr-preflight-pack-contract.ps1 | Write-Host

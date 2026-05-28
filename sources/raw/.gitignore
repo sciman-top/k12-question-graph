@@ -1,0 +1,4 @@
+# Local staging for raw or authorized materials.
+# Keep original materials out of git; commit only manifests, hashes, summaries, and evidence.
+*
+!.gitignore

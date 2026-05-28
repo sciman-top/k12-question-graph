@@ -6,13 +6,13 @@ param(
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 
-function Invoke-JsonContract([string]$RelativeScriptPath) {
+function Invoke-JsonContract([string]$RelativeScriptPath, [string[]]$ScriptArgs = @()) {
     $scriptPath = Join-Path $repoRoot $RelativeScriptPath
     if (-not (Test-Path -LiteralPath $scriptPath)) {
         throw "missing script: $RelativeScriptPath"
     }
 
-    $raw = & pwsh -NoProfile -ExecutionPolicy Bypass -File $scriptPath
+    $raw = & pwsh -NoProfile -ExecutionPolicy Bypass -File $scriptPath @ScriptArgs
     if ($LASTEXITCODE -ne 0) {
         throw "script failed: $RelativeScriptPath (exit=$LASTEXITCODE)"
     }
@@ -31,18 +31,19 @@ if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = 'docs/evidence/{0}-p0-live-preflight-refresh-report.json' -f (Get-Date -Format 'yyyyMMdd')
 }
 
+$runDate = Get-Date -Format 'yyyyMMdd'
 $contracts = @(
-    [ordered]@{ id = 'P001'; path = 'tools/run-p001-live-pilot-readiness-preflight-contract.ps1' },
-    [ordered]@{ id = 'P002'; path = 'tools/run-p002-teacher-proxy-pilot-preflight-contract.ps1' },
-    [ordered]@{ id = 'P003'; path = 'tools/run-p003-onsite-pilot-admission-preflight-contract.ps1' },
-    [ordered]@{ id = 'P004'; path = 'tools/run-p004-onsite-pilot-round1-preflight-contract.ps1' },
-    [ordered]@{ id = 'P005'; path = 'tools/run-p005-pilot-feedback-backlog-preflight-contract.ps1' },
-    [ordered]@{ id = 'P006'; path = 'tools/run-p006-release-decision-preflight-contract.ps1' }
+    [ordered]@{ id = 'P001'; path = 'tools/run-p001-live-pilot-readiness-preflight-contract.ps1'; reportPath = 'docs/evidence/{0}-p001-live-pilot-readiness-preflight-report.json' -f $runDate },
+    [ordered]@{ id = 'P002'; path = 'tools/run-p002-teacher-proxy-pilot-preflight-contract.ps1'; reportPath = 'docs/evidence/{0}-p002-teacher-proxy-pilot-admission-report.json' -f $runDate },
+    [ordered]@{ id = 'P003'; path = 'tools/run-p003-onsite-pilot-admission-preflight-contract.ps1'; reportPath = 'docs/evidence/{0}-p003-onsite-pilot-admission-report.json' -f $runDate },
+    [ordered]@{ id = 'P004'; path = 'tools/run-p004-onsite-pilot-round1-preflight-contract.ps1'; reportPath = 'docs/evidence/{0}-p004-onsite-pilot-round1-report.json' -f $runDate },
+    [ordered]@{ id = 'P005'; path = 'tools/run-p005-pilot-feedback-backlog-preflight-contract.ps1'; reportPath = 'docs/evidence/{0}-p005-pilot-feedback-backlog-admission-report.json' -f $runDate },
+    [ordered]@{ id = 'P006'; path = 'tools/run-p006-release-decision-preflight-contract.ps1'; reportPath = 'docs/evidence/{0}-p006-release-decision-admission-report.json' -f $runDate }
 )
 
 $results = New-Object System.Collections.Generic.List[object]
 foreach ($contract in $contracts) {
-    $obj = Invoke-JsonContract -RelativeScriptPath $contract.path
+    $obj = Invoke-JsonContract -RelativeScriptPath $contract.path -ScriptArgs @('-ReportPath', $contract.reportPath)
     $results.Add([ordered]@{
         id = $contract.id
         script = $contract.path
@@ -51,6 +52,7 @@ foreach ($contract in $contracts) {
         boundary = $obj.boundary
         checklistPath = $obj.checklistPath
         evidencePath = $obj.evidencePath
+        reportPath = $obj.reportPath
         checkedAt = $obj.checkedAt
     })
 }

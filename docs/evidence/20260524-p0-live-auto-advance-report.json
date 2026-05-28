@@ -1,0 +1,36 @@
+{
+  "status": "pass",
+  "task": "P0-live auto advance",
+  "checkedDate": "2026-05-24",
+  "checkedAt": "2026-05-24T23:11:57",
+  "boundary": "preflight_only; no live/on-site execution, no backlog status transition",
+  "nonPassCount": 0,
+  "nextAction": "execute isolated-machine pilot for P001 and write real evidence, then close P002-P006 in order",
+  "steps": [
+    {
+      "name": "p0-live preflight refresh",
+      "status": "pass",
+      "report": "docs/evidence/20260524-p0-live-preflight-refresh-report.json"
+    },
+    {
+      "name": "pqr preflight pack",
+      "status": "pass",
+      "report": "docs/evidence/20260505-pqr-preflight-pack-report.json"
+    },
+    {
+      "name": "pqr preflight freshness",
+      "status": "pass",
+      "report": "docs/evidence/20260505-pqr-preflight-freshness-report.json"
+    },
+    {
+      "name": "pqr preflight dashboard",
+      "status": "pass",
+      "report": "docs/evidence/20260505-pqr-preflight-dashboard-report.json"
+    },
+    {
+      "name": "pqr orchestration consistency",
+      "status": "pass",
+      "report": "docs/evidence/20260505-pqr-orchestration-consistency-report.json"
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "guangzhou-2015-visual-region-slice.v1",
   "workflowKey": "guangzhou_2015_visual_region_v1",
-  "generatedAt": "2026-05-23T17:58:12.954912+00:00",
+  "generatedAt": "2026-05-24T13:18:25.732910+00:00",
   "mode": "apply",
   "status": "pass",
   "scope": {
@@ -146,9 +146,9 @@
   "created": [
     {
       "questionNo": 19,
-      "questionItemId": "f305014a-c258-4b65-b0a7-990febded5e6",
-      "questionRegionId": "a9127a33-48c0-4fdd-814e-ea4b8fe9ac69",
-      "answerRegionId": "9cfd99be-3696-451d-8a3e-6c5a6a24dac1",
+      "questionItemId": "c6e3a3c8-e373-4e29-8668-223af26cb342",
+      "questionRegionId": "1546e7e5-8262-4c81-89a1-850863f3bf06",
+      "answerRegionId": "dcb3df5f-0e42-4c72-abb9-b5af665d2034",
       "assetRegionId": null,
       "hasQuestionAsset": false,
       "pageNumber": 5,
@@ -164,10 +164,10 @@
     },
     {
       "questionNo": 20,
-      "questionItemId": "53a589ee-c471-4691-a758-a85e2973d4cf",
-      "questionRegionId": "2c463204-7ed0-4893-9f6d-18a4303fb28c",
-      "answerRegionId": "a2a4c351-4a3c-4315-8a22-716eddbff6c5",
-      "assetRegionId": "b9ff7990-855b-43c8-8ea3-7954f38c964a",
+      "questionItemId": "1d45461a-c9e7-4621-a47d-7852ec602079",
+      "questionRegionId": "c1504fd6-7556-44c3-9d08-324073779c49",
+      "answerRegionId": "918fd401-40b6-4a0d-bc89-6ee867bd8193",
+      "assetRegionId": "8a61d9d0-acae-400f-9483-df0232def8f6",
       "hasQuestionAsset": true,
       "pageNumber": 5,
       "bboxPercent": [
@@ -182,10 +182,10 @@
     },
     {
       "questionNo": 21,
-      "questionItemId": "b6495e1a-2a19-432b-8de9-df0d151f67bc",
-      "questionRegionId": "2343bf98-7a86-42df-b9e3-f42b1d3f383e",
-      "answerRegionId": "c40b6255-6a7b-4ac6-b728-65885645f6be",
-      "assetRegionId": "e446e82a-fe9e-4b33-b239-8ede27a226e0",
+      "questionItemId": "fcfe5721-a738-4fd8-8149-ab5312f5c47a",
+      "questionRegionId": "4be0969d-ca70-486c-a6f4-8f41e206abe7",
+      "answerRegionId": "fbbdbda2-419e-492c-a808-690047662f69",
+      "assetRegionId": "2389b628-4224-4278-b2ee-d82ebe4c3391",
       "hasQuestionAsset": true,
       "pageNumber": 6,
       "bboxPercent": [
@@ -200,10 +200,10 @@
     },
     {
       "questionNo": 22,
-      "questionItemId": "614437f1-9462-42c2-aaff-7cdb07a7d88f",
-      "questionRegionId": "12405a8d-a5cf-4803-9a5e-df94da915a0a",
-      "answerRegionId": "dac583ca-18fd-4fa1-8b23-d9a5bbdfb3c7",
-      "assetRegionId": "f9b1165d-77b7-4323-a357-564e48d55024",
+      "questionItemId": "246287f7-ae65-4aa0-9461-fcdc05ab0900",
+      "questionRegionId": "d9bc3ea7-eb00-459a-82cc-280f90f96375",
+      "answerRegionId": "55a88f12-a59a-462e-be80-fb2a743698bd",
+      "assetRegionId": "23519c08-4d99-4096-8ff1-1c9caf70f9c5",
       "hasQuestionAsset": true,
       "pageNumber": 7,
       "bboxPercent": [
@@ -218,10 +218,10 @@
     },
     {
       "questionNo": 23,
-      "questionItemId": "4c755965-ed8a-4507-9e28-5ad210651ef7",
-      "questionRegionId": "c4aaec62-a05e-4c6f-9ce9-95bd11f36791",
-      "answerRegionId": "5341d871-e5b0-4580-8e2d-48a174950ed9",
-      "assetRegionId": "d29e08e1-2167-42c6-bb65-55573138fa2b",
+      "questionItemId": "d57bcef7-0b1c-4db5-9f03-29121633f586",
+      "questionRegionId": "557544bf-8d2f-40b1-87d9-b2547096cbd2",
+      "answerRegionId": "e215e0ea-05f1-4795-9398-ff5ad50726cf",
+      "assetRegionId": "7699c8dc-443e-4584-9327-fd5751115658",
       "hasQuestionAsset": true,
       "pageNumber": 7,
       "bboxPercent": [
@@ -236,10 +236,10 @@
     },
     {
       "questionNo": 24,
-      "questionItemId": "bf883004-8892-4783-b9fd-962d254819cd",
-      "questionRegionId": "c5d53052-9df5-476f-a025-eb7aad8e1862",
-      "answerRegionId": "0e3d9326-9a67-492c-9182-8d1417a9ec37",
-      "assetRegionId": "bc51965e-ed2e-4d0f-b738-66f84e7c8430",
+      "questionItemId": "a6ec1416-28be-49e9-8b2b-ecd17f21363c",
+      "questionRegionId": "2700f8f8-4d0a-4923-8042-e11cd07beb3b",
+      "answerRegionId": "5ce91764-9a96-44f6-8ed1-6a621004d945",
+      "assetRegionId": "84a3fe8a-453b-4973-8d08-8ebeff9cbf9d",
       "hasQuestionAsset": true,
       "pageNumber": 8,
       "bboxPercent": [
@@ -273,7 +273,7 @@
     "questions": [
       {
         "question_no": 19,
-        "id": "f305014a-c258-4b65-b0a7-990febded5e6",
+        "id": "c6e3a3c8-e373-4e29-8668-223af26cb342",
         "status": "pending_review",
         "visual_region_status": "screenshot_manifest_pending_teacher_review",
         "primary_knowledge_label": "滑轮组机械效率",
@@ -281,7 +281,7 @@
       },
       {
         "question_no": 20,
-        "id": "53a589ee-c471-4691-a758-a85e2973d4cf",
+        "id": "1d45461a-c9e7-4621-a47d-7852ec602079",
         "status": "pending_review",
         "visual_region_status": "screenshot_manifest_pending_teacher_review",
         "primary_knowledge_label": "功率与受力分析",
@@ -289,7 +289,7 @@
       },
       {
         "question_no": 21,
-        "id": "b6495e1a-2a19-432b-8de9-df0d151f67bc",
+        "id": "fcfe5721-a738-4fd8-8149-ab5312f5c47a",
         "status": "pending_review",
         "visual_region_status": "screenshot_manifest_pending_teacher_review",
         "primary_knowledge_label": "电热水壶与热量计算",
@@ -297,7 +297,7 @@
       },
       {
         "question_no": 22,
-        "id": "614437f1-9462-42c2-aaff-7cdb07a7d88f",
+        "id": "246287f7-ae65-4aa0-9461-fcdc05ab0900",
         "status": "pending_review",
         "visual_region_status": "screenshot_manifest_pending_teacher_review",
         "primary_knowledge_label": "实验仪器读数",
@@ -305,7 +305,7 @@
       },
       {
         "question_no": 23,
-        "id": "4c755965-ed8a-4507-9e28-5ad210651ef7",
+        "id": "d57bcef7-0b1c-4db5-9f03-29121633f586",
         "status": "pending_review",
         "visual_region_status": "screenshot_manifest_pending_teacher_review",
         "primary_knowledge_label": "小灯泡电功率实验",
@@ -313,7 +313,7 @@
       },
       {
         "question_no": 24,
-        "id": "bf883004-8892-4783-b9fd-962d254819cd",
+        "id": "a6ec1416-28be-49e9-8b2b-ecd17f21363c",
         "status": "pending_review",
         "visual_region_status": "screenshot_manifest_pending_teacher_review",
         "primary_knowledge_label": "浮力测量设计",

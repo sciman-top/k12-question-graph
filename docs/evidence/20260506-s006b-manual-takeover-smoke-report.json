@@ -1,8 +1,8 @@
 {
   "status": "pass",
   "taskId": "S006B",
-  "checkedAt": "2026-05-24T01:55:37",
-  "sourceDocumentId": "b5b91b73-4768-40e7-8a9e-67ab8ce1d389",
+  "checkedAt": "2026-05-24T21:15:42",
+  "sourceDocumentId": "75a492e3-a474-4dbf-b91c-610e5bb25916",
   "actions": {
     "merge": {
       "touched": 3,
@@ -17,7 +17,7 @@
     },
     "save_question": {
       "touched": 1,
-      "createdQuestionId": "5983fc60-4de6-4ca1-9bf7-fa5c33aa94c7"
+      "createdQuestionId": "4ebd6cd5-2044-4160-a924-90c098d55bcc"
     }
   },
   "conclusion": "manual takeover workbench API supports merge split associate and save question chain"

@@ -1,0 +1,34 @@
+{
+  "status": "pass",
+  "task": "P0-live skip and advance",
+  "checkedDate": "2026-05-24",
+  "checkedAt": "2026-05-24T23:11:57",
+  "skip": {
+    "type": "gate_na",
+    "scope": [
+      "P001",
+      "P002",
+      "P003",
+      "P004",
+      "P005",
+      "P006"
+    ],
+    "reason": "temporarily skip live/on-site pilot execution and continue preflight-only automation",
+    "alternative_verification": "tools/run-p0-live-auto-advance.ps1 -FailOnNonPass",
+    "evidence_link": [
+      "docs/evidence/20260524-p0-live-auto-advance-report.json",
+      "docs/evidence/20260524-p0-live-preflight-refresh-report.json",
+      "docs/evidence/20260505-pqr-preflight-pack-report.json",
+      "docs/evidence/20260505-pqr-preflight-freshness-report.json",
+      "docs/evidence/20260505-pqr-preflight-dashboard-report.json",
+      "docs/evidence/20260505-pqr-orchestration-consistency-report.json"
+    ],
+    "expires_at": "2026-05-31"
+  },
+  "boundary": "skip only applies to live/on-site execution evidence; backlog status remains unchanged",
+  "downstream": {
+    "qr_preflight": "kept active",
+    "live_execution_required_for_closure": true
+  },
+  "autoAdvanceStatus": "pass"
+}
