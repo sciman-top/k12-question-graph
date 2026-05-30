@@ -1,0 +1,43 @@
+{
+  "status": "pass",
+  "taskId": "NS302",
+  "checkedAt": "2026-05-30T10:23:17",
+  "mode": "api_duplicate_upload_plus_large_file_metadata_guard",
+  "productionEligible": false,
+  "upload": {
+    "fileAssetId": "a227c1ff-ec19-4b49-800b-bd4ba2ad70b5",
+    "sourceDocumentId": "79321bfd-64eb-4e59-883a-01bdaff52a38",
+    "sha256": "9544dfd8d85e94e76c8d549a1c568703d141769763f98d1eeb5b746d635c7c88",
+    "relativePath": "original/95/44/9544dfd8d85e94e76c8d549a1c568703d141769763f98d1eeb5b746d635c7c88.bin",
+    "firstDuplicateFlag": false,
+    "secondDuplicateFlag": true,
+    "sameFileAssetId": true,
+    "sameRelativePath": true,
+    "sizeBytes": 1048576
+  },
+  "db": {
+    "fileAssetRowsForHash": 1,
+    "sourceDocumentRowsForSameMetadata": 1,
+    "pathHashMetadataMatched": true,
+    "dbTextPayloadBytes": 592,
+    "contentStoredOutsideDb": true
+  },
+  "fileStore": {
+    "physicalFileExisted": true,
+    "physicalSizeBytes": 1048576,
+    "uploadedFileRemoved": true
+  },
+  "cleanup": {
+    "dbRowsRemoved": true,
+    "cleanupCount": 0
+  },
+  "acceptance": {
+    "duplicateUploadDoesNotCopyLargeFile": true,
+    "databaseStoresMetadataPathHashSizeOnly": true,
+    "sourceDocumentNotDuplicatedForSameMetadata": true,
+    "physicalFileProtectedByRelativePath": true
+  },
+  "boundary": "NS302 proves duplicate upload reuses FileAsset and keeps large binary content in FileStore, while DB stores metadata/hash/path/size. It does not set a production data retention policy.",
+  "next": "NS303 can continue worker profile diagnostic.",
+  "rollback": "Test rows and uploaded file are removed by this script; if interrupted, delete the reported file_assets/source_documents ids or restore DB/FileStore snapshot."
+}

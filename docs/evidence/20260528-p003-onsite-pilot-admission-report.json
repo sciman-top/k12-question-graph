@@ -1,0 +1,31 @@
+{
+  "status": "pass",
+  "taskId": "P003",
+  "mode": "preflight_only",
+  "checkedAt": "2026-05-29T00:04:18",
+  "p002Status": "待办",
+  "p003Status": "待办",
+  "closeTaskAllowed": false,
+  "currentDecision": "keep_P003_todo_until_proxy_pilot_and_onsite_admission_card_close",
+  "checklistPath": "docs/templates/p003-onsite-pilot-admission-checklist.md",
+  "evidencePath": "docs/evidence/20260505-p003-onsite-pilot-admission-preflight.md",
+  "reportPath": "docs/evidence/20260528-p003-onsite-pilot-admission-report.json",
+  "blockers": [
+    "P002 teacher proxy pilot evidence is not closed.",
+    "Teacher participation boundary is not signed off.",
+    "Data authorization, support owner, rollback plan, and feedback template are not recorded."
+  ],
+  "nextRequiredEvidence": [
+    "teacher proxy pilot report from P002",
+    "onsite pilot admission card",
+    "data authorization and support owner record",
+    "rollback plan and feedback template"
+  ],
+  "failClosedRules": [
+    "Do not execute onsite pilot admission from this preflight contract.",
+    "Do not mark P003 complete without explicit teacher boundary, data authorization, support owner, and rollback evidence.",
+    "Do not advance P004 onsite round1 until P003 admission card is complete."
+  ],
+  "boundary": "onsite pilot admission is not executed in this contract; keep P003 as todo until P002 closes and admission card is complete",
+  "rollback": "revert tools/run-p003-onsite-pilot-admission-preflight-contract.ps1, tasks/backlog.csv, and remove the generated P003 admission report."
+}

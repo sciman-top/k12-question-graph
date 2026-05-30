@@ -1,0 +1,71 @@
+{
+  "status": "pass",
+  "taskId": "NS501",
+  "checkedAt": "2026-05-30T10:25:16",
+  "mode": "k001_active_c002_reference_boundary_plus_no_active_write_guard",
+  "productionEligible": false,
+  "queryReferenceProductionEligible": true,
+  "dependency": {
+    "ns204": "docs/evidence/20260529-ns204-no-active-write-guard-report.json",
+    "ns406": "docs/evidence/20260530-ns406-question-edit-audit-report.json",
+    "c002r": "docs/evidence/c002r-versioned-revision-report.json",
+    "k001": "docs/evidence/20260530-ns501-k001-source-report.json"
+  },
+  "activeC002": {
+    "activeKnowledgeVersion": "junior-physics-guangzhou-source-derived-v1",
+    "importKey": "c002_candidate_import_guangzhou_physics_2016_2025_v1",
+    "materialBatchKey": "guangzhou_physics_2016_2025",
+    "activeAssets": 452,
+    "approvedMappings": 400,
+    "appliedMigrations": 1,
+    "sourceDocuments": 33
+  },
+  "surfaces": {
+    "questionSearchDefault": "active_c002_v1",
+    "paperAssemblyDefault": "active_c002_v1",
+    "knowledgeMasteryDefault": "active_c002_v1",
+    "filtersUseActiveAssetsByDefault": true,
+    "candidateAssetsExcludedByDefault": true,
+    "replacementAndBlueprintKeepVersionRef": true,
+    "historyWritesRemainGuarded": true
+  },
+  "revisionBoundary": {
+    "c002rMode": "dry_run",
+    "teacherCanApplyActive": false,
+    "mappingTypes": [
+      "broader",
+      "deprecated",
+      "equivalent",
+      "merge",
+      "narrower",
+      "renamed",
+      "split"
+    ],
+    "impactTypes": [
+      "analysis_metric",
+      "export_template",
+      "paper_blueprint",
+      "question_binding",
+      "score_import_template",
+      "search_index"
+    ],
+    "futureRevisionRequired": "new candidate version, mapping, impact report, review, rollback, active switch",
+    "noActiveWriteGuardPassed": true
+  },
+  "acceptance": {
+    "questionSearchUsesActiveC002": true,
+    "paperAssemblyUsesActiveC002": true,
+    "knowledgeMasteryUsesActiveC002": true,
+    "activeVersionReferencePreserved": true,
+    "candidateAssetsExcludedByDefault": true,
+    "futureRevisionRequiresCandidateReviewRollback": true,
+    "activeSwitchNotPerformed": true,
+    "productionHistoryNotWritten": true,
+    "externalAiCallsZero": true,
+    "realStudentDataNotUsed": true,
+    "real005StillNotClosed": true
+  },
+  "boundary": "NS501 proves active C002 v1 is the default reference for question search, paper assembly constraints, and knowledge mastery analysis while future revisions remain candidate/review/rollback guarded. It is read-only, performs no active switch, writes no production history, uses no real student data, and does not close REAL005.",
+  "next": "NS502 can continue AI schema/eval so AI suggestions stay candidate/pending_review with no active write.",
+  "rollback": "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns501-c002-active-boundary.ps1 docs/evidence/20260530-ns501-c002-active-boundary.json docs/evidence/20260530-ns501-k001-source-report.json"
+}

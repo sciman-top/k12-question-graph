@@ -380,7 +380,7 @@ export function AdminGovernancePanels() {
         </div>
       </section>
 
-      <section className="activation-panel" aria-label="学科激活工作台" data-flow="subject-activation-workbench">
+      <section className="activation-panel" aria-label="学科激活工作台" data-flow="subject-activation-workbench" data-contract="no-direct-active-switch">
         <div className="panel-heading">
           <div><Typography.Title level={2}>学科激活</Typography.Title><Typography.Text type="secondary">教师只做复核和确认；脚本、备份、证据和回滚由系统处理。</Typography.Text></div>
           <Space size="small" wrap><Tag color="green" data-contract="activation-state">{activationOverview.lifecycle}</Tag><Tag data-contract="no-direct-activation">不在教师端直接激活</Tag></Space>

@@ -1,0 +1,43 @@
+{
+  "status": "pass",
+  "taskId": "NS106",
+  "checkedAt": "2026-05-30T10:22:10",
+  "mode": "read_only_feature_profile_guard",
+  "productionEligible": false,
+  "noInstallPerformed": true,
+  "noNetworkRequired": true,
+  "appSettings": {
+    "allowRealModelCalls": false,
+    "adminApiKeyBlank": true,
+    "allowUnguardedDraftTest": false
+  },
+  "localAiModels": {
+    "installByDefault": false,
+    "downloadModelsByDefault": false,
+    "productionDefaultRequiresEval": true,
+    "noActiveWrite": true
+  },
+  "externalAi": {
+    "readinessExternalAiCalls": 0,
+    "dryRunExternalAiCalls": 0,
+    "projectRuntimeRealModelCalls": false,
+    "allowRealModelCalls": false
+  },
+  "admissionCatalogs": {
+    "modelDefaultRouteChangeAllowed": false,
+    "modelDownloadAllowedByAutomation": false,
+    "ocrDefaultRouteChangeAllowed": false,
+    "ocrInstallAllowedByAutomation": false
+  },
+  "acceptance": {
+    "externalAiDefaultOff": true,
+    "localModelInstallDownloadDefaultOff": true,
+    "cloudOrHeavyOcrRequiresAdmission": true,
+    "activeWriteBlockedByDefault": true,
+    "humanReviewRequiredForAiOutputs": true,
+    "adminAndProductionChangesRemainGuarded": true
+  },
+  "boundary": "NS106 is a read-only config/profile guard. It does not enable cloud AI, local LLM, OCR route changes, active switches, or production defaults.",
+  "next": "NS201 can continue role permission and high-risk audit baseline.",
+  "rollback": "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns106-feature-profile-guard.ps1 docs/evidence/20260529-ns106-feature-profile-guard-report.json"
+}

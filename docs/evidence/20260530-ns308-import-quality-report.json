@@ -1,0 +1,49 @@
+{
+  "status": "pass",
+  "taskId": "NS308",
+  "checkedAt": "2026-05-30T10:24:06",
+  "mode": "real012_source_document_quality_report_wrapper",
+  "productionEligible": false,
+  "dependency": {
+    "real012Report": "docs/evidence/20260530-ns308-real012-quality-source-report.json",
+    "sourceDocumentId": "650e9218-c910-40b2-8af3-d5690788ddb6",
+    "ns304": "docs/evidence/20260530-ns304-docx-adapter-report.json",
+    "ns305": "docs/evidence/20260530-ns305-pdf-text-adapter-report.json",
+    "ns306": "docs/evidence/20260530-ns306-scan-ocr-adapter-report.json",
+    "ns307": "docs/evidence/20260530-ns307-source-region-screenshot-report.json"
+  },
+  "qualityReport": {
+    "closureStatus": "not_closed",
+    "fullClosureAllowed": false,
+    "questionCount": 25,
+    "answerCoveredCount": 24,
+    "imageAssetCount": 19,
+    "tableBlockCount": 0,
+    "formulaBlockCount": 0,
+    "pendingManualItemCount": 28,
+    "noiseRetainedBlockCount": 0,
+    "externalAiCallCount": 0,
+    "gapCount": 4,
+    "gaps": [
+      "question_number_incomplete",
+      "answer_coverage_incomplete",
+      "linked_source_screenshot_missing",
+      "manual_review_pending"
+    ],
+    "rollbackSqlPresent": true
+  },
+  "acceptance": {
+    "questionCountReported": true,
+    "answerCoverageReported": true,
+    "imageCountReported": true,
+    "tableCountReported": true,
+    "formulaCountReported": true,
+    "manualItemsReported": true,
+    "noiseCountReported": true,
+    "rollbackSqlReported": true,
+    "real005RemainsNotClosed": true
+  },
+  "boundary": "NS308 proves the import quality report contract can output source-document metrics, gaps, pending manual items, external-AI count, and rollback SQL. It does not claim real full-paper or 2015-2025 production closure.",
+  "next": "NS401 can continue cut-candidate service after the quality report exposes per-material gaps and takeover needs.",
+  "rollback": "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns308-import-quality-report.ps1 docs/evidence/20260530-ns308-import-quality-report.json docs/evidence/20260530-ns308-real012-quality-source-report.json"
+}

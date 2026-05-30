@@ -1,0 +1,57 @@
+{
+  "status": "pass",
+  "taskId": "NS202",
+  "checkedAt": "2026-05-30T10:22:56",
+  "mode": "production_fail_closed_and_explicit_development_bypass_smoke",
+  "productionEligible": false,
+  "productionUnconfigured": {
+    "adminStorageStatus": 503,
+    "internalAiStatus": 503,
+    "adminError": "admin_internal_guard_not_configured",
+    "internalError": "admin_internal_guard_not_configured"
+  },
+  "productionConfigured": {
+    "missingKey": 401,
+    "wrongKey": 403,
+    "missingRole": 401,
+    "missingOperator": 401,
+    "teacherAdmin": 403,
+    "adminInternal": 200
+  },
+  "developmentBypass": {
+    "adminStorageStatus": 200,
+    "draftTestHeader": "draft-test-unguarded-admin-internal"
+  },
+  "dependencies": {
+    "o004": {
+      "status": "pass",
+      "productionWithoutKey": "blocked",
+      "guardedPrefixes": [
+        "/api/admin/*",
+        "/internal/ai/*"
+      ]
+    },
+    "o004b": {
+      "status": "pass",
+      "roleSplit": {
+        "teacherBlocked": true,
+        "groupLeadReadAllowed": true,
+        "groupLeadWriteBlocked": true,
+        "adminWriteAllowed": true,
+        "internalAiAdminOnly": true
+      },
+      "highRiskWriteRecorded": true
+    }
+  },
+  "acceptance": {
+    "productionWithoutConfiguredKeyFailsClosed": true,
+    "productionMissingKeyRejected": true,
+    "productionWrongKeyRejected": true,
+    "missingRoleOrOperatorRejected": true,
+    "unauthorizedTeacherRejected": true,
+    "explicitDevelopmentBypassMarked": true
+  },
+  "boundary": "NS202 proves admin/internal fail closed for production defaults and credentials. Development unguarded access remains explicit, marked, and draft/test only.",
+  "next": "NS203 can continue PII/source-license scanning without enabling live data or production writes.",
+  "rollback": "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns202-admin-internal-fail-closed.ps1 docs/evidence/20260529-ns202-admin-internal-fail-closed-report.json"
+}

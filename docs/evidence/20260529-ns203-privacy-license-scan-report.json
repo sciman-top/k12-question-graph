@@ -1,0 +1,566 @@
+{
+  "status": "pass",
+  "taskId": "NS203",
+  "checkedAt": "2026-05-30T10:22:59",
+  "mode": "tracked_text_privacy_license_scan",
+  "productionEligible": false,
+  "scanScope": {
+    "roots": [
+      "docs",
+      "tests",
+      "prompts",
+      "sources",
+      "configs",
+      "apps",
+      "tools",
+      "tasks",
+      "schemas",
+      "README.md",
+      "ALL_IN_ONE_EXECUTIVE_SPEC.md"
+    ],
+    "trackedFileCount": 723,
+    "policyPath": "docs/102_NonSiteFixturePrivacyPolicy.md",
+    "fixturePolicyPath": "tests/golden-import/privacy_and_license.md",
+    "rawIgnorePath": "sources/raw/.gitignore"
+  },
+  "counts": {
+    "secretLikeHits": 52,
+    "blockingSecretHits": 0,
+    "piiValueHits": 0,
+    "blockingPiiHits": 0,
+    "trackedBinaryFiles": 2,
+    "blockingTrackedBinaryFiles": 0,
+    "trackedRawSourceBlockers": 0,
+    "localRawSourceFiles": 0,
+    "policyMentionCount": 287,
+    "copyrightRawPathMarkers": 0
+  },
+  "allowedFindings": {
+    "allowedCredentialLikeHits": [
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/generate-c002-review-decisions.ps1",
+        "line": 20,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/guangzhou_physics_year_batch_ingest.py",
+        "line": 279,
+        "excerpt": "password=args.password,",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/import-c002-candidate-assets.ps1",
+        "line": 20,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/import-c002-source-materials.ps1",
+        "line": 19,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-c001-contract.ps1",
+        "line": 13,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-c002-seed-validation.ps1",
+        "line": 14,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-c002a-domain-asset-contract.ps1",
+        "line": 13,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-c002i-source-material-workbench-contract.ps1",
+        "line": 13,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-c002l-candidate-review-readiness.ps1",
+        "line": 19,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-c002m-candidate-review-apply-contract.ps1",
+        "line": 19,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-c002t-active-switch.ps1",
+        "line": 21,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-d002-ai-job-cost-contract.ps1",
+        "line": 13,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-e001-question-search-contract.ps1",
+        "line": 14,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-f001-assessment-model-contract.ps1",
+        "line": 14,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-f002-score-import-contract.ps1",
+        "line": 15,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-g001-backup-share-contract.ps1",
+        "line": 17,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-g004-pgpass-installer-dry-run.ps1",
+        "line": 15,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-gates.ps1",
+        "line": 14,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-guangzhou-2015-real-ingest-slice.ps1",
+        "line": 17,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-guangzhou-2015-source-region-screenshots.ps1",
+        "line": 17,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-guangzhou-2015-visual-region-slice.ps1",
+        "line": 17,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-guangzhou-physics-year-batch-ingest.ps1",
+        "line": 18,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-import-golden.ps1",
+        "line": 14,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-k001-active-c002-production-query-contract.ps1",
+        "line": 15,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-o002-installer-init-wizard-contract.ps1",
+        "line": 10,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-o004-admin-internal-auth-boundary-contract.ps1",
+        "line": 92,
+        "excerpt": "$env:AdminInternalGuard__ApiKey = 'o004-contract-secret'",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-o004b-role-audit-closure-contract.ps1",
+        "line": 103,
+        "excerpt": "$env:AdminInternalGuard__ApiKey = 'o004b-contract-secret'",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-o007-ef-migration-bundle-upgrade-contract.ps1",
+        "line": 14,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-p1-proxy-scenario.ps1",
+        "line": 13,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-real004-guangzhou-2015-review-smoke.ps1",
+        "line": 15,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-real007-guangzhou-2015-layout-quality.ps1",
+        "line": 17,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-real008-question-asset-smoke.ps1",
+        "line": 16,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-real009-table-structure-smoke.ps1",
+        "line": 16,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-real010-formula-fidelity-smoke.ps1",
+        "line": 16,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-real011-question-edit-smoke.ps1",
+        "line": 16,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-real012-production-flow-quality-smoke.ps1",
+        "line": 17,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-s004c-authorized-anonymized-proxy.ps1",
+        "line": 15,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-s006b-manual-takeover-smoke.ps1",
+        "line": 14,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-s006c-source-review-closure-smoke.ps1",
+        "line": 15,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-s007b-db-backed-suggestion-queue-smoke.ps1",
+        "line": 14,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-s007c-teacher-confirm-writeback-smoke.ps1",
+        "line": 15,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-s008a-question-search-productization-smoke.ps1",
+        "line": 15,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-s009a-paper-basket-persistence-smoke.ps1",
+        "line": 15,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-s009b-blueprint-review-workflow-smoke.ps1",
+        "line": 15,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-s010a-export-preflight-api-smoke.ps1",
+        "line": 15,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-s010b-word-pdf-artifact-chain-smoke.ps1",
+        "line": 16,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-s011a-score-import-api-smoke.ps1",
+        "line": 15,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-s011b-item-score-mapping-ui-api-smoke.ps1",
+        "line": 15,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-s011c-commentary-report-export-smoke.ps1",
+        "line": 15,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-s012b-non-site-e2e-rehearsal.ps1",
+        "line": 16,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-source-document-dedupe-contract.ps1",
+        "line": 14,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/seed-knowledge.ps1",
+        "line": 14,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      }
+    ],
+    "allowedTrackedBinaryFiles": [
+      {
+        "path": "apps/web/src/assets/hero.png",
+        "extension": ".png",
+        "allowed": true,
+        "reason": "application visual asset, not raw source/student material"
+      },
+      {
+        "path": "docs/evidence/20260512-real004-guangzhou-2015-review-ui.png",
+        "extension": ".png",
+        "allowed": true,
+        "reason": "generated UI evidence screenshot, not raw source material"
+      }
+    ],
+    "policyMentionsSample": [
+      {
+        "path": "apps/api/Application/Workflows/PaperWorkflowService.cs",
+        "term": "授权"
+      },
+      {
+        "path": "apps/api/Application/Workflows/ScoreAnalysisWorkflowService.cs",
+        "term": "真实学生"
+      },
+      {
+        "path": "apps/api/Program.cs",
+        "term": "containsStudentPii"
+      },
+      {
+        "path": "apps/api/README.md",
+        "term": "PII"
+      },
+      {
+        "path": "apps/api/README.md",
+        "term": "containsStudentPii"
+      },
+      {
+        "path": "apps/web/src/api/client.ts",
+        "term": "containsStudentPii"
+      },
+      {
+        "path": "apps/web/src/api/contracts.ts",
+        "term": "containsStudentPii"
+      },
+      {
+        "path": "apps/web/src/api/contracts.ts",
+        "term": "realStudentDataUsed"
+      },
+      {
+        "path": "apps/web/src/App.tsx",
+        "term": "真实学生"
+      },
+      {
+        "path": "apps/web/src/App.tsx",
+        "term": "授权"
+      },
+      {
+        "path": "apps/web/src/ui/AdminGovernancePanels.tsx",
+        "term": "真实学生"
+      },
+      {
+        "path": "apps/web/src/ui/AdminGovernancePanels.tsx",
+        "term": "学生姓名"
+      },
+      {
+        "path": "apps/web/src/ui/AdminGovernancePanels.tsx",
+        "term": "学号"
+      },
+      {
+        "path": "configs/knowledge/source-material-manifest.example.json",
+        "term": "containsStudentPii"
+      },
+      {
+        "path": "docs/01_PRD.md",
+        "term": "真实学生"
+      },
+      {
+        "path": "docs/01_PRD.md",
+        "term": "授权"
+      },
+      {
+        "path": "docs/04_TechnologyStack.md",
+        "term": "授权"
+      },
+      {
+        "path": "docs/05_DomainModel.md",
+        "term": "学生姓名"
+      },
+      {
+        "path": "docs/05_DomainModel.md",
+        "term": "学号"
+      },
+      {
+        "path": "docs/05_DomainModel.md",
+        "term": "版权"
+      }
+    ],
+    "copyrightRawPathMarkers": []
+  },
+  "blockers": [],
+  "acceptance": {
+    "noTrackedRealStudentPiiValues": true,
+    "noTrackedRealSecrets": true,
+    "rawSourceStagingIgnored": true,
+    "fixturePolicyPresent": true,
+    "evidencePolicyPresent": true
+  },
+  "boundary": "NS203 scans tracked repo text and raw staging policy for PII/secret/source-license blockers. It cannot certify external untracked staging directories or legal sufficiency of third-party materials.",
+  "next": "NS204 can continue no-active-write guard for AI candidates, imports, dynamic assets, and production history.",
+  "rollback": "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns203-privacy-license-scan.ps1 docs/evidence/20260529-ns203-privacy-license-scan-report.json"
+}

@@ -1,0 +1,38 @@
+{
+  "status": "pass",
+  "taskId": "NS403",
+  "checkedAt": "2026-05-30T10:24:40",
+  "mode": "frontend_build_lint_plus_i003_ui_contract",
+  "productionEligible": false,
+  "verification": {
+    "frontendBuild": "pass",
+    "frontendLint": "pass",
+    "i003Contract": "pass"
+  },
+  "ui": {
+    "realReviewQueueVisible": true,
+    "realReviewDetailVisible": true,
+    "teacherRevisionVisible": true,
+    "shortcutActions": [
+      "filter-exceptions",
+      "merge",
+      "split",
+      "associate",
+      "undo",
+      "batch-confirm"
+    ],
+    "batchConfirm": true
+  },
+  "acceptance": {
+    "teacherCanMerge": true,
+    "teacherCanSplit": true,
+    "teacherCanAssociateAsset": true,
+    "teacherCanUndo": true,
+    "teacherCanSaveQuestion": true,
+    "teacherCanConfirmDismissAndRevise": true,
+    "backendTermsHiddenBehindTeacherLabels": true
+  },
+  "boundary": "NS403 proves the review workbench UI contract, typed API calls, teacher revision controls, and frontend build/lint. It does not prove live browser interaction or onsite teacher validation.",
+  "next": "NS404 can continue QuestionAsset association/unlink/recrop audit evidence.",
+  "rollback": "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns403-review-workbench-ui.ps1 docs/evidence/20260530-ns403-review-workbench-ui-report.json"
+}

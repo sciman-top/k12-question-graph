@@ -1,0 +1,45 @@
+{
+  "status": "pass",
+  "taskId": "NS402",
+  "checkedAt": "2026-05-30T10:24:26",
+  "mode": "api_review_queue_filter_resolve_batch_audit_smoke",
+  "productionEligible": false,
+  "runId": "47627f58395a4650ae2ae2ca2a85dc8d",
+  "filtering": {
+    "openFilteredCount": 4,
+    "sortByQuestionNo": true,
+    "riskDerived": true,
+    "requiredActionDerived": true
+  },
+  "decisions": {
+    "confirmedId": "8f05f789-e89b-4314-8305-619c63d4d7f6",
+    "dismissedId": "a38d3fe4-4e3f-40e2-9e85-78751ee54d06",
+    "batchResolvedIds": [
+      "b0e72575-115f-4b55-a157-aeedb7a41322"
+    ],
+    "batchSkippedHighRiskIds": [
+      "b2f4e453-d9a4-403d-9c5c-e0d9d19c77f0"
+    ]
+  },
+  "audit": {
+    "confirmAuditDecision": "confirmed",
+    "confirmRevisionAnswer": "C",
+    "dismissAuditDecision": "dismissed",
+    "resolvedAuditQueryable": true
+  },
+  "cleanup": {
+    "dbRowsRemoved": true,
+    "cleanupCount": 0
+  },
+  "acceptance": {
+    "queueFilterWorks": true,
+    "pendingItemsQueryable": true,
+    "confirmWritesAudit": true,
+    "dismissWritesAudit": true,
+    "revisionPersistsInAudit": true,
+    "highRiskBatchSkipWorks": true
+  },
+  "boundary": "NS402 proves ReviewQueue API filtering, pending/open queries, confirm, dismiss, revision audit, and high-risk batch skip using isolated synthetic review items.",
+  "next": "NS403 can continue review workbench UI evidence.",
+  "rollback": "Test review_queue_items are removed by this script; if interrupted, delete rows by the reported runId in payload or restore DB snapshot."
+}

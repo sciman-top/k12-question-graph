@@ -1,0 +1,46 @@
+{
+  "status": "pass",
+  "taskId": "NS304",
+  "checkedAt": "2026-05-30T10:23:21",
+  "mode": "j001_openxml_docx_adapter_contract_wrapper",
+  "productionEligible": false,
+  "dependency": {
+    "task": "J001",
+    "report": "docs/evidence/j001-openxml-docx-adapter-report.json",
+    "adapterName": "openxml_docx_adapter",
+    "adapterVersion": "0.1"
+  },
+  "documentModel": {
+    "blockTypes": [
+      "question_stem",
+      "option",
+      "option",
+      "answer",
+      "explanation",
+      "table",
+      "formula"
+    ],
+    "hasQuestionStem": true,
+    "hasOptions": true,
+    "hasAnswer": true,
+    "hasExplanation": true,
+    "hasTable": true,
+    "hasFormula": true
+  },
+  "formula": {
+    "firstSource": "omml",
+    "formulaSourceFormat": "omml",
+    "ommlPreserved": true,
+    "derivativeText": "F=ma"
+  },
+  "acceptance": {
+    "docxOpenXmlAdapterRuns": true,
+    "documentModelBlocksReturned": true,
+    "tablePreserved": true,
+    "formulaOmmlFirstSource": true,
+    "syntheticGoldenOnly": true
+  },
+  "boundary": "NS304 proves the existing OpenXML DOCX adapter returns DocumentModel blocks with table and OMML formula evidence. It does not claim scanned OCR, PDF layout, or real copyrighted source ingestion.",
+  "next": "NS305 can continue PDF text/layout adapter evidence.",
+  "rollback": "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns304-docx-adapter.ps1 docs/evidence/20260530-ns304-docx-adapter-report.json"
+}

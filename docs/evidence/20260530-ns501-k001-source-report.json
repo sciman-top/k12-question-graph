@@ -1,0 +1,132 @@
+{
+  "status": "pass",
+  "task": "K001",
+  "mode": "production_query_contract",
+  "productionEligible": true,
+  "externalAiCalls": 0,
+  "realStudentDataUsed": false,
+  "importKey": "c002_candidate_import_guangzhou_physics_2016_2025_v1",
+  "materialBatchKey": "guangzhou_physics_2016_2025",
+  "activeKnowledgeVersion": "junior-physics-guangzhou-source-derived-v1",
+  "counts": {
+    "activeAssets": 452,
+    "candidateAssets": 0,
+    "reviewedAssets": 0,
+    "totalAssets": 452,
+    "approvedMappings": 400,
+    "pendingMappings": 0,
+    "rejectedMappings": 0,
+    "appliedMigrations": 1,
+    "pendingMigrations": 0,
+    "sourceDocuments": 33
+  },
+  "sampleActiveAssets": [
+    {
+      "stableId": "CS-C003-1-1",
+      "version": 1,
+      "displayName": "物质的形态和变化",
+      "assetType": "curriculum_standard_item",
+      "status": "active"
+    },
+    {
+      "stableId": "CS-C003-1-1-1",
+      "version": 1,
+      "displayName": "描述固态液态气态基本特征并列举应用",
+      "assetType": "curriculum_standard_item",
+      "status": "active"
+    },
+    {
+      "stableId": "CS-C003-1-1-2",
+      "version": 1,
+      "displayName": "了解液体温度计工作原理并会测量温度",
+      "assetType": "curriculum_standard_item",
+      "status": "active"
+    },
+    {
+      "stableId": "CS-C003-1-1-3",
+      "version": 1,
+      "displayName": "经历物态变化探究并知道熔点凝固点沸点及吸放热",
+      "assetType": "curriculum_standard_item",
+      "status": "active"
+    },
+    {
+      "stableId": "CS-C003-1-1-4",
+      "version": 1,
+      "displayName": "运用物态变化知识说明水循环并形成节水意识",
+      "assetType": "curriculum_standard_item",
+      "status": "active"
+    }
+  ],
+  "querySurfaces": {
+    "questionSearch": {
+      "defaultKnowledgeSource": "active_c002_v1",
+      "mode": "production_query_contract",
+      "versionReference": {
+        "activeKnowledgeVersion": "junior-physics-guangzhou-source-derived-v1",
+        "importKey": "c002_candidate_import_guangzhou_physics_2016_2025_v1",
+        "status": "active",
+        "activeAssetCount": 452,
+        "approvedMappingCount": 400,
+        "appliedMigrationCount": 1,
+        "sampleStableIds": [
+          "CS-C003-1-1",
+          "CS-C003-1-1-1",
+          "CS-C003-1-1-2",
+          "CS-C003-1-1-3",
+          "CS-C003-1-1-4"
+        ]
+      },
+      "filtersUseActiveAssetsByDefault": true,
+      "candidateAssetsExcludedByDefault": true
+    },
+    "paperAssemblyConstraints": {
+      "defaultKnowledgeSource": "active_c002_v1",
+      "versionReference": {
+        "activeKnowledgeVersion": "junior-physics-guangzhou-source-derived-v1",
+        "importKey": "c002_candidate_import_guangzhou_physics_2016_2025_v1",
+        "status": "active",
+        "activeAssetCount": 452,
+        "approvedMappingCount": 400,
+        "appliedMigrationCount": 1,
+        "sampleStableIds": [
+          "CS-C003-1-1",
+          "CS-C003-1-1-1",
+          "CS-C003-1-1-2",
+          "CS-C003-1-1-3",
+          "CS-C003-1-1-4"
+        ]
+      },
+      "replacementAndBlueprintKeepVersionRef": true,
+      "mappingImpactRequiredForFutureRevision": true
+    },
+    "knowledgeMasteryAnalysis": {
+      "defaultKnowledgeSource": "active_c002_v1",
+      "versionReference": {
+        "activeKnowledgeVersion": "junior-physics-guangzhou-source-derived-v1",
+        "importKey": "c002_candidate_import_guangzhou_physics_2016_2025_v1",
+        "status": "active",
+        "activeAssetCount": 452,
+        "approvedMappingCount": 400,
+        "appliedMigrationCount": 1,
+        "sampleStableIds": [
+          "CS-C003-1-1",
+          "CS-C003-1-1-1",
+          "CS-C003-1-1-2",
+          "CS-C003-1-1-3",
+          "CS-C003-1-1-4"
+        ]
+      },
+      "historyWritesRemainGuarded": true,
+      "realStudentDataUsed": false
+    }
+  },
+  "blockers": [],
+  "compatibility": {
+    "futureC002RRevisionRequired": "new candidate version, mapping, impact report, review, rollback, active switch",
+    "doesNotMutateActiveAssets": true,
+    "doesNotWriteProductionHistory": true
+  },
+  "rollback": "git restore tracked files; this K001 contract performs read-only DB checks and does not mutate active assets",
+  "createdAt": "2026-05-30T02:25:16.654685+00:00",
+  "summaryChinese": "K001 已验证题库检索、组卷约束和学情分析的默认知识来源均引用 active C002 v1；本合同只读数据库，不修改 active 资产，不写真实学情。"
+}

@@ -1,0 +1,264 @@
+{
+  "status": "pass",
+  "taskId": "NS104",
+  "checkedAt": "2026-05-30T10:21:59",
+  "mode": "static_architecture_guard_plus_build",
+  "productionEligible": false,
+  "build": {
+    "project": "apps/api/K12QuestionGraph.Api.csproj",
+    "exitCode": 0
+  },
+  "requiredServices": [
+    "IImportReviewWorkflowService",
+    "ICutCandidateGenerationService",
+    "IPaperWorkflowService",
+    "IScoreAnalysisWorkflowService"
+  ],
+  "serviceBackedEndpoints": [
+    {
+      "route": "/source-documents/{id:guid}/cut-candidates/generate",
+      "line": 1202,
+      "requiredService": "ICutCandidateGenerationService",
+      "serviceInjected": true,
+      "directDbContext": false,
+      "saveChangesInEndpoint": false,
+      "requiredMarkers": [
+        "GenerateAsync(",
+        "CutCandidateGenerationResponse"
+      ],
+      "missingMarkers": [],
+      "pass": true
+    },
+    {
+      "route": "/score-imports",
+      "line": 2605,
+      "requiredService": "IScoreAnalysisWorkflowService",
+      "serviceInjected": true,
+      "directDbContext": false,
+      "saveChangesInEndpoint": false,
+      "requiredMarkers": [
+        "ImportScoresAsync(",
+        "ScoreImportServiceRequest"
+      ],
+      "missingMarkers": [],
+      "pass": true
+    },
+    {
+      "route": "/assessments/{assessmentId:guid}/item-score-mappings/preview",
+      "line": 2645,
+      "requiredService": "IScoreAnalysisWorkflowService",
+      "serviceInjected": true,
+      "directDbContext": false,
+      "saveChangesInEndpoint": false,
+      "requiredMarkers": [
+        "PreviewItemScoreMappingsAsync(",
+        "ItemScoreMappingPreviewServiceRequest"
+      ],
+      "missingMarkers": [],
+      "pass": true
+    },
+    {
+      "route": "/assessments/{assessmentId:guid}/commentary-report/export",
+      "line": 2667,
+      "requiredService": "IScoreAnalysisWorkflowService",
+      "serviceInjected": true,
+      "directDbContext": false,
+      "saveChangesInEndpoint": false,
+      "requiredMarkers": [
+        "ExportCommentaryReportAsync(",
+        "CommentaryReportExportServiceRequest"
+      ],
+      "missingMarkers": [],
+      "pass": true
+    },
+    {
+      "route": "/paper-baskets/{id:guid}/export-preflight",
+      "line": 2694,
+      "requiredService": "IPaperWorkflowService",
+      "serviceInjected": true,
+      "directDbContext": false,
+      "saveChangesInEndpoint": false,
+      "requiredMarkers": [
+        "RunExportPreflightAsync(",
+        "PaperExportPreflightResponse"
+      ],
+      "missingMarkers": [],
+      "pass": true
+    },
+    {
+      "route": "/paper-requests/parse",
+      "line": 2713,
+      "requiredService": "IPaperWorkflowService",
+      "serviceInjected": true,
+      "directDbContext": false,
+      "saveChangesInEndpoint": false,
+      "requiredMarkers": [
+        "ParsePaperRequest(",
+        "PaperRequestParseResponse"
+      ],
+      "missingMarkers": [],
+      "pass": true
+    },
+    {
+      "route": "/paper-blueprints",
+      "line": 2742,
+      "requiredService": "IPaperWorkflowService",
+      "serviceInjected": true,
+      "directDbContext": false,
+      "saveChangesInEndpoint": false,
+      "requiredMarkers": [
+        "CreateBlueprintReviewAsync(",
+        "PaperBlueprintReviewResponse"
+      ],
+      "missingMarkers": [],
+      "pass": true
+    },
+    {
+      "route": "/paper-blueprints/{id:guid}/confirm",
+      "line": 2761,
+      "requiredService": "IPaperWorkflowService",
+      "serviceInjected": true,
+      "directDbContext": false,
+      "saveChangesInEndpoint": false,
+      "requiredMarkers": [
+        "ConfirmBlueprintReviewAsync(",
+        "PaperBlueprintConfirmResponse"
+      ],
+      "missingMarkers": [],
+      "pass": true
+    },
+    {
+      "route": "/paper-requests/replace-question",
+      "line": 2797,
+      "requiredService": "IPaperWorkflowService",
+      "serviceInjected": true,
+      "directDbContext": false,
+      "saveChangesInEndpoint": false,
+      "requiredMarkers": [
+        "ReplaceQuestion(",
+        "PaperQuestionReplacementResponse"
+      ],
+      "missingMarkers": [],
+      "pass": true
+    },
+    {
+      "route": "/knowledge-version-explanations/resolve",
+      "line": 2859,
+      "requiredService": "IPaperWorkflowService",
+      "serviceInjected": true,
+      "directDbContext": false,
+      "saveChangesInEndpoint": false,
+      "requiredMarkers": [
+        "ResolveKnowledgeVersionExplanation(",
+        "KnowledgeVersionExplanationResponse"
+      ],
+      "missingMarkers": [],
+      "pass": true
+    }
+  ],
+  "serviceBackedEndpointCount": 10,
+  "legacyDirectDbEndpointDebt": [
+    {
+      "route": "/imports",
+      "line": 725,
+      "directDbContext": true,
+      "saveChangesInEndpoint": true,
+      "owner": "NS301/NS401 import source service extraction",
+      "allowedInNs104": true
+    },
+    {
+      "route": "/imports/{id:guid}",
+      "line": 775,
+      "directDbContext": true,
+      "saveChangesInEndpoint": false,
+      "owner": "NS301/NS401 import source service extraction",
+      "allowedInNs104": true
+    },
+    {
+      "route": "/review-queue",
+      "line": 1249,
+      "directDbContext": true,
+      "saveChangesInEndpoint": false,
+      "owner": "NS402/NS403 review API/workbench",
+      "allowedInNs104": true
+    },
+    {
+      "route": "/review-queue/batch-resolve",
+      "line": 1289,
+      "directDbContext": true,
+      "saveChangesInEndpoint": true,
+      "owner": "NS402/NS403 review API/workbench",
+      "allowedInNs104": true
+    },
+    {
+      "route": "/review-queue/{id:guid}/resolve",
+      "line": 1347,
+      "directDbContext": true,
+      "saveChangesInEndpoint": true,
+      "owner": "NS402/NS403 review API/workbench",
+      "allowedInNs104": true
+    },
+    {
+      "route": "/review-workbench/actions",
+      "line": 1390,
+      "directDbContext": true,
+      "saveChangesInEndpoint": true,
+      "owner": "NS402/NS403 review API/workbench",
+      "allowedInNs104": true
+    },
+    {
+      "route": "/paper-baskets",
+      "line": 2492,
+      "directDbContext": true,
+      "saveChangesInEndpoint": true,
+      "owner": "NS603 paper basket legacy compatibility",
+      "allowedInNs104": true
+    },
+    {
+      "route": "/paper-baskets/{id:guid}",
+      "line": 2584,
+      "directDbContext": true,
+      "saveChangesInEndpoint": false,
+      "owner": "NS603 paper basket legacy compatibility",
+      "allowedInNs104": true
+    }
+  ],
+  "legacyDebtCount": 8,
+  "serviceSummaries": [
+    {
+      "path": "apps/api/Application/Workflows/ImportReviewWorkflowService.cs",
+      "asyncMethodCount": 4,
+      "saveChangesCount": 0,
+      "dbContextOwnedHere": true
+    },
+    {
+      "path": "apps/api/Application/Workflows/CutCandidateGenerationService.cs",
+      "asyncMethodCount": 2,
+      "saveChangesCount": 1,
+      "dbContextOwnedHere": true
+    },
+    {
+      "path": "apps/api/Application/Workflows/PaperWorkflowService.cs",
+      "asyncMethodCount": 8,
+      "saveChangesCount": 3,
+      "dbContextOwnedHere": true
+    },
+    {
+      "path": "apps/api/Application/Workflows/ScoreAnalysisWorkflowService.cs",
+      "asyncMethodCount": 10,
+      "saveChangesCount": 1,
+      "dbContextOwnedHere": true
+    }
+  ],
+  "acceptance": {
+    "cutCandidateGenerationInService": true,
+    "paperAndExportInService": true,
+    "scoreImportMappingAnalysisInService": true,
+    "importReviewServicePresent": true,
+    "endpointProtocolBoundaryGuarded": true,
+    "remainingLegacyEndpointDebtTracked": true
+  },
+  "boundary": "NS104 guards the service-backed non-site core write chain and tracks remaining legacy direct-DB endpoints; it does not claim Program.cs is fully thin yet.",
+  "next": "NS105 can continue frontend typed-client boundary; NS402/NS403 should migrate review queue and review workbench endpoint orchestration into services.",
+  "rollback": "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns104-application-service-boundary.ps1 docs/evidence/20260529-ns104-application-service-boundary-report.json"
+}

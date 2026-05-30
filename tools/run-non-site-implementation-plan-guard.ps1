@@ -87,7 +87,7 @@ foreach ($row in $rows) {
     }
 }
 
-foreach ($requiredId in @('NS001','NS002','NS003','NS004','NS901','NS902','NS904','NS1001','NS1005')) {
+foreach ($requiredId in @('NS001','NS002','NS003','NS004','NS901','NS902','NS906','NS904','NS1001','NS1005')) {
     Assert-True ($ids.ContainsKey($requiredId)) "required non-site milestone missing: $requiredId"
 }
 

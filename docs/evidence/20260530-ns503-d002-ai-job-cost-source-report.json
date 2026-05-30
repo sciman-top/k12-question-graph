@@ -1,0 +1,15 @@
+{
+  "status": "pass",
+  "jobId": "0dacc47d-c722-4313-8bdd-fb45f4ea7eeb",
+  "idempotency": "pass",
+  "modelProvider": "stub_llm",
+  "modelName": "stub",
+  "promptVersion": "prompt.d001.draft-test.v1",
+  "schemaVersion": "schemas/ai/knowledge_mapping.schema.json",
+  "inputTokens": 22,
+  "outputTokens": 38,
+  "cachedTokens": 0,
+  "actualCost": 0.0,
+  "confidence": 0.42,
+  "reviewStatus": "pending_review"
+}

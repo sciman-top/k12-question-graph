@@ -1,0 +1,32 @@
+{
+  "status": "pass",
+  "task": "REAL011",
+  "checkedAt": "2026-05-30T10:25:15",
+  "questionId": "373504d4-2f32-4ece-b90f-444a3808024d",
+  "sourceRegionId": "40f7c5b2-1724-46fa-9c5d-237c3c2e491a",
+  "questionEdit": {
+    "questionType": "calculation",
+    "defaultScore": 6.0,
+    "difficultyEstimated": 0.74,
+    "status": "pending_review",
+    "editedStem": "REAL011 修订后题干：已调整题干、分值、难度和来源框。",
+    "answer": "修订答案",
+    "solution": "修订解析",
+    "blockCount": 2
+  },
+  "sourceRegionEdit": {
+    "auditId": "520ab8c5-3769-4135-b41a-cf1810ae8bac",
+    "regionType": "question_stem_revised",
+    "x": 11.0,
+    "y": 16.0,
+    "width": 58.0,
+    "height": 18.0
+  },
+  "auditProbe": {
+    "questionRevisionAuditId": "0ad9c42b-e821-4f0c-bc49-edd4d57b7ebd",
+    "questionAuditDecision": "question_updated",
+    "sourceRegionAuditId": "520ab8c5-3769-4135-b41a-cf1810ae8bac"
+  },
+  "rollback": "delete from review_queue_items where payload->>'questionItemId' = '373504d4-2f32-4ece-b90f-444a3808024d' or payload->>'sourceRegionId' = '40f7c5b2-1724-46fa-9c5d-237c3c2e491a'; delete from question_blocks where question_item_id = '373504d4-2f32-4ece-b90f-444a3808024d'; delete from question_items where id = '373504d4-2f32-4ece-b90f-444a3808024d';",
+  "summaryChinese": "题干、答案、解析、题型、分值、难度和 SourceRegion bbox 均可修订，且题目与来源框修订都有 audit。"
+}

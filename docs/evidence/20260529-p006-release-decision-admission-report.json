@@ -1,0 +1,32 @@
+{
+  "status": "pass",
+  "taskId": "P006",
+  "mode": "preflight_only",
+  "checkedAt": "2026-05-29T00:45:46",
+  "p005Status": "待办",
+  "p006Status": "待办",
+  "closeTaskAllowed": false,
+  "currentDecision": "keep_P006_todo_until_release_decision_record_closes",
+  "checklistPath": "docs/templates/p006-release-decision-checklist.md",
+  "evidencePath": "docs/evidence/20260505-p006-release-decision-preflight.md",
+  "reportPath": "docs/evidence/20260529-p006-release-decision-admission-report.json",
+  "blockers": [
+    "P005 pilot feedback triage is not closed.",
+    "Release decision record is not recorded.",
+    "Final gate, backup/restore, teacher efficiency, privacy boundary, rollback, and tag-candidate evidence are not complete."
+  ],
+  "nextRequiredEvidence": [
+    "P005 feedback triage result",
+    "full gate and roadmap guard evidence",
+    "backup and restore evidence",
+    "teacher efficiency and privacy boundary sign-off",
+    "release decision record and tag candidate plan"
+  ],
+  "failClosedRules": [
+    "Do not mark P006 complete from a preflight-only run.",
+    "Do not create a release tag candidate without release decision evidence.",
+    "Do not mark v0.1 release-ready while P001-P005 remain todo."
+  ],
+  "boundary": "release decision is not executed in this contract; keep P006 as todo until P005 closes and decision evidence is complete",
+  "rollback": "revert tools/run-p006-release-decision-preflight-contract.ps1, tasks/backlog.csv, and remove the generated P006 admission report."
+}

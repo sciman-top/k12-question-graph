@@ -1,0 +1,33 @@
+{
+  "status": "pass",
+  "taskId": "NS305",
+  "checkedAt": "2026-05-30T10:23:22",
+  "mode": "j002_pdf_text_adapter_contract_wrapper",
+  "productionEligible": false,
+  "dependency": {
+    "task": "J002",
+    "report": "docs/evidence/j002-text-pdf-adapter-report.json",
+    "adapterName": "pdf_text_adapter",
+    "adapterVersion": "0.1"
+  },
+  "documentModel": {
+    "pageCount": 2,
+    "pageNumbers": [
+      1,
+      2
+    ],
+    "blockCount": 5,
+    "sourceRegionsPresent": true,
+    "sourceRegionSource": "pdf_text"
+  },
+  "acceptance": {
+    "textPdfAdapterRuns": true,
+    "pagesPreserved": true,
+    "textBlocksReturned": true,
+    "sourceHashAndObjectReferencesAvailable": true,
+    "syntheticGoldenOnly": true
+  },
+  "boundary": "NS305 proves the existing PDF text adapter returns ordered pages, text blocks, and sourceRegion PDF object references for a synthetic text PDF. It does not claim scanned OCR, image PDF, or real copyrighted source quality.",
+  "next": "NS306 can continue scanned image/PDF OCR adapter evidence.",
+  "rollback": "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns305-pdf-text-adapter.ps1 docs/evidence/20260530-ns305-pdf-text-adapter-report.json"
+}

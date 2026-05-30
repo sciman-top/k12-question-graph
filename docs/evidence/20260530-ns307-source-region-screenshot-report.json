@@ -1,0 +1,28 @@
+{
+  "status": "pass",
+  "taskId": "NS307",
+  "checkedAt": "2026-05-30T10:23:36",
+  "mode": "s006c_source_review_screenshot_path_wrapper",
+  "productionEligible": false,
+  "dependency": {
+    "task": "S006C",
+    "report": "docs/evidence/20260506-s006c-source-review-closure-smoke-report.json",
+    "questionId": "878b8284-1532-4abb-8498-782a3c399772"
+  },
+  "sourceRegion": {
+    "sourceRegionCount": 1,
+    "screenshotPathAccessibleBeforeRemoval": true,
+    "missingScreenshotStatus": 409,
+    "missingRegionCount": 0,
+    "notFoundStatus": 404
+  },
+  "acceptance": {
+    "sourceRegionScreenshotPathReturned": true,
+    "missingScreenshotFailsExplicitly": true,
+    "noRegionQuestionDoesNotInventSource": true,
+    "inaccessibleQuestionFailsExplicitly": true
+  },
+  "boundary": "NS307 proves saved questions can return SourceRegion screenshot paths and missing screenshots fail explicitly. It uses draft/test smoke data and does not claim real Guangzhou closure.",
+  "next": "NS308 can continue import quality report contract after DOCX/PDF/OCR/SourceRegion evidence.",
+  "rollback": "S006C writes draft/test rows; delete the reported question/source rows or restore the DB/FileStore snapshot if a clean state is required."
+}

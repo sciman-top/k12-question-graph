@@ -27,6 +27,8 @@ function Get-FileEntry([string] $BasePath, [string] $Path) {
 $timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
 $backupDir = Join-Path $BackupRoot $timestamp
 New-Item -ItemType Directory -Path $backupDir -Force | Out-Null
+$fileStoreSnapshotRelativeRoot = 'file_store'
+$fileStoreSnapshotRoot = Join-Path $backupDir $fileStoreSnapshotRelativeRoot
 
 $pgDump = Join-Path $PgBin 'pg_dump.exe'
 if (-not (Test-Path -LiteralPath $pgDump)) {
@@ -41,8 +43,18 @@ if ($LASTEXITCODE -ne 0) {
 
 $fileEntries = @()
 if (Test-Path -LiteralPath $FileStoreRoot) {
-    $fileEntries = Get-ChildItem -LiteralPath $FileStoreRoot -File -Recurse |
-        ForEach-Object { Get-FileEntry -BasePath $FileStoreRoot -Path $_.FullName }
+    New-Item -ItemType Directory -Path $fileStoreSnapshotRoot -Force | Out-Null
+    $sourceFiles = Get-ChildItem -LiteralPath $FileStoreRoot -File -Recurse
+    foreach ($sourceFile in $sourceFiles) {
+        $relativePath = Get-RelativePath -BasePath $FileStoreRoot -Path $sourceFile.FullName
+        $destinationPath = Join-Path $fileStoreSnapshotRoot $relativePath
+        $destinationDir = Split-Path -Parent $destinationPath
+        if (-not (Test-Path -LiteralPath $destinationDir)) {
+            New-Item -ItemType Directory -Path $destinationDir -Force | Out-Null
+        }
+        Copy-Item -LiteralPath $sourceFile.FullName -Destination $destinationPath -Force
+        $fileEntries += Get-FileEntry -BasePath $fileStoreSnapshotRoot -Path $destinationPath
+    }
 }
 
 $configFiles = @(
@@ -63,6 +75,8 @@ $manifest = [ordered]@{
         sha256 = $databaseHash.Hash.ToLowerInvariant()
     }
     fileStore = [ordered]@{
+        snapshotRoot = $fileStoreSnapshotRelativeRoot
+        sourceRoot = $FileStoreRoot
         root = $FileStoreRoot
         files = $fileEntries
     }

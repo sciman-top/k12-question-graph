@@ -1,0 +1,46 @@
+{
+  "status": "pass",
+  "taskId": "NS301",
+  "checkedAt": "2026-05-30T00:18:25",
+  "mode": "api_smoke_plus_db_query",
+  "productionEligible": false,
+  "realStudentDataUsed": false,
+  "externalAiCalls": 0,
+  "api": {
+    "uploadEndpoint": "/files",
+    "listEndpoint": "/source-documents",
+    "fileAssetId": "1144a8dd-aac2-4753-a87b-fb2e5aeda6bd",
+    "sourceDocumentId": "47ad15e1-e4f6-4c96-817c-87d331dc9957",
+    "isDuplicate": false,
+    "sha256": "f83c96d700f617b078e20d4994df846df32195f7c4a0283efeac9c3928ea52e7",
+    "relativePath": "original/f8/3c/f83c96d700f617b078e20d4994df846df32195f7c4a0283efeac9c3928ea52e7.txt",
+    "sourceType": "school_paper",
+    "licenseOrPermission": "internal_authorized",
+    "containsStudentPii": false,
+    "anonymizationStatus": "not_applicable",
+    "sharingAllowed": false,
+    "externalAiAllowed": false
+  },
+  "db": {
+    "joinOk": true,
+    "fileAssetId": "1144a8dd-aac2-4753-a87b-fb2e5aeda6bd",
+    "sourceDocumentId": "47ad15e1-e4f6-4c96-817c-87d331dc9957",
+    "sha256": "f83c96d700f617b078e20d4994df846df32195f7c4a0283efeac9c3928ea52e7",
+    "relativePath": "original/f8/3c/f83c96d700f617b078e20d4994df846df32195f7c4a0283efeac9c3928ea52e7.txt",
+    "sourceType": "school_paper",
+    "licenseOrPermission": "internal_authorized",
+    "containsStudentPii": false,
+    "anonymizationStatus": "not_applicable",
+    "storedFileExists": true
+  },
+  "acceptance": {
+    "fileUploadCreatesFileAsset": true,
+    "sourceDocumentCreated": true,
+    "hashPathPersisted": true,
+    "sourceTypeLicenseAndPiiBoundaryPersisted": true,
+    "dbQueryVerified": true
+  },
+  "boundary": "NS301 uses a synthetic authorized no-PII fixture and local API/DB smoke. It proves upload metadata persistence, not real school source authorization or production activation.",
+  "rollback": "delete from source_documents where id = '47ad15e1-e4f6-4c96-817c-87d331dc9957'; delete from file_assets where id = '1144a8dd-aac2-4753-a87b-fb2e5aeda6bd'; remove 'D:\\KQG_Data\\file_store\\original\\f8\\3c\\f83c96d700f617b078e20d4994df846df32195f7c4a0283efeac9c3928ea52e7.txt' if no longer referenced",
+  "next": "NS302 can add duplicate-upload and large-file path protection smoke on top of this evidence layer."
+}

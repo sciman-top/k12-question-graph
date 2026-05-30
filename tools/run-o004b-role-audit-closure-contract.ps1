@@ -43,7 +43,7 @@ function Invoke-ApiForStatus([string] $Uri, [string] $Method = 'GET', [hashtable
     $request = @{
         Uri = $Uri
         Method = $Method
-        TimeoutSec = 5
+        TimeoutSec = 30
         SkipHttpErrorCheck = $true
     }
     if ($Headers.Count -gt 0) {

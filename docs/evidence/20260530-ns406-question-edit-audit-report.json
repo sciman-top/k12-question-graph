@@ -1,0 +1,59 @@
+{
+  "status": "pass",
+  "taskId": "NS406",
+  "checkedAt": "2026-05-30T10:25:15",
+  "mode": "real011_question_edit_wrapper_plus_ns404_ns405_dependencies_and_workbench_markers",
+  "productionEligible": false,
+  "dependency": {
+    "ns404": "docs/evidence/20260530-ns404-question-asset-report.json",
+    "ns405": "docs/evidence/20260530-ns405-table-formula-blocks-report.json",
+    "real011": "docs/evidence/20260530-ns406-real011-source-report.json"
+  },
+  "questionEdit": {
+    "questionId": "373504d4-2f32-4ece-b90f-444a3808024d",
+    "sourceRegionId": "40f7c5b2-1724-46fa-9c5d-237c3c2e491a",
+    "questionType": "calculation",
+    "defaultScore": 6.0,
+    "difficultyEstimated": 0.74,
+    "status": "pending_review",
+    "editedStem": "REAL011 修订后题干：已调整题干、分值、难度和来源框。",
+    "answer": "修订答案",
+    "solution": "修订解析",
+    "blockCount": 2
+  },
+  "recrop": {
+    "regionType": "question_stem_revised",
+    "x": 11.0,
+    "y": 16.0,
+    "width": 58.0,
+    "height": 18.0,
+    "sourceRegionAuditId": "520ab8c5-3769-4135-b41a-cf1810ae8bac"
+  },
+  "audit": {
+    "questionRevisionAuditId": "0ad9c42b-e821-4f0c-bc49-edd4d57b7ebd",
+    "questionAuditDecision": "question_updated",
+    "sourceRegionAuditId": "520ab8c5-3769-4135-b41a-cf1810ae8bac"
+  },
+  "relatedContracts": {
+    "questionAssetAuditFromNs404": true,
+    "tableBlockContractFromNs405": true,
+    "formulaBlockContractFromNs405": true,
+    "mergeSplitUndoSaveQuestionUiMarkers": true,
+    "manualKnowledgeTagEditApiPathPresent": true
+  },
+  "acceptance": {
+    "stemEditable": true,
+    "answerEditable": true,
+    "solutionEditable": true,
+    "scoreDifficultyStatusEditable": true,
+    "bboxRecropEditable": true,
+    "blockAddAndEditAudited": true,
+    "questionRevisionAudited": true,
+    "sourceRegionRevisionAudited": true,
+    "assetTableFormulaDependenciesVerified": true,
+    "mergeSplitUndoSaveQuestionWorkbenchPresent": true
+  },
+  "boundary": "NS406 proves question edit and recrop audit through REAL011 API smoke, plus NS404 QuestionAsset and NS405 table/formula dependencies. Knowledge tag edit is verified as an API contract path marker, not a separate live UI interaction. It does not claim onsite teacher validation.",
+  "next": "NS501 can continue C002 active reference boundary after NS4 edit/import review chain is runtime verified.",
+  "rollback": "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns406-question-edit-audit.ps1 docs/evidence/20260530-ns406-question-edit-audit-report.json docs/evidence/20260530-ns406-real011-source-report.json"
+}

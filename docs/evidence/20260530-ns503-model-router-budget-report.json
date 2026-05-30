@@ -1,0 +1,73 @@
+{
+  "status": "pass",
+  "taskId": "NS503",
+  "checkedAt": "2026-05-30T11:16:15",
+  "mode": "model_router_budget_cache_cost_fail_closed_contract",
+  "productionEligible": false,
+  "externalAiCalls": 0,
+  "allowRealModelCalls": false,
+  "dependency": {
+    "ns502": "docs/evidence/20260530-ns502-ai-schema-eval-report.json",
+    "c002p": "docs/evidence/c002p-model-budget-guard-report.json",
+    "d002": "docs/evidence/20260530-ns503-d002-ai-job-cost-source-report.json"
+  },
+  "budget": {
+    "sourceCount": 33,
+    "chunkCount": 1478,
+    "estimatedInputTokens": 520612,
+    "dryRunInputTokenLimit": 120000,
+    "fullSourceExceedsDryRunLimits": true,
+    "fullExtractionRequiresHumanBudgetApproval": true
+  },
+  "cache": {
+    "cacheHitSourceCount": 33,
+    "cacheByInputHash": true,
+    "d002CachedTokens": 0
+  },
+  "aiJobCost": {
+    "jobId": "0dacc47d-c722-4313-8bdd-fb45f4ea7eeb",
+    "modelProvider": "stub_llm",
+    "modelName": "stub",
+    "promptVersion": "prompt.d001.draft-test.v1",
+    "schemaVersion": "schemas/ai/knowledge_mapping.schema.json",
+    "inputTokens": 22,
+    "outputTokens": 38,
+    "actualCost": 0.0,
+    "reviewStatus": "pending_review",
+    "idempotency": "pass"
+  },
+  "routing": {
+    "rolesChecked": [
+      "bulk_prefilter_model",
+      "engineering_review_model",
+      "high_risk_review_model",
+      "highest_risk_decision_model",
+      "mechanical_cleanup_model"
+    ],
+    "layersChecked": [
+      "L0",
+      "L1",
+      "L2",
+      "L3",
+      "L4"
+    ],
+    "highestRiskModel": "gpt-5.5",
+    "highestRiskReasoningEffort": "xhigh",
+    "realModelCallsDefault": false,
+    "failClosedOnMissingTokenEstimate": true,
+    "failClosedOnBudgetOverrun": true
+  },
+  "acceptance": {
+    "modelAndReasoningRecorded": true,
+    "tokenAndCostRecorded": true,
+    "cacheInputHashContractPresent": true,
+    "outputSchemaRecorded": true,
+    "budgetOverrunFailsClosed": true,
+    "realModelCallsStillDisabled": true,
+    "stubJobStaysPendingReview": true,
+    "noLocalModelUsed": true
+  },
+  "boundary": "NS503 proves model routing budget/cache/cost/fail-closed contracts with C002P config evidence and a D002 stub AI job. It records token/cost/schema/prompt/idempotency without enabling real model calls, local model defaults, or external AI.",
+  "next": "NS504 can continue AI suggestion review queue so teacher confirmation is required before writeback.",
+  "rollback": "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns503-model-router-budget.ps1 docs/evidence/20260530-ns503-model-router-budget-report.json docs/evidence/20260530-ns503-d002-ai-job-cost-source-report.json"
+}

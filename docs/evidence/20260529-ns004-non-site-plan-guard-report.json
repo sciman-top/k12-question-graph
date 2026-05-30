@@ -1,0 +1,39 @@
+{
+  "status": "pass",
+  "task": "non-site implementation plan guard",
+  "checkedAt": "2026-05-30T11:15:45",
+  "planPath": "tasks/non-site-implementation-plan.csv",
+  "roadmapPath": "docs/101_NonSiteCapabilityImplementationRoadmap.md",
+  "rowCount": 73,
+  "statusCounts": {
+    "blocked_by_onsite": 5,
+    "planned": 33,
+    "repo_landed": 13,
+    "runtime_verified": 22
+  },
+  "phaseCounts": {
+    "NS0": 5,
+    "NS1": 6,
+    "NS10": 5,
+    "NS11": 4,
+    "NS12": 6,
+    "NS2": 4,
+    "NS3": 8,
+    "NS4": 6,
+    "NS5": 5,
+    "NS6": 7,
+    "NS7": 5,
+    "NS8": 6,
+    "NS9": 6
+  },
+  "nextPlannedTask": "NS504",
+  "requiredStatuses": [
+    "planned",
+    "contract_only",
+    "repo_landed",
+    "runtime_verified",
+    "non_site_validated",
+    "blocked_by_onsite"
+  ],
+  "conclusion": "non-site plan is parseable, dependency-closed, status-bounded, and concrete evidence is required before rows can claim landed or validated states"
+}

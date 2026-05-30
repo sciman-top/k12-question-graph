@@ -61,7 +61,7 @@
       "probe": {
         "available": true,
         "exitCode": 0,
-        "versionLine": "5.1.26100.8457"
+        "versionLine": "5.1.26100.8521"
       }
     },
     "python": {
@@ -307,14 +307,14 @@
       "anchor": "D:\\",
       "available": true,
       "totalGb": 930.0,
-      "freeGb": 606.23
+      "freeGb": 548.58
     },
     "backupRoot": {
       "path": "D:\\KQG_Backups",
       "anchor": "D:\\",
       "available": true,
       "totalGb": 930.0,
-      "freeGb": 606.23
+      "freeGb": 548.58
     }
   },
   "workerOcrProfile": {

@@ -1,0 +1,54 @@
+{
+  "status": "pass",
+  "taskId": "NS404",
+  "checkedAt": "2026-05-30T10:24:48",
+  "mode": "real008_question_asset_wrapper_plus_api_ui_contract_markers",
+  "productionEligible": false,
+  "dependency": {
+    "ns403": "docs/evidence/20260530-ns403-review-workbench-ui-report.json",
+    "real008": "docs/evidence/20260530-ns404-real008-source-report.json"
+  },
+  "questionAsset": {
+    "questionId": "585c7c32-145b-40f5-a778-44edc4633cb1",
+    "sourceDocumentId": "e7fc9823-9c7b-45af-831a-eea5ab4b2908",
+    "assetSourceRegionId": "b074f5de-be2c-41ff-a9ee-60346325b764",
+    "beforeAssociation": {
+      "hasImage": false,
+      "assetCount": 0,
+      "sourceScreenshotCount": 1
+    },
+    "afterAssociation": {
+      "hasImage": true,
+      "assetCount": 1,
+      "sourceScreenshotCount": 2
+    },
+    "afterUnlink": {
+      "hasImage": false,
+      "assetCount": 0,
+      "sourceScreenshotCount": 1
+    },
+    "detailAssetCountAfterReassociate": 1,
+    "detailAssetType": "image",
+    "detailPurpose": "question_figure",
+    "sourceRegionScreenshotUrl": "/source-regions/b074f5de-be2c-41ff-a9ee-60346325b764/screenshot",
+    "screenshotStatusCode": 200
+  },
+  "auditIds": {
+    "associate": "a371243d-7591-4183-a919-a158028e74c2",
+    "unlink": "2a2a1d63-6e46-4595-abfd-b756242158e8",
+    "reassociate": "7300d62a-4a60-45f8-8f6d-9312e826a3a5"
+  },
+  "acceptance": {
+    "cardDoesNotInferImageFromSourceScreenshot": true,
+    "associationAddsCardImageAndAssetCount": true,
+    "unlinkRemovesCardImageAndAssetCount": true,
+    "reassociationCoversRecutRegression": true,
+    "detailExposesQuestionAssetScreenshot": true,
+    "sourceReviewRendersQuestionAssetRegion": true,
+    "associateUnlinkReassociateAudited": true,
+    "teacherWorkbenchAssociateMarkerPresent": true
+  },
+  "boundary": "NS404 proves QuestionAsset association, unlink, and reassociation through REAL008 API smoke plus frontend contract markers. It uses reassociation as the recut regression and does not claim live crop UI pixel editing or onsite teacher validation.",
+  "next": "NS405 can continue table/formula QuestionBlock contract evidence; NS406 can combine NS404 and NS405 for edit audit.",
+  "rollback": "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns404-question-asset.ps1 docs/evidence/20260530-ns404-question-asset-report.json docs/evidence/20260530-ns404-real008-source-report.json"
+}

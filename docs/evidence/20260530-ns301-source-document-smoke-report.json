@@ -1,0 +1,58 @@
+{
+  "status": "pass",
+  "taskId": "NS301",
+  "checkedAt": "2026-05-30T10:23:07",
+  "mode": "api_upload_smoke_plus_db_join",
+  "productionEligible": false,
+  "api": {
+    "url": "http://127.0.0.1:9114",
+    "uploadRoute": "POST /files",
+    "listRoute": "GET /source-documents?materialBatchKey=...",
+    "fileAssetId": "b1c0a6da-7081-4e70-a6ab-7f58729c64a9",
+    "sourceDocumentId": "294071ff-8175-4c82-8fe1-1d357b249077",
+    "sha256": "d0f84b51d6389e94bb5411082521039755718804a43609d95af76907ff9a2e27",
+    "relativePath": "original/d0/f8/d0f84b51d6389e94bb5411082521039755718804a43609d95af76907ff9a2e27.txt"
+  },
+  "sourceDocument": {
+    "sourceType": "school_paper",
+    "sourceTitle": "NS301 Authorized Anonymized Fixture",
+    "region": "guangzhou",
+    "year": 2026,
+    "materialBatchKey": "ns301_e48d42f13ff549259d64c79a51c3a909",
+    "ownerScope": "school",
+    "licenseOrPermission": "internal_authorized",
+    "piiBoundary": {
+      "containsStudentPii": false,
+      "anonymizationStatus": "anonymized",
+      "sharingAllowed": true,
+      "externalAiAllowed": true
+    },
+    "usagePermissions": {
+      "mayUseForKnowledgeExtraction": true,
+      "mayUseForExamPointExtraction": true,
+      "mayUseForTrendAnalysis": false
+    }
+  },
+  "db": {
+    "joinMatched": 1,
+    "fileAssetReferencePersisted": true,
+    "hashPathMetadataPersisted": true
+  },
+  "cleanup": {
+    "dbRowsRemoved": true,
+    "uploadedFileRemoved": true,
+    "cleanupCount": 0
+  },
+  "acceptance": {
+    "authorizedOrAnonymizedUploadAccepted": true,
+    "hashPersisted": true,
+    "pathPersisted": true,
+    "sourceTypePersisted": true,
+    "licensePersisted": true,
+    "piiBoundaryPersisted": true,
+    "fileAssetReferencePersisted": true
+  },
+  "boundary": "NS301 proves an authorized/anonymized fixture can enter the SourceDocument evidence layer and be joined back to FileAsset hash/path metadata. It does not import real copyrighted material or switch active assets.",
+  "next": "NS302 can continue with duplicate upload and large-file database path protection.",
+  "rollback": "Test rows and uploaded file are removed by this script; if interrupted, delete the reported source_documents/file_assets ids or restore DB/FileStore snapshot."
+}

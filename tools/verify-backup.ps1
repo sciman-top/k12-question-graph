@@ -16,14 +16,24 @@ function Assert-Hash([string] $Path, [string] $ExpectedHash) {
     }
 }
 
+function Resolve-FileStoreBackupRoot($Manifest, [string] $ManifestDir) {
+    if ($Manifest.fileStore.PSObject.Properties.Name -contains 'snapshotRoot' -and
+        -not [string]::IsNullOrWhiteSpace([string]$Manifest.fileStore.snapshotRoot)) {
+        return Join-Path $ManifestDir ([string]$Manifest.fileStore.snapshotRoot)
+    }
+
+    return [string]$Manifest.fileStore.root
+}
+
 $manifestItem = Get-Item -LiteralPath $ManifestPath
 $manifestDir = $manifestItem.DirectoryName
 $manifest = Get-Content -LiteralPath $ManifestPath -Raw | ConvertFrom-Json
 
 Assert-Hash -Path (Join-Path $manifestDir $manifest.database.dump) -ExpectedHash $manifest.database.sha256
 
+$fileStoreBackupRoot = Resolve-FileStoreBackupRoot -Manifest $manifest -ManifestDir $manifestDir
 foreach ($file in @($manifest.fileStore.files)) {
-    Assert-Hash -Path (Join-Path $manifest.fileStore.root $file.path) -ExpectedHash $file.sha256
+    Assert-Hash -Path (Join-Path $fileStoreBackupRoot $file.path) -ExpectedHash $file.sha256
 }
 
 foreach ($config in @($manifest.configs)) {

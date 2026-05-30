@@ -1,0 +1,29 @@
+{
+  "status": "pass",
+  "task": "C002O",
+  "suiteId": "c002o-candidate-extraction-golden-smoke",
+  "mode": "draft_test",
+  "allowRealModelCalls": false,
+  "productionEligible": false,
+  "sourceChunkReport": "docs/evidence/c002n-source-chunk-cache-report.json",
+  "checkedAnchorCount": 98,
+  "cases": [
+    {
+      "caseId": "c002o-physics-force-and-motion-sample",
+      "schemaPath": "schemas/ai/c002_candidate_extraction.schema.json",
+      "knowledgePoints": 1,
+      "curriculumStandardItems": 1,
+      "textbookChapters": 1,
+      "examPoints": 1,
+      "trendSummaries": 1,
+      "mappingSuggestions": 1,
+      "reviewStatus": "pending_review"
+    }
+  ],
+  "summaryChinese": {
+    "title": "C002O 大模型提炼 schema/eval 报告",
+    "result": "通过",
+    "boundary": "仅验证结构化输出 schema 与 golden fixture，不调用真实模型，不写入 active。",
+    "next": "下一步可进入 C002P 分层模型路由预算门禁完整收口。"
+  }
+}

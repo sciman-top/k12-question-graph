@@ -29,6 +29,16 @@ function Convert-ToRelative([string]$Base, [string]$Path) {
     return [System.IO.Path]::GetRelativePath($Base, $Path).Replace('\\', '/')
 }
 
+function Resolve-FileStoreBackupRoot($Manifest, [string]$ManifestPath) {
+    if ($Manifest.fileStore.PSObject.Properties.Name -contains 'snapshotRoot' -and
+        -not [string]::IsNullOrWhiteSpace([string]$Manifest.fileStore.snapshotRoot)) {
+        $manifestRoot = (Get-Item -LiteralPath $ManifestPath).DirectoryName
+        return Join-Path $manifestRoot ([string]$Manifest.fileStore.snapshotRoot)
+    }
+
+    return [string]$Manifest.fileStore.root
+}
+
 Push-Location $repoRoot
 try {
     Remove-Item -LiteralPath (Join-Path $repoRoot 'tmp/o003') -Recurse -Force -ErrorAction SilentlyContinue
@@ -43,6 +53,7 @@ try {
     Assert-Condition ($LASTEXITCODE -eq 0) 'verify-backup.ps1 failed during O003 drill'
 
     $manifest = Get-Content -LiteralPath $backup.manifest -Raw | ConvertFrom-Json
+    $fileStoreBackupRoot = Resolve-FileStoreBackupRoot -Manifest $manifest -ManifestPath $backup.manifest
 
     $pgRestore = Join-Path $PgBin 'pg_restore.exe'
     Assert-Condition (Test-Path -LiteralPath $pgRestore) "pg_restore not found: $pgRestore"
@@ -65,7 +76,7 @@ try {
     Assert-Condition ((Get-Item -LiteralPath $schemaOnlyPath).Length -gt 0) 'schema-only output is empty'
 
     foreach ($file in @($manifest.fileStore.files)) {
-        $src = Join-Path $manifest.fileStore.root $file.path
+        $src = Join-Path $fileStoreBackupRoot $file.path
         $dst = Join-Path $fsDrillRoot $file.path
         $dstDir = Split-Path -Parent $dst
         if (-not (Test-Path -LiteralPath $dstDir)) { New-Item -ItemType Directory -Path $dstDir -Force | Out-Null }

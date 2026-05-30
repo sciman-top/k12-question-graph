@@ -258,6 +258,102 @@ try {
         .\tools\run-non-site-implementation-plan-guard.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'ns104 application service boundary guard' {
+        .\tools\run-ns104-application-service-boundary.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'ns105 teacher route typed client boundary guard' {
+        .\tools\run-ns105-teacher-route-client-boundary.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'ns106 feature profile guard' {
+        .\tools\run-ns106-feature-profile-guard.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'ns201 role audit baseline guard' {
+        .\tools\run-ns201-role-audit-baseline.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'ns202 admin internal fail closed guard' {
+        .\tools\run-ns202-admin-internal-fail-closed.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'ns203 privacy license scan guard' {
+        .\tools\run-ns203-privacy-license-scan.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'ns204 no active write guard' {
+        .\tools\run-ns204-no-active-write-guard.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'ns301 source document evidence smoke' {
+        .\tools\run-ns301-source-document-smoke.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin -FileStoreRoot $FileStoreRoot | Write-Host
+    }
+
+    Invoke-GateStep 'ns302 file dedupe guard' {
+        .\tools\run-ns302-file-dedupe.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin -FileStoreRoot $FileStoreRoot | Write-Host
+    }
+
+    Invoke-GateStep 'ns303 worker profile diagnostic guard' {
+        .\tools\run-worker-profile-diagnostic-contract.ps1 -Report 'docs/evidence/20260530-ns303-worker-profile.json' | Write-Host
+    }
+
+    Invoke-GateStep 'ns304 docx adapter guard' {
+        .\tools\run-ns304-docx-adapter.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'ns305 pdf text adapter guard' {
+        .\tools\run-ns305-pdf-text-adapter.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'ns306 scan ocr adapter guard' {
+        .\tools\run-ns306-scan-ocr-adapter.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'ns307 source region screenshot guard' {
+        .\tools\run-ns307-source-region-screenshot.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -FileStoreRoot $FileStoreRoot | Write-Host
+    }
+
+    Invoke-GateStep 'ns308 import quality report guard' {
+        .\tools\run-ns308-import-quality-report.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin -FileStoreRoot $FileStoreRoot | Write-Host
+    }
+
+    Invoke-GateStep 'ns401 cut candidate guard' {
+        .\tools\run-ns401-cut-candidate.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin -FileStoreRoot $FileStoreRoot | Write-Host
+    }
+
+    Invoke-GateStep 'ns402 review queue api guard' {
+        .\tools\run-ns402-review-queue-api.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin | Write-Host
+    }
+
+    Invoke-GateStep 'ns403 review workbench ui guard' {
+        .\tools\run-ns403-review-workbench-ui.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'ns404 question asset guard' {
+        .\tools\run-ns404-question-asset.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin -FileStoreRoot $FileStoreRoot | Write-Host
+    }
+
+    Invoke-GateStep 'ns405 table formula block guard' {
+        .\tools\run-ns405-table-formula-blocks.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin -FileStoreRoot $FileStoreRoot | Write-Host
+    }
+
+    Invoke-GateStep 'ns406 question edit audit guard' {
+        .\tools\run-ns406-question-edit-audit.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin -FileStoreRoot $FileStoreRoot | Write-Host
+    }
+
+    Invoke-GateStep 'ns501 c002 active boundary guard' {
+        .\tools\run-ns501-c002-active-boundary.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword | Write-Host
+    }
+
+    Invoke-GateStep 'ns502 ai schema eval guard' {
+        .\tools\run-ns502-ai-schema-eval.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'ns503 model router budget guard' {
+        .\tools\run-ns503-model-router-budget.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin | Write-Host
+    }
+
     Invoke-GateStep 'local-first ai consumption guard' {
         .\tools\run-local-first-ai-guard.ps1 | Write-Host
     }
@@ -362,6 +458,9 @@ try {
     }
     Invoke-GateStep 's012b non-site e2e rehearsal' {
         .\tools\run-s012b-non-site-e2e-rehearsal.ps1 | Write-Host
+    }
+    Invoke-GateStep 'ns906 visual surrogate review' {
+        .\tools\run-ns906-visual-surrogate-review.ps1 | Write-Host
     }
     Invoke-GateStep 'n003 item score mapping workbench' {
         .\tools\run-n003-item-score-mapping-workbench.ps1 | Write-Host

@@ -1,0 +1,57 @@
+{
+  "status": "pass",
+  "taskId": "NS405",
+  "checkedAt": "2026-05-30T10:25:06",
+  "mode": "real009_real010_table_formula_wrapper_plus_api_worker_markers",
+  "productionEligible": false,
+  "dependency": {
+    "ns403": "docs/evidence/20260530-ns403-review-workbench-ui-report.json",
+    "real009": "docs/evidence/20260530-ns405-real009-table-source-report.json",
+    "real010": "docs/evidence/20260530-ns405-real010-formula-source-report.json"
+  },
+  "tableBlock": {
+    "questionId": "fc184a8d-92be-49b7-b357-13d830fc1d03",
+    "tableBlockId": "a63d77e6-ccec-4036-b9e4-e49fe68ee04f",
+    "sourceRegionId": "f45b6a65-8b14-47f7-885b-d7e0da7c7042",
+    "caption": "REAL009 实验数据表",
+    "columnCount": 3,
+    "rowCount": 2,
+    "confidence": 0.62,
+    "reviewStatus": "pending_review",
+    "cardHasTable": true,
+    "tableScreenshotStatusCode": 200,
+    "reviewType": "question_table_block_review",
+    "requiredAction": "review_table_structure"
+  },
+  "formulaBlock": {
+    "questionId": "5519dc4e-0939-4262-8695-a6c7b78f6162",
+    "officeBlockId": "cbbe72a9-236e-47ba-aa04-7e60f581c3d4",
+    "officeSourceFormat": "omml",
+    "ommlPreserved": true,
+    "latex": "F=ma",
+    "mathmlPresent": true,
+    "exportPreference": "omml",
+    "scannedBlockId": "b5910335-35cc-40c8-bb29-f2c2eea149d2",
+    "scannedSourceFormat": "scanned_formula_candidate",
+    "scannedConfidence": 0.56,
+    "scannedReviewStatus": "pending_review",
+    "fallbackImageStatusCode": 200,
+    "cardHasFormula": true,
+    "cardHasImage": false,
+    "reviewType": "question_formula_block_review",
+    "requiredAction": "review_formula_structure"
+  },
+  "acceptance": {
+    "tableSavedAsStructuredJson": true,
+    "tableKeepsSourceRegionAndScreenshot": true,
+    "lowConfidenceTableGoesToReview": true,
+    "formulaKeepsOmmlAsFirstSource": true,
+    "latexAndMathmlAreDerivatives": true,
+    "scannedFormulaKeepsFallbackImage": true,
+    "lowConfidenceFormulaGoesToReview": true,
+    "tableAndFormulaAreNotMisclassifiedAsQuestionImages": true
+  },
+  "boundary": "NS405 proves structured table and formula QuestionBlock contracts through REAL009/REAL010 API smoke plus API/worker markers. It does not claim full Word/PDF export visual fidelity or onsite teacher validation.",
+  "next": "NS406 can combine NS404 and NS405 evidence for question edit, recrop, merge/split, and audit.",
+  "rollback": "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns405-table-formula-blocks.ps1 docs/evidence/20260530-ns405-table-formula-blocks-report.json docs/evidence/20260530-ns405-real009-table-source-report.json docs/evidence/20260530-ns405-real010-formula-source-report.json"
+}

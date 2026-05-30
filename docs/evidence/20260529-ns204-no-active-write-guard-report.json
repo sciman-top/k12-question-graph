@@ -1,0 +1,41 @@
+{
+  "status": "pass",
+  "taskId": "NS204",
+  "checkedAt": "2026-05-30T10:22:59",
+  "mode": "evidence_and_static_no_active_write_guard",
+  "productionEligible": false,
+  "ai": {
+    "readinessNoActiveWrite": true,
+    "dryRunNoActiveWrite": true,
+    "externalAiCalls": 0,
+    "reviewStatus": "pending_review"
+  },
+  "dynamicAssets": {
+    "c002rMode": "dry_run",
+    "teacherCanApplyActive": false,
+    "k005NoActiveWrite": true,
+    "oldActivePreserved": true
+  },
+  "scoreAnalysis": {
+    "s011aProductionEligible": false,
+    "s011bProductionEligible": false,
+    "s011cProductionEligible": false,
+    "commentaryWritesProductionHistory": false
+  },
+  "e2e": {
+    "s012bProductionEligible": false,
+    "s012bRealStudentDataUsed": false,
+    "real005ClosureStatus": "not_closed"
+  },
+  "acceptance": {
+    "aiCandidatesStayPendingReview": true,
+    "externalAiDefaultOff": true,
+    "dynamicAssetActiveSwitchBlocked": true,
+    "scoreAnalysisDraftOnly": true,
+    "productionHistoryWriteBlocked": true,
+    "liveClosureNotClaimed": true
+  },
+  "boundary": "NS204 proves non-site AI/import/dynamic-asset/analysis flows remain draft, candidate, pending_review, noActiveWrite, or not_closed; it does not enable production active switches.",
+  "next": "NS301 can continue SourceDocument evidence layer and upload metadata smoke.",
+  "rollback": "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns204-no-active-write-guard.ps1 docs/evidence/20260529-ns204-no-active-write-guard-report.json"
+}

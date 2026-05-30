@@ -1,0 +1,362 @@
+{
+  "status": "pass",
+  "taskId": "NS906",
+  "checkedAt": "2026-05-30T10:33:42",
+  "mode": "deterministic_visual_surrogate_review",
+  "productionEligible": false,
+  "realStudentDataUsed": false,
+  "externalAiCalls": 0,
+  "aiVisionBoundary": {
+    "currentMode": "machine vision and artifact checks without external model calls",
+    "canReplaceEarlyManualLook": true,
+    "cannotReplace": [
+      "真实教师偏好",
+      "学校隔离机",
+      "打印机",
+      "权限域",
+      "真实网络",
+      "最终发布裁决"
+    ],
+    "futureOptionalMode": "multimodal AI sample review may be added after provider budget/privacy admission"
+  },
+  "inputs": {
+    "nonSiteE2EReport": "docs/evidence/20260528-non-site-e2e-rehearsal-report.json",
+    "layoutReport": "docs/evidence/20260516-real007-guangzhou-2015-layout-quality-report.json",
+    "productionFlowReport": "docs/evidence/20260518-real012-production-flow-quality-report.json",
+    "artifactReport": "docs/evidence/20260518-real012-word-pdf-artifact-report.json",
+    "fileStoreRoot": "D:\\KQG_Data\\file_store"
+  },
+  "workflowCoverage": {
+    "required": [
+      "admission",
+      "import_cut_review_save",
+      "tagging",
+      "review_save",
+      "paper",
+      "export",
+      "score",
+      "score_mapping",
+      "analysis",
+      "backup_restore"
+    ],
+    "actual": [
+      "admission",
+      "import_cut_review_save",
+      "tagging",
+      "review_save",
+      "paper",
+      "export",
+      "score",
+      "score_mapping",
+      "analysis",
+      "backup_restore"
+    ],
+    "missing": []
+  },
+  "sourceVisualReview": {
+    "layoutStatus": "pass",
+    "linkedSourceRegionCount": 67,
+    "questionNosCovered": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24
+    ],
+    "missingScreenshotCount": 0,
+    "placeholderLikeScreenshotCount": 0,
+    "noiseOverlapCount": 0,
+    "sampledImageCount": 8,
+    "sampledImages": [
+      {
+        "regionId": "1b7930f0-d6cc-4d83-aa34-4dcdce7357b6",
+        "questionNo": 1,
+        "pageNumber": 1,
+        "bbox": {
+          "x": 12.0,
+          "y": 58.0,
+          "width": 76.0,
+          "height": 10.0
+        },
+        "screenshot": {
+          "path": "generated/guangzhou-2015/source-regions/1b7930f0-d6cc-4d83-aa34-4dcdce7357b6.png",
+          "exists": true,
+          "width": 1176,
+          "height": 261,
+          "nonBlankRatio": 0.084,
+          "pass": true
+        }
+      },
+      {
+        "regionId": "faf1bb99-ae75-4ab5-9a6c-719e71774dba",
+        "questionNo": 1,
+        "pageNumber": 1,
+        "bbox": {
+          "x": 12.0,
+          "y": 20.0,
+          "width": 76.0,
+          "height": 8.0
+        },
+        "screenshot": {
+          "path": "generated/guangzhou-2015/source-regions/faf1bb99-ae75-4ab5-9a6c-719e71774dba.png",
+          "exists": true,
+          "width": 1176,
+          "height": 218,
+          "nonBlankRatio": 0.0244,
+          "pass": true
+        }
+      },
+      {
+        "regionId": "14bff6b3-5a18-4e6d-8c02-f0a8406df43f",
+        "questionNo": 2,
+        "pageNumber": 1,
+        "bbox": {
+          "x": 28.0,
+          "y": 78.0,
+          "width": 58.0,
+          "height": 15.0
+        },
+        "screenshot": {
+          "path": "generated/guangzhou-2015/source-regions/14bff6b3-5a18-4e6d-8c02-f0a8406df43f.png",
+          "exists": true,
+          "width": 908,
+          "height": 366,
+          "nonBlankRatio": 0.0283,
+          "pass": true
+        }
+      },
+      {
+        "regionId": "9f8a4eff-63e3-4506-9548-5ce6f4b12add",
+        "questionNo": 2,
+        "pageNumber": 1,
+        "bbox": {
+          "x": 12.0,
+          "y": 20.0,
+          "width": 76.0,
+          "height": 8.0
+        },
+        "screenshot": {
+          "path": "generated/guangzhou-2015/source-regions/9f8a4eff-63e3-4506-9548-5ce6f4b12add.png",
+          "exists": true,
+          "width": 1176,
+          "height": 218,
+          "nonBlankRatio": 0.0244,
+          "pass": true
+        }
+      },
+      {
+        "regionId": "ddf4cb0b-0e11-4b08-87ea-9dd7721d4d4d",
+        "questionNo": 2,
+        "pageNumber": 1,
+        "bbox": {
+          "x": 12.0,
+          "y": 67.0,
+          "width": 76.0,
+          "height": 26.0
+        },
+        "screenshot": {
+          "path": "generated/guangzhou-2015/source-regions/ddf4cb0b-0e11-4b08-87ea-9dd7721d4d4d.png",
+          "exists": true,
+          "width": 1176,
+          "height": 597,
+          "nonBlankRatio": 0.0273,
+          "pass": true
+        }
+      },
+      {
+        "regionId": "ded39782-7735-4ddf-80eb-061445e415f7",
+        "questionNo": 3,
+        "pageNumber": 1,
+        "bbox": {
+          "x": 12.0,
+          "y": 20.0,
+          "width": 76.0,
+          "height": 8.0
+        },
+        "screenshot": {
+          "path": "generated/guangzhou-2015/source-regions/ded39782-7735-4ddf-80eb-061445e415f7.png",
+          "exists": true,
+          "width": 1176,
+          "height": 218,
+          "nonBlankRatio": 0.0244,
+          "pass": true
+        }
+      },
+      {
+        "regionId": "99e8876a-73d1-4850-ad33-9f0bcf01a9f3",
+        "questionNo": 3,
+        "pageNumber": 2,
+        "bbox": {
+          "x": 12.0,
+          "y": 7.0,
+          "width": 76.0,
+          "height": 20.0
+        },
+        "screenshot": {
+          "path": "generated/guangzhou-2015/source-regions/99e8876a-73d1-4850-ad33-9f0bcf01a9f3.png",
+          "exists": true,
+          "width": 1176,
+          "height": 471,
+          "nonBlankRatio": 0.0674,
+          "pass": true
+        }
+      },
+      {
+        "regionId": "f3af6c11-66ad-4bfd-9412-40edb4074df6",
+        "questionNo": 3,
+        "pageNumber": 2,
+        "bbox": {
+          "x": 52.0,
+          "y": 12.0,
+          "width": 36.0,
+          "height": 15.0
+        },
+        "screenshot": {
+          "path": "generated/guangzhou-2015/source-regions/f3af6c11-66ad-4bfd-9412-40edb4074df6.png",
+          "exists": true,
+          "width": 580,
+          "height": 366,
+          "nonBlankRatio": 0.0752,
+          "pass": true
+        }
+      }
+    ]
+  },
+  "exportArtifactReview": {
+    "artifactStatus": "pass",
+    "preflightStatus": "ready_for_review",
+    "variants": {
+      "student": {
+        "docx": {
+          "exists": true,
+          "hasDocumentXml": true,
+          "mediaCount": 3,
+          "sizeBytes": 3313
+        },
+        "pdf": {
+          "exists": true,
+          "hasPdfHeader": true,
+          "hasEof": true,
+          "sizeBytes": 679
+        },
+        "existingReportChecks": {
+          "docx": {
+            "hasDocumentXml": true,
+            "hasFormulaText": false,
+            "hasFigureMedia": true,
+            "hasTable": false,
+            "hasSourceAuthorization": true,
+            "hasKnowledgeVersionReference": true,
+            "hasAnswer": false,
+            "hasSolution": false,
+            "studentHidesAnswer": true,
+            "mediaCount": 3
+          },
+          "pdf": {
+            "hasPdfHeader": true,
+            "hasEof": true,
+            "hasTaskMarker": true
+          }
+        }
+      },
+      "teacher": {
+        "docx": {
+          "exists": true,
+          "hasDocumentXml": true,
+          "mediaCount": 3,
+          "sizeBytes": 3346
+        },
+        "pdf": {
+          "exists": true,
+          "hasPdfHeader": true,
+          "hasEof": true,
+          "sizeBytes": 679
+        },
+        "existingReportChecks": {
+          "docx": {
+            "hasDocumentXml": true,
+            "hasFormulaText": false,
+            "hasFigureMedia": true,
+            "hasTable": false,
+            "hasSourceAuthorization": true,
+            "hasKnowledgeVersionReference": true,
+            "hasAnswer": true,
+            "hasSolution": true,
+            "studentHidesAnswer": true,
+            "mediaCount": 3
+          },
+          "pdf": {
+            "hasPdfHeader": true,
+            "hasEof": true,
+            "hasTaskMarker": true
+          }
+        }
+      },
+      "answer": {
+        "docx": {
+          "exists": true,
+          "hasDocumentXml": true,
+          "mediaCount": 0,
+          "sizeBytes": 1511
+        },
+        "pdf": {
+          "exists": true,
+          "hasPdfHeader": true,
+          "hasEof": true,
+          "sizeBytes": 678
+        },
+        "existingReportChecks": {
+          "docx": {
+            "hasDocumentXml": true,
+            "hasFormulaText": false,
+            "hasFigureMedia": true,
+            "hasTable": true,
+            "hasSourceAuthorization": true,
+            "hasKnowledgeVersionReference": true,
+            "hasAnswer": true,
+            "hasSolution": true,
+            "studentHidesAnswer": true,
+            "mediaCount": 0
+          },
+          "pdf": {
+            "hasPdfHeader": true,
+            "hasEof": true,
+            "hasTaskMarker": true
+          }
+        }
+      }
+    }
+  },
+  "analysisReview": {
+    "productionFlowStatus": "pass",
+    "exportPreflightStatus": "ready_for_review",
+    "analysisStatus": "ready",
+    "weakKnowledgePointCount": 3,
+    "allowAiDraftText": false,
+    "writesProductionHistory": false,
+    "qualityClosureStatus": "not_closed",
+    "real005ClosureStatus": "not_closed"
+  },
+  "blockers": [],
+  "rollback": "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns906-visual-surrogate-review.ps1 docs/evidence/20260528-ns906-visual-surrogate-review-report.json",
+  "conclusion": "NS906 proves a deterministic visual surrogate can replace early manual spot checks for source screenshots, export artifacts, and analysis boundaries while keeping live/site closure not_closed."
+}

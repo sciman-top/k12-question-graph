@@ -1,0 +1,64 @@
+{
+  "status": "pass",
+  "taskId": "NS502",
+  "checkedAt": "2026-05-30T11:11:59",
+  "mode": "schema_eval_and_contract_dry_run_no_real_model",
+  "productionEligible": false,
+  "externalAiCalls": 0,
+  "allowRealModelCalls": false,
+  "noActiveWrite": true,
+  "dependency": {
+    "ns501": "docs/evidence/20260530-ns501-c002-active-boundary.json",
+    "c002o": "docs/evidence/20260530-ns502-c002o-candidate-extraction-eval-report.json",
+    "c002q": "docs/evidence/20260530-ns502-c002q-ai-extract-dry-run-report.json",
+    "s007a": "docs/evidence/20260506-s007a-ai-suggestion-schema-hardening-report.json",
+    "s011c": "docs/evidence/20260508-s011c-commentary-report-export-report.json"
+  },
+  "candidateOutput": {
+    "mode": "draft_test",
+    "reviewStatus": "pending_review",
+    "productionEligible": false,
+    "knowledgePoints": 1,
+    "questionTypeCoveredBySchema": true,
+    "difficultyCoveredBySuggestionEnvelope": true,
+    "answerVerificationCoveredBySchema": true,
+    "commentaryDraftCoveredByTrendSummaryAndS011C": true,
+    "mappingSuggestions": 1
+  },
+  "suggestionEnvelope": {
+    "suggestionTypes": [
+      "knowledge_tagging",
+      "question_type",
+      "difficulty_estimation",
+      "answer_verification"
+    ],
+    "requiredReview": [
+      "required",
+      "status",
+      "review_queue_id"
+    ],
+    "requiredCost": [
+      "input_tokens",
+      "output_tokens",
+      "estimated_usd"
+    ],
+    "requiredCache": [
+      "cache_key",
+      "cache_hit"
+    ]
+  },
+  "acceptance": {
+    "knowledgeCandidatesPendingReview": true,
+    "questionTypeSuggestionsReviewGated": true,
+    "difficultySuggestionsReviewGated": true,
+    "answerVerificationReviewGated": true,
+    "commentaryDraftNotAiRuntimeDependent": true,
+    "allOutputsCandidateOrPendingReview": true,
+    "externalAiCallsZero": true,
+    "localModelNotUsed": true,
+    "noActiveWrite": true
+  },
+  "boundary": "NS502 proves AI-related schema/eval and candidate dry-run outputs remain draft_test, candidate/pending_review, productionEligible=false, noActiveWrite, and externalAiCalls=0. Commentary draft coverage is deterministic S011C plus trend summary candidate evidence, not a real AI-generated production report.",
+  "next": "NS503 can continue ModelRouter budget, cache, token, and fail-closed routing contracts without enabling real model calls.",
+  "rollback": "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns502-ai-schema-eval.ps1 docs/evidence/20260530-ns502-ai-schema-eval-report.json docs/evidence/20260530-ns502-c002o-candidate-extraction-eval-report.json docs/evidence/20260530-ns502-c002q-ai-extract-dry-run-report.json"
+}

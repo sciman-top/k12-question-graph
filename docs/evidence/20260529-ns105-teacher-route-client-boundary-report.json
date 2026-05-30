@@ -1,0 +1,53 @@
+{
+  "status": "pass",
+  "taskId": "NS105",
+  "checkedAt": "2026-05-30T10:22:10",
+  "mode": "frontend_build_lint_static_contract",
+  "productionEligible": false,
+  "build": {
+    "command": "npm --prefix apps/web run build",
+    "exitCode": 0
+  },
+  "lint": {
+    "command": "npm --prefix apps/web run lint",
+    "exitCode": 0
+  },
+  "teacherViews": [
+    "import",
+    "paper",
+    "scores",
+    "analysis"
+  ],
+  "routeMarkers": [
+    "teacher-home",
+    "teacher-entry",
+    "paper-import-wizard",
+    "paper-assembly-workbench",
+    "score-import-workbench",
+    "teacher-analysis-workbench"
+  ],
+  "typedClientBoundary": {
+    "appCallsFetchDirectly": false,
+    "appUsesTypedClient": true,
+    "appUsesQueryWrappers": true,
+    "apiBaseUrlOverride": "VITE_KQG_API_BASE_URL",
+    "serverStateQueryBoundary": "TanStack Query server-state keys",
+    "teacherDraftStateBoundary": "component-local-state"
+  },
+  "normalizedContracts": [
+    "ImportJobContract",
+    "QuestionSearchContract",
+    "ScoreImportContract",
+    "CommentaryReportExportContract"
+  ],
+  "acceptance": {
+    "fourTeacherEntriesPresent": true,
+    "noDirectFetchInApp": true,
+    "typedClientOwnsFetch": true,
+    "buildAndLintPass": true,
+    "loadingEmptyErrorBoundaryAvailable": true
+  },
+  "boundary": "NS105 proves the teacher four-entry shell is wired through typed client/query boundaries; it does not prove live classroom usability or isolated-machine deployment.",
+  "next": "NS106 should add an explicit non-site feature/profile guard for external AI, active switch, cloud OCR, and local model defaults.",
+  "rollback": "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns105-teacher-route-client-boundary.ps1 docs/evidence/20260529-ns105-teacher-route-client-boundary-report.json"
+}

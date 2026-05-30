@@ -25,6 +25,15 @@ function Compute-Sha256([string] $Path) {
     return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant()
 }
 
+function Resolve-FileStoreBackupRoot($Manifest, [string] $ManifestRoot) {
+    if ($Manifest.fileStore.PSObject.Properties.Name -contains 'snapshotRoot' -and
+        -not [string]::IsNullOrWhiteSpace([string]$Manifest.fileStore.snapshotRoot)) {
+        return Join-Path $ManifestRoot ([string]$Manifest.fileStore.snapshotRoot)
+    }
+
+    return [string]$Manifest.fileStore.root
+}
+
 $manifestFile = Get-Item -LiteralPath $ManifestPath
 $manifestRoot = $manifestFile.DirectoryName
 $manifest = Get-Content -LiteralPath $ManifestPath -Raw | ConvertFrom-Json
@@ -33,9 +42,10 @@ $databaseDumpPath = Join-Path $manifestRoot $manifest.database.dump
 Assert-Condition (Test-Path -LiteralPath $databaseDumpPath) "missing database dump: $databaseDumpPath"
 Assert-Condition ((Compute-Sha256 $databaseDumpPath) -eq [string]$manifest.database.sha256) 'database dump hash mismatch'
 
+$fileStoreBackupRoot = Resolve-FileStoreBackupRoot -Manifest $manifest -ManifestRoot $manifestRoot
 $fileChecks = @()
 foreach ($file in @($manifest.fileStore.files)) {
-    $src = Join-Path $manifest.fileStore.root $file.path
+    $src = Join-Path $fileStoreBackupRoot $file.path
     Assert-Condition (Test-Path -LiteralPath $src) "missing file store source file: $src"
     $sha = Compute-Sha256 $src
     Assert-Condition ($sha -eq [string]$file.sha256) "file store hash mismatch: $src"
@@ -59,7 +69,7 @@ if ($ApplyFileStore) {
     if (-not $DryRun) {
         New-Item -ItemType Directory -Path $targetFileStoreRoot -Force | Out-Null
         foreach ($file in @($manifest.fileStore.files)) {
-            $src = Join-Path $manifest.fileStore.root $file.path
+            $src = Join-Path $fileStoreBackupRoot $file.path
             $dst = Join-Path $targetFileStoreRoot $file.path
             $dstDir = Split-Path -Parent $dst
             if (-not (Test-Path -LiteralPath $dstDir)) { New-Item -ItemType Directory -Path $dstDir -Force | Out-Null }

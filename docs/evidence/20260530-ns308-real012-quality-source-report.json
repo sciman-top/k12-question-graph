@@ -1,0 +1,103 @@
+{
+  "status": "pass",
+  "task": "REAL012",
+  "checkedAt": "2026-05-30T10:24:06",
+  "apiUrl": "http://127.0.0.1:5312",
+  "sourceDocumentId": "650e9218-c910-40b2-8af3-d5690788ddb6",
+  "promotedQuestions": [
+    {
+      "questionItemId": "ace44579-b70c-4c64-b36a-2852ba86ef97",
+      "questionNo": 2,
+      "auditId": "db927a7e-0265-4a53-b6d0-511fb6626fb6",
+      "status": "usable",
+      "primaryKnowledgeId": "525eb4ae-4e5a-421f-80fa-bc9ba674de2d"
+    },
+    {
+      "questionItemId": "84eac67d-c612-4ba5-bb7d-e871cbde356f",
+      "questionNo": 3,
+      "auditId": "29b6a63f-c767-4798-bb3a-5e256c833418",
+      "status": "usable",
+      "primaryKnowledgeId": "525eb4ae-4e5a-421f-80fa-bc9ba674de2d"
+    },
+    {
+      "questionItemId": "027acbf1-4692-49b1-9adb-5ae7f06e31a3",
+      "questionNo": 4,
+      "auditId": "e39a0c83-fbd4-4588-a017-656be8b83bd1",
+      "status": "usable",
+      "primaryKnowledgeId": "525eb4ae-4e5a-421f-80fa-bc9ba674de2d"
+    }
+  ],
+  "searchProbe": {
+    "total": 3,
+    "selectedQuestionNos": [
+      2,
+      3,
+      4
+    ],
+    "hasImageCount": 3,
+    "sortBy": "question_no",
+    "order": "asc"
+  },
+  "paperBasket": {
+    "id": "0619f14e-3d88-4a0d-bf80-8d3eb2c8e9a0",
+    "itemCount": 3,
+    "title": "REAL012 2015 广州真题抽样组卷"
+  },
+  "exportPreflight": {
+    "status": "ready_for_review",
+    "itemCount": 3,
+    "summary": {
+      "imageReadyCount": 3,
+      "formulaReadyCount": 0,
+      "tableReadyCount": 0,
+      "answerReadyCount": 3,
+      "solutionReadyCount": 3,
+      "authorizedSourceCount": 3,
+      "activeKnowledgeVersionCount": 3
+    },
+    "issueCounts": {}
+  },
+  "artifact": {
+    "reportPath": "docs/evidence/20260518-real012-word-pdf-artifact-report.json",
+    "manifestPath": "tmp\\real012-paper-artifacts\\kqg-s010b-paper-artifacts.manifest.json",
+    "status": "pass"
+  },
+  "analysis": {
+    "assessmentId": "c7a7b449-a60a-4660-a5e6-062c8dc9ec9d",
+    "status": "ready",
+    "artifactPath": "draft://commentary-reports/c7a7b449a60a4660a5e6062c8dc9ec9d.md",
+    "allowAiDraftText": false,
+    "writesProductionHistory": false,
+    "weakKnowledgePointCount": 3
+  },
+  "qualityReport": {
+    "closureStatus": "not_closed",
+    "metrics": {
+      "questionCount": 25,
+      "questionNumberCount": 24,
+      "answerCoveredCount": 24,
+      "solutionCoveredCount": 18,
+      "sourceRegionCount": 217,
+      "linkedSourceRegionCount": 44,
+      "linkedSourceScreenshotCount": 43,
+      "missingLinkedSourceScreenshotCount": 1,
+      "imageAssetCount": 19,
+      "imageMatchedQuestionCount": 19,
+      "tableBlockCount": 0,
+      "formulaBlockCount": 0,
+      "pendingManualItemCount": 28,
+      "noiseRetainedBlockCount": 0,
+      "externalAiCallCount": 0
+    },
+    "gaps": [
+      "question_number_incomplete",
+      "answer_coverage_incomplete",
+      "linked_source_screenshot_missing",
+      "manual_review_pending"
+    ],
+    "rollbackSql": "-- REAL012 dry-run rollback reference for source_document 650e9218-c910-40b2-8af3-d5690788ddb6\r\nbegin;\r\ndelete from review_queue_items where payload::text like '%650e9218-c910-40b2-8af3-d5690788ddb6%';\r\ndelete from question_assets where source_region_id in (select id from source_regions where source_document_id = '650e9218-c910-40b2-8af3-d5690788ddb6');\r\ndelete from question_blocks where source_region_id in (select id from source_regions where source_document_id = '650e9218-c910-40b2-8af3-d5690788ddb6');\r\ndelete from source_regions where source_document_id = '650e9218-c910-40b2-8af3-d5690788ddb6';\r\nrollback;"
+  },
+  "real005ClosureStatus": "not_closed",
+  "rollback": "delete from review_queue_items where payload::text like '%REAL012%' or payload::text like '%real012-smoke%'; update question_items set status='pending_review', primary_knowledge_id=null where id in ('ace44579-b70c-4c64-b36a-2852ba86ef97','84eac67d-c612-4ba5-bb7d-e871cbde356f','027acbf1-4692-49b1-9adb-5ae7f06e31a3');",
+  "summaryChinese": "真实广州 2015 样题已进入题号排序检索、题篮、导出预检、Word/PDF 草稿产物和学情讲评引用；逐卷质量报告会继续把待人工项暴露为 not_closed。"
+}

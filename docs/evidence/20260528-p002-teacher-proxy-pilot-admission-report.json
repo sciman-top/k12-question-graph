@@ -1,0 +1,31 @@
+{
+  "status": "pass",
+  "taskId": "P002",
+  "mode": "preflight_only",
+  "checkedAt": "2026-05-29T00:04:18",
+  "p001Status": "待办",
+  "p002Status": "待办",
+  "closeTaskAllowed": false,
+  "currentDecision": "keep_P002_todo_until_P001_and_proxy_evidence_close",
+  "checklistPath": "docs/templates/p002-teacher-proxy-pilot-checklist.md",
+  "evidencePath": "docs/evidence/20260505-p002-teacher-proxy-pilot-preflight.md",
+  "reportPath": "docs/evidence/20260528-p002-teacher-proxy-pilot-admission-report.json",
+  "blockers": [
+    "P001 isolated-machine rehearsal evidence is not closed.",
+    "Authorized or de-identified teacher proxy material path is not recorded.",
+    "Teacher proxy timing, rollback, import, paper export, and score import evidence is not recorded."
+  ],
+  "nextRequiredEvidence": [
+    "P001 isolated-machine release rehearsal report",
+    "authorized_or_deidentified_material_manifest",
+    "teacher proxy import to paper export to score import timing report",
+    "rollback and privacy handling evidence"
+  ],
+  "failClosedRules": [
+    "Do not mark P002 complete from a local preflight-only run.",
+    "Do not use real student or school data without authorization/de-identification evidence.",
+    "Do not advance P003 onsite admission until P002 has a teacher proxy report."
+  ],
+  "boundary": "teacher proxy pilot not executed in this contract; keep P002 as todo until P001 closes and proxy evidence is complete",
+  "rollback": "revert tools/run-p002-teacher-proxy-pilot-preflight-contract.ps1, tasks/backlog.csv, and remove the generated P002 admission report."
+}

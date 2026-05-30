@@ -1,0 +1,47 @@
+{
+  "status": "pass",
+  "taskId": "NS401",
+  "checkedAt": "2026-05-30T10:24:17",
+  "mode": "api_cut_candidate_generation_plus_db_probe",
+  "productionEligible": false,
+  "sourceDocumentId": "6d21eaba-dd9e-43d1-965d-30a812e91155",
+  "generation": {
+    "generatedCount": 2,
+    "lowConfidenceReviewQueueCount": 1,
+    "lowConfidenceThreshold": 0.85
+  },
+  "candidates": [
+    {
+      "sourceRegionId": "591688c6-42e7-4c1e-a5c9-6ed0b0d771c2",
+      "confidence": 0.8,
+      "failureReason": "low_confidence_requires_manual_takeover",
+      "takeoverAction": "manual_review",
+      "status": "pending_review"
+    },
+    {
+      "sourceRegionId": "c70ca4f3-5210-4801-88d1-8c031f6d0977",
+      "confidence": 0.88,
+      "failureReason": "",
+      "takeoverAction": "skip",
+      "status": "pending_review"
+    }
+  ],
+  "db": {
+    "candidateCount": 2,
+    "lowConfidenceReviewQueueCount": 1
+  },
+  "cleanup": {
+    "dbRowsRemoved": true,
+    "uploadedFileRemoved": true
+  },
+  "acceptance": {
+    "cutCandidatesGenerated": true,
+    "confidenceReported": true,
+    "sourceRegionLinked": true,
+    "failureReasonReported": true,
+    "takeoverRequiredViaManualReviewAction": true
+  },
+  "boundary": "NS401 proves synthetic SourceRegions generate pending_review cut candidates with confidence, sourceRegion links, failureReason, and manual-review takeover routing. It does not claim automated cutting accuracy.",
+  "next": "NS402 can continue ReviewQueue API filtering and audit evidence.",
+  "rollback": "Test rows and uploaded file are removed by this script; if interrupted, delete rows by the reported sourceDocumentId or restore DB/FileStore snapshot."
+}

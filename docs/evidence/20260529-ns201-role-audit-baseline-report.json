@@ -1,0 +1,65 @@
+{
+  "status": "pass",
+  "taskId": "NS201",
+  "checkedAt": "2026-05-30T10:22:30",
+  "mode": "api_smoke_plus_static_role_audit_guard",
+  "productionEligible": false,
+  "contracts": {
+    "o004": {
+      "status": "pass",
+      "guardedPrefixes": [
+        "/api/admin/*",
+        "/internal/ai/*"
+      ],
+      "productionWithoutKey": "blocked"
+    },
+    "o004b": {
+      "status": "pass",
+      "roleSplit": {
+        "teacherBlocked": true,
+        "groupLeadReadAllowed": true,
+        "groupLeadWriteBlocked": true,
+        "adminWriteAllowed": true,
+        "internalAiAdminOnly": true
+      },
+      "auditLog": {
+        "path": "tmp/o004b/logs/admin-internal-audit.jsonl",
+        "entryCount": 722,
+        "requiredFields": [
+          "timestampUtc",
+          "path",
+          "method",
+          "operatorRole",
+          "operatorId",
+          "objectRef",
+          "decision",
+          "statusCode"
+        ],
+        "highRiskWriteRecorded": true,
+        "rollbackRefCaptured": true
+      }
+    }
+  },
+  "defaultConfig": {
+    "roleAuditEnabled": true,
+    "requireRoleHeader": true,
+    "requireOperatorIdHeader": true,
+    "enableAuditLog": true,
+    "allowUnguardedDraftTest": false
+  },
+  "uiBoundary": {
+    "adminShellHiddenFromTeacher": true,
+    "roleSplitMarkerPresent": true,
+    "directActiveSwitchHidden": true
+  },
+  "acceptance": {
+    "teacherBlockedFromAdmin": true,
+    "groupLeadReadOnlyCovered": true,
+    "adminHighRiskWriteAudited": true,
+    "internalAiAdminOnly": true,
+    "rollbackRefAudited": true
+  },
+  "boundary": "NS201 establishes a non-site role/audit baseline for admin/internal and high-risk admin writes. It does not replace per-workflow role checks during live pilot.",
+  "next": "NS202 can continue admin/internal fail-closed regression as an explicit non-site security guard.",
+  "rollback": "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns201-role-audit-baseline.ps1 docs/evidence/20260529-ns201-role-audit-baseline-report.json"
+}
