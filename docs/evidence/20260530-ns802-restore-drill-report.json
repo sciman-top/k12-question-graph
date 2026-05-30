@@ -1,0 +1,45 @@
+{
+  "status": "pass",
+  "taskId": "NS802",
+  "checkedAt": "2026-05-30T14:18:34",
+  "mode": "isolated_restore_drill",
+  "productionEligible": false,
+  "externalAiCalls": 0,
+  "realStudentDataUsed": false,
+  "writesProductionHistory": false,
+  "activeAssetMutation": false,
+  "dependency": {
+    "ns801": "docs/evidence/20260530-ns801-backup-manifest-report.json"
+  },
+  "restore": {
+    "sourceManifest": "tmp/ns801-backups/20260530-141603/manifest.json",
+    "isolatedRoot": "tmp/ns802-restore",
+    "databaseRestorePlan": "tmp/ns802-restore/database/database.restore-plan.txt",
+    "databaseSchemaOnlySql": "tmp/ns802-restore/database/database.schema-only.sql",
+    "fileStoreRestoredCount": 10397,
+    "configRestoredCount": 3,
+    "templateRestoredCount": 4,
+    "evidenceRestoredCount": 6
+  },
+  "acceptance": {
+    "manifestVerifiedBeforeRestore": true,
+    "databaseRestorePlanGenerated": true,
+    "schemaOnlyExtracted": true,
+    "fileStoreRestoredToIsolatedRoot": true,
+    "configsRestoredToIsolatedRoot": true,
+    "templatesRestoredToIsolatedRoot": true,
+    "evidenceRestoredToIsolatedRoot": true,
+    "restoredHashesVerified": true,
+    "productionDatabaseUntouched": true,
+    "productionFileStoreUntouched": true
+  },
+  "verification": {
+    "build": "gate_na: isolated restore drill script only; no code build required",
+    "test": "tools/verify-backup.ps1 + pg_restore -l + pg_restore --schema-only + isolated file/config/template/evidence copy with sha256 checks",
+    "contractInvariant": "restore uses NS801 manifest, validates source hashes, restores only to tmp/ns802-restore, and verifies restored hashes",
+    "hotspot": "gate_na: no real disaster recovery operator session; isolated restore drill covers non-site restore mechanics"
+  },
+  "boundary": "NS802 proves the NS801 backup manifest can drive an isolated restore drill without overwriting the current database or production file store.",
+  "rollback": "delete tmp\\ns802-restore if this isolated restore output is no longer needed; git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns802-restore-drill.ps1 docs/evidence/20260530-ns802-restore-drill-report.json",
+  "next": "NS803 can continue installer/host diagnostic."
+}

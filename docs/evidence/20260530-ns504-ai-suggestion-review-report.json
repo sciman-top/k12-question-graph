@@ -1,0 +1,50 @@
+{
+  "status": "pass",
+  "taskId": "NS504",
+  "checkedAt": "2026-05-30T13:02:02",
+  "mode": "ai_suggestion_review_queue_teacher_confirm_writeback_guard",
+  "productionEligible": false,
+  "externalAiCalls": 0,
+  "allowRealModelCalls": false,
+  "noLocalModelUsed": true,
+  "runId": "ns504-2aa665a2f1a340718bddceb3be71882d",
+  "dependency": {
+    "ns503": "docs/evidence/20260530-ns503-model-router-budget-report.json",
+    "ns204": "docs/evidence/20260529-ns204-no-active-write-guard-report.json",
+    "s007b": "docs/evidence/20260530-ns504-s007b-source-report.json",
+    "s007c": "docs/evidence/20260530-ns504-s007c-source-report.json"
+  },
+  "reviewQueue": {
+    "aiJobId": "3b0e1bd4-6a15-4825-9a6e-6a317bf74f52",
+    "reviewQueueItemId": "0b6aeb4c-a4c5-479f-8df0-a5bac3b0ac05",
+    "initialReviewStatus": "open",
+    "feedbackDecision": "approved",
+    "feedbackReviewStatus": "resolved",
+    "teacherModified": true,
+    "questionTotalBefore": 2302,
+    "questionTotalAfter": 2302
+  },
+  "teacherConfirm": {
+    "aiJobId": "0bd492a7-5f75-4314-b813-da506907f804",
+    "questionItemId": "a5e8ab3b-bd98-4724-8d76-05976cf09405",
+    "knowledgeMappingId": "20b96304-e215-4bd5-835a-c6b302978f4c",
+    "afterConfirmQuestionDelta": 1,
+    "undoStatus": "undone",
+    "removedKnowledgeMappingCount": 1,
+    "afterUndoQuestionDelta": 0
+  },
+  "acceptance": {
+    "suggestionsEnterReviewQueue": true,
+    "teacherFeedbackResolvesQueue": true,
+    "suggestionsDoNotWriteQuestionBeforeConfirm": true,
+    "teacherConfirmWritesQuestionAndMapping": true,
+    "undoRestoresQuestionCount": true,
+    "realModelCallsStillDisabled": true,
+    "externalAiCallsZero": true,
+    "localModelNotUsed": true,
+    "activeC002NotSwitched": true
+  },
+  "boundary": "NS504 proves AI suggestions are stored as review-queue candidates and teacher feedback/confirmation gates writeback. S007B verifies no question write before confirmation; S007C verifies teacher confirm creates one QuestionItem and KnowledgeMapping, then undo restores the count. It does not enable real model calls, local models, external AI, or C002 active switching.",
+  "next": "NS505 can continue teacher modification feedback and eval-loop evidence without auto-promoting prompt or production assets.",
+  "rollback": "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1 tools/run-s007b-db-backed-suggestion-queue-smoke.ps1 tools/run-s007c-teacher-confirm-writeback-smoke.ps1; git clean -f -- tools/run-ns504-ai-suggestion-review.ps1 docs/evidence/20260530-ns504-ai-suggestion-review-report.json docs/evidence/20260530-ns504-s007b-source-report.json docs/evidence/20260530-ns504-s007c-source-report.json"
+}

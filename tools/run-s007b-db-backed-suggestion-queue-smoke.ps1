@@ -5,6 +5,7 @@ param(
     [int] $DatabasePort = 5432,
     [string] $DatabasePassword = $env:PGPASSWORD,
     [int] $ApiPort = 5291,
+    [string] $RunId = [Guid]::NewGuid().ToString('N'),
     [string] $ReportPath = 'docs/evidence/20260506-s007b-db-backed-suggestion-queue-smoke-report.json'
 )
 
@@ -47,7 +48,8 @@ try {
         sourceRegionIds = @()
         confidence = @{ score = 0.68; threshold = 0.85 }
         cost = @{ inputTokens = 180; outputTokens = 62; estimatedUsd = 0.014 }
-        cache = @{ cacheKey = "s007b-$sourceId"; cacheHit = $false }
+        cache = @{ cacheKey = "s007b-$RunId-$sourceId"; cacheHit = $false }
+        idempotencyKey = "s007b-$RunId-$sourceId"
         payload = @{
             suggestion = 'tag_by_semantics'
             questionTypeSuggestion = 'single_choice'
@@ -87,6 +89,7 @@ try {
         status = 'pass'
         taskId = 'S007B'
         checkedAt = (Get-Date).ToString('s')
+        runId = $RunId
         sourceDocumentId = $sourceId
         enqueue = [ordered]@{
             aiJobId = $enqueue.aiJobId

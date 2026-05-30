@@ -546,6 +546,43 @@ public sealed class AIJob
     public DateTimeOffset? FinishedAt { get; set; }
 }
 
+public sealed class FeedbackEvent
+{
+    public Guid Id { get; set; }
+
+    public Guid? AIJobId { get; set; }
+
+    public string TaskType { get; set; } = string.Empty;
+
+    public string EntityType { get; set; } = string.Empty;
+
+    public Guid? EntityId { get; set; }
+
+    public string FieldKey { get; set; } = string.Empty;
+
+    public string BeforeValue { get; set; } = "{}";
+
+    public string AfterValue { get; set; } = "{}";
+
+    public double? AiConfidence { get; set; }
+
+    public string? ReasonTag { get; set; }
+
+    public string TeacherId { get; set; } = string.Empty;
+
+    public string? PromptVersion { get; set; }
+
+    public string? SchemaVersion { get; set; }
+
+    public string? Model { get; set; }
+
+    public bool AcceptedForEval { get; set; }
+
+    public string Metadata { get; set; } = "{}";
+
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
 public sealed class ReviewQueueItem
 {
     public Guid Id { get; set; }

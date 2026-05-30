@@ -372,6 +372,7 @@ app.MapPost("/ai-suggestions/{id:guid}/feedback", async (
     var now = DateTimeOffset.UtcNow;
     var decision = NormalizeToken(request.Decision, "approve");
     var nextReviewStatus = decision is "approve" or "approved" ? ReviewStatuses.Resolved : ReviewStatuses.Dismissed;
+    var beforeValue = job.Result;
 
     job.TeacherModified = request.TeacherModified;
     job.ReviewStatus = nextReviewStatus;
@@ -401,6 +402,43 @@ app.MapPost("/ai-suggestions/{id:guid}/feedback", async (
         resolvedQueueItemIds.Add(item.Id);
     }
 
+    if (request.TeacherModified)
+    {
+        dbContext.FeedbackEvents.Add(new FeedbackEvent
+        {
+            AIJobId = job.Id,
+            TaskType = job.JobType,
+            EntityType = "ai_suggestion",
+            EntityId = job.Id,
+            FieldKey = "teacher_feedback",
+            BeforeValue = string.IsNullOrWhiteSpace(beforeValue) ? "{}" : beforeValue,
+            AfterValue = SerializeJson(new
+            {
+                decision,
+                request.TeacherModified,
+                reviewedBy = request.ReviewedBy,
+                reason = request.Reason,
+                reviewStatus = nextReviewStatus
+            }),
+            AiConfidence = job.Confidence,
+            ReasonTag = NormalizeToken(request.Reason, "teacher_modified"),
+            TeacherId = string.IsNullOrWhiteSpace(request.ReviewedBy) ? "teacher" : request.ReviewedBy.Trim(),
+            PromptVersion = job.PromptVersion,
+            SchemaVersion = job.SchemaVersion,
+            Model = string.IsNullOrWhiteSpace(job.ModelName) ? job.ModelProvider : $"{job.ModelProvider}/{job.ModelName}",
+            AcceptedForEval = true,
+            Metadata = SerializeJson(new
+            {
+                source = "ai_suggestion_feedback",
+                decision,
+                resolvedQueueItemIds,
+                productionPromptMutation = false,
+                activeAssetMutation = false
+            }),
+            CreatedAt = now
+        });
+    }
+
     await dbContext.SaveChangesAsync(cancellationToken);
     return Results.Ok(new AiSuggestionFeedbackResponse(
         job.Id,
@@ -411,6 +449,47 @@ app.MapPost("/ai-suggestions/{id:guid}/feedback", async (
         now));
 })
 .WithName("FeedbackAiSuggestion");
+
+app.MapGet("/feedback-events/eval-samples", async (
+    int? limit,
+    KqgDbContext dbContext,
+    CancellationToken cancellationToken) =>
+{
+    var take = Math.Clamp(limit ?? 20, 1, 100);
+    var rows = await dbContext.FeedbackEvents
+        .AsNoTracking()
+        .Where(x => x.AcceptedForEval)
+        .OrderByDescending(x => x.CreatedAt)
+        .Take(take)
+        .ToListAsync(cancellationToken);
+
+    return Results.Ok(new
+    {
+        items = rows.Select(x => new
+        {
+            x.Id,
+            x.TaskType,
+            x.EntityType,
+            x.EntityId,
+            x.FieldKey,
+            beforeValue = JsonHelpers.ParseJsonElement(x.BeforeValue),
+            afterValue = JsonHelpers.ParseJsonElement(x.AfterValue),
+            x.AiConfidence,
+            x.ReasonTag,
+            x.TeacherId,
+            x.PromptVersion,
+            x.SchemaVersion,
+            x.Model,
+            x.AcceptedForEval,
+            metadata = JsonHelpers.ParseJsonElement(x.Metadata),
+            x.CreatedAt
+        }).ToArray(),
+        totalCount = rows.Count,
+        productionPromptMutation = false,
+        activeAssetMutation = false
+    });
+})
+.WithName("ListFeedbackEventEvalSamples");
 
 app.MapPost("/ai-suggestions/{id:guid}/confirm", async (
     Guid id,
@@ -1785,6 +1864,9 @@ app.MapGet("/questions", async (
     double? difficultyMin,
     double? difficultyMax,
     string? sourceType,
+    bool? hasFormula,
+    bool? hasTable,
+    bool? hasImage,
     string? knowledgeStatus,
     int? knowledgeVersion,
     string? sortBy,
@@ -1874,6 +1956,42 @@ app.MapGet("/questions", async (
         query = query.Where(x => sourceQuestionIds.Contains(x.Id));
     }
 
+    if (hasFormula.HasValue)
+    {
+        var formulaQuestionIds = dbContext.QuestionBlocks
+            .AsNoTracking()
+            .Where(x => x.BlockType == "formula")
+            .Select(x => x.QuestionItemId)
+            .Distinct();
+        query = hasFormula.Value
+            ? query.Where(x => formulaQuestionIds.Contains(x.Id))
+            : query.Where(x => !formulaQuestionIds.Contains(x.Id));
+    }
+
+    if (hasTable.HasValue)
+    {
+        var tableQuestionIds = dbContext.QuestionBlocks
+            .AsNoTracking()
+            .Where(x => x.BlockType == "table")
+            .Select(x => x.QuestionItemId)
+            .Distinct();
+        query = hasTable.Value
+            ? query.Where(x => tableQuestionIds.Contains(x.Id))
+            : query.Where(x => !tableQuestionIds.Contains(x.Id));
+    }
+
+    if (hasImage.HasValue)
+    {
+        var imageQuestionIds = dbContext.QuestionAssets
+            .AsNoTracking()
+            .Where(x => x.AssetType == "image")
+            .Select(x => x.QuestionItemId)
+            .Distinct();
+        query = hasImage.Value
+            ? query.Where(x => imageQuestionIds.Contains(x.Id))
+            : query.Where(x => !imageQuestionIds.Contains(x.Id));
+    }
+
     var pageSize = Math.Clamp(limit ?? 20, 1, 50);
     var pageIndex = Math.Max(1, page ?? 1);
     var offset = (pageIndex - 1) * pageSize;
@@ -1942,6 +2060,10 @@ app.MapGet("/questions", async (
             block.QuestionItemId,
             document.SourceTitle,
             document.SourceType,
+            document.LicenseOrPermission,
+            document.SharingAllowed,
+            document.ContainsStudentPii,
+            document.AnonymizationStatus,
             HasScreenshot = !string.IsNullOrWhiteSpace(region.ScreenshotRelativePath)
         }
     ).Concat(
@@ -1954,6 +2076,10 @@ app.MapGet("/questions", async (
             asset.QuestionItemId,
             document.SourceTitle,
             document.SourceType,
+            document.LicenseOrPermission,
+            document.SharingAllowed,
+            document.ContainsStudentPii,
+            document.AnonymizationStatus,
             HasScreenshot = !string.IsNullOrWhiteSpace(region.ScreenshotRelativePath)
         }
     ).ToListAsync(cancellationToken);
@@ -1979,6 +2105,10 @@ app.MapGet("/questions", async (
             x => new SourceSummaryResponse(
                 x.Select(row => row.SourceTitle).Where(value => !string.IsNullOrWhiteSpace(value)).Distinct().ToArray(),
                 x.Select(row => row.SourceType).Where(value => !string.IsNullOrWhiteSpace(value)).Distinct().ToArray(),
+                x.Select(row => row.LicenseOrPermission).Where(value => !string.IsNullOrWhiteSpace(value)).Distinct().ToArray(),
+                x.All(row => row.SharingAllowed),
+                x.Any(row => row.ContainsStudentPii),
+                x.Select(row => row.AnonymizationStatus).Where(value => !string.IsNullOrWhiteSpace(value)).Distinct().ToArray(),
                 x.Count(),
                 x.Count(row => row.HasScreenshot)));
 
@@ -2005,7 +2135,7 @@ app.MapGet("/questions", async (
             GetQuestionPreview(itemBlocks ?? []),
             itemBlocks?.Length ?? 0,
             assetCount,
-            sourceSummary ?? new SourceSummaryResponse([], [], 0, 0),
+            sourceSummary ?? new SourceSummaryResponse([], [], [], false, false, [], 0, 0),
             hasFormulaByQuestionId.ContainsKey(item.Id),
             hasTableByQuestionId.ContainsKey(item.Id),
             hasImageByQuestionId.ContainsKey(item.Id));
@@ -4542,6 +4672,10 @@ public sealed record KnowledgeNodeCardResponse(
 public sealed record SourceSummaryResponse(
     IReadOnlyList<string> Titles,
     IReadOnlyList<string> Types,
+    IReadOnlyList<string> Permissions,
+    bool SharingAllowed,
+    bool ContainsStudentPii,
+    IReadOnlyList<string> AnonymizationStatuses,
     int RegionCount,
     int ScreenshotCount);
 

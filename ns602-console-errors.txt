@@ -1,0 +1,6 @@
+Total messages: 6 (Errors: 3, Warnings: 0)
+Returning 3 messages for level "error"
+
+[ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://127.0.0.1:5174/health/ready:0
+[ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://127.0.0.1:5174/source-documents:0
+[ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://127.0.0.1:5174/questions?subject=physics&stage=junior_middle_school&page=1&limit=10&sortBy=question_no&order=asc:0

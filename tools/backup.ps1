@@ -24,6 +24,11 @@ function Get-FileEntry([string] $BasePath, [string] $Path) {
     }
 }
 
+function Get-ExistingFileEntries([string[]] $Paths) {
+    @($Paths | Where-Object { Test-Path -LiteralPath $_ } |
+        ForEach-Object { Get-FileEntry -BasePath (Get-Location).Path -Path $_ })
+}
+
 $timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
 $backupDir = Join-Path $BackupRoot $timestamp
 New-Item -ItemType Directory -Path $backupDir -Force | Out-Null
@@ -61,8 +66,26 @@ $configFiles = @(
     'apps/api/appsettings.json',
     'apps/api/appsettings.Development.json',
     'tasks/backlog.csv'
-) | Where-Object { Test-Path -LiteralPath $_ } |
-    ForEach-Object { Get-FileEntry -BasePath (Get-Location).Path -Path $_ }
+)
+$configEntries = Get-ExistingFileEntries -Paths $configFiles
+
+$templateFiles = @(
+    'tests/golden-import/registry.json',
+    'tests/golden-import/privacy_and_license.md',
+    'docs/templates/p001-live-pilot-release-checklist.md',
+    'docs/templates/p006-release-decision-checklist.md'
+)
+$templateEntries = Get-ExistingFileEntries -Paths $templateFiles
+
+$evidenceFiles = @(
+    'docs/evidence/20260530-ns701-score-template-mapping-report.json',
+    'docs/evidence/20260530-ns702-item-score-mapping-report.json',
+    'docs/evidence/20260530-ns703-analysis-metrics-report.json',
+    'docs/evidence/20260530-ns704-commentary-report.json',
+    'docs/evidence/20260530-ns705-student-data-privacy-report.json',
+    'docs/evidence/20260529-ns004-non-site-plan-guard-report.json'
+)
+$evidenceEntries = Get-ExistingFileEntries -Paths $evidenceFiles
 
 $databaseHash = Get-FileHash -LiteralPath $databaseDump -Algorithm SHA256
 $manifest = [ordered]@{
@@ -80,7 +103,9 @@ $manifest = [ordered]@{
         root = $FileStoreRoot
         files = $fileEntries
     }
-    configs = $configFiles
+    configs = $configEntries
+    templates = $templateEntries
+    evidence = $evidenceEntries
 }
 
 $manifestPath = Join-Path $backupDir 'manifest.json'
@@ -91,5 +116,7 @@ $manifest | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $manifestPath -En
     manifest = $manifestPath
     databaseDump = $databaseDump
     fileCount = @($fileEntries).Count
-    configCount = @($configFiles).Count
+    configCount = @($configEntries).Count
+    templateCount = @($templateEntries).Count
+    evidenceCount = @($evidenceEntries).Count
 } | ConvertTo-Json -Compress

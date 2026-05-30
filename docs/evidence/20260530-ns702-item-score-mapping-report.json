@@ -1,0 +1,49 @@
+{
+  "status": "pass",
+  "taskId": "NS702",
+  "checkedAt": "2026-05-30T13:54:25",
+  "mode": "item_score_mapping_ui_api",
+  "productionEligible": false,
+  "externalAiCalls": 0,
+  "realStudentDataUsed": false,
+  "writesProductionHistory": false,
+  "activeAssetMutation": false,
+  "dependency": {
+    "ns701": "docs/evidence/20260530-ns701-score-template-mapping-report.json",
+    "s011b": "docs/evidence/20260530-ns702-s011b-source-report.json"
+  },
+  "mapping": {
+    "endpoint": "/assessments/{assessmentId}/item-score-mappings/preview",
+    "assessmentId": "6e2d3d6d-526c-4b4b-9ad0-cf05e768abee",
+    "questionId": "c2f28c8a-cc57-44ff-b4ff-c4a755bde9da",
+    "knowledgeId": "b8a56b8b-d384-4e0e-a5f7-4067ed77e691",
+    "itemCount": 2,
+    "mappedCount": 1,
+    "unclearCount": 1,
+    "issueCodes": [
+      "question_mapping_missing"
+    ],
+    "teacherMessage": "部分小题映射不清，请集中处理后再生成讲评草稿。"
+  },
+  "acceptance": {
+    "questionNoCanMapToQuestion": true,
+    "itemScoreCanMapToKnowledge": true,
+    "scoreValuePreservedForPreview": true,
+    "unclearMappingCentralized": true,
+    "noSilentDropForUnclearItems": true,
+    "uiHasPreviewActionAndUnclearList": true,
+    "noExternalAiCall": true,
+    "noRealStudentData": true,
+    "noProductionHistoryWrite": true,
+    "noActiveSwitch": true
+  },
+  "verification": {
+    "build": "dotnet build apps/api/K12QuestionGraph.Api.csproj -c Release",
+    "test": "tools/run-s011b-item-score-mapping-ui-api-smoke.ps1",
+    "contractInvariant": "API/UI/client markers for item-score mapping preview and centralized unclear mappings",
+    "hotspot": "gate_na: no real school score sheet or teacher UI session; synthetic API/UI contract covers non-site mapping semantics"
+  },
+  "boundary": "NS702 proves item-score mappings can be previewed against question and knowledge references, while unclear mappings are centralized for teacher review and never silently dropped.",
+  "rollback": "delete synthetic S011B rows recorded in docs/evidence/20260530-ns702-s011b-source-report.json if needed; git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns702-item-score-mapping.ps1 docs/evidence/20260530-ns702-item-score-mapping-report.json docs/evidence/20260530-ns702-s011b-source-report.json",
+  "next": "NS703 can continue analysis metrics verification."
+}

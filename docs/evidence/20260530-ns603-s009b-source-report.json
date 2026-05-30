@@ -1,0 +1,16 @@
+{
+  "status": "pass",
+  "taskId": "S009B",
+  "checkedAt": "2026-05-30T13:13:46",
+  "blueprintReviewId": "a41bac0d-4467-43fc-a807-52045995c75a",
+  "initialStatus": "pending_review",
+  "finalStatus": "confirmed",
+  "paperBasketId": "7e937947-49a8-4dba-8040-d2ae9bc1f054",
+  "selectedQuestionCount": 8,
+  "reviewRequiredBeforeQuestionSelection": true,
+  "opaqueGenerationAllowed": false,
+  "allowRealModelCalls": false,
+  "productionEligible": false,
+  "conclusion": "natural-language paper request creates a reviewable blueprint first; only explicit teacher confirmation creates a draft paper basket and selects questions",
+  "rollback": "delete the created paper_blueprint_reviews row and related draft paper_baskets/paper_basket_items, or revert the S009B migration before release"
+}

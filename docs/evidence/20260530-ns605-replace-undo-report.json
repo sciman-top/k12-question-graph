@@ -1,0 +1,48 @@
+{
+  "status": "pass",
+  "taskId": "NS605",
+  "checkedAt": "2026-05-30T13:36:25",
+  "mode": "replace_question_and_undo_snapshot",
+  "productionEligible": false,
+  "externalAiCalls": 0,
+  "realStudentDataUsed": false,
+  "activeAssetMutation": false,
+  "dependency": {
+    "ns604": "docs/evidence/20260530-ns604-paper-request-understanding-report.json",
+    "e003": "tools/run-e003-question-replacement-contract.ps1",
+    "workflowDoc": "docs/74_E003_QuestionReplacementUndo.md"
+  },
+  "replacement": {
+    "mode": "draft_test",
+    "action": "replace_question",
+    "sameKnowledge": true,
+    "sameQuestionType": true,
+    "similarDifficulty": true,
+    "sameScore": true,
+    "undoTokenPresent": true,
+    "knowledgeStatus": "draft"
+  },
+  "acceptance": {
+    "keepsSameKnowledge": true,
+    "keepsSameQuestionType": true,
+    "keepsSimilarDifficulty": true,
+    "keepsSameScore": true,
+    "excludesCurrentPaperDuplicates": true,
+    "excludesRecentlyUsedQuestions": true,
+    "providesUndoSnapshot": true,
+    "uiHasReplaceAndUndoActions": true,
+    "auditTrailVisible": true,
+    "noExternalAiCall": true,
+    "noRealStudentData": true,
+    "noActiveSwitch": true
+  },
+  "verification": {
+    "build": "dotnet build apps/api/K12QuestionGraph.Api.csproj -c Release",
+    "test": "tools/run-e003-question-replacement-contract.ps1",
+    "contractInvariant": "API/UI markers and docs/74_E003_QuestionReplacementUndo.md",
+    "hotspot": "gate_na: no independent hotspot command; teacher workflow hotspot covered by same-knowledge/type/difficulty/score constraints, duplicate/recent-use exclusions, undo snapshot, and UI actions"
+  },
+  "boundary": "NS605 proves one-click replacement keeps teacher-facing paper constraints and returns an undo snapshot in draft_test mode without real model calls or production writes.",
+  "rollback": "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns605-replace-undo.ps1 docs/evidence/20260530-ns605-replace-undo-report.json",
+  "next": "NS606 can continue export preflight review before Word/PDF artifact generation."
+}

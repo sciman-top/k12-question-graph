@@ -1,0 +1,46 @@
+{
+  "status": "pass",
+  "taskId": "NS703",
+  "checkedAt": "2026-05-30T13:56:38",
+  "mode": "analysis_metrics_recomputable",
+  "productionEligible": false,
+  "externalAiCalls": 0,
+  "realStudentDataUsed": false,
+  "writesProductionHistory": false,
+  "activeAssetMutation": false,
+  "dependency": {
+    "ns702": "docs/evidence/20260530-ns702-item-score-mapping-report.json",
+    "ns501": "docs/evidence/20260530-ns501-c002-active-boundary.json",
+    "f003": "docs/evidence/20260530-ns703-f003-source-report.json"
+  },
+  "metrics": {
+    "activeKnowledgeVersion": "junior-physics-guangzhou-source-derived-v1",
+    "studentCount": 2,
+    "itemCount": 2,
+    "totalScoreRate": 0.875,
+    "discriminationAvailable": true,
+    "weakKnowledgeCount": 1,
+    "summaryPath": "tmp\\ns703-knowledge-mastery\\f003-knowledge-mastery-summary.json"
+  },
+  "acceptance": {
+    "classScoreRateRecomputable": true,
+    "knowledgeScoreRateRecomputable": true,
+    "discriminationRecomputable": true,
+    "knowledgeMasteryExplainable": true,
+    "weakKnowledgePointsIdentified": true,
+    "historicalAnalysisNotRewritten": true,
+    "noExternalAiCall": true,
+    "noRealStudentData": true,
+    "noProductionHistoryWrite": true,
+    "noActiveSwitch": true
+  },
+  "verification": {
+    "build": "gate_na: Python deterministic metrics script; no .NET build required for pure synthetic analysis contract",
+    "test": "tools/run-f003-knowledge-mastery-analysis-contract.ps1",
+    "contractInvariant": "scoreRate/discrimination range checks, active knowledge version, draft_test history policy, no production history write",
+    "hotspot": "gate_na: no real class sample or onsite teacher interpretation session; deterministic synthetic analysis covers non-site metric reproducibility"
+  },
+  "boundary": "NS703 proves basic CTT-style score rate, discrimination, and knowledge mastery metrics are recomputable and explainable in draft_test mode without real student data or production history writes.",
+  "rollback": "delete tmp\\ns703-knowledge-mastery and docs/evidence/20260530-ns703-f003-source-report.json if needed; git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns703-analysis-metrics.ps1 docs/evidence/20260530-ns703-analysis-metrics-report.json",
+  "next": "NS704 can continue commentary report and layered suggestions export."
+}

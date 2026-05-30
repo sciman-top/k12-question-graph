@@ -32,6 +32,7 @@ def docx_document_xml() -> str:
   <w:body>
     <w:p><w:r><w:t>校本题谱 draft_test 导出样卷</w:t></w:r></w:p>
     <w:p><w:r><w:t>productionEligible=false; formal C002 is not active.</w:t></w:r></w:p>
+    <w:p><w:r><w:t>sourceAuthorization=synthetic_internal_authorized; no real student data.</w:t></w:r></w:p>
     <w:p><w:r><w:t>1. 关于惯性的说法，下列哪项正确？</w:t></w:r></w:p>
     <w:p><w:r><w:t>公式：F=ma</w:t></w:r></w:p>
     <w:p>
@@ -92,7 +93,7 @@ def create_docx(path: Path) -> None:
 def create_pdf(path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     # Minimal PDF with ASCII text; the DOCX is the primary Word/WPS fidelity artifact.
-    content = "BT /F1 12 Tf 72 760 Td (KQG draft_test paper export) Tj 0 -24 Td (Q1 formula: F=ma; table and figure are preserved in DOCX) Tj ET"
+    content = "BT /F1 12 Tf 72 760 Td (KQG draft_test paper export) Tj 0 -24 Td (Q1 formula: F=ma; table and figure are preserved in DOCX) Tj 0 -24 Td (sourceAuthorization=synthetic_internal_authorized; no real student data) Tj ET"
     objects = [
         "1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n",
         "2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj\n",
@@ -124,6 +125,7 @@ def verify_docx(path: Path) -> dict[str, Any]:
         "hasFigureMedia": bool(media),
         "hasTable": "<w:tbl>" in document_xml,
         "hasAnswer": "答案：B" in document_xml,
+        "hasAuthorizationText": "sourceAuthorization=synthetic_internal_authorized" in document_xml,
         "mediaCount": len(media),
     }
 
@@ -155,6 +157,9 @@ def main() -> int:
             ("mode", "draft_test"),
             ("productionEligible", False),
             ("formalC002Required", False),
+            ("sourceAuthorization", "synthetic_internal_authorized"),
+            ("realStudentDataUsed", False),
+            ("authorizationText", "sourceAuthorization=synthetic_internal_authorized; no real student data."),
             ("exportedAt", datetime.now(timezone.utc).isoformat()),
             ("artifacts", {"docx": str(docx_path), "pdf": str(pdf_path)}),
             ("checks", {"docx": docx_checks, "pdf": pdf_checks}),
@@ -168,6 +173,8 @@ def main() -> int:
             ("mode", "draft_test"),
             ("productionEligible", False),
             ("formalC002Required", False),
+            ("sourceAuthorization", "synthetic_internal_authorized"),
+            ("realStudentDataUsed", False),
             ("outputRoot", str(output_root)),
             ("docxPath", str(docx_path)),
             ("pdfPath", str(pdf_path)),

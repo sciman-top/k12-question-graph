@@ -911,6 +911,120 @@ namespace K12QuestionGraph.Api.Data.Migrations
                         });
                 });
 
+            modelBuilder.Entity("K12QuestionGraph.Api.Domain.FeedbackEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<Guid?>("AIJobId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("ai_job_id");
+
+                    b.Property<bool>("AcceptedForEval")
+                        .HasColumnType("boolean")
+                        .HasColumnName("accepted_for_eval");
+
+                    b.Property<string>("AfterValue")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("after_value")
+                        .HasDefaultValueSql("'{}'::jsonb");
+
+                    b.Property<double?>("AiConfidence")
+                        .HasColumnType("double precision")
+                        .HasColumnName("ai_confidence");
+
+                    b.Property<string>("BeforeValue")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("before_value")
+                        .HasDefaultValueSql("'{}'::jsonb");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("EntityId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("entity_id");
+
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("entity_type");
+
+                    b.Property<string>("FieldKey")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("field_key");
+
+                    b.Property<string>("Metadata")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("metadata")
+                        .HasDefaultValueSql("'{}'::jsonb");
+
+                    b.Property<string>("Model")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("model");
+
+                    b.Property<string>("PromptVersion")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("prompt_version");
+
+                    b.Property<string>("ReasonTag")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("reason_tag");
+
+                    b.Property<string>("SchemaVersion")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("schema_version");
+
+                    b.Property<string>("TaskType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("task_type");
+
+                    b.Property<string>("TeacherId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("teacher_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_feedback_events");
+
+                    b.HasIndex("AIJobId")
+                        .HasDatabaseName("ix_feedback_events_ai_job_id");
+
+                    b.HasIndex("AcceptedForEval")
+                        .HasDatabaseName("ix_feedback_events_accepted_for_eval");
+
+                    b.HasIndex("CreatedAt")
+                        .HasDatabaseName("ix_feedback_events_created_at");
+
+                    b.HasIndex("TaskType")
+                        .HasDatabaseName("ix_feedback_events_task_type");
+
+                    b.ToTable("feedback_events", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_feedback_events_ai_confidence", "ai_confidence is null or (ai_confidence >= 0 and ai_confidence <= 1)");
+                        });
+                });
+
             modelBuilder.Entity("K12QuestionGraph.Api.Domain.FileAsset", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2629,6 +2743,15 @@ namespace K12QuestionGraph.Api.Data.Migrations
                         .HasForeignKey("ToAssetVersionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("fk_domain_asset_migrations_domain_asset_versions_to_asset_vers");
+                });
+
+            modelBuilder.Entity("K12QuestionGraph.Api.Domain.FeedbackEvent", b =>
+                {
+                    b.HasOne("K12QuestionGraph.Api.Domain.AIJob", null)
+                        .WithMany()
+                        .HasForeignKey("AIJobId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_feedback_events_ai_jobs_ai_job_id");
                 });
 
             modelBuilder.Entity("K12QuestionGraph.Api.Domain.ImportJob", b =>

@@ -1,0 +1,59 @@
+{
+  "status": "pass",
+  "taskId": "NS606",
+  "checkedAt": "2026-05-30T13:44:50",
+  "mode": "export_preflight_review",
+  "productionEligible": false,
+  "externalAiCalls": 0,
+  "realStudentDataUsed": false,
+  "activeAssetMutation": false,
+  "dependency": {
+    "ns605": "docs/evidence/20260530-ns605-replace-undo-report.json",
+    "s010a": "docs/evidence/20260530-ns606-s010a-source-report.json",
+    "m004": "docs\\evidence\\20260505-m004-export-preflight-contract.md"
+  },
+  "preflight": {
+    "paperBasketId": "e225aad6-8bde-4135-ac49-78a97c7c4f54",
+    "status": "blocked",
+    "itemCount": 2,
+    "issueCodes": [
+      "image_not_attached",
+      "answer_missing",
+      "solution_missing",
+      "source_missing",
+      "knowledge_version_reference_missing"
+    ],
+    "teacherMessage": "导出前仍有答案、解析、来源授权或版本引用问题，请先处理后再生成文件。",
+    "summary": {
+      "imageReadyCount": 1,
+      "formulaReadyCount": 1,
+      "tableReadyCount": 1,
+      "answerReadyCount": 1,
+      "solutionReadyCount": 1,
+      "authorizedSourceCount": 1,
+      "activeKnowledgeVersionCount": 1
+    }
+  },
+  "acceptance": {
+    "studentTeacherAnswerVersionsMustBePreflighted": true,
+    "sourceAuthorizationRiskBlocksExport": true,
+    "missingAnswerBlocksTeacherAndAnswerVersions": true,
+    "missingSolutionBlocksExport": true,
+    "missingSourceBlocksAuthorization": true,
+    "missingKnowledgeVersionBlocksReproducibility": true,
+    "imageFormulaTableReadinessCounted": true,
+    "uiHasDocxAndPdfExportActions": true,
+    "noExternalAiCall": true,
+    "noRealStudentData": true,
+    "noActiveSwitch": true
+  },
+  "verification": {
+    "build": "dotnet build apps/api/K12QuestionGraph.Api.csproj -c Release",
+    "test": "tools/run-s010a-export-preflight-api-smoke.ps1",
+    "contractInvariant": "tools/run-m004-export-preflight-contract.ps1 plus API/UI markers for export preflight and export actions",
+    "hotspot": "gate_na: no independent hotspot command; teacher workflow hotspot covered by issue-code blocking for source authorization, answer, solution, image, and knowledge-version reproducibility"
+  },
+  "boundary": "NS606 proves export preflight blocks risky student/teacher/answer-version generation until source authorization, answer/solution, asset, and knowledge-version reproducibility checks are visible.",
+  "rollback": "delete synthetic S010A rows recorded in docs/evidence/20260530-ns606-s010a-source-report.json if needed; git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns606-export-preflight.ps1 docs/evidence/20260530-ns606-export-preflight-report.json docs/evidence/20260530-ns606-s010a-source-report.json",
+  "next": "NS607 can continue Word/PDF artifact regression."
+}

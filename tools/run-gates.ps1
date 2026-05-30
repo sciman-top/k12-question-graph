@@ -354,6 +354,70 @@ try {
         .\tools\run-ns503-model-router-budget.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin | Write-Host
     }
 
+    Invoke-GateStep 'ns504 ai suggestion review guard' {
+        .\tools\run-ns504-ai-suggestion-review.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin | Write-Host
+    }
+
+    Invoke-GateStep 'ns505 feedback eval loop guard' {
+        .\tools\run-ns505-feedback-eval-loop.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin | Write-Host
+    }
+
+    Invoke-GateStep 'ns601 question search api guard' {
+        .\tools\run-ns601-question-search-api.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin | Write-Host
+    }
+
+    Invoke-GateStep 'ns602 question card ui guard' {
+        .\tools\run-ns602-question-card-ui.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'ns603 paper basket persistence guard' {
+        .\tools\run-ns603-paper-basket.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin | Write-Host
+    }
+
+    Invoke-GateStep 'ns604 paper request understanding guard' {
+        .\tools\run-ns604-paper-request-understanding.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin | Write-Host
+    }
+
+    Invoke-GateStep 'ns605 replace undo guard' {
+        .\tools\run-ns605-replace-undo.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'ns606 export preflight guard' {
+        .\tools\run-ns606-export-preflight.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin | Write-Host
+    }
+
+    Invoke-GateStep 'ns607 export artifacts guard' {
+        .\tools\run-ns607-export-artifacts.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin | Write-Host
+    }
+
+    Invoke-GateStep 'ns701 score template mapping guard' {
+        .\tools\run-ns701-score-template-mapping.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin | Write-Host
+    }
+
+    Invoke-GateStep 'ns702 item score mapping guard' {
+        .\tools\run-ns702-item-score-mapping.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin | Write-Host
+    }
+
+    Invoke-GateStep 'ns703 analysis metrics guard' {
+        .\tools\run-ns703-analysis-metrics.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'ns704 commentary report guard' {
+        .\tools\run-ns704-commentary-report.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin | Write-Host
+    }
+
+    Invoke-GateStep 'ns705 student data privacy guard' {
+        .\tools\run-ns705-student-data-privacy.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'ns801 backup manifest guard' {
+        .\tools\run-ns801-backup-manifest.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin -FileStoreRoot $FileStoreRoot | Write-Host
+    }
+
+    Invoke-GateStep 'ns802 restore drill guard' {
+        .\tools\run-ns802-restore-drill.ps1 -PgBin $PgBin | Write-Host
+    }
+
     Invoke-GateStep 'local-first ai consumption guard' {
         .\tools\run-local-first-ai-guard.ps1 | Write-Host
     }

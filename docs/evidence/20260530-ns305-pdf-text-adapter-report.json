@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS305",
-  "checkedAt": "2026-05-30T10:23:22",
+  "checkedAt": "2026-05-30T13:00:13",
   "mode": "j002_pdf_text_adapter_contract_wrapper",
   "productionEligible": false,
   "dependency": {

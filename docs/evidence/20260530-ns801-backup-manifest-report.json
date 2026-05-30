@@ -1,0 +1,46 @@
+{
+  "status": "pass",
+  "taskId": "NS801",
+  "checkedAt": "2026-05-30T14:16:49",
+  "mode": "backup_manifest_drill",
+  "productionEligible": false,
+  "externalAiCalls": 0,
+  "realStudentDataUsed": false,
+  "writesProductionHistory": false,
+  "activeAssetMutation": false,
+  "dependency": {
+    "ns705": "docs/evidence/20260530-ns705-student-data-privacy-report.json"
+  },
+  "backup": {
+    "manifest": "tmp/ns801-backups/20260530-141603/manifest.json",
+    "backupDir": "tmp/ns801-backups/20260530-141603",
+    "databaseDump": "tmp/ns801-backups/20260530-141603/database.dump",
+    "databaseSha256": "3f763356e3a4a1abb0d163f5aa15f69ef69eef9dcdafa26596b7e98c94d5563f",
+    "fileStoreSourceRoot": "D:\\KQG_Data\\file_store",
+    "fileCount": 10397,
+    "configCount": 3,
+    "templateCount": 4,
+    "evidenceCount": 6
+  },
+  "acceptance": {
+    "databaseDumpInManifest": true,
+    "fileStoreInManifest": true,
+    "configsInManifest": true,
+    "templatesInManifest": true,
+    "evidenceInManifest": true,
+    "sha256Verified": true,
+    "noPlaintextDatabasePasswordInManifest": true,
+    "noMirrorDelete": true,
+    "noRealStudentData": true,
+    "noExternalAiCall": true
+  },
+  "verification": {
+    "build": "gate_na: backup manifest script drill only; no code build required",
+    "test": "tools/backup.ps1 + tools/verify-backup.ps1",
+    "contractInvariant": "manifest contains database dump, file-store listing, configs, templates, evidence hashes, and verify-backup validates sha256",
+    "hotspot": "gate_na: no isolated restore yet; NS802 owns restore drill from this or a fresh manifest"
+  },
+  "boundary": "NS801 proves a local draft/test backup manifest can be generated and hash-verified for database, file store, configs, templates, and evidence. Restore is intentionally deferred to NS802.",
+  "rollback": "delete tmp\\ns801-backups if this dry-run backup is no longer needed; git restore tools/backup.ps1 tools/verify-backup.ps1 tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns801-backup-manifest.ps1 docs/evidence/20260530-ns801-backup-manifest-report.json",
+  "next": "NS802 can continue isolated restore drill."
+}

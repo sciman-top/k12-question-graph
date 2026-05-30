@@ -1,0 +1,27 @@
+{
+  "status": "pass",
+  "taskId": "S010A",
+  "checkedAt": "2026-05-30T13:44:50",
+  "paperBasketId": "e225aad6-8bde-4135-ac49-78a97c7c4f54",
+  "preflightStatus": "blocked",
+  "itemCount": 2,
+  "issueCodes": [
+    "image_not_attached",
+    "answer_missing",
+    "solution_missing",
+    "source_missing",
+    "knowledge_version_reference_missing"
+  ],
+  "summary": {
+    "imageReadyCount": 1,
+    "formulaReadyCount": 1,
+    "tableReadyCount": 1,
+    "answerReadyCount": 1,
+    "solutionReadyCount": 1,
+    "authorizedSourceCount": 1,
+    "activeKnowledgeVersionCount": 1
+  },
+  "teacherMessage": "导出前仍有答案、解析、来源授权或版本引用问题，请先处理后再生成文件。",
+  "conclusion": "export preflight API checks image formula table answer solution source authorization knowledge version references and blocks missing risks before artifact generation",
+  "rollback": "revert the S010A API endpoint/service changes and remove the run-s010a gate entry; no migration is required"
+}

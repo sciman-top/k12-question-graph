@@ -185,6 +185,10 @@ export interface QuestionCardContract {
   sources: {
     titles: string[]
     types: string[]
+    permissions: string[]
+    sharingAllowed: boolean
+    containsStudentPii: boolean
+    anonymizationStatuses: string[]
     regionCount: number
     screenshotCount: number
   }
@@ -666,6 +670,10 @@ export function normalizeQuestionSearchResponse(value: unknown): QuestionSearchC
         sources: {
           titles: readArrayField(sources, 'titles').map((x) => String(x)),
           types: readArrayField(sources, 'types').map((x) => String(x)),
+          permissions: readArrayField(sources, 'permissions').map((x) => String(x)),
+          sharingAllowed: readBooleanField(sources, 'sharingAllowed'),
+          containsStudentPii: readBooleanField(sources, 'containsStudentPii'),
+          anonymizationStatuses: readArrayField(sources, 'anonymizationStatuses').map((x) => String(x)),
           regionCount: readNumberField(sources, 'regionCount'),
           screenshotCount: readNumberField(sources, 'screenshotCount'),
         },

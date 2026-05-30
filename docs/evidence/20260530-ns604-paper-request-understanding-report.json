@@ -1,0 +1,58 @@
+{
+  "status": "pass",
+  "taskId": "NS604",
+  "checkedAt": "2026-05-30T13:18:24",
+  "mode": "natural_language_paper_request_understanding",
+  "productionEligible": false,
+  "externalAiCalls": 0,
+  "realStudentDataUsed": false,
+  "activeAssetMutation": false,
+  "dependency": {
+    "ns603": "docs/evidence/20260530-ns603-paper-basket-report.json",
+    "e002": "tools/run-e002-paper-request-contract.ps1",
+    "m002": "tools/run-m002-nl-to-blueprint-production-chain.ps1"
+  },
+  "parse": {
+    "mode": "draft_test",
+    "schemaVersion": "schemas/ai/natural_language_paper_request.schema.json",
+    "totalScore": 30,
+    "blueprintRows": 3,
+    "reviewQuestions": 3,
+    "knowledgeStatus": "draft"
+  },
+  "reviewableBlueprint": {
+    "blueprintReviewId": "9330da91-dc53-4180-a2f2-7d6d9d5190cf",
+    "status": "pending_review",
+    "mode": "draft_test",
+    "subject": "physics",
+    "grade": "grade_9",
+    "scope": [
+      "牛顿第一定律与惯性",
+      "速度与平均速度"
+    ],
+    "totalScore": 30,
+    "blueprintRows": 3,
+    "reviewQuestions": 3,
+    "confirmedPaperBasketId": null
+  },
+  "acceptance": {
+    "teacherRequestProducesSystemUnderstanding": true,
+    "teacherRequestProducesReviewableBlueprint": true,
+    "pendingReviewBeforeTeacherConfirmation": true,
+    "reviewQuestionsVisible": true,
+    "noPaperBasketBeforeConfirmation": true,
+    "noOpaquePaperGeneration": true,
+    "noExternalAiCall": true,
+    "noRealStudentData": true,
+    "noActiveSwitch": true
+  },
+  "verification": {
+    "build": "dotnet build apps/api/K12QuestionGraph.Api.csproj -c Release",
+    "test": "tools/run-e002-paper-request-contract.ps1; POST /paper-blueprints pending_review smoke",
+    "contractInvariant": "tools/run-m002-nl-to-blueprint-production-chain.ps1",
+    "hotspot": "gate_na: no independent hotspot command; teacher workflow hotspot covered by visible understanding, review questions, pending_review guard, no basket before confirmation, no opaque generation"
+  },
+  "boundary": "NS604 proves natural-language paper requests are converted into reviewable understanding and blueprint drafts only; they do not create an opaque final paper or draft basket before teacher confirmation.",
+  "rollback": "delete from paper_blueprint_reviews where id = '9330da91-dc53-4180-a2f2-7d6d9d5190cf'; git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns604-paper-request-understanding.ps1 docs/evidence/20260530-ns604-paper-request-understanding-report.json",
+  "next": "NS605 can continue one-click replacement and undo snapshot verification."
+}

@@ -1,0 +1,93 @@
+{
+  "status": "pass",
+  "task": "F003",
+  "mode": "draft_test",
+  "productionEligible": false,
+  "realStudentDataUsed": false,
+  "studentPortalExposed": false,
+  "noProductionHistoryWrite": true,
+  "sourceFixture": "synthetic F002-style item scores",
+  "activeKnowledgeVersion": "junior-physics-guangzhou-source-derived-v1",
+  "classSummary": {
+    "studentCount": 2,
+    "itemCount": 2,
+    "totalMaxScore": 8.0,
+    "averageTotalScore": 7.0,
+    "totalScoreRate": 0.875,
+    "discriminationAvailable": true,
+    "historyPolicy": "freeze_existing_history_and_write_draft_test_report_only"
+  },
+  "knowledgePointSummaries": [
+    {
+      "knowledgeStableId": "PHY-JH-MECH-MOTION-SPEED",
+      "knowledgeName": "运动快慢与速度",
+      "activeVersion": "junior-physics-guangzhou-source-derived-v1",
+      "questionNos": [
+        "q1"
+      ],
+      "sampleSize": 2,
+      "maxScore": 3.0,
+      "averageScore": 2.5,
+      "scoreRate": 0.8333,
+      "discrimination": 0.3333,
+      "blankRate": 0.0,
+      "masteryBand": "watch",
+      "historyPolicy": "draft_test_only_no_production_history_rewrite"
+    },
+    {
+      "knowledgeStableId": "PHY-JH-ELEC-OHM-LAW",
+      "knowledgeName": "欧姆定律基础应用",
+      "activeVersion": "junior-physics-guangzhou-source-derived-v1",
+      "questionNos": [
+        "q2"
+      ],
+      "sampleSize": 2,
+      "maxScore": 5.0,
+      "averageScore": 4.5,
+      "scoreRate": 0.9,
+      "discrimination": 0.2,
+      "blankRate": 0.0,
+      "masteryBand": "strong",
+      "historyPolicy": "draft_test_only_no_production_history_rewrite"
+    }
+  ],
+  "weakKnowledgePoints": [
+    {
+      "knowledgeStableId": "PHY-JH-MECH-MOTION-SPEED",
+      "knowledgeName": "运动快慢与速度",
+      "scoreRate": 0.8333,
+      "suggestedTeacherAction": "讲评时优先回看错因和来源题，必要时加入同知识点巩固题。"
+    }
+  ],
+  "studentMasterySummaries": [
+    {
+      "studentKey": "syn-student-001",
+      "displayCode": "SYN-001",
+      "totalScoreRate": 1.0,
+      "knowledgeScoreRates": {
+        "PHY-JH-MECH-MOTION-SPEED": 1.0,
+        "PHY-JH-ELEC-OHM-LAW": 1.0
+      },
+      "masteryBand": "strong"
+    },
+    {
+      "studentKey": "syn-student-002",
+      "displayCode": "SYN-002",
+      "totalScoreRate": 0.75,
+      "knowledgeScoreRates": {
+        "PHY-JH-MECH-MOTION-SPEED": 0.6667,
+        "PHY-JH-ELEC-OHM-LAW": 0.8
+      },
+      "masteryBand": "weak"
+    }
+  ],
+  "outputs": {
+    "summaryPath": "tmp\\ns703-knowledge-mastery\\f003-knowledge-mastery-summary.json"
+  },
+  "summaryChinese": {
+    "title": "F003 得分率知识点分析合同报告",
+    "result": "通过",
+    "boundary": "仅使用 synthetic 小题分和 active 知识点版本引用，不使用真实学生数据，不写正式历史学情。",
+    "next": "后续 G001 可在当前 draft/test 学情报告和已有备份 manifest 基础上做自动备份与共享目录演练。"
+  }
+}

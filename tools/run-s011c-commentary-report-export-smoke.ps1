@@ -130,6 +130,11 @@ try {
         sectionCount = @($export.sections).Count
         weakKnowledgePointCount = @($export.weakKnowledgePoints).Count
         practiceSuggestionCount = @($export.practiceSuggestions).Count
+        sections = $export.sections
+        weakKnowledgePoints = $export.weakKnowledgePoints
+        practiceSuggestions = $export.practiceSuggestions
+        blockingIssues = $export.blockingIssues
+        reportMarkdownPreview = ([string]$export.reportMarkdown).Substring(0, [Math]::Min(500, ([string]$export.reportMarkdown).Length))
         auditTrail = $export.auditTrail
         uiMarkers = @('s011c-commentary-report-export','export-score-report')
         teacherMessage = $export.teacherMessage

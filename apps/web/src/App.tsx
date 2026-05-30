@@ -2425,6 +2425,17 @@ function App() {
                     <Tag>{teacherDifficultyLabelFor(card.difficultyEstimated ?? 0)}</Tag>
                     <Tag>{card.primaryKnowledge ? `v${card.primaryKnowledge.version}` : '待定版本'}</Tag>
                     <Tag>{card.sources.types[0] ? teacherLabelFor(card.sources.types[0]) : '来源待补'}</Tag>
+                    <Tag color={card.sources.permissions.length > 0 ? 'green' : 'orange'}>
+                      {card.sources.permissions[0] ? teacherLabelFor(card.sources.permissions[0]) : '授权待确认'}
+                    </Tag>
+                    <Tag color={card.sources.sharingAllowed ? 'green' : 'gold'}>
+                      {card.sources.sharingAllowed ? '可校内共享' : '共享受限'}
+                    </Tag>
+                    {card.sources.containsStudentPii ? (
+                      <Tag color="red">含学生信息</Tag>
+                    ) : (
+                      <Tag>无学生信息</Tag>
+                    )}
                     {card.hasImage ? <Tag color="green">题图</Tag> : <Tag>无题图</Tag>}
                     {!card.hasImage && card.sources.screenshotCount > 0 ? (
                       <Tag color="gold">有来源截图</Tag>

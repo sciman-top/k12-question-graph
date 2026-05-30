@@ -37,6 +37,16 @@ function Test-AllowlistedCredentialLine([string] $Line) {
         $Line -match '(?i)(HeaderName|RoleHeaderName|OperatorIdHeaderName|RollbackRefHeaderName)'
 }
 
+function Test-AllowlistedPiiLine([string] $PatternName, [string] $Line, [string] $MatchValue) {
+    if ($PatternName -in @('cnPhone', 'cnResidentId') -and
+        $Line -match '(?i)(sha256|hash|checksum|digest|etag)' -and
+        $MatchValue -match '^[0-9a-fA-F]{11,}$') {
+        return $true
+    }
+
+    return $false
+}
+
 function Get-ItemCount($Items) {
     if ($null -eq $Items) {
         return 0
@@ -149,7 +159,8 @@ try {
             foreach ($match in $regexes[$patternName].Matches($text)) {
                 $lineNumber = Get-LineNumber $text $match.Index
                 $line = $lines[$lineNumber - 1].Trim()
-                $piiHits.Add((New-Hit $patternName $relativePath $lineNumber $line $false 'possible real student/person PII value'))
+                $allowed = Test-AllowlistedPiiLine $patternName $line $match.Value
+                $piiHits.Add((New-Hit $patternName $relativePath $lineNumber $line $allowed $(if ($allowed) { 'hash/checksum value, not a person identifier' } else { 'possible real student/person PII value' })))
             }
         }
 

@@ -40,9 +40,19 @@ foreach ($config in @($manifest.configs)) {
     Assert-Hash -Path (Join-Path (Get-Location).Path $config.path) -ExpectedHash $config.sha256
 }
 
+foreach ($template in @($manifest.templates)) {
+    Assert-Hash -Path (Join-Path (Get-Location).Path $template.path) -ExpectedHash $template.sha256
+}
+
+foreach ($evidence in @($manifest.evidence)) {
+    Assert-Hash -Path (Join-Path (Get-Location).Path $evidence.path) -ExpectedHash $evidence.sha256
+}
+
 [pscustomobject]@{
     status = 'ok'
     manifest = $ManifestPath
     fileCount = @($manifest.fileStore.files).Count
     configCount = @($manifest.configs).Count
+    templateCount = @($manifest.templates).Count
+    evidenceCount = @($manifest.evidence).Count
 } | ConvertTo-Json -Compress

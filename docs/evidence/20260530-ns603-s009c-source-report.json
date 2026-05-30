@@ -1,0 +1,20 @@
+{
+  "status": "pass",
+  "taskId": "S009C",
+  "checkedAt": "2026-05-30T13:13:46",
+  "riskLevel": "low",
+  "verifiedFiles": [
+    "apps/web/src/App.tsx",
+    "apps/web/src/api/client.ts",
+    "apps/web/src/api/contracts.ts",
+    "apps/web/src/App.css"
+  ],
+  "contracts": [
+    "s009c-real-blueprint-api",
+    "confirmed-paper-basket",
+    "paper-constraint-visible",
+    "s009c-paper-workflow-message"
+  ],
+  "teacherWorkflow": "teacher creates a reviewable blueprint, explicitly confirms it, then sees a saved paper basket state without backend ids in visible copy",
+  "rollback": "revert the S009C frontend/API client changes and remove this gate entry if the UI integration needs to be withdrawn"
+}

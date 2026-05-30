@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS906",
-  "checkedAt": "2026-05-30T10:33:42",
+  "checkedAt": "2026-05-30T13:07:29",
   "mode": "deterministic_visual_surrogate_review",
   "productionEligible": false,
   "realStudentDataUsed": false,
@@ -88,7 +88,26 @@
     "sampledImageCount": 8,
     "sampledImages": [
       {
-        "regionId": "1b7930f0-d6cc-4d83-aa34-4dcdce7357b6",
+        "regionId": "71a3f42c-7abf-4c73-8194-a933f3d57340",
+        "questionNo": 1,
+        "pageNumber": 1,
+        "bbox": {
+          "x": 12.0,
+          "y": 20.0,
+          "width": 76.0,
+          "height": 8.0
+        },
+        "screenshot": {
+          "path": "generated/guangzhou-2015/source-regions/71a3f42c-7abf-4c73-8194-a933f3d57340.png",
+          "exists": true,
+          "width": 1176,
+          "height": 218,
+          "nonBlankRatio": 0.0244,
+          "pass": true
+        }
+      },
+      {
+        "regionId": "812ec6ab-685b-4301-a9f8-81f32b6e522e",
         "questionNo": 1,
         "pageNumber": 1,
         "bbox": {
@@ -98,7 +117,7 @@
           "height": 10.0
         },
         "screenshot": {
-          "path": "generated/guangzhou-2015/source-regions/1b7930f0-d6cc-4d83-aa34-4dcdce7357b6.png",
+          "path": "generated/guangzhou-2015/source-regions/812ec6ab-685b-4301-a9f8-81f32b6e522e.png",
           "exists": true,
           "width": 1176,
           "height": 261,
@@ -107,26 +126,7 @@
         }
       },
       {
-        "regionId": "faf1bb99-ae75-4ab5-9a6c-719e71774dba",
-        "questionNo": 1,
-        "pageNumber": 1,
-        "bbox": {
-          "x": 12.0,
-          "y": 20.0,
-          "width": 76.0,
-          "height": 8.0
-        },
-        "screenshot": {
-          "path": "generated/guangzhou-2015/source-regions/faf1bb99-ae75-4ab5-9a6c-719e71774dba.png",
-          "exists": true,
-          "width": 1176,
-          "height": 218,
-          "nonBlankRatio": 0.0244,
-          "pass": true
-        }
-      },
-      {
-        "regionId": "14bff6b3-5a18-4e6d-8c02-f0a8406df43f",
+        "regionId": "5d47db95-d0e1-4247-943a-df528d5b9a43",
         "questionNo": 2,
         "pageNumber": 1,
         "bbox": {
@@ -136,7 +136,7 @@
           "height": 15.0
         },
         "screenshot": {
-          "path": "generated/guangzhou-2015/source-regions/14bff6b3-5a18-4e6d-8c02-f0a8406df43f.png",
+          "path": "generated/guangzhou-2015/source-regions/5d47db95-d0e1-4247-943a-df528d5b9a43.png",
           "exists": true,
           "width": 908,
           "height": 366,
@@ -145,7 +145,7 @@
         }
       },
       {
-        "regionId": "9f8a4eff-63e3-4506-9548-5ce6f4b12add",
+        "regionId": "c455f60f-0891-4437-b678-5943a106c79e",
         "questionNo": 2,
         "pageNumber": 1,
         "bbox": {
@@ -155,7 +155,7 @@
           "height": 8.0
         },
         "screenshot": {
-          "path": "generated/guangzhou-2015/source-regions/9f8a4eff-63e3-4506-9548-5ce6f4b12add.png",
+          "path": "generated/guangzhou-2015/source-regions/c455f60f-0891-4437-b678-5943a106c79e.png",
           "exists": true,
           "width": 1176,
           "height": 218,
@@ -164,7 +164,7 @@
         }
       },
       {
-        "regionId": "ddf4cb0b-0e11-4b08-87ea-9dd7721d4d4d",
+        "regionId": "cc8b1d06-7711-4932-a3ac-d48189d0774c",
         "questionNo": 2,
         "pageNumber": 1,
         "bbox": {
@@ -174,7 +174,7 @@
           "height": 26.0
         },
         "screenshot": {
-          "path": "generated/guangzhou-2015/source-regions/ddf4cb0b-0e11-4b08-87ea-9dd7721d4d4d.png",
+          "path": "generated/guangzhou-2015/source-regions/cc8b1d06-7711-4932-a3ac-d48189d0774c.png",
           "exists": true,
           "width": 1176,
           "height": 597,
@@ -183,7 +183,7 @@
         }
       },
       {
-        "regionId": "ded39782-7735-4ddf-80eb-061445e415f7",
+        "regionId": "8c39f54c-8484-44b6-8a2d-8cd9b4318212",
         "questionNo": 3,
         "pageNumber": 1,
         "bbox": {
@@ -193,7 +193,7 @@
           "height": 8.0
         },
         "screenshot": {
-          "path": "generated/guangzhou-2015/source-regions/ded39782-7735-4ddf-80eb-061445e415f7.png",
+          "path": "generated/guangzhou-2015/source-regions/8c39f54c-8484-44b6-8a2d-8cd9b4318212.png",
           "exists": true,
           "width": 1176,
           "height": 218,
@@ -202,7 +202,7 @@
         }
       },
       {
-        "regionId": "99e8876a-73d1-4850-ad33-9f0bcf01a9f3",
+        "regionId": "950d2fd1-56fd-44e9-89cb-ed4e58294d9d",
         "questionNo": 3,
         "pageNumber": 2,
         "bbox": {
@@ -212,7 +212,7 @@
           "height": 20.0
         },
         "screenshot": {
-          "path": "generated/guangzhou-2015/source-regions/99e8876a-73d1-4850-ad33-9f0bcf01a9f3.png",
+          "path": "generated/guangzhou-2015/source-regions/950d2fd1-56fd-44e9-89cb-ed4e58294d9d.png",
           "exists": true,
           "width": 1176,
           "height": 471,
@@ -221,7 +221,7 @@
         }
       },
       {
-        "regionId": "f3af6c11-66ad-4bfd-9412-40edb4074df6",
+        "regionId": "cdcf404d-2329-46ef-9423-c4f81c34fdbb",
         "questionNo": 3,
         "pageNumber": 2,
         "bbox": {
@@ -231,7 +231,7 @@
           "height": 15.0
         },
         "screenshot": {
-          "path": "generated/guangzhou-2015/source-regions/f3af6c11-66ad-4bfd-9412-40edb4074df6.png",
+          "path": "generated/guangzhou-2015/source-regions/cdcf404d-2329-46ef-9423-c4f81c34fdbb.png",
           "exists": true,
           "width": 580,
           "height": 366,
@@ -250,7 +250,7 @@
           "exists": true,
           "hasDocumentXml": true,
           "mediaCount": 3,
-          "sizeBytes": 3313
+          "sizeBytes": 3315
         },
         "pdf": {
           "exists": true,

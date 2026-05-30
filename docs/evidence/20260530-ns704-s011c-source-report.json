@@ -1,0 +1,73 @@
+{
+  "status": "pass",
+  "taskId": "S011C",
+  "checkedAt": "2026-05-30T14:07:23",
+  "endpoint": "/assessments/{assessmentId}/commentary-report/export",
+  "assessmentId": "d6e00a1a-b2fe-4850-84a1-7a605e562628",
+  "artifactPath": "draft://commentary-reports/d6e00a1ab2fe485084a17a605e562628.md",
+  "manifestSha256": "19ddf4a7ebe29b780d8a598979da7d786dce3be8a8917ffc270dd2addb30d809",
+  "sectionCount": 3,
+  "weakKnowledgePointCount": 2,
+  "practiceSuggestionCount": 2,
+  "sections": [
+    {
+      "sectionId": "class_summary",
+      "title": "班级概览",
+      "summary": "已导入 2 个小题，2 个已映射。"
+    },
+    {
+      "sectionId": "weak_points",
+      "title": "优先讲评",
+      "summary": "Inertia 80.0%；Force analysis 83.3%"
+    },
+    {
+      "sectionId": "practice_plan",
+      "title": "巩固练习",
+      "summary": "按已确认知识点生成 draft/test 练习建议，教师确认后再使用。"
+    }
+  ],
+  "weakKnowledgePoints": [
+    {
+      "knowledgeNodeId": "81a5bb0e-5def-45b5-bb2d-8682ba8d75d9",
+      "title": "Inertia",
+      "version": 1,
+      "scoreRate": 0.8,
+      "questionNo": "Q1"
+    },
+    {
+      "knowledgeNodeId": "479e9f42-baff-4a97-a0b4-9a019c7c8867",
+      "title": "Force analysis",
+      "version": 1,
+      "scoreRate": 0.8333,
+      "questionNo": "Q2"
+    }
+  ],
+  "practiceSuggestions": [
+    {
+      "knowledgeNodeId": "81a5bb0e-5def-45b5-bb2d-8682ba8d75d9",
+      "knowledgeTitle": "Inertia",
+      "suggestion": "补充 2 道 Inertia 的基础巩固题，先用于课堂讲评草稿。"
+    },
+    {
+      "knowledgeNodeId": "479e9f42-baff-4a97-a0b4-9a019c7c8867",
+      "knowledgeTitle": "Force analysis",
+      "suggestion": "补充 2 道 Force analysis 的基础巩固题，先用于课堂讲评草稿。"
+    }
+  ],
+  "blockingIssues": [],
+  "reportMarkdownPreview": "# S011C commentary report smoke 讲评草稿\r\n\r\n## 班级概览\r\n已导入 2 个小题，2 个已映射。\r\n\r\n## 优先讲评\r\nInertia 80.0%；Force analysis 83.3%\r\n\r\n## 巩固练习\r\n按已确认知识点生成 draft/test 练习建议，教师确认后再使用。\r\n\r\n## 分层练习建议\r\n- Inertia: 补充 2 道 Inertia 的基础巩固题，先用于课堂讲评草稿。\r\n- Force analysis: 补充 2 道 Force analysis 的基础巩固题，先用于课堂讲评草稿。",
+  "auditTrail": [
+    "deterministic_score_metrics",
+    "draft_commentary_report_export",
+    "no_real_student_data",
+    "no_production_history_write",
+    "no_ai_runtime_dependency"
+  ],
+  "uiMarkers": [
+    "s011c-commentary-report-export",
+    "export-score-report"
+  ],
+  "teacherMessage": "讲评报告草稿已生成，可导出给备课使用。",
+  "conclusion": "commentary report export uses deterministic score metrics after item-score mapping, returns a draft/test artifact manifest, and does not write formal history",
+  "rollback": "revert the S011C export endpoint/service/client/UI/gate changes and remove docs/evidence/20260508-s011c-commentary-report-export-report.json; no migration is required"
+}

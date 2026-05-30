@@ -1,0 +1,40 @@
+{
+  "status": "pass",
+  "taskId": "NS505",
+  "checkedAt": "2026-05-30T13:02:12",
+  "mode": "teacher_feedback_event_eval_loop_no_prompt_mutation",
+  "productionEligible": false,
+  "externalAiCalls": 0,
+  "allowRealModelCalls": false,
+  "dependency": {
+    "ns504": "docs/evidence/20260530-ns504-ai-suggestion-review-report.json",
+    "migration": "20260530044956_AddFeedbackEventsForNS505"
+  },
+  "feedbackEvent": {
+    "id": "ece2f56b-8989-4b5d-a1e8-4d1df9c21bcc",
+    "aiJobId": "f121b023-7f39-459d-bd96-3d29b07f0796",
+    "countBefore": 3,
+    "countAfter": 4,
+    "acceptedForEval": true,
+    "reasonTag": "teacher_changed_knowledge_tag_for_eval",
+    "taskType": "knowledge_tagging"
+  },
+  "evalSampleEndpoint": {
+    "returnedCreatedEvent": true,
+    "totalCount": 4,
+    "productionPromptMutation": false,
+    "activeAssetMutation": false
+  },
+  "acceptance": {
+    "teacherModificationCreatesFeedbackEvent": true,
+    "feedbackEventAcceptedForEval": true,
+    "evalSampleEndpointReadable": true,
+    "productionPromptNotMutated": true,
+    "activeAssetNotMutated": true,
+    "realModelCallsStillDisabled": true,
+    "externalAiCallsZero": true
+  },
+  "boundary": "NS505 proves teacher-modified AI suggestion feedback is captured as FeedbackEvent and exposed as an eval sample. It does not automatically mutate production prompts, schema, model routing, active C002 assets, or call real AI.",
+  "next": "NS601 can continue production question search API after NS5 AI review/eval guards are runtime verified.",
+  "rollback": "dotnet ef database update 20260507152001_AddPaperBlueprintReviewForS009B --project apps/api/K12QuestionGraph.Api.csproj --startup-project apps/api/K12QuestionGraph.Api.csproj --configuration Release --no-build; git restore apps/api/Domain/P0Entities.cs apps/api/Data/KqgDbContext.cs apps/api/Data/Migrations/KqgDbContextModelSnapshot.cs apps/api/Program.cs tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- apps/api/Data/Migrations/20260530044956_AddFeedbackEventsForNS505.cs apps/api/Data/Migrations/20260530044956_AddFeedbackEventsForNS505.Designer.cs tools/run-ns505-feedback-eval-loop.ps1 docs/evidence/20260530-ns505-feedback-eval-loop-report.json"
+}

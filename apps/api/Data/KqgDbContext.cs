@@ -33,6 +33,8 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
 
     public DbSet<AIJob> AIJobs => Set<AIJob>();
 
+    public DbSet<FeedbackEvent> FeedbackEvents => Set<FeedbackEvent>();
+
     public DbSet<ReviewQueueItem> ReviewQueueItems => Set<ReviewQueueItem>();
 
     public DbSet<BackupJob> BackupJobs => Set<BackupJob>();
@@ -81,6 +83,7 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
         ConfigureItemScore(modelBuilder.Entity<ItemScore>());
         ConfigureImportJob(modelBuilder.Entity<ImportJob>());
         ConfigureAIJob(modelBuilder.Entity<AIJob>());
+        ConfigureFeedbackEvent(modelBuilder.Entity<FeedbackEvent>());
         ConfigureReviewQueueItem(modelBuilder.Entity<ReviewQueueItem>());
         ConfigureBackupJob(modelBuilder.Entity<BackupJob>());
         ConfigureQuestionItem(modelBuilder.Entity<QuestionItem>());
@@ -384,6 +387,30 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
             x.HasCheckConstraint("ck_ai_jobs_tokens", "(input_tokens is null or input_tokens >= 0) and (output_tokens is null or output_tokens >= 0) and (cached_tokens is null or cached_tokens >= 0)");
             x.HasCheckConstraint("ck_ai_jobs_review_status", "review_status in ('open','resolved','dismissed','pending_review')");
         });
+    }
+
+    private static void ConfigureFeedbackEvent(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<FeedbackEvent> entity)
+    {
+        entity.ToTable("feedback_events");
+        entity.HasKey(x => x.Id);
+        entity.HasIndex(x => x.TaskType);
+        entity.HasIndex(x => x.AcceptedForEval);
+        entity.HasIndex(x => x.CreatedAt);
+        entity.HasIndex(x => x.AIJobId);
+        entity.Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
+        entity.Property(x => x.TaskType).HasMaxLength(64).IsRequired();
+        entity.Property(x => x.EntityType).HasMaxLength(64).IsRequired();
+        entity.Property(x => x.FieldKey).HasMaxLength(128).IsRequired();
+        entity.Property(x => x.BeforeValue).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.Property(x => x.AfterValue).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.Property(x => x.ReasonTag).HasMaxLength(128);
+        entity.Property(x => x.TeacherId).HasMaxLength(128).IsRequired();
+        entity.Property(x => x.PromptVersion).HasMaxLength(64);
+        entity.Property(x => x.SchemaVersion).HasMaxLength(64);
+        entity.Property(x => x.Model).HasMaxLength(128);
+        entity.Property(x => x.Metadata).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.HasOne<AIJob>().WithMany().HasForeignKey(x => x.AIJobId).OnDelete(DeleteBehavior.SetNull);
+        entity.ToTable(x => x.HasCheckConstraint("ck_feedback_events_ai_confidence", "ai_confidence is null or (ai_confidence >= 0 and ai_confidence <= 1)"));
     }
 
     private static void ConfigureReviewQueueItem(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<ReviewQueueItem> entity)

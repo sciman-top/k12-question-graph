@@ -6,6 +6,7 @@ param(
     [string] $DatabasePassword = $env:PGPASSWORD,
     [int] $ApiPort = 5292,
     [string] $PgBin = 'C:\Program Files\PostgreSQL\17\bin',
+    [string] $RunId = [Guid]::NewGuid().ToString('N'),
     [string] $ReportPath = 'docs/evidence/20260506-s007c-teacher-confirm-writeback-smoke-report.json'
 )
 
@@ -50,7 +51,8 @@ try {
         sourceRegionIds = @()
         confidence = @{ score = 0.74; threshold = 0.9 }
         cost = @{ inputTokens = 96; outputTokens = 44; estimatedUsd = 0.009 }
-        cache = @{ cacheKey = "s007c-$sourceId"; cacheHit = $true }
+        cache = @{ cacheKey = "s007c-$RunId-$sourceId"; cacheHit = $true }
+        idempotencyKey = "s007c-$RunId-$sourceId"
         payload = @{ suggestion = 'requires_teacher_confirmation' }
     } | ConvertTo-Json -Depth 6
     $enqueue = Invoke-RestMethod -Method Post -Uri "$apiUrl/ai-suggestions/enqueue" -ContentType 'application/json' -Body $enqueueBody -TimeoutSec 10
@@ -88,6 +90,7 @@ try {
         status = 'pass'
         taskId = 'S007C'
         checkedAt = (Get-Date).ToString('s')
+        runId = $RunId
         aiJobId = $enqueue.aiJobId
         confirm = [ordered]@{
             questionItemId = $confirm.questionItemId

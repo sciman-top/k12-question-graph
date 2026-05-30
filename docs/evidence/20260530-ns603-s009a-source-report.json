@@ -1,0 +1,19 @@
+{
+  "status": "pass",
+  "taskId": "S009A",
+  "checkedAt": "2026-05-30T13:13:36",
+  "basketId": "3e296f1e-21f7-463e-afb9-577eaf2e1995",
+  "itemCount": 2,
+  "questionNumbers": [
+    1,
+    2
+  ],
+  "subQuestionNumbers": [
+    null,
+    "2-1"
+  ],
+  "totalScore": 8,
+  "knowledgeVersionStatus": "active",
+  "knowledgeVersion": 1,
+  "conclusion": "paper basket persists paper structure question numbers scores sub-question numbers and active knowledge version references"
+}

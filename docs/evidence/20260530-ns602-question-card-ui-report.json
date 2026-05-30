@@ -1,0 +1,55 @@
+{
+  "status": "pass",
+  "taskId": "NS602",
+  "checkedAt": "2026-05-30T13:02:41",
+  "mode": "question_card_ui_productization_contract",
+  "productionEligible": false,
+  "dependency": {
+    "ns601": "docs/evidence/20260530-ns601-question-search-api-report.json",
+    "s008b": "docs/evidence/20260507-s008b-question-card-ui-contract-report.json"
+  },
+  "ui": {
+    "app": "apps/web/src/App.tsx",
+    "contracts": "apps/web/src/api/contracts.ts",
+    "api": "apps/api/Program.cs",
+    "states": [
+      "loading",
+      "empty",
+      "error",
+      "card_selected"
+    ],
+    "cardFields": [
+      "preview",
+      "source",
+      "knowledge_version",
+      "question_type",
+      "difficulty",
+      "status",
+      "image",
+      "formula",
+      "table",
+      "permission",
+      "sharing",
+      "student_pii"
+    ]
+  },
+  "verification": {
+    "apiBuild": "pass",
+    "npmBuild": "pass",
+    "npmLint": "pass",
+    "typedClientBoundary": "pass",
+    "sourceAuthorizationBoundaryVisible": true
+  },
+  "acceptance": {
+    "cardShowsSourceAndVersion": true,
+    "cardShowsImageFormulaTableFlags": true,
+    "cardShowsAuthorizationBoundary": true,
+    "emptyAndErrorStatesPresent": true,
+    "typedContractIncludesAuthorization": true,
+    "noExternalAiCall": true,
+    "noRealStudentData": true
+  },
+  "boundary": "NS602 proves the question-card UI consumes the typed question search contract and displays source, active version, rich-media flags, status, and authorization/privacy boundary states. It runs frontend build/lint and does not call external AI or use real student data.",
+  "next": "NS603 can continue paper basket and paper draft persistence.",
+  "rollback": "git restore apps/api/Program.cs apps/web/src/App.tsx apps/web/src/api/contracts.ts tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns602-question-card-ui.ps1 docs/evidence/20260530-ns602-question-card-ui-report.json"
+}

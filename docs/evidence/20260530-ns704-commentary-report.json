@@ -1,0 +1,65 @@
+{
+  "status": "pass",
+  "taskId": "NS704",
+  "checkedAt": "2026-05-30T14:07:23",
+  "mode": "commentary_report_and_tiered_suggestions",
+  "productionEligible": false,
+  "externalAiCalls": 0,
+  "realStudentDataUsed": false,
+  "writesProductionHistory": false,
+  "activeAssetMutation": false,
+  "dependency": {
+    "ns703": "docs/evidence/20260530-ns703-analysis-metrics-report.json",
+    "ns701": "docs/evidence/20260530-ns701-score-template-mapping-report.json",
+    "ns702": "docs/evidence/20260530-ns702-item-score-mapping-report.json",
+    "s011c": "docs/evidence/20260530-ns704-s011c-source-report.json",
+    "n004": "docs\\evidence\\20260505-n004-class-commentary-report-mvp.md",
+    "n005": "docs\\evidence\\20260505-n005-tiered-practice-draft-test.md"
+  },
+  "report": {
+    "endpoint": "/assessments/{assessmentId}/commentary-report/export",
+    "assessmentId": "d6e00a1a-b2fe-4850-84a1-7a605e562628",
+    "artifactPath": "draft://commentary-reports/d6e00a1ab2fe485084a17a605e562628.md",
+    "manifestSha256": "19ddf4a7ebe29b780d8a598979da7d786dce3be8a8917ffc270dd2addb30d809",
+    "sectionCount": 3,
+    "weakKnowledgePointCount": 2,
+    "practiceSuggestionCount": 2,
+    "activeKnowledgeVersion": "junior-physics-guangzhou-source-derived-v1",
+    "abnormalRowCodes": [
+      "item_score_out_of_range"
+    ],
+    "unclearMappingCodes": [
+      "question_mapping_missing"
+    ],
+    "auditTrail": [
+      "deterministic_score_metrics",
+      "draft_commentary_report_export",
+      "no_real_student_data",
+      "no_production_history_write",
+      "no_ai_runtime_dependency"
+    ],
+    "teacherMessage": "讲评报告草稿已生成，可导出给备课使用。"
+  },
+  "acceptance": {
+    "commentaryReportExported": true,
+    "dataSourceTraceable": true,
+    "activeKnowledgeVersionReferenced": true,
+    "abnormalOrUnclearItemsBlockedBeforeReport": true,
+    "weakKnowledgePointsIncluded": true,
+    "tieredPracticeSuggestionsDrafted": true,
+    "unexplainedAdvancedMetricsExcluded": true,
+    "noExternalAiCall": true,
+    "noRealStudentData": true,
+    "noProductionHistoryWrite": true,
+    "noActiveSwitch": true
+  },
+  "verification": {
+    "build": "dotnet build apps/api/K12QuestionGraph.Api.csproj -c Release",
+    "test": "tools/run-s011c-commentary-report-export-smoke.ps1",
+    "contractInvariant": "N004/N005 commentary and tiered practice contracts plus S011C report export manifest/audit trail",
+    "hotspot": "gate_na: no real class interpretation session or formal historical analytics; deterministic draft report export covers non-site report generation"
+  },
+  "boundary": "NS704 proves commentary report draft export and layered practice suggestions from deterministic score metrics after item-score mapping. It does not process real student data, enable AI-written production commentary, or write formal historical analytics.",
+  "rollback": "delete synthetic S011C rows recorded in docs/evidence/20260530-ns704-s011c-source-report.json if needed; git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns704-commentary-report.ps1 docs/evidence/20260530-ns704-commentary-report.json docs/evidence/20260530-ns704-s011c-source-report.json",
+  "next": "NS705 can continue real-student-data privacy admission audit."
+}
