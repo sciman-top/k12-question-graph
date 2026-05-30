@@ -80,6 +80,19 @@ creation and writable probes, embedded G004 pgpass dry-run, and bootstrap admin
 key hashing (without persisting plaintext). It does not complete RBAC/audit
 closure, which remains blocked by `O004B`.
 
+NS803 installer host diagnostic:
+
+```powershell
+.\tools\run-ns803-installer-host.ps1
+```
+
+This reuses the installer initialization config for the non-site NS8 track. It
+checks writable data/backup/file-store/log/cache/model-cache roots, runs the
+pgpass dry-run, worker profile diagnostic, and host capability diagnostic, then
+writes `docs/evidence/20260530-ns803-installer-host.json`. It stays read-only
+for host capabilities: no dependency install, network requirement, model weight
+download, production default switch, or plaintext password evidence.
+
 O003 recovery drill upgrade contract:
 
 ```powershell

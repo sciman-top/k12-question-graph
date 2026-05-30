@@ -418,6 +418,10 @@ try {
         .\tools\run-ns802-restore-drill.ps1 -PgBin $PgBin | Write-Host
     }
 
+    Invoke-GateStep 'ns803 installer host diagnostic guard' {
+        .\tools\run-ns803-installer-host.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin | Write-Host
+    }
+
     Invoke-GateStep 'local-first ai consumption guard' {
         .\tools\run-local-first-ai-guard.ps1 | Write-Host
     }
