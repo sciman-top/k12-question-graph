@@ -113,9 +113,12 @@ try {
     Assert-Condition ($LASTEXITCODE -eq 0) 'NS803 embedded pgpass dry-run failed'
     $pgpassJson = Read-Json $PgpassReportPath
     Assert-Condition ($pgpassJson.status -eq 'pass') 'NS803 pgpass report did not pass'
-    Assert-Condition ([bool]$pgpassJson.acceptance.processPgpasswordClearedBeforePsql) 'NS803 pgpass dry-run must clear process PGPASSWORD before psql -w'
-    Assert-Condition ([bool]$pgpassJson.acceptance.temporaryPgpassRemoved) 'NS803 pgpass dry-run must remove temporary pgpass'
-    Assert-Condition ([bool]$pgpassJson.acceptance.passwordRedacted) 'NS803 pgpass dry-run must redact password'
+    Assert-Condition (-not [bool]$pgpassJson.realUserPgpassModified) 'NS803 pgpass dry-run must not modify real user pgpass'
+    Assert-Condition ([bool]$pgpassJson.processPgpasswordClearedForVerification) 'NS803 pgpass dry-run must clear process PGPASSWORD before psql -w'
+    Assert-Condition ([bool]$pgpassJson.psqlNoPasswordPromptVerified) 'NS803 pgpass dry-run must verify psql -w without password prompt'
+    Assert-Condition ([bool]$pgpassJson.cleanup.tempPgpassRemoved) 'NS803 pgpass dry-run must remove temporary pgpass'
+    Assert-Condition (-not [bool]$pgpassJson.secretHandling.passwordLogged) 'NS803 pgpass dry-run must not log password'
+    Assert-Condition (-not [bool]$pgpassJson.secretHandling.reportContainsPassword) 'NS803 pgpass dry-run report must not contain password'
 
     & pwsh -NoProfile -ExecutionPolicy Bypass -File $workerProfileDiagnosticGate -Report $WorkerProfileReportPath | Out-Null
     Assert-Condition ($LASTEXITCODE -eq 0) 'NS803 embedded worker profile diagnostic failed'

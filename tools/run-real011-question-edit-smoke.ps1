@@ -5,7 +5,7 @@ param(
     [int] $DatabasePort = 5432,
     [string] $DatabasePassword = $env:PGPASSWORD,
     [string] $FileStoreRoot = 'D:\KQG_Data\file_store',
-    [int] $ApiPort = 5311,
+    [int] $ApiPort = 0,
     [string] $PgBin = 'C:\Program Files\PostgreSQL\17\bin',
     [string] $ReportPath = 'docs/evidence/20260518-real011-question-edit-smoke-report.json'
 )
@@ -29,6 +29,21 @@ function Write-PngFixture {
 function Assert-True {
     param([bool] $Condition, [string] $Message)
     if (-not $Condition) { throw $Message }
+}
+
+function Get-FreeTcpPort {
+    $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, 0)
+    try {
+        $listener.Start()
+        return $listener.LocalEndpoint.Port
+    }
+    finally {
+        $listener.Stop()
+    }
+}
+
+if ($ApiPort -le 0) {
+    $ApiPort = Get-FreeTcpPort
 }
 
 $apiUrl = "http://127.0.0.1:$ApiPort"

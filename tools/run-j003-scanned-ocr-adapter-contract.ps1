@@ -62,21 +62,32 @@ function Assert-OcrReviewResult {
     }
 }
 
+function Invoke-WorkerJson {
+    param(
+        [Parameter(Mandatory=$true)][string]$JobId,
+        [Parameter(Mandatory=$true)][string]$RelativePath
+    )
+
+    $safeJobId = $JobId -replace '[^A-Za-z0-9_-]', '_'
+    $workerOutputPath = Join-Path $fileRoot "$safeJobId-worker-output.json"
+    $workerErrorPath = Join-Path $fileRoot "$safeJobId-worker-error.log"
+    python workers\document\worker.py --job-id $JobId --relative-path $RelativePath --file-root $fileRoot > $workerOutputPath 2> $workerErrorPath
+    if ($LASTEXITCODE -ne 0) { throw "$JobId worker failed" }
+    return Get-Content -LiteralPath $workerOutputPath -Raw | ConvertFrom-Json
+}
+
 Push-Location $repoRoot
 try {
     python tools\j003_scanned_ocr_fixture.py | Write-Host
     if ($LASTEXITCODE -ne 0) { throw "J003 fixture generation failed" }
 
-    $pdf = python workers\document\worker.py --job-id j003-scanned --relative-path j003-scanned.pdf --file-root $fileRoot | ConvertFrom-Json
-    if ($LASTEXITCODE -ne 0) { throw "J003 scanned PDF worker failed" }
+    $pdf = Invoke-WorkerJson -JobId 'j003-scanned' -RelativePath 'j003-scanned.pdf'
     Assert-RealOcrResult -Json $pdf -CaseName 'J003 scanned PDF' -ExpectedAdapter 'rapidocr_scanned_pdf_adapter'
 
-    $image = python workers\document\worker.py --job-id j003-image --relative-path j003-scanned.png --file-root $fileRoot | ConvertFrom-Json
-    if ($LASTEXITCODE -ne 0) { throw "J003 scanned image worker failed" }
+    $image = Invoke-WorkerJson -JobId 'j003-image' -RelativePath 'j003-scanned.png'
     Assert-RealOcrResult -Json $image -CaseName 'J003 scanned image' -ExpectedAdapter 'rapidocr_image_adapter'
 
-    $invalid = python workers\document\worker.py --job-id j003-invalid --relative-path j003-invalid.png --file-root $fileRoot | ConvertFrom-Json
-    if ($LASTEXITCODE -ne 0) { throw "J003 invalid image worker failed" }
+    $invalid = Invoke-WorkerJson -JobId 'j003-invalid' -RelativePath 'j003-invalid.png'
     Assert-OcrReviewResult -Json $invalid -CaseName 'J003 invalid image'
 
     $pdfBlocks = @($pdf.documentModel.pages | ForEach-Object { $_.layoutBlocks })

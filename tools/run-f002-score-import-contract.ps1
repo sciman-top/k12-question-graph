@@ -160,7 +160,15 @@ rollback;
             rollback = 'transaction_rollback'
         })
         $reportObject | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $Report -Encoding utf8
-        $reportObject | ConvertTo-Json -Depth 12
+
+        [ordered]@{
+            status = [string]$reportObject.status
+            task = 'F002'
+            reportPath = $Report
+            importedCount = [int]$reportObject.importedCount
+            errorCount = [int]$reportObject.errorCount
+            dbContract = $reportObject.dbContract
+        } | ConvertTo-Json -Depth 8 -Compress
     }
     finally {
         $env:KQG_CONNECTION_STRING = $previousConnectionString

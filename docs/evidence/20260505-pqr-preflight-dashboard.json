@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "task": "PQR preflight dashboard",
-  "checkedDate": "2026-05-30",
+  "checkedDate": "2026-05-31",
   "report": "docs/evidence/20260505-pqr-preflight-dashboard.json",
   "markdown": "docs/evidence/20260505-pqr-preflight-dashboard.md",
   "totals": {

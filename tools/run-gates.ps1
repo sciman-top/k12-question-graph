@@ -18,6 +18,7 @@ function Invoke-GateStep([string] $Name, [scriptblock] $Script) {
     $started = Get-Date
     try {
         & $Script
+        $global:LASTEXITCODE = 0
         $results.Add([ordered]@{
             name = $Name
             status = 'pass'
@@ -286,6 +287,10 @@ try {
         .\tools\run-ns204-no-active-write-guard.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'ns0 ns2 runtime closure guard' {
+        .\tools\run-ns0-ns2-runtime-closure.ps1 -ReportPath ('docs/evidence/{0}-ns0-ns2-runtime-closure.json' -f $p0LiveRunDate) | Write-Host
+    }
+
     Invoke-GateStep 'ns301 source document evidence smoke' {
         .\tools\run-ns301-source-document-smoke.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin -FileStoreRoot $FileStoreRoot | Write-Host
     }
@@ -422,6 +427,10 @@ try {
         .\tools\run-ns803-installer-host.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin | Write-Host
     }
 
+    Invoke-GateStep 'ns804 windows service package guard' {
+        .\tools\run-ns804-windows-service-package.ps1 | Write-Host
+    }
+
     Invoke-GateStep 'local-first ai consumption guard' {
         .\tools\run-local-first-ai-guard.ps1 | Write-Host
     }
@@ -527,8 +536,14 @@ try {
     Invoke-GateStep 's012b non-site e2e rehearsal' {
         .\tools\run-s012b-non-site-e2e-rehearsal.ps1 | Write-Host
     }
+    Invoke-GateStep 'ns901 non-site scenario pack' {
+        .\tools\run-ns901-non-site-scenario-pack.ps1 -SkipS012Refresh | Write-Host
+    }
     Invoke-GateStep 'ns906 visual surrogate review' {
         .\tools\run-ns906-visual-surrogate-review.ps1 | Write-Host
+    }
+    Invoke-GateStep 'ns903 completion dashboard refresh' {
+        .\tools\run-ns903-completion-dashboard.ps1 -SkipS001Refresh | Write-Host
     }
     Invoke-GateStep 'n003 item score mapping workbench' {
         .\tools\run-n003-item-score-mapping-workbench.ps1 | Write-Host
@@ -736,6 +751,10 @@ try {
         .\tools\run-o005-capacity-cost-health-dashboard-contract.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin | Write-Host
     }
 
+    Invoke-GateStep 'ns805 capacity cost health dashboard guard' {
+        .\tools\run-ns805-health-dashboard.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin -SkipO005Refresh | Write-Host
+    }
+
     Invoke-GateStep 'g003 winpe emergency copy contract' {
         .\tools\run-g003-winpe-emergency-copy-contract.ps1 | Write-Host
     }
@@ -768,7 +787,10 @@ try {
         .\tools\run-o007-ef-migration-bundle-upgrade-contract.ps1 | Write-Host
     }
 
-    
+    Invoke-GateStep 'ns806 ef migration bundle upgrade rehearsal guard' {
+        .\tools\run-ns806-upgrade-bundle.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin -O007ReportPath 'docs/evidence/o007-ef-migration-bundle-upgrade-drill-report.json' -SkipO007Refresh | Write-Host
+    }
+
     Invoke-GateStep 'o006 offline emergency runbook and tabletop contract' {
         .\tools\run-o006-offline-emergency-runbook-tabletop-contract.ps1 | Write-Host
     }
@@ -779,6 +801,14 @@ try {
 
     Invoke-GateStep 'p001 live pilot readiness preflight contract' {
         .\tools\run-p001-live-pilot-readiness-preflight-contract.ps1 -ReportPath ('docs/evidence/{0}-p001-live-pilot-readiness-preflight-report.json' -f $p0LiveRunDate) | Write-Host
+    }
+
+    Invoke-GateStep 'ns904 p001 readiness evidence pack' {
+        .\tools\run-ns904-p001-readiness-pack.ps1 -P001ReportPath ('docs/evidence/{0}-p001-live-pilot-readiness-preflight-report.json' -f $p0LiveRunDate) -ReportPath ('docs/evidence/{0}-ns904-p001-readiness.json' -f $p0LiveRunDate) | Write-Host
+    }
+
+    Invoke-GateStep 'ns905 status sync audit' {
+        .\tools\run-ns905-status-sync-audit.ps1 -P001ReportPath ('docs/evidence/{0}-p001-live-pilot-readiness-preflight-report.json' -f $p0LiveRunDate) -NS904ReportPath ('docs/evidence/{0}-ns904-p001-readiness.json' -f $p0LiveRunDate) -ReportPath ('docs/evidence/{0}-ns905-status-sync.md' -f $p0LiveRunDate) | Write-Host
     }
 
     Invoke-GateStep 'p002 teacher proxy pilot preflight contract' {
@@ -805,12 +835,24 @@ try {
         .\tools\run-q001-second-subject-candidate-admission-preflight-contract.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'ns1101 second-subject candidate boundary pack' {
+        .\tools\run-ns1101-second-subject-candidate-boundary.ps1 -NS905ReportPath ('docs/evidence/{0}-ns905-status-sync.md' -f $p0LiveRunDate) -ReportPath ('docs/evidence/{0}-ns1101-second-subject-candidate.json' -f $p0LiveRunDate) | Write-Host
+    }
+
     Invoke-GateStep 'q002 second-subject teacher review template preflight contract' {
         .\tools\run-q002-second-subject-teacher-review-template-preflight-contract.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'ns1102 second-subject teacher review template boundary pack' {
+        .\tools\run-ns1102-second-subject-review-template-boundary.ps1 -ReportPath ('docs/evidence/{0}-ns1102-second-subject-review-template.json' -f $p0LiveRunDate) -NS1101ReportPath ('docs/evidence/{0}-ns1101-second-subject-candidate.json' -f $p0LiveRunDate) | Write-Host
+    }
+
     Invoke-GateStep 'q003 second-subject active drill preflight contract' {
         .\tools\run-q003-second-subject-active-drill-preflight-contract.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'ns1103 second-subject active dry-run boundary pack' {
+        .\tools\run-ns1103-second-subject-active-dry-run-boundary.ps1 -ReportPath ('docs/evidence/{0}-ns1103-second-subject-active-dry-run.json' -f $p0LiveRunDate) -NS1102ReportPath ('docs/evidence/{0}-ns1102-second-subject-review-template.json' -f $p0LiveRunDate) | Write-Host
     }
 
     Invoke-GateStep 'q004 cross-subject diff report preflight contract' {
@@ -820,11 +862,22 @@ try {
     Invoke-GateStep 'q005 multi-subject ui simplification preflight contract' {
         .\tools\run-q005-multi-subject-ui-simplification-preflight-contract.ps1 | Write-Host
     }
+
+    Invoke-GateStep 'ns1104 cross-subject ui boundary pack' {
+        .\tools\run-ns1104-cross-subject-ui-boundary.ps1 -ReportPath ('docs/evidence/{0}-ns1104-cross-subject-ui.json' -f $p0LiveRunDate) -NS1103ReportPath ('docs/evidence/{0}-ns1103-second-subject-active-dry-run.json' -f $p0LiveRunDate) | Write-Host
+    }
+
     Invoke-GateStep 'r001 search semantic retrieval eval preflight contract' {
         .\tools\run-r001-search-semantic-retrieval-eval-preflight-contract.ps1 | Write-Host
     }
+    Invoke-GateStep 'ns1201 search semantic retrieval boundary pack' {
+        .\tools\run-ns1201-search-eval.ps1 -ReportPath ('docs/evidence/{0}-ns1201-search-eval.json' -f $p0LiveRunDate) | Write-Host
+    }
     Invoke-GateStep 'r002 queue worker scale eval preflight contract' {
         .\tools\run-r002-queue-worker-scale-eval-preflight-contract.ps1 | Write-Host
+    }
+    Invoke-GateStep 'ns1202 queue worker scale boundary pack' {
+        .\tools\run-ns1202-queue-eval.ps1 -ReportPath ('docs/evidence/{0}-ns1202-queue-eval.json' -f $p0LiveRunDate) | Write-Host
     }
     Invoke-GateStep 'r003 interop eval preflight contract' {
         .\tools\run-r003-interop-eval-preflight-contract.ps1 | Write-Host
@@ -832,14 +885,26 @@ try {
     Invoke-GateStep 'r004 advanced analysis eval preflight contract' {
         .\tools\run-r004-advanced-analysis-eval-preflight-contract.ps1 | Write-Host
     }
+    Invoke-GateStep 'ns1204 advanced analysis admission boundary pack' {
+        .\tools\run-ns1204-advanced-analysis-admission.ps1 -ReportPath ('docs/evidence/{0}-ns1204-advanced-analysis-admission.json' -f $p0LiveRunDate) | Write-Host
+    }
     Invoke-GateStep 'r005 public multischool deploy eval preflight contract' {
         .\tools\run-r005-public-multischool-deploy-eval-preflight-contract.ps1 | Write-Host
+    }
+    Invoke-GateStep 'ns1205 public multischool deploy admission boundary pack' {
+        .\tools\run-ns1205-multischool-admission.ps1 -ReportPath ('docs/evidence/{0}-ns1205-multischool-admission.json' -f $p0LiveRunDate) | Write-Host
     }
     Invoke-GateStep 'r006 techdebt cadence preflight contract' {
         .\tools\run-r006-techdebt-cadence-preflight-contract.ps1 | Write-Host
     }
+    Invoke-GateStep 'ns1206 techdebt cadence boundary pack' {
+        .\tools\run-ns1206-techdebt-cadence.ps1 -ReportPath ('docs/evidence/{0}-ns1206-techdebt-cadence.json' -f $p0LiveRunDate) | Write-Host
+    }
     Invoke-GateStep 'r007 interoperability profile map preflight contract' {
         .\tools\run-r007-interoperability-profile-map-preflight-contract.ps1 | Write-Host
+    }
+    Invoke-GateStep 'ns1203 interoperability profile map boundary pack' {
+        .\tools\run-ns1203-interop-profile-map.ps1 -ReportPath ('docs/evidence/{0}-ns1203-interop-profile-map.json' -f $p0LiveRunDate) | Write-Host
     }
     Invoke-GateStep 'p0 live preflight refresh path contract' {
         .\tools\run-p0-live-preflight-refresh-path-contract.ps1 | Write-Host
@@ -1133,6 +1198,7 @@ try {
         status = 'pass'
         steps = $results
     } | ConvertTo-Json -Depth 6
+    exit 0
 }
 finally {
     Pop-Location

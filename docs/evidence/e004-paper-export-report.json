@@ -4,6 +4,8 @@
   "mode": "draft_test",
   "productionEligible": false,
   "formalC002Required": false,
+  "sourceAuthorization": "synthetic_internal_authorized",
+  "realStudentDataUsed": false,
   "outputRoot": "tmp\\e004-paper-export",
   "docxPath": "tmp\\e004-paper-export\\kqg-e004-draft-test-paper.docx",
   "pdfPath": "tmp\\e004-paper-export\\kqg-e004-draft-test-paper.pdf",
@@ -14,6 +16,7 @@
     "hasFigureMedia": true,
     "hasTable": true,
     "hasAnswer": true,
+    "hasAuthorizationText": true,
     "mediaCount": 1
   },
   "pdfChecks": {

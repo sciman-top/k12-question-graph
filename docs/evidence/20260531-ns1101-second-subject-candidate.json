@@ -1,0 +1,79 @@
+{
+  "status": "pass",
+  "taskId": "NS1101",
+  "checkedAt": "2026-05-31T01:53:50",
+  "mode": "second_subject_candidate_boundary_preflight",
+  "reportPath": "docs/evidence/20260531-ns1101-second-subject-candidate.json",
+  "backlogPath": "tasks/backlog.csv",
+  "nonSitePlanPath": "tasks/non-site-implementation-plan.csv",
+  "sourceReports": {
+    "q001PreflightReport": "docs/evidence/20260523-q001-second-subject-candidate-admission-report.json",
+    "q001Checklist": "docs/templates/q001-second-subject-candidate-admission-checklist.md",
+    "q001PreflightEvidence": "docs/evidence/20260505-q001-second-subject-candidate-admission-preflight.md",
+    "ns905StatusSync": "docs/evidence/20260531-ns905-status-sync.md"
+  },
+  "backlog": {
+    "p006Status": "待办",
+    "q001Status": "待办",
+    "q001DependsOn": "P006",
+    "q001CanClose": false
+  },
+  "nonSitePlan": {
+    "ns1101StatusAtCheck": "runtime_verified",
+    "ns1101DependsOn": "NS1005",
+    "ns1001ToNs1005": {
+      "NS1001": {
+        "status": "blocked_by_onsite",
+        "task": "隔离机部署预演",
+        "acceptance": "在隔离机器完成安装 备份 恢复 权限审计 四入口 smoke"
+      },
+      "NS1002": {
+        "status": "blocked_by_onsite",
+        "task": "教师代理试点第 1 轮",
+        "acceptance": "真实或授权脱敏材料完成代理验收并记录耗时 卡点 回滚"
+      },
+      "NS1003": {
+        "status": "blocked_by_onsite",
+        "task": "现场教师试点准入",
+        "acceptance": "确认教师参与 数据授权 支持人 回滚方案和反馈模板"
+      },
+      "NS1004": {
+        "status": "blocked_by_onsite",
+        "task": "现场教师试点第 1 轮",
+        "acceptance": "记录实际耗时 操作卡点 错误 文案困惑 回滚事件"
+      },
+      "NS1005": {
+        "status": "blocked_by_onsite",
+        "task": "反馈回流与 v0.1 release decision",
+        "acceptance": "反馈分流为保留 修改 后置 不做 并形成 release decision"
+      }
+    }
+  },
+  "q001Preflight": {
+    "status": "pass",
+    "mode": "preflight_only",
+    "closeTaskAllowed": false,
+    "currentDecision": "keep_Q001_todo_until_P006_and_second_subject_source_package_close",
+    "blockers": [
+      "P006 release decision is not closed.",
+      "Second-subject source package and authorization evidence is not recorded.",
+      "Candidate admission manifest is not recorded; no second-subject active switch is allowed."
+    ]
+  },
+  "acceptance": {
+    "p006RemainsTodo": true,
+    "q001RemainsTodo": true,
+    "ns1005RemainsBlockedByOnsite": true,
+    "sourcePackageAuthorized": false,
+    "candidateAdmissionManifestRecorded": false,
+    "secondSubjectAdmissionExecuted": false,
+    "productionEligible": false,
+    "activeAssetMutation": false,
+    "q001CanClose": false,
+    "q002CanAdvance": false
+  },
+  "teacherEfficiencyBoundary": "ordinary teacher flow is not changed; NS1101 only records the missing release/source/candidate evidence before any second-subject work can proceed",
+  "boundary": "NS1101 verifies the second-subject candidate admission boundary only. It does not import source material, does not create a candidate manifest, does not switch active assets, and does not close Q001 or P006.",
+  "riskLevel": "medium",
+  "rollback": "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1 tools/README.md; git clean -f -- tools/run-ns1101-second-subject-candidate-boundary.ps1 docs/evidence/20260530-ns1101-second-subject-candidate.json"
+}

@@ -93,4 +93,13 @@ $report = [ordered]@{
 
 New-Item -ItemType Directory -Path (Split-Path -Parent $reportFullPath) -Force | Out-Null
 $report | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $reportFullPath -Encoding UTF8
-$report | ConvertTo-Json -Depth 12
+[ordered]@{
+    status = 'pass'
+    taskId = 'S012A'
+    reportPath = $ReportPath
+    materialCount = $materials.Count
+    coveredWorkflowSteps = $requiredSteps
+    productionEligible = [bool]$manifest.productionEligible
+    realStudentDataUsed = [bool]$manifest.realStudentDataUsed
+    containsStudentPii = [bool]$manifest.containsStudentPii
+} | ConvertTo-Json -Depth 6 -Compress

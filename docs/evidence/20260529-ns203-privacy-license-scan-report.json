@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS203",
-  "checkedAt": "2026-05-30T12:59:54",
+  "checkedAt": "2026-05-31T14:25:14",
   "mode": "tracked_text_privacy_license_scan",
   "productionEligible": false,
   "scanScope": {
@@ -18,1353 +18,26 @@
       "README.md",
       "ALL_IN_ONE_EXECUTIVE_SPEC.md"
     ],
-    "trackedFileCount": 804,
+    "trackedFileCount": 851,
     "policyPath": "docs/102_NonSiteFixturePrivacyPolicy.md",
     "fixturePolicyPath": "tests/golden-import/privacy_and_license.md",
     "rawIgnorePath": "sources/raw/.gitignore"
   },
   "counts": {
-    "secretLikeHits": 223,
+    "secretLikeHits": 68,
     "blockingSecretHits": 0,
-    "piiValueHits": 1,
+    "piiValueHits": 0,
     "blockingPiiHits": 0,
     "trackedBinaryFiles": 2,
     "blockingTrackedBinaryFiles": 0,
     "trackedRawSourceBlockers": 0,
     "localRawSourceFiles": 0,
-    "policyMentionCount": 324,
-    "copyrightRawPathMarkers": 0
+    "policyMentionCount": 362,
+    "copyrightRawPathMarkers": 0,
+    "excludedGeneratedScanReports": 1
   },
   "allowedFindings": {
-    "allowedCredentialLikeHits": [
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 44,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 52,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"password=args.password,\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 60,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 68,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 76,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 84,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 92,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 100,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 108,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 116,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 124,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 132,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 140,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 148,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 156,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 164,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 172,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 180,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 188,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 196,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 204,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 212,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 220,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 228,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 236,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 244,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$env:AdminInternalGuard__ApiKey = 'o004-contract-secret'\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 252,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$env:AdminInternalGuard__ApiKey = 'o004b-contract-secret'\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 260,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 268,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 276,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 284,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 292,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 300,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 308,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 316,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 324,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 332,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 340,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 348,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 356,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 364,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 372,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 380,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 388,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 396,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 404,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 412,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 420,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 428,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 436,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 444,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 452,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"\\\\\\\"excerpt\\\\\\\": \\\\\\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\\\\\",\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 460,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 468,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"password=args.password,\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 476,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 484,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 492,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 500,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 508,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 516,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 524,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 532,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 540,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 548,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 556,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 564,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 572,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 580,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 588,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 596,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 604,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 612,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 620,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 628,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 636,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 644,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 652,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 660,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 668,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 676,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 684,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 692,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 700,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$env:AdminInternalGuard__ApiKey = 'o004-contract-secret'\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 708,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$env:AdminInternalGuard__ApiKey = 'o004b-contract-secret'\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 716,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 724,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 732,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 740,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 748,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 756,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 764,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 772,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 780,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 788,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 796,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 804,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 812,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 820,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 828,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 836,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 844,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 852,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 860,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 868,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 876,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 884,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 892,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 900,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 908,
-        "excerpt": "\"excerpt\": \"\\\"excerpt\\\": \\\"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\\\",\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 916,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 924,
-        "excerpt": "\"excerpt\": \"password=args.password,\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 932,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 940,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 948,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 956,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 964,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 972,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 980,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 988,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 996,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1004,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1012,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1020,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1028,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1036,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1044,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1052,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1060,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1068,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1076,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1084,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1092,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1100,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1108,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1116,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1124,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1132,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1140,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1148,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1156,
-        "excerpt": "\"excerpt\": \"$env:AdminInternalGuard__ApiKey = 'o004-contract-secret'\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1164,
-        "excerpt": "\"excerpt\": \"$env:AdminInternalGuard__ApiKey = 'o004b-contract-secret'\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1172,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1180,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1188,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1196,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1204,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1212,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1220,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1228,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1236,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1244,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1252,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1260,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1268,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1276,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1284,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1292,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1300,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1308,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1316,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1324,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1332,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1340,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1348,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1356,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
-        "line": 1364,
-        "excerpt": "\"excerpt\": \"$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword\",",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
+    "allowedCredentialLikeHitsSample": [
       {
         "kind": "credential_assignment_like",
         "path": "tools/generate-c002-review-decisions.ps1",
@@ -1591,6 +264,94 @@
       },
       {
         "kind": "credential_assignment_like",
+        "path": "tools/run-ns505-feedback-eval-loop.ps1",
+        "line": 15,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-ns601-question-search-api.ps1",
+        "line": 14,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-ns603-paper-basket.ps1",
+        "line": 14,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-ns604-paper-request-understanding.ps1",
+        "line": 14,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-ns606-export-preflight.ps1",
+        "line": 14,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-ns607-export-artifacts.ps1",
+        "line": 16,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-ns701-score-template-mapping.ps1",
+        "line": 17,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-ns702-item-score-mapping.ps1",
+        "line": 14,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-ns704-commentary-report.ps1",
+        "line": 15,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-ns801-backup-manifest.ps1",
+        "line": 16,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-ns803-installer-host.ps1",
+        "line": 18,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
         "path": "tools/run-ns906-visual-surrogate-review.ps1",
         "line": 20,
         "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
@@ -1616,7 +377,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "tools/run-o004b-role-audit-closure-contract.ps1",
-        "line": 103,
+        "line": 116,
         "excerpt": "$env:AdminInternalGuard__ApiKey = 'o004b-contract-secret'",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -1822,6 +583,8 @@
         "reason": "placeholder/test contract value or header constant"
       }
     ],
+    "allowedCredentialLikeHitCount": 68,
+    "allowedCredentialLikeHitSampleLimit": 80,
     "allowedTrackedBinaryFiles": [
       {
         "path": "apps/web/src/assets/hero.png",
@@ -1918,7 +681,13 @@
         "term": "学号"
       }
     ],
-    "copyrightRawPathMarkers": []
+    "copyrightRawPathMarkers": [],
+    "excludedGeneratedScanReports": [
+      {
+        "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json",
+        "reason": "generated NS203 evidence excluded from recursive scan input"
+      }
+    ]
   },
   "blockers": [],
   "acceptance": {

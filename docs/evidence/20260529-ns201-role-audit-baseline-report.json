@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS201",
-  "checkedAt": "2026-05-30T12:59:26",
+  "checkedAt": "2026-05-31T14:24:37",
   "mode": "api_smoke_plus_static_role_audit_guard",
   "productionEligible": false,
   "contracts": {
@@ -24,7 +24,7 @@
       },
       "auditLog": {
         "path": "tmp/o004b/logs/admin-internal-audit.jsonl",
-        "entryCount": 752,
+        "entryCount": 6,
         "requiredFields": [
           "timestampUtc",
           "path",

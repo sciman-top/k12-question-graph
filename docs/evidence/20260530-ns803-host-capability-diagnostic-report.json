@@ -1,0 +1,519 @@
+{
+  "schemaVersion": "host-capability-diagnostic.v1",
+  "mode": "read_only",
+  "host": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "system": "Windows",
+    "release": "11",
+    "machine": "AMD64",
+    "processor": "AMD64 Family 23 Model 113 Stepping 0, AuthenticAMD",
+    "pythonExecutable": "C:\\Users\\sciman\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+    "pythonVersion": "3.13.7",
+    "cpuCount": 16,
+    "memoryGb": 31.91
+  },
+  "config": {
+    "path": "configs\\installer_init.defaults.yaml",
+    "version": "o002.installer-init.v1",
+    "dataRoot": "D:\\KQG_Data",
+    "backupRoot": "D:\\KQG_Backups"
+  },
+  "commands": {
+    "dotnet": {
+      "present": true,
+      "path": "C:\\Program Files\\dotnet\\dotnet.EXE",
+      "probe": {
+        "available": true,
+        "exitCode": 0,
+        "versionLine": "10.0.300"
+      }
+    },
+    "node": {
+      "present": true,
+      "path": "C:\\Program Files\\nodejs\\node.EXE",
+      "probe": {
+        "available": true,
+        "exitCode": 0,
+        "versionLine": "v24.12.0"
+      }
+    },
+    "npm": {
+      "present": true,
+      "path": "C:\\Program Files\\nodejs\\npm.CMD",
+      "probe": {
+        "available": true,
+        "exitCode": 0,
+        "versionLine": "11.7.0"
+      }
+    },
+    "pwsh": {
+      "present": true,
+      "path": "C:\\Program Files\\PowerShell\\7\\pwsh.EXE",
+      "probe": {
+        "available": true,
+        "exitCode": 0,
+        "versionLine": "PowerShell 7.5.5"
+      }
+    },
+    "powershell": {
+      "present": true,
+      "path": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.EXE",
+      "probe": {
+        "available": true,
+        "exitCode": 0,
+        "versionLine": "5.1.26100.8521"
+      }
+    },
+    "python": {
+      "present": true,
+      "path": "C:\\Users\\sciman\\AppData\\Local\\Programs\\Python\\Python313\\python.EXE",
+      "probe": {
+        "available": true,
+        "exitCode": 0,
+        "versionLine": "Python 3.13.7"
+      }
+    },
+    "uv": {
+      "present": true,
+      "path": "C:\\Users\\sciman\\.local\\bin\\uv.EXE",
+      "probe": {
+        "available": true,
+        "exitCode": 0,
+        "versionLine": "uv 0.10.2 (a788db7e5 2026-02-10)"
+      }
+    },
+    "conda": {
+      "present": false,
+      "path": null,
+      "probe": {
+        "available": false,
+        "exitCode": null,
+        "versionLine": ""
+      }
+    },
+    "docker": {
+      "present": false,
+      "path": null,
+      "probe": {
+        "available": false,
+        "exitCode": null,
+        "versionLine": ""
+      }
+    },
+    "wsl": {
+      "present": true,
+      "path": "C:\\Windows\\system32\\wsl.EXE",
+      "probe": {
+        "available": true,
+        "exitCode": 0,
+        "versionLine": "W\u0000S\u0000L\u0000 \u0000Hr,g:\u0000 \u00002\u0000.\u00006\u0000.\u00001\u0000.\u00000\u0000"
+      }
+    },
+    "psql": {
+      "present": false,
+      "path": null,
+      "probe": {
+        "available": false,
+        "exitCode": null,
+        "versionLine": ""
+      }
+    },
+    "pg_dump": {
+      "present": false,
+      "path": null,
+      "probe": {
+        "available": false,
+        "exitCode": null,
+        "versionLine": ""
+      }
+    },
+    "pg_restore": {
+      "present": false,
+      "path": null,
+      "probe": {
+        "available": false,
+        "exitCode": null,
+        "versionLine": ""
+      }
+    },
+    "pg_config": {
+      "present": false,
+      "path": null,
+      "probe": {
+        "available": false,
+        "exitCode": null,
+        "versionLine": ""
+      }
+    },
+    "pdftotext": {
+      "present": true,
+      "path": "D:\\texlive\\2023\\bin\\windows\\pdftotext.EXE",
+      "probe": {
+        "available": true,
+        "exitCode": 0,
+        "versionLine": "pdftotext version 23.02.0"
+      }
+    },
+    "pdftoppm": {
+      "present": true,
+      "path": "D:\\texlive\\2023\\bin\\windows\\pdftoppm.EXE",
+      "probe": {
+        "available": true,
+        "exitCode": 0,
+        "versionLine": "pdftoppm version 23.02.0"
+      }
+    },
+    "tesseract": {
+      "present": false,
+      "path": null,
+      "probe": {
+        "available": false,
+        "exitCode": null,
+        "versionLine": ""
+      }
+    },
+    "qpdf": {
+      "present": false,
+      "path": null,
+      "probe": {
+        "available": false,
+        "exitCode": null,
+        "versionLine": ""
+      }
+    },
+    "gswin64c": {
+      "present": false,
+      "path": null,
+      "probe": {
+        "available": false,
+        "exitCode": null,
+        "versionLine": ""
+      }
+    },
+    "magick": {
+      "present": false,
+      "path": null,
+      "probe": {
+        "available": false,
+        "exitCode": null,
+        "versionLine": ""
+      }
+    },
+    "vips": {
+      "present": false,
+      "path": null,
+      "probe": {
+        "available": false,
+        "exitCode": null,
+        "versionLine": ""
+      }
+    },
+    "pandoc": {
+      "present": true,
+      "path": "C:\\Program Files\\Pandoc\\pandoc.EXE",
+      "probe": {
+        "available": true,
+        "exitCode": 0,
+        "versionLine": "pandoc 3.8.3"
+      }
+    },
+    "soffice": {
+      "present": false,
+      "path": null,
+      "probe": {
+        "available": false,
+        "exitCode": null,
+        "versionLine": ""
+      }
+    },
+    "robocopy": {
+      "present": true,
+      "path": "C:\\Windows\\system32\\robocopy.EXE",
+      "probe": {
+        "available": false,
+        "exitCode": 16,
+        "versionLine": "-------------------------------------------------------------------------------"
+      }
+    },
+    "nvidia-smi": {
+      "present": true,
+      "path": "C:\\Windows\\system32\\nvidia-smi.EXE",
+      "probe": {
+        "available": true,
+        "exitCode": 0,
+        "versionLine": "NVIDIA GeForce GTX 1650 SUPER, 4096 MiB, 591.86"
+      }
+    },
+    "ollama": {
+      "present": false,
+      "path": null,
+      "probe": {
+        "available": false,
+        "exitCode": null,
+        "versionLine": ""
+      }
+    },
+    "llama-server": {
+      "present": false,
+      "path": null,
+      "probe": {
+        "available": false,
+        "exitCode": null,
+        "versionLine": ""
+      }
+    },
+    "llama-cli": {
+      "present": false,
+      "path": null,
+      "probe": {
+        "available": false,
+        "exitCode": null,
+        "versionLine": ""
+      }
+    },
+    "vllm": {
+      "present": false,
+      "path": null,
+      "probe": {
+        "available": false,
+        "exitCode": null,
+        "versionLine": ""
+      }
+    },
+    "lms": {
+      "present": false,
+      "path": null,
+      "probe": {
+        "available": false,
+        "exitCode": null,
+        "versionLine": ""
+      }
+    }
+  },
+  "envPresence": {
+    "OPENAI_API_KEY": false,
+    "AZURE_OPENAI_API_KEY": false,
+    "ANTHROPIC_API_KEY": false,
+    "HTTP_PROXY": true,
+    "HTTPS_PROXY": true,
+    "NO_PROXY": true,
+    "PGPASSWORD": true,
+    "KQG_DATA_ROOT": false,
+    "KQG_BACKUP_ROOT": false
+  },
+  "storage": {
+    "dataRoot": {
+      "path": "D:\\KQG_Data",
+      "anchor": "D:\\",
+      "available": true,
+      "totalGb": 930.0,
+      "freeGb": 341.55
+    },
+    "backupRoot": {
+      "path": "D:\\KQG_Backups",
+      "anchor": "D:\\",
+      "available": true,
+      "totalGb": 930.0,
+      "freeGb": 341.55
+    }
+  },
+  "workerOcrProfile": {
+    "summary": {
+      "commands": {
+        "uv": true,
+        "conda": false,
+        "docker": false,
+        "wsl": true
+      },
+      "pythonModules": {
+        "rapidocr_onnxruntime": true,
+        "onnxruntime": true,
+        "paddleocr": false,
+        "paddle": false
+      },
+      "gpu": {
+        "available": true,
+        "gpus": [
+          {
+            "name": "NVIDIA GeForce GTX 1650 SUPER",
+            "memoryMb": 4096,
+            "driverVersion": "591.86"
+          }
+        ],
+        "raw": {
+          "available": true,
+          "exitCode": 0,
+          "stdout": "NVIDIA GeForce GTX 1650 SUPER, 4096, 591.86",
+          "stderr": ""
+        }
+      }
+    },
+    "recommendation": {
+      "recommendedDefaultProfile": "direct_venv_lite",
+      "reason": "RapidOCR/ONNX is available in the current interpreter; use the lightweight local profile first.",
+      "availableProfileCandidates": [
+        "direct_venv_lite",
+        "wsl_or_docker_heavy"
+      ],
+      "needsHumanConfirmationBefore": [
+        "system driver or GPU runtime changes",
+        "Docker Desktop or WSL installation",
+        "cloud OCR token configuration",
+        "switching the production default profile",
+        "processing real non-anonymized materials"
+      ],
+      "nextInstallActions": [
+        "prepare conda_paddle_cpu only after golden-set need is confirmed",
+        "generate launcher/profile with path mapping before WSL/Docker execution"
+      ]
+    }
+  },
+  "recommendedProfiles": {
+    "runtimeProfile": {
+      "status": "ready",
+      "recommended": "windows_service_with_explicit_content_root",
+      "fallback": "self_contained_publish_when_target_runtime_missing",
+      "checks": [
+        "dotnet",
+        "node",
+        "npm",
+        "pwsh"
+      ]
+    },
+    "databaseProfile": {
+      "status": "needs_postgresql_cli_or_path",
+      "recommended": "local_postgresql_with_pg_dump_restore",
+      "fallback": "install_postgresql_cli_or_configure_path_before_live",
+      "checks": [
+        "psql",
+        "pg_dump",
+        "pg_restore"
+      ]
+    },
+    "storageBackupProfile": {
+      "status": "ready",
+      "recommended": "local_ntfs_file_store_plus_manifest_backup",
+      "fallback": "choose_larger_data_or_backup_drive_before_real_materials",
+      "minimumFreeGb": 10
+    },
+    "workerOcrProfile": {
+      "status": "ready",
+      "recommended": "direct_venv_lite",
+      "candidates": [
+        "direct_venv_lite",
+        "wsl_or_docker_heavy"
+      ],
+      "fallback": "pending_review_takeover_required"
+    },
+    "exportPrintProfile": {
+      "status": "partial_toolchain",
+      "recommended": "docx_pdf_artifact_chain_with_preflight_manifest",
+      "fallback": "keep_docx_or_html_export_until_pdf_toolchain_admitted",
+      "checks": [
+        "pandoc",
+        "qpdf",
+        "gswin64c",
+        "magick",
+        "soffice"
+      ]
+    },
+    "aiNetworkProfile": {
+      "status": "offline_first",
+      "recommended": "offline_first_no_cloud_token_by_default",
+      "fallback": "cloud_provider_only_after_privacy_cost_cache_gate",
+      "secretValuesPrinted": false
+    },
+    "aiLocalModelProfile": {
+      "status": "medium_config_optional",
+      "recommended": "optional_local_llm_3b_7b_quantized_eval_only",
+      "modelClass": "3b_7b_quantized",
+      "runtimeCandidates": {
+        "ollama": false,
+        "llama_cpp_server": false,
+        "llama_cpp_cli": false,
+        "vllm": false,
+        "lm_studio_lms": false
+      },
+      "detectedGpuVramMb": 4096,
+      "hostCapacity": {
+        "cpuCount": 16,
+        "memoryGb": 31.91
+      },
+      "allowedDraftTasks": [
+        "OCR text cleanup candidates",
+        "question wording normalization candidates",
+        "knowledge tag candidates",
+        "difficulty candidates",
+        "commentary draft candidates"
+      ],
+      "blockedProductionTasks": [
+        "OCR or formula recognition engine replacement",
+        "direct active writes",
+        "formal analytics",
+        "authoritative tagging",
+        "backup, restore, migration, or permission decisions"
+      ],
+      "requiresEvalBeforeDefault": true,
+      "noModelDownloadPerformed": true,
+      "noActiveWrite": true,
+      "noCloudTokenRequired": true,
+      "fallback": "rules_first_structured_outputs_or_teacher_pending_review"
+    },
+    "searchProfile": {
+      "status": "postgresql_first",
+      "recommended": "postgresql_fts_pg_trgm_first_pgvector_only_after_eval",
+      "fallback": "semantic_search_gate_na_until_extension_and_benchmark"
+    },
+    "queueProfile": {
+      "status": "backgroundservice_ok",
+      "recommended": "postgresql_job_store_backgroundservice_first",
+      "fallback": "defer_hangfire_rabbitmq_until_throughput_evidence",
+      "hostCapacity": {
+        "cpuCount": 16,
+        "memoryGb": 31.91
+      }
+    },
+    "securityProfile": {
+      "status": "requires_live_gate",
+      "recommended": "admin_key_bootstrap_then_rbac_audit_before_live",
+      "fallback": "draft_test_only_until_o004b_and_permission_audit"
+    }
+  },
+  "bestConfiguration": {
+    "profileSet": "local_system_profile.v1",
+    "adaptiveOnNewHost": true,
+    "allowInstallerToWriteDraftConfig": true,
+    "productionChangesRequire": [
+      "full gate",
+      "roadmap guard",
+      "backup/restore evidence",
+      "golden OCR/import evidence where document processing changes",
+      "local model eval and no-active-write evidence when aiLocalModelProfile changes",
+      "human confirmation for admin/system/cloud/real-data changes"
+    ],
+    "lowRiskAgentActions": [
+      "generate draft appsettings/local profile files",
+      "create project-owned data/cache directories through installer dry-run",
+      "select draft worker profile from diagnostic output",
+      "record local model runtime candidates and recommended draft-only model class",
+      "record tool versions and missing dependencies in evidence"
+    ],
+    "humanConfirmationBefore": [
+      "installing system services or drivers",
+      "changing firewall, antivirus, GPU runtime, Docker Desktop, or WSL installation",
+      "configuring cloud tokens or paid providers",
+      "downloading local model weights or enabling local model as default route",
+      "processing real non-anonymized teacher/student materials",
+      "switching production active profile or release readiness status"
+    ]
+  },
+  "guardrail": {
+    "noInstallPerformed": true,
+    "noNetworkRequired": true,
+    "secretsPrinted": false,
+    "productionDefaultChanged": false,
+    "modelWeightsDownloaded": false,
+    "localAiDefaultChanged": false,
+    "failClosedPolicy": "missing runtime, database, worker, export, security, or storage capabilities must block live release or fall back to pending_review/takeoverRequired"
+  }
+}

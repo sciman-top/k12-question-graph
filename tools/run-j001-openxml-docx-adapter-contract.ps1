@@ -10,8 +10,11 @@ try {
     python tools\j001_openxml_docx_fixture.py | Write-Host
     if ($LASTEXITCODE -ne 0) { throw "J001 fixture generation failed" }
 
-    $json = python workers\document\worker.py --job-id j001-golden --relative-path j001-golden.docx --file-root $fileRoot | ConvertFrom-Json
+    $workerOutputPath = Join-Path $fileRoot 'worker-output.json'
+    $workerErrorPath = Join-Path $fileRoot 'worker-error.log'
+    python workers\document\worker.py --job-id j001-golden --relative-path j001-golden.docx --file-root $fileRoot > $workerOutputPath 2> $workerErrorPath
     if ($LASTEXITCODE -ne 0) { throw "J001 OpenXML worker failed" }
+    $json = Get-Content -LiteralPath $workerOutputPath -Raw | ConvertFrom-Json
     if ($json.status -ne 'ok') { throw "J001 worker status is not ok" }
     if ($json.adapterDiagnostics[0].adapterName -ne 'openxml_docx_adapter') { throw "J001 must use openxml_docx_adapter" }
     if (@($json.adapterDiagnostics[0].warnings).Count -ne 0) { throw "J001 OpenXML adapter should not emit placeholder warnings" }

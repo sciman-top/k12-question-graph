@@ -87,13 +87,26 @@ try {
     $logOut = Join-Path $repoRoot 'docs\evidence\o004b-role-audit-api.out.log'
     $logErr = Join-Path $repoRoot 'docs\evidence\o004b-role-audit-api.err.log'
     $auditRoot = Join-Path $repoRoot 'tmp/o004b/logs'
+    $storageRoot = Join-Path $repoRoot 'tmp/o004b/storage'
+    $dataRoot = Join-Path $storageRoot 'data'
+    $fileStoreRoot = Join-Path $dataRoot 'file_store'
+    $backupRoot = Join-Path $storageRoot 'backup'
+    $cacheRoot = Join-Path $dataRoot 'cache'
     New-Item -ItemType Directory -Path $auditRoot -Force | Out-Null
+    foreach ($path in @($dataRoot, $fileStoreRoot, $backupRoot, $cacheRoot)) {
+        New-Item -ItemType Directory -Path $path -Force | Out-Null
+    }
     $auditLog = Join-Path $auditRoot 'admin-internal-audit.jsonl'
+    Remove-Item -LiteralPath $auditLog -Force -ErrorAction SilentlyContinue
 
     $previousEnvironment = $env:ASPNETCORE_ENVIRONMENT
     $previousGuardKey = $env:AdminInternalGuard__ApiKey
     $previousBypass = $env:AdminInternalGuard__AllowUnguardedDraftTest
+    $previousDataRoot = $env:KqgPaths__DataRoot
+    $previousFileStoreRoot = $env:KqgPaths__FileStoreRoot
+    $previousBackupRoot = $env:KqgPaths__BackupRoot
     $previousLogsRoot = $env:KqgPaths__LogsRoot
+    $previousCacheRoot = $env:KqgPaths__CacheRoot
     $previousAuditEnabled = $env:AdminInternalRoleAudit__Enabled
     $previousRequireRole = $env:AdminInternalRoleAudit__RequireRoleHeader
     $previousRequireOperator = $env:AdminInternalRoleAudit__RequireOperatorIdHeader
@@ -102,7 +115,11 @@ try {
     $env:ASPNETCORE_ENVIRONMENT = 'Production'
     $env:AdminInternalGuard__ApiKey = 'o004b-contract-secret'
     $env:AdminInternalGuard__AllowUnguardedDraftTest = 'false'
+    $env:KqgPaths__DataRoot = $dataRoot
+    $env:KqgPaths__FileStoreRoot = $fileStoreRoot
+    $env:KqgPaths__BackupRoot = $backupRoot
     $env:KqgPaths__LogsRoot = $auditRoot
+    $env:KqgPaths__CacheRoot = $cacheRoot
     $env:AdminInternalRoleAudit__Enabled = 'true'
     $env:AdminInternalRoleAudit__RequireRoleHeader = 'true'
     $env:AdminInternalRoleAudit__RequireOperatorIdHeader = 'true'
@@ -152,7 +169,11 @@ try {
         $env:ASPNETCORE_ENVIRONMENT = $previousEnvironment
         $env:AdminInternalGuard__ApiKey = $previousGuardKey
         $env:AdminInternalGuard__AllowUnguardedDraftTest = $previousBypass
+        $env:KqgPaths__DataRoot = $previousDataRoot
+        $env:KqgPaths__FileStoreRoot = $previousFileStoreRoot
+        $env:KqgPaths__BackupRoot = $previousBackupRoot
         $env:KqgPaths__LogsRoot = $previousLogsRoot
+        $env:KqgPaths__CacheRoot = $previousCacheRoot
         $env:AdminInternalRoleAudit__Enabled = $previousAuditEnabled
         $env:AdminInternalRoleAudit__RequireRoleHeader = $previousRequireRole
         $env:AdminInternalRoleAudit__RequireOperatorIdHeader = $previousRequireOperator
@@ -194,6 +215,10 @@ try {
             requiredFields = $requiredFields
             highRiskWriteRecorded = $true
             rollbackRefCaptured = $true
+        }
+        isolatedStorage = [ordered]@{
+            root = 'tmp/o004b/storage'
+            liveDataOrBackupScan = $false
         }
         pilotLiveGuard = 'fail_closed_when_role_or_operator_headers_missing_or_unauthorized'
     } | ConvertTo-Json -Depth 6

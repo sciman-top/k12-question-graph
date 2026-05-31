@@ -46,16 +46,19 @@ try {
     $candidateList = Invoke-RestMethod -Uri "$apiUrl/source-documents/$sourceId/cut-candidates" -TimeoutSec 10
     $candidateIds = @($candidateList.items | ForEach-Object { [string]$_.id })
     if ($candidateIds.Count -lt 2) {
-        $regionBody = @{
-            pageNumber = 1
-            x = 12
-            y = 12
-            width = 40
-            height = 20
-            coordinateUnit = 'percent'
-            regionType = 'preview'
-        } | ConvertTo-Json -Depth 4
-        Invoke-RestMethod -Uri "$apiUrl/source-documents/$sourceId/regions" -Method Post -ContentType 'application/json' -Body $regionBody -TimeoutSec 15 | Out-Null
+        $missingRegionCount = 2 - $candidateIds.Count
+        for ($regionIndex = 0; $regionIndex -lt $missingRegionCount; $regionIndex++) {
+            $regionBody = @{
+                pageNumber = 1
+                x = 12 + ($regionIndex * 16)
+                y = 12 + ($regionIndex * 8)
+                width = 40
+                height = 20
+                coordinateUnit = 'percent'
+                regionType = 'preview'
+            } | ConvertTo-Json -Depth 4
+            Invoke-RestMethod -Uri "$apiUrl/source-documents/$sourceId/regions" -Method Post -ContentType 'application/json' -Body $regionBody -TimeoutSec 15 | Out-Null
+        }
         Invoke-RestMethod -Uri "$apiUrl/source-documents/$sourceId/cut-candidates/generate" -Method Post -TimeoutSec 15 | Out-Null
         $candidateList = Invoke-RestMethod -Uri "$apiUrl/source-documents/$sourceId/cut-candidates" -TimeoutSec 10
         $candidateIds = @($candidateList.items | ForEach-Object { [string]$_.id })

@@ -1,5 +1,7 @@
 param(
-    [string] $ReportPath = 'docs/evidence/20260529-ns203-privacy-license-scan-report.json'
+    [string] $ReportPath = 'docs/evidence/20260529-ns203-privacy-license-scan-report.json',
+    [int] $AllowedFindingSampleLimit = 80,
+    [int] $ExcerptMaxLength = 240
 )
 
 $ErrorActionPreference = 'Stop'
@@ -19,12 +21,20 @@ function Get-LineNumber([string] $Text, [int] $Index) {
     return (($Text.Substring(0, $Index) -split "`n").Count)
 }
 
+function Limit-Text([string] $Text, [int] $MaxLength) {
+    if ([string]::IsNullOrEmpty($Text) -or $Text.Length -le $MaxLength) {
+        return $Text
+    }
+
+    return $Text.Substring(0, $MaxLength) + '...'
+}
+
 function New-Hit([string] $Kind, [string] $Path, [int] $Line, [string] $Excerpt, [bool] $Allowed, [string] $Reason) {
     [ordered]@{
         kind = $Kind
         path = $Path
         line = $Line
-        excerpt = $Excerpt
+        excerpt = Limit-Text $Excerpt $ExcerptMaxLength
         allowed = $Allowed
         reason = $Reason
     }
@@ -99,12 +109,13 @@ try {
     $rawSourceBlockers = New-Object System.Collections.Generic.List[object]
     $trackedBinaryFiles = New-Object System.Collections.Generic.List[object]
     $copyrightRawMarkers = New-Object System.Collections.Generic.List[object]
+    $excludedGeneratedScanReports = New-Object System.Collections.Generic.List[object]
 
     $regexes = [ordered]@{
         openAiKey = [regex]'sk-[A-Za-z0-9_-]{40,}'
         credentialAssignment = [regex]'(?i)(api[_-]?key|secret|token|password|pwd)\s*[:=]\s*["'']?([A-Za-z0-9_./+=-]{12,})'
-        cnPhone = [regex]'(?<!\d)1[3-9]\d{9}(?!\d)'
-        cnResidentId = [regex]'(?<!\d)[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[\dXx](?!\d)'
+        cnPhone = [regex]'(?<![A-Za-z0-9])1[3-9]\d{9}(?![A-Za-z0-9])'
+        cnResidentId = [regex]'(?<![A-Za-z0-9])[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[\dXx](?![A-Za-z0-9])'
         studentNameValue = [regex]'学生姓名\s*[:：=]\s*[\p{IsCJKUnifiedIdeographs}]{2,4}'
         studentIdValue = [regex]'学号\s*[:：=]\s*[A-Za-z0-9-]{5,}'
         classRosterValue = [regex]'(班级|花名册)\s*[:：=]\s*[\p{IsCJKUnifiedIdeographs}A-Za-z0-9_-]{3,}'
@@ -113,6 +124,13 @@ try {
     foreach ($relativePath in $trackedFiles) {
         $normalized = $relativePath -replace '\\', '/'
         if ($normalized -match '(^|/)(bin|obj|node_modules|dist)/') {
+            continue
+        }
+
+        if ($normalized -match '^docs/evidence/.*ns203-privacy-license-scan-report\.json$') {
+            # Generated NS203 reports contain prior allowed findings; scanning them makes
+            # the evidence recursively grow and can swamp the full gate output.
+            $excludedGeneratedScanReports.Add([ordered]@{ path = $relativePath; reason = 'generated NS203 evidence excluded from recursive scan input' })
             continue
         }
 
@@ -224,12 +242,16 @@ try {
     $counts.Add('localRawSourceFiles', (Get-ItemCount $rawLocalFiles))
     $counts.Add('policyMentionCount', (Get-ItemCount $policyMentions))
     $counts.Add('copyrightRawPathMarkers', (Get-ItemCount $copyrightRawMarkers))
+    $counts.Add('excludedGeneratedScanReports', (Get-ItemCount $excludedGeneratedScanReports))
     $report.Add('counts', $counts)
     $report.Add('allowedFindings', [ordered]@{
-            allowedCredentialLikeHits = @($secretHits | Where-Object { $_.allowed })
+            allowedCredentialLikeHitsSample = @($secretHits | Where-Object { $_.allowed } | Select-Object -First $AllowedFindingSampleLimit)
+            allowedCredentialLikeHitCount = (Get-ItemCount @($secretHits | Where-Object { $_.allowed }))
+            allowedCredentialLikeHitSampleLimit = $AllowedFindingSampleLimit
             allowedTrackedBinaryFiles = @($trackedBinaryFiles | Where-Object { $_.allowed })
             policyMentionsSample = @($policyMentions | Select-Object -First 20)
             copyrightRawPathMarkers = @($copyrightRawMarkers | Select-Object -First 20)
+            excludedGeneratedScanReports = @($excludedGeneratedScanReports | Select-Object -First 20)
     })
     $report.Add('blockers', @($blockers))
     $report.Add('acceptance', [ordered]@{

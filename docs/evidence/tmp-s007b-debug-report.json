@@ -1,0 +1,24 @@
+{
+  "status": "pass",
+  "taskId": "S007B",
+  "checkedAt": "2026-05-30T16:24:18",
+  "runId": "ed80078032794946a2fff4dedb364ce8",
+  "sourceDocumentId": "ff767b18-70e4-4b6b-9e83-1f1042d014bb",
+  "enqueue": {
+    "aiJobId": "8ef32310-668e-4dbb-9bf6-7d23b8ebc26d",
+    "reviewQueueItemId": "eaf07688-7c67-44b6-8864-d7e792372ed5",
+    "reviewStatus": "open"
+  },
+  "feedback": {
+    "decision": "approved",
+    "reviewStatus": "resolved",
+    "teacherModified": true,
+    "resolvedQueueItemIds": []
+  },
+  "noActiveWriteGuard": {
+    "questionTotalBefore": 2603,
+    "questionTotalAfter": 2603,
+    "changed": false
+  },
+  "conclusion": "ai suggestions are persisted in db-backed review queue as pending review and teacher feedback resolves queue without direct question write"
+}

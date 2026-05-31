@@ -93,6 +93,265 @@ writes `docs/evidence/20260530-ns803-installer-host.json`. It stays read-only
 for host capabilities: no dependency install, network requirement, model weight
 download, production default switch, or plaintext password evidence.
 
+NS804 windows service publish package:
+
+```powershell
+.\tools\run-ns804-windows-service-package.ps1
+```
+
+This reuses the O001 publish package contract for the non-site NS8 track. It
+requires NS803 evidence, publishes API/Web plus the document worker package,
+boots the published API from a temporary working directory with explicit
+`--contentRoot`, checks health/readiness, and writes
+`docs/evidence/20260530-ns804-windows-service.json`. It does not install a
+Windows Service, change firewall rules, or switch production defaults.
+
+NS805 capacity/cost/health dashboard:
+
+```powershell
+$env:PGPASSWORD='<local-password>'
+.\tools\run-ns805-health-dashboard.ps1
+```
+
+This aggregates the non-site NS8 dashboard readiness evidence: NS801/NS802
+backup and restore signals, NS803 host diagnostic, NS804 package health,
+NS503 AI cost evidence, G002 cache cleanup boundaries, K006 knowledge health,
+and O005 admin UI/API contracts. It writes
+`docs/evidence/20260530-ns805-health-dashboard.json` and stays draft/test:
+no production data delete, external AI call, active asset write, or service
+installation.
+
+NS806 EF migration bundle upgrade rehearsal:
+
+```powershell
+$env:PGPASSWORD='<local-password>'
+.\tools\run-ns806-upgrade-bundle.ps1
+```
+
+This wraps the O007 EF migration bundle rehearsal for the non-site NS8 track.
+It requires NS804 package health and NS805 dashboard evidence, builds/runs the
+EF migration bundle through O007, then checks post-bundle backup verification
+and isolated restore drill evidence. It writes
+`docs/evidence/20260530-ns806-upgrade-bundle.json` and remains draft/test: no
+Windows Service install, production default switch, production data cleanup,
+external AI call, active asset write, or live deployment closure.
+
+NS901 non-site scenario pack:
+
+```powershell
+$env:PGPASSWORD='<local-password>'
+.\tools\run-ns901-non-site-scenario-pack.ps1
+```
+
+This verifies the NS9 synthetic/proxy scenario pack from runtime evidence. It
+requires NS607 export artifacts, NS704 commentary report export, NS806 upgrade
+restore evidence, S012A fixture admission, and S012B non-site E2E rehearsal.
+It writes `docs/evidence/20260530-ns901-non-site-scenario-pack.json`. It can
+run with `-SkipS012Refresh` after S012A/S012B have just run in the full gate.
+The report marks `nonSiteValidated=false`: authorized/anonymized school
+materials, isolated-machine deployment, teacher observation, printer/network,
+domain permission checks, and live operator signoff remain NS904/NS1001/P001
+boundaries.
+
+NS903 completion dashboard refresh:
+
+```powershell
+.\tools\run-ns903-completion-dashboard.ps1
+```
+
+This refreshes the completion-state evidence after NS901/NS902/NS906 runtime
+checks. It verifies the S001 dashboard, keeps `release_ready=0`, keeps
+`nonSiteValidated=false`, and preserves explicit P001/REAL005 blockers. It
+writes `docs/evidence/20260530-ns903-completion-dashboard.json`. It is
+evidence-only: no external AI call, real student data, production history
+write, active asset mutation, or live pilot closure.
+
+NS904 P001 readiness evidence pack:
+
+```powershell
+.\tools\run-ns904-p001-readiness-pack.ps1
+```
+
+This assembles the P001 readiness pack after NS903 and the P001 preflight
+contract. It verifies NS803 installer/host diagnostics, NS804 publish package,
+NS805 capacity/health evidence, NS806 upgrade/restore evidence, NS901 scenario
+coverage, NS906 visual surrogate boundaries, and REAL005 `not_closed`. It
+writes `docs/evidence/20260530-ns904-p001-readiness.json`, keeps
+`p001CanClose=false`, keeps `releaseReady=false`, and lists the remaining
+isolated-machine, onsite-teacher, printer, network, domain-permission, and
+operator-signoff blockers for the P001 checklist.
+
+NS905 status sync audit:
+
+```powershell
+.\tools\run-ns905-status-sync-audit.ps1
+```
+
+This audits the backlog, completion-state dashboard, and non-site plan after
+NS904. It keeps P001-P006 as `待办`, requires zero `release_ready` and zero
+`non_site_validated` rows, verifies dashboard P001 blockers still point to real
+backlog tasks, and checks NS903/NS904 runtime evidence cannot be overwritten by
+older planned states. It writes `docs/evidence/20260530-ns905-status-sync.md`.
+
+NS1101 second-subject candidate boundary pack:
+
+```powershell
+.\tools\run-ns1101-second-subject-candidate-boundary.ps1
+```
+
+This verifies the Q001 second-subject candidate admission boundary after the
+NS905 status sync. It keeps `P006` and `Q001` as `待办`, keeps NS1001-NS1005
+as `blocked_by_onsite`, requires `closeTaskAllowed=false`, and writes
+`docs/evidence/20260530-ns1101-second-subject-candidate.json` with
+`productionEligible=false`, `activeAssetMutation=false`, and
+`secondSubjectAdmissionExecuted=false`. It is a boundary/preflight pack only:
+no source package import, candidate manifest creation, or active asset switch.
+
+NS1102 second-subject teacher review template boundary pack:
+
+```powershell
+.\tools\run-ns1102-second-subject-review-template-boundary.ps1
+```
+
+This verifies the Q002 teacher review template boundary after NS1101. It keeps
+`Q001`, `Q002`, and `Q003` as `待办`, requires `closeTaskAllowed=false`, and
+writes `docs/evidence/20260530-ns1102-second-subject-review-template.json`
+with `teacherReviewExecuted=false`, `realCandidateAssetsReviewed=false`,
+`productionEligible=false`, and `q003CanAdvance=false`. It is a template
+boundary/preflight pack only: no real teacher review execution, no real
+candidate asset review, no Q003 active drill, and no active asset switch.
+
+NS1103 second-subject active dry-run boundary pack:
+
+```powershell
+.\tools\run-ns1103-second-subject-active-dry-run-boundary.ps1
+```
+
+This verifies the Q003 second-subject active dry-run boundary after NS1102. It
+keeps `Q002`, `Q003`, and `Q004` as `待办`, requires `closeTaskAllowed=false`,
+and writes `docs/evidence/20260531-ns1103-second-subject-active-dry-run.json`
+with `activeDryRunExecuted=false`, `activeSwitchPerformed=false`,
+`rollbackSnapshotRecorded=false`, `productionEligible=false`, and
+`q004CanAdvance=false`. It is an activation boundary/preflight pack only: no
+active dry-run execution, no active asset switch, no rollback snapshot write,
+and no Q004 cross-subject advancement.
+
+NS1104 cross-subject UI boundary pack:
+
+```powershell
+.\tools\run-ns1104-cross-subject-ui-boundary.ps1
+```
+
+This verifies the Q004/Q005 cross-subject diff and multi-subject UI
+simplification boundary after NS1103. It keeps `Q003`, `Q004`, and `Q005` as
+`待办`, requires both Q004 and Q005 reports to remain `preflight_only`, and
+writes `docs/evidence/20260531-ns1104-cross-subject-ui.json` with the ordinary
+teacher surface still limited to four high-frequency entries. It is a
+boundary/preflight pack only: no real cross-subject diff report, no subject
+switching UI, no UI smoke execution, and no Q004/Q005 closure.
+
+NS0-NS2 runtime closure pack:
+
+```powershell
+.\tools\run-ns0-ns2-runtime-closure.ps1
+```
+
+This verifies the early non-site governance and safety rows that were previously
+`repo_landed`: NS001-NS005, NS103, NS105, NS106, and NS201-NS204. It checks the
+status dictionary, completion dashboard, module ownership map, fixture/privacy
+policy, raw-source Git boundary, refreshed NS103 typed API snapshot, and reruns
+the NS004/105/106/201/202/203/204 guards. It writes
+`docs/evidence/20260531-ns0-ns2-runtime-closure.json` and remains a
+non-production closure pack only: no real student data, no external AI, no
+active switch, and no production-history write.
+
+NS1201 search and semantic retrieval admission boundary pack:
+
+```powershell
+.\tools\run-ns1201-search-eval.ps1
+```
+
+This verifies the R001 search/semantic retrieval upgrade boundary after the
+NS1005 release decision remains blocked by onsite evidence. It keeps `P006`
+and `R001` as `待办`, keeps PostgreSQL FTS/`pg_trgm` as the default route, and
+writes `docs/evidence/20260531-ns1201-search-eval.json` with pgvector,
+embedding generation, and external search still blocked until real FTS
+insufficiency evidence exists. It is an admission boundary pack only: no field
+benchmark, no pgvector migration, no embedding route, no external search setup,
+and no teacher-facing search route change.
+
+NS1202 queue and worker scale admission boundary pack:
+
+```powershell
+.\tools\run-ns1202-queue-eval.ps1
+```
+
+This verifies the R002 queue/worker scale boundary after the NS1005 release
+decision remains blocked by onsite evidence. It keeps `P006` and `R002` as
+`待办`, keeps PostgreSQL job store + `BackgroundService` as the default route,
+and writes `docs/evidence/20260531-ns1202-queue-eval.json` with Hangfire,
+RabbitMQ, broker setup, and distributed worker routing still blocked until real
+throughput or reliability evidence exists. It is an admission boundary pack
+only: no field throughput benchmark, no package install, no broker setup, and
+no default worker route change.
+
+NS1203 interoperability profile map boundary pack:
+
+```powershell
+.\tools\run-ns1203-interop-profile-map.ps1
+```
+
+This verifies the R007 profile-map boundary after the NS1005 release decision
+remains blocked by onsite evidence. It keeps `P006`, `R003`, and `R007` as
+`待办`, verifies the QuestionItem/Paper/KnowledgeNode/ScoreRecord/AnalysisEvent
+profile map to QTI/CASE/OneRoster/Caliper, and writes
+`docs/evidence/20260531-ns1203-interop-profile-map.json`. It is an admission
+boundary pack only: no QTI/CASE/OneRoster/Caliper import/export, no SIS sync,
+no Caliper event stream, and no schema mutation.
+
+NS1204 advanced analysis admission boundary pack:
+
+```powershell
+.\tools\run-ns1204-advanced-analysis-admission.ps1
+```
+
+This verifies the R004 advanced-analysis boundary after NS704 commentary report
+evidence. It keeps `R004` as `待办`, keeps basic CTT/commentary as draft/test,
+and writes `docs/evidence/20260531-ns1204-advanced-analysis-admission.json`
+with IRT, form equating, and longitudinal growth still blocked until sample,
+owner, explanation, and rollback evidence exists. It is an admission boundary
+pack only: no real student data, no IRT/equating/growth computation, no
+advanced-analysis UI route, and no formal history write.
+
+NS1205 public/multischool deployment admission boundary pack:
+
+```powershell
+.\tools\run-ns1205-multischool-admission.ps1
+```
+
+This verifies the R005 public/multischool deployment boundary after the NS1005
+release decision remains blocked by onsite evidence. It keeps `P001`, `P006`,
+and `R005` as `待办`, keeps single-school LAN as the only preferred future
+route, and writes `docs/evidence/20260531-ns1205-multischool-admission.json`
+with public internet exposure, multi-school shared deployment, and multi-tenant
+SaaS still blocked. It is an admission boundary pack only: no network exposure,
+no tenant schema/config, no reverse proxy/Kubernetes default, and no release
+state change.
+
+NS1206 tech-debt cadence boundary pack:
+
+```powershell
+.\tools\run-ns1206-techdebt-cadence.ps1
+```
+
+This verifies the R006 long-term maintenance cadence boundary after the NS1005
+release decision remains blocked by onsite evidence. It keeps `P001`, `P006`,
+and `R006` as `待办`, keeps dependency refresh as report-only, blocks
+performance work until a baseline exists, and writes
+`docs/evidence/20260531-ns1206-techdebt-cadence.json`. It is an admission
+boundary pack only: no dependency upgrade, no model download, no performance
+mutation, no experiment deletion, and no production cleanup.
+
 O003 recovery drill upgrade contract:
 
 ```powershell

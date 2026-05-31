@@ -123,6 +123,14 @@ begin
   delete from question_items
   where custom_fields->>'validation' = 'C002';
 
+  delete from question_blocks
+  where source_region_id in (
+    select sr.id
+    from source_regions sr
+    join source_documents sd on sd.id = sr.source_document_id
+    where sd.source_title = 'C002 validation source'
+  );
+
   delete from source_regions
   where source_document_id in (
     select id from source_documents

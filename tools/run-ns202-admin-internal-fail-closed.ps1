@@ -46,7 +46,7 @@ function Invoke-ApiForStatus([string] $Uri, [string] $Method = 'GET', [hashtable
     $request = @{
         Uri = $Uri
         Method = $Method
-        TimeoutSec = 30
+        TimeoutSec = 45
         SkipHttpErrorCheck = $true
     }
     if ($Headers.Count -gt 0) {
@@ -57,7 +57,22 @@ function Invoke-ApiForStatus([string] $Uri, [string] $Method = 'GET', [hashtable
         $request.Body = $Body
     }
 
-    return Invoke-WebRequest @request
+    $maxAttempts = 3
+    for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
+        try {
+            return Invoke-WebRequest @request
+        }
+        catch {
+            $message = $_.Exception.Message
+            $isTransientTimeout = $message -match 'Timeout|timed out|canceled'
+            if ($attempt -lt $maxAttempts -and $isTransientTimeout) {
+                Start-Sleep -Seconds 2
+                continue
+            }
+
+            throw
+        }
+    }
 }
 
 function Invoke-WithApi(

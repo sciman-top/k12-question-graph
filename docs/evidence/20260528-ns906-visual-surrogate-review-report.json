@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS906",
-  "checkedAt": "2026-05-30T13:07:29",
+  "checkedAt": "2026-05-31T01:39:07",
   "mode": "deterministic_visual_surrogate_review",
   "productionEligible": false,
   "realStudentDataUsed": false,
@@ -88,7 +88,7 @@
     "sampledImageCount": 8,
     "sampledImages": [
       {
-        "regionId": "71a3f42c-7abf-4c73-8194-a933f3d57340",
+        "regionId": "55e7ce90-449c-4ae7-8ea8-5ac982571b86",
         "questionNo": 1,
         "pageNumber": 1,
         "bbox": {
@@ -98,7 +98,7 @@
           "height": 8.0
         },
         "screenshot": {
-          "path": "generated/guangzhou-2015/source-regions/71a3f42c-7abf-4c73-8194-a933f3d57340.png",
+          "path": "generated/guangzhou-2015/source-regions/55e7ce90-449c-4ae7-8ea8-5ac982571b86.png",
           "exists": true,
           "width": 1176,
           "height": 218,
@@ -107,7 +107,7 @@
         }
       },
       {
-        "regionId": "812ec6ab-685b-4301-a9f8-81f32b6e522e",
+        "regionId": "5bf8a3cd-783d-4363-8baf-8fd5b2a9a051",
         "questionNo": 1,
         "pageNumber": 1,
         "bbox": {
@@ -117,7 +117,7 @@
           "height": 10.0
         },
         "screenshot": {
-          "path": "generated/guangzhou-2015/source-regions/812ec6ab-685b-4301-a9f8-81f32b6e522e.png",
+          "path": "generated/guangzhou-2015/source-regions/5bf8a3cd-783d-4363-8baf-8fd5b2a9a051.png",
           "exists": true,
           "width": 1176,
           "height": 261,
@@ -126,45 +126,7 @@
         }
       },
       {
-        "regionId": "5d47db95-d0e1-4247-943a-df528d5b9a43",
-        "questionNo": 2,
-        "pageNumber": 1,
-        "bbox": {
-          "x": 28.0,
-          "y": 78.0,
-          "width": 58.0,
-          "height": 15.0
-        },
-        "screenshot": {
-          "path": "generated/guangzhou-2015/source-regions/5d47db95-d0e1-4247-943a-df528d5b9a43.png",
-          "exists": true,
-          "width": 908,
-          "height": 366,
-          "nonBlankRatio": 0.0283,
-          "pass": true
-        }
-      },
-      {
-        "regionId": "c455f60f-0891-4437-b678-5943a106c79e",
-        "questionNo": 2,
-        "pageNumber": 1,
-        "bbox": {
-          "x": 12.0,
-          "y": 20.0,
-          "width": 76.0,
-          "height": 8.0
-        },
-        "screenshot": {
-          "path": "generated/guangzhou-2015/source-regions/c455f60f-0891-4437-b678-5943a106c79e.png",
-          "exists": true,
-          "width": 1176,
-          "height": 218,
-          "nonBlankRatio": 0.0244,
-          "pass": true
-        }
-      },
-      {
-        "regionId": "cc8b1d06-7711-4932-a3ac-d48189d0774c",
+        "regionId": "717f7884-21dc-4a8e-b70b-db0bb0e9ef1a",
         "questionNo": 2,
         "pageNumber": 1,
         "bbox": {
@@ -174,7 +136,7 @@
           "height": 26.0
         },
         "screenshot": {
-          "path": "generated/guangzhou-2015/source-regions/cc8b1d06-7711-4932-a3ac-d48189d0774c.png",
+          "path": "generated/guangzhou-2015/source-regions/717f7884-21dc-4a8e-b70b-db0bb0e9ef1a.png",
           "exists": true,
           "width": 1176,
           "height": 597,
@@ -183,7 +145,45 @@
         }
       },
       {
-        "regionId": "8c39f54c-8484-44b6-8a2d-8cd9b4318212",
+        "regionId": "784b7f40-eeed-4ce2-ac57-0ca313f862aa",
+        "questionNo": 2,
+        "pageNumber": 1,
+        "bbox": {
+          "x": 28.0,
+          "y": 78.0,
+          "width": 58.0,
+          "height": 15.0
+        },
+        "screenshot": {
+          "path": "generated/guangzhou-2015/source-regions/784b7f40-eeed-4ce2-ac57-0ca313f862aa.png",
+          "exists": true,
+          "width": 908,
+          "height": 366,
+          "nonBlankRatio": 0.0283,
+          "pass": true
+        }
+      },
+      {
+        "regionId": "e171a443-d3e6-457a-8e0f-c7f2e5594c2a",
+        "questionNo": 2,
+        "pageNumber": 1,
+        "bbox": {
+          "x": 12.0,
+          "y": 20.0,
+          "width": 76.0,
+          "height": 8.0
+        },
+        "screenshot": {
+          "path": "generated/guangzhou-2015/source-regions/e171a443-d3e6-457a-8e0f-c7f2e5594c2a.png",
+          "exists": true,
+          "width": 1176,
+          "height": 218,
+          "nonBlankRatio": 0.0244,
+          "pass": true
+        }
+      },
+      {
+        "regionId": "d38dc170-5908-4626-a3a6-50caea366042",
         "questionNo": 3,
         "pageNumber": 1,
         "bbox": {
@@ -193,7 +193,7 @@
           "height": 8.0
         },
         "screenshot": {
-          "path": "generated/guangzhou-2015/source-regions/8c39f54c-8484-44b6-8a2d-8cd9b4318212.png",
+          "path": "generated/guangzhou-2015/source-regions/d38dc170-5908-4626-a3a6-50caea366042.png",
           "exists": true,
           "width": 1176,
           "height": 218,
@@ -202,7 +202,7 @@
         }
       },
       {
-        "regionId": "950d2fd1-56fd-44e9-89cb-ed4e58294d9d",
+        "regionId": "6ad8a86b-43e3-4216-aacc-a153a83aa764",
         "questionNo": 3,
         "pageNumber": 2,
         "bbox": {
@@ -212,7 +212,7 @@
           "height": 20.0
         },
         "screenshot": {
-          "path": "generated/guangzhou-2015/source-regions/950d2fd1-56fd-44e9-89cb-ed4e58294d9d.png",
+          "path": "generated/guangzhou-2015/source-regions/6ad8a86b-43e3-4216-aacc-a153a83aa764.png",
           "exists": true,
           "width": 1176,
           "height": 471,
@@ -221,7 +221,7 @@
         }
       },
       {
-        "regionId": "cdcf404d-2329-46ef-9423-c4f81c34fdbb",
+        "regionId": "ee979ac0-2a74-4d58-9bea-e68bc8f73ee7",
         "questionNo": 3,
         "pageNumber": 2,
         "bbox": {
@@ -231,7 +231,7 @@
           "height": 15.0
         },
         "screenshot": {
-          "path": "generated/guangzhou-2015/source-regions/cdcf404d-2329-46ef-9423-c4f81c34fdbb.png",
+          "path": "generated/guangzhou-2015/source-regions/ee979ac0-2a74-4d58-9bea-e68bc8f73ee7.png",
           "exists": true,
           "width": 580,
           "height": 366,
@@ -250,7 +250,7 @@
           "exists": true,
           "hasDocumentXml": true,
           "mediaCount": 3,
-          "sizeBytes": 3315
+          "sizeBytes": 3314
         },
         "pdf": {
           "exists": true,
@@ -283,7 +283,7 @@
           "exists": true,
           "hasDocumentXml": true,
           "mediaCount": 3,
-          "sizeBytes": 3346
+          "sizeBytes": 3347
         },
         "pdf": {
           "exists": true,
@@ -316,7 +316,7 @@
           "exists": true,
           "hasDocumentXml": true,
           "mediaCount": 0,
-          "sizeBytes": 1511
+          "sizeBytes": 1512
         },
         "pdf": {
           "exists": true,

@@ -1,14 +1,61 @@
 {
   "status": "pass",
   "taskId": "S011C",
-  "checkedAt": "2026-05-30T13:06:24",
+  "checkedAt": "2026-05-31T01:37:26",
   "endpoint": "/assessments/{assessmentId}/commentary-report/export",
-  "assessmentId": "88af41a3-3813-4168-afff-8a8d17eb3c7a",
-  "artifactPath": "draft://commentary-reports/88af41a338134168afff8a8d17eb3c7a.md",
-  "manifestSha256": "8b7bb030b1d24ffaa1d2c1729a9b4455ef31506947b229b1ee2219bb80709ff8",
+  "assessmentId": "5e27c3ec-91ed-4b01-a062-0b137c833683",
+  "artifactPath": "draft://commentary-reports/5e27c3ec91ed4b01a0620b137c833683.md",
+  "manifestSha256": "f0002050feb6f902a11e175e0dbcc6c8db38592b6575cc00fc62c6535ebea3a0",
   "sectionCount": 3,
   "weakKnowledgePointCount": 2,
   "practiceSuggestionCount": 2,
+  "sections": [
+    {
+      "sectionId": "class_summary",
+      "title": "班级概览",
+      "summary": "已导入 2 个小题，2 个已映射。"
+    },
+    {
+      "sectionId": "weak_points",
+      "title": "优先讲评",
+      "summary": "Inertia 80.0%；Force analysis 83.3%"
+    },
+    {
+      "sectionId": "practice_plan",
+      "title": "巩固练习",
+      "summary": "按已确认知识点生成 draft/test 练习建议，教师确认后再使用。"
+    }
+  ],
+  "weakKnowledgePoints": [
+    {
+      "knowledgeNodeId": "e42757c4-8a1e-4f59-ae90-ac82d68d524a",
+      "title": "Inertia",
+      "version": 1,
+      "scoreRate": 0.8,
+      "questionNo": "Q1"
+    },
+    {
+      "knowledgeNodeId": "a1e4fc89-45f5-4b8b-8e1e-d04103de9d6e",
+      "title": "Force analysis",
+      "version": 1,
+      "scoreRate": 0.8333,
+      "questionNo": "Q2"
+    }
+  ],
+  "practiceSuggestions": [
+    {
+      "knowledgeNodeId": "e42757c4-8a1e-4f59-ae90-ac82d68d524a",
+      "knowledgeTitle": "Inertia",
+      "suggestion": "补充 2 道 Inertia 的基础巩固题，先用于课堂讲评草稿。"
+    },
+    {
+      "knowledgeNodeId": "a1e4fc89-45f5-4b8b-8e1e-d04103de9d6e",
+      "knowledgeTitle": "Force analysis",
+      "suggestion": "补充 2 道 Force analysis 的基础巩固题，先用于课堂讲评草稿。"
+    }
+  ],
+  "blockingIssues": [],
+  "reportMarkdownPreview": "# S011C commentary report smoke 讲评草稿\r\n\r\n## 班级概览\r\n已导入 2 个小题，2 个已映射。\r\n\r\n## 优先讲评\r\nInertia 80.0%；Force analysis 83.3%\r\n\r\n## 巩固练习\r\n按已确认知识点生成 draft/test 练习建议，教师确认后再使用。\r\n\r\n## 分层练习建议\r\n- Inertia: 补充 2 道 Inertia 的基础巩固题，先用于课堂讲评草稿。\r\n- Force analysis: 补充 2 道 Force analysis 的基础巩固题，先用于课堂讲评草稿。",
   "auditTrail": [
     "deterministic_score_metrics",
     "draft_commentary_report_export",
