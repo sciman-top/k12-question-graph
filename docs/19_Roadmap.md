@@ -28,6 +28,8 @@ AI 推荐保留当前 P0-P6 大方向，但调整顺序和验收口径：
 
 截至 2026-05-28，新增非现场能力落地重基线：当最新盘点发现大量非人工、非现场模块仍未真正落地时，先执行 `docs/101_NonSiteCapabilityImplementationRoadmap.md` 和 `tasks/non-site-implementation-plan.csv`。该路线不推翻旧 evidence，但要求每个模块重新证明 `repo_landed/runtime_verified/non_site_validated` 后再回写完成态；现场试点只作为 `blocked_by_onsite`，不得反向阻塞仓库内可实现能力。
 
+截至 2026-06-04，新增 `NS13` 产品化运行形态收束波次。终态路线明确为：Windows/LAN-first 教师工作站 + ASP.NET Core 模块化单体 + PostgreSQL 事实源 + 本地文件仓库 + Python 文档/OCR/AI Adapter + React/Vite/Ant Design 教师工作台 + 版本化领域资产 + AI 候选/审核流水线。服务端默认以 Windows Service / 后台进程发布，配安装包和初始化向导；窗口 UI 暂时只做服务端控制面板。`P001` 进入隔离机/现场前，必须先完成结构瘦身、薄入口、页面拆分、service 收口、硬件 profile 自动配置、多 API/多模型角色路由、AI/agent 自动化边界、golden OCR/import 样本、视觉代理审查、EF migration bundle 升级演练、备份/恢复/release evidence pack。普通用户只看到“离线优先 / 云 API 增强 / 本地增强”等简化模式；内部按角色路由，不按具体模型名写死。
+
 ## 动态元素不停工原则
 
 知识点只是动态元素之一。凡是允许未来变化的对象，包括题型、标签、难度/能力维度、rubric、组卷规则、导出模板、AI prompt/schema/model routing、文档解析 pipeline、分析指标、Excel 字段映射、隐私策略、学校组织和权限，都必须先抽象为可版本化、可映射、可迁移、可回滚资产。
@@ -39,7 +41,7 @@ AI 推荐保留当前 P0-P6 大方向，但调整顺序和验收口径：
 - 验收写清楚“完成系统能力”，不写成“正式数据/正式口径已完成”。
 - 正式资料录入后，通过 mapping、impact report、review workbench、rollback snapshot 更新已有系统。
 
-只有这些动作必须等待正式资料或人工确认：`active` 生产激活、正式统计口径改写、真实学生数据处理、真实外部 AI 自动写入、影响历史学情或校级共享权限的批量迁移、下载本地模型权重、安装未知系统依赖、切换默认 OCR/AI 路由。
+只有这些动作必须等待正式资料或人工确认：`active` 生产激活、正式统计口径改写、真实学生数据处理、真实外部 AI 自动写入、影响历史学情或校级共享权限的批量迁移、下载本地模型权重、安装未知系统依赖、切换默认 OCR/AI 路由、安装系统服务、修改系统 PATH/driver/GPU runtime、启用 Docker/WSL、执行生产 migration apply、覆盖式恢复和 release decision。
 
 ## 阶段准入与退出
 

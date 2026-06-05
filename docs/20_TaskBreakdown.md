@@ -12,6 +12,123 @@ Automation-first 任务口径：每个任务在编码前必须先说明哪些部
 
 非现场能力落地口径：2026-05-28 起，若用户或复核发现旧完成态与真实落地不一致，先按 `docs/101_NonSiteCapabilityImplementationRoadmap.md` 执行状态重基线，并用 `tasks/non-site-implementation-plan.csv` 拆分非人工、非现场能力。任务不得只因 preflight 或历史 evidence 存在就标为产品化；必须按 `planned -> contract_only -> repo_landed -> runtime_verified -> non_site_validated` 逐级提供代码、运行、端到端和回滚证据。现场教师和隔离机任务保持 `blocked_by_onsite`，不应阻塞 NS0-NS9 的仓库内落地。
 
+产品化运行形态口径：2026-06-04 起，新增 `NS13`，把“Windows Service 主进程 + 安装包/初始化向导 + 服务端控制面板 + 硬件 profile 自动配置 + 多 API/模型角色路由 + 自动化代理边界”作为 `P001` 前置。普通教师仍只使用 Web 工作台；服务端控制面板面向安装者/管理员，只做服务状态、配置、诊断、备份恢复、升级演练和打开 Web。不得把当前开发机环境或某个具体 AI 模型名写成产品默认。
+
+## 0 · NS13 产品化运行形态收束
+
+### NS1301 薄入口、页面拆分与 service 收口
+
+验收：
+
+- `Program.cs`、controller/minimal endpoint、React page 和 BackgroundService 的职责边界有 inventory。
+- endpoint 只做协议转换、鉴权、参数校验和调用 service；业务编排进入 application service/workflow service。
+- 页面按教师任务拆分，server state 进入 typed API client + TanStack Query，业务规则不落在组件散点里。
+
+验证：
+
+- 架构 inventory。
+- roadmap guard。
+- automation-first guard。
+
+### NS1302 Windows Service 发布主形态与服务端控制面板
+
+验收：
+
+- Windows Service 是默认服务端运行形态，content root、data root、log root 和 file store 均来自显式配置。
+- 服务端控制面板只提供服务状态、启动/停止、诊断、配置、备份恢复、升级演练和打开 Web UI。
+- 控制面板不承载教师业务 workflow，不复制 Web 复杂页面。
+
+验证：
+
+- Windows Service package dry-run。
+- control panel contract。
+- health/readiness/diagnostics smoke。
+
+### NS1303 硬件探测到运行 profile 自动配置
+
+验收：
+
+- 安装器/控制面板运行只读 host capability diagnostic。
+- 输出 `localSystemProfile`、`workerOcrProfile`、`aiNetworkProfile`、`aiLocalModelProfile`、`queueProfile`、`searchProfile` 和配置差异。
+- 只自动执行低风险动作；系统级变更和生产默认切换必须人工确认。
+
+验证：
+
+- host capability diagnostic。
+- worker profile diagnostic。
+- generated config diff。
+
+### NS1304 开源/免费工具链自动选择与配置
+
+验收：
+
+- 默认优先 OpenXML、PDF text/layout、Docling、PaddleOCR、OCRmyPDF、Ghostscript、qpdf、ImageMagick/libvips、PostgreSQL CLI、Robocopy 等开源/免费工具。
+- 每个工具必须有 adapter/profile、版本诊断、模型/cache 路径、golden set 或 fallback 口径。
+- 工具缺失时 fail-closed 到人工接管或较轻 profile，不伪装成功。
+
+验证：
+
+- toolchain admission catalog。
+- golden OCR/import samples。
+- worker diagnostic。
+
+### NS1305 多 API、多模型、按角色自动路由
+
+验收：
+
+- 普通用户只看离线优先、云 API 增强、本地增强等简化模式。
+- 管理员可配置多个 provider profile、API key 引用、base URL、并发、预算、fallback 和禁用开关。
+- 业务代码按角色路由，不写死具体模型名；所有输出默认 candidate/draft/pending_review。
+
+验证：
+
+- AI provider/routing 配置页 contract。
+- schema/eval/cost/cache/no-active-write guard。
+- secret redaction check。
+
+### NS1306 自动化优先的 AI/agent 工具执行编排
+
+验收：
+
+- 前置处理、候选生成、批量检查、视觉代理审查、工具执行和报告生成可由自动化编排。
+- agent 只能调用 allowlisted tool/runbook，不直接改生产 active、不处理未授权真实数据、不绕过人工确认。
+- 失败要有异常原因、人工接管和回滚建议。
+
+验证：
+
+- automation-first contract。
+- allowed tool/runbook inventory。
+- report evidence smoke。
+
+### NS1307 Golden OCR/import 样本、视觉代理审查与 LLM security/eval gate
+
+验收：
+
+- golden OCR/import 样本覆盖 docx 原生公式、文本 PDF、扫描件、题图、表格、公式和失败接管。
+- 视觉代理审查覆盖来源截图非空、噪声残留、导出工件、讲评报告、隐私泄漏和完成态不得误关。
+- LLM security/eval gate 覆盖 prompt injection、输出校验、schema adherence、成本、缓存、模型替换评测和人工审核。
+
+验证：
+
+- golden set eval。
+- visual surrogate review。
+- LLM security/eval guard。
+
+### NS1308 安装、升级、备份、恢复与 release evidence pack
+
+验收：
+
+- 安装、卸载、升级、EF migration bundle dry-run/apply rehearsal、备份、恢复、权限审计和四入口 smoke 有统一 evidence pack。
+- P001 只剩隔离机、现场教师、打印、网络、权限域和真实发布裁决时，才允许进入现场链路。
+- 回滚路径包含 Git、配置 snapshot、DB backup/restore、file manifest、禁用 route/profile 和服务卸载。
+
+验证：
+
+- installer dry-run。
+- migration bundle rehearsal。
+- backup/restore drill。
+- P001 readiness evidence pack。
+
 ## A · P0 工程骨架与最小上传纵切
 
 ### A000 P0 准入预检与决策锁定

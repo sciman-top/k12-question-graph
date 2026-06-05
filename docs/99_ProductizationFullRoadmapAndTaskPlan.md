@@ -1,6 +1,6 @@
 # 99 · 产品化全程路线图、实施计划与任务清单
 
-日期：2026-05-05。更新：2026-05-06，纳入 S001 完成态看板和 S0 子任务执行计划。更新：2026-05-10，纳入本地 OCR/公式识别 worker 环境档位、WSL/Docker 接入边界、新系统本地最佳配置画像、本地小参数模型诊断档和技术情报刷新准入链。
+日期：2026-05-05。更新：2026-05-06，纳入 S001 完成态看板和 S0 子任务执行计划。更新：2026-05-10，纳入本地 OCR/公式识别 worker 环境档位、WSL/Docker 接入边界、新系统本地最佳配置画像、本地小参数模型诊断档和技术情报刷新准入链。更新：2026-06-04，纳入 Windows Service 主形态、服务端控制面板、安装/profile 自动配置、多 API/模型角色路由和 NS13 结构瘦身波次。
 
 ## 1. 结论
 
@@ -8,12 +8,14 @@
 
 ```text
 Windows/LAN first teacher workstation
+-> installer/init wizard + Service Control Panel for administrators
+-> Windows Service / background process as primary server runtime
 -> ASP.NET Core modular monolith
 -> PostgreSQL fact store + local file store
 -> Python document/OCR/AI adapters through stable ports and explicit worker environment profiles
 -> React/Vite/Ant Design teacher workbench
 -> versioned domain assets and review workflow
--> structured AI candidate outputs with cost/cache/eval/security gates
+-> role-routed multi API/model structured AI candidate outputs with cost/cache/eval/security gates
 -> optional local small-model draft profile for capable hosts
 -> trusted technology refresh catalog for changing hardware/model/OCR ecosystems
 -> backup/restore/upgrade/install evidence before release
@@ -48,6 +50,7 @@ Windows/LAN first teacher workstation
 | A-G 基础能力 | 工程骨架、上传、题目模型、动态资产、AI/组卷/成绩/备份合同 | 已完成，保留为底座 |
 | H-O 强化能力 | 教师 shell、真实 adapter、C002 active、AI/组卷/成绩/部署合同 | 已完成大部分，但按 S001 只能视为底座，不能视为教师闭环 |
 | S0 产品化闭环 | 把现有合同能力接成真实教师工作流 | S001-S012 全部完成，`P001` 才可进入 |
+| NS13 产品化运行形态 | 把 Windows Service、控制面板、安装/profile、AI 路由和自动化边界收束成发布前置 | NS1301-NS1308 完成，`P001` 才可进入 |
 | P0-live 试点发布 | 真实隔离机、教师代理、现场试点、反馈回流、v0.1 裁决 | P001-P006 完成 |
 | Q0 多学科扩展 | 第二学科资料、复核、active、差异和 UI 简化 | Q001-Q005 完成且不破坏四入口 |
 | R0 长期平台演进 | 搜索、队列、互操作、高级分析、多校部署和技术债 | 以真实瓶颈和 ADR 触发 |
@@ -129,6 +132,9 @@ S0 当前采用 11 个执行波次：
 - 前端静态样例逐步替换为 typed API + TanStack Query server state。
 - Adapter 从“能输出结构”升级为“质量可度量、失败可接管”。
 - OCR/公式识别从“单一 Python 环境”升级为“按电脑配置分档的 worker profile”，但默认档必须保持轻量、离线、本地优先和 fail-closed。
+- 服务端发布从“能运行 API”升级为“Windows Service 主进程 + 安装初始化向导 + 服务端控制面板 + profile/config evidence”。
+- AI 配置从“单 provider/单模型思路”升级为“多个 provider profile + 多模型角色路由 + 普通用户简化模式 + 管理员高级设置”。
+- 自动化从“脚本辅助”升级为“前置处理、候选生成、批量检查、视觉代理审查、工具执行和报告生成的 allowlisted 编排”。
 - 组卷和成绩分析从 synthetic contract 升级为 DB-backed workflow。
 - 标准互操作只做 profile map，不提前做完整 QTI/CASE/OneRoster/Caliper。
 
@@ -226,6 +232,34 @@ trusted sources
 
 AI API 可以用于 `O008` 的公开资料摘要、release note 归纳、candidate catalog 草案和 eval checklist 生成；不得用于自动安装依赖、下载模型权重、修改系统 PATH、启用 Docker/WSL/GPU runtime、切换默认 OCR/AI route、处理真实未脱敏材料或把候选写入 active。没有 AI API 时，`O008` 仍应能抓取元数据并生成机械 diff；有 AI API 时只提升摘要质量，不改变准入边界。
 
+## 9.4 NS13 产品化运行形态收束
+
+NS13 是 P001 之前的发布形态收束，不替代 S0 已完成链路，也不提前进入现场。它解决的是：真实学校电脑性能差异大、安装/升级/恢复步骤多、AI provider/model 配置复杂、前后端入口逐渐变厚、自动化边界需要产品化。
+
+NS13 任务：
+
+| ID | 任务 | 验收重点 |
+|---|---|---|
+| NS1301 | 薄入口、页面拆分与 service 收口 | endpoint/page/BackgroundService 职责 inventory，业务编排回 application service/workflow service |
+| NS1302 | Windows Service 发布主形态与服务端控制面板 | service/content root/data root/log root 显式配置，控制面板只做管理入口 |
+| NS1303 | 硬件探测到运行 profile 自动配置 | host/worker diagnostic 输出 profile、工具链推荐、本机 config diff 和人工确认边界 |
+| NS1304 | 开源/免费工具链自动选择与配置 | OpenXML、PDF text、Docling、PaddleOCR、OCRmyPDF、qpdf、Ghostscript、ImageMagick/libvips 等按 profile 准入 |
+| NS1305 | 多 API、多模型、按角色自动路由 | 普通用户简化模式，管理员 provider profile，业务代码只按角色路由 |
+| NS1306 | 自动化优先的 AI/agent 工具执行编排 | agent 只调用 allowlisted tool/runbook，覆盖前置处理、候选、批检、视觉审查、工具执行和报告 |
+| NS1307 | Golden OCR/import、视觉代理和 LLM security/eval gate | golden set、visual surrogate、prompt injection/output validation/schema/cost/cache/eval 进入 gate |
+| NS1308 | 安装、升级、备份、恢复与 release evidence pack | installer、migration bundle、backup/restore、权限、四入口 smoke 和 P001 readiness pack |
+
+安装器和控制面板必须共享同一套 profile/config schema，不允许出现“安装时一套规则、面板里另一套规则”。云 API key、生图 API key、文本模型 API key、并发和预算以 provider profile 保存；普通用户只看到推荐模式和连接状态，管理员才能展开 provider、role、fallback、budget、batch/cache/eval 设置。
+
+模型路由角色必须保持抽象，不以具体模型名作为业务分支。默认角色包括 `ocr_cleanup_candidate`、`layout_reasoning_candidate`、`semantic_tagging_candidate`、`answer_rubric_check_candidate`、`paper_blueprint_planner`、`commentary_report_writer`、`visual_surrogate_reviewer`、`tool_orchestration_agent` 和 `high_risk_arbitration`。所有角色输出默认 `draft/candidate/pending_review`；高风险仲裁必须人工确认。
+
+NS13 的机器可读任务归宿：
+
+- `tasks/non-site-implementation-plan.csv`
+- `tasks/productization-roadmap.csv`
+- `tasks/backlog.csv`
+- `tasks/automation-first-contract.csv`
+
 S0 结束时必须通过：
 
 ```powershell
@@ -238,7 +272,7 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-automation-first-feature
 
 ## 10. 回滚
 
-- 文档和任务清单回滚：`git restore -- docs/99_ProductizationFullRoadmapAndTaskPlan.md docs/04_TechnologyStack.md docs/07_Document_AI_ImportPipeline.md tasks/productization-roadmap.csv tasks/automation-first-contract.csv sources/references.md README.md`
+- 文档和任务清单回滚：`git restore -- docs/03_Architecture.md docs/04_TechnologyStack.md docs/07_Document_AI_ImportPipeline.md docs/19_Roadmap.md docs/20_TaskBreakdown.md docs/99_ProductizationFullRoadmapAndTaskPlan.md docs/101_NonSiteCapabilityImplementationRoadmap.md docs/decisions/ADR-013-productized-runtime-profiles-service-control-panel-and-role-routed-ai.md tasks/backlog.csv tasks/non-site-implementation-plan.csv tasks/productization-roadmap.csv tasks/automation-first-contract.csv sources/references.md README.md`
 - 代码实现阶段回滚：按每个 S 任务独立提交回滚。
 - 数据与运行时回滚：继续使用 `D:\KQG_Backups` manifest、`tools/restore.ps1` 和对应 evidence 中的 restore 命令。
 
