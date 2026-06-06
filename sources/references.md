@@ -10,6 +10,7 @@
 - ASP.NET Core Docs GitHub: https://github.com/dotnet/AspNetCore.Docs
 - EF Core Docs GitHub: https://github.com/dotnet/EntityFramework.Docs
 - Npgsql docs GitHub: https://github.com/npgsql/doc
+- Open XML SDK GitHub: https://github.com/dotnet/Open-XML-SDK
 - OpenAI Structured Outputs: https://platform.openai.com/docs/guides/structured-outputs
 - OpenAI Prompt Caching: https://platform.openai.com/docs/guides/prompt-caching
 - OpenAI Batch API: https://platform.openai.com/docs/guides/batch
@@ -39,6 +40,7 @@
 - Docling DocumentConverter: https://docling-project.github.io/docling/reference/document_converter/
 - Docling OCR/table example: https://docling-project.github.io/docling/examples/full_page_ocr/
 - PaddleOCR: https://github.com/PaddlePaddle/PaddleOCR
+- OCRmyPDF GitHub: https://github.com/ocrmypdf/OCRmyPDF
 - PaddleOCR PP-Structure: https://paddlepaddle.github.io/PaddleOCR/main/en/version3.x/algorithm/PP-StructureV3/PP-StructureV3.html
 - PaddleOCR installation and Docker/pip options: https://www.paddleocr.ai/latest/en/version3.x/installation.html
 - PaddleOCR FAQ installation and virtual environment guidance: https://www.paddleocr.ai/main/en/FAQ.html
@@ -89,4 +91,5 @@
 
 - External reference root: D:\CODE\external\k12-question-graph-references
 - External reference index: D:\CODE\external\k12-question-graph-references\README.md
+- External reference manifest: D:\CODE\external\k12-question-graph-references\references.manifest.json
 - External reference updater: D:\CODE\external\k12-question-graph-references\update-references.ps1

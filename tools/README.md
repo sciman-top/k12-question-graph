@@ -1021,3 +1021,29 @@ This validates the offline emergency runbook chain by combining: G003 recovery
 media generation, backup+verify evidence, `restore.ps1` dry-run, and a 3-case
 admin tabletop drill (unbootable Windows, manifest mismatch, restore failure)
 with explicit fallback and rollback actions.
+
+NS1306 agent tool orchestration boundary:
+
+```powershell
+.\tools\run-ns1306-agent-tool-orchestration-contract.ps1
+```
+
+This locks the allowlisted `tool_orchestration_agent` surface for NS13. It
+reads `configs/agent-tool-orchestration.allowlist.json`, verifies that every
+allowlisted tool/runbook exists, that every allowlisted tool stays read-only or
+dry-run, and that high-risk scripts remain blocked by default. It also checks
+the `NS1306` rows in `tasks/backlog.csv`, `tasks/non-site-implementation-plan.csv`,
+and `tasks/automation-first-contract.csv`, then writes
+`docs/evidence/20260606-ns1306-agent-tool-orchestration.json`.
+
+NS1307 golden / visual / LLM security gate:
+
+```powershell
+.\tools\run-ns1307-golden-visual-llm-security-gate.ps1
+```
+
+This combines the existing golden import evidence (`S004A`, `J001-J006`), the
+deterministic visual surrogate boundary (`NS906`), and the LLM no-active-write
+security gate (`L007`, `C002Q0`, `C002Q`) into one NS13 runtime gate. It does
+not call external AI and does not enable production writes. It writes
+`docs/evidence/20260606-ns1307-golden-visual-llm-security.json`.

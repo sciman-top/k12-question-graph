@@ -8,6 +8,12 @@
 - [ ] 执行前确认回滚路径：backup manifest + restore command + operator rollback note。
 - [ ] 带上 `REAL001-REAL012` 真卷证据包，尤其是 REAL012 `quality report`；若报告仍为 `not_closed`，不得宣称整卷或 2015-2025 全闭环完成。
 
+## 0.1 到场前必须已闭合的非现场预检
+- [ ] `NS904` readiness pack 已刷新。
+- [ ] `NS906` 视觉代理已刷新，覆盖四入口 route smoke、artifact、source screenshot 和异常报告。
+- [ ] `NS801-NS806` 安装、备份、恢复、升级、健康面板证据已刷新。
+- [ ] 若上述客观项仍未闭合，不允许把它们留到隔离机现场临时手工补做。
+
 ## 1. 安装与初始化
 - [ ] 执行安装向导，记录安装包版本、安装目录、数据目录和备份目录。
 - [ ] 验证 PostgreSQL 连接与 pgpass 非交互可用，不在日志写明文密码。
@@ -29,6 +35,7 @@
 - [ ] 组卷入口可完成检索 -> 题篮 -> 导出基本路径。
 - [ ] 成绩入口可完成模板导入与异常提示基本路径。
 - [ ] 分析入口可完成班级讲评摘要查看基本路径。
+- [ ] 本节只验证隔离机特有事实；路线、工件和版面客观检查应以前置 automation/visual surrogate 结果为主。
 
 ## 5. 证据归档
 - [ ] 在 `docs/evidence/` 写入本轮 evidence（含命令、退出码、关键输出、风险、回滚）。

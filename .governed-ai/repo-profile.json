@@ -202,7 +202,7 @@
       "OpenAI Codex AGENTS.md discovery: global plus project root-to-cwd layering, override files, fallback names, 32 KiB default size limit, and separate .codex/rules prefix_rule enforcement.",
       "AGENTS.md community format guidance: keep agent rules as a predictable README-for-agents surface with setup commands, tests, code style, security considerations, and nested project rules when scope is specific.",
       "Claude Code memory and settings guidance: concise CLAUDE.md files, user/project/local scopes, @AGENTS.md imports to share common rules, path-scoped .claude/rules with paths frontmatter, /memory inspection, auto memory as non-authoritative context, Plan Mode for uncertain multi-file work, and settings/permissions for deterministic enforcement.",
-      "Gemini CLI context guidance: ~/.gemini/GEMINI.md, workspace hierarchy, /memory show and /memory reload with help-gated refresh fallback for older installs, shallow @file imports, current schema/help for context file names, Trusted Folders safe mode, and .geminiignore.",
+      "Google host-family context guidance: current repo-level compatibility still relies on ~/.gemini/GEMINI.md, workspace hierarchy, /memory show and /memory reload with help-gated refresh fallback for older installs, shallow @file imports, current schema/help for context file names, Trusted Folders safe mode, and .geminiignore, while Antigravity becomes the long-term Google host direction.",
       "Community and research signal: keep rules concrete, concise, minimal, and constraint-oriented; prefer exact commands, file-scoped validation, examples by reference, and avoid abstract preference wallpaper or over-constraining context files."
     ],
     "root_file_quality_rules": [
@@ -243,7 +243,7 @@
     "tool_specific_loading_policy": {
       "codex": "Use AGENTS.md/AGENTS.override.md according to Codex root-to-cwd discovery; use .codex/rules/*.rules for deterministic command approval rules; remove override after short-term troubleshooting.",
       "claude": "Use CLAUDE.md or .claude/CLAUDE.md, optionally @AGENTS.md for shared project rules, plus gitignored CLAUDE.local.md or explicit @~/.claude imports, .claude/rules for scoped rules, and settings/permissions including permissions.deny or sandbox for enforcement; auto memory is not the rule source; do not assume CLAUDE.override.md.",
-      "gemini": "Use GEMINI.md hierarchy, /memory show to inspect context, /memory reload to rescan; if the installed help still exposes /memory refresh instead, record the version and use that fallback. Use @AGENTS.md or other shallow @file imports for shared project rules, Trusted Folders safe-mode awareness, current schema/help for context file names, and .geminiignore for generated or sensitive paths; do not assume GEMINI.override.md unless local configuration explicitly defines it."
+      "gemini": "Use GEMINI.md hierarchy, /memory show to inspect context, /memory reload to rescan; if the installed help still exposes /memory refresh instead, record the version and use that fallback. Use @AGENTS.md or other shallow @file imports for shared project rules, Trusted Folders safe-mode awareness, current schema/help for context file names, and .geminiignore for generated or sensitive paths. This remains the current repo-level compatibility path for Google host-family surfaces even while Antigravity becomes the long-term primary Google host direction; do not assume GEMINI.override.md unless local configuration explicitly defines it."
     },
     "progressive_disclosure": {
       "allowed": true,

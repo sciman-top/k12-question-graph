@@ -9,6 +9,7 @@
 2026-05-02 外部资料复核后的判断：最高原则、默认技术栈、模块化单体架构和 P0/P1 纵切路线保持正确；需要在进入编码前先完成 P0 准入预检，锁定 SDK/runtime、PostgreSQL 版本、数据目录、Windows Service/content root 约束、BackgroundService job lease/retry 规则、学生数据/合规辖区边界和文档门禁。
 
 2026-05-04 工程终态复核后的判断：当前最优终态仍是 Windows/LAN first teacher workstation + ASP.NET Core modular monolith + PostgreSQL fact store + local file store + Python document/OCR/AI adapters + React/Vite/Ant Design teacher workbench + versioned domain assets + structured AI candidate pipeline + release/backup/restore evidence。需要补强的不是换栈，而是 external benchmark drift guard、前端 server-state/typed API 边界、LLM security red-team gate、EF migration bundle/升级演练和标准互操作 profile map。
+2026-06-06 已把这套长期判断固化为 `docs/decisions/ADR-014-recommended-engineering-endstate-and-stack-boundary.md`，并提供短入口 `docs/110_EngineeringEndStateChecklist.md`；后续任何“换栈/换架构/提前平台化”的讨论默认先看这两份文档。
 
 当前 P0/P1 已打通“上传文件 -> 创建 ImportJob -> 持久化元数据 -> Python Worker 占位 -> 页面预览/人工确认/来源回看 -> health -> backup manifest -> unified gate”纵切闭环。P2 已完成 C001、C002A-C002T 和 C002R：draft bootstrap 可用于测试，广州中考 33 份原始来源资料已进入 `SourceDocument/FileAsset` 证据层，质量复核后的 cleaned candidate 已完成 candidate 导入、审核决策、reviewed -> active 受控切换，当前 C002 初中物理 v1 为 452 个 `active` 动态资产、400 条 `approved` 映射和 1 个 `applied` migration；C002R 已把 active 后修订合同化，后续教师修正、新教材、新课标或新考情必须进入新 candidate 版本、映射、影响报告、审核、回滚演练和管理员 active 切换，不直接改旧 active。来源 PDF 已完成本地 chunk/hash/cache 证据层，候选提炼 schema/eval 已验证，分层模型路由预算门禁已证明 full extraction 必须人工预算确认，outer AI runner/subagent 编排 readiness 已证明不启用项目内生产真实模型、不引入运行时 subagent 依赖，小批量 AI extract contract dry-run 已生成候选输出、模型层级、token/cost/cache 证据且不覆盖 C002K。P3 已在 draft/test 模式完成 D001-D003：真实模型调用仍禁用，LLM 路由只进入 `stub_llm`、成本日志和结构化输出 eval smoke，结果保持人工审核边界。P4 已完成 E001-E004 draft/test：题库检索、自然语言组卷理解、一键换题与撤销、Word/PDF 导出 MVP 合同均不等待正式 C002。P5 已完成 F001-F003 draft/test：学生、班级、考试、报名、Excel 字段映射导入、异常行提示、得分率、区分度、知识点掌握摘要和薄弱知识点报告均使用 synthetic fixture；不使用真实学生数据，不暴露学生端，不写正式学情口径。P6 已完成 G001-G004 draft/test：本机/共享目录备份、管理员存储看板、配置化缓存清理、WinPE 应急拷贝脚本和 PostgreSQL `pgpass.conf` 非交互凭据 dry-run 均已纳入合同；G004 仅使用临时 `APPDATA` 写入 pgpass，清空进程级 `PGPASSWORD` 后用 `psql -w` 验证，不修改真实用户 pgpass，不记录密码。
 
@@ -199,6 +200,13 @@ workers/    Python document/OCR/AI adapter
 tests/      自动化测试与黄金样本
 ```
 
+高优先级治理入口：
+
+- `docs/111_ProjectNavigationOverview.md`：遇到某类问题时先看哪份文档。
+- `docs/103_ExecutionControlBoard.md`：当前 Now / Next / Later 与硬阻断。
+- `docs/104_OpenQuestionsAndAssumptions.md`：尚未拍板但会影响发布与范围的边界。
+- `docs/109_ReleaseGoNoGoCard.md`：`P006` 单页发布裁决入口。
+
 ## 当前运行入口
 
 - `apps/api`: 已提供 `dotnet run --project apps/api`，健康检查为 `http://localhost:5275/health`。
@@ -296,6 +304,7 @@ python -c "import pathlib, yaml; [yaml.safe_load(p.read_text(encoding='utf-8')) 
 10. 所有 AI 结果都要有置信度、来源、prompt 版本、schema 版本、成本记录。
 11. 所有备份恢复能力都不能只依赖主程序 UI，必须有独立脚本/恢复包。
 12. 学生成绩、学生身份信息、题库原始资料和备份包按高风险资产处理；进入真实部署前必须锁定适用辖区、告知/授权、外部模型传输边界、数据保留和删除策略。
+13. 日常推进先看 `docs/103_ExecutionControlBoard.md`，不要同时把多个路线图文档当成并行主入口。
 
 ## 许可证与商业使用
 

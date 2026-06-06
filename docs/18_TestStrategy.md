@@ -77,6 +77,23 @@ privacy_and_license.md
 
 真实教师现场验收暂缓；P0/P1 只做代理流程验收、自动化样本回归和错误路径验证。
 
+所有指标的样本、起止口径和通过标准，统一按 `docs/01_PRD.md` 第 3.1 节执行。
+
+### 4.1 指标记录字段
+
+每次效率或可用性验收至少记录：
+
+- `scenario_id`
+- `dataset_type`
+- `operator_role`
+- `start_ts`
+- `end_ts`
+- `manual_touches`
+- `retry_count`
+- `fallback_used`
+- `result_status`
+- `evidence_link`
+
 ## 5. P0/P1 最小门禁
 
 P0/P1 阶段必须建立并持续运行以下门禁：

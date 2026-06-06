@@ -1,21 +1,30 @@
 # 88 · 工程终态外部复核
 
-日期：2026-05-04。
+日期：2026-05-04。更新：2026-06-06，已与 `ADR-014` 和工程终态短清单对齐。
 
 ## 1. 结论
 
 AI 推荐：当前工程终态和技术路线总体正确，不应推翻；需要把若干隐含边界补成明确任务、门禁和证据。
 
+2026-06-06 对齐说明：
+
+- 本文件继续保留为“外部复核报告”，记录为什么这样选。
+- 长期权威判断现已固化到 `docs/decisions/ADR-014-recommended-engineering-endstate-and-stack-boundary.md`。
+- 快速执行入口现已固化到 `docs/110_EngineeringEndStateChecklist.md`。
+- 后续若出现“是否换栈、换架构、提前做平台化能力”的讨论，默认先看 ADR-014，而不是只看本报告中的历史摘要。
+
 本项目的最优工程终态不是“最先进技术堆叠”，而是：
 
 ```text
 Windows/LAN first teacher workstation
+-> installer / init wizard / service control panel
+-> Windows Service as primary runtime
 -> ASP.NET Core modular monolith
 -> PostgreSQL fact store + local file store
 -> Python document/OCR/AI adapters through stable ports
--> React/Vite/Ant Design teacher workbench
+-> React/TypeScript/Vite/Ant Design teacher workbench
 -> versioned domain assets and review workflow
--> structured AI candidate outputs with cost/cache/eval/security gates
+-> role-routed structured AI candidate outputs with cost/cache/eval/security gates
 -> backup/restore/upgrade/install evidence before release
 ```
 
@@ -26,11 +35,14 @@ Windows/LAN first teacher workstation
 | 面 | 终态要求 |
 |---|---|
 | 产品 | 普通教师只面对导入、找题组卷、成绩导入、讲评分析四类入口；后台证据、回滚、版本、权限和迁移下沉给管理员/代理 |
-| 架构 | 模块化单体优先，领域和用例层不依赖 EF、HTTP、OpenAI、文件系统、Python 工具或前端形状 |
+| 架构 | 模块化单体优先，领域和用例层不依赖 EF、HTTP、OpenAI、文件系统、Python 工具或前端形状；后台任务默认 Hosted Services/BackgroundService |
+| 部署 | Installer / Init Wizard / Service Control Panel + Windows Service 为主运行形态；浏览器是教师主工作台 |
 | 数据 | PostgreSQL 是结构化事实源；大文件在 file store；数据库只存 metadata/path/hash/status/version |
+| 前端 | React/TypeScript/Vite SPA + Ant Design；TanStack Query 只管 server state，不持有高风险业务事实 |
 | 动态资产 | 知识点、教材、课标、题型、标签、rubric、prompt/schema/model routing、分析指标和导出模板都带 version/status/source/mapping/migration/rollback |
-| AI | 外部模型只产生 `candidate/pending_review/productionEligible=false`；真实 active 切换必须有 schema/eval/cost/cache/security/human review/no active write 证据 |
+| AI | 外部模型只产生 `candidate/pending_review/productionEligible=false`；默认走 Structured Outputs、Prompt Caching、Batch、Evals、cost/cache logging、human review 和 no active write guard |
 | 发布 | Windows Service/安装初始化/EF migration bundle/备份恢复/权限审计/健康面板必须在 v0.1 release 前闭环 |
+| 标准互操作 | 先维护 canonical model，再做 QTI/CASE/OneRoster/Caliper profile map；无真实需求不做完整 import/export |
 | 长期扩展 | 多学科、标准互操作、复杂队列、外部搜索、图数据库、多校部署都以后置 ADR 和真实瓶颈为准 |
 
 ## 3. 外部复核摘要
@@ -57,7 +69,10 @@ Windows/LAN first teacher workstation
 - 不提前拆微服务、RabbitMQ/Kafka、Kubernetes、独立搜索引擎、Neo4j；当前瓶颈是教师工作流、真实文档解析、备份恢复和发布闭环。
 - 不把 Moodle/Open edX/TAO/OpenOLAT 当作产品路线；它们提供 question bank、item exchange 和治理经验，但本项目目标是校本教师工作流，不是通用 LMS/考试平台。
 - 不把 Next.js 作为默认；本机/LAN SPA + API 更贴近当前部署与运维边界。若未来需要 SSR、多端门户或公网部署，再用 ADR 评估。
+- 不把 Elasticsearch/Meilisearch 作为默认搜索路线；先用 PostgreSQL FTS + `pg_trgm`，真实 benchmark 不足时再评估升级。
+- 不把本地小模型或新云 provider 切成默认生产路由；它们先作为候选 profile、eval 或 draft 能力。
 - 不让真实外部 AI 直接写生产 active；AI 只能先生成候选、证据和建议。
+- 不在无真实需求、无授权样本、无 adapter owner 时直接做完整 QTI/CASE/OneRoster 双向实现。
 
 ## 5. 必补强项
 
@@ -68,6 +83,7 @@ Windows/LAN first teacher workstation
 | L007 | LLM security red-team gate | 真实 AI 调用前覆盖 OWASP LLM Top 10 与 NIST GenAI Profile 关键风险 |
 | O007 | EF migration bundle 与升级演练 | v0.1 release 前证明目标机可无源码/SDK执行迁移、备份、回滚和恢复 |
 | R007 | interoperability profile map | 先把本仓实体映射到 QTI/CASE/OneRoster/Caliper profile，再决定是否做真实 import/export |
+| ADR-014 | 推荐工程终态与默认技术栈边界 | 后续换栈、换架构、提前平台化时的长期裁决基线 |
 
 ## 6. 工程任务优先级
 
@@ -79,6 +95,16 @@ Windows/LAN first teacher workstation
 4. `L007` 在真实 AI 调用前执行，不阻断当前 stub/draft/test。
 5. `O007` 在发布包前执行，是 v0.1 release hard gate。
 6. `R007` 只做 profile map，不做完整标准实现。
+
+## 6.1 2026-06-06 对齐补充
+
+按 `ADR-014`，本项目现阶段的默认工程终态还额外明确了几条过去只隐含存在的边界：
+
+1. `Windows Service + Service Control Panel` 不是可选装饰，而是学校目标环境下的默认发布形态。
+2. `TanStack Query` 只管理 server state；高风险业务事实必须有后端或独立事实源。
+3. `canonical model -> profile map -> adapter` 是标准互操作的默认顺序，不能倒过来。
+4. `L0 deterministic first` 是 AI 的第一原则，AI 不是默认求解器。
+5. `Elasticsearch/Meilisearch/Neo4j/微服务/完整标准互操作` 都属于真实瓶颈或真实需求驱动的后置项。
 
 ## 7. 参考来源
 

@@ -1,0 +1,269 @@
+{
+  "manifestVersion": "agent-tool-orchestration-allowlist.v1",
+  "updatedAt": "2026-06-06T23:30:00+08:00",
+  "role": "tool_orchestration_agent",
+  "allOtherToolsBlockedByDefault": true,
+  "defaultBoundary": {
+    "productionEligible": false,
+    "realStudentDataAllowed": false,
+    "allowActiveWrite": false,
+    "allowRestoreApply": false,
+    "allowReleaseSignoff": false,
+    "allowExternalAiCalls": false,
+    "requiresHumanApprovalFor": [
+      "active_switch",
+      "restore_apply",
+      "provider_default_switch",
+      "release_decision",
+      "real_student_data_external_transfer"
+    ]
+  },
+  "allowedTools": [
+    {
+      "id": "p0_live_preflight_refresh",
+      "path": "tools/run-p0-live-preflight-refresh.ps1",
+      "category": "preflight_refresh",
+      "mode": "dry_run_report",
+      "writesProductionData": false,
+      "handlesRealStudentData": false,
+      "allowActiveWrite": false,
+      "allowExternalAiCalls": false,
+      "evidencePaths": [
+        "docs/evidence/20260509-p001-p006-onsite-agent-preflight-refresh.json"
+      ]
+    },
+    {
+      "id": "pqr_preflight_pack",
+      "path": "tools/run-pqr-preflight-pack-contract.ps1",
+      "category": "preflight_dashboard",
+      "mode": "boundary_guard",
+      "writesProductionData": false,
+      "handlesRealStudentData": false,
+      "allowActiveWrite": false,
+      "allowExternalAiCalls": false,
+      "evidencePaths": [
+        "docs/evidence/20260505-pqr-preflight-pack-report.json"
+      ]
+    },
+    {
+      "id": "pqr_preflight_freshness",
+      "path": "tools/run-pqr-preflight-freshness-guard.ps1",
+      "category": "preflight_dashboard",
+      "mode": "boundary_guard",
+      "writesProductionData": false,
+      "handlesRealStudentData": false,
+      "allowActiveWrite": false,
+      "allowExternalAiCalls": false,
+      "evidencePaths": [
+        "docs/evidence/20260505-pqr-preflight-freshness-report.json"
+      ]
+    },
+    {
+      "id": "pqr_preflight_dashboard",
+      "path": "tools/run-pqr-preflight-dashboard-contract.ps1",
+      "category": "preflight_dashboard",
+      "mode": "read_only_report",
+      "writesProductionData": false,
+      "handlesRealStudentData": false,
+      "allowActiveWrite": false,
+      "allowExternalAiCalls": false,
+      "evidencePaths": [
+        "docs/evidence/20260505-pqr-preflight-dashboard.json"
+      ]
+    },
+    {
+      "id": "pqr_orchestration_consistency",
+      "path": "tools/run-pqr-orchestration-consistency-guard.ps1",
+      "category": "status_sync",
+      "mode": "boundary_guard",
+      "writesProductionData": false,
+      "handlesRealStudentData": false,
+      "allowActiveWrite": false,
+      "allowExternalAiCalls": false,
+      "evidencePaths": [
+        "docs/evidence/20260505-pqr-orchestration-consistency-report.json"
+      ]
+    },
+    {
+      "id": "host_capability_diagnostic",
+      "path": "tools/run-host-capability-diagnostic-contract.ps1",
+      "category": "environment_diagnostic",
+      "mode": "read_only_report",
+      "writesProductionData": false,
+      "handlesRealStudentData": false,
+      "allowActiveWrite": false,
+      "allowExternalAiCalls": false,
+      "evidencePaths": [
+        "docs/evidence/host-capability-diagnostic-report.json"
+      ]
+    },
+    {
+      "id": "worker_profile_diagnostic",
+      "path": "tools/run-worker-profile-diagnostic-contract.ps1",
+      "category": "environment_diagnostic",
+      "mode": "read_only_report",
+      "writesProductionData": false,
+      "handlesRealStudentData": false,
+      "allowActiveWrite": false,
+      "allowExternalAiCalls": false,
+      "evidencePaths": [
+        "docs/evidence/worker-profile-diagnostic-report.json"
+      ]
+    },
+    {
+      "id": "technology_refresh_report",
+      "path": "tools/run-technology-refresh-contract.ps1",
+      "category": "report_generation",
+      "mode": "read_only_report",
+      "writesProductionData": false,
+      "handlesRealStudentData": false,
+      "allowActiveWrite": false,
+      "allowExternalAiCalls": false,
+      "evidencePaths": [
+        "docs/evidence/technology-refresh-report.json"
+      ]
+    },
+    {
+      "id": "golden_registry_guard",
+      "path": "tools/run-s004a-golden-registry-guard.ps1",
+      "category": "golden_registry",
+      "mode": "boundary_guard",
+      "writesProductionData": false,
+      "handlesRealStudentData": false,
+      "allowActiveWrite": false,
+      "allowExternalAiCalls": false,
+      "evidencePaths": [
+        "docs/evidence/20260506-s004a-golden-registry-report.json"
+      ]
+    },
+    {
+      "id": "outer_ai_readiness",
+      "path": "tools/run-c002q0-outer-ai-readiness.ps1",
+      "category": "candidate_dry_run",
+      "mode": "dry_run_report",
+      "writesProductionData": false,
+      "handlesRealStudentData": false,
+      "allowActiveWrite": false,
+      "allowExternalAiCalls": false,
+      "evidencePaths": [
+        "docs/evidence/c002q0-outer-ai-readiness-report.json"
+      ]
+    },
+    {
+      "id": "ai_extract_dry_run",
+      "path": "tools/run-c002q-ai-extract-dry-run.ps1",
+      "category": "candidate_dry_run",
+      "mode": "dry_run_report",
+      "writesProductionData": false,
+      "handlesRealStudentData": false,
+      "allowActiveWrite": false,
+      "allowExternalAiCalls": false,
+      "evidencePaths": [
+        "docs/evidence/c002q-ai-extract-dry-run-report.json"
+      ]
+    },
+    {
+      "id": "llm_security_red_team_gate",
+      "path": "tools/run-l007-llm-security-red-team-gate.ps1",
+      "category": "security_eval",
+      "mode": "boundary_guard",
+      "writesProductionData": false,
+      "handlesRealStudentData": false,
+      "allowActiveWrite": false,
+      "allowExternalAiCalls": false,
+      "evidencePaths": [
+        "docs/evidence/20260505-l007-llm-security-red-team-gate.md"
+      ]
+    },
+    {
+      "id": "ns904_p001_readiness_pack",
+      "path": "tools/run-ns904-p001-readiness-pack.ps1",
+      "category": "report_generation",
+      "mode": "read_only_report",
+      "writesProductionData": false,
+      "handlesRealStudentData": false,
+      "allowActiveWrite": false,
+      "allowExternalAiCalls": false,
+      "evidencePaths": [
+        "docs/evidence/20260531-ns904-p001-readiness.json"
+      ]
+    },
+    {
+      "id": "ns905_status_sync_audit",
+      "path": "tools/run-ns905-status-sync-audit.ps1",
+      "category": "status_sync",
+      "mode": "read_only_report",
+      "writesProductionData": false,
+      "handlesRealStudentData": false,
+      "allowActiveWrite": false,
+      "allowExternalAiCalls": false,
+      "evidencePaths": [
+        "docs/evidence/20260530-ns905-status-sync.md"
+      ]
+    },
+    {
+      "id": "ns906_visual_surrogate_review",
+      "path": "tools/run-ns906-visual-surrogate-review.ps1",
+      "category": "visual_review",
+      "mode": "visual_review",
+      "writesProductionData": false,
+      "handlesRealStudentData": false,
+      "allowActiveWrite": false,
+      "allowExternalAiCalls": false,
+      "evidencePaths": [
+        "docs/evidence/20260528-ns906-visual-surrogate-review-report.json"
+      ]
+    }
+  ],
+  "allowedRunbooks": [
+    {
+      "path": "runbooks/Backup_Runbook.md",
+      "purpose": "backup_restore_reference"
+    },
+    {
+      "path": "runbooks/WinPE_EmergencyRecovery.md",
+      "purpose": "offline_recovery_reference"
+    },
+    {
+      "path": "docs/78_SubjectDomainAssetActivationRunbook.md",
+      "purpose": "admin_runbook_reference"
+    },
+    {
+      "path": "docs/79_TeacherCandidateReviewAndActivationGuide.md",
+      "purpose": "teacher_review_reference"
+    },
+    {
+      "path": "docs/templates/p001-live-pilot-release-checklist.md",
+      "purpose": "p001_checklist_reference"
+    },
+    {
+      "path": "docs/templates/p002-teacher-proxy-pilot-checklist.md",
+      "purpose": "p002_checklist_reference"
+    },
+    {
+      "path": "docs/templates/p003-onsite-pilot-admission-checklist.md",
+      "purpose": "p003_checklist_reference"
+    },
+    {
+      "path": "docs/templates/p004-onsite-pilot-round1-checklist.md",
+      "purpose": "p004_checklist_reference"
+    },
+    {
+      "path": "docs/templates/p005-pilot-feedback-backlog-checklist.md",
+      "purpose": "p005_checklist_reference"
+    },
+    {
+      "path": "docs/templates/p006-release-decision-checklist.md",
+      "purpose": "p006_checklist_reference"
+    }
+  ],
+  "blockedScripts": [
+    "tools/run-c002t-active-switch.ps1",
+    "tools/run-domain-asset-activation.ps1",
+    "tools/restore.ps1",
+    "tools/seed-knowledge.ps1",
+    "tools/run-p0-live-auto-advance.ps1",
+    "tools/run-p0-live-skip-advance.ps1",
+    "tools/run-l002-real-ai-extract-pilot.ps1"
+  ]
+}

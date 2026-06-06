@@ -136,6 +136,12 @@ P0 最小门禁：
 - 机器任务清单：`tasks/backlog.csv`
 - 外部审查和决策：`docs/27_ExternalReview_DecisionLog.md`
 - 功能范围审查：`docs/28_FunctionScopeReview.md`
+- 执行总控：`docs/103_ExecutionControlBoard.md`
+- 导航总览：`docs/111_ProjectNavigationOverview.md`
+- 未决事项：`docs/104_OpenQuestionsAndAssumptions.md`
+- 发布裁决：`docs/109_ReleaseGoNoGoCard.md`
+- 长期终态 ADR：`docs/decisions/ADR-014-recommended-engineering-endstate-and-stack-boundary.md`
+- 工程终态短清单：`docs/110_EngineeringEndStateChecklist.md`
 - ADR：`docs/decisions/`
 
 ## 10. 下一步

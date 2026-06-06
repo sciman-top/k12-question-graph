@@ -451,6 +451,10 @@ try {
         .\tools\run-c002q0-outer-ai-readiness.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'c002q ai extract dry-run guard' {
+        .\tools\run-c002q-ai-extract-dry-run.ps1 | Write-Host
+    }
+
     Invoke-GateStep 'l001 real model admission card guard' {
         .\tools\run-l001-real-model-admission-card.ps1 | Write-Host
     }
@@ -542,6 +546,9 @@ try {
     Invoke-GateStep 'ns906 visual surrogate review' {
         .\tools\run-ns906-visual-surrogate-review.ps1 | Write-Host
     }
+    Invoke-GateStep 'ns1307 golden visual llm security gate' {
+        .\tools\run-ns1307-golden-visual-llm-security-gate.ps1 -ReportPath ('docs/evidence/{0}-ns1307-golden-visual-llm-security.json' -f $p0LiveRunDate) | Write-Host
+    }
     Invoke-GateStep 'ns903 completion dashboard refresh' {
         .\tools\run-ns903-completion-dashboard.ps1 -SkipS001Refresh | Write-Host
     }
@@ -556,10 +563,6 @@ try {
     }
     Invoke-GateStep 'n006 pre-pilot security audit' {
         .\tools\run-n006-pre-pilot-security-audit.ps1 | Write-Host
-    }
-
-    Invoke-GateStep 'c002q ai extract dry-run guard' {
-        .\tools\run-c002q-ai-extract-dry-run.ps1 | Write-Host
     }
 
     Invoke-GateStep 'c002s formalization precheck guard' {
@@ -920,6 +923,9 @@ try {
     }
     Invoke-GateStep 'pqr orchestration consistency guard' {
         .\tools\run-pqr-orchestration-consistency-guard.ps1 | Write-Host
+    }
+    Invoke-GateStep 'ns1306 agent tool orchestration contract' {
+        .\tools\run-ns1306-agent-tool-orchestration-contract.ps1 -ReportPath ('docs/evidence/{0}-ns1306-agent-tool-orchestration.json' -f $p0LiveRunDate) | Write-Host
     }
 
     Invoke-GateStep 'b001 duplicate upload smoke' {
