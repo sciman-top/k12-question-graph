@@ -1,8 +1,49 @@
 # 26 · 官方文档、社区项目与最佳实践参考
 
-本文件只记录会影响本项目架构、路线图和实现顺序的资料。可复制的 URL 清单见 `sources/references.md`。最近一次外部复核：2026-05-02。
+本文件只记录会影响本项目架构、路线图和实现顺序的资料。可复制的 URL 清单见 `sources/references.md`。最近一次外部复核：2026-06-06。
 
 复核口径：优先使用官方文档或项目一手资料。社区文章只作为发现候选，不作为本仓规则依据。
+
+## 0. 本地浅克隆参考库
+
+2026-06-06 已把高信号官方文档、同栈样例、教育测评平台、文档/OCR/AI 和 PostgreSQL 检索项目浅克隆到仓库外目录：
+
+```text
+D:\CODE\external\k12-question-graph-references
+```
+
+本地索引：`D:\CODE\external\k12-question-graph-references\README.md`。
+
+更新入口：
+
+```powershell
+cd D:\CODE\external\k12-question-graph-references
+.\update-references.ps1
+```
+
+已落地仓库：
+
+| 分类 | 本地目录 | 上游 |
+| --- | --- | --- |
+| 官方文档 | `official-docs/AspNetCore.Docs` | https://github.com/dotnet/AspNetCore.Docs |
+| 官方文档 | `official-docs/EntityFramework.Docs` | https://github.com/dotnet/EntityFramework.Docs |
+| 官方文档 | `official-docs/npgsql-doc` | https://github.com/npgsql/doc |
+| 官方文档 | `official-docs/react.dev` | https://github.com/reactjs/react.dev |
+| 官方文档 | `official-docs/vite` | https://github.com/vitejs/vite |
+| 官方文档 | `official-docs/ant-design` | https://github.com/ant-design/ant-design |
+| 官方文档 | `official-docs/tanstack-query` | https://github.com/TanStack/query |
+| 架构样例 | `architecture-samples/dotnet-eShop` | https://github.com/dotnet/eShop |
+| 架构样例 | `architecture-samples/CleanArchitecture` | https://github.com/jasontaylordev/CleanArchitecture |
+| 教育测评 | `education-assessment/moodle` | https://github.com/moodle/moodle |
+| 教育测评 | `education-assessment/openedx-platform` | https://github.com/openedx/openedx-platform |
+| 教育测评 | `education-assessment/OpenOLAT` | https://github.com/OpenOLAT/OpenOLAT |
+| 文档/OCR/AI | `document-ocr-ai/docling` | https://github.com/docling-project/docling |
+| 文档/OCR/AI | `document-ocr-ai/RapidOCR` | https://github.com/RapidAI/RapidOCR |
+| 数据/检索 | `data-search/pgvector` | https://github.com/pgvector/pgvector |
+
+OpenAI Cookbook 作为在线参考保留：`https://github.com/openai/openai-cookbook`。该仓库当前包含 Windows 无法 checkout 的尾随空格路径，本机不强行克隆，避免留下异常工作树。
+
+使用边界：本地浅克隆用于 `rg` 检索、结构阅读和技术决策复核；官方语义仍以官网/当前版本文档为准。Moodle、Open edX、OpenOLAT 等大型教育平台只提炼题库、测评、课程资产、权限、审计和迁移做法，不复制其完整 LMS 路线。
 
 ## 1. AI 与 API
 

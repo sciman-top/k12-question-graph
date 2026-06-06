@@ -193,7 +193,7 @@ diagrams/   Mermaid 架构图、ER 图、工作流图
 runbooks/   运维与应急恢复指南
 tasks/      任务拆解 CSV
 prompts/    Codex CLI 交接提示词、AI 任务提示词模板
-sources/    官方文档/最佳实践参考来源
+sources/    官方文档/最佳实践参考来源；外部浅克隆参考库见 docs/26_References.md 与 D:\CODE\external\k12-question-graph-references
 tools/      P0 门禁、备份、恢复脚本
 workers/    Python document/OCR/AI adapter
 tests/      自动化测试与黄金样本

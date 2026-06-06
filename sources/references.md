@@ -7,17 +7,25 @@
 - EF Core releases and planning: https://learn.microsoft.com/ef/core/what-is-new/#stable-releases
 - ASP.NET Core hosted services: https://learn.microsoft.com/aspnet/core/fundamentals/host/hosted-services?view=aspnetcore-10.0
 - ASP.NET Core Windows Service hosting: https://learn.microsoft.com/aspnet/core/host-and-deploy/windows-service?view=aspnetcore-10.0
+- ASP.NET Core Docs GitHub: https://github.com/dotnet/AspNetCore.Docs
+- EF Core Docs GitHub: https://github.com/dotnet/EntityFramework.Docs
+- Npgsql docs GitHub: https://github.com/npgsql/doc
 - OpenAI Structured Outputs: https://platform.openai.com/docs/guides/structured-outputs
 - OpenAI Prompt Caching: https://platform.openai.com/docs/guides/prompt-caching
 - OpenAI Batch API: https://platform.openai.com/docs/guides/batch
 - OpenAI Evals API: https://platform.openai.com/docs/api-reference/evals/create
+- OpenAI Cookbook: https://github.com/openai/openai-cookbook
 - ASP.NET Core documentation: https://learn.microsoft.com/en-us/aspnet/core/
 - Open XML SDK: https://learn.microsoft.com/en-us/office/open-xml/open-xml-sdk
 - OfficeMath / OMML: https://learn.microsoft.com/en-us/dotnet/api/documentformat.openxml.math.officemath
 - React TypeScript guide: https://react.dev/learn/typescript
+- React docs GitHub: https://github.com/reactjs/react.dev
 - Vite getting started: https://vite.dev/guide/
+- Vite GitHub: https://github.com/vitejs/vite
 - Ant Design React introduction: https://ant.design/docs/react/introduce/
+- Ant Design GitHub: https://github.com/ant-design/ant-design
 - TanStack Query React overview: https://tanstack.com/query/latest/docs/react/overview
+- TanStack Query GitHub: https://github.com/TanStack/query
 - React Router: https://reactrouter.com/_docs/home
 - PostgreSQL current documentation: https://www.postgresql.org/docs/current/
 - PostgreSQL pg_dump: https://www.postgresql.org/docs/current/app-pgdump.html
@@ -27,6 +35,7 @@
 - PostgreSQL pg_trgm: https://www.postgresql.org/docs/current/pgtrgm.html
 - pgvector: https://github.com/pgvector/pgvector
 - Docling: https://docling-project.github.io/docling/
+- Docling GitHub: https://github.com/docling-project/docling
 - Docling DocumentConverter: https://docling-project.github.io/docling/reference/document_converter/
 - Docling OCR/table example: https://docling-project.github.io/docling/examples/full_page_ocr/
 - PaddleOCR: https://github.com/PaddlePaddle/PaddleOCR
@@ -34,6 +43,7 @@
 - PaddleOCR installation and Docker/pip options: https://www.paddleocr.ai/latest/en/version3.x/installation.html
 - PaddleOCR FAQ installation and virtual environment guidance: https://www.paddleocr.ai/main/en/FAQ.html
 - RapidOCR installation and usage: https://rapidai.github.io/RapidOCRDocs/install_usage/rapidocr/install/
+- RapidOCR GitHub: https://github.com/RapidAI/RapidOCR
 - ONNX Runtime installation matrix: https://onnxruntime.ai/docs/install/
 - Python venv: https://docs.python.org/3/library/venv.html
 - uv project environments: https://docs.astral.sh/uv/guides/projects/
@@ -64,10 +74,19 @@
 - Moodle GitHub: https://github.com/moodle/moodle
 - Moodle import questions: https://docs.moodle.org/en/Import_questions
 - Open edX: https://openedx.org/
-- Open edX platform GitHub: https://github.com/openedx/edx-platform
+- Open edX platform GitHub: https://github.com/openedx/openedx-platform
+- OpenOLAT GitHub: https://github.com/OpenOLAT/OpenOLAT
 - TAO Testing: https://www.taotesting.com/
 - Paperless-ngx: https://github.com/paperless-ngx/paperless-ngx
+- .NET eShop reference app: https://github.com/dotnet/eShop
+- CleanArchitecture ASP.NET Core template: https://github.com/jasontaylordev/CleanArchitecture
 - OWASP ASVS: https://owasp.org/www-project-application-security-verification-standard/
 - OWASP AISVS: https://owasp.org/www-project-artificial-intelligence-security-verification-standard-aisvs-docs/
 - NIST AI RMF: https://www.nist.gov/itl/ai-risk-management-framework
 - WCAG: https://www.w3.org/WAI/standards-guidelines/wcag/
+
+## 本地浅克隆参考库
+
+- External reference root: D:\CODE\external\k12-question-graph-references
+- External reference index: D:\CODE\external\k12-question-graph-references\README.md
+- External reference updater: D:\CODE\external\k12-question-graph-references\update-references.ps1
