@@ -504,7 +504,8 @@ NS1001 isolated-machine execution pack:
 This assembles the repo-side field package for the isolated-machine rehearsal.
 It copies the latest `P001` / `NS904` / `NS1308` readiness evidence, the
 Windows Service release package, the EF migration bundle package, the P001
-checklist, the operator one-pager, the markdown/json return templates, and a sha256 manifest into
+checklist, the operator one-pager, the `P005/P006` triage / decision templates,
+the markdown/json return templates, and a sha256 manifest into
 `tmp/ns1001-execution-pack/<timestamp>/`. It writes
 `docs/evidence/<date>-ns1001-isolated-machine-execution-pack.json` and keeps
 `P001` as `待办`: the script packages the rehearsal inputs, but it does not

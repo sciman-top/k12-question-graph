@@ -54,7 +54,11 @@
 | NS1308 release evidence pack | `docs/evidence/20260607-ns1308-release-evidence-pack.json` |
 | P003 admission preflight | `docs/evidence/20260607-p003-onsite-pilot-admission-report.json` |
 | P005 feedback triage preflight | `docs/evidence/20260607-p005-pilot-feedback-backlog-admission-report.json` |
+| P005 feedback triage template | `docs/templates/p005-pilot-feedback-triage-template.json` |
+| P005 feedback triage record | `docs/templates/p005-pilot-feedback-triage-record.md` |
 | P006 release decision preflight | `docs/evidence/20260607-p006-release-decision-admission-report.json` |
+| P006 release decision template | `docs/templates/p006-release-decision-record-template.json` |
+| P006 release decision record | `docs/templates/p006-release-decision-record.md` |
 | REAL005 closure standard | `docs/evidence/20260512-real005-guangzhou-2015-2025-closure-standard-report.json` |
 | 角色与审计 | `docs/evidence/20260505-o004b-role-audit-closure.md` |
 | 隐私边界 | `docs/evidence/20260505-n001-real-privacy-boundary-admission.md` |

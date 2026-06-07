@@ -14,6 +14,10 @@ param(
     [string] $EvidenceTemplatePath = 'docs/templates/p001-isolated-machine-evidence-template.md',
     [string] $EvidenceJsonTemplatePath = 'docs/templates/p001-isolated-machine-evidence-template.json',
     [string] $OperatorOnePagerPath = 'docs/templates/p001-isolated-machine-operator-onepager.md',
+    [string] $P005TriageTemplatePath = 'docs/templates/p005-pilot-feedback-triage-template.json',
+    [string] $P005TriageRecordPath = 'docs/templates/p005-pilot-feedback-triage-record.md',
+    [string] $P006DecisionTemplatePath = 'docs/templates/p006-release-decision-record-template.json',
+    [string] $P006DecisionRecordPath = 'docs/templates/p006-release-decision-record.md',
     [string] $ReleaseCardPath = 'docs/109_ReleaseGoNoGoCard.md'
 )
 
@@ -148,6 +152,10 @@ try {
     $templateFullPath = Resolve-FlexiblePath $EvidenceTemplatePath
     $templateJsonFullPath = Resolve-FlexiblePath $EvidenceJsonTemplatePath
     $operatorOnePagerFullPath = Resolve-FlexiblePath $OperatorOnePagerPath
+    $p005TriageTemplateFullPath = Resolve-FlexiblePath $P005TriageTemplatePath
+    $p005TriageRecordFullPath = Resolve-FlexiblePath $P005TriageRecordPath
+    $p006DecisionTemplateFullPath = Resolve-FlexiblePath $P006DecisionTemplatePath
+    $p006DecisionRecordFullPath = Resolve-FlexiblePath $P006DecisionRecordPath
     $releaseCardFullPath = Resolve-FlexiblePath $ReleaseCardPath
 
     $packTimestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
@@ -168,6 +176,10 @@ try {
         @{ source = $checklistFullPath; target = 'docs/p001-live-pilot-release-checklist.md' },
         @{ source = $templateFullPath; target = 'docs/p001-isolated-machine-evidence-template.md' },
         @{ source = $operatorOnePagerFullPath; target = 'docs/p001-isolated-machine-operator-onepager.md' },
+        @{ source = $p005TriageTemplateFullPath; target = 'docs/p005-pilot-feedback-triage-template.json' },
+        @{ source = $p005TriageRecordFullPath; target = 'docs/p005-pilot-feedback-triage-record.md' },
+        @{ source = $p006DecisionTemplateFullPath; target = 'docs/p006-release-decision-record-template.json' },
+        @{ source = $p006DecisionRecordFullPath; target = 'docs/p006-release-decision-record.md' },
         @{ source = $releaseCardFullPath; target = 'docs/109_ReleaseGoNoGoCard.md' },
         @{ source = Resolve-FlexiblePath $resolvedP001ReportPath; target = 'reports/p001-live-pilot-readiness-preflight-report.json' },
         @{ source = Resolve-FlexiblePath $resolvedNS904ReportPath; target = 'reports/ns904-p001-readiness.json' },
@@ -268,7 +280,7 @@ try {
         '## 本包包含',
         '- `release/windows-service-package/`：Windows Service 运行包',
         '- `release/upgrade-bundle/`：EF migration bundle 与升级演练包',
-        '- `docs/`：P001 checklist、现场证据模板、Go/No-Go 卡',
+        '- `docs/`：P001 checklist、现场证据模板、P005/P006 记录模板、Go/No-Go 卡',
         '- `docs/p001-isolated-machine-operator-onepager.md`：给现场执行人的极简操作单',
         '- `reports/`：P001、NS904、NS1308、NS803-NS806、NS906、REAL012 等最新仓内证据',
         '- `return/`：现场回填 markdown/json 模板与附件目录',
@@ -277,8 +289,9 @@ try {
         '1. 先看 `docs/p001-isolated-machine-operator-onepager.md`，再按 `docs/p001-live-pilot-release-checklist.md` 执行。',
         '2. 把现场事实填入 `return/p001-isolated-machine-evidence.md` 与 `return/p001-isolated-machine-evidence.json`。',
         '3. 把日志、截图、打印照片、导出文件等放入 `return/attachments/` 对应子目录。',
-        '4. 将整个执行包目录带回仓库所在机器。',
-        '5. 回仓后执行：',
+        '4. 若现场已经产生反馈分流或发布裁决材料，同时填写 `docs/p005-pilot-feedback-triage-record.md` / `docs/p006-release-decision-record.md` 与对应 JSON 模板。',
+        '5. 将整个执行包目录带回仓库所在机器。',
+        '6. 回仓后执行：',
         '   `pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-ns1001-isolated-machine-evidence-import.ps1 -ReturnedPackRoot "<returned-pack-root>"`',
         '',
         '## 真相边界',
@@ -340,6 +353,10 @@ try {
             upgradeBundlePackage = 'release/upgrade-bundle'
             checklist = 'docs/p001-live-pilot-release-checklist.md'
             operatorOnePager = 'docs/p001-isolated-machine-operator-onepager.md'
+            p005TriageTemplate = 'docs/p005-pilot-feedback-triage-template.json'
+            p005TriageRecord = 'docs/p005-pilot-feedback-triage-record.md'
+            p006DecisionTemplate = 'docs/p006-release-decision-record-template.json'
+            p006DecisionRecord = 'docs/p006-release-decision-record.md'
             returnEvidenceMarkdown = 'return/p001-isolated-machine-evidence.md'
             returnEvidenceJson = 'return/p001-isolated-machine-evidence.json'
             returnAttachmentRoot = 'return/attachments'
@@ -353,6 +370,8 @@ try {
             upgradeBundleIncluded = $true
             checklistIncluded = $true
             operatorOnePagerIncluded = $true
+            p005TriageTemplatesIncluded = $true
+            p006DecisionTemplatesIncluded = $true
             returnTemplatesIncluded = $true
             operatorInstructionsIncluded = $true
             p001StillTodo = $true
