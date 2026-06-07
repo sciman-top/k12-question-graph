@@ -57,6 +57,7 @@
 .paper-export-panel,
 .score-panel,
 .analysis-panel,
+.service-control-panel,
 .admin-knowledge-panel,
 .activation-panel,
 .knowledge-health-panel,
@@ -260,6 +261,7 @@
 .paper-export-panel,
 .score-panel,
 .analysis-panel,
+.service-control-panel,
 .admin-knowledge-panel,
 .status-panel,
 .source-material-panel,
@@ -278,6 +280,11 @@
 
 .paper-request-panel {
   grid-column: 2;
+  padding: 24px;
+}
+
+.service-control-panel {
+  grid-column: 1 / -1;
   padding: 24px;
 }
 
@@ -326,6 +333,77 @@
 .admin-knowledge-panel {
   grid-column: 1 / -1;
   padding: 24px;
+}
+
+.service-control-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.service-control-card,
+.service-readiness-row {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+}
+
+.service-control-card {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 12px;
+  min-height: 106px;
+  padding: 16px;
+}
+
+.service-control-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.service-control-card span,
+.service-readiness-row span {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.service-control-card strong,
+.service-readiness-row strong {
+  color: var(--ink);
+}
+
+.service-control-card small,
+.service-readiness-row small {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.service-control-readiness {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.service-readiness-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+}
+
+.service-control-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
 }
 
 .paper-workbench-panel {

@@ -271,6 +271,10 @@ try {
         .\tools\run-ns1301-architecture-slimming-guard.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'ns1302 service control panel contract' {
+        .\tools\run-ns1302-service-control-panel-contract.ps1 | Write-Host
+    }
+
     Invoke-GateStep 'ns106 feature profile guard' {
         .\tools\run-ns106-feature-profile-guard.ps1 | Write-Host
     }

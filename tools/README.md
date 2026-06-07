@@ -352,6 +352,37 @@ performance work until a baseline exists, and writes
 boundary pack only: no dependency upgrade, no model download, no performance
 mutation, no experiment deletion, and no production cleanup.
 
+NS1301 architecture slimming guard:
+
+```powershell
+.\tools\run-ns1301-architecture-slimming-guard.ps1
+```
+
+This verifies the NS13 structure-slimming baseline from repository facts. It
+checks that `App.tsx` has already pushed large static workbench config and
+display helpers into extracted UI/data modules, that the current architecture
+inventory is documented in `docs/03_Architecture.md`, and that the API host
+still exposes the Windows Service + workflow-service ownership markers. It
+writes `docs/evidence/20260607-ns1301-architecture-slimming.json` and remains a
+repo-structure guard only: it does not claim every import/review endpoint is
+fully thin and it keeps the remaining NS104 legacy direct-DB debt explicit.
+
+NS1302 service control panel contract:
+
+```powershell
+.\tools\run-ns1302-service-control-panel-contract.ps1
+```
+
+This verifies the NS13 Windows Service-first release shape plus the
+administrator-only service control panel surface. It depends on NS804 package
+smoke, NS805 health dashboard evidence, and NS806 upgrade rehearsal evidence,
+then checks the `ServiceControlPanel` UI contract, CSS markers, admin-only
+mounting, and the absence of teacher workflow leakage. It writes
+`docs/evidence/20260607-ns1302-service-control-panel.json`. It does not install
+or start a real Windows Service on a target machine; isolated-machine
+deployment, operator validation, and live release signoff remain under
+`NS1001/P001/P006`.
+
 O003 recovery drill upgrade contract:
 
 ```powershell

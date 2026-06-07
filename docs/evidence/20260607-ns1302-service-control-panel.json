@@ -1,0 +1,62 @@
+{
+  "status": "pass",
+  "taskId": "NS1302",
+  "checkedAt": "2026-06-07T20:21:25",
+  "mode": "windows_service_and_service_control_panel_contract",
+  "productionEligible": false,
+  "dependency": {
+    "ns804": "docs/evidence/20260530-ns804-windows-service.json",
+    "ns805": "docs/evidence/20260530-ns805-health-dashboard.json",
+    "ns806": "docs/evidence/20260530-ns806-upgrade-bundle.json"
+  },
+  "runtime": {
+    "windowsServiceHost": true,
+    "contentRoot": "D:\\CODE\\k12-question-graph\\tmp\\ns804\\windows-service-package\\api",
+    "dataRoot": "D:\\KQG_Data",
+    "apiExecutable": "D:\\CODE\\k12-question-graph\\tmp\\ns804\\windows-service-package\\api\\K12QuestionGraph.Api.exe",
+    "healthReadinessPassed": true,
+    "packageRuntime": "win-x64"
+  },
+  "controlPanel": {
+    "ui": "apps/web/src/ui/ServiceControlPanel.tsx",
+    "mountedFrom": "apps/web/src/ui/AdminGovernancePanels.tsx",
+    "actionCount": 6,
+    "readonlyEvidence": [
+      "windows-service-package-ready",
+      "service-control-health-diagnostics",
+      "service-control-upgrade-rehearsal"
+    ],
+    "teacherWorkflowEmbedded": false
+  },
+  "healthAndUpgrade": {
+    "storageAreas": [
+      "data_root",
+      "file_store",
+      "backup",
+      "logs",
+      "cache"
+    ],
+    "backupManifest": "tmp/ns801-backups/20260607-025409/manifest.json",
+    "bundleExe": "tmp\\o007\\bundle\\efbundle.exe",
+    "restoreDrillReport": "docs/evidence/o007-o003-recovery-drill-report.json"
+  },
+  "acceptance": {
+    "windowsServiceIsDefaultHostShape": true,
+    "contentDataRootsExplicit": true,
+    "controlPanelAdminOnly": true,
+    "controlPanelCoversStatusDiagnosticsConfigBackupUpgradeOpenWeb": true,
+    "controlPanelDoesNotEmbedTeacherWorkflow": true,
+    "packageHealthSmokeVisible": true,
+    "backupRestoreEvidenceVisible": true,
+    "upgradeRehearsalEvidenceVisible": true
+  },
+  "verification": {
+    "build": "npm --prefix apps/web run build",
+    "test": "npm --prefix apps/web run lint",
+    "contractInvariant": "NS804 package smoke + NS805 health dashboard + NS806 upgrade rehearsal + service control panel UI contract",
+    "hotspot": "gate_na: no real Windows service install/start/stop against isolated target machine; NS1001/P001 still own live deployment and operator validation"
+  },
+  "boundary": "NS1302 proves the repository has a Windows Service-first runtime contract and an administrator-only service control panel surface. It does not install or start a real Windows Service on a target machine, and it does not move teacher workflows into the control panel.",
+  "rollback": "git restore apps/web/src/ui/AdminGovernancePanels.tsx apps/web/src/ui/ServiceControlPanel.tsx apps/web/src/App.css docs/04_TechnologyStack.md tasks/non-site-implementation-plan.csv tasks/productization-roadmap.csv tools/run-gates.ps1; git clean -f -- tools/run-ns1302-service-control-panel-contract.ps1 docs/evidence/20260607-ns1302-service-control-panel.json",
+  "next": "NS1303 can continue host capability -> runtime profile/config generation after the control panel contract is fixed."
+}
