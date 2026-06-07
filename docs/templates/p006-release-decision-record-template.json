@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "p006-release-decision-record.v1",
+  "decisionContext": {
+    "date": "<YYYY-MM-DD>",
+    "decision": "go|no_go|go_with_named_exceptions",
+    "targetMilestone": "P001 readiness -> P003/P005/P006 closeout -> v0.1 live pilot release decision",
+    "releaseCandidate": "not_created",
+    "deploymentMode": "offline_first",
+    "siteScope": ""
+  },
+  "evidenceAnchors": {
+    "p001ReadinessPack": "docs/evidence/20260607-ns904-p001-readiness.json",
+    "p005Triage": "",
+    "goNoGoCard": "docs/109_ReleaseGoNoGoCard.md",
+    "fullGateEvidence": "",
+    "roadmapGuardEvidence": "",
+    "backupEvidence": "",
+    "restoreEvidence": "",
+    "privacyEvidence": "",
+    "roleAuditEvidence": ""
+  },
+  "gateReview": {
+    "buildTestContractHotspot": "pass|blocked|na",
+    "backupRestore": "pass|blocked|na",
+    "teacherEfficiency": "pass|blocked|exception",
+    "privacyAuthorization": "pass|blocked|na",
+    "roleAudit": "pass|blocked|na",
+    "onsiteBlockersRemaining": []
+  },
+  "exceptions": [
+    {
+      "id": "exception-001",
+      "title": "",
+      "owner": "",
+      "expiresAt": "",
+      "recoveryPlan": "",
+      "evidenceLink": "",
+      "acceptedRisk": ""
+    }
+  ],
+  "tagCandidatePlan": {
+    "createTagCandidate": false,
+    "tagName": "",
+    "rollbackWindow": "",
+    "disableSwitchPlan": ""
+  },
+  "signoff": {
+    "releaseOwner": "",
+    "adminOwner": "",
+    "dataOwnerRepresentative": "",
+    "pilotSupportOwner": ""
+  },
+  "finalRationale": ""
+}

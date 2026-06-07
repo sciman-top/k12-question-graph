@@ -1,6 +1,7 @@
 param(
     [string] $BacklogPath = 'tasks/backlog.csv',
     [string] $ChecklistPath = 'docs/templates/p005-pilot-feedback-backlog-checklist.md',
+    [string] $TriageTemplatePath = 'docs/templates/p005-pilot-feedback-triage-template.json',
     [string] $EvidencePath = 'docs/evidence/20260505-p005-pilot-feedback-backlog-preflight.md',
     [string] $ReportPath = 'docs/evidence/20260523-p005-pilot-feedback-backlog-admission-report.json'
 )
@@ -33,10 +34,12 @@ function Write-ContentIfChanged([string]$Path, [string]$Content) {
 
 $backlogFullPath = Resolve-RepoPath $BacklogPath
 $checklistFullPath = Resolve-RepoPath $ChecklistPath
+$triageTemplateFullPath = Resolve-RepoPath $TriageTemplatePath
 $evidenceFullPath = Resolve-RepoPath $EvidencePath
 
 Assert-True (Test-Path -LiteralPath $backlogFullPath) "P005 backlog file missing: $BacklogPath"
 Assert-True (Test-Path -LiteralPath $checklistFullPath) "P005 checklist missing: $ChecklistPath"
+Assert-True (Test-Path -LiteralPath $triageTemplateFullPath) "P005 triage template missing: $TriageTemplatePath"
 Assert-True (Test-Path -LiteralPath $evidenceFullPath) "P005 evidence markdown missing: $EvidencePath"
 
 $rows = Import-Csv -LiteralPath $backlogFullPath -Encoding UTF8
@@ -59,6 +62,13 @@ foreach ($keyword in @('教师效率', '频率', '风险', '成本', '保留', '
     Assert-True ($checklistText.Contains($keyword)) "P005 checklist missing keyword: $keyword"
 }
 
+$triageTemplate = Get-Content -LiteralPath $triageTemplateFullPath -Raw | ConvertFrom-Json
+Assert-True ($triageTemplate.schemaVersion -eq 'p005-pilot-feedback-triage.v1') 'P005 triage template schema mismatch'
+foreach ($requiredField in @('pilotContext', 'summary', 'items', 'decisionNotes', 'signoff')) {
+    Assert-True ($triageTemplate.PSObject.Properties.Name -contains $requiredField) "P005 triage template missing field: $requiredField"
+}
+Assert-True (@($triageTemplate.items).Count -ge 1) 'P005 triage template must contain at least one sample item'
+
 $evidenceText = Get-Content -LiteralPath $evidenceFullPath -Raw
 foreach ($keyword in @('preflight', 'P005', 'platform_na', 'gate_na', '试点反馈转 backlog', '下一步')) {
     Assert-True ($evidenceText.Contains($keyword)) "P005 evidence missing keyword: $keyword"
@@ -74,6 +84,7 @@ $report = [ordered]@{
     closeTaskAllowed = $false
     currentDecision = 'keep_P005_todo_until_pilot_feedback_triage_evidence_close'
     checklistPath = $ChecklistPath
+    triageTemplatePath = $TriageTemplatePath
     evidencePath = $EvidencePath
     reportPath = $ReportPath
     blockers = @(
@@ -83,6 +94,7 @@ $report = [ordered]@{
     )
     nextRequiredEvidence = @(
         'teacher pilot evidence from P004',
+        'structured P005 triage template',
         'feedback item list with frequency and teacher-efficiency impact',
         'risk and cost scoring',
         'backlog triage decisions: keep, modify, defer, do_not_do'

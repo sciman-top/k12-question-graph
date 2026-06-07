@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "p005-pilot-feedback-triage.v1",
+  "pilotContext": {
+    "date": "<YYYY-MM-DD>",
+    "sourceEvidence": "docs/evidence/<date>-p004-onsite-round1.md",
+    "operator": "",
+    "teacherOrProxy": "",
+    "site": ""
+  },
+  "summary": {
+    "totalFeedbackItems": 0,
+    "keepCount": 0,
+    "modifyCount": 0,
+    "deferCount": 0,
+    "doNotDoCount": 0,
+    "overallTeacherEfficiencyImpact": "",
+    "topBlockingThemes": []
+  },
+  "items": [
+    {
+      "id": "feedback-001",
+      "title": "",
+      "sourceStep": "import|paper|score|analysis|install|other",
+      "description": "",
+      "teacherEfficiencyImpact": "high|medium|low",
+      "frequency": "high|medium|low|single",
+      "risk": "high|medium|low",
+      "cost": "high|medium|low",
+      "decision": "keep|modify|defer|do_not_do",
+      "reason": "",
+      "owner": "",
+      "targetArtifact": "",
+      "rollbackOrFallback": ""
+    }
+  ],
+  "decisionNotes": {
+    "keep": "",
+    "modify": "",
+    "defer": "",
+    "doNotDo": ""
+  },
+  "signoff": {
+    "triageOwner": "",
+    "productOwnerReview": "",
+    "releaseOwnerReview": ""
+  }
+}

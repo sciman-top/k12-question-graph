@@ -2,12 +2,13 @@
   "status": "pass",
   "taskId": "P005",
   "mode": "preflight_only",
-  "checkedAt": "2026-06-08T00:47:18",
+  "checkedAt": "2026-06-08T01:52:26",
   "p004Status": "待办",
   "p005Status": "待办",
   "closeTaskAllowed": false,
   "currentDecision": "keep_P005_todo_until_pilot_feedback_triage_evidence_close",
   "checklistPath": "docs/templates/p005-pilot-feedback-backlog-checklist.md",
+  "triageTemplatePath": "docs/templates/p005-pilot-feedback-triage-template.json",
   "evidencePath": "docs/evidence/20260505-p005-pilot-feedback-backlog-preflight.md",
   "reportPath": "docs/evidence/20260608-p005-pilot-feedback-backlog-admission-report.json",
   "blockers": [
@@ -17,6 +18,7 @@
   ],
   "nextRequiredEvidence": [
     "teacher pilot evidence from P004",
+    "structured P005 triage template",
     "feedback item list with frequency and teacher-efficiency impact",
     "risk and cost scoring",
     "backlog triage decisions: keep, modify, defer, do_not_do"

@@ -197,6 +197,33 @@ keeps `readyForIsolatedMachineRun=true`, keeps `p001CanClose=false`, and does
 not execute isolated-machine install, printer/network/domain checks, or
 operator signoff.
 
+P005 pilot feedback backlog preflight contract:
+
+```powershell
+.\tools\run-p005-pilot-feedback-backlog-preflight-contract.ps1
+```
+
+This keeps `P005` as `待办` until real pilot feedback exists, and it now also
+requires the structured triage template
+`docs/templates/p005-pilot-feedback-triage-template.json`. The preflight checks
+that future feedback will be classified by teacher-efficiency impact,
+frequency, risk, cost, and the four backlog decisions `keep / modify / defer /
+do_not_do`, without inventing pilot evidence.
+
+P006 release decision preflight contract:
+
+```powershell
+.\tools\run-p006-release-decision-preflight-contract.ps1
+```
+
+This keeps `P006` as `待办` until the real release decision is signed, and it
+now also requires the structured decision-record template
+`docs/templates/p006-release-decision-record-template.json` plus the current
+`docs/109_ReleaseGoNoGoCard.md`. The preflight checks that the release
+judgement will be anchored to explicit gate, backup/restore, privacy,
+teacher-efficiency, rollback, and tag-candidate fields rather than chat-only
+conclusions.
+
 NS905 status sync audit:
 
 ```powershell
