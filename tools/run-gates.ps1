@@ -287,6 +287,10 @@ try {
         .\tools\run-ns1305-role-routed-ai-contract.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'ns1308 release evidence pack contract' {
+        .\tools\run-ns1308-release-evidence-pack-contract.ps1 | Write-Host
+    }
+
     Invoke-GateStep 'ns106 feature profile guard' {
         .\tools\run-ns106-feature-profile-guard.ps1 | Write-Host
     }

@@ -1,0 +1,102 @@
+{
+  "status": "pass",
+  "taskId": "NS1308",
+  "checkedAt": "2026-06-07T21:28:33",
+  "mode": "release_evidence_pack_aggregation",
+  "productionEligible": false,
+  "dependency": {
+    "ns803": "docs/evidence/20260530-ns803-installer-host.json",
+    "ns804": "docs/evidence/20260530-ns804-windows-service.json",
+    "ns805": "docs/evidence/20260530-ns805-health-dashboard.json",
+    "ns806": "docs/evidence/20260530-ns806-upgrade-bundle.json",
+    "ns904": "docs/evidence/20260607-ns904-p001-readiness.json",
+    "p001": "docs/evidence/20260607-p001-live-pilot-readiness-preflight-report.json",
+    "o004b": "docs/evidence/20260505-o004b-role-audit-closure.md",
+    "checklist": "docs/templates/p001-live-pilot-release-checklist.md"
+  },
+  "releasePack": {
+    "installerDryRun": {
+      "status": "pass",
+      "config": "configs\\installer_init.defaults.yaml",
+      "runtimeProfile": "windows_service_with_explicit_content_root",
+      "workerProfile": "direct_venv_lite"
+    },
+    "windowsServicePackage": {
+      "status": "pass",
+      "apiExecutable": "D:\\CODE\\k12-question-graph\\tmp\\ns804\\windows-service-package\\api\\K12QuestionGraph.Api.exe",
+      "contentRoot": "D:\\CODE\\k12-question-graph\\tmp\\ns804\\windows-service-package\\api",
+      "dataRoot": "D:\\KQG_Data"
+    },
+    "capacityHealth": {
+      "status": "pass",
+      "backupManifest": "tmp/ns801-backups/20260607-201733/manifest.json",
+      "storageAreas": [
+        "data_root",
+        "file_store",
+        "backup",
+        "logs",
+        "cache"
+      ]
+    },
+    "upgradeBundle": {
+      "status": "pass",
+      "bundleExe": "tmp\\o007\\bundle\\efbundle.exe",
+      "restoreDrillReport": "docs/evidence/o007-o003-recovery-drill-report.json"
+    },
+    "permissionAudit": {
+      "status": "pass",
+      "source": "docs/evidence/20260505-o004b-role-audit-closure.md",
+      "roleSplit": [
+        "teacher_blocked",
+        "group_lead_read_only",
+        "admin_high_risk_write"
+      ]
+    },
+    "p001Readiness": {
+      "status": "pass",
+      "readyForIsolatedMachineRun": true,
+      "p001CanClose": false,
+      "releaseReady": false,
+      "nonSiteValidated": false,
+      "remainingSiteBlockers": [
+        "isolated_machine_install_wizard_not_executed",
+        "isolated_machine_backup_restore_not_executed",
+        "isolated_machine_role_audit_not_executed",
+        "onsite_teacher_observation_not_recorded",
+        "isolated_machine_four_teacher_entry_smoke_not_executed",
+        "school_printer_artifact_smoke_not_executed",
+        "school_network_access_smoke_not_executed",
+        "school_domain_permission_smoke_not_executed",
+        "live_operator_signoff_not_recorded"
+      ]
+    },
+    "uninstallRollbackBoundary": {
+      "documentedOnly": true,
+      "technologyStack": "docs/04_TechnologyStack.md",
+      "checklist": "docs/templates/p001-live-pilot-release-checklist.md"
+    }
+  },
+  "acceptance": {
+    "installerDryRunEvidencePresent": true,
+    "windowsServicePackageEvidencePresent": true,
+    "migrationBundleRehearsalPresent": true,
+    "backupRestoreEvidencePresent": true,
+    "permissionAuditEvidencePresent": true,
+    "fourTeacherEntrySmokeChecklistPresent": true,
+    "p001ReadinessPackPresent": true,
+    "uninstallRollbackBoundaryDocumented": true,
+    "readyForIsolatedMachineRun": true,
+    "releaseReadyStillFalse": true,
+    "p001StillTodo": true,
+    "onsiteBlockersExplicit": true
+  },
+  "verification": {
+    "build": "gate_na: NS1308 is an evidence-pack aggregation slice; it reuses already-passed installer/package/upgrade/readiness contracts",
+    "test": "NS803 + NS804 + NS805 + NS806 + NS904 + P001 preflight + O004B evidence aggregation",
+    "contractInvariant": "installer/upgrade/backup-restore/permission-audit/four-entry smoke checklist/P001 readiness pack must be linkable without claiming onsite execution or release-ready state",
+    "hotspot": "gate_na: no isolated-machine install, no printer/network/domain run, no onsite teacher observation, and no release signoff in this slice"
+  },
+  "boundary": "NS1308 proves the repository now has an aggregated non-site release evidence pack covering installer dry-run, Windows Service package shape, backup/restore, upgrade bundle, permission audit evidence, and the P001 readiness pack. It does not execute the isolated-machine rehearsal, does not close P001/P003/P005/P006, and does not create a release candidate.",
+  "rollback": "git restore docs/103_ExecutionControlBoard.md docs/109_ReleaseGoNoGoCard.md tasks/backlog.csv tasks/non-site-implementation-plan.csv tasks/productization-roadmap.csv tools/run-gates.ps1 tools/README.md; git clean -f -- tools/run-ns1308-release-evidence-pack-contract.ps1 docs/evidence/20260607-ns1308-release-evidence-pack.json docs/evidence/20260607-ns1308-release-evidence-pack-closure.md",
+  "next": "P001 becomes the remaining mainline entry; the repository-side NS13 closure no longer blocks progression to isolated-machine and onsite facts."
+}

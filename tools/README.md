@@ -437,6 +437,21 @@ names. It writes `docs/evidence/20260607-ns1305-role-routed-ai.json` and does
 not enable real provider calls, store plaintext secrets, download local model
 weights, or switch production defaults.
 
+NS1308 release evidence pack contract:
+
+```powershell
+.\tools\run-ns1308-release-evidence-pack-contract.ps1
+```
+
+This assembles the non-site release evidence pack after the NS13 runtime slices
+are closed. It aggregates NS803 installer dry-run, NS804 Windows Service
+package shape, NS805 capacity/health evidence, NS806 migration bundle rehearsal,
+O004B role-audit evidence, the `P001` checklist, and the NS904 readiness pack,
+then writes `docs/evidence/20260607-ns1308-release-evidence-pack.json`. It does
+not execute isolated-machine install, onsite teacher observation, printer /
+network / domain validation, or release signoff; those remain under
+`P001/P003/P005/P006`.
+
 O003 recovery drill upgrade contract:
 
 ```powershell
