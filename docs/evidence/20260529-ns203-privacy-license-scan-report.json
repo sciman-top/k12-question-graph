@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS203",
-  "checkedAt": "2026-05-31T14:25:14",
+  "checkedAt": "2026-06-07T02:50:25",
   "mode": "tracked_text_privacy_license_scan",
   "productionEligible": false,
   "scanScope": {
@@ -18,13 +18,13 @@
       "README.md",
       "ALL_IN_ONE_EXECUTIVE_SPEC.md"
     ],
-    "trackedFileCount": 851,
+    "trackedFileCount": 930,
     "policyPath": "docs/102_NonSiteFixturePrivacyPolicy.md",
     "fixturePolicyPath": "tests/golden-import/privacy_and_license.md",
     "rawIgnorePath": "sources/raw/.gitignore"
   },
   "counts": {
-    "secretLikeHits": 68,
+    "secretLikeHits": 71,
     "blockingSecretHits": 0,
     "piiValueHits": 0,
     "blockingPiiHits": 0,
@@ -32,7 +32,7 @@
     "blockingTrackedBinaryFiles": 0,
     "trackedRawSourceBlockers": 0,
     "localRawSourceFiles": 0,
-    "policyMentionCount": 362,
+    "policyMentionCount": 432,
     "copyrightRawPathMarkers": 0,
     "excludedGeneratedScanReports": 1
   },
@@ -352,6 +352,30 @@
       },
       {
         "kind": "credential_assignment_like",
+        "path": "tools/run-ns805-health-dashboard.ps1",
+        "line": 16,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-ns806-upgrade-bundle.ps1",
+        "line": 16,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-ns901-non-site-scenario-pack.ps1",
+        "line": 18,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
         "path": "tools/run-ns906-visual-surrogate-review.ps1",
         "line": 20,
         "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
@@ -583,7 +607,7 @@
         "reason": "placeholder/test contract value or header constant"
       }
     ],
-    "allowedCredentialLikeHitCount": 68,
+    "allowedCredentialLikeHitCount": 71,
     "allowedCredentialLikeHitSampleLimit": 80,
     "allowedTrackedBinaryFiles": [
       {
@@ -641,10 +665,6 @@
         "term": "授权"
       },
       {
-        "path": "apps/web/src/App.tsx",
-        "term": "containsStudentPii"
-      },
-      {
         "path": "apps/web/src/ui/AdminGovernancePanels.tsx",
         "term": "真实学生"
       },
@@ -667,6 +687,10 @@
       {
         "path": "docs/01_PRD.md",
         "term": "授权"
+      },
+      {
+        "path": "docs/03_Architecture.md",
+        "term": "真实学生"
       },
       {
         "path": "docs/04_TechnologyStack.md",

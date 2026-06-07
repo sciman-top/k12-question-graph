@@ -191,12 +191,12 @@
       }
     },
     "magick": {
-      "present": false,
-      "path": null,
+      "present": true,
+      "path": "C:\\Program Files\\ImageMagick-7.1.2-Q16\\magick.EXE",
       "probe": {
-        "available": false,
-        "exitCode": null,
-        "versionLine": ""
+        "available": true,
+        "exitCode": 0,
+        "versionLine": "Version: ImageMagick 7.1.2-24 Q16 x64 271b6bc:20260526 https://imagemagick.org"
       }
     },
     "vips": {
@@ -307,14 +307,14 @@
       "anchor": "D:\\",
       "available": true,
       "totalGb": 930.0,
-      "freeGb": 341.55
+      "freeGb": 395.31
     },
     "backupRoot": {
       "path": "D:\\KQG_Backups",
       "anchor": "D:\\",
       "available": true,
       "totalGb": 930.0,
-      "freeGb": 341.55
+      "freeGb": 395.31
     }
   },
   "workerOcrProfile": {

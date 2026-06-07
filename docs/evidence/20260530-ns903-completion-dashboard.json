@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS903",
-  "checkedAt": "2026-05-31T01:39:07",
+  "checkedAt": "2026-06-07T03:00:19",
   "mode": "completion_dashboard_refresh",
   "productionEligible": false,
   "nonSiteValidated": false,
@@ -41,13 +41,13 @@
     "realFullClosureState": "contract_done"
   },
   "nonSitePlan": {
-    "rowCount": 73,
+    "rowCount": 81,
     "statusCounts": {
       "blocked_by_onsite": 5,
-      "repo_landed": 12,
-      "runtime_verified": 56
+      "planned": 6,
+      "runtime_verified": 70
     },
-    "runtimeVerifiedCount": 56,
+    "runtimeVerifiedCount": 70,
     "nonSiteValidatedCount": 0,
     "nextAfterNs903": "NS904"
   },

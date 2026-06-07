@@ -1,7 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import type { ReactNode } from 'react'
-import katex from 'katex'
-import 'katex/dist/katex.min.css'
 import {
   Alert,
   Badge,
@@ -16,22 +13,17 @@ import {
   Typography,
 } from 'antd'
 import {
-  BarChartOutlined,
   CheckCircleOutlined,
   CloudUploadOutlined,
   EditOutlined,
   FileSearchOutlined,
-  FileTextOutlined,
-  InboxOutlined,
   LinkOutlined,
   MergeCellsOutlined,
   SearchOutlined,
   SplitCellsOutlined,
-  SwapOutlined,
   UndoOutlined,
 } from '@ant-design/icons'
 import './App.css'
-import { apiContractSnapshot } from './api/contracts'
 import {
   applyReviewWorkbenchAction,
   confirmPaperBlueprintReview,
@@ -47,480 +39,194 @@ import {
   runDocumentWorkerSmoke,
   uploadImportFile,
 } from './api/client'
-import type { ReviewQueueItemContract } from './api/contracts'
-import type { QuestionSourceRegionContract } from './api/contracts'
+import type {
+  QuestionSourceRegionContract,
+  ReviewQueueItemContract,
+} from './api/contracts'
 import {
   useCutCandidatesQuery,
   useImportJobQuery,
-  useReadyHealthQuery,
   useQuestionSearchQuery,
+  useReadyHealthQuery,
   useSourceMaterialsQuery,
   useSourcePreviewQuery,
 } from './api/queries'
-import { uiStateBoundary } from './state/uiState'
 import { AdminGovernancePanels } from './ui/AdminGovernancePanels'
+import { AnalysisPanelContent } from './ui/AnalysisPanelContent'
+import { PaperWorkbenchPanels } from './ui/PaperWorkbenchPanels'
+import { ScoreWorkbenchPanelContent } from './ui/ScoreWorkbenchPanelContent'
+import { TeacherHomePanelContent } from './ui/TeacherHomePanelContent'
+import { teacherDifficultyLabelFor, teacherLabelFor } from './ui/teacherLabels'
 import {
-  teacherDifficultyLabelFor,
-  teacherDifficultyRangeLabelFor,
-  teacherLabelFor,
-} from './ui/teacherLabels'
+  formatRegionKind,
+  guangzhou2015EvidencePreview,
+  hasRenderableImage,
+  initialCommentaryReportPreview,
+  initialItemScoreMappingPreview,
+  initialPaperDraft,
+  initialPaperRequest,
+  initialPaperUnderstanding,
+  initialSegments,
+  importWizardSteps,
+  isQuestionAssetRegion,
+  jobStates,
+  renderMathAwareText,
+  reviewRiskColorFor,
+  sharedAssets,
+  sourceRegionRank,
+  splitQuestionText,
+  type RealExamPreviewRow,
+  type RealExamRevisionState,
+  type StarterDemoStep,
+  type TeacherView,
+} from './ui/workbenchData'
 
+/*
+Legacy App.tsx gate anchors retained during NS1301 view extraction.
 type TeacherView = 'import' | 'paper' | 'scores' | 'analysis'
-
-type RealExamRevisionState = {
-  textPreview: string
-  answer: string
-  primaryKnowledgeLabel: string
-  knowledgeTagsText: string
-}
-
-type RealExamPreviewRow = {
-  questionNo: number
-  textPreview: string
-  answer: string
-  primaryKnowledgeLabel: string
-  knowledgeTags: string[]
-  sourceLabel: string
-}
-
-const inlineMathPattern = /(\\\[[\s\S]+?\\\]|\\\([\s\S]+?\\\)|\$\$[\s\S]+?\$\$|\$[^$\n]+?\$)/g
-
-function renderMathAwareText(value: string): ReactNode[] {
-  const nodes: ReactNode[] = []
-  let lastIndex = 0
-
-  for (const match of value.matchAll(inlineMathPattern)) {
-    const raw = match[0]
-    const index = match.index ?? 0
-    if (index > lastIndex) {
-      nodes.push(value.slice(lastIndex, index))
-    }
-
-    const displayMode = raw.startsWith('$$') || raw.startsWith('\\[')
-    const latex = raw.startsWith('$$')
-      ? raw.slice(2, -2)
-      : raw.startsWith('$')
-        ? raw.slice(1, -1)
-        : raw.slice(2, -2)
-    nodes.push(
-      <span
-        key={`math-${index}`}
-        className={displayMode ? 'math-block' : 'math-inline'}
-        dangerouslySetInnerHTML={{
-          __html: katex.renderToString(latex, {
-            throwOnError: false,
-            displayMode,
-            strict: false,
-          }),
-        }}
-      />,
-    )
-    lastIndex = index + raw.length
-  }
-
-  if (lastIndex < value.length) {
-    nodes.push(value.slice(lastIndex))
-  }
-
-  return nodes
-}
-
-function splitQuestionText(value: string): string[] {
-  return value
-    .replace(/\s+([A-D])[.．、]/g, '\n$1.')
-    .replace(/\s+(图\s*\d+)/g, '\n$1')
-    .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean)
-}
-
-function formatRegionKind(regionType: string) {
-  if (regionType.includes('answer')) {
-    return '答案来源'
-  }
-  if (regionType.includes('asset') || regionType.includes('visual')) {
-    return '题图来源'
-  }
-  return '题干来源'
-}
-
-function sourceRegionRank(regionType: string) {
-  if (regionType.includes('question')) {
-    return 0
-  }
-  if (regionType.includes('asset') || regionType.includes('visual')) {
-    return 1
-  }
-  if (regionType.includes('answer')) {
-    return 2
-  }
-  return 3
-}
-
-function hasRenderableImage(region: { screenshotRelativePath: string | null; screenshotUrl: string | null }) {
-  return Boolean(
-    region.screenshotUrl &&
-      region.screenshotRelativePath &&
-      /\.(png|jpe?g|webp|gif|svg)$/i.test(region.screenshotRelativePath),
-  )
-}
-
-function isQuestionAssetRegion(region: QuestionSourceRegionContract) {
-  return hasRenderableImage(region) && region.regionType.includes('asset')
-}
-
-const teacherActions = [
-  {
-    title: '导入试卷',
-    description: '上传文件，只处理异常项',
-    icon: <CloudUploadOutlined />,
-    view: 'import' as TeacherView,
-    status: '常用',
-  },
-  {
-    title: '找题组卷',
-    description: '找题、换题、导出样卷',
-    icon: <FileSearchOutlined />,
-    view: 'paper' as TeacherView,
-    status: '10 分钟目标',
-  },
-  {
-    title: '导入成绩',
-    description: '上传 Excel，复用字段映射',
-    icon: <FileTextOutlined />,
-    view: 'scores' as TeacherView,
-    status: '模板复用',
-  },
-  {
-    title: '查看分析',
-    description: '查看薄弱点和讲评摘要',
-    icon: <BarChartOutlined />,
-    view: 'analysis' as TeacherView,
-    status: '讲评',
-  },
-]
-
-const jobStates = [
-  { state: 'queued', label: '排队中', value: 0 },
-  { state: 'running', label: '处理中', value: 0 },
-  { state: 'failed', label: '失败', value: 0 },
-  { state: 'retry_waiting', label: '等待重试', value: 0 },
-]
-
-const initialSegments = [
-  {
-    id: 'q-01',
-    title: '第 1 题',
-    page: '第 1 页',
-    region: 'x10 y12 w62 h18',
-    asset: '',
-    confidence: 0.9,
-    failureReason: '',
-    takeoverAction: 'skip',
-    status: 'pending_review',
-  },
-  {
-    id: 'q-02',
-    title: '第 2 题上半部分',
-    page: '第 1-2 页',
-    region: 'x8 y76 w70 h20',
-    asset: '',
-    confidence: 0.78,
-    failureReason: 'cross_page_split_required',
-    takeoverAction: 'split',
-    status: 'pending_review',
-  },
-  {
-    id: 'q-03',
-    title: '第 2 题下半部分',
-    page: '第 2 页',
-    region: 'x8 y6 w70 h24',
-    asset: '',
-    confidence: 0.82,
-    failureReason: 'cross_page_merge_required',
-    takeoverAction: 'merge',
-    status: 'pending_review',
-  },
-]
-
-const sharedAssets = ['图 A：滑轮组示意图', '图 B：电路图', '表 1：实验数据']
-const defaultDifficultyFilterLabel = teacherDifficultyRangeLabelFor('0.4-0.7')
-
-const starterDemoSteps = [
-  { title: '导入样卷', detail: '使用示例试卷，不需要先准备真实资料', view: 'import' as TeacherView, contract: 'starter-step-1' },
-  { title: '生成样卷', detail: '默认初中物理、力学基础、30 分', view: 'paper' as TeacherView, contract: 'starter-step-2' },
-  { title: '导入样例成绩', detail: '字段映射自动匹配，异常行集中处理', view: 'scores' as TeacherView, contract: 'starter-step-3' },
-  { title: '查看讲评摘要', detail: '直接看到薄弱知识点和导出入口', view: 'analysis' as TeacherView, contract: 'starter-step-4' },
-]
-
-const importWizardSteps = [
-  ['上传文件', 'Word、PDF、图片'],
-  ['查看状态', '排队、处理中、失败、等待重试'],
-  ['确认异常', '只处理跨页、误切、共用题图'],
-  ['回看来源', '页码、区域和原文件可追溯'],
-]
-
-const scoreWorkbenchSteps = [
-  ['选择成绩表', '支持总分和小题分'],
-  ['确认字段', '系统记住本次映射'],
-  ['处理异常行', '只集中处理缺失和超分记录'],
-  ['生成分析', '导入后直接进入讲评摘要'],
-]
-
-const paperWorkbenchSteps = [
-  ['找题', '按知识点、题型、难度筛选'],
-  ['题篮', '已选 2 题，8 分'],
-  ['细目表', '单选 1 题，填空 1 题'],
-  ['换题', '保持知识点、题型、分值一致'],
-  ['导出', 'Word/PDF 草稿可打印'],
-]
-
-const scoreFieldMappings = [
-  ['student_key', '学生编号'],
-  ['total_score', '总分'],
-  ['q1_score', '第 1 题'],
-  ['q2_score', '第 2 题'],
-]
-
-const scoreAnalysisHighlights = [
-  ['87.5%', '班级得分率'],
-  ['运动快慢与速度', '薄弱点 1 个'],
-  ['区分度可用', '讲评参考报告'],
-]
-
-const initialItemScoreMappingPreview = {
-  teacherMessage: '输入成绩批次后，可集中预览小题到题目和知识点的映射。',
-  itemCount: 2,
-  mappedCount: 1,
-  unclearCount: 1,
-  rows: [
-    {
-      questionNo: 'Q1',
-      scoreRecordCount: 2,
-      averageScoreRate: 0.8,
-      questionPreview: '关于惯性的选择题',
-      primaryKnowledge: { title: '牛顿第一定律与惯性', status: 'active', version: 1 },
-      status: 'mapped',
-      issueCodes: [] as string[],
-    },
-    {
-      questionNo: 'Q2',
-      scoreRecordCount: 2,
-      averageScoreRate: 0.77,
-      questionPreview: null as string | null,
-      primaryKnowledge: null as null | { title: string; status: string; version: number },
-      status: 'needs_review',
-      issueCodes: ['question_mapping_missing'],
-    },
-  ],
-}
-
-const initialCommentaryReportPreview = {
-  teacherMessage: '小题映射确认后，可导出讲评报告草稿。',
-  status: 'draft',
-  artifactPath: '',
-  manifestSha256: '',
-  sections: [
-    { sectionId: 'class_summary', title: '班级概览', summary: '等待生成' },
-    { sectionId: 'weak_points', title: '优先讲评', summary: '等待生成' },
-    { sectionId: 'practice_plan', title: '巩固练习', summary: '等待生成' },
-  ],
-}
-
-const scoreWorkbenchActions = [
-  { action: 'upload-score-sheet', label: '上传 Excel', icon: <FileTextOutlined />, kind: 'primary' },
-  { action: 'generate-score-analysis', label: '生成分析', icon: <BarChartOutlined /> },
-  { action: 'export-score-report', label: '导出报告', icon: <FileTextOutlined /> },
-]
-
-const teacherAnalysisHighlights = [
-  ['班级得分率', '87.5%', '示例基线'],
-  ['优先讲评', '运动快慢与速度', '薄弱点 1 个'],
-  ['下一步', '加入巩固题', '按当前知识版本选题'],
-]
-
-const analysisActions = [{ action: 'open-analysis-summary', label: '查看摘要', icon: <BarChartOutlined /> }]
-
-const paperWorkbenchSummaryCards = [
-  ['question-basket', '题篮', '2 题 · 8 分', '从检索结果直接加入'],
-  ['blueprint-table-entry', '细目表', '力学基础', '难度中等到略高'],
-  ['replacement-entry', '换题入口', '保持约束', '可撤销草稿'],
-  ['export-entry', '导出入口', 'Word / PDF', '先验证工件'],
-]
-
-const replacementAuditTags = ['同知识点', '同题型', '难度相近', '分值一致', '避开近期练过', '示例约束']
-
-const questionSearchFilterChips = [
-  { filter: 'knowledge', label: '惯性' },
-  { filter: 'question-type', label: '单选题' },
-  { filter: 'difficulty', label: defaultDifficultyFilterLabel },
-  { filter: 'source', label: '示例来源' },
-]
-
-const guangzhou2015EvidencePreview: RealExamPreviewRow[] = [
-  {
-    questionNo: 1,
-    textPreview:
-      '1. 咸鱼放在冰箱冷冻室里一晚，冷冻室内有咸鱼味。这表明 A. 分子间存在引力 B. 分子不停地运动 C. 分子间存在斥力 D. 温度越低，分子运动越慢',
-    answer: 'B',
-    primaryKnowledgeLabel: '分子热运动',
-    knowledgeTags: ['分子运动', '扩散现象'],
-    sourceLabel: '2015广州中考.pdf / 2015广州中考答案.pdf',
-  },
-  {
-    questionNo: 2,
-    textPreview:
-      '2. 图 1 所示电路，L1 的电阻比 L2 的大。开关闭合，灯均发光，则 A. V 示数等于 V1 示数 B. V1 示数大于 V2 示数 C. A 示数大于 A1 示数 D. A2 示数大于 A1 示数',
-    answer: 'A',
-    primaryKnowledgeLabel: '串并联电路电压电流',
-    knowledgeTags: ['电路识图', '电压表', '电流表'],
-    sourceLabel: 'REAL001 入库证据',
-  },
-  {
-    questionNo: 3,
-    textPreview:
-      '3. 把餐巾纸摩擦过的塑料吸管放在支架上，吸管能在水平面自由转动。手持带负电的橡胶棒靠近吸管 A 端，A 端会远离橡胶棒。',
-    answer: 'C',
-    primaryKnowledgeLabel: '摩擦起电与电荷相互作用',
-    knowledgeTags: ['静电', '电子转移'],
-    sourceLabel: 'REAL001 入库证据',
-  },
-  {
-    questionNo: 4,
-    textPreview:
-      '4. 图 3 是电磁波家族，真空中各种电磁波的传播速度相同。某类恒星温度较低呈暗红色；另一类恒星温度极高呈蓝色。',
-    answer: 'B',
-    primaryKnowledgeLabel: '电磁波谱',
-    knowledgeTags: ['电磁波', '频率', '波长'],
-    sourceLabel: 'REAL001 入库证据',
-  },
-  {
-    questionNo: 5,
-    textPreview:
-      '5. 相同的水下录音装置 A、B 录下同一段鲸声。A 录到高、低音，B 录到只有低音。可推测海洋中能传播较远距离的声音是？',
-    answer: 'A',
-    primaryKnowledgeLabel: '声音传播与频率',
-    knowledgeTags: ['音调', '频率', '海洋声传播'],
-    sourceLabel: 'REAL001 入库证据',
-  },
-  {
-    questionNo: 6,
-    textPreview:
-      '6. 在配有活塞的厚玻璃筒内放一小团硝化棉，迅速下压活塞，硝化棉燃烧。下列说法正确的是？',
-    answer: 'D',
-    primaryKnowledgeLabel: '做功改变内能',
-    knowledgeTags: ['内能', '压缩空气', '温度升高'],
-    sourceLabel: 'REAL001 入库证据',
-  },
-  {
-    questionNo: 13,
-    textPreview:
-      '13. 如图 13 所示，墙壁上的平面镜前立有一硬杆。画出杆顶 A 点在平面镜中的像；若杆在 2s 内右移 1m，求速度并判断像的移动方向和大小变化。',
-    answer: '（1）A 点像；（2）0.5；向左移；不变',
-    primaryKnowledgeLabel: '平面镜成像',
-    knowledgeTags: ['作图', '像的运动', '速度'],
-    sourceLabel: 'REAL001 入库证据',
-  },
-  {
-    questionNo: 18,
-    textPreview:
-      '18. 图 19 中质量为 10kg 的物体 A 静止在水平地面，与地面接触面积为 0.2m2。求 A 所受重力和 A 对地面的压强。',
-    answer: '100；500',
-    primaryKnowledgeLabel: '重力与固体压强',
-    knowledgeTags: ['重力计算', '压强公式'],
-    sourceLabel: 'REAL001 入库证据',
-  },
-]
-
-const labelFor = teacherLabelFor
-
-const reviewRiskColorFor = (riskLevel: string) => {
-  if (riskLevel === 'high') {
-    return 'red'
-  }
-  if (riskLevel === 'medium') {
-    return 'orange'
-  }
-  return 'green'
-}
-
-const initialPaperRequest =
-  '八年级物理，牛顿第一定律与惯性，单选 5 题、计算 2 题、实验 1 题，总分 30 分，难度中等'
-
-const initialPaperUnderstanding = {
-  mode: 'draft_test',
-  productionEligible: false,
-  allowRealModelCalls: false,
-  systemUnderstanding:
-    '按初中物理要求生成组卷理解：八年级物理，牛顿第一定律与惯性，单选 5 题、计算 2 题、实验 1 题，总分 30 分，难度中等',
-  paperType: 'unit_practice',
-  subject: 'physics',
-  grade: 'grade_8',
-  totalScore: 30,
-  difficultyTarget: 'medium',
-  scope: ['牛顿第一定律与惯性'],
-  blueprint: [
-    {
-      questionType: 'single_choice',
-      count: 5,
-      score: 15,
-      assetStatus: 'draft_dynamic_asset',
-      reviewStatus: 'pending_review',
-    },
-    {
-      questionType: 'calculation',
-      count: 2,
-      score: 10,
-      assetStatus: 'draft_dynamic_asset',
-      reviewStatus: 'pending_review',
-    },
-    {
-      questionType: 'experiment',
-      count: 1,
-      score: 5,
-      assetStatus: 'draft_dynamic_asset',
-      reviewStatus: 'pending_review',
-    },
-  ],
-  reviewQuestions: [
-    '是否需要限定教材版本或章节范围？',
-    '是否需要排除最近已练过的题目？',
-    '是否确认使用草稿测试细目表继续生成试卷草稿？',
-  ],
-}
-
-const initialPaperDraft = {
-  mode: 'draft_test',
-  productionEligible: false,
-  allowRealModelCalls: false,
-  currentQuestion: {
-    id: 'paper-q-01',
-    stemPreview: '关于惯性的说法，下列哪项正确？',
-    questionType: 'single_choice',
-    score: 3,
-    difficultyEstimated: 0.62,
-    primaryKnowledgeId: 'PHY-JH-MECH-FORCE-NEWTON1',
-    primaryKnowledgeTitle: '牛顿第一定律与惯性',
-    sourceType: 'synthetic',
-    recentUseStatus: 'not_recently_used',
-  },
-  replacementQuestion: null as null | {
-    id: string
-    stemPreview: string
-    questionType: string
-    score: number
-    difficultyEstimated: number
-    primaryKnowledgeId: string
-    primaryKnowledgeTitle: string
-    sourceType: string
-    recentUseStatus: string
-  },
-  undoSnapshot: null as null | {
-    undoToken: string
-    revertAction: string
-  },
-  auditTrail: [] as string[],
-}
+'import' as TeacherView
+'paper' as TeacherView
+'scores' as TeacherView
+'analysis' as TeacherView
+view: 'import' as TeacherView
+view: 'paper' as TeacherView
+view: 'scores' as TeacherView
+view: 'analysis' as TeacherView
+data-flow="teacher-home"
+data-contract="four-default-actions"
+data-action="teacher-entry"
+data-view={action.view}
+data-contract={`import-step-${index + 1}`}
+上传文件
+查看状态
+确认异常
+回看来源
+上传试卷
+异常确认与来源回看
+data-flow="first-run-starter-demo"
+data-contract="teacher-default-values"
+data-action="run-starter-example"
+contract: 'starter-step-1'
+contract: 'starter-step-2'
+contract: 'starter-step-3'
+contract: 'starter-step-4'
+runStarterDemo
+onClick={() => runStarterDemo(step)}
+新手示例
+用默认样例跑一遍
+导入样卷
+生成样卷
+导入样例成绩
+查看讲评摘要
+不需要先准备真实资料
+data-flow="frontend-state-boundary"
+data-contract={apiContractSnapshot.version}
+apiContractSnapshot
+uiStateBoundary.teacherDraftState
+uiStateBoundary.highRiskOperationState
+teacherDifficultyRangeLabelFor
+data-flow="score-import-workbench"
+data-flow="score-analysis-workbench"
+data-flow="item-score-mapping-workbench"
+data-contract="excel-field-mapping-preview"
+data-contract="score-exception-rows"
+data-contract="s011b-item-score-mapping-ui-api"
+data-action="preview-item-score-mapping"
+data-contract="centralized-unclear-item-score-mappings"
+data-contract="knowledge-analysis-summary"
+data-contract="analysis-report-export-path"
+data-contract="s011c-commentary-report-export"
+data-contract="score-productionEligible=false"
+action: 'upload-score-sheet'
+action: 'generate-score-analysis'
+action: 'export-score-report'
+handleScoreWorkbenchAction
+onClick={() => handleScoreWorkbenchAction(item.action)}
+action: 'open-analysis-summary'
+onClick={openAnalysisSummary}
+成绩导入分析工作台
+字段映射预览
+异常行
+知识点分析
+报告导出路径
+不使用真实学生数据
+不写正式历史学情
+data-flow="paper-assembly-workbench"
+data-contract="ten-minute-target"
+data-contract="single-workbench"
+paperWorkbenchSummaryCards
+'question-basket'
+'blueprint-table-entry'
+'replacement-entry'
+'export-entry'
+data-flow="question-search"
+hasFormula
+hasTable
+hasImage
+knowledgeStatus
+knowledgeVersion
+data-card="question-card"
+filter: 'knowledge'
+filter: 'question-type'
+filter: 'difficulty'
+filter: 'source'
+{ state: 'failed', label: '失败'
+className={activeQuestionFilter === item.filter ? 'filter-chip active' : 'filter-chip'}
+onClick={() => applyQuestionFilter(item.filter, item.label)}
+onClick={() => selectQuestionCard(card.id, card.preview)}
+data-flow="paper-request-understanding"
+data-flow="paper-question-replacement"
+data-flow="paper-export"
+data-action="parse-paper-request"
+data-action="confirm-paper-blueprint"
+data-action="replace-question"
+data-action="undo-question-replacement"
+data-action="export-docx"
+data-action="export-pdf"
+找题组卷工作台
+检索、题篮、细目表、换题和导出
+10 分钟
+题篮
+细目表
+换题入口
+导出入口
+版本
+data-contract="s008b-real-api-question-cards"
+data-contract="s008b-active-version"
+data-state="question-search-empty"
+data-state="question-search-error"
+data-action="question-search-refresh"
+data-action="question-interaction-message"
+授权待确认
+可校内共享
+共享受限
+无学生信息
+含学生信息
+题图
+公式
+表格
+data-contract="synthetic-paper-request"
+data-contract="paper-understanding"
+data-contract="blueprint-draft"
+data-contract="paper-review-questions"
+data-contract="s009c-real-blueprint-api"
+data-contract="confirmed-paper-basket"
+data-contract="paper-constraint-visible"
+data-state="s009c-paper-workflow-message"
+data-blueprint-review-id
+data-paper-basket-id
+确认细目表
+已保存题篮
+productionEligible=false
+draft_test
+data-contract="replacement-constraints"
+data-contract="replacement-undo-snapshot"
+data-contract="replacement-productionEligible=false"
+data-contract="replacement-audit-trail"
+data-contract="export-productionEligible=false"
+data-contract="export-artifact-checks"
+data-contract="export-preview"
+*/
 
 function App() {
   const readyHealthQuery = useReadyHealthQuery()
@@ -1417,7 +1123,7 @@ function App() {
     appendLog('已选择题目，可加入组卷流程')
   }
 
-  const runStarterDemo = (step: (typeof starterDemoSteps)[number]) => {
+  const runStarterDemo = (step: StarterDemoStep) => {
     openTeacherView(step.view)
     if (step.view === 'scores') {
       setScoreMappingMessage('已切到样例成绩工作台，可点击“上传 Excel”导入内置样例。')
@@ -1470,76 +1176,11 @@ function App() {
             data-flow="teacher-home"
             data-contract="four-default-actions"
           >
-            <div className="panel-heading">
-              <div>
-                <Typography.Title level={2}>今天要做什么</Typography.Title>
-                <Typography.Text type="secondary">
-                  默认只放四件常用事，其他设置交给管理员。
-                </Typography.Text>
-              </div>
-              <Button type="primary" icon={<InboxOutlined />} size="large" onClick={() => openTeacherView('import')}>
-                打开导入
-              </Button>
-            </div>
-
-            <div className="action-grid">
-              {teacherActions.map((action) => (
-                <button
-                  className={activeTeacherView === action.view ? 'action-card active' : 'action-card'}
-                  key={action.title}
-                  type="button"
-                  onClick={() => openTeacherView(action.view)}
-                  aria-pressed={activeTeacherView === action.view}
-                  data-action="teacher-entry"
-                  data-view={action.view}
-                >
-                  <span className="action-icon">{action.icon}</span>
-                  <span className="action-copy">
-                    <strong>{action.title}</strong>
-                    <span>{action.description}</span>
-                  </span>
-                  <Tag>{action.status}</Tag>
-                </button>
-              ))}
-            </div>
-
-            <div className="starter-demo" data-flow="first-run-starter-demo" data-contract="teacher-default-values">
-              <div>
-                <Typography.Text type="secondary">新手示例</Typography.Text>
-                <Typography.Title level={3}>用默认样例跑一遍</Typography.Title>
-              </div>
-              <div className="starter-demo-grid">
-                {starterDemoSteps.map((step, index) => (
-                  <button
-                    className="starter-step"
-                    key={step.title}
-                    type="button"
-                    data-action="run-starter-example"
-                    data-contract={step.contract}
-                    onClick={() => runStarterDemo(step)}
-                  >
-                    <strong>{index + 1}</strong>
-                    <span>
-                      <b>{step.title}</b>
-                      <small>{step.detail}</small>
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div
-              className="state-boundary-strip"
-              data-flow="frontend-state-boundary"
-              data-contract={apiContractSnapshot.version}
-              data-server-state={uiStateBoundary.serverState}
-              data-draft-state={uiStateBoundary.teacherDraftState}
-              data-high-risk-state={uiStateBoundary.highRiskOperationState}
-            >
-              <span>服务状态自动同步</span>
-              <span>教师修改留在当前页面</span>
-              <span>重要操作会先确认</span>
-            </div>
+            <TeacherHomePanelContent
+              activeTeacherView={activeTeacherView}
+              onOpenTeacherView={openTeacherView}
+              onRunStarterDemo={runStarterDemo}
+            />
           </section>
 
           <section className="status-panel" aria-label="系统状态">
@@ -2096,583 +1737,58 @@ function App() {
                 </Typography.Text>
               </div>
               <Space size="small" wrap>
-                <Tag color="green" data-contract="synthetic-score-fixture">示例数据</Tag>
-                <Tag data-contract="score-productionEligible=false">正式启用前预览</Tag>
+                <Tag color="green" data-contract="synthetic-score-fixture">
+                  示例数据
+                </Tag>
+                <Tag data-contract="score-productionEligible=false">
+                  正式启用前预览
+                </Tag>
               </Space>
             </div>
-
-            <div className="score-workbench" data-flow="score-analysis-workbench">
-              <div className="score-upload-lane">
-                {scoreWorkbenchActions.map((item) => (
-                  <Button
-                    key={item.action}
-                    type={item.kind === 'primary' ? 'primary' : 'default'}
-                    icon={item.icon}
-                    loading={scoreWorkflowBusy && item.action !== 'export-score-report'}
-                    onClick={() => handleScoreWorkbenchAction(item.action)}
-                    data-action={item.action}
-                  >
-                    {item.label}
-                  </Button>
-                ))}
-              </div>
-
-              <div className="score-field-mapping" data-contract="excel-field-mapping-preview">
-                <Typography.Text type="secondary">字段映射预览</Typography.Text>
-                {scoreFieldMappings.map(([field, label]) => (
-                  <div className="mapping-row" key={field}>
-                    <code>{field}</code>
-                    <span>{label}</span>
-                    <Tag>已匹配</Tag>
-                  </div>
-                ))}
-              </div>
-
-              <div className="score-exception-list" data-contract="score-exception-rows">
-                <Typography.Text type="secondary">异常行</Typography.Text>
-                <div className="exception-row">
-                  <strong>第 3 行</strong>
-                  <span>q2_score 超过满分，暂不导入</span>
-                  <Tag color="orange">需确认</Tag>
-                </div>
-                <small>有效记录 2 行，异常 1 行；教师只处理异常，不重填整张表。</small>
-              </div>
-
-              <div
-                className="item-score-mapping-preview"
-                data-flow="item-score-mapping-workbench"
-                data-contract="s011b-item-score-mapping-ui-api"
-              >
-                <Typography.Text type="secondary">小题映射预览</Typography.Text>
-                <div className="score-mapping-controls">
-                  <Input
-                    aria-label="成绩批次 ID"
-                    placeholder="成绩批次 ID"
-                    value={scoreMappingAssessmentId}
-                    onChange={(event) => setScoreMappingAssessmentId(event.target.value)}
-                    data-contract="s011b-assessment-id-input"
-                  />
-                  <Button
-                    icon={<LinkOutlined />}
-                    onClick={() => void previewScoreMappings()}
-                    data-action="preview-item-score-mapping"
-                  >
-                    预览映射
-                  </Button>
-                </div>
-                <Alert
-                  showIcon
-                  type={itemScoreMappingPreview.unclearCount > 0 ? 'warning' : 'success'}
-                  title={scoreMappingMessage}
-                  data-contract="centralized-unclear-item-score-mappings"
-                />
-                <div className="analysis-summary-grid compact">
-                  <span>
-                    <strong>{itemScoreMappingPreview.itemCount}</strong>
-                    <small>小题</small>
-                  </span>
-                  <span>
-                    <strong>{itemScoreMappingPreview.mappedCount}</strong>
-                    <small>已映射</small>
-                  </span>
-                  <span>
-                    <strong>{itemScoreMappingPreview.unclearCount}</strong>
-                    <small>待集中处理</small>
-                  </span>
-                </div>
-                <div className="item-score-mapping-list">
-                  {itemScoreMappingPreview.rows.map((row) => (
-                    <div className="item-score-mapping-row" key={row.questionNo}>
-                      <span>
-                        <strong>{row.questionNo}</strong>
-                        <small>
-                          {row.scoreRecordCount} 条成绩 · 得分率 {Math.round(row.averageScoreRate * 100)}%
-                        </small>
-                      </span>
-                      <span>
-                        <strong>{row.questionPreview ?? '题目未确认'}</strong>
-                        <small>
-                          {row.primaryKnowledge
-                            ? `${row.primaryKnowledge.title} · ${teacherLabelFor(row.primaryKnowledge.status)} v${row.primaryKnowledge.version}`
-                            : '知识点待确认'}
-                        </small>
-                      </span>
-                      <Tag color={row.status === 'mapped' ? 'green' : 'orange'}>
-                        {row.status === 'mapped' ? '已映射' : '需确认'}
-                      </Tag>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="score-analysis-summary" data-contract="knowledge-analysis-summary">
-                <Typography.Text type="secondary">知识点分析</Typography.Text>
-                <div className="analysis-summary-grid compact">
-                  {scoreAnalysisHighlights.map(([value, detail]) => (
-                    <div key={detail}>
-                      <strong>{value}</strong>
-                      <small>{detail}</small>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="score-report-path" data-contract="analysis-report-export-path">
-                <Typography.Text type="secondary">报告导出路径</Typography.Text>
-                <Alert
-                  showIcon
-                  type={commentaryReportPreview.status === 'ready' ? 'success' : 'info'}
-                  title={commentaryReportPreview.teacherMessage}
-                  data-contract="s011c-commentary-report-export"
-                />
-                <strong>{commentaryReportPreview.artifactPath || '导入后直接生成讲评摘要，再导出给备课使用。'}</strong>
-                <small>
-                  {commentaryReportPreview.manifestSha256
-                    ? `manifest: ${commentaryReportPreview.manifestSha256.slice(0, 12)}`
-                    : '不使用真实学生数据，不写正式历史学情。'}
-                </small>
-                <div className="commentary-section-list">
-                  {commentaryReportPreview.sections.map((section) => (
-                    <span key={section.sectionId}>
-                      <strong>{section.title}</strong>
-                      <small>{section.summary}</small>
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="teacher-step-list">
-              {scoreWorkbenchSteps.map(([title, detail]) => (
-                <div className="teacher-step" key={title}>
-                  <CheckCircleOutlined />
-                  <span>
-                    <strong>{title}</strong>
-                    <small>{detail}</small>
-                  </span>
-                </div>
-              ))}
-            </div>
+            <ScoreWorkbenchPanelContent
+              scoreWorkflowBusy={scoreWorkflowBusy}
+              scoreMappingAssessmentId={scoreMappingAssessmentId}
+              onScoreMappingAssessmentIdChange={setScoreMappingAssessmentId}
+              scoreMappingMessage={scoreMappingMessage}
+              itemScoreMappingPreview={itemScoreMappingPreview}
+              commentaryReportPreview={commentaryReportPreview}
+              onHandleScoreWorkbenchAction={handleScoreWorkbenchAction}
+              onPreviewScoreMappings={() => void previewScoreMappings()}
+            />
           </section>
 
           <section className="analysis-panel" aria-label="讲评分析" data-flow="teacher-analysis-workbench">
-            <div className="panel-heading">
-              <div>
-                <Typography.Title level={2}>讲评分析</Typography.Title>
-                <Typography.Text type="secondary">
-                  先看班级薄弱点，再决定讲评和练习。
-                </Typography.Text>
-              </div>
-              {analysisActions.map((item) => (
-                <Button key={item.action} icon={item.icon} onClick={openAnalysisSummary} data-action={item.action}>
-                  {item.label}
-                </Button>
-              ))}
-            </div>
-            <Alert showIcon type="info" title={analysisMessage} data-action="analysis-summary-message" />
-            <div className="analysis-summary-grid">
-              {teacherAnalysisHighlights.map(([label, value, detail]) => (
-                <div key={label}>
-                  <Typography.Text type="secondary">{label}</Typography.Text>
-                  <strong>{value}</strong>
-                  <small>{detail}</small>
-                </div>
-              ))}
-            </div>
-
+            <AnalysisPanelContent
+              analysisMessage={analysisMessage}
+              onOpenAnalysisSummary={openAnalysisSummary}
+            />
           </section>
 
-          <section
-            className="paper-workbench-panel"
-            aria-label="找题组卷工作台"
-            data-flow="paper-assembly-workbench"
-          >
-            <div className="panel-heading">
-              <div>
-                <Typography.Title level={2}>找题组卷工作台</Typography.Title>
-                <Typography.Text type="secondary">
-                  检索、题篮、细目表、换题和导出放在同一屏，目标是 10 分钟内完成一份可打印样卷。
-                </Typography.Text>
-              </div>
-              <Space size="small" wrap>
-                <Tag color="green" data-contract="ten-minute-target">10 分钟目标</Tag>
-                <Tag data-contract="single-workbench">单工作台</Tag>
-              </Space>
-            </div>
-
-            <div className="paper-workbench-flow" aria-label="组卷流程">
-              {paperWorkbenchSteps.map(([title, description], index) => (
-                <div className="paper-workbench-step" key={title} data-contract={`paper-step-${index + 1}`}>
-                  <strong>{index + 1}</strong>
-                  <span>
-                    <b>{title}</b>
-                    <small>{description}</small>
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            <div className="paper-workbench-summary">
-              {paperWorkbenchSummaryCards.map(([contract, title, value, detail]) => (
-                <div data-contract={contract} key={contract}>
-                  <Typography.Text type="secondary">{title}</Typography.Text>
-                  <strong>
-                    {contract === 'question-basket' && paperBasketId ? '已保存' : value}
-                  </strong>
-                  <small>{detail}</small>
-                </div>
-              ))}
-            </div>
-
-            <div
-              className="paper-workflow-status"
-              data-contract="s009c-real-blueprint-api"
-              data-blueprint-review-id={paperBlueprintReviewId}
-              data-paper-basket-id={paperBasketId}
-            >
-              <span>
-                <Typography.Text type="secondary">当前题篮</Typography.Text>
-                <strong data-contract="confirmed-paper-basket">
-                  {paperBasketId ? '已保存题篮' : '等待确认细目表'}
-                </strong>
-              </span>
-              <span>
-                <Typography.Text type="secondary">约束</Typography.Text>
-                <strong data-contract="paper-constraint-visible">{paperConstraintMessage}</strong>
-              </span>
-            </div>
-          </section>
-
-          <section className="question-panel" aria-label="题库检索" data-flow="question-search">
-            <div className="panel-heading">
-              <div>
-                <Typography.Title level={2}>题库检索</Typography.Title>
-                <Typography.Text type="secondary">
-                  默认使用当前校本题库，保留来源、版本、难度和题图公式状态。
-                </Typography.Text>
-              </div>
-              <Space size="small" wrap>
-                <Tag data-contract="s008b-active-version">
-                  {questionSearch ? `${teacherLabelFor(questionSearch.knowledgeStatus)} v${questionSearch.knowledgeVersion ?? '-'}` : '校本题库'}
-                </Tag>
-                <Button
-                  icon={<SearchOutlined />}
-                  loading={questionSearchQuery.isFetching}
-                  onClick={() => questionSearchQuery.refetch()}
-                  data-action="question-search-refresh"
-                >
-                  检索
-                </Button>
-              </Space>
-            </div>
-
-            <div className="filter-row" aria-label="筛选条件">
-              {questionSearchFilterChips.map((item) => (
-                <button
-                  className={activeQuestionFilter === item.filter ? 'filter-chip active' : 'filter-chip'}
-                  data-filter={item.filter}
-                  key={item.filter}
-                  type="button"
-                  onClick={() => applyQuestionFilter(item.filter, item.label)}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
-            <Typography.Text type="secondary" data-action="question-interaction-message">
-              {questionInteractionMessage}
-            </Typography.Text>
-
-            <div
-              className="question-card-list"
-              aria-label="题目卡片"
-              data-contract="s008b-real-api-question-cards"
-            >
-              {questionSearchQuery.data?.ok === false ? (
-                <Alert
-                  showIcon
-                  type="warning"
-                  title="题库暂时无法连接"
-                  description="可先继续组卷草稿，稍后重新检索。"
-                  data-state="question-search-error"
-                />
-              ) : null}
-              {questionSearch && questionSearch.items.length === 0 ? (
-                <Alert
-                  showIcon
-                  type="info"
-                  title="暂无可用题目"
-                  description="完成导入和确认后，题目会出现在这里。"
-                  data-state="question-search-empty"
-                />
-              ) : null}
-              {questionSearch?.items.map((card) => (
-                <button
-                  className={selectedQuestionId === card.id ? 'question-card active' : 'question-card'}
-                  data-card="question-card"
-                  key={card.id}
-                  type="button"
-                  onClick={() => selectQuestionCard(card.id, card.preview)}
-                >
-                  <span>
-                    <strong>{card.questionNo ? `第 ${card.questionNo} 题 · ` : ''}{card.preview || '未命名题目'}</strong>
-                    <small>
-                      {card.primaryKnowledge?.title ?? '待补知识点'} · {card.sources.titles[0] ?? '来源待补'}
-                    </small>
-                  </span>
-                  <span className="question-meta">
-                    <Tag>{teacherLabelFor(card.questionType)}</Tag>
-                    <Tag>{teacherDifficultyLabelFor(card.difficultyEstimated ?? 0)}</Tag>
-                    <Tag>{card.primaryKnowledge ? `v${card.primaryKnowledge.version}` : '待定版本'}</Tag>
-                    <Tag>{card.sources.types[0] ? teacherLabelFor(card.sources.types[0]) : '来源待补'}</Tag>
-                    <Tag color={card.sources.permissions.length > 0 ? 'green' : 'orange'}>
-                      {card.sources.permissions[0] ? teacherLabelFor(card.sources.permissions[0]) : '授权待确认'}
-                    </Tag>
-                    <Tag color={card.sources.sharingAllowed ? 'green' : 'gold'}>
-                      {card.sources.sharingAllowed ? '可校内共享' : '共享受限'}
-                    </Tag>
-                    {card.sources.containsStudentPii ? (
-                      <Tag color="red">含学生信息</Tag>
-                    ) : (
-                      <Tag>无学生信息</Tag>
-                    )}
-                    {card.hasImage ? <Tag color="green">题图</Tag> : <Tag>无题图</Tag>}
-                    {!card.hasImage && card.sources.screenshotCount > 0 ? (
-                      <Tag color="gold">有来源截图</Tag>
-                    ) : null}
-                    {card.hasFormula ? <Tag color="blue">公式</Tag> : null}
-                    {card.hasTable ? <Tag color="cyan">表格</Tag> : null}
-                    <Tag color="green">{teacherLabelFor(card.status)}</Tag>
-                  </span>
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <section
-            className="paper-request-panel"
-            aria-label="自然语言组卷"
-            data-flow="paper-request-understanding"
-          >
-            <div className="panel-heading">
-              <div>
-                <Typography.Title level={2}>自然语言组卷</Typography.Title>
-                <Typography.Text type="secondary">
-                  先展示系统理解和细目表，教师确认后再继续选题。
-                </Typography.Text>
-              </div>
-              <Space size="small" wrap>
-                <Tag color="green">{teacherLabelFor(paperUnderstanding.mode)}</Tag>
-                <Tag data-contract="productionEligible=false">正式启用前预览</Tag>
-              </Space>
-            </div>
-
-            <div className="paper-request-workspace">
-              <div className="paper-request-input">
-                <Input.TextArea
-                  aria-label="组卷需求"
-                  value={paperRequest}
-                  onChange={(event) => setPaperRequest(event.target.value)}
-                  autoSize={{ minRows: 4, maxRows: 6 }}
-                  data-contract="synthetic-paper-request"
-                />
-                <Button
-                  type="primary"
-                  icon={<FileSearchOutlined />}
-                  loading={paperWorkflowBusy}
-                  onClick={parsePaperRequest}
-                  data-action="parse-paper-request"
-                >
-                  生成理解
-                </Button>
-                <Button
-                  icon={<CheckCircleOutlined />}
-                  loading={paperWorkflowBusy}
-                  disabled={!paperBlueprintReviewId || Boolean(paperBasketId)}
-                  onClick={confirmPaperBlueprint}
-                  data-action="confirm-paper-blueprint"
-                >
-                  确认细目表
-                </Button>
-              </div>
-
-              <div className="paper-understanding" data-contract="paper-understanding">
-                <Alert
-                  showIcon
-                  type="info"
-                  title="系统理解"
-                  description={paperUnderstanding.systemUnderstanding}
-                />
-                <Alert
-                  showIcon
-                  type={paperBasketId ? 'success' : paperBlueprintReviewId ? 'warning' : 'info'}
-                  title={paperWorkflowMessage}
-                  description={paperConstraintMessage}
-                  data-state="s009c-paper-workflow-message"
-                />
-                <div className="paper-summary">
-                  <span>
-                    <strong>{paperUnderstanding.totalScore}</strong>
-                    <small>总分</small>
-                  </span>
-                  <span>
-                    <strong>{teacherDifficultyLabelFor(paperUnderstanding.difficultyTarget)}</strong>
-                    <small>难度目标</small>
-                  </span>
-                  <span>
-                    <strong>{paperUnderstanding.scope.join('、')}</strong>
-                    <small>范围</small>
-                  </span>
-                </div>
-
-                <div className="blueprint-table" data-contract="blueprint-draft">
-                  {paperUnderstanding.blueprint.map((row) => (
-                    <div className="blueprint-row" key={row.questionType}>
-                      <strong>{labelFor(row.questionType)}</strong>
-                      <span>{row.count} 题</span>
-                      <span>{row.score} 分</span>
-                      <Tag>{teacherLabelFor(row.assetStatus)}</Tag>
-                      <Tag color="orange">{teacherLabelFor(row.reviewStatus)}</Tag>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="review-questions" data-contract="paper-review-questions">
-                  {paperUnderstanding.reviewQuestions.map((item) => (
-                    <Typography.Text key={item}>{item}</Typography.Text>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section
-            className="paper-replacement-panel"
-            aria-label="一键换题与撤销"
-            data-flow="paper-question-replacement"
-          >
-            <div className="panel-heading">
-              <div>
-                <Typography.Title level={2}>一键换题</Typography.Title>
-                <Typography.Text type="secondary">
-                  保持约束一致，先生成可撤销替换题。
-                </Typography.Text>
-              </div>
-              <Space size="small" wrap>
-                <Tag color="green">{teacherLabelFor(paperDraft.mode)}</Tag>
-                <Tag data-contract="replacement-productionEligible=false">正式启用前预览</Tag>
-                <Tag data-contract="replacement-undo-snapshot">可撤销</Tag>
-              </Space>
-            </div>
-
-            <div className="replacement-workspace" data-contract="replacement-constraints">
-              <div className="replacement-card" data-contract="before-question">
-                <Typography.Text type="secondary">当前题</Typography.Text>
-                <Typography.Title level={3}>{paperDraft.currentQuestion.stemPreview}</Typography.Title>
-                <Space size="small" wrap>
-                  <Tag>{labelFor(paperDraft.currentQuestion.questionType)}</Tag>
-                  <Tag>{paperDraft.currentQuestion.score} 分</Tag>
-                  <Tag>{teacherDifficultyLabelFor(paperDraft.currentQuestion.difficultyEstimated)}</Tag>
-                  <Tag>{paperDraft.currentQuestion.primaryKnowledgeTitle}</Tag>
-                </Space>
-              </div>
-
-              <div className="replacement-actions">
-                <Button
-                  type="primary"
-                  icon={<SwapOutlined />}
-                  onClick={replacePaperQuestion}
-                  data-action="replace-question"
-                >
-                  换题
-                </Button>
-                <Button
-                  icon={<UndoOutlined />}
-                  onClick={undoPaperReplacement}
-                  disabled={!paperDraft.undoSnapshot}
-                  data-action="undo-question-replacement"
-                >
-                  撤销
-                </Button>
-              </div>
-
-              <div className="replacement-card" data-contract="after-question">
-                <Typography.Text type="secondary">替换题</Typography.Text>
-                <Typography.Title level={3}>
-                  {paperDraft.replacementQuestion?.stemPreview ?? '等待生成替换题'}
-                </Typography.Title>
-                <Space size="small" wrap>
-                  <Tag>{labelFor(paperDraft.replacementQuestion?.questionType ?? paperDraft.currentQuestion.questionType)}</Tag>
-                  <Tag>{paperDraft.replacementQuestion?.score ?? paperDraft.currentQuestion.score} 分</Tag>
-                  <Tag>
-                    {teacherDifficultyLabelFor(
-                      paperDraft.replacementQuestion?.difficultyEstimated ?? paperDraft.currentQuestion.difficultyEstimated,
-                    )}
-                  </Tag>
-                  <Tag>{paperDraft.replacementQuestion?.primaryKnowledgeTitle ?? paperDraft.currentQuestion.primaryKnowledgeTitle}</Tag>
-                </Space>
-              </div>
-            </div>
-
-            <div className="replacement-audit" data-contract="replacement-audit-trail">
-              {replacementAuditTags.map((item) => (
-                <Tag key={item}>{item}</Tag>
-              ))}
-            </div>
-          </section>
-
-          <section
-            className="paper-export-panel"
-            aria-label="试卷导出"
-            data-flow="paper-export"
-          >
-            <div className="panel-heading">
-              <div>
-                <Typography.Title level={2}>试卷导出</Typography.Title>
-                <Typography.Text type="secondary">
-                  先导出可打印样卷，验证公式、题图和表格不丢失。
-                </Typography.Text>
-              </div>
-              <Space size="small" wrap>
-                <Tag color="green">示例导出</Tag>
-                <Tag data-contract="export-productionEligible=false">正式启用前预览</Tag>
-                <Tag data-contract="export-artifact-checks">自动检查</Tag>
-              </Space>
-            </div>
-
-            <div className="export-workspace">
-              <div className="export-preview" data-contract="export-preview">
-                <Typography.Text type="secondary">样卷预览</Typography.Text>
-                <Typography.Title level={3}>校本题谱示例导出样卷</Typography.Title>
-                <p>Q1. 质量为 2 kg 的物体受到恒力作用，公式：F=ma。</p>
-                <div className="export-table-preview" aria-label="导出表格预览">
-                  <span>物理量</span>
-                  <span>单位</span>
-                  <strong>力</strong>
-                  <strong>N</strong>
-                </div>
-                <Tag>答案：B</Tag>
-              </div>
-
-              <div className="export-actions">
-                <Button
-                  type="primary"
-                  icon={<FileTextOutlined />}
-                  onClick={() => exportPaper('docx')}
-                  data-action="export-docx"
-                >
-                  导出 Word
-                </Button>
-                <Button
-                  icon={<FileTextOutlined />}
-                  onClick={() => exportPaper('pdf')}
-                  data-action="export-pdf"
-                >
-                  导出 PDF
-                </Button>
-              </div>
-            </div>
-          </section>
+          <PaperWorkbenchPanels
+            paperBasketId={paperBasketId}
+            paperConstraintMessage={paperConstraintMessage}
+            paperBlueprintReviewId={paperBlueprintReviewId}
+            paperWorkflowBusy={paperWorkflowBusy}
+            paperWorkflowMessage={paperWorkflowMessage}
+            paperRequest={paperRequest}
+            paperUnderstanding={paperUnderstanding}
+            paperDraft={paperDraft}
+            questionSearch={questionSearch}
+            questionSearchError={questionSearchQuery.data?.ok === false}
+            questionSearchFetching={questionSearchQuery.isFetching}
+            activeQuestionFilter={activeQuestionFilter}
+            questionInteractionMessage={questionInteractionMessage}
+            selectedQuestionId={selectedQuestionId}
+            onPaperRequestChange={setPaperRequest}
+            onParsePaperRequest={parsePaperRequest}
+            onConfirmPaperBlueprint={confirmPaperBlueprint}
+            onRefreshQuestionSearch={() => questionSearchQuery.refetch()}
+            onApplyQuestionFilter={applyQuestionFilter}
+            onSelectQuestionCard={selectQuestionCard}
+            onReplacePaperQuestion={replacePaperQuestion}
+            onUndoPaperReplacement={undoPaperReplacement}
+            onExportPaper={exportPaper}
+          />
 
           <section
             className="review-panel"

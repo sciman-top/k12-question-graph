@@ -139,6 +139,24 @@ D:\KQG_Backups\
 - 后台执行统一进入 PostgreSQL job store 和 BackgroundService；内存队列只做进程内加速，不作为事实源。
 - 工具执行必须经过 adapter launcher/profile，记录版本、命令、输入输出 hash、耗时、stderr/stdout 摘要和失败原因。
 
+2026-06-07 当前已落地的前端/API 归宿盘点：
+
+| 归宿 | 当前职责 | 边界说明 |
+|---|---|---|
+| `apps/web/src/App.tsx` | TanStack Query、组件局部状态、教师动作编排、section 组装 | 不再内联大段静态配置、数学渲染 helper、组卷/成绩/首页大块展示 JSX |
+| `apps/web/src/ui/workbenchData.tsx` | 教师首页配置、组卷/成绩静态文案、数学渲染和来源图片 helper | 只放前端展示用数据和纯函数，不发起 API 调用 |
+| `apps/web/src/ui/TeacherHomePanelContent.tsx` | 四入口卡片、新手示例、前端状态边界提示 | 只消费 `App.tsx` 传入的视图切换动作 |
+| `apps/web/src/ui/ScoreWorkbenchPanelContent.tsx` | 成绩导入、字段映射、小题映射、报告导出展示 | 只消费 typed client/query 已归一化的数据 |
+| `apps/web/src/ui/AnalysisPanelContent.tsx` | 讲评摘要展示 | 不承载管理员治理面板 |
+| `apps/web/src/ui/PaperWorkbenchPanels.tsx` | 题库检索、自然语言组卷、换题、导出四段纸面工作台 | 只组织视图状态和按钮回调，业务约束仍由 API/service 决定 |
+| `apps/api/Program.cs` | host、配置、DI、middleware、route registration、health/readiness | 继续保持 Windows Service host 和 workflow service 注入，不回灌页面级业务规则 |
+| `apps/api/Application/Workflows/*.cs` | 导入、组卷、成绩应用服务编排 | 仍是业务编排归宿；遗留 direct-DB endpoint 债务继续由 `NS104/NS1301` guard 跟踪 |
+
+当前仍显式保留的下一步债务：
+
+- `App.tsx` 中导入/人工确认/真卷复核两块仍然偏重，但已经不再承载首页、成绩和组卷大段静态配置。
+- `Program.cs` 中 review/import 历史 endpoint 的 direct-DB 写链路仍需后续继续向 service 收口，不能因为前端拆分而宣称后端已完全变薄。
+
 ### 5.4 硬件 Profile 到配置生成
 
 安装器和服务端控制面板必须把本地电脑差异产品化，而不是把开发机配置当默认事实：

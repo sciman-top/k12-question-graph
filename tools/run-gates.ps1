@@ -267,6 +267,10 @@ try {
         .\tools\run-ns105-teacher-route-client-boundary.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'ns1301 architecture slimming guard' {
+        .\tools\run-ns1301-architecture-slimming-guard.ps1 | Write-Host
+    }
+
     Invoke-GateStep 'ns106 feature profile guard' {
         .\tools\run-ns106-feature-profile-guard.ps1 | Write-Host
     }

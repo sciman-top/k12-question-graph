@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "task": "PQR preflight dashboard",
-  "checkedDate": "2026-05-31",
+  "checkedDate": "2026-06-07",
   "report": "docs/evidence/20260505-pqr-preflight-dashboard.json",
   "markdown": "docs/evidence/20260505-pqr-preflight-dashboard.md",
   "totals": {
@@ -26,7 +26,7 @@
       {
         "id": "P001",
         "status": "待办",
-        "depends_on": "S012;O004B;O006;O007;O008;REAL012"
+        "depends_on": "S012;O004B;O006;O007;O008;REAL012;NS1308"
       },
       {
         "id": "P002",

@@ -1,0 +1,101 @@
+{
+  "status": "pass",
+  "taskId": "NS1201",
+  "checkedAt": "2026-06-07T03:12:08",
+  "mode": "search_semantic_retrieval_admission_boundary",
+  "productionEligible": false,
+  "nonSiteValidated": false,
+  "releaseReady": false,
+  "externalAiCalls": 0,
+  "realStudentDataUsed": false,
+  "containsStudentPii": false,
+  "writesProductionHistory": false,
+  "activeAssetMutation": false,
+  "dependency": {
+    "ns1005": "tasks/non-site-implementation-plan.csv",
+    "r001Report": "docs/evidence/20260522-r001-search-semantic-retrieval-admission-report.json",
+    "r001Decision": "docs/decisions/ADR-010-search-semantic-retrieval-admission.md",
+    "r001Checklist": "docs/templates/r001-search-semantic-retrieval-eval-checklist.md",
+    "r001PreflightEvidence": "docs/evidence/20260505-r001-search-semantic-retrieval-eval-preflight.md",
+    "completionDashboard": "tasks/completion-state-dashboard.csv",
+    "hostCapability": "docs/evidence/o002-host-capability-diagnostic-report.json"
+  },
+  "backlog": {
+    "p006Status": "待办",
+    "r001Status": "待办",
+    "r001CloseTaskAllowed": false,
+    "ns1005Status": "blocked_by_onsite",
+    "ns1201StatusAtCheck": "runtime_verified",
+    "ns1201DependsOn": "NS1005"
+  },
+  "currentBaseline": {
+    "searchProfile": "postgresql_fts_pg_trgm_first_pgvector_only_after_eval",
+    "activeKnowledgeStatus": "active",
+    "activeKnowledgeVersion": 1,
+    "filtersUseActiveAssetsByDefault": true,
+    "candidateAssetsExcludedByDefault": true,
+    "real012SearchTotal": 3,
+    "real005ClosureStatus": "not_closed"
+  },
+  "admissionDecision": {
+    "postgresqlFtsPgTrgm": "current_default",
+    "pgvectorSemanticSearch": "blocked_until_benchmark",
+    "externalSearchEngine": "blocked",
+    "currentDecision": "keep_R001_todo_postgresql_first_fail_closed"
+  },
+  "codeScan": {
+    "searchedRoots": [
+      "apps/api",
+      "apps/web/src"
+    ],
+    "blockedPatterns": [
+      "pgvector",
+      "CREATE EXTENSION vector",
+      "embedding",
+      "semantic",
+      "ElasticSearch",
+      "OpenSearch",
+      "Meilisearch",
+      "Typesense"
+    ],
+    "hitCount": 0,
+    "noPgvectorMigration": true,
+    "noEmbeddingTableOrRoute": true,
+    "noExternalSearchDependency": true,
+    "noTeacherVisibleSemanticRoute": true
+  },
+  "acceptance": {
+    "r001AdmissionReportPassed": true,
+    "adr010FailClosedAccepted": true,
+    "postgresqlFtsPgTrgmKeptAsDefault": true,
+    "pgvectorBlockedUntilBenchmark": true,
+    "externalSearchBlocked": true,
+    "p006RemainsTodo": true,
+    "ns1005RemainsBlockedByOnsite": true,
+    "r001RemainsTodo": true,
+    "noPgvectorMigration": true,
+    "noEmbeddingGeneration": true,
+    "noExternalSearchSetup": true,
+    "noQueryRouteMutation": true,
+    "noProductionWrite": true
+  },
+  "nextRequiredEvidence": [
+    "P006 release decision record",
+    "field teacher-query benchmark",
+    "FTS miss-case corpus",
+    "latency p50/p95 baseline",
+    "teacher search-time improvement target",
+    "pgvector extension and embedding privacy/cost/cache/delete plan",
+    "index rebuild and rollback/disable switch evidence"
+  ],
+  "verification": {
+    "build": "gate_na: admission boundary script only; no product code build required",
+    "test": "tools/run-r001-search-semantic-retrieval-eval-preflight-contract.ps1 + tools/run-ns1201-search-eval.ps1",
+    "contractInvariant": "NS1201 keeps PostgreSQL FTS/pg_trgm first, leaves R001/P006/NS1005 blocked, and verifies no pgvector/embedding/external-search product route was enabled",
+    "hotspot": "gate_na: real search benchmark requires post-NS1005 release/field evidence and teacher query corpus"
+  },
+  "teacherEfficiencyBoundary": "ordinary teacher search flow is unchanged; NS1201 only prevents premature semantic-search infrastructure until real FTS insufficiency evidence exists",
+  "boundary": "NS1201 verifies the search/semantic retrieval upgrade admission boundary only. It does not run a field benchmark, does not close R001, does not enable pgvector, does not generate embeddings, does not configure an external search engine, and does not change teacher-facing search routes.",
+  "rollback": "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1 tools/README.md; git clean -f -- tools/run-ns1201-search-eval.ps1 docs/evidence/20260607-ns1201-search-eval.json",
+  "next": "NS1202 can continue queue/worker scale admission boundary; real search upgrade remains blocked until P006/NS1005 and benchmark evidence exist."
+}

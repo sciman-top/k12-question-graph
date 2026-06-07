@@ -2,15 +2,18 @@ $ErrorActionPreference = 'Stop'
 
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 $appPath = Join-Path $repoRoot 'apps\web\src\App.tsx'
+$paperPanelsPath = Join-Path $repoRoot 'apps\web\src\ui\PaperWorkbenchPanels.tsx'
 $cssPath = Join-Path $repoRoot 'apps\web\src\App.css'
 $teacherLabelsPath = Join-Path $repoRoot 'apps\web\src\ui\teacherLabels.ts'
 $adminPanelsPath = Join-Path $repoRoot 'apps\web\src\ui\AdminGovernancePanels.tsx'
 
 $app = Get-Content -LiteralPath $appPath -Raw
+$paperPanels = Get-Content -LiteralPath $paperPanelsPath -Raw
 $css = Get-Content -LiteralPath $cssPath -Raw
 $teacherLabels = Get-Content -LiteralPath $teacherLabelsPath -Raw
 $adminPanels = Get-Content -LiteralPath $adminPanelsPath -Raw
 $uiSource = $app + "`n" + $adminPanels
+$teacherSectionSource = $app + "`n" + $paperPanels
 
 $mainMatch = [regex]::Match($app, '<main\s+className=\{`workspace teacher-view-\$\{activeTeacherView\}`\}[\s\S]*?</main>')
 if (-not $mainMatch.Success) {
@@ -20,7 +23,7 @@ $teacherWorkspace = $mainMatch.Value
 
 function Get-SectionByClass([string] $ClassName) {
     $pattern = '<section\s+className="' + [regex]::Escape($ClassName) + '"[\s\S]*?</section>'
-    $match = [regex]::Match($app, $pattern)
+    $match = [regex]::Match($teacherSectionSource, $pattern)
     if (-not $match.Success) {
         throw "missing teacher section: $ClassName"
     }

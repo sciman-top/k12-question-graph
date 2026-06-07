@@ -1,0 +1,37 @@
+{
+  "status": "pass",
+  "taskId": "NS1301",
+  "checkedAt": "2026-06-07T02:49:10",
+  "mode": "static_architecture_inventory_and_app_slimming_guard",
+  "productionEligible": false,
+  "app": {
+    "path": "apps/web/src/App.tsx",
+    "lineCount": 1916,
+    "extractedComponents": [
+      "TeacherHomePanelContent",
+      "ScoreWorkbenchPanelContent",
+      "AnalysisPanelContent",
+      "PaperWorkbenchPanels"
+    ],
+    "extractedDataModule": "apps/web/src/ui/workbenchData.tsx"
+  },
+  "api": {
+    "program": "apps/api/Program.cs",
+    "windowsServiceHost": true,
+    "workflowServiceRegistrations": [
+      "IImportReviewWorkflowService",
+      "IPaperWorkflowService",
+      "IScoreAnalysisWorkflowService"
+    ]
+  },
+  "architectureDoc": "docs/03_Architecture.md",
+  "acceptance": {
+    "appOwnsStateNotLargeInlineConfig": true,
+    "teacherHomeScorePaperViewsExtracted": true,
+    "architectureInventoryPresent": true,
+    "windowsServiceAndWorkflowOwnershipVisible": true
+  },
+  "boundary": "NS1301 guards the repo-level structure split and inventory. It does not claim every import/review endpoint or every App.tsx panel is fully minimal; remaining import/review density and NS104 legacy direct-DB debt stay explicit.",
+  "next": "Continue trimming import/review UI density and migrate remaining review/import direct-DB endpoints toward workflow services before NS1302 Windows Service control panel productization.",
+  "rollback": "git restore apps/web/src/App.tsx apps/web/src/ui docs/03_Architecture.md tools/run-gates.ps1; git clean -f -- tools/run-ns1301-architecture-slimming-guard.ps1 docs/evidence/20260607-ns1301-architecture-slimming.json"
+}

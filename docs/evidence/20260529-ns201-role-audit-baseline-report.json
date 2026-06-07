@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS201",
-  "checkedAt": "2026-05-31T14:24:37",
+  "checkedAt": "2026-06-07T02:49:57",
   "mode": "api_smoke_plus_static_role_audit_guard",
   "productionEligible": false,
   "contracts": {

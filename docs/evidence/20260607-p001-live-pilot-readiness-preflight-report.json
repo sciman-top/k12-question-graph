@@ -1,0 +1,129 @@
+{
+  "status": "pass",
+  "taskId": "P001",
+  "mode": "preflight_only",
+  "p001Status": "待办",
+  "dependencies": [
+    "S012",
+    "O004B",
+    "O006",
+    "O007",
+    "O008",
+    "REAL012",
+    "NS1308"
+  ],
+  "prerequisites": {
+    "S012": "已完成",
+    "O004B": "已完成",
+    "O006": "已完成",
+    "O007": "已完成",
+    "O008": "已完成",
+    "REAL012": "已完成"
+  },
+  "realEvidence": {
+    "REAL001": {
+      "path": "docs/evidence/20260512-guangzhou-2015-real-ingest-slice-report.json",
+      "status": "pass"
+    },
+    "REAL002": {
+      "path": "docs/evidence/20260512-guangzhou-2015-visual-region-slice-report.json",
+      "status": "pass"
+    },
+    "REAL003": {
+      "path": "docs/evidence/20260514-real003-guangzhou-physics-year-batch-ingest-report.json",
+      "status": "dry_run_pass"
+    },
+    "REAL004": {
+      "path": "docs/evidence/20260512-real004-guangzhou-2015-review-smoke-report.json",
+      "status": "pass"
+    },
+    "REAL005": {
+      "path": "docs/evidence/20260512-real005-guangzhou-2015-2025-closure-standard-report.json",
+      "status": "pass"
+    },
+    "REAL006": {
+      "path": "docs/evidence/20260512-real004-guangzhou-2015-review-smoke-report.json",
+      "status": "pass"
+    },
+    "REAL007": {
+      "path": "docs/evidence/20260516-real007-guangzhou-2015-layout-quality-report.json",
+      "status": "pass"
+    },
+    "REAL008": {
+      "path": "docs/evidence/20260518-real008-question-asset-smoke-report.json",
+      "status": "pass"
+    },
+    "REAL009": {
+      "path": "docs/evidence/20260518-real009-table-structure-smoke-report.json",
+      "status": "pass"
+    },
+    "REAL010": {
+      "path": "docs/evidence/20260518-real010-formula-fidelity-smoke-report.json",
+      "status": "pass"
+    },
+    "REAL011": {
+      "path": "docs/evidence/20260518-real011-question-edit-smoke-report.json",
+      "status": "pass"
+    },
+    "REAL012": {
+      "path": "docs/evidence/20260518-real012-production-flow-quality-report.json",
+      "status": "pass"
+    }
+  },
+  "real012Probe": {
+    "selectedQuestionNos": [
+      2,
+      3,
+      4
+    ],
+    "hasImageCount": 3,
+    "paperBasketItemCount": 3,
+    "exportPreflightStatus": "ready_for_review",
+    "artifactStatus": "pass",
+    "analysisStatus": "ready",
+    "qualityClosureStatus": "not_closed",
+    "real005ClosureStatus": "not_closed",
+    "gaps": [
+      "question_number_incomplete",
+      "answer_coverage_incomplete",
+      "linked_source_screenshot_missing",
+      "manual_review_pending"
+    ]
+  },
+  "diagnostics": {
+    "hostCapability": {
+      "path": "docs/evidence/host-capability-diagnostic-report.json",
+      "mode": "read_only",
+      "profileSet": "local_system_profile.v1",
+      "aiLocalModelProfile": "optional_local_llm_3b_7b_quantized_eval_only",
+      "noInstallPerformed": true,
+      "productionDefaultChanged": false
+    },
+    "workerProfile": {
+      "path": "docs/evidence/worker-profile-diagnostic-report.json",
+      "mode": "read_only",
+      "recommendedDefaultProfile": "direct_venv_lite",
+      "noInstallPerformed": true
+    },
+    "technologyRefresh": {
+      "path": "docs/evidence/technology-refresh-report.json",
+      "mode": "report_only",
+      "noInstall": true,
+      "noDownload": true,
+      "noDefaultRouteChange": true
+    }
+  },
+  "checklistPath": "docs/templates/p001-live-pilot-release-checklist.md",
+  "evidencePath": "docs/evidence/20260518-p001-live-pilot-readiness-preflight.md",
+  "reportPath": "docs/evidence/20260607-p001-live-pilot-readiness-preflight-report.json",
+  "readyForIsolatedMachineRun": true,
+  "p001CanClose": false,
+  "blockers": [
+    "isolated_machine_install_wizard_not_executed",
+    "isolated_machine_backup_restore_not_executed",
+    "isolated_machine_role_audit_not_executed",
+    "isolated_machine_four_teacher_entry_smoke_not_executed"
+  ],
+  "boundary": "REAL001-REAL012 and read-only diagnostics are ready, but isolated-machine live rehearsal is not executed in this contract; keep P001 as todo until site-run evidence is complete",
+  "checkedAt": "2026-06-07T03:12:07"
+}
