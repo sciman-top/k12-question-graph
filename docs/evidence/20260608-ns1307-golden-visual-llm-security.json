@@ -1,0 +1,78 @@
+{
+  "status": "pass",
+  "taskId": "NS1307",
+  "checkedAt": "2026-06-08T00:32:25",
+  "mode": "golden_visual_llm_security_gate",
+  "productionEligible": false,
+  "realStudentDataUsed": false,
+  "externalAiCalls": 0,
+  "gateInputs": {
+    "s004a": "docs/evidence/20260506-s004a-golden-registry-report.json",
+    "j001": "docs/evidence/j001-openxml-docx-adapter-report.json",
+    "j002": "docs/evidence/j002-text-pdf-adapter-report.json",
+    "j003": "docs/evidence/j003-scanned-ocr-adapter-report.json",
+    "j004": "docs/evidence/j004-fidelity-regression-report.json",
+    "j005": "docs/evidence/j005-adapter-diagnostic-supply-chain-report.json",
+    "j006": "docs/evidence/j006-import-accuracy-workload-report.json",
+    "ns906": "docs/evidence/20260528-ns906-visual-surrogate-review-report.json",
+    "c002q0": "docs/evidence/c002q0-outer-ai-readiness-report.json",
+    "c002q": "docs/evidence/c002q-ai-extract-dry-run-report.json"
+  },
+  "goldenCoverage": {
+    "formats": [
+      "docx",
+      "text_pdf",
+      "scanned_pdf"
+    ],
+    "focus": [
+      "formula",
+      "table_or_image",
+      "cross_page",
+      "answer_solution_split",
+      "ocr_takeover"
+    ],
+    "sampleCount": 5,
+    "failClosedCaseCount": 1,
+    "scannedCaseCount": 1
+  },
+  "visualBoundary": {
+    "canReplaceEarlyManualLook": true,
+    "cannotReplace": [
+      "真实教师偏好",
+      "学校隔离机",
+      "打印机",
+      "权限域",
+      "真实网络",
+      "最终发布裁决"
+    ],
+    "artifactStatus": "pass",
+    "analysisStatus": "ready",
+    "real005ClosureStatus": "not_closed"
+  },
+  "llmSecurity": {
+    "status": "pass",
+    "noActiveWrite": true,
+    "humanReviewRequired": true,
+    "dryRunExternalAiCalls": 0,
+    "c002qReviewStatus": "pending_review",
+    "c002qProductionEligible": false
+  },
+  "acceptance": {
+    "goldenRegistryLocked": true,
+    "ommlFormulaPreserved": true,
+    "scannedFailClosedPreserved": true,
+    "exportArtifactFidelityChecked": true,
+    "localOnlyOcrSupplyChain": true,
+    "manualReviewStillRequired": true,
+    "visualSurrogateCannotReplaceReleaseDecision": true,
+    "llmSecurityNoActiveWrite": true,
+    "llmSecurityPendingReview": true
+  },
+  "summaryChinese": {
+    "title": "NS1307 Golden OCR/import + visual surrogate + LLM security 组合门禁",
+    "result": "通过",
+    "boundary": "当前组合门禁已覆盖黄金样本、OCR/导出保真、视觉代理不可替代边界和 LLM no-active-write/pending_review 安全约束。",
+    "next": "后续可在保持这些组合门禁不退化的前提下继续推进 NS1308 release evidence pack。"
+  },
+  "rollback": "git restore tools/run-ns1307-golden-visual-llm-security-gate.ps1 tools/run-gates.ps1 tools/README.md configs/agent-tool-orchestration.allowlist.json"
+}

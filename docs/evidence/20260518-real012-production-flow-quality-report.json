@@ -1,28 +1,28 @@
 {
   "status": "pass",
   "task": "REAL012",
-  "checkedAt": "2026-06-07T22:56:45",
+  "checkedAt": "2026-06-08T00:34:10",
   "apiUrl": "http://127.0.0.1:5312",
   "sourceDocumentId": "650e9218-c910-40b2-8af3-d5690788ddb6",
   "promotedQuestions": [
     {
       "questionItemId": "ace44579-b70c-4c64-b36a-2852ba86ef97",
       "questionNo": 2,
-      "auditId": "9e4ec53a-b9a3-45c8-b4ae-744f5385a8bf",
+      "auditId": "dbf46922-c7f0-456b-a3aa-ee4a302e66b8",
       "status": "usable",
       "primaryKnowledgeId": "525eb4ae-4e5a-421f-80fa-bc9ba674de2d"
     },
     {
       "questionItemId": "84eac67d-c612-4ba5-bb7d-e871cbde356f",
       "questionNo": 3,
-      "auditId": "03a248ed-f26f-40b5-b443-967cceb7eef7",
+      "auditId": "6aa3dc0b-ba76-4b51-97e7-05f8e92a6659",
       "status": "usable",
       "primaryKnowledgeId": "525eb4ae-4e5a-421f-80fa-bc9ba674de2d"
     },
     {
       "questionItemId": "027acbf1-4692-49b1-9adb-5ae7f06e31a3",
       "questionNo": 4,
-      "auditId": "3b2822b0-a68d-4ea4-bf6a-1b3279c8589f",
+      "auditId": "9125cf17-6ea5-4c9d-84f8-9738a9974e92",
       "status": "usable",
       "primaryKnowledgeId": "525eb4ae-4e5a-421f-80fa-bc9ba674de2d"
     }
@@ -39,7 +39,7 @@
     "order": "asc"
   },
   "paperBasket": {
-    "id": "0ae2811e-1b4b-42b0-8e20-f1e018710412",
+    "id": "92cba3a1-f901-4f0d-be12-0f6eef35b6b3",
     "itemCount": 3,
     "title": "REAL012 2015 广州真题抽样组卷"
   },
@@ -63,9 +63,9 @@
     "status": "pass"
   },
   "analysis": {
-    "assessmentId": "5c990139-7348-4257-9c0c-30be12ca3c0b",
+    "assessmentId": "796a7086-6798-439d-84ca-6e150e8ec5e0",
     "status": "ready",
-    "artifactPath": "draft://commentary-reports/5c990139734842579c0c30be12ca3c0b.md",
+    "artifactPath": "draft://commentary-reports/796a70866798439d84ca6e150e8ec5e0.md",
     "allowAiDraftText": false,
     "writesProductionHistory": false,
     "weakKnowledgePointCount": 3

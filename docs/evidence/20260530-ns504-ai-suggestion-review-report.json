@@ -1,13 +1,13 @@
 {
   "status": "pass",
   "taskId": "NS504",
-  "checkedAt": "2026-06-07T22:45:05",
+  "checkedAt": "2026-06-08T00:21:53",
   "mode": "ai_suggestion_review_queue_teacher_confirm_writeback_guard",
   "productionEligible": false,
   "externalAiCalls": 0,
   "allowRealModelCalls": false,
   "noLocalModelUsed": true,
-  "runId": "ns504-c6bf222ea8ee4e0696febcad47b5f659",
+  "runId": "ns504-9e2d459aa25642dd9fe38b3f41c6d7ca",
   "dependency": {
     "ns503": "docs/evidence/20260530-ns503-model-router-budget-report.json",
     "ns204": "docs/evidence/20260529-ns204-no-active-write-guard-report.json",
@@ -15,19 +15,19 @@
     "s007c": "docs/evidence/20260530-ns504-s007c-source-report.json"
   },
   "reviewQueue": {
-    "aiJobId": "6138cc8e-2160-4b37-857d-0e2bb69ce7bb",
-    "reviewQueueItemId": "0b202895-246d-419f-bae3-bda72d078147",
+    "aiJobId": "ce743fe2-a8eb-4bcd-92e7-5074b19ba7d4",
+    "reviewQueueItemId": "2988e27a-9744-4d14-b9b6-c473eef0f2a4",
     "initialReviewStatus": "open",
     "feedbackDecision": "approved",
     "feedbackReviewStatus": "resolved",
     "teacherModified": true,
-    "questionTotalBefore": 3769,
-    "questionTotalAfter": 3769
+    "questionTotalBefore": 3869,
+    "questionTotalAfter": 3869
   },
   "teacherConfirm": {
-    "aiJobId": "19ea2ecf-d420-4255-ad7a-4ca7658805d9",
-    "questionItemId": "d51ba276-b8d9-4778-800b-ee1b3e0d210e",
-    "knowledgeMappingId": "6a236fb1-61d8-4fb2-92e6-cdc44fd575ab",
+    "aiJobId": "a67f3500-af6d-40be-abc7-ee5cf394d6a9",
+    "questionItemId": "d8aef4c0-459c-4f5b-9432-2570e8671c29",
+    "knowledgeMappingId": "8210317d-b310-4800-a70e-b05aa2b58b00",
     "afterConfirmQuestionDelta": 1,
     "undoStatus": "undone",
     "removedKnowledgeMappingCount": 1,

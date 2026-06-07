@@ -1,24 +1,24 @@
 {
   "status": "pass",
   "taskId": "NS301",
-  "checkedAt": "2026-06-07T22:43:04",
+  "checkedAt": "2026-06-08T00:19:18",
   "mode": "api_upload_smoke_plus_db_join",
   "productionEligible": false,
   "api": {
-    "url": "http://127.0.0.1:3163",
+    "url": "http://127.0.0.1:11511",
     "uploadRoute": "POST /files",
     "listRoute": "GET /source-documents?materialBatchKey=...",
-    "fileAssetId": "062d8768-8932-4b7c-a17c-d273aa29bf28",
-    "sourceDocumentId": "66809a39-42bd-4ae3-915b-adad5bb8bf9d",
-    "sha256": "a04a9a0e94ea1eeb01acabe2593ca4743b30ddabf864bd19385d0b9742e11862",
-    "relativePath": "original/a0/4a/a04a9a0e94ea1eeb01acabe2593ca4743b30ddabf864bd19385d0b9742e11862.txt"
+    "fileAssetId": "4506f18a-db17-4f9d-a20a-abd7f8c2f82f",
+    "sourceDocumentId": "bb0294bd-c435-4c4f-ae48-2672fcb0f88d",
+    "sha256": "f1a6e9870de6e3452508617830427d998c6af8e71bb6c5fc429cb1736430774b",
+    "relativePath": "original/f1/a6/f1a6e9870de6e3452508617830427d998c6af8e71bb6c5fc429cb1736430774b.txt"
   },
   "sourceDocument": {
     "sourceType": "school_paper",
     "sourceTitle": "NS301 Authorized Anonymized Fixture",
     "region": "guangzhou",
     "year": 2026,
-    "materialBatchKey": "ns301_34d0185d87fd4c57a75ed9ef56d76b88",
+    "materialBatchKey": "ns301_63d934caf0d148e6809309bbc20ffcb8",
     "ownerScope": "school",
     "licenseOrPermission": "internal_authorized",
     "piiBoundary": {

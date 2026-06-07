@@ -1,6 +1,7 @@
 param(
     [string] $BacklogPath = 'tasks/backlog.csv',
     [string] $ChecklistPath = 'docs/templates/p001-live-pilot-release-checklist.md',
+    [string] $IsolatedMachineEvidenceTemplatePath = 'docs/templates/p001-isolated-machine-evidence-template.md',
     [string] $EvidencePath = 'docs/evidence/20260518-p001-live-pilot-readiness-preflight.md',
     [string] $ReportPath = 'docs/evidence/20260518-p001-live-pilot-readiness-preflight-report.json',
     [string] $HostCapabilityReportPath = 'docs/evidence/host-capability-diagnostic-report.json',
@@ -35,11 +36,13 @@ function Write-ContentIfChanged([string]$Path, [string]$Content) {
 
 $backlogFullPath = Resolve-InRepoPath $BacklogPath
 $checklistFullPath = Resolve-InRepoPath $ChecklistPath
+$isolatedMachineEvidenceTemplateFullPath = Resolve-InRepoPath $IsolatedMachineEvidenceTemplatePath
 $evidenceFullPath = Resolve-InRepoPath $EvidencePath
 $reportFullPath = Resolve-InRepoPath $ReportPath
 
 Assert-True (Test-Path -LiteralPath $backlogFullPath) "P001 backlog file missing: $BacklogPath"
 Assert-True (Test-Path -LiteralPath $checklistFullPath) "P001 checklist missing: $ChecklistPath"
+Assert-True (Test-Path -LiteralPath $isolatedMachineEvidenceTemplateFullPath) "P001 isolated-machine evidence template missing: $IsolatedMachineEvidenceTemplatePath"
 Assert-True (Test-Path -LiteralPath $evidenceFullPath) "P001 evidence markdown missing: $EvidencePath"
 
 $rows = Import-Csv -LiteralPath $backlogFullPath -Encoding UTF8
@@ -131,8 +134,13 @@ Assert-True ([bool]$technologyReport.boundaries.noRealMaterialProcessing) 'techn
 Assert-True ([bool]$technologyReport.boundaries.noProductionWrite) 'technology refresh must not write production config'
 
 $checklistText = Get-Content -LiteralPath $checklistFullPath -Raw
-foreach ($keyword in @('隔离机器', '安装向导', '备份', '恢复', '权限审计', '教师入口 smoke', 'REAL001-REAL012', 'quality report', 'release checklist', 'evidence')) {
+foreach ($keyword in @('隔离机器', '安装向导', '备份', '恢复', '权限审计', '教师入口 smoke', 'REAL001-REAL012', 'quality report', 'release checklist', 'evidence', 'p001-isolated-machine-evidence-template.md')) {
     Assert-True ($checklistText.Contains($keyword)) "P001 checklist missing keyword: $keyword"
+}
+
+$isolatedMachineEvidenceTemplateText = Get-Content -LiteralPath $isolatedMachineEvidenceTemplateFullPath -Raw
+foreach ($keyword in @('isolated-machine', 'P001 / NS1001', 'docs/evidence/<date>-p001-isolated-machine.md', '操作者签收', '打印 / 网络 / 权限域', 'platform_na', 'gate_na')) {
+    Assert-True ($isolatedMachineEvidenceTemplateText.Contains($keyword)) "P001 isolated-machine evidence template missing keyword: $keyword"
 }
 
 $evidenceText = Get-Content -LiteralPath $evidenceFullPath -Raw
@@ -190,6 +198,7 @@ $report = [ordered]@{
         }
     }
     checklistPath = $ChecklistPath
+    isolatedMachineEvidenceTemplatePath = $IsolatedMachineEvidenceTemplatePath
     evidencePath = $EvidencePath
     reportPath = $ReportPath
     readyForIsolatedMachineRun = $true

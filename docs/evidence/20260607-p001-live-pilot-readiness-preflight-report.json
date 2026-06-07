@@ -114,6 +114,7 @@
     }
   },
   "checklistPath": "docs/templates/p001-live-pilot-release-checklist.md",
+  "isolatedMachineEvidenceTemplatePath": "docs/templates/p001-isolated-machine-evidence-template.md",
   "evidencePath": "docs/evidence/20260518-p001-live-pilot-readiness-preflight.md",
   "reportPath": "docs/evidence/20260607-p001-live-pilot-readiness-preflight-report.json",
   "readyForIsolatedMachineRun": true,
@@ -125,5 +126,5 @@
     "isolated_machine_four_teacher_entry_smoke_not_executed"
   ],
   "boundary": "REAL001-REAL012 and read-only diagnostics are ready, but isolated-machine live rehearsal is not executed in this contract; keep P001 as todo until site-run evidence is complete",
-  "checkedAt": "2026-06-07T23:10:10"
+  "checkedAt": "2026-06-08T00:51:40"
 }

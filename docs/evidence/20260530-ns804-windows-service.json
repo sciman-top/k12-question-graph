@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS804",
-  "checkedAt": "2026-06-07T22:49:56",
+  "checkedAt": "2026-06-08T00:27:02",
   "mode": "windows_service_publish_package",
   "productionEligible": false,
   "externalAiCalls": 0,
@@ -23,7 +23,7 @@
     "webIndex": "D:\\CODE\\k12-question-graph\\tmp\\ns804\\windows-service-package\\web\\index.html"
   },
   "smoke": {
-    "runWorkingDirectory": "C:\\Users\\sciman\\AppData\\Local\\Temp\\kqg-o001-run-5629758b3a844ea3b2d6cea36cffd15e",
+    "runWorkingDirectory": "C:\\Users\\sciman\\AppData\\Local\\Temp\\kqg-o001-run-5a8e22698d3f4406a69be86204f94777",
     "contentRoot": "D:\\CODE\\k12-question-graph\\tmp\\ns804\\windows-service-package\\api",
     "dataRoot": "D:\\KQG_Data",
     "workerScriptCheck": {

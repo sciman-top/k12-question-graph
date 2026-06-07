@@ -1,6 +1,6 @@
 # 109 · 发布 Go / No-Go 卡
 
-日期：2026-06-06。
+日期：2026-06-07。
 
 ## 1. 当前默认结论
 
@@ -47,12 +47,14 @@
 
 | 主题 | 证据 |
 |---|---|
-| P001 readiness pack | `docs/evidence/20260531-ns904-p001-readiness.json` |
-| P001 preflight report | `docs/evidence/20260531-p001-live-pilot-readiness-preflight-report.json` |
+| P001 readiness pack | `docs/evidence/20260607-ns904-p001-readiness.json` |
+| P001 preflight report | `docs/evidence/20260607-p001-live-pilot-readiness-preflight-report.json` |
+| P001 isolated-machine evidence template | `docs/templates/p001-isolated-machine-evidence-template.md` |
 | NS906 visual surrogate | `docs/evidence/20260528-ns906-visual-surrogate-review-report.json` |
-| P003 admission preflight | `docs/evidence/20260531-p003-onsite-pilot-admission-report.json` |
-| P005 feedback triage preflight | `docs/evidence/20260531-p005-pilot-feedback-backlog-admission-report.json` |
-| P006 release decision preflight | `docs/evidence/20260531-p006-release-decision-admission-report.json` |
+| NS1308 release evidence pack | `docs/evidence/20260607-ns1308-release-evidence-pack.json` |
+| P003 admission preflight | `docs/evidence/20260607-p003-onsite-pilot-admission-report.json` |
+| P005 feedback triage preflight | `docs/evidence/20260607-p005-pilot-feedback-backlog-admission-report.json` |
+| P006 release decision preflight | `docs/evidence/20260607-p006-release-decision-admission-report.json` |
 | REAL005 closure standard | `docs/evidence/20260512-real005-guangzhou-2015-2025-closure-standard-report.json` |
 | 角色与审计 | `docs/evidence/20260505-o004b-role-audit-closure.md` |
 | 隐私边界 | `docs/evidence/20260505-n001-real-privacy-boundary-admission.md` |
@@ -74,7 +76,7 @@
 | 字段 | 说明 |
 |---|---|
 | decision | `No-Go` |
-| rationale | 当前证据只证明“非现场能力和 preflight 包已较完整”，不能证明“现场可发布”。`NS13` 未完成，`P001/P003/P005/P006` 均未关闭，且 `REAL005` 明确保持 `not_closed`。 |
+| rationale | 当前证据只证明“非现场能力和 preflight 包已较完整”，不能证明“现场可发布”。`NS13` 已完成并把仓内前置包收口到可执行状态，但 `P001/P003/P005/P006` 均未关闭，且 `REAL005` 明确保持 `not_closed`。 |
 | rollback window | 当前不进入发布执行，因此不进入现场回滚窗口；继续沿用既有 backup manifest、restore drill 和 disable-switch 证据作为预案。 |
 | tag candidate plan | `不创建`。只有在 `P005` 反馈分流完成、`P006` 裁决记录签字、并满足 release-ready 证据后才创建。 |
 | disable switch | 若现场前置演练中出现异常，优先禁用云 API/profile 切换、高风险 admin 写入、active switch 与真实数据链路，回退到离线优先和人工接管路径。 |

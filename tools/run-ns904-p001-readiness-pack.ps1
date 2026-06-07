@@ -3,6 +3,7 @@ param(
     [string] $NS903ReportPath = 'docs/evidence/20260530-ns903-completion-dashboard.json',
     [string] $P001ReportPath = 'docs/evidence/20260530-p001-live-pilot-readiness-preflight-report.json',
     [string] $ChecklistPath = 'docs/templates/p001-live-pilot-release-checklist.md',
+    [string] $IsolatedMachineEvidenceTemplatePath = 'docs/templates/p001-isolated-machine-evidence-template.md',
     [string] $P001EvidenceMarkdownPath = 'docs/evidence/20260518-p001-live-pilot-readiness-preflight.md',
     [string] $NS803ReportPath = 'docs/evidence/20260530-ns803-installer-host.json',
     [string] $NS804ReportPath = 'docs/evidence/20260530-ns804-windows-service.json',
@@ -125,8 +126,10 @@ try {
     Assert-Condition (-not [bool]$real005.fullClosureAllowed) 'NS904 must not allow REAL005 full closure'
 
     $checklistFullPath = Resolve-InRepoPath $ChecklistPath
+    $isolatedMachineEvidenceTemplateFullPath = Resolve-InRepoPath $IsolatedMachineEvidenceTemplatePath
     $p001EvidenceFullPath = Resolve-InRepoPath $P001EvidenceMarkdownPath
     Assert-Condition (Test-Path -LiteralPath $checklistFullPath) "missing checklist: $ChecklistPath"
+    Assert-Condition (Test-Path -LiteralPath $isolatedMachineEvidenceTemplateFullPath) "missing isolated-machine evidence template: $IsolatedMachineEvidenceTemplatePath"
     Assert-Condition (Test-Path -LiteralPath $p001EvidenceFullPath) "missing P001 evidence markdown: $P001EvidenceMarkdownPath"
 
     $checklistText = Get-Content -LiteralPath $checklistFullPath -Raw
@@ -137,8 +140,17 @@ try {
         '恢复',
         '权限审计',
         '教师入口 smoke',
+        'p001-isolated-machine-evidence-template.md',
         'evidence'
     ) 'P001 checklist'
+
+    $isolatedMachineEvidenceTemplateText = Get-Content -LiteralPath $isolatedMachineEvidenceTemplateFullPath -Raw
+    Assert-TextContains $isolatedMachineEvidenceTemplateText @(
+        'isolated-machine',
+        '操作者签收',
+        '打印 / 网络 / 权限域',
+        'docs/evidence/<date>-p001-isolated-machine.md'
+    ) 'P001 isolated-machine evidence template'
 
     $p001EvidenceText = Get-Content -LiteralPath $p001EvidenceFullPath -Raw
     Assert-TextContains $p001EvidenceText @(
@@ -247,10 +259,12 @@ try {
             ns906 = $NS906ReportPath
             real005 = $REAL005ReportPath
             checklist = $ChecklistPath
+            isolatedMachineEvidenceTemplate = $IsolatedMachineEvidenceTemplatePath
             p001EvidenceMarkdown = $P001EvidenceMarkdownPath
         }
         readinessPack = [ordered]@{
             checklistPath = $ChecklistPath
+            isolatedMachineEvidenceTemplatePath = $IsolatedMachineEvidenceTemplatePath
             preflightReportPath = $P001ReportPath
             ns8InstallerPackageReady = $true
             ns8BackupRestoreUpgradeReady = $true
@@ -270,6 +284,7 @@ try {
             p001RemainsTodo = $true
             p001CanCloseFalse = $true
             isolatedMachineChecklistLinked = $true
+            isolatedMachineEvidenceTemplateLinked = $true
             installerHostEvidencePassed = $true
             windowsServicePackageEvidencePassed = $true
             capacityHealthDashboardEvidencePassed = $true

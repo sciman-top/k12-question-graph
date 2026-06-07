@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS1302",
-  "checkedAt": "2026-06-07T22:40:46",
+  "checkedAt": "2026-06-08T00:16:11",
   "mode": "windows_service_and_service_control_panel_contract",
   "productionEligible": false,
   "dependency": {
@@ -36,7 +36,7 @@
       "logs",
       "cache"
     ],
-    "backupManifest": "tmp/ns801-backups/20260607-221013/manifest.json",
+    "backupManifest": "tmp/ns801-backups/20260607-234306/manifest.json",
     "bundleExe": "tmp\\o007\\bundle\\efbundle.exe",
     "restoreDrillReport": "docs/evidence/o007-o003-recovery-drill-report.json"
   },

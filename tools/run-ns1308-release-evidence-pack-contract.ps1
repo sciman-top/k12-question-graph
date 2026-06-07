@@ -38,6 +38,7 @@ try {
 
     $o004b = Read-Text 'docs/evidence/20260505-o004b-role-audit-closure.md'
     $p001Checklist = Read-Text 'docs/templates/p001-live-pilot-release-checklist.md'
+    $p001IsolatedMachineEvidenceTemplate = Read-Text 'docs/templates/p001-isolated-machine-evidence-template.md'
     $releaseCard = Read-Text 'docs/109_ReleaseGoNoGoCard.md'
     $executionBoard = Read-Text 'docs/103_ExecutionControlBoard.md'
     $technologyStack = Read-Text 'docs/04_TechnologyStack.md'
@@ -50,9 +51,17 @@ try {
         '备份',
         '恢复',
         '权限与审计',
-        '教师入口 smoke'
+        '教师入口 smoke',
+        'p001-isolated-machine-evidence-template.md'
     )) {
         Assert-Condition ($p001Checklist.Contains($marker)) "NS1308 checklist marker missing: $marker"
+    }
+    foreach ($marker in @(
+        'isolated-machine',
+        '操作者签收',
+        '打印 / 网络 / 权限域'
+    )) {
+        Assert-Condition ($p001IsolatedMachineEvidenceTemplate.Contains($marker)) "NS1308 isolated-machine evidence template marker missing: $marker"
     }
 
     Assert-Condition ($p001.readyForIsolatedMachineRun) 'NS1308 requires readyForIsolatedMachineRun=true'

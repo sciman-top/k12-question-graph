@@ -181,6 +181,22 @@ writes `docs/evidence/20260530-ns904-p001-readiness.json`, keeps
 isolated-machine, onsite-teacher, printer, network, domain-permission, and
 operator-signoff blockers for the P001 checklist.
 
+P001 live pilot readiness preflight contract:
+
+```powershell
+.\tools\run-p001-live-pilot-readiness-preflight-contract.ps1
+```
+
+This verifies that `P001` can enter the isolated-machine run with repository
+evidence already assembled: REAL001-REAL012, host capability diagnostic,
+worker profile diagnostic, technology refresh `report_only`, the
+`docs/templates/p001-live-pilot-release-checklist.md`, and the
+`docs/templates/p001-isolated-machine-evidence-template.md`. It writes
+`docs/evidence/20260607-p001-live-pilot-readiness-preflight-report.json`,
+keeps `readyForIsolatedMachineRun=true`, keeps `p001CanClose=false`, and does
+not execute isolated-machine install, printer/network/domain checks, or
+operator signoff.
+
 NS905 status sync audit:
 
 ```powershell

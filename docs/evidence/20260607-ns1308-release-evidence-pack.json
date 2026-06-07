@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS1308",
-  "checkedAt": "2026-06-07T22:40:59",
+  "checkedAt": "2026-06-08T00:51:40",
   "mode": "release_evidence_pack_aggregation",
   "productionEligible": false,
   "dependency": {
@@ -29,7 +29,7 @@
     },
     "capacityHealth": {
       "status": "pass",
-      "backupManifest": "tmp/ns801-backups/20260607-221013/manifest.json",
+      "backupManifest": "tmp/ns801-backups/20260608-002417/manifest.json",
       "storageAreas": [
         "data_root",
         "file_store",

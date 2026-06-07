@@ -1,34 +1,34 @@
 {
   "status": "pass",
   "taskId": "S010B",
-  "checkedAt": "2026-06-07T14:52:34.978824+00:00",
-  "paperBasketId": "b98571ca-ddb5-4b59-ae35-57ece0496181",
+  "checkedAt": "2026-06-07T16:29:50.689108+00:00",
+  "paperBasketId": "1ce7a2b9-e4f4-4ef6-b573-a8c0f181994d",
   "preflightStatus": "ready_for_review",
   "productionEligible": false,
   "outputRoot": "tmp\\s010b-paper-artifacts",
   "manifestPath": "tmp\\s010b-paper-artifacts\\kqg-s010b-paper-artifacts.manifest.json",
-  "manifestSha256": "ccfe0b156e89416005ca0835ef04976e1c2b4d9106dfc1616733d0a8546259c8",
+  "manifestSha256": "cc1d02fc37f7fc7272dae1c920a3e9552706339327b0c08e039ceed1fce245ee",
   "variants": {
     "student": {
       "label": "学生版",
       "docxPath": "tmp\\s010b-paper-artifacts\\kqg-s010b-student-paper.docx",
-      "docxSha256": "793ac9a030802b831fcb180921d3c0ddc84ca6fb68ff6070669b50efc648cf77",
+      "docxSha256": "2214674f300d0124d537ebe1fe2d5c19e327fdcb71b852b6c325696d97fc66d4",
       "pdfPath": "tmp\\s010b-paper-artifacts\\kqg-s010b-student-paper.pdf",
-      "pdfSha256": "2d55278a60a7b0446b2b294ddd2a8e33523d6e25c91e2f2da561edb41ac09a52"
+      "pdfSha256": "176a35599ca49d06c0e85ff13987dbe81a7f16a915706bffebfd39802aca5621"
     },
     "teacher": {
       "label": "教师版",
       "docxPath": "tmp\\s010b-paper-artifacts\\kqg-s010b-teacher-paper.docx",
-      "docxSha256": "f92c70c22dc57d077053a069e7c627afc509bda85b1f0e60df9a8b7812c7a69a",
+      "docxSha256": "7b9d2e8b562af11e0dbd5cad9ca1a8ba86d5e2d7c0ec5d68decae5913622a463",
       "pdfPath": "tmp\\s010b-paper-artifacts\\kqg-s010b-teacher-paper.pdf",
-      "pdfSha256": "b8e4956e1516f79b94bfc6cef5b11cad938cc2605dc0594d973fe3d596b0dc3e"
+      "pdfSha256": "cb7471c9bceb9b6a18af711d81a826a228cc6381aac7b15094976b76fe069164"
     },
     "answer": {
       "label": "答案版",
       "docxPath": "tmp\\s010b-paper-artifacts\\kqg-s010b-answer-paper.docx",
-      "docxSha256": "29293e4c690447fa8b62109588b1e7f7f5a8de85d3e5caf634fc8b97c0d50003",
+      "docxSha256": "74def271e857862e08ed14777712534a3c3f8d5dcaca06ab3ce5e4502afec9b4",
       "pdfPath": "tmp\\s010b-paper-artifacts\\kqg-s010b-answer-paper.pdf",
-      "pdfSha256": "d4e23a121444241f7c559e071c010c8fbb3c84dfa099256ff19da2f6f071aa7c"
+      "pdfSha256": "01d2140f5a78ed9331fb0535a9af246fb163a07dbcfae472e1f901dbbd10e2b9"
     }
   },
   "checks": {

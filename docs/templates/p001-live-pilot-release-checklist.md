@@ -39,5 +39,6 @@
 
 ## 5. 证据归档
 - [ ] 在 `docs/evidence/` 写入本轮 evidence（含命令、退出码、关键输出、风险、回滚）。
+- [ ] 使用 `docs/templates/p001-isolated-machine-evidence-template.md` 回填现场事实、四入口耗时/卡点、打印/网络/权限域结果和操作者签收。
 - [ ] 记录 `platform_na` / `gate_na`（如有）：reason / alternative_verification / evidence_link / expires_at。
 - [ ] 更新 `tasks/backlog.csv` 的 P001 状态（仅当现场证据闭环完成时）。

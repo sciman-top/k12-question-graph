@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS1202",
-  "checkedAt": "2026-06-07T23:10:11",
+  "checkedAt": "2026-06-08T00:07:41",
   "mode": "queue_worker_scale_admission_boundary",
   "productionEligible": false,
   "nonSiteValidated": false,
@@ -35,7 +35,7 @@
     "queueFallback": "defer_hangfire_rabbitmq_until_throughput_evidence",
     "workerDefaultProfile": "direct_venv_lite",
     "workerDiagnosticReadOnly": true,
-    "s012bElapsedMs": 244217,
+    "s012bElapsedMs": 264080,
     "p001CanClose": false
   },
   "admissionDecision": {
