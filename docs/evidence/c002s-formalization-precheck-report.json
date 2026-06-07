@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "task": "C002S",
-  "checkedAt": "2026-06-07T12:28:58.794153+00:00",
+  "checkedAt": "2026-06-07T14:54:54.622293+00:00",
   "samplePolicy": "3 questions per year from 2016-2025: first/middle/last available question numbers",
   "sampleSize": 30,
   "sampleFailures": 0,

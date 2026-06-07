@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS603",
-  "checkedAt": "2026-06-07T20:16:08",
+  "checkedAt": "2026-06-07T22:46:05",
   "mode": "paper_basket_and_draft_persistence_runtime",
   "productionEligible": false,
   "externalAiCalls": 0,
@@ -15,13 +15,13 @@
     "m001": "tools/run-m001-paper-basket-structure-contract.ps1"
   },
   "persistence": {
-    "directBasketId": "5ef9784c-83ce-4244-b17d-8f053b3582ef",
+    "directBasketId": "57c47ecd-ff8b-4530-a9e6-2c715f0eb5b7",
     "directBasketItemCount": 2,
     "directBasketTotalScore": 8,
     "directBasketKnowledgeVersionStatus": "active",
     "directBasketKnowledgeVersion": 1,
-    "confirmedBlueprintReviewId": "67574c06-bf1c-40c2-bcaa-640a8eef36c7",
-    "confirmedPaperBasketId": "35e6e93f-d9ee-43fe-a647-ffe306da8085",
+    "confirmedBlueprintReviewId": "48390355-090a-4bdf-9090-22961fde300b",
+    "confirmedPaperBasketId": "fae74c52-8f5a-4584-8a5d-d99659947786",
     "selectedQuestionCount": 8
   },
   "acceptance": {
@@ -43,6 +43,6 @@
     "hotspot": "gate_na: no independent hotspot command; teacher workflow hotspot covered by persisted structure, confirmation-before-selection guard, UI saved-basket contract, no visible backend id, no external AI, no real student data"
   },
   "boundary": "NS603 proves paper baskets and draft paper structure can be saved, reloaded, reproduced with active knowledge version references, and created from blueprint only after teacher confirmation.",
-  "rollback": "delete from paper_basket_items where paper_basket_id in ('5ef9784c-83ce-4244-b17d-8f053b3582ef','35e6e93f-d9ee-43fe-a647-ffe306da8085'); delete from paper_baskets where id in ('5ef9784c-83ce-4244-b17d-8f053b3582ef','35e6e93f-d9ee-43fe-a647-ffe306da8085'); delete from paper_blueprint_reviews where id = '67574c06-bf1c-40c2-bcaa-640a8eef36c7'; git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns603-paper-basket.ps1 docs/evidence/20260530-ns603-paper-basket-report.json docs/evidence/20260530-ns603-s009a-source-report.json docs/evidence/20260530-ns603-s009b-source-report.json docs/evidence/20260530-ns603-s009c-source-report.json",
+  "rollback": "delete from paper_basket_items where paper_basket_id in ('57c47ecd-ff8b-4530-a9e6-2c715f0eb5b7','fae74c52-8f5a-4584-8a5d-d99659947786'); delete from paper_baskets where id in ('57c47ecd-ff8b-4530-a9e6-2c715f0eb5b7','fae74c52-8f5a-4584-8a5d-d99659947786'); delete from paper_blueprint_reviews where id = '48390355-090a-4bdf-9090-22961fde300b'; git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns603-paper-basket.ps1 docs/evidence/20260530-ns603-paper-basket-report.json docs/evidence/20260530-ns603-s009a-source-report.json docs/evidence/20260530-ns603-s009b-source-report.json docs/evidence/20260530-ns603-s009c-source-report.json",
   "next": "NS604 can continue natural-language paper request understanding without enabling real model calls or direct production generation."
 }

@@ -14,19 +14,35 @@ function Get-RelativePath([string] $BasePath, [string] $Path) {
     return [System.IO.Path]::GetRelativePath((Resolve-Path -LiteralPath $BasePath), (Resolve-Path -LiteralPath $Path)).Replace('\', '/')
 }
 
-function Get-FileEntry([string] $BasePath, [string] $Path) {
+function Get-FileEntry([string] $RelativePath, [string] $Path) {
     $item = Get-Item -LiteralPath $Path
     $hash = Get-FileHash -LiteralPath $Path -Algorithm SHA256
     [ordered]@{
-        path = Get-RelativePath -BasePath $BasePath -Path $Path
+        path = $RelativePath.Replace('\', '/')
         bytes = $item.Length
         sha256 = $hash.Hash.ToLowerInvariant()
     }
 }
 
-function Get-ExistingFileEntries([string[]] $Paths) {
-    @($Paths | Where-Object { Test-Path -LiteralPath $_ } |
-        ForEach-Object { Get-FileEntry -BasePath (Get-Location).Path -Path $_ })
+function Copy-RepoFilesToSnapshot([string[]] $Paths, [string] $SnapshotRoot) {
+    $entries = @()
+    foreach ($relativePath in $Paths) {
+        $sourcePath = Join-Path (Get-Location).Path $relativePath
+        if (-not (Test-Path -LiteralPath $sourcePath)) {
+            continue
+        }
+
+        $targetPath = Join-Path $SnapshotRoot $relativePath
+        $targetDir = Split-Path -Parent $targetPath
+        if (-not (Test-Path -LiteralPath $targetDir)) {
+            New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
+        }
+
+        Copy-Item -LiteralPath $sourcePath -Destination $targetPath -Force
+        $entries += Get-FileEntry -RelativePath $relativePath -Path $targetPath
+    }
+
+    return $entries
 }
 
 $timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
@@ -34,6 +50,12 @@ $backupDir = Join-Path $BackupRoot $timestamp
 New-Item -ItemType Directory -Path $backupDir -Force | Out-Null
 $fileStoreSnapshotRelativeRoot = 'file_store'
 $fileStoreSnapshotRoot = Join-Path $backupDir $fileStoreSnapshotRelativeRoot
+$configSnapshotRelativeRoot = 'configs'
+$configSnapshotRoot = Join-Path $backupDir $configSnapshotRelativeRoot
+$templateSnapshotRelativeRoot = 'templates'
+$templateSnapshotRoot = Join-Path $backupDir $templateSnapshotRelativeRoot
+$evidenceSnapshotRelativeRoot = 'evidence'
+$evidenceSnapshotRoot = Join-Path $backupDir $evidenceSnapshotRelativeRoot
 
 $pgDump = Join-Path $PgBin 'pg_dump.exe'
 if (-not (Test-Path -LiteralPath $pgDump)) {
@@ -58,7 +80,7 @@ if (Test-Path -LiteralPath $FileStoreRoot) {
             New-Item -ItemType Directory -Path $destinationDir -Force | Out-Null
         }
         Copy-Item -LiteralPath $sourceFile.FullName -Destination $destinationPath -Force
-        $fileEntries += Get-FileEntry -BasePath $fileStoreSnapshotRoot -Path $destinationPath
+        $fileEntries += Get-FileEntry -RelativePath $relativePath -Path $destinationPath
     }
 }
 
@@ -67,7 +89,7 @@ $configFiles = @(
     'apps/api/appsettings.Development.json',
     'tasks/backlog.csv'
 )
-$configEntries = Get-ExistingFileEntries -Paths $configFiles
+$configEntries = Copy-RepoFilesToSnapshot -Paths $configFiles -SnapshotRoot $configSnapshotRoot
 
 $templateFiles = @(
     'tests/golden-import/registry.json',
@@ -75,7 +97,7 @@ $templateFiles = @(
     'docs/templates/p001-live-pilot-release-checklist.md',
     'docs/templates/p006-release-decision-checklist.md'
 )
-$templateEntries = Get-ExistingFileEntries -Paths $templateFiles
+$templateEntries = Copy-RepoFilesToSnapshot -Paths $templateFiles -SnapshotRoot $templateSnapshotRoot
 
 $evidenceFiles = @(
     'docs/evidence/20260530-ns701-score-template-mapping-report.json',
@@ -85,7 +107,7 @@ $evidenceFiles = @(
     'docs/evidence/20260530-ns705-student-data-privacy-report.json',
     'docs/evidence/20260529-ns004-non-site-plan-guard-report.json'
 )
-$evidenceEntries = Get-ExistingFileEntries -Paths $evidenceFiles
+$evidenceEntries = Copy-RepoFilesToSnapshot -Paths $evidenceFiles -SnapshotRoot $evidenceSnapshotRoot
 
 $databaseHash = Get-FileHash -LiteralPath $databaseDump -Algorithm SHA256
 $manifest = [ordered]@{
@@ -103,8 +125,11 @@ $manifest = [ordered]@{
         root = $FileStoreRoot
         files = $fileEntries
     }
+    configsSnapshotRoot = $configSnapshotRelativeRoot
     configs = $configEntries
+    templatesSnapshotRoot = $templateSnapshotRelativeRoot
     templates = $templateEntries
+    evidenceSnapshotRoot = $evidenceSnapshotRelativeRoot
     evidence = $evidenceEntries
 }
 

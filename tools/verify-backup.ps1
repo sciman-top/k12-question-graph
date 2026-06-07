@@ -25,9 +25,21 @@ function Resolve-FileStoreBackupRoot($Manifest, [string] $ManifestDir) {
     return [string]$Manifest.fileStore.root
 }
 
+function Resolve-ManifestGroupRoot($Manifest, [string] $ManifestDir, [string] $SnapshotPropertyName, [string] $FallbackRoot) {
+    if ($Manifest.PSObject.Properties.Name -contains $SnapshotPropertyName) {
+        $snapshotRelativeRoot = [string]$Manifest.$SnapshotPropertyName
+        if (-not [string]::IsNullOrWhiteSpace($snapshotRelativeRoot)) {
+            return Join-Path $ManifestDir $snapshotRelativeRoot
+        }
+    }
+
+    return $FallbackRoot
+}
+
 $manifestItem = Get-Item -LiteralPath $ManifestPath
 $manifestDir = $manifestItem.DirectoryName
 $manifest = Get-Content -LiteralPath $ManifestPath -Raw | ConvertFrom-Json
+$repoRoot = (Get-Location).Path
 
 Assert-Hash -Path (Join-Path $manifestDir $manifest.database.dump) -ExpectedHash $manifest.database.sha256
 
@@ -36,16 +48,19 @@ foreach ($file in @($manifest.fileStore.files)) {
     Assert-Hash -Path (Join-Path $fileStoreBackupRoot $file.path) -ExpectedHash $file.sha256
 }
 
+$configBackupRoot = Resolve-ManifestGroupRoot -Manifest $manifest -ManifestDir $manifestDir -SnapshotPropertyName 'configsSnapshotRoot' -FallbackRoot $repoRoot
 foreach ($config in @($manifest.configs)) {
-    Assert-Hash -Path (Join-Path (Get-Location).Path $config.path) -ExpectedHash $config.sha256
+    Assert-Hash -Path (Join-Path $configBackupRoot $config.path) -ExpectedHash $config.sha256
 }
 
+$templateBackupRoot = Resolve-ManifestGroupRoot -Manifest $manifest -ManifestDir $manifestDir -SnapshotPropertyName 'templatesSnapshotRoot' -FallbackRoot $repoRoot
 foreach ($template in @($manifest.templates)) {
-    Assert-Hash -Path (Join-Path (Get-Location).Path $template.path) -ExpectedHash $template.sha256
+    Assert-Hash -Path (Join-Path $templateBackupRoot $template.path) -ExpectedHash $template.sha256
 }
 
+$evidenceBackupRoot = Resolve-ManifestGroupRoot -Manifest $manifest -ManifestDir $manifestDir -SnapshotPropertyName 'evidenceSnapshotRoot' -FallbackRoot $repoRoot
 foreach ($evidence in @($manifest.evidence)) {
-    Assert-Hash -Path (Join-Path (Get-Location).Path $evidence.path) -ExpectedHash $evidence.sha256
+    Assert-Hash -Path (Join-Path $evidenceBackupRoot $evidence.path) -ExpectedHash $evidence.sha256
 }
 
 [pscustomobject]@{

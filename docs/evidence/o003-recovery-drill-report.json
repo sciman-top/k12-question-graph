@@ -4,10 +4,10 @@
   "mode": "draft_test",
   "productionEligible": false,
   "backup": {
-    "manifest": "tmp\\o003\\backup-root\\20260607-203511\\manifest.json",
-    "backupDir": "tmp\\o003\\backup-root\\20260607-203511",
-    "databaseDump": "tmp\\o003\\backup-root\\20260607-203511\\database.dump",
-    "fileCount": 17174,
+    "manifest": "tmp\\o003\\backup-root\\20260607-230026\\manifest.json",
+    "backupDir": "tmp\\o003\\backup-root\\20260607-230026",
+    "databaseDump": "tmp\\o003\\backup-root\\20260607-230026\\database.dump",
+    "fileCount": 17848,
     "configCount": 3
   },
   "recoveryDrill": {
@@ -19,7 +19,7 @@
       "schemaExtractOk": true
     },
     "fileStore": {
-      "restoredFileCount": 17174,
+      "restoredFileCount": 17848,
       "targetRoot": "tmp\\o003\\restore-drill\\file_store"
     },
     "configs": {
@@ -33,8 +33,8 @@
     },
     "teacherPreference": {
       "source": "configs/teacher_preference.defaults.yaml",
-      "target": "tmp\\o003\\restore-drill\\teacher-preference\\teacher_preference.defaults.yaml",
-      "restored": true
+      "target": "",
+      "restored": false
     }
   },
   "rollback": {

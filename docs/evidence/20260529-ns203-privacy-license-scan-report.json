@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS203",
-  "checkedAt": "2026-06-07T20:11:11",
+  "checkedAt": "2026-06-07T22:42:58",
   "mode": "tracked_text_privacy_license_scan",
   "productionEligible": false,
   "scanScope": {
@@ -18,7 +18,7 @@
       "README.md",
       "ALL_IN_ONE_EXECUTIVE_SPEC.md"
     ],
-    "trackedFileCount": 959,
+    "trackedFileCount": 980,
     "policyPath": "docs/102_NonSiteFixturePrivacyPolicy.md",
     "fixturePolicyPath": "tests/golden-import/privacy_and_license.md",
     "rawIgnorePath": "sources/raw/.gitignore"

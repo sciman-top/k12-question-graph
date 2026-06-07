@@ -37,10 +37,22 @@ function Resolve-FileStoreBackupRoot($Manifest, [string] $ManifestPath) {
     return [string]$Manifest.fileStore.root
 }
 
-function Copy-ManifestGroup($Items, [string] $TargetRoot) {
+function Resolve-ManifestGroupRoot($Manifest, [string] $ManifestPath, [string] $SnapshotPropertyName, [string] $FallbackRoot) {
+    if ($Manifest.PSObject.Properties.Name -contains $SnapshotPropertyName) {
+        $snapshotRelativeRoot = [string]$Manifest.$SnapshotPropertyName
+        if (-not [string]::IsNullOrWhiteSpace($snapshotRelativeRoot)) {
+            $manifestRoot = (Get-Item -LiteralPath $ManifestPath).DirectoryName
+            return Join-Path $manifestRoot $snapshotRelativeRoot
+        }
+    }
+
+    return $FallbackRoot
+}
+
+function Copy-ManifestGroup($Items, [string] $SourceRoot, [string] $TargetRoot) {
     $restored = New-Object System.Collections.Generic.List[object]
     foreach ($item in @($Items)) {
-        $src = Join-Path $repoRoot $item.path
+        $src = Join-Path $SourceRoot $item.path
         Assert-Condition (Test-Path -LiteralPath $src) "missing manifest group source: $src"
         Assert-Condition ((Compute-Sha256 $src) -eq [string]$item.sha256) "source hash mismatch before restore: $($item.path)"
         $dst = Join-Path $TargetRoot $item.path
@@ -108,9 +120,13 @@ try {
         $restoredFileStoreCount++
     }
 
-    $restoredConfigs = Copy-ManifestGroup -Items $manifest.configs -TargetRoot $configRoot
-    $restoredTemplates = Copy-ManifestGroup -Items $manifest.templates -TargetRoot $templateRoot
-    $restoredEvidence = Copy-ManifestGroup -Items $manifest.evidence -TargetRoot $evidenceRoot
+    $configSnapshotRoot = Resolve-ManifestGroupRoot -Manifest $manifest -ManifestPath $manifestPath -SnapshotPropertyName 'configsSnapshotRoot' -FallbackRoot $repoRoot
+    $templateSnapshotRoot = Resolve-ManifestGroupRoot -Manifest $manifest -ManifestPath $manifestPath -SnapshotPropertyName 'templatesSnapshotRoot' -FallbackRoot $repoRoot
+    $evidenceSnapshotRoot = Resolve-ManifestGroupRoot -Manifest $manifest -ManifestPath $manifestPath -SnapshotPropertyName 'evidenceSnapshotRoot' -FallbackRoot $repoRoot
+
+    $restoredConfigs = Copy-ManifestGroup -Items $manifest.configs -SourceRoot $configSnapshotRoot -TargetRoot $configRoot
+    $restoredTemplates = Copy-ManifestGroup -Items $manifest.templates -SourceRoot $templateSnapshotRoot -TargetRoot $templateRoot
+    $restoredEvidence = Copy-ManifestGroup -Items $manifest.evidence -SourceRoot $evidenceSnapshotRoot -TargetRoot $evidenceRoot
 
     $report = [ordered]@{
         status = 'pass'

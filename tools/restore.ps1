@@ -34,6 +34,17 @@ function Resolve-FileStoreBackupRoot($Manifest, [string] $ManifestRoot) {
     return [string]$Manifest.fileStore.root
 }
 
+function Resolve-ManifestGroupRoot($Manifest, [string] $ManifestRoot, [string] $SnapshotPropertyName, [string] $FallbackRoot) {
+    if ($Manifest.PSObject.Properties.Name -contains $SnapshotPropertyName) {
+        $snapshotRelativeRoot = [string]$Manifest.$SnapshotPropertyName
+        if (-not [string]::IsNullOrWhiteSpace($snapshotRelativeRoot)) {
+            return Join-Path $ManifestRoot $snapshotRelativeRoot
+        }
+    }
+
+    return $FallbackRoot
+}
+
 $manifestFile = Get-Item -LiteralPath $ManifestPath
 $manifestRoot = $manifestFile.DirectoryName
 $manifest = Get-Content -LiteralPath $ManifestPath -Raw | ConvertFrom-Json
@@ -52,9 +63,10 @@ foreach ($file in @($manifest.fileStore.files)) {
     $fileChecks += $src
 }
 
+$configBackupRoot = Resolve-ManifestGroupRoot -Manifest $manifest -ManifestRoot $manifestRoot -SnapshotPropertyName 'configsSnapshotRoot' -FallbackRoot (Get-Location).Path
 $configChecks = @()
 foreach ($config in @($manifest.configs)) {
-    $src = Join-Path (Get-Location).Path $config.path
+    $src = Join-Path $configBackupRoot $config.path
     Assert-Condition (Test-Path -LiteralPath $src) "missing config source file: $src"
     $sha = Compute-Sha256 $src
     Assert-Condition ($sha -eq [string]$config.sha256) "config hash mismatch: $src"
@@ -84,7 +96,7 @@ if ($ApplyConfigs) {
     if (-not $DryRun) {
         New-Item -ItemType Directory -Path $targetConfigRoot -Force | Out-Null
         foreach ($config in @($manifest.configs)) {
-            $src = Join-Path (Get-Location).Path $config.path
+            $src = Join-Path $configBackupRoot $config.path
             $dst = Join-Path $targetConfigRoot $config.path
             $dstDir = Split-Path -Parent $dst
             if (-not (Test-Path -LiteralPath $dstDir)) { New-Item -ItemType Directory -Path $dstDir -Force | Out-Null }

@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS805",
-  "checkedAt": "2026-06-07T20:34:42",
+  "checkedAt": "2026-06-07T23:00:01",
   "mode": "capacity_cost_health_dashboard",
   "productionEligible": false,
   "externalAiCalls": 0,
@@ -22,7 +22,7 @@
     "storageAreas": [
       {
         "name": "data_root",
-        "bytes": 213409,
+        "bytes": 216845,
         "fileCount": 4,
         "cleanupAllowed": false
       },
@@ -40,7 +40,7 @@
       },
       {
         "name": "logs",
-        "bytes": 213324,
+        "bytes": 216760,
         "fileCount": 1,
         "cleanupAllowed": false
       },
@@ -52,14 +52,14 @@
       }
     ],
     "backup": {
-      "manifest": "tmp/ns801-backups/20260607-201733/manifest.json",
-      "fileCount": 16961,
+      "manifest": "tmp/ns801-backups/20260607-224718/manifest.json",
+      "fileCount": 17635,
       "databaseDumpInManifest": true,
       "sha256Verified": true
     },
     "restore": {
       "isolatedRoot": "tmp/ns802-restore",
-      "fileStoreRestoredCount": 16961,
+      "fileStoreRestoredCount": 17635,
       "productionDatabaseUntouched": true,
       "productionFileStoreUntouched": true
     },
@@ -73,7 +73,7 @@
     },
     "aiCost": {
       "source": "NS503 model router budget + O005 D002 dependency",
-      "jobId": "2f9a697d-39a3-4595-9646-1890bffca957",
+      "jobId": "5a605080-da89-4719-81d3-045139e7d195",
       "provider": "stub_llm",
       "model": "stub",
       "inputTokens": 22,

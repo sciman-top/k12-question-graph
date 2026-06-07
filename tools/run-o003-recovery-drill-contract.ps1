@@ -39,6 +39,18 @@ function Resolve-FileStoreBackupRoot($Manifest, [string]$ManifestPath) {
     return [string]$Manifest.fileStore.root
 }
 
+function Resolve-ManifestGroupRoot($Manifest, [string]$ManifestPath, [string]$SnapshotPropertyName, [string]$FallbackRoot) {
+    if ($Manifest.PSObject.Properties.Name -contains $SnapshotPropertyName) {
+        $snapshotRelativeRoot = [string]$Manifest.$SnapshotPropertyName
+        if (-not [string]::IsNullOrWhiteSpace($snapshotRelativeRoot)) {
+            $manifestRoot = (Get-Item -LiteralPath $ManifestPath).DirectoryName
+            return Join-Path $manifestRoot $snapshotRelativeRoot
+        }
+    }
+
+    return $FallbackRoot
+}
+
 Push-Location $repoRoot
 try {
     Remove-Item -LiteralPath (Join-Path $repoRoot 'tmp/o003') -Recurse -Force -ErrorAction SilentlyContinue
@@ -83,9 +95,10 @@ try {
         Copy-Item -LiteralPath $src -Destination $dst -Force
     }
 
+    $configSnapshotRoot = Resolve-ManifestGroupRoot -Manifest $manifest -ManifestPath $backup.manifest -SnapshotPropertyName 'configsSnapshotRoot' -FallbackRoot $repoRoot
     $restoredConfigPaths = @()
     foreach ($config in @($manifest.configs)) {
-        $src = Join-Path $repoRoot $config.path
+        $src = Join-Path $configSnapshotRoot $config.path
         if (Test-Path -LiteralPath $src) {
             $dst = Join-Path $cfgDrillRoot $config.path
             $dstDir = Split-Path -Parent $dst
@@ -95,12 +108,12 @@ try {
         }
     }
 
-    $templateSource = Join-Path $repoRoot 'docs/templates'
-    if (Test-Path -LiteralPath $templateSource) {
-        Copy-Item -Path (Join-Path $templateSource '*') -Destination $tplDrillRoot -Recurse -Force
+    $templateSnapshotRoot = Resolve-ManifestGroupRoot -Manifest $manifest -ManifestPath $backup.manifest -SnapshotPropertyName 'templatesSnapshotRoot' -FallbackRoot (Join-Path $repoRoot 'docs/templates')
+    if (Test-Path -LiteralPath $templateSnapshotRoot) {
+        Copy-Item -Path (Join-Path $templateSnapshotRoot '*') -Destination $tplDrillRoot -Recurse -Force
     }
 
-    $teacherPreferenceSource = Join-Path $repoRoot 'configs/teacher_preference.defaults.yaml'
+    $teacherPreferenceSource = Join-Path $configSnapshotRoot 'configs/teacher_preference.defaults.yaml'
     $teacherPreferenceRestored = Copy-IfExists -Source $teacherPreferenceSource -DestinationRoot $prefDrillRoot
 
     $report = [ordered]@{
@@ -134,7 +147,7 @@ try {
             templates = [ordered]@{
                 source = 'docs/templates'
                 targetRoot = Convert-ToRelative -Base $repoRoot -Path $tplDrillRoot
-                restored = (Test-Path -LiteralPath $templateSource)
+                restored = (Test-Path -LiteralPath $templateSnapshotRoot)
             }
             teacherPreference = [ordered]@{
                 source = 'configs/teacher_preference.defaults.yaml'

@@ -1,14 +1,13 @@
 {
   "status": "pass",
   "task": "non-site implementation plan guard",
-  "checkedAt": "2026-06-07T20:42:01",
+  "checkedAt": "2026-06-07T22:42:04",
   "planPath": "tasks/non-site-implementation-plan.csv",
   "roadmapPath": "docs/101_NonSiteCapabilityImplementationRoadmap.md",
   "rowCount": 81,
   "statusCounts": {
     "blocked_by_onsite": 5,
-    "planned": 2,
-    "runtime_verified": 74
+    "runtime_verified": 76
   },
   "phaseCounts": {
     "NS0": 5,
@@ -26,7 +25,7 @@
     "NS8": 6,
     "NS9": 6
   },
-  "nextPlannedTask": "NS1305",
+  "nextPlannedTask": "none",
   "requiredStatuses": [
     "planned",
     "contract_only",

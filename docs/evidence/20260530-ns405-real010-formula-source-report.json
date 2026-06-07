@@ -1,11 +1,11 @@
 {
   "status": "pass",
   "task": "REAL010",
-  "checkedAt": "2026-06-07T20:14:07",
-  "questionId": "9fa2dbb7-2b59-4ca1-8eca-36542226469d",
+  "checkedAt": "2026-06-07T22:44:34",
+  "questionId": "62ac54c4-8c04-4956-8933-cd7d35828735",
   "sourceDocumentId": "cae95280-9df9-4205-8665-c4803e507501",
   "officeFormula": {
-    "blockId": "dd6d5ca6-f3a9-4736-989e-1b185670862f",
+    "blockId": "6f2cb897-5d4a-45ef-b9d0-28d31c0903a3",
     "sourceFormat": "omml",
     "ommlPreserved": true,
     "latex": "F=ma",
@@ -14,11 +14,11 @@
     "reviewStatus": "verified"
   },
   "scannedFormula": {
-    "blockId": "393979c0-b7d5-4f9a-a2a6-22a3f9c1b0ae",
+    "blockId": "fa622c29-ee6c-47a7-baf7-c65227294fd8",
     "sourceFormat": "scanned_formula_candidate",
     "confidence": 0.56,
     "reviewStatus": "pending_review",
-    "fallbackImageUrl": "/source-regions/99a32928-4f85-4b1f-9201-1de3b3c0840a/screenshot",
+    "fallbackImageUrl": "/source-regions/e540818a-22dd-49f8-89bc-6b8ef09f6e85/screenshot",
     "fallbackImageStatusCode": 200
   },
   "cardProbe": {
@@ -28,11 +28,11 @@
   },
   "reviewQueueProbe": {
     "reviewType": "question_formula_block_review",
-    "queueItemId": "53e5698f-9109-4c27-9f73-7d3c171f001c",
+    "queueItemId": "fff647bd-9012-43ff-9225-fd11ee582aea",
     "requiredAction": "review_formula_structure",
     "reason": "formula_block_low_confidence_or_non_omml_candidate",
     "confidence": 0.56
   },
-  "rollback": "delete from review_queue_items where payload->>'questionItemId' = '9fa2dbb7-2b59-4ca1-8eca-36542226469d'; delete from question_assets where question_item_id = '9fa2dbb7-2b59-4ca1-8eca-36542226469d'; delete from question_blocks where question_item_id = '9fa2dbb7-2b59-4ca1-8eca-36542226469d'; delete from question_items where id = '9fa2dbb7-2b59-4ca1-8eca-36542226469d';",
+  "rollback": "delete from review_queue_items where payload->>'questionItemId' = '62ac54c4-8c04-4956-8933-cd7d35828735'; delete from question_assets where question_item_id = '62ac54c4-8c04-4956-8933-cd7d35828735'; delete from question_blocks where question_item_id = '62ac54c4-8c04-4956-8933-cd7d35828735'; delete from question_items where id = '62ac54c4-8c04-4956-8933-cd7d35828735';",
   "summaryChinese": "Office 原生公式以 OMML 为第一真源，LaTeX/MathML 只作为派生；扫描公式保留 fallback 图并进入人工审核队列。"
 }

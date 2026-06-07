@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS701",
-  "checkedAt": "2026-06-07T20:17:07",
+  "checkedAt": "2026-06-07T22:46:56",
   "mode": "score_template_mapping",
   "productionEligible": false,
   "externalAiCalls": 0,
@@ -18,7 +18,7 @@
     "mappingPath": "tmp\\ns701-score-import\\f002-score-field-mapping.json",
     "fieldMappingDynamicAsset": true,
     "templateReusable": true,
-    "apiTemplateId": "65f04b8a-12e5-4f66-b15c-9392249410fe"
+    "apiTemplateId": "68a99727-1ccf-43d3-875a-b40915084e6d"
   },
   "import": {
     "endpoint": "/score-imports",
