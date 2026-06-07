@@ -401,6 +401,23 @@ and host diagnostic reports. It does not mutate `appsettings.json`, install
 dependencies, download model weights, enable cloud providers, or switch any
 production default.
 
+NS1304 toolchain admission contract:
+
+```powershell
+.\tools\run-ns1304-toolchain-admission-contract.ps1
+```
+
+This validates the open-source/free toolchain admission boundary for the current
+host. It reads `configs/toolchain-admission.catalog.yaml`, combines the
+NS1303 runtime-profile overlay with J005/J006 plus NS304/NS305/NS306 evidence,
+probes current CLI/module availability (`pdftotext`, `pdftoppm`,
+`rapidocr_onnxruntime`, `qpdf`, `gswin64c`, `magick`, `vips`, PostgreSQL CLI,
+`robocopy`, and candidate Python modules), and writes
+`docs/evidence/20260607-ns1304-toolchain-profile.json`. Missing heavy tools
+must remain fail-closed to lighter profiles or manual takeover; the contract
+does not install packages, download models, or switch default OCR/export
+routes.
+
 O003 recovery drill upgrade contract:
 
 ```powershell

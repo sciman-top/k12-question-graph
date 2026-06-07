@@ -1,0 +1,329 @@
+{
+  "status": "pass",
+  "taskId": "NS1304",
+  "checkedAt": "2026-06-07T20:42:03",
+  "mode": "toolchain_catalog_and_profile_admission",
+  "productionEligible": false,
+  "dependency": {
+    "ns1303": "docs/evidence/20260607-ns1303-runtime-profile.json",
+    "j005": "docs/evidence/j005-adapter-diagnostic-supply-chain-report.json",
+    "j006": "docs/evidence/j006-import-accuracy-workload-report.json",
+    "ns304": "docs/evidence/20260530-ns304-docx-adapter-report.json",
+    "ns305": "docs/evidence/20260530-ns305-pdf-text-adapter-report.json",
+    "ns306": "docs/evidence/20260530-ns306-scan-ocr-adapter-report.json"
+  },
+  "currentProfile": {
+    "workerOcrProfile": "direct_venv_lite",
+    "exportPrintProfile": "docx_pdf_artifact_chain_with_preflight_manifest",
+    "searchProfile": "postgresql_fts_pg_trgm_first_pgvector_only_after_eval",
+    "queueProfile": "postgresql_job_store_backgroundservice_first"
+  },
+  "catalog": {
+    "path": "configs\\toolchain-admission.catalog.yaml",
+    "schemaVersion": "toolchain-admission.catalog.v0.1",
+    "admissionRequiredEvidence": [
+      "host_capability_diagnostic",
+      "worker_profile_diagnostic",
+      "golden_import_regression",
+      "adapter_supply_chain_report",
+      "rollback_plan"
+    ],
+    "entries": [
+      {
+        "id": "openxml_docx_adapter",
+        "kind": "repo_adapter",
+        "currentRoute": "current",
+        "available": true,
+        "status": "admitted_current_profile",
+        "detail": "openxml_docx_adapter",
+        "fallbackWhenMissing": "block_authoritative_docx_import",
+        "requiredEvidence": [
+          "ns304_docx_adapter",
+          "j005_adapter_supply_chain"
+        ]
+      },
+      {
+        "id": "pdf_text_layout_poppler",
+        "kind": "cli_pair",
+        "currentRoute": "current",
+        "available": true,
+        "status": "admitted_current_profile",
+        "detail": "pdftotext + pdftoppm + NS305",
+        "fallbackWhenMissing": "scanned_ocr_pending_review",
+        "requiredEvidence": [
+          "ns305_pdf_text_adapter",
+          "j005_adapter_supply_chain"
+        ]
+      },
+      {
+        "id": "rapidocr_onnxruntime",
+        "kind": "python_module",
+        "currentRoute": "current",
+        "available": true,
+        "status": "admitted_current_profile",
+        "detail": "rapidocr_onnxruntime + NS306 + J006",
+        "fallbackWhenMissing": "pending_review_takeover_required",
+        "requiredEvidence": [
+          "ns306_scan_ocr_adapter",
+          "j006_import_workload"
+        ]
+      },
+      {
+        "id": "docling_layout_pipeline",
+        "kind": "python_module",
+        "currentRoute": "candidate",
+        "available": false,
+        "status": "blocked_missing_tool_fall_closed",
+        "detail": "candidate only",
+        "fallbackWhenMissing": "keep_pdf_text_layout_first",
+        "requiredEvidence": [
+          "golden_import_regression",
+          "adapter_supply_chain_report",
+          "rollback_plan"
+        ]
+      },
+      {
+        "id": "paddleocr_ppocr",
+        "kind": "python_module",
+        "currentRoute": "candidate",
+        "available": false,
+        "status": "blocked_missing_tool_fall_closed",
+        "detail": "candidate only",
+        "fallbackWhenMissing": "keep_rapidocr_or_manual_takeover",
+        "requiredEvidence": [
+          "golden_import_regression",
+          "worker_profile_diagnostic",
+          "rollback_plan"
+        ]
+      },
+      {
+        "id": "ocrmypdf",
+        "kind": "cli",
+        "currentRoute": "candidate",
+        "available": false,
+        "status": "blocked_missing_tool_fall_closed",
+        "detail": "",
+        "fallbackWhenMissing": "keep_pdf_text_or_image_pending_review",
+        "requiredEvidence": [
+          "golden_import_regression",
+          "export_preflight",
+          "rollback_plan"
+        ]
+      },
+      {
+        "id": "qpdf",
+        "kind": "cli",
+        "currentRoute": "candidate",
+        "available": false,
+        "status": "blocked_missing_tool_fall_closed",
+        "detail": "",
+        "fallbackWhenMissing": "keep_docx_or_html_export",
+        "requiredEvidence": [
+          "export_artifact_regression",
+          "rollback_plan"
+        ]
+      },
+      {
+        "id": "ghostscript",
+        "kind": "cli",
+        "currentRoute": "candidate",
+        "available": false,
+        "status": "blocked_missing_tool_fall_closed",
+        "detail": "",
+        "fallbackWhenMissing": "keep_docx_or_html_export",
+        "requiredEvidence": [
+          "export_artifact_regression",
+          "rollback_plan"
+        ]
+      },
+      {
+        "id": "imagemagick",
+        "kind": "cli",
+        "currentRoute": "candidate",
+        "available": true,
+        "status": "available_but_not_admitted",
+        "detail": "Version: ImageMagick 7.1.2-24 Q16 x64 271b6bc:20260526 https://imagemagick.org",
+        "fallbackWhenMissing": "keep_existing_asset_pipeline",
+        "requiredEvidence": [
+          "image_asset_regression",
+          "rollback_plan"
+        ]
+      },
+      {
+        "id": "libvips",
+        "kind": "cli",
+        "currentRoute": "candidate",
+        "available": false,
+        "status": "blocked_missing_tool_fall_closed",
+        "detail": "",
+        "fallbackWhenMissing": "keep_existing_asset_pipeline",
+        "requiredEvidence": [
+          "image_asset_regression",
+          "rollback_plan"
+        ]
+      },
+      {
+        "id": "postgresql_cli",
+        "kind": "cli_bundle",
+        "currentRoute": "current",
+        "available": true,
+        "status": "admitted_current_profile",
+        "detail": "psql=fallback_path; pg_dump=fallback_path; pg_restore=fallback_path",
+        "fallbackWhenMissing": "block_live_release_until_cli_or_explicit_path",
+        "requiredEvidence": [
+          "backup_restore_drill",
+          "migration_bundle_rehearsal"
+        ]
+      },
+      {
+        "id": "robocopy",
+        "kind": "cli",
+        "currentRoute": "current",
+        "available": true,
+        "status": "admitted_current_profile",
+        "detail": "C:\\\\Windows\\system32\\Robocopy.exe",
+        "fallbackWhenMissing": "keep_copy_only_recovery_blocked",
+        "requiredEvidence": [
+          "backup_restore_drill",
+          "winpe_emergency_copy_contract"
+        ]
+      }
+    ]
+  },
+  "probes": {
+    "cli": {
+      "pdftotext": {
+        "present": true,
+        "path": "D:\\texlive\\2023\\bin\\windows\\pdftotext.exe",
+        "source": "PATH",
+        "exitCode": 0,
+        "versionLine": "pdftotext version 23.02.0"
+      },
+      "pdftoppm": {
+        "present": true,
+        "path": "D:\\texlive\\2023\\bin\\windows\\pdftoppm.exe",
+        "source": "PATH",
+        "exitCode": 0,
+        "versionLine": "pdftoppm version 23.02.0"
+      },
+      "ocrmypdf": {
+        "present": false,
+        "path": null,
+        "source": "not_found",
+        "exitCode": null,
+        "versionLine": ""
+      },
+      "qpdf": {
+        "present": false,
+        "path": null,
+        "source": "not_found",
+        "exitCode": null,
+        "versionLine": ""
+      },
+      "gswin64c": {
+        "present": false,
+        "path": null,
+        "source": "not_found",
+        "exitCode": null,
+        "versionLine": ""
+      },
+      "magick": {
+        "present": true,
+        "path": "C:\\Program Files\\ImageMagick-7.1.2-Q16\\magick.exe",
+        "source": "PATH",
+        "exitCode": 0,
+        "versionLine": "Version: ImageMagick 7.1.2-24 Q16 x64 271b6bc:20260526 https://imagemagick.org"
+      },
+      "vips": {
+        "present": false,
+        "path": null,
+        "source": "not_found",
+        "exitCode": null,
+        "versionLine": ""
+      },
+      "psql": {
+        "present": true,
+        "path": "C:\\Program Files\\PostgreSQL\\17\\bin\\psql.exe",
+        "source": "fallback_path",
+        "exitCode": 0,
+        "versionLine": "psql (PostgreSQL) 17.9"
+      },
+      "pg_dump": {
+        "present": true,
+        "path": "C:\\Program Files\\PostgreSQL\\17\\bin\\pg_dump.exe",
+        "source": "fallback_path",
+        "exitCode": 0,
+        "versionLine": "pg_dump (PostgreSQL) 17.9"
+      },
+      "pg_restore": {
+        "present": true,
+        "path": "C:\\Program Files\\PostgreSQL\\17\\bin\\pg_restore.exe",
+        "source": "fallback_path",
+        "exitCode": 0,
+        "versionLine": "pg_restore (PostgreSQL) 17.9"
+      },
+      "robocopy": {
+        "present": true,
+        "path": "C:\\\\Windows\\system32\\Robocopy.exe",
+        "source": "PATH",
+        "exitCode": 16,
+        "versionLine": ""
+      }
+    },
+    "pythonModules": {
+      "rapidocr_onnxruntime": {
+        "present": true,
+        "version": "1.2.3",
+        "location": "C:\\Users\\sciman\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\rapidocr_onnxruntime\\__init__.py"
+      },
+      "paddleocr": {
+        "present": false,
+        "version": "",
+        "location": ""
+      },
+      "docling": {
+        "present": false,
+        "version": "",
+        "location": ""
+      }
+    }
+  },
+  "summary": {
+    "admittedForCurrentHost": [
+      "openxml_docx_adapter",
+      "pdf_text_layout_poppler",
+      "rapidocr_onnxruntime",
+      "postgresql_cli",
+      "robocopy"
+    ],
+    "blockedToFallback": [
+      "docling_layout_pipeline",
+      "paddleocr_ppocr",
+      "ocrmypdf",
+      "qpdf",
+      "ghostscript",
+      "libvips"
+    ],
+    "exportFallback": "keep_docx_or_html_export_until_pdf_toolchain_admitted",
+    "databaseFallback": "install_postgresql_cli_or_configure_path_before_live",
+    "workerFallback": "missing OCR engines must fall back to pending_review/takeoverRequired"
+  },
+  "acceptance": {
+    "toolchainCatalogPresent": true,
+    "currentProfileResolved": true,
+    "goldenImportEvidenceReferenced": true,
+    "currentHostKeepsOpenXmlPdfTextRapidOcrRoute": true,
+    "missingHeavyToolsFailClosed": true,
+    "noToolAutoInstalled": true,
+    "noProductionDefaultChanged": true
+  },
+  "verification": {
+    "build": "gate_na: NS1304 is a toolchain admission/report slice; no product build or install is required",
+    "test": "host capability diagnostic + worker profile diagnostic + J005/J006 + NS304/NS305/NS306 evidence",
+    "contractInvariant": "toolchain catalog, current profile admission, and fail-closed fallback must stay explicit when heavy tools are missing",
+    "hotspot": "gate_na: no package install, no model download, no driver/runtime mutation, and no production default switch"
+  },
+  "boundary": "NS1304 proves the current host stays on an open-source/free toolchain profile with explicit admission evidence and fail-closed fallbacks. It does not auto-install missing tools, does not switch default OCR/export routes, and does not claim full PDF or heavy-OCR readiness when qpdf/Ghostscript/PaddleOCR/Docling are still absent.",
+  "rollback": "git restore tasks/non-site-implementation-plan.csv tasks/productization-roadmap.csv tools/run-gates.ps1 tools/README.md; git clean -f -- configs/toolchain-admission.catalog.yaml tools/run-ns1304-toolchain-admission-contract.ps1 docs/evidence/20260607-ns1304-toolchain-profile.json",
+  "next": "NS1305 can continue role-routed AI admission on top of the fixed toolchain/profile boundary."
+}

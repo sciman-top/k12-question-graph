@@ -1,0 +1,167 @@
+schemaVersion: toolchain-admission.catalog.v0.1
+mode: draft_catalog
+defaultRouteChangeAllowed: false
+installAllowedByAutomation: false
+admissionRequiredEvidence:
+  - host_capability_diagnostic
+  - worker_profile_diagnostic
+  - golden_import_regression
+  - adapter_supply_chain_report
+  - rollback_plan
+entries:
+  - id: openxml_docx_adapter
+    kind: repo_adapter
+    currentRoute: current
+    profileFit:
+      - cpu_low
+      - cpu_standard
+      - gpu_entry
+      - gpu_high
+    requiredEvidence:
+      - ns304_docx_adapter
+      - j005_adapter_supply_chain
+    fallbackWhenMissing: block_authoritative_docx_import
+  - id: pdf_text_layout_poppler
+    kind: cli_pair
+    currentRoute: current
+    commands:
+      - pdftotext
+      - pdftoppm
+    profileFit:
+      - cpu_low
+      - cpu_standard
+      - gpu_entry
+      - gpu_high
+    requiredEvidence:
+      - ns305_pdf_text_adapter
+      - j005_adapter_supply_chain
+    fallbackWhenMissing: scanned_ocr_pending_review
+  - id: rapidocr_onnxruntime
+    kind: python_module
+    currentRoute: current
+    module: rapidocr_onnxruntime
+    profileFit:
+      - cpu_low
+      - cpu_standard
+      - gpu_entry
+      - gpu_high
+    requiredEvidence:
+      - ns306_scan_ocr_adapter
+      - j006_import_workload
+    fallbackWhenMissing: pending_review_takeover_required
+  - id: docling_layout_pipeline
+    kind: python_module
+    currentRoute: candidate
+    module: docling
+    profileFit:
+      - cpu_standard
+      - gpu_entry
+      - gpu_high
+    requiredEvidence:
+      - golden_import_regression
+      - adapter_supply_chain_report
+      - rollback_plan
+    fallbackWhenMissing: keep_pdf_text_layout_first
+  - id: paddleocr_ppocr
+    kind: python_module
+    currentRoute: candidate
+    module: paddleocr
+    profileFit:
+      - cpu_standard
+      - gpu_entry
+      - gpu_high
+    requiredEvidence:
+      - golden_import_regression
+      - worker_profile_diagnostic
+      - rollback_plan
+    fallbackWhenMissing: keep_rapidocr_or_manual_takeover
+  - id: ocrmypdf
+    kind: cli
+    currentRoute: candidate
+    command: ocrmypdf
+    profileFit:
+      - cpu_standard
+      - gpu_entry
+      - gpu_high
+    requiredEvidence:
+      - golden_import_regression
+      - export_preflight
+      - rollback_plan
+    fallbackWhenMissing: keep_pdf_text_or_image_pending_review
+  - id: qpdf
+    kind: cli
+    currentRoute: candidate
+    command: qpdf
+    profileFit:
+      - cpu_standard
+      - gpu_entry
+      - gpu_high
+    requiredEvidence:
+      - export_artifact_regression
+      - rollback_plan
+    fallbackWhenMissing: keep_docx_or_html_export
+  - id: ghostscript
+    kind: cli
+    currentRoute: candidate
+    command: gswin64c
+    profileFit:
+      - cpu_standard
+      - gpu_entry
+      - gpu_high
+    requiredEvidence:
+      - export_artifact_regression
+      - rollback_plan
+    fallbackWhenMissing: keep_docx_or_html_export
+  - id: imagemagick
+    kind: cli
+    currentRoute: candidate
+    command: magick
+    profileFit:
+      - cpu_standard
+      - gpu_entry
+      - gpu_high
+    requiredEvidence:
+      - image_asset_regression
+      - rollback_plan
+    fallbackWhenMissing: keep_existing_asset_pipeline
+  - id: libvips
+    kind: cli
+    currentRoute: candidate
+    command: vips
+    profileFit:
+      - cpu_standard
+      - gpu_entry
+      - gpu_high
+    requiredEvidence:
+      - image_asset_regression
+      - rollback_plan
+    fallbackWhenMissing: keep_existing_asset_pipeline
+  - id: postgresql_cli
+    kind: cli_bundle
+    currentRoute: current
+    commands:
+      - psql
+      - pg_dump
+      - pg_restore
+    profileFit:
+      - cpu_low
+      - cpu_standard
+      - gpu_entry
+      - gpu_high
+    requiredEvidence:
+      - backup_restore_drill
+      - migration_bundle_rehearsal
+    fallbackWhenMissing: block_live_release_until_cli_or_explicit_path
+  - id: robocopy
+    kind: cli
+    currentRoute: current
+    command: robocopy
+    profileFit:
+      - cpu_low
+      - cpu_standard
+      - gpu_entry
+      - gpu_high
+    requiredEvidence:
+      - backup_restore_drill
+      - winpe_emergency_copy_contract
+    fallbackWhenMissing: keep_copy_only_recovery_blocked
