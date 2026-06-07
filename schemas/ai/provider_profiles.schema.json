@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schemas/ai/provider_profiles.schema.json",
+  "title": "AI Provider Profiles",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "schemaPath",
+    "mode",
+    "teacherSimpleModes",
+    "providerProfiles",
+    "runtimeGuardrails"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "string" },
+    "schemaPath": { "type": "string" },
+    "mode": { "type": "string" },
+    "teacherSimpleModes": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "label",
+          "summary",
+          "visibleToTeacher",
+          "defaultProviderProfile",
+          "routePolicy"
+        ],
+        "properties": {
+          "id": { "type": "string" },
+          "label": { "type": "string" },
+          "summary": { "type": "string" },
+          "visibleToTeacher": { "type": "boolean" },
+          "defaultProviderProfile": { "type": "string" },
+          "routePolicy": { "type": "string" }
+        }
+      }
+    },
+    "providerProfiles": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "displayName",
+          "providerType",
+          "credentialRef",
+          "baseUrl",
+          "maxConcurrency",
+          "monthlyBudgetCny",
+          "fallbackPolicy",
+          "disabledByDefault",
+          "adminOnly",
+          "secretRedaction",
+          "roleScopes"
+        ],
+        "properties": {
+          "id": { "type": "string" },
+          "displayName": { "type": "string" },
+          "providerType": { "type": "string" },
+          "credentialRef": { "type": "string" },
+          "baseUrl": { "type": "string" },
+          "maxConcurrency": { "type": "integer", "minimum": 1 },
+          "monthlyBudgetCny": { "type": "integer", "minimum": 0 },
+          "fallbackPolicy": { "type": "string" },
+          "disabledByDefault": { "type": "boolean" },
+          "adminOnly": { "type": "boolean" },
+          "secretRedaction": { "type": "string" },
+          "roleScopes": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "runtimeGuardrails": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "allowRealModelCallsDefault",
+        "allOutputsDefaultReviewStatus",
+        "allOutputsDefaultAssetStatus",
+        "providerSecretValuesForbiddenInGit",
+        "providerProfileSwitchRequiresHumanReview",
+        "baseUrlChangeRequiresManualConfirmation",
+        "budgetOverrunAction",
+        "disableSwitchExposedToAdminOnly"
+      ],
+      "properties": {
+        "allowRealModelCallsDefault": { "type": "boolean" },
+        "allOutputsDefaultReviewStatus": { "type": "string" },
+        "allOutputsDefaultAssetStatus": { "type": "string" },
+        "providerSecretValuesForbiddenInGit": { "type": "boolean" },
+        "providerProfileSwitchRequiresHumanReview": { "type": "boolean" },
+        "baseUrlChangeRequiresManualConfirmation": { "type": "boolean" },
+        "budgetOverrunAction": { "type": "string" },
+        "disableSwitchExposedToAdminOnly": { "type": "boolean" }
+      }
+    }
+  }
+}

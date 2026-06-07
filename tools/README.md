@@ -418,6 +418,25 @@ must remain fail-closed to lighter profiles or manual takeover; the contract
 does not install packages, download models, or switch default OCR/export
 routes.
 
+NS1305 role-routed AI provider profile contract:
+
+```powershell
+.\tools\run-ns1305-role-routed-ai-contract.ps1
+```
+
+This verifies the administrator-only role-routed AI configuration contract on
+top of the fixed NS1304 runtime/toolchain baseline. It reuses the D001 router
+contract, D003 structured-output eval, NS204 no-active-write evidence, and
+NS503 budget/cache/cost evidence, then checks the `AiRoutingControlPanel` UI,
+`configs/ai-provider-profiles.defaults.yaml`, and the provider-profile schema.
+It requires simplified teacher modes (`offline_first`, `cloud_enhanced`,
+`local_enhanced`), multiple provider profiles with redacted env references,
+explicit base URL/concurrency/budget/fallback metadata, `AllowRealModelCalls`
+remaining `false`, and business routing code staying free of hard-coded model
+names. It writes `docs/evidence/20260607-ns1305-role-routed-ai.json` and does
+not enable real provider calls, store plaintext secrets, download local model
+weights, or switch production defaults.
+
 O003 recovery drill upgrade contract:
 
 ```powershell

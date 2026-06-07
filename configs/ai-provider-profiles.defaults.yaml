@@ -1,0 +1,78 @@
+schemaVersion: "ai-provider-profiles.defaults.v0.1"
+schemaPath: "schemas/ai/provider_profiles.schema.json"
+mode: "draft_test"
+teacherSimpleModes:
+  - id: "offline_first"
+    label: "离线优先"
+    summary: "默认只走规则、本地解析和 stub_llm 候选。"
+    visibleToTeacher: true
+    defaultProviderProfile: "stub_offline_default"
+    routePolicy: "local_first_rules_then_stub_llm_pending_review"
+  - id: "cloud_enhanced"
+    label: "云 API 增强"
+    summary: "管理员可选启用云 provider profile，但预算和 fallback 仍走受控门禁。"
+    visibleToTeacher: true
+    defaultProviderProfile: "cloud_openai_candidate"
+    routePolicy: "role_routed_cloud_candidate_pending_review"
+  - id: "local_enhanced"
+    label: "本地增强"
+    summary: "管理员可选启用本地量化模型评测网关，不默认下载模型权重。"
+    visibleToTeacher: true
+    defaultProviderProfile: "local_llm_eval_gateway"
+    routePolicy: "role_routed_local_eval_pending_review"
+providerProfiles:
+  - id: "stub_offline_default"
+    displayName: "离线默认 / stub"
+    providerType: "stub_llm"
+    credentialRef: "not_required:stub_llm"
+    baseUrl: "internal://stub_llm"
+    maxConcurrency: 1
+    monthlyBudgetCny: 0
+    fallbackPolicy: "pending_review_manual_takeover"
+    disabledByDefault: false
+    adminOnly: true
+    secretRedaction: "always_masked"
+    roleScopes:
+      - "bulk_prefilter_model"
+      - "engineering_review_model"
+      - "high_risk_review_model"
+      - "highest_risk_decision_model"
+  - id: "cloud_openai_candidate"
+    displayName: "云 API 候选"
+    providerType: "openai_compatible"
+    credentialRef: "env:KQG_AI_OPENAI_KEY"
+    baseUrl: "https://api.openai.com/v1"
+    maxConcurrency: 2
+    monthlyBudgetCny: 300
+    fallbackPolicy: "stub_offline_default_then_pending_review"
+    disabledByDefault: true
+    adminOnly: true
+    secretRedaction: "always_masked"
+    roleScopes:
+      - "bulk_prefilter_model"
+      - "engineering_review_model"
+      - "high_risk_review_model"
+      - "highest_risk_decision_model"
+  - id: "local_llm_eval_gateway"
+    displayName: "本地模型评测网关"
+    providerType: "custom_http"
+    credentialRef: "env:KQG_AI_LOCAL_GATEWAY_TOKEN"
+    baseUrl: "http://127.0.0.1:11434/v1"
+    maxConcurrency: 1
+    monthlyBudgetCny: 0
+    fallbackPolicy: "stub_offline_default_then_pending_review"
+    disabledByDefault: true
+    adminOnly: true
+    secretRedaction: "always_masked"
+    roleScopes:
+      - "mechanical_cleanup_model"
+      - "bulk_prefilter_model"
+runtimeGuardrails:
+  allowRealModelCallsDefault: false
+  allOutputsDefaultReviewStatus: "pending_review"
+  allOutputsDefaultAssetStatus: "candidate_or_draft"
+  providerSecretValuesForbiddenInGit: true
+  providerProfileSwitchRequiresHumanReview: true
+  baseUrlChangeRequiresManualConfirmation: true
+  budgetOverrunAction: "fail_closed_to_pending_review"
+  disableSwitchExposedToAdminOnly: true

@@ -1,0 +1,96 @@
+{
+  "status": "pass",
+  "taskId": "NS1305",
+  "checkedAt": "2026-06-07T21:21:05",
+  "mode": "role_routed_ai_provider_profile_contract",
+  "productionEligible": false,
+  "dependency": {
+    "ns1304": "docs/evidence/20260607-ns1304-toolchain-profile.json",
+    "ns204": "docs/evidence/20260529-ns204-no-active-write-guard-report.json",
+    "ns503": "docs/evidence/20260530-ns503-model-router-budget-report.json",
+    "d001": "tools/run-d001-model-router-contract.ps1",
+    "d003": "tools/run-d003-structured-output-eval.ps1"
+  },
+  "teacherSimpleModes": [
+    {
+      "id": "offline_first",
+      "label": "离线优先",
+      "defaultProviderProfile": "stub_offline_default"
+    },
+    {
+      "id": "cloud_enhanced",
+      "label": "云 API 增强",
+      "defaultProviderProfile": "cloud_openai_candidate"
+    },
+    {
+      "id": "local_enhanced",
+      "label": "本地增强",
+      "defaultProviderProfile": "local_llm_eval_gateway"
+    }
+  ],
+  "providerProfiles": [
+    {
+      "id": "stub_offline_default",
+      "providerType": "stub_llm",
+      "credentialRef": "not_required:stub_llm",
+      "baseUrl": "internal://stub_llm",
+      "maxConcurrency": 1,
+      "monthlyBudgetCny": 0,
+      "fallbackPolicy": "pending_review_manual_takeover",
+      "disabledByDefault": false
+    },
+    {
+      "id": "cloud_openai_candidate",
+      "providerType": "openai_compatible",
+      "credentialRef": "env:KQG_AI_OPENAI_KEY",
+      "baseUrl": "https://api.openai.com/v1",
+      "maxConcurrency": 2,
+      "monthlyBudgetCny": 300,
+      "fallbackPolicy": "stub_offline_default_then_pending_review",
+      "disabledByDefault": true
+    },
+    {
+      "id": "local_llm_eval_gateway",
+      "providerType": "custom_http",
+      "credentialRef": "env:KQG_AI_LOCAL_GATEWAY_TOKEN",
+      "baseUrl": "http://127.0.0.1:11434/v1",
+      "maxConcurrency": 1,
+      "monthlyBudgetCny": 0,
+      "fallbackPolicy": "stub_offline_default_then_pending_review",
+      "disabledByDefault": true
+    }
+  ],
+  "routing": {
+    "version": "d001.draft-test.v1",
+    "promptVersion": "prompt.d001.draft-test.v1",
+    "cacheByInputHash": true,
+    "recordCachedTokens": true,
+    "allowRealModelCalls": false,
+    "roles": [
+      "bulk_prefilter_model",
+      "mechanical_cleanup_model",
+      "engineering_review_model",
+      "high_risk_review_model",
+      "highest_risk_decision_model"
+    ]
+  },
+  "acceptance": {
+    "teacherSeesSimpleModesOnly": true,
+    "adminCanReviewMultipleProviderProfiles": true,
+    "apiKeyRefsAreRedacted": true,
+    "baseUrlConcurrencyBudgetFallbackVisible": true,
+    "businessCodeRoutesWithoutHardcodedModelNames": true,
+    "outputsStayCandidateDraftPendingReview": true,
+    "schemaEvalCostCacheNoActiveWriteBoundariesLinked": true,
+    "secretRedactionCheckPassed": true
+  },
+  "verification": {
+    "build": "npm --prefix apps/web run build",
+    "test": "npm --prefix apps/web run lint",
+    "contractInvariant": "D001 + D003 + NS204 + NS503 + provider/routing UI contract + secret redaction check",
+    "hotspot": "gate_na: no real cloud token enablement, no local model download, and no production default switch"
+  },
+  "boundary": "NS1305 proves the repository has an administrator-only role-routed AI configuration contract with simplified teacher modes, provider profile metadata, budget/cache/no-active-write links, and secret redaction. It does not enable real provider calls, does not store plaintext secrets, and does not switch production defaults.",
+  "rollback": "git restore apps/web/src/ui/AdminGovernancePanels.tsx apps/web/src/App.css docs/04_TechnologyStack.md tools/README.md tools/run-gates.ps1 tasks/non-site-implementation-plan.csv tasks/productization-roadmap.csv; git clean -f -- apps/web/src/ui/AiRoutingControlPanel.tsx configs/ai-provider-profiles.defaults.yaml schemas/ai/provider_profiles.schema.json docs/evidence/20260607-ns1305-role-routed-ai.json tools/run-ns1305-role-routed-ai-contract.ps1",
+  "next": "NS1306 stays on the same allowlisted tool boundary while NS1305 provides the administrator AI routing contract underneath."
+}

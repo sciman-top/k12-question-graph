@@ -58,6 +58,7 @@
 .score-panel,
 .analysis-panel,
 .service-control-panel,
+.ai-routing-panel,
 .admin-knowledge-panel,
 .activation-panel,
 .knowledge-health-panel,
@@ -262,6 +263,7 @@
 .score-panel,
 .analysis-panel,
 .service-control-panel,
+.ai-routing-panel,
 .admin-knowledge-panel,
 .status-panel,
 .source-material-panel,
@@ -284,6 +286,11 @@
 }
 
 .service-control-panel {
+  grid-column: 1 / -1;
+  padding: 24px;
+}
+
+.ai-routing-panel {
   grid-column: 1 / -1;
   padding: 24px;
 }
@@ -400,6 +407,113 @@
 }
 
 .service-control-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.ai-routing-mode-grid,
+.ai-provider-grid,
+.ai-role-grid {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.ai-routing-mode-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.ai-provider-grid,
+.ai-role-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ai-routing-mode-card,
+.ai-provider-card,
+.ai-role-card,
+.ai-routing-guardrail {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+}
+
+.ai-routing-mode-card,
+.ai-role-card {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 12px;
+  padding: 16px;
+}
+
+.ai-provider-card {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+}
+
+.ai-provider-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ai-routing-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.ai-routing-mode-card span,
+.ai-provider-card span,
+.ai-role-card span,
+.ai-routing-guardrail span {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.ai-routing-mode-card small,
+.ai-provider-card small,
+.ai-role-card small {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.ai-provider-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 12px;
+}
+
+.ai-provider-meta code,
+.ai-routing-mode-card code,
+.ai-role-card code {
+  display: inline-block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.ai-routing-guardrails {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.ai-routing-guardrail {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+}
+
+.ai-routing-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
