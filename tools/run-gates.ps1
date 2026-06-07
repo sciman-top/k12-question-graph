@@ -838,6 +838,10 @@ try {
         .\tools\run-ns905-status-sync-audit.ps1 -P001ReportPath ('docs/evidence/{0}-p001-live-pilot-readiness-preflight-report.json' -f $p0LiveRunDate) -NS904ReportPath ('docs/evidence/{0}-ns904-p001-readiness.json' -f $p0LiveRunDate) -ReportPath ('docs/evidence/{0}-ns905-status-sync.md' -f $p0LiveRunDate) | Write-Host
     }
 
+    Invoke-GateStep 'ns1001 isolated machine execution pack contract' {
+        .\tools\run-ns1001-isolated-machine-pack-contract.ps1 | Write-Host
+    }
+
     Invoke-GateStep 'p002 teacher proxy pilot preflight contract' {
         .\tools\run-p002-teacher-proxy-pilot-preflight-contract.ps1 -ReportPath ('docs/evidence/{0}-p002-teacher-proxy-pilot-admission-report.json' -f $p0LiveRunDate) | Write-Host
     }

@@ -468,6 +468,36 @@ not execute isolated-machine install, onsite teacher observation, printer /
 network / domain validation, or release signoff; those remain under
 `P001/P003/P005/P006`.
 
+NS1001 isolated-machine execution pack:
+
+```powershell
+.\tools\run-ns1001-isolated-machine-execution-pack.ps1
+```
+
+This assembles the repo-side field package for the isolated-machine rehearsal.
+It copies the latest `P001` / `NS904` / `NS1308` readiness evidence, the
+Windows Service release package, the EF migration bundle package, the P001
+checklist, the operator one-pager, the markdown/json return templates, and a sha256 manifest into
+`tmp/ns1001-execution-pack/<timestamp>/`. It writes
+`docs/evidence/<date>-ns1001-isolated-machine-execution-pack.json` and keeps
+`P001` as `待办`: the script packages the rehearsal inputs, but it does not
+create real isolated-machine evidence or operator signoff.
+
+NS1001 isolated-machine evidence import:
+
+```powershell
+.\tools\run-ns1001-isolated-machine-evidence-import.ps1 -ReturnedPackRoot <returned-pack-root>
+```
+
+This validates a returned isolated-machine execution pack after the field run.
+It checks the returned JSON/markdown schema, the attached logs/screenshots,
+cross-verifies the anchored `P001` / `NS904` / `NS1308` / `REAL012` reports,
+then imports the returned markdown into `docs/evidence/<date>-p001-isolated-machine.md`
+and the attachments into `docs/evidence/attachments/<date>-p001-isolated-machine/`.
+It writes `docs/evidence/<date>-ns1001-isolated-machine-validation.json` with
+`closeP001Allowed=true|false`, but it does not update `tasks/backlog.csv` by
+itself. Human review still decides whether `P001` can move to `已完成`.
+
 O003 recovery drill upgrade contract:
 
 ```powershell

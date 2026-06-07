@@ -1,0 +1,139 @@
+{
+  "schemaVersion": "p001-isolated-machine-evidence.v1",
+  "execution": {
+    "date": "<YYYY-MM-DD>",
+    "machineId": "<machine-id>",
+    "location": "<school-or-room>",
+    "operator": "<operator-name>",
+    "supportOwner": "<support-owner>",
+    "packageVersion": "<package-version-or-commit>",
+    "rollbackOwner": "<rollback-owner>"
+  },
+  "anchors": {
+    "p001PreflightReport": "docs/evidence/<date>-p001-live-pilot-readiness-preflight-report.json",
+    "ns904ReadinessPack": "docs/evidence/<date>-ns904-p001-readiness.json",
+    "ns1308ReleasePack": "docs/evidence/<date>-ns1308-release-evidence-pack.json",
+    "real012QualityReport": "docs/evidence/20260518-real012-production-flow-quality-report.json",
+    "checklistVerified": false
+  },
+  "installInit": {
+    "status": "not_run",
+    "installDir": "",
+    "dataDir": "",
+    "backupDir": "",
+    "pgpassNonInteractiveOk": false,
+    "hostCapabilitySummary": "",
+    "workerProfileSummary": "",
+    "technologyRefreshSummary": "",
+    "initLogPaths": [
+      "docs/evidence/attachments/<date>-p001-isolated-machine/<init-log-file>"
+    ],
+    "commands": [
+      {
+        "command": "",
+        "exitCode": "",
+        "keyOutput": ""
+      }
+    ]
+  },
+  "backupRestore": {
+    "status": "not_run",
+    "backupManifestPath": "",
+    "verifySummary": "",
+    "restoreSummary": "",
+    "healthReadinessSummary": "",
+    "rollbackCommand": "",
+    "attachmentPaths": [
+      "docs/evidence/attachments/<date>-p001-isolated-machine/<backup-or-restore-artifact>"
+    ],
+    "commands": [
+      {
+        "command": "",
+        "exitCode": "",
+        "keyOutput": ""
+      }
+    ]
+  },
+  "roleAudit": {
+    "status": "not_run",
+    "teacherGroupLeadAdminSeparation": "",
+    "adminFailClosed": "",
+    "internalAiFailClosed": "",
+    "auditLogPaths": [
+      "docs/evidence/attachments/<date>-p001-isolated-machine/<audit-log>"
+    ],
+    "domainPermissionSummary": "",
+    "commands": [
+      {
+        "command": "",
+        "exitCode": "",
+        "keyOutput": ""
+      }
+    ]
+  },
+  "teacherEntrySmokes": {
+    "import": {
+      "status": "not_run",
+      "durationMinutes": "",
+      "blockers": [],
+      "takeoverPoints": [],
+      "rollbackAction": "",
+      "attachmentPaths": []
+    },
+    "paperAssembly": {
+      "status": "not_run",
+      "durationMinutes": "",
+      "blockers": [],
+      "takeoverPoints": [],
+      "rollbackAction": "",
+      "attachmentPaths": []
+    },
+    "scoreImport": {
+      "status": "not_run",
+      "durationMinutes": "",
+      "blockers": [],
+      "takeoverPoints": [],
+      "rollbackAction": "",
+      "attachmentPaths": []
+    },
+    "analysis": {
+      "status": "not_run",
+      "durationMinutes": "",
+      "blockers": [],
+      "takeoverPoints": [],
+      "rollbackAction": "",
+      "attachmentPaths": []
+    }
+  },
+  "siteSpecific": {
+    "printerSummary": "",
+    "networkSummary": "",
+    "domainPermissionSummary": "",
+    "openBlockers": [],
+    "attachmentPaths": []
+  },
+  "na": {
+    "platformNa": {
+      "used": false,
+      "reason": "",
+      "alternativeVerification": "",
+      "evidenceLink": "",
+      "expiresAt": ""
+    },
+    "gateNa": {
+      "used": false,
+      "reason": "",
+      "alternativeVerification": "",
+      "evidenceLink": "",
+      "expiresAt": ""
+    }
+  },
+  "signoff": {
+    "decision": "keep_blocked",
+    "remainingRisks": [],
+    "rollbackConfirmed": false,
+    "operatorSignoff": "",
+    "supportOwnerSignoff": "",
+    "releaseOwnerReview": ""
+  }
+}
