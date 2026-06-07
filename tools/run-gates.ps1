@@ -275,6 +275,10 @@ try {
         .\tools\run-ns1302-service-control-panel-contract.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'ns1303 runtime profile contract' {
+        .\tools\run-ns1303-runtime-profile-contract.ps1 | Write-Host
+    }
+
     Invoke-GateStep 'ns106 feature profile guard' {
         .\tools\run-ns106-feature-profile-guard.ps1 | Write-Host
     }

@@ -1,0 +1,279 @@
+{
+  "status": "pass",
+  "taskId": "NS1303",
+  "checkedAt": "2026-06-07T20:33:37",
+  "mode": "read_only_runtime_profile_generation",
+  "productionEligible": false,
+  "dependency": {
+    "ns1302": "docs/evidence/20260607-ns1302-service-control-panel.json"
+  },
+  "diagnostics": {
+    "workerProfileReport": "docs/evidence/20260607-ns1303-worker-profile-diagnostic-report.json",
+    "hostCapabilityReport": "docs/evidence/20260607-ns1303-host-capability-diagnostic-report.json",
+    "workerRecommendedDefaultProfile": "direct_venv_lite",
+    "localSystemProfile": {
+      "profileSet": "local_system_profile.v1",
+      "runtimeProfile": "windows_service_with_explicit_content_root",
+      "databaseProfile": "local_postgresql_with_pg_dump_restore",
+      "storageBackupProfile": "local_ntfs_file_store_plus_manifest_backup",
+      "workerOcrProfile": "direct_venv_lite",
+      "exportPrintProfile": "docx_pdf_artifact_chain_with_preflight_manifest",
+      "aiNetworkProfile": "offline_first_no_cloud_token_by_default",
+      "aiLocalModelProfile": "optional_local_llm_3b_7b_quantized_eval_only",
+      "searchProfile": "postgresql_fts_pg_trgm_first_pgvector_only_after_eval",
+      "queueProfile": "postgresql_job_store_backgroundservice_first",
+      "securityProfile": "admin_key_bootstrap_then_rbac_audit_before_live"
+    }
+  },
+  "generatedConfigDiff": {
+    "mode": "draft_overlay_only",
+    "installerConfig": "configs\\installer_init.defaults.yaml",
+    "serviceControlAction": "service-open-config-diff",
+    "entries": [
+      {
+        "key": "LocalSystemProfile.profileSet",
+        "current": "",
+        "proposed": "local_system_profile.v1",
+        "source": "host_capability_diagnostic",
+        "writeMode": "draft_overlay_only"
+      },
+      {
+        "key": "LocalSystemProfile.runtimeProfile",
+        "current": "",
+        "proposed": "windows_service_with_explicit_content_root",
+        "source": "host_capability_diagnostic",
+        "writeMode": "draft_overlay_only"
+      },
+      {
+        "key": "LocalSystemProfile.databaseProfile",
+        "current": "",
+        "proposed": "local_postgresql_with_pg_dump_restore",
+        "source": "host_capability_diagnostic",
+        "writeMode": "draft_overlay_only"
+      },
+      {
+        "key": "LocalSystemProfile.storageBackupProfile",
+        "current": "",
+        "proposed": "local_ntfs_file_store_plus_manifest_backup",
+        "source": "host_capability_diagnostic",
+        "writeMode": "draft_overlay_only"
+      },
+      {
+        "key": "LocalSystemProfile.workerOcrProfile",
+        "current": "",
+        "proposed": "direct_venv_lite",
+        "source": "host_capability_diagnostic",
+        "writeMode": "draft_overlay_only"
+      },
+      {
+        "key": "LocalSystemProfile.exportPrintProfile",
+        "current": "",
+        "proposed": "docx_pdf_artifact_chain_with_preflight_manifest",
+        "source": "host_capability_diagnostic",
+        "writeMode": "draft_overlay_only"
+      },
+      {
+        "key": "LocalSystemProfile.aiNetworkProfile",
+        "current": "",
+        "proposed": "offline_first_no_cloud_token_by_default",
+        "source": "host_capability_diagnostic",
+        "writeMode": "draft_overlay_only"
+      },
+      {
+        "key": "LocalSystemProfile.aiLocalModelProfile",
+        "current": "",
+        "proposed": "optional_local_llm_3b_7b_quantized_eval_only",
+        "source": "host_capability_diagnostic",
+        "writeMode": "draft_overlay_only"
+      },
+      {
+        "key": "LocalSystemProfile.searchProfile",
+        "current": "",
+        "proposed": "postgresql_fts_pg_trgm_first_pgvector_only_after_eval",
+        "source": "host_capability_diagnostic",
+        "writeMode": "draft_overlay_only"
+      },
+      {
+        "key": "LocalSystemProfile.queueProfile",
+        "current": "",
+        "proposed": "postgresql_job_store_backgroundservice_first",
+        "source": "host_capability_diagnostic",
+        "writeMode": "draft_overlay_only"
+      },
+      {
+        "key": "LocalSystemProfile.securityProfile",
+        "current": "",
+        "proposed": "admin_key_bootstrap_then_rbac_audit_before_live",
+        "source": "host_capability_diagnostic",
+        "writeMode": "draft_overlay_only"
+      },
+      {
+        "key": "KqgPaths.DataRoot",
+        "current": "D:\\KQG_Data",
+        "proposed": "D:\\KQG_Data",
+        "source": "installer_defaults",
+        "writeMode": "draft_overlay_only"
+      },
+      {
+        "key": "KqgPaths.FileStoreRoot",
+        "current": "D:\\KQG_Data\\file_store",
+        "proposed": "D:\\KQG_Data\\file_store",
+        "source": "installer_defaults",
+        "writeMode": "draft_overlay_only"
+      },
+      {
+        "key": "KqgPaths.BackupRoot",
+        "current": "D:\\KQG_Backups",
+        "proposed": "D:\\KQG_Backups",
+        "source": "installer_defaults",
+        "writeMode": "draft_overlay_only"
+      },
+      {
+        "key": "KqgPaths.LogsRoot",
+        "current": "D:\\KQG_Data\\logs",
+        "proposed": "D:\\KQG_Data\\logs",
+        "source": "installer_defaults",
+        "writeMode": "draft_overlay_only"
+      },
+      {
+        "key": "KqgPaths.CacheRoot",
+        "current": "D:\\KQG_Data\\cache",
+        "proposed": "D:\\KQG_Data\\cache",
+        "source": "installer_defaults",
+        "writeMode": "draft_overlay_only"
+      },
+      {
+        "key": "PythonWorker.RecommendedProfile",
+        "current": "",
+        "proposed": "direct_venv_lite",
+        "source": "worker_profile_diagnostic",
+        "writeMode": "draft_overlay_only"
+      },
+      {
+        "key": "PythonWorker.ModelCacheRoot",
+        "current": "",
+        "proposed": "D:\\KQG_Data\\cache\\ocr-models",
+        "source": "installer_defaults",
+        "writeMode": "draft_overlay_only"
+      },
+      {
+        "key": "Runtime.WindowsServiceHost",
+        "current": "",
+        "proposed": "windows_service_with_explicit_content_root",
+        "source": "host_capability_diagnostic",
+        "writeMode": "draft_overlay_only"
+      },
+      {
+        "key": "AiProfiles.Network",
+        "current": "",
+        "proposed": "offline_first_no_cloud_token_by_default",
+        "source": "host_capability_diagnostic",
+        "writeMode": "draft_overlay_only"
+      },
+      {
+        "key": "AiProfiles.LocalModel",
+        "current": "",
+        "proposed": "optional_local_llm_3b_7b_quantized_eval_only",
+        "source": "host_capability_diagnostic",
+        "writeMode": "draft_overlay_only"
+      },
+      {
+        "key": "SearchQueue.SearchProfile",
+        "current": "",
+        "proposed": "postgresql_fts_pg_trgm_first_pgvector_only_after_eval",
+        "source": "host_capability_diagnostic",
+        "writeMode": "draft_overlay_only"
+      },
+      {
+        "key": "SearchQueue.QueueProfile",
+        "current": "",
+        "proposed": "postgresql_job_store_backgroundservice_first",
+        "source": "host_capability_diagnostic",
+        "writeMode": "draft_overlay_only"
+      }
+    ],
+    "proposedOverlay": {
+      "installer": {
+        "version": "o002.installer-init.v1",
+        "mode": "draft_test",
+        "adaptiveOnNewHost": true,
+        "requiredProfiles": [
+          "runtimeProfile",
+          "databaseProfile",
+          "storageBackupProfile",
+          "workerOcrProfile",
+          "exportPrintProfile",
+          "aiNetworkProfile",
+          "aiLocalModelProfile",
+          "searchProfile",
+          "queueProfile",
+          "securityProfile"
+        ]
+      },
+      "paths": {
+        "dataRoot": "D:\\KQG_Data",
+        "backupRoot": "D:\\KQG_Backups",
+        "fileStoreRoot": "D:\\KQG_Data\\file_store",
+        "logsRoot": "D:\\KQG_Data\\logs",
+        "cacheRoot": "D:\\KQG_Data\\cache",
+        "modelCacheRoot": "D:\\KQG_Data\\cache\\ocr-models"
+      },
+      "pythonWorker": {
+        "recommendedProfile": "direct_venv_lite",
+        "pythonExecutable": "python",
+        "documentWorkerScript": "worker\\document\\worker.py",
+        "timeoutSeconds": 20,
+        "fallback": "missing OCR engines must fall back to pending_review/takeoverRequired"
+      },
+      "ai": {
+        "networkProfile": "offline_first_no_cloud_token_by_default",
+        "localModelProfile": "optional_local_llm_3b_7b_quantized_eval_only",
+        "localModelRequiresEvalBeforeDefault": true,
+        "localModelNoActiveWrite": true
+      },
+      "searchQueue": {
+        "searchProfile": "postgresql_fts_pg_trgm_first_pgvector_only_after_eval",
+        "queueProfile": "postgresql_job_store_backgroundservice_first"
+      }
+    }
+  },
+  "automationBoundary": {
+    "lowRiskAutoActions": [
+      "generate draft appsettings/local profile files",
+      "create project-owned data/cache directories through installer dry-run",
+      "select draft worker profile from diagnostic output",
+      "record local model runtime candidates and recommended draft-only model class",
+      "record tool versions and missing dependencies in evidence"
+    ],
+    "humanConfirmationBefore": [
+      "installing system services or drivers",
+      "changing firewall, antivirus, GPU runtime, Docker Desktop, or WSL installation",
+      "configuring cloud tokens or paid providers",
+      "downloading local model weights or enabling local model as default route",
+      "processing real non-anonymized teacher/student materials",
+      "switching production active profile or release readiness status"
+    ]
+  },
+  "acceptance": {
+    "hostCapabilityDiagnosticReadOnly": true,
+    "workerProfileDiagnosticReadOnly": true,
+    "localSystemProfilePresent": true,
+    "workerOcrProfilePresent": true,
+    "aiNetworkProfilePresent": true,
+    "aiLocalModelProfilePresent": true,
+    "searchProfilePresent": true,
+    "queueProfilePresent": true,
+    "generatedConfigDiffPresent": true,
+    "serviceControlPanelCanExposeConfigDiff": true,
+    "onlyLowRiskActionsAutoSuggested": true
+  },
+  "verification": {
+    "build": "gate_na: NS1303 uses read-only diagnostics and generated draft config diff only; no product build needed for this slice",
+    "test": "tools/run-worker-profile-diagnostic-contract.ps1 + tools/run-host-capability-diagnostic-contract.ps1",
+    "contractInvariant": "required localSystemProfile keys plus generated config diff must stay present and service control panel must expose the config-diff action",
+    "hotspot": "gate_na: no real service install, no driver/runtime change, no cloud token enablement, no model download, and no production default switch"
+  },
+  "boundary": "NS1303 turns host/worker diagnostics into a reusable draft config overlay for installer or service control panel review. It does not mutate appsettings, install dependencies, enable cloud AI, download local models, or switch production defaults.",
+  "rollback": "git restore tasks/non-site-implementation-plan.csv tasks/productization-roadmap.csv tools/run-gates.ps1 tools/README.md; git clean -f -- tools/run-ns1303-runtime-profile-contract.ps1 docs/evidence/20260607-ns1303-worker-profile-diagnostic-report.json docs/evidence/20260607-ns1303-host-capability-diagnostic-report.json docs/evidence/20260607-ns1303-runtime-profile.json",
+  "next": "NS1304 can continue toolchain admission and fail-closed profile selection from the generated runtime profile overlay."
+}

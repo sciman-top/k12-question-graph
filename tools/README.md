@@ -383,6 +383,24 @@ or start a real Windows Service on a target machine; isolated-machine
 deployment, operator validation, and live release signoff remain under
 `NS1001/P001/P006`.
 
+NS1303 runtime profile contract:
+
+```powershell
+.\tools\run-ns1303-runtime-profile-contract.ps1
+```
+
+This turns the existing worker-profile diagnostic plus host-capability
+diagnostic into one NS13 draft config overlay pack. It reruns the read-only
+diagnostics, verifies the required `localSystemProfile` keys
+(`workerOcrProfile`, `aiNetworkProfile`, `aiLocalModelProfile`,
+`searchProfile`, `queueProfile`, and the remaining runtime/storage/security
+profiles), checks that the service control panel exposes
+`service-open-config-diff`, and writes
+`docs/evidence/20260607-ns1303-runtime-profile.json` together with fresh worker
+and host diagnostic reports. It does not mutate `appsettings.json`, install
+dependencies, download model weights, enable cloud providers, or switch any
+production default.
+
 O003 recovery drill upgrade contract:
 
 ```powershell
