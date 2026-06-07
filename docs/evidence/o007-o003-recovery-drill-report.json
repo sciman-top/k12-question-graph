@@ -4,10 +4,10 @@
   "mode": "draft_test",
   "productionEligible": false,
   "backup": {
-    "manifest": "tmp\\o007\\o003-backup-root\\20260607-030753\\manifest.json",
-    "backupDir": "tmp\\o007\\o003-backup-root\\20260607-030753",
-    "databaseDump": "tmp\\o007\\o003-backup-root\\20260607-030753\\database.dump",
-    "fileCount": 16587,
+    "manifest": "tmp\\o007\\o003-backup-root\\20260607-203919\\manifest.json",
+    "backupDir": "tmp\\o007\\o003-backup-root\\20260607-203919",
+    "databaseDump": "tmp\\o007\\o003-backup-root\\20260607-203919\\database.dump",
+    "fileCount": 17174,
     "configCount": 3
   },
   "recoveryDrill": {
@@ -19,7 +19,7 @@
       "schemaExtractOk": true
     },
     "fileStore": {
-      "restoredFileCount": 16587,
+      "restoredFileCount": 17174,
       "targetRoot": "tmp\\o003\\restore-drill\\file_store"
     },
     "configs": {

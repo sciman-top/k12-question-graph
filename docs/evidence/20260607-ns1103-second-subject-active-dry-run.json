@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS1103",
-  "checkedAt": "2026-06-07T03:12:08",
+  "checkedAt": "2026-06-07T20:50:13",
   "mode": "second_subject_active_dry_run_boundary",
   "reportPath": "docs/evidence/20260607-ns1103-second-subject-active-dry-run.json",
   "backlogPath": "tasks/backlog.csv",

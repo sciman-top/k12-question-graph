@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS903",
-  "checkedAt": "2026-06-07T03:00:19",
+  "checkedAt": "2026-06-07T20:28:58",
   "mode": "completion_dashboard_refresh",
   "productionEligible": false,
   "nonSiteValidated": false,
@@ -44,10 +44,10 @@
     "rowCount": 81,
     "statusCounts": {
       "blocked_by_onsite": 5,
-      "planned": 6,
-      "runtime_verified": 70
+      "planned": 4,
+      "runtime_verified": 72
     },
-    "runtimeVerifiedCount": 70,
+    "runtimeVerifiedCount": 72,
     "nonSiteValidatedCount": 0,
     "nextAfterNs903": "NS904"
   },

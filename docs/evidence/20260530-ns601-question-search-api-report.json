@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS601",
-  "checkedAt": "2026-06-07T02:52:40",
+  "checkedAt": "2026-06-07T20:15:31",
   "mode": "question_search_api_runtime_filters_and_card_summary",
   "productionEligible": false,
   "queryReferenceProductionEligible": true,
@@ -36,7 +36,7 @@
   },
   "cards": {
     "rich": {
-      "id": "de4b17be-5973-4d8a-818d-db3e07fb005e",
+      "id": "5d31660a-c91a-4746-b553-f479cd9c2400",
       "preview": "NS601 富媒体检索题，含公式、表格和题图。",
       "blockCount": 3,
       "assetCount": 1,
@@ -48,7 +48,7 @@
       "hasImage": true
     },
     "plain": {
-      "id": "c4b38d93-7b32-4557-ae2e-59b4465c997b",
+      "id": "a062fc75-d93e-4b18-9eb7-cd98a3ad35cb",
       "preview": "NS601 普通检索题，不含公式、表格和题图。",
       "blockCount": 1,
       "assetCount": 0,
@@ -72,5 +72,5 @@
   },
   "boundary": "NS601 proves the question search API can filter by knowledge reference, question type, difficulty, source type, status, and rich-media flags, and returns question-card summaries with active version reference. This uses synthetic draft fixture questions, performs no production active switch, calls no external AI, uses no real student data, and does not close REAL005.",
   "next": "NS602 can continue question-card UI productization on top of the verified search API contract.",
-  "rollback": "delete from review_queue_items where payload->>'questionItemId' in ('de4b17be-5973-4d8a-818d-db3e07fb005e','c4b38d93-7b32-4557-ae2e-59b4465c997b'); delete from question_assets where question_item_id in ('de4b17be-5973-4d8a-818d-db3e07fb005e','c4b38d93-7b32-4557-ae2e-59b4465c997b'); delete from question_blocks where question_item_id in ('de4b17be-5973-4d8a-818d-db3e07fb005e','c4b38d93-7b32-4557-ae2e-59b4465c997b'); delete from question_items where id in ('de4b17be-5973-4d8a-818d-db3e07fb005e','c4b38d93-7b32-4557-ae2e-59b4465c997b'); delete from source_regions where source_document_id = 'fe59682a-5218-4fae-b892-e32c179da454'; delete from source_documents where id = 'fe59682a-5218-4fae-b892-e32c179da454'; delete from file_assets where id = '6332a388-09bb-4f55-8a76-16bc054b3226'; git restore apps/api/Program.cs tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns601-question-search-api.ps1 docs/evidence/20260530-ns601-question-search-api-report.json"
+  "rollback": "delete from review_queue_items where payload->>'questionItemId' in ('5d31660a-c91a-4746-b553-f479cd9c2400','a062fc75-d93e-4b18-9eb7-cd98a3ad35cb'); delete from question_assets where question_item_id in ('5d31660a-c91a-4746-b553-f479cd9c2400','a062fc75-d93e-4b18-9eb7-cd98a3ad35cb'); delete from question_blocks where question_item_id in ('5d31660a-c91a-4746-b553-f479cd9c2400','a062fc75-d93e-4b18-9eb7-cd98a3ad35cb'); delete from question_items where id in ('5d31660a-c91a-4746-b553-f479cd9c2400','a062fc75-d93e-4b18-9eb7-cd98a3ad35cb'); delete from source_regions where source_document_id = 'd17332f4-c639-4781-8185-222f964f9354'; delete from source_documents where id = 'd17332f4-c639-4781-8185-222f964f9354'; delete from file_assets where id = 'df7220fb-361c-4e7e-9ed7-3fa3355f5804'; git restore apps/api/Program.cs tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns601-question-search-api.ps1 docs/evidence/20260530-ns601-question-search-api-report.json"
 }

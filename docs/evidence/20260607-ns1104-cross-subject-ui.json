@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS1104",
-  "checkedAt": "2026-06-07T03:12:08",
+  "checkedAt": "2026-06-07T20:50:14",
   "mode": "cross_subject_diff_and_ui_simplification_boundary",
   "reportPath": "docs/evidence/20260607-ns1104-cross-subject-ui.json",
   "backlogPath": "tasks/backlog.csv",

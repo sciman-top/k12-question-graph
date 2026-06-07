@@ -1,7 +1,7 @@
 # NS905 status sync audit
 
 - status: pass
-- checked_at: 2026-06-07T03:12:07
+- checked_at: 2026-06-07T20:50:13
 - task_id: NS905
 - mode: csv_status_sync_audit
 - backlog_path: `tasks/backlog.csv`
@@ -37,13 +37,13 @@
 
 ## Non-Site Plan
 - status.blocked_by_onsite: 5
-- status.planned: 6
-- status.runtime_verified: 70
+- status.planned: 2
+- status.runtime_verified: 74
 - ns903: runtime_verified -> docs/evidence/20260530-ns903-completion-dashboard.json
 - ns904: runtime_verified -> docs/evidence/20260530-ns904-p001-readiness.json
 - ns905_current_status: runtime_verified
 - ns1001: blocked_by_onsite
-- next_planned_task_after_this_sync: NS1301
+- next_planned_task_after_this_sync: NS1305
 
 ## Acceptance
 - backlog_p001_p006_remain_todo: true

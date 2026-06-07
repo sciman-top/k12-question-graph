@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS702",
-  "checkedAt": "2026-06-07T02:54:00",
+  "checkedAt": "2026-06-07T20:17:19",
   "mode": "item_score_mapping_ui_api",
   "productionEligible": false,
   "externalAiCalls": 0,
@@ -14,9 +14,9 @@
   },
   "mapping": {
     "endpoint": "/assessments/{assessmentId}/item-score-mappings/preview",
-    "assessmentId": "07bfdda7-2584-4586-8284-6b9032cbb2c0",
-    "questionId": "8a1eb467-320a-4bd6-bb6c-da250cba5cb0",
-    "knowledgeId": "1ba36b29-db6e-4c4d-a50e-9bbf7919a99c",
+    "assessmentId": "b50c12f9-eaf5-4585-a23f-925c37db1c5d",
+    "questionId": "c345f434-14aa-46f1-b7b6-8aba20659c10",
+    "knowledgeId": "f00ae69d-907e-479a-8e30-102177ee78fd",
     "itemCount": 2,
     "mappedCount": 1,
     "unclearCount": 1,

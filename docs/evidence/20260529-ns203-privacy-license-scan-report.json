@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS203",
-  "checkedAt": "2026-06-07T02:50:25",
+  "checkedAt": "2026-06-07T20:11:11",
   "mode": "tracked_text_privacy_license_scan",
   "productionEligible": false,
   "scanScope": {
@@ -18,7 +18,7 @@
       "README.md",
       "ALL_IN_ONE_EXECUTIVE_SPEC.md"
     ],
-    "trackedFileCount": 930,
+    "trackedFileCount": 959,
     "policyPath": "docs/102_NonSiteFixturePrivacyPolicy.md",
     "fixturePolicyPath": "tests/golden-import/privacy_and_license.md",
     "rawIgnorePath": "sources/raw/.gitignore"
@@ -32,7 +32,7 @@
     "blockingTrackedBinaryFiles": 0,
     "trackedRawSourceBlockers": 0,
     "localRawSourceFiles": 0,
-    "policyMentionCount": 432,
+    "policyMentionCount": 454,
     "copyrightRawPathMarkers": 0,
     "excludedGeneratedScanReports": 1
   },
@@ -677,6 +677,18 @@
         "term": "学号"
       },
       {
+        "path": "apps/web/src/ui/PaperWorkbenchPanels.tsx",
+        "term": "授权"
+      },
+      {
+        "path": "apps/web/src/ui/PaperWorkbenchPanels.tsx",
+        "term": "containsStudentPii"
+      },
+      {
+        "path": "apps/web/src/ui/ScoreWorkbenchPanelContent.tsx",
+        "term": "真实学生"
+      },
+      {
         "path": "configs/knowledge/source-material-manifest.example.json",
         "term": "containsStudentPii"
       },
@@ -691,18 +703,6 @@
       {
         "path": "docs/03_Architecture.md",
         "term": "真实学生"
-      },
-      {
-        "path": "docs/04_TechnologyStack.md",
-        "term": "授权"
-      },
-      {
-        "path": "docs/05_DomainModel.md",
-        "term": "学生姓名"
-      },
-      {
-        "path": "docs/05_DomainModel.md",
-        "term": "学号"
       }
     ],
     "copyrightRawPathMarkers": [],

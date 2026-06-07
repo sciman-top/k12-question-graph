@@ -307,14 +307,14 @@
       "anchor": "D:\\",
       "available": true,
       "totalGb": 930.0,
-      "freeGb": 391.01
+      "freeGb": 374.19
     },
     "backupRoot": {
       "path": "D:\\KQG_Backups",
       "anchor": "D:\\",
       "available": true,
       "totalGb": 930.0,
-      "freeGb": 391.01
+      "freeGb": 374.19
     }
   },
   "workerOcrProfile": {

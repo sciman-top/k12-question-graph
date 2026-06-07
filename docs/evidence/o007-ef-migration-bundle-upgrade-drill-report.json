@@ -15,8 +15,8 @@
   },
   "upgradeDrill": {
     "bundleRunExitCode": 0,
-    "backupManifest": "tmp\\o007\\backup-root\\20260607-030649\\manifest.json",
-    "backupDir": "tmp\\o007\\backup-root\\20260607-030649",
+    "backupManifest": "tmp\\o007\\backup-root\\20260607-203751\\manifest.json",
+    "backupDir": "tmp\\o007\\backup-root\\20260607-203751",
     "backupVerify": "pass",
     "restoreDrillReport": "docs/evidence/o007-o003-recovery-drill-report.json"
   },

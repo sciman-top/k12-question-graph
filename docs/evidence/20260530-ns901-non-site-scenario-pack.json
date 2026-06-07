@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS901",
-  "checkedAt": "2026-06-07T03:00:19",
+  "checkedAt": "2026-06-07T20:28:57",
   "mode": "non_site_scenario_pack_runtime_verification",
   "productionEligible": false,
   "nonSiteValidated": false,
@@ -16,7 +16,7 @@
     "ns806": "docs/evidence/20260530-ns806-upgrade-bundle.json",
     "s012a": "docs/evidence/20260508-s012a-e2e-proxy-fixture-pack-report.json",
     "s012b": "docs/evidence/20260509-s012b-non-site-e2e-rehearsal-report.json",
-    "s012bPreRunBackup": "tmp\\s012b\\pre-run-backup\\20260607-025657\\manifest.json"
+    "s012bPreRunBackup": "tmp\\s012b\\pre-run-backup\\20260607-202423\\manifest.json"
   },
   "scenarioPack": {
     "manifestPath": "tests/e2e/s012a-proxy-fixture-pack.json",
@@ -44,7 +44,7 @@
       "analysis",
       "backup_restore"
     ],
-    "elapsedMinutes": 3.36,
+    "elapsedMinutes": 4.58,
     "takeoverPoints": [
       "keep original upload and adapter diagnostics",
       "manual box source region",
@@ -53,54 +53,54 @@
       "block commentary export until item score mappings are clear",
       "restore from pre-run backup manifest if rehearsal data must be removed"
     ],
-    "rollbackCommand": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/restore-backup.ps1 -ManifestPath 'tmp\\s012b\\pre-run-backup\\20260607-025657\\manifest.json'",
+    "rollbackCommand": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/restore-backup.ps1 -ManifestPath 'tmp\\s012b\\pre-run-backup\\20260607-202423\\manifest.json'",
     "databaseChanges": [
       {
         "table": "assessments",
-        "before": 807,
-        "after": 810,
+        "before": 829,
+        "after": 832,
         "delta": 3
       },
       {
         "table": "item_scores",
-        "before": 3392,
-        "after": 3404,
+        "before": 3488,
+        "after": 3500,
         "delta": 12
       },
       {
         "table": "paper_baskets",
-        "before": 749,
-        "after": 751,
+        "before": 771,
+        "after": 773,
         "delta": 2
       },
       {
         "table": "score_records",
-        "before": 1614,
-        "after": 1620,
+        "before": 1658,
+        "after": 1664,
         "delta": 6
       },
       {
         "table": "question_items",
-        "before": 6847,
-        "after": 6865,
+        "before": 6981,
+        "after": 6999,
         "delta": 18
       },
       {
         "table": "source_documents",
-        "before": 1978,
-        "after": 1979,
+        "before": 2003,
+        "after": 2004,
         "delta": 1
       },
       {
         "table": "knowledge_mappings",
-        "before": 726,
-        "after": 729,
+        "before": 744,
+        "after": 747,
         "delta": 3
       },
       {
         "table": "paper_basket_items",
-        "before": 2826,
-        "after": 2835,
+        "before": 2904,
+        "after": 2913,
         "delta": 9
       }
     ]

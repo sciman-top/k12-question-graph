@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS308",
-  "checkedAt": "2026-06-07T02:51:09",
+  "checkedAt": "2026-06-07T20:12:43",
   "mode": "real012_source_document_quality_report_wrapper",
   "productionEligible": false,
   "dependency": {
