@@ -1,10 +1,10 @@
 {
   "status": "pass",
   "taskId": "NS1001",
-  "checkedAt": "2026-06-08T01:40:56",
+  "checkedAt": "2026-06-08T02:34:11",
   "mode": "isolated_machine_pack_contract",
   "packReportPath": "docs/evidence/20260608-ns1001-isolated-machine-execution-pack.json",
-  "manifestPath": "tmp/ns1001-execution-pack/20260608-013255/manifest.json",
+  "manifestPath": "tmp/ns1001-execution-pack/20260608-015422/manifest.json",
   "importScriptPath": "tools/run-ns1001-isolated-machine-evidence-import.ps1",
   "acceptance": {
     "packReportPasses": true,

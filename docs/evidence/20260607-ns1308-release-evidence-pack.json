@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS1308",
-  "checkedAt": "2026-06-08T00:51:40",
+  "checkedAt": "2026-06-08T02:02:32",
   "mode": "release_evidence_pack_aggregation",
   "productionEligible": false,
   "dependency": {

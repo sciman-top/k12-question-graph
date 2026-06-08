@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS1101",
-  "checkedAt": "2026-06-08T00:47:18",
+  "checkedAt": "2026-06-08T02:34:12",
   "mode": "second_subject_candidate_boundary_preflight",
   "reportPath": "docs/evidence/20260608-ns1101-second-subject-candidate.json",
   "backlogPath": "tasks/backlog.csv",
@@ -25,7 +25,7 @@
       "NS1001": {
         "status": "blocked_by_onsite",
         "task": "隔离机部署预演",
-        "acceptance": "在隔离机器完成安装 备份 恢复 权限审计 四入口 smoke"
+        "acceptance": "在隔离机器完成安装 备份 恢复 权限审计 四入口 smoke 并带回操作者签收"
       },
       "NS1002": {
         "status": "blocked_by_onsite",

@@ -1,9 +1,9 @@
 {
   "status": "pass",
   "taskId": "S006C",
-  "checkedAt": "2026-06-08T00:19:49",
+  "checkedAt": "2026-06-08T02:05:38",
   "sourceReview": {
-    "questionId": "68001e77-4701-4bb4-84ae-8d4677681cde",
+    "questionId": "f59a2be2-bad7-4cbf-aebe-96f6a65cb07b",
     "sourceRegionCount": 1
   },
   "fallbackCases": {

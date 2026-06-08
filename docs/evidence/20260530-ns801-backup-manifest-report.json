@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS801",
-  "checkedAt": "2026-06-08T00:25:27",
+  "checkedAt": "2026-06-08T02:12:59",
   "mode": "backup_manifest_drill",
   "productionEligible": false,
   "externalAiCalls": 0,
@@ -12,12 +12,12 @@
     "ns705": "docs/evidence/20260530-ns705-student-data-privacy-report.json"
   },
   "backup": {
-    "manifest": "tmp/ns801-backups/20260608-002417/manifest.json",
-    "backupDir": "tmp/ns801-backups/20260608-002417",
-    "databaseDump": "tmp/ns801-backups/20260608-002417/database.dump",
-    "databaseSha256": "c1ba5a5c6f24dabfff32c4ceb8fcfa5e8dadb023420fb720c1edf3f67e24190b",
+    "manifest": "tmp/ns801-backups/20260608-020925/manifest.json",
+    "backupDir": "tmp/ns801-backups/20260608-020925",
+    "databaseDump": "tmp/ns801-backups/20260608-020925/database.dump",
+    "databaseSha256": "58e23fd91a68dbb1ab9085cb2e9f6384190333b8cfc579fd7362d327d6a071c8",
     "fileStoreSourceRoot": "D:\\KQG_Data\\file_store",
-    "fileCount": 18227,
+    "fileCount": 18523,
     "configCount": 3,
     "templateCount": 4,
     "evidenceCount": 6

@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS0_NS2_RUNTIME_CLOSURE",
-  "checkedAt": "2026-06-08T00:19:10",
+  "checkedAt": "2026-06-08T02:05:10",
   "mode": "repo_landed_to_runtime_verified_closure_guard",
   "targetRows": [
     "NS001",
@@ -43,49 +43,49 @@
       "script": "tools/run-non-site-implementation-plan-guard.ps1",
       "status": "pass",
       "taskId": "",
-      "durationMs": 84
+      "durationMs": 66
     },
     {
       "name": "NS105 teacher route typed client boundary",
       "script": "tools/run-ns105-teacher-route-client-boundary.ps1",
       "status": "pass",
       "taskId": "NS105",
-      "durationMs": 10634
+      "durationMs": 8534
     },
     {
       "name": "NS106 feature profile guard",
       "script": "tools/run-ns106-feature-profile-guard.ps1",
       "status": "pass",
       "taskId": "NS106",
-      "durationMs": 23
+      "durationMs": 15
     },
     {
       "name": "NS201 role audit baseline",
       "script": "tools/run-ns201-role-audit-baseline.ps1",
       "status": "pass",
       "taskId": "NS201",
-      "durationMs": 8019
+      "durationMs": 5235
     },
     {
       "name": "NS202 admin internal fail closed",
       "script": "tools/run-ns202-admin-internal-fail-closed.ps1",
       "status": "pass",
       "taskId": "NS202",
-      "durationMs": 42167
+      "durationMs": 38778
     },
     {
       "name": "NS203 privacy license scan",
       "script": "tools/run-ns203-privacy-license-scan.ps1",
       "status": "pass",
       "taskId": "NS203",
-      "durationMs": 2189
+      "durationMs": 1716
     },
     {
       "name": "NS204 no active write guard",
       "script": "tools/run-ns204-no-active-write-guard.ps1",
       "status": "pass",
       "taskId": "NS204",
-      "durationMs": 26
+      "durationMs": 19
     }
   ],
   "fullGateEvidence": {

@@ -19,6 +19,34 @@ function Assert-True([bool] $Condition, [string] $Message) {
     if (-not $Condition) { throw $Message }
 }
 
+function Get-FreeTcpPort {
+    $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, 0)
+    try {
+        $listener.Start()
+        return $listener.LocalEndpoint.Port
+    }
+    finally {
+        $listener.Stop()
+    }
+}
+
+function Test-TcpPortAvailable([int] $Port) {
+    $listener = $null
+    try {
+        $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, $Port)
+        $listener.Start()
+        return $true
+    }
+    catch [System.Net.Sockets.SocketException] {
+        return $false
+    }
+    finally {
+        if ($null -ne $listener) {
+            $listener.Stop()
+        }
+    }
+}
+
 function Invoke-ScalarSql([string] $Sql) {
     $psql = Join-Path $PgBin 'psql.exe'
     $value = & $psql -h $DatabaseHost -p $DatabasePort -U $DatabaseUser -d $DatabaseName -t -A -v ON_ERROR_STOP=1 -c $Sql
@@ -26,6 +54,10 @@ function Invoke-ScalarSql([string] $Sql) {
     return (($value | Select-Object -First 1) ?? '').Trim()
 }
 
+$requestedApiPort = $ApiPort
+if ($ApiPort -le 0 -or -not (Test-TcpPortAvailable -Port $ApiPort)) {
+    $ApiPort = Get-FreeTcpPort
+}
 $apiUrl = "http://127.0.0.1:$ApiPort"
 $logOut = Join-Path $repoRoot 'docs/evidence/s011a-smoke-api.out.log'
 $logErr = Join-Path $repoRoot 'docs/evidence/s011a-smoke-api.err.log'
@@ -144,6 +176,9 @@ try {
         taskId = 'S011A'
         checkedAt = (Get-Date).ToString('s')
         endpoint = '/score-imports'
+        requestedApiPort = $requestedApiPort
+        resolvedApiPort = $ApiPort
+        portFallbackApplied = ($requestedApiPort -ne $ApiPort)
         assessmentId = $import.assessmentId
         templateId = $import.templateId
         batchId = $import.batchId

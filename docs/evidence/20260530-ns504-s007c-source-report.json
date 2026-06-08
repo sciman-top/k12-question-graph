@@ -1,23 +1,23 @@
 {
   "status": "pass",
   "taskId": "S007C",
-  "checkedAt": "2026-06-08T00:21:53",
-  "runId": "ns504-9e2d459aa25642dd9fe38b3f41c6d7ca-c",
-  "aiJobId": "a67f3500-af6d-40be-abc7-ee5cf394d6a9",
+  "checkedAt": "2026-06-08T02:07:12",
+  "runId": "ns504-28d44d04a4e443a19fd36721130ffd1c-c",
+  "aiJobId": "9108b67d-bdc1-41ad-a29f-4c7e6c493e15",
   "confirm": {
-    "questionItemId": "d8aef4c0-459c-4f5b-9432-2570e8671c29",
-    "knowledgeMappingId": "8210317d-b310-4800-a70e-b05aa2b58b00",
+    "questionItemId": "6a4310ef-7303-4276-9c55-46f9e1d7bd90",
+    "knowledgeMappingId": "328d6169-4083-4f9e-a6b9-6eee0cd81d4a",
     "status": "confirmed"
   },
   "undo": {
-    "removedQuestionItemId": "d8aef4c0-459c-4f5b-9432-2570e8671c29",
+    "removedQuestionItemId": "6a4310ef-7303-4276-9c55-46f9e1d7bd90",
     "removedKnowledgeMappingCount": 1,
     "status": "undone"
   },
   "questionCount": {
-    "before": 7325,
-    "afterConfirm": 7326,
-    "afterUndo": 7325
+    "before": 7398,
+    "afterConfirm": 7399,
+    "afterUndo": 7398
   },
   "conclusion": "teacher confirmation writes QuestionItem and KnowledgeMapping only after review, and undo restores previous state"
 }

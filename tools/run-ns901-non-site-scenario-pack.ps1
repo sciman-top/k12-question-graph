@@ -73,9 +73,8 @@ try {
     Assert-Condition ([bool]$ns806.acceptance.restoreDrillAfterBundle) 'NS901 requires NS806 post-upgrade restore drill evidence'
 
     if (-not $SkipS012Refresh) {
-        .\tools\run-s012a-e2e-proxy-fixture-pack.ps1 -ReportPath $S012AReportPath | Write-Host
-        if ($LASTEXITCODE -ne 0) { throw 'S012A fixture pack failed' }
-        $s012a = Read-Json $S012AReportPath
+        $s012aOutput = .\tools\run-s012a-e2e-proxy-fixture-pack.ps1 -ReportPath $S012AReportPath
+        $s012a = Convert-OutputToJson $s012aOutput 'S012A fixture pack'
 
         $s012bOutput = .\tools\run-s012b-non-site-e2e-rehearsal.ps1 `
             -DatabaseName $DatabaseName `
@@ -102,7 +101,8 @@ try {
     Assert-Condition (-not [bool]$s012a.containsStudentPii) 'NS901 S012A must not contain student PII'
     Assert-Condition ([bool]$s012b.preRunBackup.verified) 'NS901 requires verified S012B pre-run backup'
 
-    Assert-WorkflowCoverage @($s012a.materials) @('import','cut','review','tagging','save','paper','export','score','analysis') 'NS901 S012A'
+    $s012aCoveredSteps = @($s012a.coveredWorkflowSteps | ForEach-Object { [string]$_ } | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | ForEach-Object { [pscustomobject]@{ workflowStep = $_ } })
+    Assert-WorkflowCoverage $s012aCoveredSteps @('import','cut','review','tagging','save','paper','export','score','analysis') 'NS901 S012A'
     Assert-WorkflowCoverage @($s012b.workflowSteps) @('admission','import_cut_review_save','tagging','review_save','paper','export','score','score_mapping','analysis','backup_restore') 'NS901 S012B'
 
     $failedSteps = @($s012b.workflowSteps | Where-Object { [string]$_.status -ne 'pass' })
