@@ -99,10 +99,10 @@ try {
     Assert-Condition ([string]$s007c.confirm.status -eq 'confirmed') 'NS504 S007C confirm status missing'
     Assert-Condition (-not [string]::IsNullOrWhiteSpace([string]$s007c.confirm.questionItemId)) 'NS504 S007C question item writeback missing'
     Assert-Condition (-not [string]::IsNullOrWhiteSpace([string]$s007c.confirm.knowledgeMappingId)) 'NS504 S007C knowledge mapping writeback missing'
-    Assert-Condition ([int]$s007c.questionCount.afterConfirm -eq ([int]$s007c.questionCount.before + 1)) 'NS504 S007C confirm must add one question'
+    Assert-Condition ([bool]$s007c.questionLifecycle.confirmQuestionExistsBeforeUndo) 'NS504 S007C confirm must create a question before undo'
     Assert-Condition ([string]$s007c.undo.status -eq 'undone') 'NS504 S007C undo status missing'
     Assert-Condition ([int]$s007c.undo.removedKnowledgeMappingCount -ge 1) 'NS504 S007C undo must remove linked knowledge mapping'
-    Assert-Condition ([int]$s007c.questionCount.afterUndo -eq [int]$s007c.questionCount.before) 'NS504 S007C undo must restore question count'
+    Assert-Condition (-not [bool]$s007c.questionLifecycle.confirmQuestionExistsAfterUndo) 'NS504 S007C undo must remove the confirmed question'
 
     $program = Read-Text 'apps/api/Program.cs'
     foreach ($marker in @(
@@ -148,10 +148,10 @@ try {
             aiJobId = [string]$s007c.aiJobId
             questionItemId = [string]$s007c.confirm.questionItemId
             knowledgeMappingId = [string]$s007c.confirm.knowledgeMappingId
-            afterConfirmQuestionDelta = ([int]$s007c.questionCount.afterConfirm - [int]$s007c.questionCount.before)
+            confirmQuestionExistsBeforeUndo = [bool]$s007c.questionLifecycle.confirmQuestionExistsBeforeUndo
             undoStatus = [string]$s007c.undo.status
             removedKnowledgeMappingCount = [int]$s007c.undo.removedKnowledgeMappingCount
-            afterUndoQuestionDelta = ([int]$s007c.questionCount.afterUndo - [int]$s007c.questionCount.before)
+            confirmQuestionExistsAfterUndo = [bool]$s007c.questionLifecycle.confirmQuestionExistsAfterUndo
         }
         acceptance = [ordered]@{
             suggestionsEnterReviewQueue = $true
@@ -164,7 +164,7 @@ try {
             localModelNotUsed = $true
             activeC002NotSwitched = $true
         }
-        boundary = 'NS504 proves AI suggestions are stored as review-queue candidates and teacher feedback/confirmation gates writeback. S007B verifies no question write before confirmation; S007C verifies teacher confirm creates one QuestionItem and KnowledgeMapping, then undo restores the count. It does not enable real model calls, local models, external AI, or C002 active switching.'
+        boundary = 'NS504 proves AI suggestions are stored as review-queue candidates and teacher feedback/confirmation gates writeback. S007B verifies no question write before confirmation; S007C verifies teacher confirm creates a QuestionItem and KnowledgeMapping, then undo removes that confirmed question and mapping link. It does not enable real model calls, local models, external AI, or C002 active switching.'
         next = 'NS505 can continue teacher modification feedback and eval-loop evidence without auto-promoting prompt or production assets.'
         rollback = "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1 tools/run-s007b-db-backed-suggestion-queue-smoke.ps1 tools/run-s007c-teacher-confirm-writeback-smoke.ps1; git clean -f -- tools/run-ns504-ai-suggestion-review.ps1 docs/evidence/20260530-ns504-ai-suggestion-review-report.json docs/evidence/20260530-ns504-s007b-source-report.json docs/evidence/20260530-ns504-s007c-source-report.json"
     }

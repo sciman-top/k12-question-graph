@@ -1,0 +1,26 @@
+{
+  "status": "pass",
+  "taskId": "NS1001",
+  "checkedAt": "2026-06-09T02:13:12",
+  "mode": "isolated_machine_pack_contract",
+  "packReportPath": "docs/evidence/20260608-ns1001-isolated-machine-execution-pack.json",
+  "manifestPath": "tmp/ns1001-execution-pack/20260608-015422/manifest.json",
+  "importScriptPath": "tools/run-ns1001-isolated-machine-evidence-import.ps1",
+  "acceptance": {
+    "packReportPasses": true,
+    "manifestPresent": true,
+    "releaseArtifactsPresent": true,
+    "returnTemplatesPresent": true,
+    "importScriptPresent": true,
+    "p001StillOpen": true
+  },
+  "verification": {
+    "build": "gate_na: NS1001 pack contract validates packaged artifacts only",
+    "test": "execution-pack report + manifest + return-template + import-script keyword checks",
+    "contractInvariant": "execution pack and import script must both exist before isolated-machine rehearsal can be handed off",
+    "hotspot": "gate_na: contract does not execute isolated-machine install or import returned field evidence"
+  },
+  "boundary": "NS1001 pack contract proves the repo now has both a handoff pack and a return-import validator. It does not create live field evidence and does not close P001.",
+  "reportPath": "docs/evidence/20260609-ns1001-isolated-machine-pack-contract.json",
+  "rollback": "git restore tools/run-gates.ps1 tools/README.md tasks/non-site-implementation-plan.csv; git clean -f -- tools/run-ns1001-isolated-machine-pack-contract.ps1 tools/run-ns1001-isolated-machine-execution-pack.ps1 tools/run-ns1001-isolated-machine-evidence-import.ps1 docs/templates/p001-isolated-machine-evidence-template.json"
+}

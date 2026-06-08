@@ -87,12 +87,24 @@ function Invoke-WithApi(
     $logOut = Join-Path $repoRoot "docs/evidence/ns202-$safeEnvironment-api.out.log"
     $logErr = Join-Path $repoRoot "docs/evidence/ns202-$safeEnvironment-api.err.log"
     $logsRoot = Join-Path $repoRoot "tmp/ns202/$safeEnvironment/logs"
+    $storageRoot = Join-Path $repoRoot "tmp/ns202/$safeEnvironment/storage"
+    $dataRoot = Join-Path $storageRoot 'data'
+    $fileStoreRoot = Join-Path $dataRoot 'file_store'
+    $backupRoot = Join-Path $storageRoot 'backup'
+    $cacheRoot = Join-Path $dataRoot 'cache'
     New-Item -ItemType Directory -Path $logsRoot -Force | Out-Null
+    foreach ($path in @($dataRoot, $fileStoreRoot, $backupRoot, $cacheRoot)) {
+        New-Item -ItemType Directory -Path $path -Force | Out-Null
+    }
 
     $previousEnvironment = $env:ASPNETCORE_ENVIRONMENT
     $previousGuardKey = $env:AdminInternalGuard__ApiKey
     $previousBypass = $env:AdminInternalGuard__AllowUnguardedDraftTest
+    $previousDataRoot = $env:KqgPaths__DataRoot
+    $previousFileStoreRoot = $env:KqgPaths__FileStoreRoot
+    $previousBackupRoot = $env:KqgPaths__BackupRoot
     $previousLogsRoot = $env:KqgPaths__LogsRoot
+    $previousCacheRoot = $env:KqgPaths__CacheRoot
     $previousAuditEnabled = $env:AdminInternalRoleAudit__Enabled
     $previousRequireRole = $env:AdminInternalRoleAudit__RequireRoleHeader
     $previousRequireOperator = $env:AdminInternalRoleAudit__RequireOperatorIdHeader
@@ -101,7 +113,11 @@ function Invoke-WithApi(
     $env:ASPNETCORE_ENVIRONMENT = $Environment
     $env:AdminInternalGuard__ApiKey = $ApiKey
     $env:AdminInternalGuard__AllowUnguardedDraftTest = $AllowUnguardedDraftTest
+    $env:KqgPaths__DataRoot = $dataRoot
+    $env:KqgPaths__FileStoreRoot = $fileStoreRoot
+    $env:KqgPaths__BackupRoot = $backupRoot
     $env:KqgPaths__LogsRoot = $logsRoot
+    $env:KqgPaths__CacheRoot = $cacheRoot
     $env:AdminInternalRoleAudit__Enabled = 'true'
     $env:AdminInternalRoleAudit__RequireRoleHeader = 'true'
     $env:AdminInternalRoleAudit__RequireOperatorIdHeader = 'true'
@@ -128,7 +144,11 @@ function Invoke-WithApi(
         $env:ASPNETCORE_ENVIRONMENT = $previousEnvironment
         $env:AdminInternalGuard__ApiKey = $previousGuardKey
         $env:AdminInternalGuard__AllowUnguardedDraftTest = $previousBypass
+        $env:KqgPaths__DataRoot = $previousDataRoot
+        $env:KqgPaths__FileStoreRoot = $previousFileStoreRoot
+        $env:KqgPaths__BackupRoot = $previousBackupRoot
         $env:KqgPaths__LogsRoot = $previousLogsRoot
+        $env:KqgPaths__CacheRoot = $previousCacheRoot
         $env:AdminInternalRoleAudit__Enabled = $previousAuditEnabled
         $env:AdminInternalRoleAudit__RequireRoleHeader = $previousRequireRole
         $env:AdminInternalRoleAudit__RequireOperatorIdHeader = $previousRequireOperator

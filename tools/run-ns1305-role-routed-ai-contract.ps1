@@ -30,9 +30,19 @@ function Read-Text([string] $Path) {
 
 function ConvertFrom-YamlWithPython([string] $Path) {
     $escapedPath = $Path.Replace('\', '\\')
-    $rawJson = python -X utf8 -c "import json, pathlib, yaml; p=pathlib.Path(r'$escapedPath'); d=yaml.safe_load(p.read_text(encoding='utf-8')); print(json.dumps(d, ensure_ascii=False))"
-    Assert-Condition ($LASTEXITCODE -eq 0) "failed to parse yaml: $Path"
-    return $rawJson | ConvertFrom-Json
+    $tmpJsonPath = Join-Path $repoRoot ("tmp/ns1305/{0}.json" -f ([Guid]::NewGuid().ToString('N')))
+    $tmpJsonDir = Split-Path -Parent $tmpJsonPath
+    New-Item -ItemType Directory -Path $tmpJsonDir -Force | Out-Null
+    try {
+        $escapedOutputPath = $tmpJsonPath.Replace('\', '\\')
+        python -X utf8 -c "import json, pathlib, yaml; p=pathlib.Path(r'$escapedPath'); out=pathlib.Path(r'$escapedOutputPath'); d=yaml.safe_load(p.read_text(encoding='utf-8')); out.write_text(json.dumps(d, ensure_ascii=True), encoding='utf-8')"
+        Assert-Condition ($LASTEXITCODE -eq 0) "failed to parse yaml: $Path"
+        Assert-Condition (Test-Path -LiteralPath $tmpJsonPath) "yaml parse output file missing: $tmpJsonPath"
+        return Get-Content -LiteralPath $tmpJsonPath -Raw | ConvertFrom-Json
+    }
+    finally {
+        Remove-Item -LiteralPath $tmpJsonPath -Force -ErrorAction SilentlyContinue
+    }
 }
 
 function ConvertFrom-TrailingJson([string] $Text, [string] $Label) {

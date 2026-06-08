@@ -1,0 +1,57 @@
+{
+  "status": "pass",
+  "taskId": "NS1102",
+  "checkedAt": "2026-06-09T02:13:13",
+  "mode": "second_subject_teacher_review_template_boundary",
+  "reportPath": "docs/evidence/20260609-ns1102-second-subject-review-template.json",
+  "backlogPath": "tasks/backlog.csv",
+  "nonSitePlanPath": "tasks/non-site-implementation-plan.csv",
+  "sourceReports": {
+    "ns1101BoundaryReport": "docs/evidence/20260609-ns1101-second-subject-candidate.json",
+    "q002PreflightReport": "docs/evidence/20260523-q002-second-subject-teacher-review-template-report.json",
+    "q002Checklist": "docs/templates/q002-second-subject-teacher-review-template-checklist.md",
+    "q002PreflightEvidence": "docs/evidence/20260505-q002-second-subject-teacher-review-template-preflight.md"
+  },
+  "backlog": {
+    "q001Status": "待办",
+    "q002Status": "待办",
+    "q003Status": "待办",
+    "q002DependsOn": "Q001",
+    "q003DependsOn": "Q002",
+    "q002CanClose": false
+  },
+  "nonSitePlan": {
+    "ns1101Status": "runtime_verified",
+    "ns1102StatusAtCheck": "runtime_verified",
+    "ns1102DependsOn": "NS1101",
+    "ns1103DependsOn": "NS1102"
+  },
+  "q002Preflight": {
+    "status": "pass",
+    "mode": "preflight_only",
+    "closeTaskAllowed": false,
+    "currentDecision": "keep_Q002_todo_until_Q001_and_teacher_review_evidence_close",
+    "blockers": [
+      "Q001 second-subject candidate admission is not closed.",
+      "Teacher review template has not been applied to real candidate knowledge points, textbook chapters, curriculum standards, and exam points.",
+      "Review evidence and teacher-efficiency impact are not recorded."
+    ]
+  },
+  "acceptance": {
+    "q001RemainsTodo": true,
+    "q002RemainsTodo": true,
+    "q003RemainsTodo": true,
+    "teacherReviewTemplatePresent": true,
+    "teacherReviewExecuted": false,
+    "realCandidateAssetsReviewed": false,
+    "teacherEfficiencyImpactRecorded": false,
+    "productionEligible": false,
+    "activeAssetMutation": false,
+    "q002CanClose": false,
+    "q003CanAdvance": false
+  },
+  "teacherEfficiencyBoundary": "ordinary teacher flow is not changed; NS1102 only verifies the review template and keeps real teacher review evidence as a future prerequisite",
+  "boundary": "NS1102 verifies the second-subject teacher review template boundary only. It does not execute teacher review, does not review real candidate assets, does not advance Q003, and does not close Q002 or Q001.",
+  "riskLevel": "medium",
+  "rollback": "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1 tools/README.md; git clean -f -- tools/run-ns1102-second-subject-review-template-boundary.ps1 docs/evidence/20260530-ns1102-second-subject-review-template.json"
+}

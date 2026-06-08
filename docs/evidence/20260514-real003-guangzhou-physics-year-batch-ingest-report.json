@@ -1,7 +1,7 @@
 {
   "status": "dry_run_pass",
   "taskId": "REAL003",
-  "checkedAt": "2026-06-07T18:20:05.207203+00:00",
+  "checkedAt": "2026-06-08T17:58:37.329818+00:00",
   "materialBatchKey": "guangzhou_physics_2016_2025",
   "dryRunOnly": true,
   "activeWrite": false,

@@ -1,0 +1,78 @@
+{
+  "status": "pass",
+  "taskId": "NS1306",
+  "checkedAt": "2026-06-09T02:13:16",
+  "mode": "agent_tool_orchestration_boundary",
+  "productionEligible": false,
+  "realStudentDataUsed": false,
+  "externalAiCalls": 0,
+  "allowlistedToolCount": 15,
+  "allowlistedRunbookCount": 10,
+  "blockedScriptCount": 7,
+  "categoryCoverage": [
+    "candidate_dry_run",
+    "environment_diagnostic",
+    "golden_registry",
+    "preflight_dashboard",
+    "preflight_refresh",
+    "report_generation",
+    "security_eval",
+    "status_sync",
+    "visual_review"
+  ],
+  "allowlistedToolIds": [
+    "p0_live_preflight_refresh",
+    "pqr_preflight_pack",
+    "pqr_preflight_freshness",
+    "pqr_preflight_dashboard",
+    "pqr_orchestration_consistency",
+    "host_capability_diagnostic",
+    "worker_profile_diagnostic",
+    "technology_refresh_report",
+    "golden_registry_guard",
+    "outer_ai_readiness",
+    "ai_extract_dry_run",
+    "llm_security_red_team_gate",
+    "ns904_p001_readiness_pack",
+    "ns905_status_sync_audit",
+    "ns906_visual_surrogate_review"
+  ],
+  "blockedScripts": [
+    "tools/run-c002t-active-switch.ps1",
+    "tools/run-domain-asset-activation.ps1",
+    "tools/restore.ps1",
+    "tools/seed-knowledge.ps1",
+    "tools/run-p0-live-auto-advance.ps1",
+    "tools/run-p0-live-skip-advance.ps1",
+    "tools/run-l002-real-ai-extract-pilot.ps1"
+  ],
+  "boundary": {
+    "allOtherToolsBlockedByDefault": true,
+    "allowActiveWrite": false,
+    "allowRestoreApply": false,
+    "allowReleaseSignoff": false,
+    "allowExternalAiCalls": false,
+    "requiresHumanApprovalFor": [
+      "active_switch",
+      "restore_apply",
+      "provider_default_switch",
+      "release_decision",
+      "real_student_data_external_transfer"
+    ]
+  },
+  "acceptance": {
+    "inventoryLocked": true,
+    "outOfAllowlistBlocked": true,
+    "productionActionsBlocked": true,
+    "realStudentDataBlocked": true,
+    "reportEvidenceAvailable": true,
+    "backlogAndPlanAligned": true
+  },
+  "summaryChinese": {
+    "title": "NS1306 AI agent 工具执行编排边界报告",
+    "result": "通过",
+    "boundary": "当前只允许 agent 编排低风险、只读或 dry-run 工具；默认阻断 active switch、restore apply、release sign-off 和真实学生数据外传。",
+    "next": "下一步进入 NS1307，把 golden set、visual surrogate 和 LLM security 串成组合 gate。"
+  },
+  "rollback": "git restore configs/agent-tool-orchestration.allowlist.json tools/run-ns1306-agent-tool-orchestration-contract.ps1 tools/run-gates.ps1 tools/README.md"
+}

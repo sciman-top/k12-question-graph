@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS606",
-  "checkedAt": "2026-06-08T02:08:38",
+  "checkedAt": "2026-06-09T01:47:12",
   "mode": "export_preflight_review",
   "productionEligible": false,
   "externalAiCalls": 0,
@@ -13,7 +13,7 @@
     "m004": "docs\\evidence\\20260505-m004-export-preflight-contract.md"
   },
   "preflight": {
-    "paperBasketId": "70323afb-e913-48d0-8389-a467a3a23b5c",
+    "paperBasketId": "537e28d9-bc05-47e6-8626-5220bf8cf833",
     "status": "blocked",
     "itemCount": 2,
     "issueCodes": [
