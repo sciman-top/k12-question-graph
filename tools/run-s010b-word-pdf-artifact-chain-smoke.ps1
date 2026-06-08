@@ -4,7 +4,7 @@ param(
     [string] $DatabaseHost = '127.0.0.1',
     [int] $DatabasePort = 5432,
     [string] $DatabasePassword = $env:PGPASSWORD,
-    [int] $ApiPort = 5297,
+    [int] $ApiPort = 0,
     [string] $PgBin = 'C:\Program Files\PostgreSQL\17\bin',
     [string] $OutputRoot = 'tmp\s010b-paper-artifacts',
     [string] $ReportPath = 'docs\evidence\20260508-s010b-word-pdf-artifact-chain-report.json'
@@ -20,11 +20,26 @@ function Assert-True([bool] $Condition, [string] $Message) {
     if (-not $Condition) { throw $Message }
 }
 
+function Get-FreeTcpPort {
+    $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, 0)
+    try {
+        $listener.Start()
+        return $listener.LocalEndpoint.Port
+    }
+    finally {
+        $listener.Stop()
+    }
+}
+
 function Test-FileHashMatches([string] $Path, [string] $ExpectedHash) {
     $actual = (Get-FileHash -Algorithm SHA256 -LiteralPath $Path).Hash.ToLowerInvariant()
     Assert-True ($actual -eq $ExpectedHash.ToLowerInvariant()) "hash mismatch for $Path"
 }
 
+$requestedApiPort = $ApiPort
+if ($ApiPort -le 0) {
+    $ApiPort = Get-FreeTcpPort
+}
 $apiUrl = "http://127.0.0.1:$ApiPort"
 $logOut = Join-Path $repoRoot 'docs/evidence/s010b-smoke-api.out.log'
 $logErr = Join-Path $repoRoot 'docs/evidence/s010b-smoke-api.err.log'
@@ -173,6 +188,10 @@ try {
     Assert-True ($manifest.checks.teacher.docx.hasSolution -eq $true) 'teacher version must include solution'
     Assert-True ($manifest.checks.answer.docx.hasAnswer -eq $true) 'answer version must include answer'
 
+    $report | Add-Member -NotePropertyName requestedApiPort -NotePropertyValue $requestedApiPort -Force
+    $report | Add-Member -NotePropertyName resolvedApiPort -NotePropertyValue $ApiPort -Force
+    $report | Add-Member -NotePropertyName portFallbackApplied -NotePropertyValue ($requestedApiPort -ne $ApiPort) -Force
+    $report | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $reportFullPath -Encoding UTF8
     $report | ConvertTo-Json -Depth 20
 }
 finally {

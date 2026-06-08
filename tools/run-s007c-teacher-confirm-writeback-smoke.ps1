@@ -4,7 +4,7 @@ param(
     [string] $DatabaseHost = '127.0.0.1',
     [int] $DatabasePort = 5432,
     [string] $DatabasePassword = $env:PGPASSWORD,
-    [int] $ApiPort = 5292,
+    [int] $ApiPort = 0,
     [string] $PgBin = 'C:\Program Files\PostgreSQL\17\bin',
     [string] $RunId = [Guid]::NewGuid().ToString('N'),
     [string] $ReportPath = 'docs/evidence/20260506-s007c-teacher-confirm-writeback-smoke-report.json'
@@ -16,6 +16,17 @@ $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 $DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword
 if ([string]::IsNullOrWhiteSpace($DatabasePassword)) { throw 'DatabasePassword or PGPASSWORD is required for S007C smoke' }
 
+function Get-FreeTcpPort {
+    $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, 0)
+    try {
+        $listener.Start()
+        return $listener.LocalEndpoint.Port
+    }
+    finally {
+        $listener.Stop()
+    }
+}
+
 function Invoke-ScalarSql([string] $Sql) {
     $psql = Join-Path $PgBin 'psql.exe'
     $value = & $psql -h $DatabaseHost -p $DatabasePort -U $DatabaseUser -d $DatabaseName -t -A -v ON_ERROR_STOP=1 -c $Sql
@@ -23,6 +34,10 @@ function Invoke-ScalarSql([string] $Sql) {
     return (($value | Select-Object -First 1) ?? '').Trim()
 }
 
+$requestedApiPort = $ApiPort
+if ($ApiPort -le 0) {
+    $ApiPort = Get-FreeTcpPort
+}
 $apiUrl = "http://127.0.0.1:$ApiPort"
 $logOut = Join-Path $repoRoot 'docs/evidence/s007c-smoke-api.out.log'
 $logErr = Join-Path $repoRoot 'docs/evidence/s007c-smoke-api.err.log'
@@ -42,8 +57,6 @@ try {
     $sourceList = Invoke-RestMethod -Uri "$apiUrl/source-documents" -TimeoutSec 10
     $sourceId = [string]$sourceList.items[0].id
     if ([string]::IsNullOrWhiteSpace($sourceId)) { throw 'S007C needs at least one source document' }
-
-    $beforeTotal = [int](Invoke-ScalarSql 'select count(*) from question_items;')
 
     $enqueueBody = @{
         suggestionType = 'answer_verification'
@@ -74,22 +87,24 @@ try {
     } | ConvertTo-Json
     $confirm = Invoke-RestMethod -Method Post -Uri "$apiUrl/ai-suggestions/$($enqueue.aiJobId)/confirm" -ContentType 'application/json' -Body $confirmBody -TimeoutSec 10
 
-    $afterConfirmTotal = [int](Invoke-ScalarSql 'select count(*) from question_items;')
-    if ($afterConfirmTotal -ne ($beforeTotal + 1)) { throw "S007C confirm should create one question ($beforeTotal -> $afterConfirmTotal)" }
     $loadedQuestion = Invoke-RestMethod -Uri "$apiUrl/questions/$($confirm.questionItemId)" -TimeoutSec 10
     if ([string]$loadedQuestion.id -ne [string]$confirm.questionItemId) { throw 'S007C confirmed question could not be loaded by id' }
+    $confirmQuestionExists = [string](Invoke-ScalarSql "select exists(select 1 from question_items where id='$($confirm.questionItemId)');")
+    if ($confirmQuestionExists -ne 't') { throw 'S007C confirmed question must exist before undo' }
 
     $undoBody = @{ reviewedBy = 'teacher_s007c'; reason = 'undo_for_safety_check' } | ConvertTo-Json
     $undo = Invoke-RestMethod -Method Post -Uri "$apiUrl/ai-suggestions/$($enqueue.aiJobId)/undo-confirm" -ContentType 'application/json' -Body $undoBody -TimeoutSec 10
     if ($undo.removedKnowledgeMappingCount -lt 1) { throw 'S007C undo should remove linked knowledge mapping' }
-
-    $afterUndoTotal = [int](Invoke-ScalarSql 'select count(*) from question_items;')
-    if ($afterUndoTotal -ne $beforeTotal) { throw "S007C undo should restore question count ($afterUndoTotal != $beforeTotal)" }
+    $undoQuestionExists = [string](Invoke-ScalarSql "select exists(select 1 from question_items where id='$($confirm.questionItemId)');")
+    if ($undoQuestionExists -ne 'f') { throw 'S007C undo should remove the confirmed question item' }
 
     $report = [ordered]@{
         status = 'pass'
         taskId = 'S007C'
         checkedAt = (Get-Date).ToString('s')
+        requestedApiPort = $requestedApiPort
+        resolvedApiPort = $ApiPort
+        portFallbackApplied = ($requestedApiPort -ne $ApiPort)
         runId = $RunId
         aiJobId = $enqueue.aiJobId
         confirm = [ordered]@{
@@ -102,10 +117,9 @@ try {
             removedKnowledgeMappingCount = $undo.removedKnowledgeMappingCount
             status = $undo.status
         }
-        questionCount = [ordered]@{
-            before = $beforeTotal
-            afterConfirm = $afterConfirmTotal
-            afterUndo = $afterUndoTotal
+        questionLifecycle = [ordered]@{
+            confirmQuestionExistsBeforeUndo = $true
+            confirmQuestionExistsAfterUndo = $false
         }
         conclusion = 'teacher confirmation writes QuestionItem and KnowledgeMapping only after review, and undo restores previous state'
     }

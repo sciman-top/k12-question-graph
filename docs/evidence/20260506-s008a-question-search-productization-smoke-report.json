@@ -1,7 +1,10 @@
 {
   "status": "pass",
   "taskId": "S008A",
-  "checkedAt": "2026-06-08T02:37:07",
+  "checkedAt": "2026-06-09T00:09:31",
+  "requestedApiPort": 0,
+  "resolvedApiPort": 7626,
+  "portFallbackApplied": true,
   "defaultKnowledge": {
     "status": "active",
     "version": 1
@@ -9,7 +12,7 @@
   "pagination": {
     "page": 1,
     "limit": 10,
-    "total": 3965
+    "total": 4039
   },
   "cardFlags": {
     "hasFormula": true,

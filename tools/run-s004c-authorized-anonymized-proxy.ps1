@@ -5,7 +5,7 @@ param(
     [string] $DatabaseHost = '127.0.0.1',
     [int] $DatabasePort = 5432,
     [string] $DatabasePassword = $env:PGPASSWORD,
-    [int] $ApiPort = 5290,
+    [int] $ApiPort = 0,
     [string] $ReportPath = 'docs/evidence/20260506-s004c-authorized-anonymized-proxy-report.json'
 )
 
@@ -65,6 +65,21 @@ if ([string]::IsNullOrWhiteSpace($DatabasePassword)) {
     exit 0
 }
 
+function Get-FreeTcpPort {
+    $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, 0)
+    try {
+        $listener.Start()
+        return $listener.LocalEndpoint.Port
+    }
+    finally {
+        $listener.Stop()
+    }
+}
+
+$requestedApiPort = $ApiPort
+if ($ApiPort -le 0) {
+    $ApiPort = Get-FreeTcpPort
+}
 $apiUrl = "http://127.0.0.1:$ApiPort"
 $logOut = Join-Path $repoRoot 'docs/evidence/s004c-proxy-api.out.log'
 $logErr = Join-Path $repoRoot 'docs/evidence/s004c-proxy-api.err.log'
@@ -123,6 +138,9 @@ try {
         taskId = 'S004C'
         mode = 'authorized_anonymized_proxy_validation'
         checkedAt = (Get-Date).ToString('s')
+        requestedApiPort = $requestedApiPort
+        resolvedApiPort = $ApiPort
+        portFallbackApplied = ($requestedApiPort -ne $ApiPort)
         materialCount = $materialRows.Count
         uploadedCount = $uploads.Count
         uploads = $uploads

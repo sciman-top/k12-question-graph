@@ -2,7 +2,10 @@
   "status": "pass",
   "taskId": "S004C",
   "mode": "authorized_anonymized_proxy_validation",
-  "checkedAt": "2026-05-06T20:43:26",
+  "checkedAt": "2026-06-09T00:09:29",
+  "requestedApiPort": 0,
+  "resolvedApiPort": 7624,
+  "portFallbackApplied": true,
   "materialCount": 2,
   "uploadedCount": 2,
   "uploads": [

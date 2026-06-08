@@ -4,7 +4,7 @@ param(
     [string] $DatabaseHost = '127.0.0.1',
     [int] $DatabasePort = 5432,
     [string] $DatabasePassword = $env:PGPASSWORD,
-    [int] $ApiPort = 5291,
+    [int] $ApiPort = 0,
     [string] $RunId = [Guid]::NewGuid().ToString('N'),
     [string] $ReportPath = 'docs/evidence/20260506-s007b-db-backed-suggestion-queue-smoke-report.json'
 )
@@ -17,6 +17,21 @@ if ([string]::IsNullOrWhiteSpace($DatabasePassword)) {
     throw 'DatabasePassword or PGPASSWORD is required for S007B smoke'
 }
 
+$requestedApiPort = $ApiPort
+function Get-FreeTcpPort {
+    $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, 0)
+    try {
+        $listener.Start()
+        return $listener.LocalEndpoint.Port
+    }
+    finally {
+        $listener.Stop()
+    }
+}
+
+if ($ApiPort -le 0) {
+    $ApiPort = Get-FreeTcpPort
+}
 $apiUrl = "http://127.0.0.1:$ApiPort"
 $logOut = Join-Path $repoRoot 'docs/evidence/s007b-smoke-api.out.log'
 $logErr = Join-Path $repoRoot 'docs/evidence/s007b-smoke-api.err.log'
@@ -89,6 +104,9 @@ try {
         status = 'pass'
         taskId = 'S007B'
         checkedAt = (Get-Date).ToString('s')
+        requestedApiPort = $requestedApiPort
+        resolvedApiPort = $ApiPort
+        portFallbackApplied = ($requestedApiPort -ne $ApiPort)
         runId = $RunId
         sourceDocumentId = $sourceId
         enqueue = [ordered]@{

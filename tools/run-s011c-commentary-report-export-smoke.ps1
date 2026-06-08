@@ -4,7 +4,7 @@ param(
     [string] $DatabaseHost = '127.0.0.1',
     [int] $DatabasePort = 5432,
     [string] $DatabasePassword = $env:PGPASSWORD,
-    [int] $ApiPort = 5298,
+    [int] $ApiPort = 0,
     [string] $PgBin = 'C:\Program Files\PostgreSQL\17\bin',
     [string] $ReportPath = 'docs\evidence\20260508-s011c-commentary-report-export-report.json'
 )

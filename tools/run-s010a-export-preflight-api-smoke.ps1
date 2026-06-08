@@ -4,7 +4,7 @@ param(
     [string] $DatabaseHost = '127.0.0.1',
     [int] $DatabasePort = 5432,
     [string] $DatabasePassword = $env:PGPASSWORD,
-    [int] $ApiPort = 5296,
+    [int] $ApiPort = 0,
     [string] $PgBin = 'C:\Program Files\PostgreSQL\17\bin',
     [string] $ReportPath = 'docs/evidence/20260508-s010a-export-preflight-api-smoke-report.json'
 )
@@ -15,6 +15,21 @@ $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 $DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword
 if ([string]::IsNullOrWhiteSpace($DatabasePassword)) { throw 'DatabasePassword or PGPASSWORD is required for S010A smoke' }
 
+$requestedApiPort = $ApiPort
+function Get-FreeTcpPort {
+    $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, 0)
+    try {
+        $listener.Start()
+        return $listener.LocalEndpoint.Port
+    }
+    finally {
+        $listener.Stop()
+    }
+}
+
+if ($ApiPort -le 0) {
+    $ApiPort = Get-FreeTcpPort
+}
 $apiUrl = "http://127.0.0.1:$ApiPort"
 $logOut = Join-Path $repoRoot 'docs/evidence/s010a-smoke-api.out.log'
 $logErr = Join-Path $repoRoot 'docs/evidence/s010a-smoke-api.err.log'
@@ -139,6 +154,9 @@ try {
         status = 'pass'
         taskId = 'S010A'
         checkedAt = (Get-Date).ToString('s')
+        requestedApiPort = $requestedApiPort
+        resolvedApiPort = $ApiPort
+        portFallbackApplied = ($requestedApiPort -ne $ApiPort)
         paperBasketId = $basket.id
         preflightStatus = $preflight.status
         itemCount = $preflight.itemCount

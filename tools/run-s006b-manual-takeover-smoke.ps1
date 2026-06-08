@@ -4,7 +4,7 @@ param(
     [string] $DatabaseHost = '127.0.0.1',
     [int] $DatabasePort = 5432,
     [string] $DatabasePassword = $env:PGPASSWORD,
-    [int] $ApiPort = 5290,
+    [int] $ApiPort = 0,
     [string] $ReportPath = 'docs/evidence/20260506-s006b-manual-takeover-smoke-report.json'
 )
 
@@ -17,6 +17,21 @@ if ([string]::IsNullOrWhiteSpace($DatabasePassword)) {
     throw 'DatabasePassword or PGPASSWORD is required for S006B smoke'
 }
 
+function Get-FreeTcpPort {
+    $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, 0)
+    try {
+        $listener.Start()
+        return $listener.LocalEndpoint.Port
+    }
+    finally {
+        $listener.Stop()
+    }
+}
+
+$requestedApiPort = $ApiPort
+if ($ApiPort -le 0) {
+    $ApiPort = Get-FreeTcpPort
+}
 $apiUrl = "http://127.0.0.1:$ApiPort"
 $logOut = Join-Path $repoRoot 'docs/evidence/s006b-smoke-api.out.log'
 $logErr = Join-Path $repoRoot 'docs/evidence/s006b-smoke-api.err.log'
@@ -111,6 +126,9 @@ try {
         status = 'pass'
         taskId = 'S006B'
         checkedAt = (Get-Date).ToString('s')
+        requestedApiPort = $requestedApiPort
+        resolvedApiPort = $ApiPort
+        portFallbackApplied = ($requestedApiPort -ne $ApiPort)
         sourceDocumentId = $sourceId
         actions = [ordered]@{
             merge = [ordered]@{ touched = @($merge.touchedIds).Count; createdCandidates = @($merge.createdCandidateIds).Count }

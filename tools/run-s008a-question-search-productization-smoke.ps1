@@ -4,7 +4,7 @@ param(
     [string] $DatabaseHost = '127.0.0.1',
     [int] $DatabasePort = 5432,
     [string] $DatabasePassword = $env:PGPASSWORD,
-    [int] $ApiPort = 5293,
+    [int] $ApiPort = 0,
     [string] $PgBin = 'C:\Program Files\PostgreSQL\17\bin',
     [string] $ReportPath = 'docs/evidence/20260506-s008a-question-search-productization-smoke-report.json'
 )
@@ -15,6 +15,21 @@ $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 $DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword
 if ([string]::IsNullOrWhiteSpace($DatabasePassword)) { throw 'DatabasePassword or PGPASSWORD is required for S008A smoke' }
 
+$requestedApiPort = $ApiPort
+function Get-FreeTcpPort {
+    $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, 0)
+    try {
+        $listener.Start()
+        return $listener.LocalEndpoint.Port
+    }
+    finally {
+        $listener.Stop()
+    }
+}
+
+if ($ApiPort -le 0) {
+    $ApiPort = Get-FreeTcpPort
+}
 $apiUrl = "http://127.0.0.1:$ApiPort"
 $logOut = Join-Path $repoRoot 'docs/evidence/s008a-smoke-api.out.log'
 $logErr = Join-Path $repoRoot 'docs/evidence/s008a-smoke-api.err.log'
@@ -109,6 +124,9 @@ try {
         status = 'pass'
         taskId = 'S008A'
         checkedAt = (Get-Date).ToString('s')
+        requestedApiPort = $requestedApiPort
+        resolvedApiPort = $ApiPort
+        portFallbackApplied = ($requestedApiPort -ne $ApiPort)
         defaultKnowledge = [ordered]@{
             status = $activeKnowledge.knowledgeStatus
             version = $activeKnowledge.knowledgeVersion
