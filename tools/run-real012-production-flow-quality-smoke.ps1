@@ -5,7 +5,7 @@ param(
     [int] $DatabasePort = 5432,
     [string] $DatabasePassword = $env:PGPASSWORD,
     [string] $FileStoreRoot = 'D:\KQG_Data\file_store',
-    [int] $ApiPort = 5312,
+    [int] $ApiPort = 0,
     [string] $PgBin = 'C:\Program Files\PostgreSQL\17\bin',
     [string] $OutputRoot = 'tmp\real012-paper-artifacts',
     [string] $ReportPath = 'docs/evidence/20260518-real012-production-flow-quality-report.json'
@@ -76,6 +76,21 @@ function ConvertTo-QuestionArtifact([object] $Detail, [object] $Card, [int] $Que
     }
 }
 
+$requestedApiPort = $ApiPort
+function Get-FreeTcpPort {
+    $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, 0)
+    try {
+        $listener.Start()
+        return $listener.LocalEndpoint.Port
+    }
+    finally {
+        $listener.Stop()
+    }
+}
+
+if ($ApiPort -le 0) {
+    $ApiPort = Get-FreeTcpPort
+}
 $apiUrl = "http://127.0.0.1:$ApiPort"
 $logOut = Join-Path $repoRoot 'docs/evidence/real012-production-flow-api.out.log'
 $logErr = Join-Path $repoRoot 'docs/evidence/real012-production-flow-api.err.log'
@@ -343,6 +358,9 @@ try {
         status = 'pass'
         task = 'REAL012'
         checkedAt = (Get-Date).ToString('s')
+        requestedApiPort = $requestedApiPort
+        resolvedApiPort = $ApiPort
+        portFallbackApplied = ($requestedApiPort -ne $ApiPort)
         apiUrl = $apiUrl
         sourceDocumentId = $sourceDocumentId
         promotedQuestions = $promoted

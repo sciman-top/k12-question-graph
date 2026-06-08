@@ -5,7 +5,7 @@ param(
     [int] $DatabasePort = 5432,
     [string] $DatabasePassword = $env:PGPASSWORD,
     [string] $FileStoreRoot = 'D:\KQG_Data\file_store',
-    [int] $ApiPort = 5310,
+    [int] $ApiPort = 0,
     [string] $PgBin = 'C:\Program Files\PostgreSQL\17\bin',
     [string] $ReportPath = 'docs/evidence/20260518-real010-formula-fidelity-smoke-report.json'
 )
@@ -31,6 +31,21 @@ function Assert-True {
     if (-not $Condition) { throw $Message }
 }
 
+$requestedApiPort = $ApiPort
+function Get-FreeTcpPort {
+    $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, 0)
+    try {
+        $listener.Start()
+        return $listener.LocalEndpoint.Port
+    }
+    finally {
+        $listener.Stop()
+    }
+}
+
+if ($ApiPort -le 0) {
+    $ApiPort = Get-FreeTcpPort
+}
 $apiUrl = "http://127.0.0.1:$ApiPort"
 $logOut = Join-Path $repoRoot 'docs/evidence/real010-formula-fidelity-api.out.log'
 $logErr = Join-Path $repoRoot 'docs/evidence/real010-formula-fidelity-api.err.log'
@@ -223,6 +238,9 @@ try {
         status = 'pass'
         task = 'REAL010'
         checkedAt = (Get-Date).ToString('s')
+        requestedApiPort = $requestedApiPort
+        resolvedApiPort = $ApiPort
+        portFallbackApplied = ($requestedApiPort -ne $ApiPort)
         questionId = $question.id
         sourceDocumentId = $upload.sourceDocument.id
         officeFormula = [ordered]@{

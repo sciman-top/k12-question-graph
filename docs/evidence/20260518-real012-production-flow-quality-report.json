@@ -1,28 +1,31 @@
 {
   "status": "pass",
   "task": "REAL012",
-  "checkedAt": "2026-06-08T02:21:38",
-  "apiUrl": "http://127.0.0.1:5312",
+  "checkedAt": "2026-06-09T00:14:14",
+  "requestedApiPort": 0,
+  "resolvedApiPort": 9305,
+  "portFallbackApplied": true,
+  "apiUrl": "http://127.0.0.1:9305",
   "sourceDocumentId": "650e9218-c910-40b2-8af3-d5690788ddb6",
   "promotedQuestions": [
     {
       "questionItemId": "ace44579-b70c-4c64-b36a-2852ba86ef97",
       "questionNo": 2,
-      "auditId": "00af2370-39d6-41f5-b23d-7babcbcaee6f",
+      "auditId": "a6f2f7e0-ad07-41a9-9b48-181d28475519",
       "status": "usable",
       "primaryKnowledgeId": "525eb4ae-4e5a-421f-80fa-bc9ba674de2d"
     },
     {
       "questionItemId": "84eac67d-c612-4ba5-bb7d-e871cbde356f",
       "questionNo": 3,
-      "auditId": "91b11e9c-cc96-4e1c-bda8-6274539ad044",
+      "auditId": "ca60f5f2-f5d6-4a0f-8be3-dfd248a0271e",
       "status": "usable",
       "primaryKnowledgeId": "525eb4ae-4e5a-421f-80fa-bc9ba674de2d"
     },
     {
       "questionItemId": "027acbf1-4692-49b1-9adb-5ae7f06e31a3",
       "questionNo": 4,
-      "auditId": "514f2508-7b0d-4ae5-9718-c70d38129a85",
+      "auditId": "d9cedbb6-c06d-41c9-8bcb-c2bd6621aa7e",
       "status": "usable",
       "primaryKnowledgeId": "525eb4ae-4e5a-421f-80fa-bc9ba674de2d"
     }
@@ -39,7 +42,7 @@
     "order": "asc"
   },
   "paperBasket": {
-    "id": "68f4ee57-aaa5-4a86-81da-1bc594583f54",
+    "id": "2df4a102-4f6b-44fe-9b75-7e4ebae033d2",
     "itemCount": 3,
     "title": "REAL012 2015 广州真题抽样组卷"
   },
@@ -63,9 +66,9 @@
     "status": "pass"
   },
   "analysis": {
-    "assessmentId": "b8eab6d8-040a-47b3-a922-6eb8e24e5d34",
+    "assessmentId": "15e2e8f6-0a97-4a39-a07f-62d9232fee5d",
     "status": "ready",
-    "artifactPath": "draft://commentary-reports/b8eab6d8040a47b3a9226eb8e24e5d34.md",
+    "artifactPath": "draft://commentary-reports/15e2e8f60a974a39a07f62d9232fee5d.md",
     "allowAiDraftText": false,
     "writesProductionHistory": false,
     "weakKnowledgePointCount": 3
@@ -77,11 +80,11 @@
       "questionNumberCount": 24,
       "answerCoveredCount": 24,
       "solutionCoveredCount": 18,
-      "sourceRegionCount": 217,
-      "linkedSourceRegionCount": 44,
-      "linkedSourceScreenshotCount": 43,
+      "sourceRegionCount": 231,
+      "linkedSourceRegionCount": 58,
+      "linkedSourceScreenshotCount": 57,
       "missingLinkedSourceScreenshotCount": 1,
-      "imageAssetCount": 19,
+      "imageAssetCount": 33,
       "imageMatchedQuestionCount": 19,
       "tableBlockCount": 0,
       "formulaBlockCount": 0,

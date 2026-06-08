@@ -5,7 +5,7 @@ param(
     [int] $DatabasePort = 5432,
     [string] $DatabasePassword = $env:PGPASSWORD,
     [string] $FileStoreRoot = 'D:\KQG_Data\file_store',
-    [int] $ApiPort = 5297,
+    [int] $ApiPort = 0,
     [string] $ReportPath = 'docs/evidence/20260512-real004-guangzhou-2015-review-smoke-report.json'
 )
 
@@ -18,6 +18,21 @@ if ([string]::IsNullOrWhiteSpace($DatabasePassword)) {
     throw 'DatabasePassword or PGPASSWORD is required for REAL004 smoke'
 }
 
+$requestedApiPort = $ApiPort
+function Get-FreeTcpPort {
+    $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, 0)
+    try {
+        $listener.Start()
+        return $listener.LocalEndpoint.Port
+    }
+    finally {
+        $listener.Stop()
+    }
+}
+
+if ($ApiPort -le 0) {
+    $ApiPort = Get-FreeTcpPort
+}
 $apiUrl = "http://127.0.0.1:$ApiPort"
 $logOut = Join-Path $repoRoot 'docs/evidence/real004-review-smoke-api.out.log'
 $logErr = Join-Path $repoRoot 'docs/evidence/real004-review-smoke-api.err.log'
@@ -254,6 +269,9 @@ try {
         status = 'pass'
         taskId = 'REAL004'
         checkedAt = (Get-Date).ToString('s')
+        requestedApiPort = $requestedApiPort
+        resolvedApiPort = $ApiPort
+        portFallbackApplied = ($requestedApiPort -ne $ApiPort)
         apiUrl = $apiUrl
         workflowKey = 'guangzhou_2015_real_ingest_v1 + guangzhou_2015_visual_region_v1'
         reviewType = 'guangzhou_2015_question_review'
