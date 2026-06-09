@@ -1,5 +1,6 @@
 param(
     [string] $BacklogPath = 'tasks/backlog.csv',
+    [string] $LiveCloseoutPlanPath = 'tasks/live-pilot-closeout-plan.csv',
     [string] $ChecklistPath = 'docs/templates/p005-pilot-feedback-backlog-checklist.md',
     [string] $TriageTemplatePath = 'docs/templates/p005-pilot-feedback-triage-template.json',
     [string] $EvidencePath = 'docs/evidence/20260505-p005-pilot-feedback-backlog-preflight.md',
@@ -33,18 +34,26 @@ function Write-ContentIfChanged([string]$Path, [string]$Content) {
 }
 
 $backlogFullPath = Resolve-RepoPath $BacklogPath
+$liveCloseoutPlanFullPath = Resolve-RepoPath $LiveCloseoutPlanPath
 $checklistFullPath = Resolve-RepoPath $ChecklistPath
 $triageTemplateFullPath = Resolve-RepoPath $TriageTemplatePath
 $evidenceFullPath = Resolve-RepoPath $EvidencePath
 
 Assert-True (Test-Path -LiteralPath $backlogFullPath) "P005 backlog file missing: $BacklogPath"
+Assert-True (Test-Path -LiteralPath $liveCloseoutPlanFullPath) "live closeout plan missing: $LiveCloseoutPlanPath"
 Assert-True (Test-Path -LiteralPath $checklistFullPath) "P005 checklist missing: $ChecklistPath"
 Assert-True (Test-Path -LiteralPath $triageTemplateFullPath) "P005 triage template missing: $TriageTemplatePath"
 Assert-True (Test-Path -LiteralPath $evidenceFullPath) "P005 evidence markdown missing: $EvidencePath"
 
 $rows = Import-Csv -LiteralPath $backlogFullPath -Encoding UTF8
+$closeoutRows = @(Import-Csv -LiteralPath $liveCloseoutPlanFullPath -Encoding UTF8)
 $byId = @{}
 foreach ($row in $rows) { $byId[$row.id] = $row }
+
+Assert-True ($closeoutRows.Count -eq 26) "live closeout plan row count drift: expected 26 actual $($closeoutRows.Count)"
+$p005NextCloseout = @($closeoutRows | Where-Object { [string] $_.parent_id -eq 'P005' -and [string] $_.status -ne '已完成' } | Select-Object -First 1)
+Assert-True ($p005NextCloseout.Count -eq 1) 'live closeout plan must expose next P005 slice'
+Assert-True ([string] $p005NextCloseout[0].id -eq 'P005A') 'next P005 closeout slice must remain P005A before feedback triage closes'
 
 foreach ($requiredTaskId in @('P004', 'P005')) {
     Assert-True ($byId.ContainsKey($requiredTaskId)) "P005 prerequisite task missing: $requiredTaskId"
@@ -79,6 +88,7 @@ $report = [ordered]@{
     taskId = 'P005'
     mode = 'preflight_only'
     checkedAt = (Get-Date).ToString('s')
+    liveCloseoutPlanPath = $LiveCloseoutPlanPath
     p004Status = $p004.status
     p005Status = $p005.status
     closeTaskAllowed = $false
@@ -87,6 +97,10 @@ $report = [ordered]@{
     triageTemplatePath = $TriageTemplatePath
     evidencePath = $EvidencePath
     reportPath = $ReportPath
+    closeoutPlan = [ordered]@{
+        rowCount = $closeoutRows.Count
+        nextOpenP005 = [string] $p005NextCloseout[0].id
+    }
     blockers = @(
         'P004 onsite pilot evidence is not closed.',
         'Feedback items are not classified by teacher efficiency, frequency, risk, and cost.',
@@ -104,7 +118,7 @@ $report = [ordered]@{
         'Do not modify roadmap/backlog from untriaged feedback.',
         'Do not advance P006 release decision until P005 triage is complete.'
     )
-    boundary = 'pilot feedback triage is not executed in this contract; keep P005 as todo until P004 closes and backlog triage evidence is complete'
+    boundary = 'pilot feedback triage is not executed in this contract; keep P005 as todo until P004 closes and backlog triage evidence is complete, and keep nextOpenP005 explicit while the onsite boundary is still open'
     rollback = 'revert tools/run-p005-pilot-feedback-backlog-preflight-contract.ps1, tasks/backlog.csv, and remove the generated P005 admission report.'
 }
 

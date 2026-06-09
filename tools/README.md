@@ -227,7 +227,9 @@ requires the structured triage template
 `docs/templates/p005-pilot-feedback-triage-template.json`. The preflight checks
 that future feedback will be classified by teacher-efficiency impact,
 frequency, risk, cost, and the four backlog decisions `keep / modify / defer /
-do_not_do`, without inventing pilot evidence.
+do_not_do`, without inventing pilot evidence. It also reads
+`tasks/live-pilot-closeout-plan.csv` so the report keeps `nextOpenP005=P005A`
+explicit while the onsite boundary is still open.
 
 P006 release decision preflight contract:
 
@@ -241,7 +243,8 @@ now also requires the structured decision-record template
 `docs/109_ReleaseGoNoGoCard.md`. The preflight checks that the release
 judgement will be anchored to explicit gate, backup/restore, privacy,
 teacher-efficiency, rollback, and tag-candidate fields rather than chat-only
-conclusions.
+conclusions. It also reads `tasks/live-pilot-closeout-plan.csv` so the report
+keeps `nextOpenP006=P006A` explicit while the onsite boundary is still open.
 
 NS905 status sync audit:
 

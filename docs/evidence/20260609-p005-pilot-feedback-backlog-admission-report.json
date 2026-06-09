@@ -2,7 +2,8 @@
   "status": "pass",
   "taskId": "P005",
   "mode": "preflight_only",
-  "checkedAt": "2026-06-09T02:13:12",
+  "checkedAt": "2026-06-09T21:37:31",
+  "liveCloseoutPlanPath": "tasks/live-pilot-closeout-plan.csv",
   "p004Status": "待办",
   "p005Status": "待办",
   "closeTaskAllowed": false,
@@ -11,6 +12,10 @@
   "triageTemplatePath": "docs/templates/p005-pilot-feedback-triage-template.json",
   "evidencePath": "docs/evidence/20260505-p005-pilot-feedback-backlog-preflight.md",
   "reportPath": "docs/evidence/20260609-p005-pilot-feedback-backlog-admission-report.json",
+  "closeoutPlan": {
+    "rowCount": 26,
+    "nextOpenP005": "P005A"
+  },
   "blockers": [
     "P004 onsite pilot evidence is not closed.",
     "Feedback items are not classified by teacher efficiency, frequency, risk, and cost.",
@@ -28,6 +33,6 @@
     "Do not modify roadmap/backlog from untriaged feedback.",
     "Do not advance P006 release decision until P005 triage is complete."
   ],
-  "boundary": "pilot feedback triage is not executed in this contract; keep P005 as todo until P004 closes and backlog triage evidence is complete",
+  "boundary": "pilot feedback triage is not executed in this contract; keep P005 as todo until P004 closes and backlog triage evidence is complete, and keep nextOpenP005 explicit while the onsite boundary is still open",
   "rollback": "revert tools/run-p005-pilot-feedback-backlog-preflight-contract.ps1, tasks/backlog.csv, and remove the generated P005 admission report."
 }

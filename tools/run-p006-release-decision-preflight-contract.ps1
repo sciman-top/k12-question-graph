@@ -1,5 +1,6 @@
 param(
     [string] $BacklogPath = 'tasks/backlog.csv',
+    [string] $LiveCloseoutPlanPath = 'tasks/live-pilot-closeout-plan.csv',
     [string] $ChecklistPath = 'docs/templates/p006-release-decision-checklist.md',
     [string] $DecisionRecordTemplatePath = 'docs/templates/p006-release-decision-record-template.json',
     [string] $GoNoGoCardPath = 'docs/109_ReleaseGoNoGoCard.md',
@@ -34,20 +35,28 @@ function Write-ContentIfChanged([string]$Path, [string]$Content) {
 }
 
 $backlogFullPath = Resolve-RepoPath $BacklogPath
+$liveCloseoutPlanFullPath = Resolve-RepoPath $LiveCloseoutPlanPath
 $checklistFullPath = Resolve-RepoPath $ChecklistPath
 $decisionRecordTemplateFullPath = Resolve-RepoPath $DecisionRecordTemplatePath
 $goNoGoCardFullPath = Resolve-RepoPath $GoNoGoCardPath
 $evidenceFullPath = Resolve-RepoPath $EvidencePath
 
 Assert-True (Test-Path -LiteralPath $backlogFullPath) "P006 backlog file missing: $BacklogPath"
+Assert-True (Test-Path -LiteralPath $liveCloseoutPlanFullPath) "live closeout plan missing: $LiveCloseoutPlanPath"
 Assert-True (Test-Path -LiteralPath $checklistFullPath) "P006 checklist missing: $ChecklistPath"
 Assert-True (Test-Path -LiteralPath $decisionRecordTemplateFullPath) "P006 decision record template missing: $DecisionRecordTemplatePath"
 Assert-True (Test-Path -LiteralPath $goNoGoCardFullPath) "P006 Go/No-Go card missing: $GoNoGoCardPath"
 Assert-True (Test-Path -LiteralPath $evidenceFullPath) "P006 evidence markdown missing: $EvidencePath"
 
 $rows = Import-Csv -LiteralPath $backlogFullPath -Encoding UTF8
+$closeoutRows = @(Import-Csv -LiteralPath $liveCloseoutPlanFullPath -Encoding UTF8)
 $byId = @{}
 foreach ($row in $rows) { $byId[$row.id] = $row }
+
+Assert-True ($closeoutRows.Count -eq 26) "live closeout plan row count drift: expected 26 actual $($closeoutRows.Count)"
+$p006NextCloseout = @($closeoutRows | Where-Object { [string] $_.parent_id -eq 'P006' -and [string] $_.status -ne '已完成' } | Select-Object -First 1)
+Assert-True ($p006NextCloseout.Count -eq 1) 'live closeout plan must expose next P006 slice'
+Assert-True ([string] $p006NextCloseout[0].id -eq 'P006A') 'next P006 closeout slice must remain P006A before release decision closes'
 
 foreach ($requiredTaskId in @('P005', 'P006')) {
     Assert-True ($byId.ContainsKey($requiredTaskId)) "P006 prerequisite task missing: $requiredTaskId"
@@ -86,6 +95,7 @@ $report = [ordered]@{
     taskId = 'P006'
     mode = 'preflight_only'
     checkedAt = (Get-Date).ToString('s')
+    liveCloseoutPlanPath = $LiveCloseoutPlanPath
     p005Status = $p005.status
     p006Status = $p006.status
     closeTaskAllowed = $false
@@ -95,6 +105,10 @@ $report = [ordered]@{
     goNoGoCardPath = $GoNoGoCardPath
     evidencePath = $EvidencePath
     reportPath = $ReportPath
+    closeoutPlan = [ordered]@{
+        rowCount = $closeoutRows.Count
+        nextOpenP006 = [string] $p006NextCloseout[0].id
+    }
     blockers = @(
         'P005 pilot feedback triage is not closed.',
         'Release decision record is not recorded.',
@@ -114,7 +128,7 @@ $report = [ordered]@{
         'Do not create a release tag candidate without release decision evidence.',
         'Do not mark v0.1 release-ready while P001-P005 remain todo.'
     )
-    boundary = 'release decision is not executed in this contract; keep P006 as todo until P005 closes and decision evidence is complete'
+    boundary = 'release decision is not executed in this contract; keep P006 as todo until P005 closes and decision evidence is complete, and keep nextOpenP006 explicit while the onsite boundary is still open'
     rollback = 'revert tools/run-p006-release-decision-preflight-contract.ps1, tasks/backlog.csv, and remove the generated P006 admission report.'
 }
 

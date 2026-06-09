@@ -1,5 +1,6 @@
 param(
     [string] $BacklogPath = 'tasks/backlog.csv',
+    [string] $LiveCloseoutPlanPath = 'tasks/live-pilot-closeout-plan.csv',
     [string] $ChecklistPath = 'docs/templates/p003-onsite-pilot-admission-checklist.md',
     [string] $EvidencePath = 'docs/evidence/20260505-p003-onsite-pilot-admission-preflight.md',
     [string] $ReportPath = 'docs/evidence/20260523-p003-onsite-pilot-admission-report.json'
@@ -32,16 +33,24 @@ function Write-ContentIfChanged([string]$Path, [string]$Content) {
 }
 
 $backlogFullPath = Resolve-RepoPath $BacklogPath
+$liveCloseoutPlanFullPath = Resolve-RepoPath $LiveCloseoutPlanPath
 $checklistFullPath = Resolve-RepoPath $ChecklistPath
 $evidenceFullPath = Resolve-RepoPath $EvidencePath
 
 Assert-True (Test-Path -LiteralPath $backlogFullPath) "P003 backlog file missing: $BacklogPath"
+Assert-True (Test-Path -LiteralPath $liveCloseoutPlanFullPath) "live closeout plan missing: $LiveCloseoutPlanPath"
 Assert-True (Test-Path -LiteralPath $checklistFullPath) "P003 checklist missing: $ChecklistPath"
 Assert-True (Test-Path -LiteralPath $evidenceFullPath) "P003 evidence markdown missing: $EvidencePath"
 
 $rows = Import-Csv -LiteralPath $backlogFullPath -Encoding UTF8
+$closeoutRows = @(Import-Csv -LiteralPath $liveCloseoutPlanFullPath -Encoding UTF8)
 $byId = @{}
 foreach ($row in $rows) { $byId[$row.id] = $row }
+
+Assert-True ($closeoutRows.Count -eq 26) "live closeout plan row count drift: expected 26 actual $($closeoutRows.Count)"
+$p003NextCloseout = @($closeoutRows | Where-Object { [string] $_.parent_id -eq 'P003' -and [string] $_.status -ne '已完成' } | Select-Object -First 1)
+Assert-True ($p003NextCloseout.Count -eq 1) 'live closeout plan must expose next P003 slice'
+Assert-True ([string] $p003NextCloseout[0].id -eq 'P003A') 'next P003 closeout slice must remain P003A before onsite admission closes'
 
 foreach ($requiredTaskId in @('P002', 'P003')) {
     Assert-True ($byId.ContainsKey($requiredTaskId)) "P003 prerequisite task missing: $requiredTaskId"
@@ -69,6 +78,7 @@ $report = [ordered]@{
     taskId = 'P003'
     mode = 'preflight_only'
     checkedAt = (Get-Date).ToString('s')
+    liveCloseoutPlanPath = $LiveCloseoutPlanPath
     p002Status = $p002.status
     p003Status = $p003.status
     closeTaskAllowed = $false
@@ -76,6 +86,10 @@ $report = [ordered]@{
     checklistPath = $ChecklistPath
     evidencePath = $EvidencePath
     reportPath = $ReportPath
+    closeoutPlan = [ordered]@{
+        rowCount = $closeoutRows.Count
+        nextOpenP003 = [string] $p003NextCloseout[0].id
+    }
     blockers = @(
         'P002 teacher proxy pilot evidence is not closed.',
         'Teacher participation boundary is not signed off.',
@@ -92,7 +106,7 @@ $report = [ordered]@{
         'Do not mark P003 complete without explicit teacher boundary, data authorization, support owner, and rollback evidence.',
         'Do not advance P004 onsite round1 until P003 admission card is complete.'
     )
-    boundary = 'onsite pilot admission is not executed in this contract; keep P003 as todo until P002 closes and admission card is complete'
+    boundary = 'onsite pilot admission is not executed in this contract; keep P003 as todo until P002 closes and admission card is complete, and keep nextOpenP003 explicit while the onsite boundary is still open'
     rollback = 'revert tools/run-p003-onsite-pilot-admission-preflight-contract.ps1, tasks/backlog.csv, and remove the generated P003 admission report.'
 }
 
