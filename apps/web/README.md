@@ -6,9 +6,11 @@ Run:
 
 ```powershell
 .\tools\start-local-web.ps1
+.\tools\start-local-api.ps1
 ```
 
 The repo-level helper keeps Vite on `http://127.0.0.1:5173/`, writes PID/logs under `logs/dev-web/`, and supports `-Status`, `-Restart`, and `-Stop`.
+The matching API helper keeps the ASP.NET Core backend on `http://127.0.0.1:5275`, writes PID/logs under `logs/dev-api/`, and supports `-Status`, `-Restart`, and `-Stop`.
 
 Build:
 

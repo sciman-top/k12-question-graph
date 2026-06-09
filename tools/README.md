@@ -8,7 +8,23 @@ Current entries:
 tools/run-gates.ps1
 tools/backup.ps1
 tools/verify-backup.ps1
+tools/start-local-web.ps1
+tools/start-local-api.ps1
 ```
+
+Local dev entrypoints:
+
+```powershell
+.\tools\start-local-web.ps1
+.\tools\start-local-web.ps1 -Status
+.\tools\start-local-api.ps1
+.\tools\start-local-api.ps1 -Status
+```
+
+`start-local-web.ps1` keeps Vite on `http://127.0.0.1:5173/`.
+`start-local-api.ps1` keeps the ASP.NET Core backend on `http://127.0.0.1:5275`,
+reuses local `PGPASSWORD` / `KQG_CONNECTION_STRING`, and writes logs under
+`logs/dev-api/`.
 
 Run gates:
 

@@ -55,6 +55,15 @@ Web:
 
 该入口会把 Vite 固定到 `http://127.0.0.1:5173/`，后台启动并把 PID/日志写入 `logs/dev-web/`。需要重启或停止时使用 `.\tools\start-local-web.ps1 -Restart` / `.\tools\start-local-web.ps1 -Stop`。
 
+本地 API 常驻入口：
+
+```powershell
+.\tools\start-local-api.ps1
+.\tools\start-local-api.ps1 -Status
+```
+
+该入口会把 API 固定到 `http://127.0.0.1:5275`，自动解析本机 `PGPASSWORD` 或 `KQG_CONNECTION_STRING`，后台启动并把 PID/日志写入 `logs/dev-api/`。需要重启或停止时使用 `.\tools\start-local-api.ps1 -Restart` / `.\tools\start-local-api.ps1 -Stop`。
+
 统一 gate:
 
 ```powershell
