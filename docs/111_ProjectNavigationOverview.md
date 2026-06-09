@@ -23,6 +23,7 @@
 | 现在能不能发布 / 试点 | `docs/109_ReleaseGoNoGoCard.md` | 当前正式 `Go / No-Go` 裁决入口 |
 | 我只想知道“当前到底闭环到哪了” | `docs/112_CurrentClosureStatus_20260609.md` | 当前仓库级 / 非现场 / 现场阻断的短总览 |
 | 任务链和机器顺序到底以什么为准 | `tasks/backlog.csv` | 主线顺序权威入口 |
+| `P001 / P003 / P005 / P006 / REAL005` 还差哪几步 | `tasks/live-pilot-closeout-plan.csv` | 现场 closeout 最小执行顺序入口 |
 | 当前对外完成态该怎么说 | `tasks/completion-state-dashboard.csv` | 不只看 backlog 的 `已完成` |
 | 非现场能力落到了哪一步 | `docs/101_NonSiteCapabilityImplementationRoadmap.md` + `tasks/non-site-implementation-plan.csv` | 看 `planned -> runtime_verified -> blocked_by_onsite` |
 | 产品化闭环当前推进到哪 | `docs/99_ProductizationFullRoadmapAndTaskPlan.md` + `tasks/productization-roadmap.csv` | 看 S0 与 NS13 的产品化推进 |
@@ -79,10 +80,11 @@
 
 1. `docs/109_ReleaseGoNoGoCard.md`
 2. `docs/103_ExecutionControlBoard.md`
-3. `docs/104_OpenQuestionsAndAssumptions.md`
-4. `docs/templates/p001-live-pilot-release-checklist.md`
-5. `docs/templates/p003-onsite-pilot-admission-checklist.md`
-6. `docs/templates/p006-release-decision-checklist.md`
+3. `tasks/live-pilot-closeout-plan.csv`
+4. `docs/104_OpenQuestionsAndAssumptions.md`
+5. `docs/templates/p001-live-pilot-release-checklist.md`
+6. `docs/templates/p003-onsite-pilot-admission-checklist.md`
+7. `docs/templates/p006-release-decision-checklist.md`
 
 ## 4. 读取顺序建议
 

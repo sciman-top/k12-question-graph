@@ -1,6 +1,6 @@
 # 109 · 发布 Go / No-Go 卡
 
-日期：2026-06-07。
+日期：2026-06-09。
 
 ## 1. 当前默认结论
 
@@ -15,6 +15,8 @@
 ## 2. 用途
 
 本卡是 `P006` 的单页裁决入口。它不替代证据包，但要求把分散证据压缩成可签字的发布判断。
+
+若需要继续追踪 `REAL005`、`P001`、`P003`、`P005`、`P006` 的最小关闭步骤，请同时查看 `tasks/live-pilot-closeout-plan.csv`；本卡只做最终裁决，不承担子项排程。
 
 ## 3. 当前裁决卡
 
@@ -47,16 +49,16 @@
 
 | 主题 | 证据 |
 |---|---|
-| P001 readiness pack | `docs/evidence/20260607-ns904-p001-readiness.json` |
-| P001 preflight report | `docs/evidence/20260607-p001-live-pilot-readiness-preflight-report.json` |
+| P001 readiness pack | `docs/evidence/20260609-ns904-p001-readiness.json` |
+| P001 preflight report | `docs/evidence/20260609-p001-live-pilot-readiness-preflight-report.json` |
 | P001 isolated-machine evidence template | `docs/templates/p001-isolated-machine-evidence-template.md` |
 | NS906 visual surrogate | `docs/evidence/20260528-ns906-visual-surrogate-review-report.json` |
 | NS1308 release evidence pack | `docs/evidence/20260607-ns1308-release-evidence-pack.json` |
-| P003 admission preflight | `docs/evidence/20260607-p003-onsite-pilot-admission-report.json` |
-| P005 feedback triage preflight | `docs/evidence/20260607-p005-pilot-feedback-backlog-admission-report.json` |
+| P003 admission preflight | `docs/evidence/20260609-p003-onsite-pilot-admission-report.json` |
+| P005 feedback triage preflight | `docs/evidence/20260609-p005-pilot-feedback-backlog-admission-report.json` |
 | P005 feedback triage template | `docs/templates/p005-pilot-feedback-triage-template.json` |
 | P005 feedback triage record | `docs/templates/p005-pilot-feedback-triage-record.md` |
-| P006 release decision preflight | `docs/evidence/20260607-p006-release-decision-admission-report.json` |
+| P006 release decision preflight | `docs/evidence/20260609-p006-release-decision-admission-report.json` |
 | P006 release decision template | `docs/templates/p006-release-decision-record-template.json` |
 | P006 release decision record | `docs/templates/p006-release-decision-record.md` |
 | REAL005 closure standard | `docs/evidence/20260512-real005-guangzhou-2015-2025-closure-standard-report.json` |
@@ -104,6 +106,7 @@
 ## 5. 与现有清单的关系
 
 - 证据来源仍来自 `docs/evidence/`、`tasks/completion-state-dashboard.csv` 和 `P001-P006`。
+- 现场 closeout 的更细执行顺序由 `tasks/live-pilot-closeout-plan.csv` 承接。
 - `docs/templates/p006-release-decision-checklist.md` 负责逐项核对。
 - 本卡负责最终一页式裁决，不再只靠分散 preflight 结论。
 

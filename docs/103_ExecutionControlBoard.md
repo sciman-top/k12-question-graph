@@ -18,6 +18,7 @@ AI 推荐：当前唯一主目标不是继续扩能力面，而是把 `P001 -> P
 | 主线顺序与依赖 | `tasks/backlog.csv` | 决定先做什么、后做什么 |
 | 非现场产品化与运行形态 | `tasks/non-site-implementation-plan.csv` | 决定 NS0-NS13 的实现顺序和证据 |
 | 产品化闭环拆解 | `tasks/productization-roadmap.csv` / `tasks/productization-s0-execution-plan.csv` | 决定 S0 子任务归宿 |
+| 现场 closeout 拆解 | `tasks/live-pilot-closeout-plan.csv` | 决定 `REAL005` 与 `P001/P003/P005/P006` 的最小关闭步骤 |
 | 发布裁决 | `docs/109_ReleaseGoNoGoCard.md` | 决定 go / no-go，不由聊天结论代替 |
 | 未决事项 | `docs/104_OpenQuestionsAndAssumptions.md` | 决定哪些边界还没拍板 |
 

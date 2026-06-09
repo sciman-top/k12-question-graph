@@ -29,6 +29,8 @@
 
 真实广州中考物理资料已进入 `REAL001-REAL005` 纠偏主线。`REAL001/REAL002` 已把 2015 年第 1-24 题写入数据库并进入 `pending_review` 审核队列，其中第 19-24 题已有截图级 `SourceRegion` 与题图资产；`REAL003` 已对 2016-2025 年做首轮 dry-run，核对 210 个候选题、210 条答案和 33 个带 hash 的 `SourceDocument`，未写 active、未调用外部 AI；`REAL004` 已证明 2015 真卷审核队列可筛选、加载来源、确认、退回、修订并写入 audit；`REAL005` 已安装机器可读闭环判定标准，当前真实结论必须保持 `closureStatus=not_closed`，不能宣称 2015-2025 真卷全流程已经全部完成。
 
+2026-06-09 起，`REAL005` 与 `P001/P003/P005/P006` 的剩余现场阻断不再只散落在 README、发布卡和证据 JSON 中；新的最小执行顺序入口是 `tasks/live-pilot-closeout-plan.csv`，专门用于隔离机事实、签收、反馈分流和发布裁决 closeout。
+
 当前完成态速览：
 
 | 范围 | 当前完成态 | 可用性结论 | 下一阻断 |
