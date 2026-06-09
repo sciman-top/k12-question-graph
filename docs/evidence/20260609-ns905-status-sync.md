@@ -1,12 +1,13 @@
 # NS905 status sync audit
 
 - status: pass
-- checked_at: 2026-06-09T02:13:12
+- checked_at: 2026-06-09T21:30:16
 - task_id: NS905
 - mode: csv_status_sync_audit
 - backlog_path: `tasks/backlog.csv`
 - dashboard_path: `tasks/completion-state-dashboard.csv`
 - non_site_plan_path: `tasks/non-site-implementation-plan.csv`
+- live_closeout_plan_path: `tasks/live-pilot-closeout-plan.csv`
 
 ## Backlog P-live Status
 - P001: 待办
@@ -44,6 +45,19 @@
 - ns1001: blocked_by_onsite
 - next_planned_task_after_this_sync: none
 
+## Live Closeout Plan
+- row_count: 26
+- parent.P001: 8
+- parent.P003: 5
+- parent.P005: 4
+- parent.P006: 5
+- parent.REAL005: 4
+- next_open.REAL005: REAL005A
+- next_open.P001: P001A
+- next_open.P003: P003A
+- next_open.P005: P005A
+- next_open.P006: P006A
+
 ## Acceptance
 - backlog_p001_p006_remain_todo: true
 - dashboard_release_ready_not_claimed: true
@@ -52,6 +66,7 @@
 - ns_plan_non_site_validated_not_claimed: true
 - old_status_did_not_override_ns904_evidence: true
 - real005_not_closed: true
+- live_closeout_plan_keeps_next_open_slices_explicit: true
 
 ## Boundary
 NS905 audits status synchronization only. It does not close P001, does not mark release_ready or non_site_validated, and does not replace isolated-machine or onsite pilot evidence.

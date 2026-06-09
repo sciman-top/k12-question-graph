@@ -1,7 +1,7 @@
 # Live Pilot Closeout Plan Guard
 
 - status: pass
-- checked_at: 2026-06-09T21:23:32
+- checked_at: 2026-06-09T21:27:46
 - plan_path: tasks/live-pilot-closeout-plan.csv
 - row_count: 26
 - real005_closure_status: not_closed

@@ -6,6 +6,7 @@ Current entries:
 
 ```powershell
 tools/run-gates.ps1
+tools/run-live-pilot-closeout-plan-guard.ps1
 tools/backup.ps1
 tools/verify-backup.ps1
 tools/start-local-web.ps1
@@ -192,7 +193,7 @@ This assembles the P001 readiness pack after NS903 and the P001 preflight
 contract. It verifies NS803 installer/host diagnostics, NS804 publish package,
 NS805 capacity/health evidence, NS806 upgrade/restore evidence, NS901 scenario
 coverage, NS906 visual surrogate boundaries, and REAL005 `not_closed`. It
-writes `docs/evidence/20260530-ns904-p001-readiness.json`, keeps
+writes the latest repo evidence at `docs/evidence/20260609-ns904-p001-readiness.json`, keeps
 `p001CanClose=false`, keeps `releaseReady=false`, and lists the remaining
 isolated-machine, onsite-teacher, printer, network, domain-permission, and
 operator-signoff blockers for the P001 checklist.
@@ -208,7 +209,7 @@ evidence already assembled: REAL001-REAL012, host capability diagnostic,
 worker profile diagnostic, technology refresh `report_only`, the
 `docs/templates/p001-live-pilot-release-checklist.md`, and the
 `docs/templates/p001-isolated-machine-evidence-template.md`. It writes
-`docs/evidence/20260607-p001-live-pilot-readiness-preflight-report.json`,
+the latest repo evidence at `docs/evidence/20260609-p001-live-pilot-readiness-preflight-report.json`,
 keeps `readyForIsolatedMachineRun=true`, keeps `p001CanClose=false`, and does
 not execute isolated-machine install, printer/network/domain checks, or
 operator signoff.
@@ -249,8 +250,11 @@ NS905 status sync audit:
 This audits the backlog, completion-state dashboard, and non-site plan after
 NS904. It keeps P001-P006 as `待办`, requires zero `release_ready` and zero
 `non_site_validated` rows, verifies dashboard P001 blockers still point to real
-backlog tasks, and checks NS903/NS904 runtime evidence cannot be overwritten by
-older planned states. It writes `docs/evidence/20260530-ns905-status-sync.md`.
+backlog tasks, checks NS903/NS904 runtime evidence cannot be overwritten by
+older planned states, and now also reads `tasks/live-pilot-closeout-plan.csv`
+to keep the next open slices for `REAL005/P001/P003/P005/P006` explicit in the
+status audit. The latest repo evidence is
+`docs/evidence/20260609-ns905-status-sync.md`.
 
 Live pilot closeout plan guard:
 
@@ -264,8 +268,10 @@ backlog sync for `REAL005/P001/P003/P005/P006`, and the current No-Go wording
 in `README.md`, `docs/109_ReleaseGoNoGoCard.md`,
 `docs/111_ProjectNavigationOverview.md`, and
 `docs/112_CurrentClosureStatus_20260609.md`. It requires the REAL005 closure
-report to stay `not_closed`, writes JSON/Markdown summaries under
-`docs/evidence/`, and does not fabricate onsite evidence.
+report to stay `not_closed`, writes the latest JSON/Markdown summaries to
+`docs/evidence/20260609-live-pilot-closeout-plan-guard.json` and
+`docs/evidence/20260609-live-pilot-closeout-plan-guard.md`, and does not
+fabricate onsite evidence.
 
 NS1101 second-subject candidate boundary pack:
 

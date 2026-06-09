@@ -3,6 +3,7 @@ param(
     [string] $BacklogPath = 'tasks/backlog.csv',
     [string] $DashboardPath = 'tasks/completion-state-dashboard.csv',
     [string] $NonSitePlanPath = 'tasks/non-site-implementation-plan.csv',
+    [string] $LiveCloseoutPlanPath = 'tasks/live-pilot-closeout-plan.csv',
     [string] $NS904ReportPath = 'docs/evidence/20260530-ns904-p001-readiness.json',
     [string] $NS903ReportPath = 'docs/evidence/20260530-ns903-completion-dashboard.json',
     [string] $P001ReportPath = 'docs/evidence/20260530-p001-live-pilot-readiness-preflight-report.json',
@@ -43,16 +44,20 @@ try {
     $backlogFullPath = Resolve-InRepoPath $BacklogPath
     $dashboardFullPath = Resolve-InRepoPath $DashboardPath
     $planFullPath = Resolve-InRepoPath $NonSitePlanPath
+    $closeoutPlanFullPath = Resolve-InRepoPath $LiveCloseoutPlanPath
     Assert-Condition (Test-Path -LiteralPath $backlogFullPath) "missing backlog: $BacklogPath"
     Assert-Condition (Test-Path -LiteralPath $dashboardFullPath) "missing completion dashboard: $DashboardPath"
     Assert-Condition (Test-Path -LiteralPath $planFullPath) "missing non-site plan: $NonSitePlanPath"
+    Assert-Condition (Test-Path -LiteralPath $closeoutPlanFullPath) "missing live closeout plan: $LiveCloseoutPlanPath"
 
     $backlogRows = @(Import-Csv -LiteralPath $backlogFullPath -Encoding UTF8)
     $dashboardRows = @(Import-Csv -LiteralPath $dashboardFullPath -Encoding UTF8)
     $planRows = @(Import-Csv -LiteralPath $planFullPath -Encoding UTF8)
+    $closeoutRows = @(Import-Csv -LiteralPath $closeoutPlanFullPath -Encoding UTF8)
     Assert-Condition ($backlogRows.Count -gt 0) 'backlog must not be empty'
     Assert-Condition ($dashboardRows.Count -gt 0) 'completion dashboard must not be empty'
     Assert-Condition ($planRows.Count -gt 0) 'non-site plan must not be empty'
+    Assert-Condition ($closeoutRows.Count -eq 26) "live closeout plan row count drift: expected 26 actual $($closeoutRows.Count)"
 
     $ns904 = Read-Json $NS904ReportPath
     $ns903 = Read-Json $NS903ReportPath
@@ -79,10 +84,31 @@ try {
     $p006Backlog = Get-RequiredRow $backlogRows 'P006'
     $real005Backlog = Get-RequiredRow $backlogRows 'REAL005'
 
+    $closeoutParentCounts = [ordered]@{}
+    foreach ($group in ($closeoutRows | Group-Object parent_id | Sort-Object Name)) {
+        $closeoutParentCounts[$group.Name] = $group.Count
+    }
+    Assert-Condition ($closeoutParentCounts['REAL005'] -eq 4) 'live closeout REAL005 slice count must remain 4'
+    Assert-Condition ($closeoutParentCounts['P001'] -eq 8) 'live closeout P001 slice count must remain 8'
+    Assert-Condition ($closeoutParentCounts['P003'] -eq 5) 'live closeout P003 slice count must remain 5'
+    Assert-Condition ($closeoutParentCounts['P005'] -eq 4) 'live closeout P005 slice count must remain 4'
+    Assert-Condition ($closeoutParentCounts['P006'] -eq 5) 'live closeout P006 slice count must remain 5'
+
+    $closeoutNextOpen = [ordered]@{}
+    foreach ($parent in @('REAL005','P001','P003','P005','P006')) {
+        $nextOpen = @($closeoutRows | Where-Object { [string] $_.parent_id -eq $parent -and [string] $_.status -ne '已完成' } | Select-Object -First 1)
+        $closeoutNextOpen[$parent] = if ($nextOpen.Count -gt 0) { [string] $nextOpen[0].id } else { 'none' }
+    }
+
     foreach ($row in @($p001Backlog, $p002Backlog, $p003Backlog, $p004Backlog, $p005Backlog, $p006Backlog)) {
         Assert-Condition ($row.status -eq '待办') "P-live backlog task must remain todo: $($row.id)"
     }
     Assert-Condition ($real005Backlog.status -eq '已完成') 'REAL005 criteria task must remain completed as a guard definition'
+    Assert-Condition ($closeoutNextOpen['REAL005'] -eq 'REAL005A') 'next REAL005 closeout slice must start at REAL005A while not_closed'
+    Assert-Condition ($closeoutNextOpen['P001'] -eq 'P001A') 'next P001 closeout slice must start at P001A while todo'
+    Assert-Condition ($closeoutNextOpen['P003'] -eq 'P003A') 'next P003 closeout slice must start at P003A while todo'
+    Assert-Condition ($closeoutNextOpen['P005'] -eq 'P005A') 'next P005 closeout slice must start at P005A while todo'
+    Assert-Condition ($closeoutNextOpen['P006'] -eq 'P006A') 'next P006 closeout slice must start at P006A while todo'
     Assert-ContainsAll @($p001Backlog.depends_on -split ';' | ForEach-Object { $_.Trim() } | Where-Object { $_ }) @(
         'S012',
         'O004B',
@@ -188,6 +214,7 @@ try {
     $lines.Add("- backlog_path: ``$BacklogPath``")
     $lines.Add("- dashboard_path: ``$DashboardPath``")
     $lines.Add("- non_site_plan_path: ``$NonSitePlanPath``")
+    $lines.Add("- live_closeout_plan_path: ``$LiveCloseoutPlanPath``")
     $lines.Add('')
     $lines.Add('## Backlog P-live Status')
     foreach ($entry in $backlogPStatuses.GetEnumerator()) {
@@ -216,6 +243,15 @@ try {
     $lines.Add("- ns1001: $($ns1001Row.status)")
     $lines.Add("- next_planned_task_after_this_sync: $nextPlannedTask")
     $lines.Add('')
+    $lines.Add('## Live Closeout Plan')
+    $lines.Add("- row_count: $($closeoutRows.Count)")
+    foreach ($entry in $closeoutParentCounts.GetEnumerator()) {
+        $lines.Add("- parent.$($entry.Key): $($entry.Value)")
+    }
+    foreach ($entry in $closeoutNextOpen.GetEnumerator()) {
+        $lines.Add("- next_open.$($entry.Key): $($entry.Value)")
+    }
+    $lines.Add('')
     $lines.Add('## Acceptance')
     $lines.Add('- backlog_p001_p006_remain_todo: true')
     $lines.Add('- dashboard_release_ready_not_claimed: true')
@@ -224,6 +260,7 @@ try {
     $lines.Add('- ns_plan_non_site_validated_not_claimed: true')
     $lines.Add('- old_status_did_not_override_ns904_evidence: true')
     $lines.Add('- real005_not_closed: true')
+    $lines.Add('- live_closeout_plan_keeps_next_open_slices_explicit: true')
     $lines.Add('')
     $lines.Add('## Boundary')
     $lines.Add('NS905 audits status synchronization only. It does not close P001, does not mark release_ready or non_site_validated, and does not replace isolated-machine or onsite pilot evidence.')
@@ -246,6 +283,8 @@ try {
         nonSiteValidatedCount = $nonSiteValidatedRows.Count
         ns905CurrentStatus = [string]$ns905Row.status
         nextPlannedTask = $nextPlannedTask
+        liveCloseoutRowCount = $closeoutRows.Count
+        liveCloseoutNextOpen = $closeoutNextOpen
         p001Status = [string]$p001Backlog.status
         p001CanClose = [bool]$p001.p001CanClose
         real005ClosureStatus = [string]$real005.closureStatus
