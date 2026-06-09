@@ -62,6 +62,7 @@ $url = "http://${HostName}:${Port}/"
 
 if ($Stop -or $Restart) {
     Stop-WebServer
+    $listener = $null
 }
 
 if ($Stop) {
