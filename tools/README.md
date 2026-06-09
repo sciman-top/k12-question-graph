@@ -252,6 +252,21 @@ NS904. It keeps P001-P006 as `待办`, requires zero `release_ready` and zero
 backlog tasks, and checks NS903/NS904 runtime evidence cannot be overwritten by
 older planned states. It writes `docs/evidence/20260530-ns905-status-sync.md`.
 
+Live pilot closeout plan guard:
+
+```powershell
+.\tools\run-live-pilot-closeout-plan-guard.ps1
+```
+
+This validates the new `tasks/live-pilot-closeout-plan.csv` against the real
+truth boundary. It checks row order, parent linkage, referenced repo paths,
+backlog sync for `REAL005/P001/P003/P005/P006`, and the current No-Go wording
+in `README.md`, `docs/109_ReleaseGoNoGoCard.md`,
+`docs/111_ProjectNavigationOverview.md`, and
+`docs/112_CurrentClosureStatus_20260609.md`. It requires the REAL005 closure
+report to stay `not_closed`, writes JSON/Markdown summaries under
+`docs/evidence/`, and does not fabricate onsite evidence.
+
 NS1101 second-subject candidate boundary pack:
 
 ```powershell

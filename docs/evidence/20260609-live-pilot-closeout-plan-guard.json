@@ -1,0 +1,37 @@
+{
+  "status": "pass",
+  "taskId": "LIVE_CLOSEOUT_GUARD",
+  "checkedAt": "2026-06-09T21:23:32",
+  "planPath": "tasks/live-pilot-closeout-plan.csv",
+  "backlogPath": "tasks/backlog.csv",
+  "releaseCardPath": "docs/109_ReleaseGoNoGoCard.md",
+  "closureSummaryPath": "docs/112_CurrentClosureStatus_20260609.md",
+  "real005ClosureStatus": "not_closed",
+  "fullClosureAllowed": false,
+  "rowCount": 26,
+  "statusCounts": {
+    "待办": 26
+  },
+  "parentCounts": {
+    "P001": 8,
+    "P003": 5,
+    "P005": 4,
+    "P006": 5,
+    "REAL005": 4
+  },
+  "nextOpenByParent": {
+    "REAL005": "REAL005A",
+    "P001": "P001A",
+    "P003": "P003A",
+    "P005": "P005A",
+    "P006": "P006A"
+  },
+  "backlogStatuses": {
+    "REAL005": "已完成",
+    "P001": "待办",
+    "P003": "待办",
+    "P005": "待办",
+    "P006": "待办"
+  },
+  "boundary": "closeout plan guard only; it keeps REAL005 not_closed and does not create onsite evidence"
+}
