@@ -21,6 +21,7 @@
 | 当前真正唯一主线是什么 | `docs/103_ExecutionControlBoard.md` | 看 Now / Next / Later 和硬阻断 |
 | 还有哪些关键边界没拍板 | `docs/104_OpenQuestionsAndAssumptions.md` | 看 OQ 和是否需要回写任务 CSV |
 | 现在能不能发布 / 试点 | `docs/109_ReleaseGoNoGoCard.md` | 当前正式 `Go / No-Go` 裁决入口 |
+| 我只想知道“当前到底闭环到哪了” | `docs/112_CurrentClosureStatus_20260609.md` | 当前仓库级 / 非现场 / 现场阻断的短总览 |
 | 任务链和机器顺序到底以什么为准 | `tasks/backlog.csv` | 主线顺序权威入口 |
 | 当前对外完成态该怎么说 | `tasks/completion-state-dashboard.csv` | 不只看 backlog 的 `已完成` |
 | 非现场能力落到了哪一步 | `docs/101_NonSiteCapabilityImplementationRoadmap.md` + `tasks/non-site-implementation-plan.csv` | 看 `planned -> runtime_verified -> blocked_by_onsite` |
