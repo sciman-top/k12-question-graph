@@ -1,5 +1,6 @@
 param(
     [string] $BacklogPath = 'tasks/backlog.csv',
+    [string] $LiveCloseoutPlanPath = 'tasks/live-pilot-closeout-plan.csv',
     [string] $ChecklistPath = 'docs/templates/p001-live-pilot-release-checklist.md',
     [string] $IsolatedMachineEvidenceTemplatePath = 'docs/templates/p001-isolated-machine-evidence-template.md',
     [string] $EvidencePath = 'docs/evidence/20260518-p001-live-pilot-readiness-preflight.md',
@@ -35,21 +36,33 @@ function Write-ContentIfChanged([string]$Path, [string]$Content) {
 }
 
 $backlogFullPath = Resolve-InRepoPath $BacklogPath
+$liveCloseoutPlanFullPath = Resolve-InRepoPath $LiveCloseoutPlanPath
 $checklistFullPath = Resolve-InRepoPath $ChecklistPath
 $isolatedMachineEvidenceTemplateFullPath = Resolve-InRepoPath $IsolatedMachineEvidenceTemplatePath
 $evidenceFullPath = Resolve-InRepoPath $EvidencePath
 $reportFullPath = Resolve-InRepoPath $ReportPath
 
 Assert-True (Test-Path -LiteralPath $backlogFullPath) "P001 backlog file missing: $BacklogPath"
+Assert-True (Test-Path -LiteralPath $liveCloseoutPlanFullPath) "live closeout plan missing: $LiveCloseoutPlanPath"
 Assert-True (Test-Path -LiteralPath $checklistFullPath) "P001 checklist missing: $ChecklistPath"
 Assert-True (Test-Path -LiteralPath $isolatedMachineEvidenceTemplateFullPath) "P001 isolated-machine evidence template missing: $IsolatedMachineEvidenceTemplatePath"
 Assert-True (Test-Path -LiteralPath $evidenceFullPath) "P001 evidence markdown missing: $EvidencePath"
 
 $rows = Import-Csv -LiteralPath $backlogFullPath -Encoding UTF8
+$closeoutRows = @(Import-Csv -LiteralPath $liveCloseoutPlanFullPath -Encoding UTF8)
 $byId = @{}
 foreach ($row in $rows) {
     $byId[$row.id] = $row
 }
+
+Assert-True ($closeoutRows.Count -eq 26) "live closeout plan row count drift: expected 26 actual $($closeoutRows.Count)"
+
+$p001NextCloseout = @($closeoutRows | Where-Object { [string] $_.parent_id -eq 'P001' -and [string] $_.status -ne '已完成' } | Select-Object -First 1)
+$real005NextCloseout = @($closeoutRows | Where-Object { [string] $_.parent_id -eq 'REAL005' -and [string] $_.status -ne '已完成' } | Select-Object -First 1)
+Assert-True ($p001NextCloseout.Count -eq 1) 'live closeout plan must expose next P001 slice'
+Assert-True ($real005NextCloseout.Count -eq 1) 'live closeout plan must expose next REAL005 slice'
+Assert-True ([string] $p001NextCloseout[0].id -eq 'P001A') 'next P001 closeout slice must remain P001A before isolated-machine run'
+Assert-True ([string] $real005NextCloseout[0].id -eq 'REAL005A') 'next REAL005 closeout slice must remain REAL005A before full closure'
 
 foreach ($requiredTaskId in @('S012', 'O004B', 'O006', 'O007', 'O008', 'REAL001', 'REAL002', 'REAL003', 'REAL004', 'REAL005', 'REAL006', 'REAL007', 'REAL008', 'REAL009', 'REAL010', 'REAL011', 'REAL012', 'P001')) {
     Assert-True ($byId.ContainsKey($requiredTaskId)) "P001 prerequisite task missing: $requiredTaskId"
@@ -153,6 +166,7 @@ $report = [ordered]@{
     taskId = 'P001'
     mode = 'preflight_only'
     p001Status = $p001.status
+    liveCloseoutPlanPath = $LiveCloseoutPlanPath
     dependencies = $dependencies
     prerequisites = [ordered]@{
         S012 = $byId['S012'].status
@@ -201,6 +215,11 @@ $report = [ordered]@{
     isolatedMachineEvidenceTemplatePath = $IsolatedMachineEvidenceTemplatePath
     evidencePath = $EvidencePath
     reportPath = $ReportPath
+    closeoutPlan = [ordered]@{
+        rowCount = $closeoutRows.Count
+        nextOpenP001 = [string] $p001NextCloseout[0].id
+        nextOpenREAL005 = [string] $real005NextCloseout[0].id
+    }
     readyForIsolatedMachineRun = $true
     p001CanClose = $false
     blockers = @(
@@ -209,7 +228,7 @@ $report = [ordered]@{
         'isolated_machine_role_audit_not_executed',
         'isolated_machine_four_teacher_entry_smoke_not_executed'
     )
-    boundary = 'REAL001-REAL012 and read-only diagnostics are ready, but isolated-machine live rehearsal is not executed in this contract; keep P001 as todo until site-run evidence is complete'
+    boundary = 'REAL001-REAL012 and read-only diagnostics are ready, but isolated-machine live rehearsal is not executed in this contract; keep P001 as todo until site-run evidence is complete, and keep REAL005 not_closed until its own closeout slices advance'
     checkedAt = (Get-Date).ToString('s')
 }
 

@@ -212,7 +212,9 @@ worker profile diagnostic, technology refresh `report_only`, the
 the latest repo evidence at `docs/evidence/20260609-p001-live-pilot-readiness-preflight-report.json`,
 keeps `readyForIsolatedMachineRun=true`, keeps `p001CanClose=false`, and does
 not execute isolated-machine install, printer/network/domain checks, or
-operator signoff.
+operator signoff. It now also reads `tasks/live-pilot-closeout-plan.csv` so the
+report keeps `nextOpenP001=P001A` and `nextOpenREAL005=REAL005A` explicit while
+the onsite boundary is still open.
 
 P005 pilot feedback backlog preflight contract:
 
