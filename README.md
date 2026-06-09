@@ -2,6 +2,10 @@
 
 本仓用于本地 Codex CLI / AI Coding Agent 持续编码实现。当前目标不是“把所有未来功能一次做完”，而是按可验证小步闭环，把教师 Word/Excel 工作流迁移成可检索、可复用、可导出、可分析、可恢复的校本题库系统。
 
+## 当前状态入口
+
+如果你想知道“现在到底闭环到哪了”，先看 `docs/112_CurrentClosureStatus_20260609.md`、`docs/103_ExecutionControlBoard.md`、`docs/109_ReleaseGoNoGoCard.md` 和 `tasks/completion-state-dashboard.csv`。README 这里只保留稳定背景、常用启动命令和少量历史摘要。
+
 ## 当前仓库状态
 
 本仓已从**编码前设计包**进入可运行实现阶段：已有产品、架构、schema、配置、runbook、任务清单、ASP.NET Core API、React/Vite/Ant Design 前端、PostgreSQL/EF Core migration、Python Worker 占位、FileStore、ImportJob、health、backup 和统一 gate。
@@ -19,7 +23,7 @@
 
 2026-05-08 起，所有后续功能推进采用横向 automation-first 合同：确定性规则、脚本、专用 API/UI、Adapter、schema、SQL、hash/cache、typed client、模板和 contract 先覆盖可确定部分；AI/agent 只能作为语义候选、复杂映射、异常复核或外层并行编排。机器可读合同为 `tasks/automation-first-contract.csv`，门禁为 `tools/run-automation-first-feature-contract-guard.ps1`，并纳入 unified gate。
 
-2026-05-14 起，README 的当前完成态以 `tasks/completion-state-dashboard.csv`、`tasks/backlog.csv`、`docs/19_Roadmap.md`、`docs/20_TaskBreakdown.md` 和 `docs/evidence/` 的 REAL/S0 报告为准。`S001-S012` 已完成非现场产品化闭环：教师四入口、导入/切题/人工接管、AI 标注建议、题库检索、组卷、导出、成绩导入、讲评报告和备份恢复均有合同或代理验收证据；但这不等于现场发布完成。当前发布阻断仍是 `P001` 试点部署预演、隔离机真实安装、权限/审计、现场网络/打印/文件权限、真实教师或教师代理验收和回滚演练。
+2026-05-14 起，README 的当前完成态以 `tasks/completion-state-dashboard.csv`、`tasks/backlog.csv`、`docs/19_Roadmap.md`、`docs/20_TaskBreakdown.md` 和 `docs/evidence/` 的 REAL/S0 报告为准；更细的仓库级 / 非现场 / 现场阻断请以 `docs/112_CurrentClosureStatus_20260609.md` 和 `docs/109_ReleaseGoNoGoCard.md` 为准。`S001-S012` 已完成非现场产品化闭环：教师四入口、导入/切题/人工接管、AI 标注建议、题库检索、组卷、导出、成绩导入、讲评报告和备份恢复均有合同或代理验收证据；但这不等于现场发布完成。当前发布阻断仍是 `P001` 试点部署预演、隔离机真实安装、权限/审计、现场网络/打印/文件权限、真实教师或教师代理验收和回滚演练。
 
 2026-05-28 起，若最新盘点发现非人工、非现场能力仍未真正落地，不再只引用旧 `S001-S012` 历史完成态作为产品化证明。新的总控入口是 `docs/101_NonSiteCapabilityImplementationRoadmap.md`，机器可读任务清单是 `tasks/non-site-implementation-plan.csv`。后续每个模块必须重新区分 `planned`、`contract_only`、`repo_landed`、`runtime_verified`、`non_site_validated` 和 `blocked_by_onsite`；只有具备代码、运行或端到端证据后，才允许回写完成态看板。
 

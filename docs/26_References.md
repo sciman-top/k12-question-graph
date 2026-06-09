@@ -17,6 +17,8 @@ D:\CODE\external\k12-question-graph-references
 本地索引：`D:\CODE\external\k12-question-graph-references\README.md`。
 机器可读清单：`D:\CODE\external\k12-question-graph-references\references.manifest.json`。
 
+2026-06-09 已将本地参考库同步到最新 HEAD；各仓当前验证提交号以 `references.manifest.json` 为准。
+
 更新入口：
 
 ```powershell

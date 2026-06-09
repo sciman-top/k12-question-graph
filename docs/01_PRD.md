@@ -8,6 +8,10 @@
 
 减法目标：功能不是越多越好。v0.1 默认低学习成本、低培训依赖、低术语暴露；普通教师只面对导入、组卷、成绩、分析四个任务入口，高级治理、模型路由、备份恢复、权限审计和证据细节下沉到管理员或系统层。
 
+## 1.1 文档边界
+
+本 PRD 只定义稳定的产品目标、用户、成功指标和范围控制；当前仓库级、非现场与现场阻断、Go / No-Go 结论请看 `docs/112_CurrentClosureStatus_20260609.md`、`docs/103_ExecutionControlBoard.md`、`docs/109_ReleaseGoNoGoCard.md` 和 `tasks/completion-state-dashboard.csv`。
+
 ## 2. 目标用户
 
 | 用户 | 目标 | 关键痛点 |
