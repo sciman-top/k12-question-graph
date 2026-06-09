@@ -22,6 +22,7 @@
 | 还有哪些关键边界没拍板 | `docs/104_OpenQuestionsAndAssumptions.md` | 看 OQ 和是否需要回写任务 CSV |
 | 现在能不能发布 / 试点 | `docs/109_ReleaseGoNoGoCard.md` | 当前正式 `Go / No-Go` 裁决入口 |
 | 我只想知道“当前到底闭环到哪了” | `docs/112_CurrentClosureStatus_20260609.md` | 当前仓库级 / 非现场 / 现场阻断的短总览 |
+| 本地 Web/API 怎么启动、重启、判断是否真的活着 | `docs/113_LocalRuntimeOperations_20260609.md` | 本地联调运行模型、状态语义和排查入口 |
 | 任务链和机器顺序到底以什么为准 | `tasks/backlog.csv` | 主线顺序权威入口 |
 | `P001 / P003 / P005 / P006 / REAL005` 还差哪几步 | `tasks/live-pilot-closeout-plan.csv` | 现场 closeout 最小执行顺序入口 |
 | 当前对外完成态该怎么说 | `tasks/completion-state-dashboard.csv` | 不只看 backlog 的 `已完成` |
@@ -94,7 +95,8 @@
 2. 本文件
 3. `docs/103_ExecutionControlBoard.md`
 4. `docs/109_ReleaseGoNoGoCard.md`
-5. `docs/decisions/ADR-014-recommended-engineering-endstate-and-stack-boundary.md`
+5. `docs/113_LocalRuntimeOperations_20260609.md`
+6. `docs/decisions/ADR-014-recommended-engineering-endstate-and-stack-boundary.md`
 
 ### 开始具体工作前
 

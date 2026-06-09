@@ -4,7 +4,7 @@
 
 ## 当前状态入口
 
-如果你想知道“现在到底闭环到哪了”，先看 `docs/112_CurrentClosureStatus_20260609.md`、`docs/103_ExecutionControlBoard.md`、`docs/109_ReleaseGoNoGoCard.md` 和 `tasks/completion-state-dashboard.csv`。README 这里只保留稳定背景、常用启动命令和少量历史摘要。
+如果你想知道“现在到底闭环到哪了”，先看 `docs/112_CurrentClosureStatus_20260609.md`、`docs/103_ExecutionControlBoard.md`、`docs/109_ReleaseGoNoGoCard.md` 和 `tasks/completion-state-dashboard.csv`。如果你想知道“本地 Web/API 现在应该怎么跑、怎么看活着没”，先看 `docs/113_LocalRuntimeOperations_20260609.md`。README 这里只保留稳定背景、常用启动命令和少量历史摘要。
 
 ## 当前仓库状态
 
@@ -60,6 +60,7 @@ Web:
 ```
 
 该入口会把 Vite 固定到 `http://127.0.0.1:5173/`，后台启动并把 PID/日志写入 `logs/dev-web/`。需要重启或停止时使用 `.\tools\start-local-web.ps1 -Restart` / `.\tools\start-local-web.ps1 -Stop`。
+日常运行模型、状态语义和排查顺序见 `docs/113_LocalRuntimeOperations_20260609.md`。
 
 本地 API 常驻入口：
 
@@ -69,6 +70,7 @@ Web:
 ```
 
 该入口会把 API 固定到 `http://127.0.0.1:5275`，自动解析本机 `PGPASSWORD` 或 `KQG_CONNECTION_STRING`，后台启动并把 PID/日志写入 `logs/dev-api/`。需要重启或停止时使用 `.\tools\start-local-api.ps1 -Restart` / `.\tools\start-local-api.ps1 -Stop`。
+日常运行模型、状态语义和排查顺序见 `docs/113_LocalRuntimeOperations_20260609.md`。
 
 统一 gate:
 
