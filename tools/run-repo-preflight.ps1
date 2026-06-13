@@ -13,8 +13,19 @@ $reportRootFullPath = Join-Path $repoRoot $ReportRoot
 New-Item -ItemType Directory -Path $reportRootFullPath -Force | Out-Null
 $referenceValidationMode = if ($Mode -eq 'Ci') { 'Ci' } else { 'Local' }
 
+function Get-ProcessCommandLine([int] $ProcessId) {
+    $process = Get-CimInstance Win32_Process -Filter "ProcessId = $ProcessId" -ErrorAction SilentlyContinue
+    if ($null -eq $process) {
+        return ''
+    }
+
+    return [string]$process.CommandLine
+}
+
 function Get-DefaultLocalApiProcess {
     $expectedPath = Join-Path $repoRoot 'apps\api\bin\Release\net10.0\K12QuestionGraph.Api.exe'
+    $expectedDllPath = Join-Path $repoRoot 'apps\api\bin\Release\net10.0\K12QuestionGraph.Api.dll'
+    $expectedContentRoot = Join-Path $repoRoot 'apps\api'
     $listener = Get-NetTCPConnection -LocalPort 5275 -State Listen -ErrorAction SilentlyContinue |
         Select-Object -First 1
 
@@ -35,7 +46,7 @@ function Get-DefaultLocalApiProcess {
         return $null
     }
 
-    if ($process.ProcessName -ne 'K12QuestionGraph.Api') {
+    if ($process.ProcessName -notin @('K12QuestionGraph.Api', 'dotnet')) {
         return $null
     }
 
@@ -43,8 +54,32 @@ function Get-DefaultLocalApiProcess {
         return $null
     }
 
-    if (-not $processPath.Equals($expectedPath, [System.StringComparison]::OrdinalIgnoreCase)) {
-        return $null
+    if ($process.ProcessName -eq 'K12QuestionGraph.Api') {
+        if (-not $processPath.Equals($expectedPath, [System.StringComparison]::OrdinalIgnoreCase)) {
+            return $null
+        }
+    }
+    else {
+        if (-not $processPath.Equals((Get-Command dotnet).Source, [System.StringComparison]::OrdinalIgnoreCase)) {
+            return $null
+        }
+
+        $commandLine = Get-ProcessCommandLine -ProcessId $process.Id
+        if ([string]::IsNullOrWhiteSpace($commandLine)) {
+            return $null
+        }
+
+        $normalizedCommandLine = $commandLine.ToLowerInvariant()
+        $normalizedExpectedDllPath = $expectedDllPath.ToLowerInvariant()
+        $normalizedExpectedContentRoot = $expectedContentRoot.ToLowerInvariant()
+
+        if (-not $normalizedCommandLine.Contains($normalizedExpectedDllPath.ToLowerInvariant())) {
+            return $null
+        }
+
+        if (-not $normalizedCommandLine.Contains($normalizedExpectedContentRoot)) {
+            return $null
+        }
     }
 
     return $process

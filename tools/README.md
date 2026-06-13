@@ -37,10 +37,13 @@ $env:PGPASSWORD='<local-password>'
 ```
 
 If the standard local API is already running on `http://127.0.0.1:5275` from
-`apps/api/bin/Release/net10.0/K12QuestionGraph.Api.exe`, `run-gates.ps1`
-temporarily pauses it before the backend build and restores it afterwards. This
-avoids the default Release output lock without asking the operator to stop and
-restart the repo-local API by hand.
+the repo-local Release output, either as
+`apps/api/bin/Release/net10.0/K12QuestionGraph.Api.exe` or as
+`dotnet apps/api/bin/Release/net10.0/K12QuestionGraph.Api.dll --contentRoot apps/api`,
+both `run-gates.ps1` and `run-repo-preflight.ps1` temporarily pause it before
+the backend build and restore it afterwards. This avoids the default Release
+output lock without asking the operator to stop and restart the repo-local API
+by hand.
 
 Reference basis guard:
 
@@ -136,6 +139,9 @@ Unified repo preflight:
 without pretending to replace the local full gate. `Mode Release` runs the
 same stack and then adds `run-gates.ps1` unless `-SkipFullGate` is supplied.
 The GitHub Actions entrypoint is `.github/workflows/repo-preflight.yml`.
+If the default local API is already running on `127.0.0.1:5275`, repo
+preflight now detects both the native `.exe` shape and the
+`dotnet + .dll + --contentRoot` launcher shape before pausing and restoring it.
 If `-InstallFrontendDependencies` is used while the repo-local Vite dev server
 is still running on `127.0.0.1:5173`, preflight now fails fast with a clear
 message instead of surfacing a later Windows `EPERM` from `npm ci`. Local

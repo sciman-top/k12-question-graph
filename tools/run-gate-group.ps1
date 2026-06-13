@@ -117,6 +117,10 @@ function Invoke-PqrGroup {
             -DashboardJsonPath (Join-Path $reportRoot 'pqr-preflight-dashboard.json') `
             -DashboardMarkdownPath (Join-Path $reportRoot 'pqr-preflight-dashboard.md') | Write-Host
     }
+    Invoke-GateCommand 'repo-preflight-local-api-detection-contract' {
+        & (Join-Path $PSScriptRoot 'run-repo-preflight-local-api-detection-contract.ps1') `
+            -ReportPath (Join-Path $reportRoot 'repo-preflight-local-api-detection-contract.json') | Write-Host
+    }
     Invoke-GateCommand 'pqr-orchestration-consistency-guard' {
         & (Join-Path $PSScriptRoot 'run-pqr-orchestration-consistency-guard.ps1') `
             -ReportPath (Join-Path $reportRoot 'pqr-orchestration-consistency-report.json') | Write-Host

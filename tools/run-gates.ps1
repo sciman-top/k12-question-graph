@@ -1083,6 +1083,10 @@ try {
             -DashboardJsonPath (Join-Path $pqrReportRoot 'pqr-preflight-dashboard.json') `
             -DashboardMarkdownPath (Join-Path $pqrReportRoot 'pqr-preflight-dashboard.md') | Write-Host
     }
+    Invoke-GateStep 'repo preflight local api detection contract' {
+        .\tools\run-repo-preflight-local-api-detection-contract.ps1 `
+            -ReportPath (Join-Path $pqrReportRoot 'repo-preflight-local-api-detection-contract.json') | Write-Host
+    }
     Invoke-GateStep 'pqr orchestration consistency guard' {
         .\tools\run-pqr-orchestration-consistency-guard.ps1 `
             -ReportPath (Join-Path $pqrReportRoot 'pqr-orchestration-consistency-report.json') | Write-Host

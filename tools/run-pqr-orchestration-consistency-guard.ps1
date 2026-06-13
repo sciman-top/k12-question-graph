@@ -51,7 +51,8 @@ foreach ($guard in @(
     'tools/run-real005-slice-coverage-contract.ps1',
     'tools/run-pqr-preflight-pack-contract.ps1',
     'tools/run-pqr-preflight-freshness-guard.ps1',
-    'tools/run-pqr-preflight-dashboard-contract.ps1'
+    'tools/run-pqr-preflight-dashboard-contract.ps1',
+    'tools/run-repo-preflight-local-api-detection-contract.ps1'
 )) {
     $guardNormalized = $guard.ToLower().Replace('\', '/')
     if (-not $gateScriptNormalized.Contains($guardNormalized)) {

@@ -1,0 +1,98 @@
+{
+  "status": "pass",
+  "checkedAt": "2026-06-14T00:47:54",
+  "mode": "Ci",
+  "referenceValidationMode": "Ci",
+  "reportRoot": "tmp/repo-preflight",
+  "installFrontendDependencies": false,
+  "fullGateIncluded": false,
+  "pausedDefaultLocalApi": true,
+  "stepCount": 12,
+  "steps": [
+    {
+      "name": "backend build",
+      "startedAt": "2026-06-14T00:47:06",
+      "finishedAt": "2026-06-14T00:47:23",
+      "durationSeconds": 17.071,
+      "status": "pass"
+    },
+    {
+      "name": "frontend host-local debris guard",
+      "startedAt": "2026-06-14T00:47:23",
+      "finishedAt": "2026-06-14T00:47:23",
+      "durationSeconds": 0.035,
+      "status": "pass"
+    },
+    {
+      "name": "frontend lint",
+      "startedAt": "2026-06-14T00:47:23",
+      "finishedAt": "2026-06-14T00:47:38",
+      "durationSeconds": 14.413,
+      "status": "pass"
+    },
+    {
+      "name": "frontend build",
+      "startedAt": "2026-06-14T00:47:38",
+      "finishedAt": "2026-06-14T00:47:50",
+      "durationSeconds": 12.843,
+      "status": "pass"
+    },
+    {
+      "name": "automation-first guard",
+      "startedAt": "2026-06-14T00:47:50",
+      "finishedAt": "2026-06-14T00:47:51",
+      "durationSeconds": 0.448,
+      "status": "pass"
+    },
+    {
+      "name": "reference-basis guard",
+      "startedAt": "2026-06-14T00:47:51",
+      "finishedAt": "2026-06-14T00:47:51",
+      "durationSeconds": 0.601,
+      "status": "pass"
+    },
+    {
+      "name": "live-closeout guard",
+      "startedAt": "2026-06-14T00:47:51",
+      "finishedAt": "2026-06-14T00:47:52",
+      "durationSeconds": 0.393,
+      "status": "pass"
+    },
+    {
+      "name": "pqr preflight pack contract",
+      "startedAt": "2026-06-14T00:47:52",
+      "finishedAt": "2026-06-14T00:47:52",
+      "durationSeconds": 0.193,
+      "status": "pass"
+    },
+    {
+      "name": "pqr preflight dashboard contract",
+      "startedAt": "2026-06-14T00:47:52",
+      "finishedAt": "2026-06-14T00:47:52",
+      "durationSeconds": 0.135,
+      "status": "pass"
+    },
+    {
+      "name": "pqr preflight freshness guard",
+      "startedAt": "2026-06-14T00:47:52",
+      "finishedAt": "2026-06-14T00:47:52",
+      "durationSeconds": 0.111,
+      "status": "pass"
+    },
+    {
+      "name": "ns1308 release evidence pack contract",
+      "startedAt": "2026-06-14T00:47:52",
+      "finishedAt": "2026-06-14T00:47:53",
+      "durationSeconds": 0.405,
+      "status": "pass"
+    },
+    {
+      "name": "roadmap guard",
+      "startedAt": "2026-06-14T00:47:53",
+      "finishedAt": "2026-06-14T00:47:54",
+      "durationSeconds": 0.964,
+      "status": "pass"
+    }
+  ],
+  "boundary": "CI preflight validates repo-side build, lint, planning, reference-basis, closeout, and release-pack contracts without pretending to replace the local full gate."
+}
