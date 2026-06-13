@@ -6,6 +6,8 @@
 
 本文件负责阶段顺序、收口原则和长期方向，不承担每日闭环状态。当前仓库级 / 非现场 / 现场的真实阻断与闭环进度，请看 `docs/112_CurrentClosureStatus_20260609.md`、`docs/103_ExecutionControlBoard.md`、`docs/109_ReleaseGoNoGoCard.md` 和 `tasks/completion-state-dashboard.csv`。
 
+2026-06-13 状态刷新补充：最新完整 `full gate` 仍是 2026-06-09 通过；2026-06-13 又刷新了 `reference-basis guard`、`live-pilot closeout plan guard` 和 `NS905 status sync audit`。因此路线图的最新真实边界不是“继续扩大功能面”，而是保持 `REAL005 = not_closed`、`P001/P003/P005/P006 = 待办`，并继续把高风险改动放在 `reference-basis` 约束下推进。
+
 ## 总体判断
 
 AI 推荐保留当前 P0-P6 大方向，但调整顺序和验收口径：

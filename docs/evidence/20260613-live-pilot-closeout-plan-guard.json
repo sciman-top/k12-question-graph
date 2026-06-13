@@ -1,13 +1,26 @@
 {
   "status": "pass",
   "taskId": "LIVE_CLOSEOUT_GUARD",
-  "checkedAt": "2026-06-13T20:05:52",
+  "checkedAt": "2026-06-13T23:52:22",
   "planPath": "tasks/live-pilot-closeout-plan.csv",
   "backlogPath": "tasks/backlog.csv",
   "releaseCardPath": "docs/109_ReleaseGoNoGoCard.md",
   "closureSummaryPath": "docs/112_CurrentClosureStatus_20260609.md",
+  "real005ReportPath": "docs/evidence/20260613-real005-guangzhou-2015-2025-closure-standard-report.json",
   "real005ClosureStatus": "not_closed",
   "fullClosureAllowed": false,
+  "real005NextSlice": {
+    "id": "REAL005A",
+    "status": "blocked",
+    "criteriaIds": [
+      "RG001",
+      "RG002"
+    ],
+    "blockers": [
+      "RG001 source manifest coverage is still blocked for years: 2020",
+      "RG002 adapter diagnostics are incomplete for years: 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025"
+    ]
+  },
   "rowCount": 26,
   "statusCounts": {
     "待办": 26

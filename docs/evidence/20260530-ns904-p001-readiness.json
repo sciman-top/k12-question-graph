@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS904",
-  "checkedAt": "2026-06-08T02:32:18",
+  "checkedAt": "2026-06-13T23:55:23",
   "mode": "p001_readiness_evidence_pack",
   "productionEligible": false,
   "nonSiteValidated": false,
@@ -23,7 +23,7 @@
     "ns806": "docs/evidence/20260530-ns806-upgrade-bundle.json",
     "ns901": "docs/evidence/20260530-ns901-non-site-scenario-pack.json",
     "ns906": "docs/evidence/20260528-ns906-visual-surrogate-review-report.json",
-    "real005": "docs/evidence/20260512-real005-guangzhou-2015-2025-closure-standard-report.json",
+    "real005": "docs/evidence/20260613-real005-guangzhou-2015-2025-closure-standard-report.json",
     "checklist": "docs/templates/p001-live-pilot-release-checklist.md",
     "isolatedMachineEvidenceTemplate": "docs/templates/p001-isolated-machine-evidence-template.md",
     "p001EvidenceMarkdown": "docs/evidence/20260518-p001-live-pilot-readiness-preflight.md"

@@ -7,7 +7,8 @@ param(
     [string] $ReportPath = 'docs/evidence/20260518-p001-live-pilot-readiness-preflight-report.json',
     [string] $HostCapabilityReportPath = 'docs/evidence/host-capability-diagnostic-report.json',
     [string] $WorkerProfileReportPath = 'docs/evidence/worker-profile-diagnostic-report.json',
-    [string] $TechnologyRefreshReportPath = 'docs/evidence/technology-refresh-report.json'
+    [string] $TechnologyRefreshReportPath = 'docs/evidence/technology-refresh-report.json',
+    [string] $REAL005ReportPath = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -25,6 +26,22 @@ function Read-JsonFile([string]$RelativePath) {
     $fullPath = Resolve-InRepoPath $RelativePath
     Assert-True (Test-Path -LiteralPath $fullPath) "JSON evidence missing: $RelativePath"
     return Get-Content -LiteralPath $fullPath -Raw | ConvertFrom-Json
+}
+
+function Resolve-LatestReal005ReportPath([string]$PreferredPath) {
+    if (-not [string]::IsNullOrWhiteSpace($PreferredPath)) {
+        return $PreferredPath
+    }
+
+    $evidenceRoot = Resolve-InRepoPath 'docs/evidence'
+    Assert-True (Test-Path -LiteralPath $evidenceRoot) 'missing docs/evidence directory'
+    $latest = @(
+        Get-ChildItem -LiteralPath $evidenceRoot -Filter '*-real005-guangzhou-2015-2025-closure-standard-report.json' -File |
+            Sort-Object Name -Descending |
+            Select-Object -First 1
+    )
+    Assert-True ($latest.Count -eq 1) 'missing REAL005 closure standard report under docs/evidence'
+    return [System.IO.Path]::GetRelativePath($repoRoot, $latest[0].FullName).Replace('\', '/')
 }
 
 function Write-ContentIfChanged([string]$Path, [string]$Content) {
@@ -50,6 +67,7 @@ Assert-True (Test-Path -LiteralPath $evidenceFullPath) "P001 evidence markdown m
 
 $rows = Import-Csv -LiteralPath $backlogFullPath -Encoding UTF8
 $closeoutRows = @(Import-Csv -LiteralPath $liveCloseoutPlanFullPath -Encoding UTF8)
+$REAL005ReportPath = Resolve-LatestReal005ReportPath $REAL005ReportPath
 $byId = @{}
 foreach ($row in $rows) {
     $byId[$row.id] = $row
@@ -87,7 +105,7 @@ $realEvidencePaths = [ordered]@{
     REAL002 = 'docs/evidence/20260512-guangzhou-2015-visual-region-slice-report.json'
     REAL003 = 'docs/evidence/20260514-real003-guangzhou-physics-year-batch-ingest-report.json'
     REAL004 = 'docs/evidence/20260512-real004-guangzhou-2015-review-smoke-report.json'
-    REAL005 = 'docs/evidence/20260512-real005-guangzhou-2015-2025-closure-standard-report.json'
+    REAL005 = $REAL005ReportPath
     REAL006 = 'docs/evidence/20260512-real004-guangzhou-2015-review-smoke-report.json'
     REAL007 = 'docs/evidence/20260516-real007-guangzhou-2015-layout-quality-report.json'
     REAL008 = 'docs/evidence/20260518-real008-question-asset-smoke-report.json'
@@ -106,7 +124,12 @@ foreach ($entry in $realEvidencePaths.GetEnumerator()) {
     }
 }
 
+$real005Report = Read-JsonFile $realEvidencePaths['REAL005']
 $real012Report = Read-JsonFile $realEvidencePaths['REAL012']
+Assert-True ($real005Report.status -eq 'pass') 'REAL005 report must pass before P001 preflight'
+Assert-True ($null -ne $real005Report.sliceCoverage) 'P001 preflight requires REAL005 sliceCoverage'
+Assert-True ($null -ne $real005Report.sliceCoverage.REAL005A) 'P001 preflight requires REAL005A slice coverage'
+Assert-True ([string]$real005Report.sliceCoverage.REAL005A.status -in @('blocked', 'partial')) 'P001 preflight requires REAL005A to remain blocked or partial while live pilot is preflight-only'
 Assert-True ($real012Report.status -eq 'pass') 'REAL012 report must pass before P001 preflight'
 Assert-True (@($real012Report.searchProbe.selectedQuestionNos).Count -ge 3) 'REAL012 must prove ordered real-question search sample'
 Assert-True ([int]$real012Report.searchProbe.hasImageCount -ge 3) 'REAL012 must prove image-backed real question cards'
@@ -219,6 +242,8 @@ $report = [ordered]@{
         rowCount = $closeoutRows.Count
         nextOpenP001 = [string] $p001NextCloseout[0].id
         nextOpenREAL005 = [string] $real005NextCloseout[0].id
+        real005ReportPath = $REAL005ReportPath
+        real005NextSliceStatus = [string]$real005Report.sliceCoverage.REAL005A.status
     }
     readyForIsolatedMachineRun = $true
     p001CanClose = $false

@@ -1,6 +1,6 @@
 # 113 · 本地运行模型与日常运维入口
 
-日期：2026-06-09。
+日期：2026-06-13。状态证据核对到 2026-06-11。文件名保留 `20260609` 作为稳定入口。
 
 ## 1. 这份文档解决什么问题
 
@@ -130,6 +130,33 @@
 
 - `docs/evidence/20260609-teacher-visible-walkthrough.md`
 
+### 5.3 管理员 AI 设置 / 结构化 smoke
+
+适用场景：
+
+- 需要在本地壳里配置 provider profile、base URL、并发、预算或默认试跑任务
+- 需要验证 `provider-settings` 保存和 `provider-settings/test` 结构化 smoke
+- 需要确认管理员侧 AI 路由入口已不是“只展示、不落地”
+
+本地入口：
+
+- 直接打开 `http://127.0.0.1:5173/?admin=1`
+- 在管理员侧通过 `打开设置 -> 管理员 AI 设置` 进入对话框
+
+当前 contract 已验证的边界（2026-06-11）：
+
+- 对话框存在，且具备保存与测试动作
+- API 入口为 `GET/POST /api/admin/ai/provider-settings` 与 `POST /api/admin/ai/provider-settings/test`
+- UI 只允许 masked secret 输入，不在前端明文泄露真实 key
+- save/test 走 typed client + typed contract，不是散落的临时请求
+- 本地保存落点为 `D:\KQG_Data\config\admin\ai-provider-settings.local.json`
+
+真实边界：
+
+- 这个入口只证明本地管理员 AI 路由面可 reach、可 save、可 test
+- 它仍然保持 `draft/test`、`pending_review`、`no-active-write`
+- 它不等于真实外部模型已被批准进入生产默认路由
+
 ## 6. 日常排查入口
 
 先看状态：
@@ -178,3 +205,4 @@ Invoke-WebRequest -UseBasicParsing http://127.0.0.1:5275/health/ready
 2. `docs/evidence/20260609-teacher-visible-walkthrough.md`
 3. `docs/109_ReleaseGoNoGoCard.md`
 4. `tasks/live-pilot-closeout-plan.csv`
+5. `docs/evidence/20260609-ns1305a-admin-ai-settings-dialog.json`

@@ -1,5 +1,5 @@
 param(
-    [string] $ReportPath = 'docs/evidence/20260530-ns905-status-sync.md',
+    [string] $ReportPath = '',
     [string] $BacklogPath = 'tasks/backlog.csv',
     [string] $DashboardPath = 'tasks/completion-state-dashboard.csv',
     [string] $NonSitePlanPath = 'tasks/non-site-implementation-plan.csv',
@@ -7,11 +7,16 @@ param(
     [string] $NS904ReportPath = 'docs/evidence/20260530-ns904-p001-readiness.json',
     [string] $NS903ReportPath = 'docs/evidence/20260530-ns903-completion-dashboard.json',
     [string] $P001ReportPath = 'docs/evidence/20260530-p001-live-pilot-readiness-preflight-report.json',
-    [string] $REAL005ReportPath = 'docs/evidence/20260512-real005-guangzhou-2015-2025-closure-standard-report.json'
+    [string] $REAL005ReportPath = ''
 )
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+$runDate = Get-Date -Format 'yyyyMMdd'
+
+if ([string]::IsNullOrWhiteSpace($ReportPath)) {
+    $ReportPath = ('docs/evidence/{0}-ns905-status-sync.md' -f $runDate)
+}
 
 function Assert-Condition([bool] $Condition, [string] $Message) {
     if (-not $Condition) { throw $Message }
@@ -25,6 +30,22 @@ function Read-Json([string] $Path) {
     $fullPath = Resolve-InRepoPath $Path
     Assert-Condition (Test-Path -LiteralPath $fullPath) "missing report: $Path"
     return Get-Content -LiteralPath $fullPath -Raw | ConvertFrom-Json
+}
+
+function Resolve-LatestReal005ReportPath([string] $PreferredPath) {
+    if (-not [string]::IsNullOrWhiteSpace($PreferredPath)) {
+        return $PreferredPath
+    }
+
+    $evidenceRoot = Resolve-InRepoPath 'docs/evidence'
+    Assert-Condition (Test-Path -LiteralPath $evidenceRoot) 'missing docs/evidence directory'
+    $latest = @(
+        Get-ChildItem -LiteralPath $evidenceRoot -Filter '*-real005-guangzhou-2015-2025-closure-standard-report.json' -File |
+            Sort-Object Name -Descending |
+            Select-Object -First 1
+    )
+    Assert-Condition ($latest.Count -eq 1) 'missing REAL005 closure standard report under docs/evidence'
+    return [System.IO.Path]::GetRelativePath($repoRoot, $latest[0].FullName).Replace('\', '/')
 }
 
 function Get-RequiredRow([object[]] $Rows, [string] $Id, [string] $Column = 'id') {
@@ -62,6 +83,7 @@ try {
     $ns904 = Read-Json $NS904ReportPath
     $ns903 = Read-Json $NS903ReportPath
     $p001 = Read-Json $P001ReportPath
+    $REAL005ReportPath = Resolve-LatestReal005ReportPath $REAL005ReportPath
     $real005 = Read-Json $REAL005ReportPath
 
     Assert-Condition ($ns904.status -eq 'pass') 'NS905 dependency NS904 did not pass'
@@ -75,6 +97,11 @@ try {
     Assert-Condition ($ns904.p001Status -eq '待办') 'NS905 must keep P001 status as todo'
     Assert-Condition ($ns904.readinessPack.real005ClosureStatus -eq 'not_closed') 'NS905 must keep REAL005 not_closed through NS904'
     Assert-Condition (-not [bool]$real005.fullClosureAllowed) 'NS905 must not allow REAL005 full closure'
+    Assert-Condition ($null -ne $real005.sliceCoverage) 'NS905 requires REAL005 sliceCoverage'
+    Assert-Condition ($null -ne $real005.sliceCoverage.REAL005A) 'NS905 requires REAL005A slice coverage'
+    Assert-Condition ((@($real005.sliceCoverage.REAL005A.criteriaIds)) -contains 'RG001') 'NS905 requires REAL005A to keep RG001 coverage'
+    Assert-Condition ((@($real005.sliceCoverage.REAL005A.criteriaIds)) -contains 'RG002') 'NS905 requires REAL005A to keep RG002 coverage'
+    Assert-Condition ([string]$real005.sliceCoverage.REAL005A.status -in @('blocked', 'partial')) 'NS905 requires REAL005A to remain blocked or partial while REAL005 is not_closed'
 
     $p001Backlog = Get-RequiredRow $backlogRows 'P001'
     $p002Backlog = Get-RequiredRow $backlogRows 'P002'
@@ -251,6 +278,9 @@ try {
     foreach ($entry in $closeoutNextOpen.GetEnumerator()) {
         $lines.Add("- next_open.$($entry.Key): $($entry.Value)")
     }
+    $lines.Add("- real005_report_path: $REAL005ReportPath")
+    $lines.Add("- real005_next_slice_status: $($real005.sliceCoverage.REAL005A.status)")
+    $lines.Add("- real005_next_slice_blockers: $(if (@($real005.sliceCoverage.REAL005A.blockers).Count -eq 0) { '无' } else { @($real005.sliceCoverage.REAL005A.blockers) -join ' | ' })")
     $lines.Add('')
     $lines.Add('## Acceptance')
     $lines.Add('- backlog_p001_p006_remain_todo: true')
@@ -287,6 +317,8 @@ try {
         liveCloseoutNextOpen = $closeoutNextOpen
         p001Status = [string]$p001Backlog.status
         p001CanClose = [bool]$p001.p001CanClose
+        real005ReportPath = $REAL005ReportPath
+        real005NextSliceStatus = [string]$real005.sliceCoverage.REAL005A.status
         real005ClosureStatus = [string]$real005.closureStatus
         boundary = 'status sync audit only; no live/onsite closure'
     }

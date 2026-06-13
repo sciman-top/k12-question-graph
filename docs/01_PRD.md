@@ -10,7 +10,7 @@
 
 ## 1.1 文档边界
 
-本 PRD 只定义稳定的产品目标、用户、成功指标和范围控制；当前仓库级、非现场与现场阻断、Go / No-Go 结论请看 `docs/112_CurrentClosureStatus_20260609.md`、`docs/103_ExecutionControlBoard.md`、`docs/109_ReleaseGoNoGoCard.md` 和 `tasks/completion-state-dashboard.csv`。
+本 PRD 只定义稳定的产品目标、用户、成功指标和范围控制；当前仓库级、非现场与现场阻断、Go / No-Go 结论请看 `docs/112_CurrentClosureStatus_20260609.md`、`docs/103_ExecutionControlBoard.md`、`docs/109_ReleaseGoNoGoCard.md` 和 `tasks/completion-state-dashboard.csv`。这些状态入口已在 2026-06-13 按 2026-06-11 最新 repo-side 证据刷新。
 
 ## 2. 目标用户
 

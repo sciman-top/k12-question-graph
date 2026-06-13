@@ -1,36 +1,52 @@
 # 112 · 当前闭环状态总览
 
-日期：2026-06-09。
+日期：2026-06-13。状态证据核对到 2026-06-13。文件名保留 `20260609` 作为稳定入口。
 
 ## 1. 当前结论
 
-截至 2026-06-09，本仓已经达到如下真实状态：
+截至最新已验证证据，本仓的真实状态是：
 
-- 仓库级 `full gate` 已完整通过。
-- 非现场主链路已可真实复跑，不再只是规划或合同层闭环。
-- 教师主界面仍可在本地 Web 壳中打开并落到主要工作区。
-- 但项目仍不能宣称“现场发布闭环完成”。
+- 最新一次完整 `full gate` 仍是 2026-06-09，通过。
+- 2026-06-13 又刷新了三条 repo-side 真值守卫：
+  - `tools/run-reference-basis-guard.ps1`：pass
+  - `tools/run-live-pilot-closeout-plan-guard.ps1`：pass
+  - `tools/run-ns905-status-sync-audit.ps1`：pass
+- 非现场教师主链路、Web/API 本地联调和管理员 AI 设置入口都已有仓库内证据或 contract，不再只是规划。
+- 但项目仍不能宣称 `release_ready`，也不能宣称“现场发布闭环完成”。
 
 当前最准确的对外口径是：
 
-> 代码、脚本、非现场工作流和产品化边界已经能在仓库内真实跑通；现场/隔离机/签收级闭环仍被 `REAL005 not_closed` 与 `P001` 系列现场前置条件阻断。
+> 仓库内代码、脚本、非现场工作流、参考基线和发布前置口径已经进一步收口；最新完整 full gate 仍停留在 2026-06-09，现场 / 隔离机 / 签收级闭环仍被 `REAL005 = not_closed` 与 `P001/P003/P005/P006` 阻断。
 
-## 2. 已真实跑通的层级
+## 2. 最新已验证层级
 
-### 2.1 仓库级门禁
+### 2.1 仓库级 full gate
 
 - `tools/run-gates.ps1`
-  - 2026-06-09 detached full gate 完整通过。
+  - 最近一次完整通过：2026-06-09。
   - 结果日志：`docs/evidence/20260609-run-gates-detached-2.out.log`
   - 错误日志：`docs/evidence/20260609-run-gates-detached-2.err.log`
+
+这仍是当前可引用的最新完整 full gate，不应被 2026-06-13 的 repo-side 子守卫误写成“又完整跑过一遍 full gate”。
+
+### 2.2 2026-06-13 repo-side 守卫刷新
+
+- `tools/run-reference-basis-guard.ps1`
+  - 状态：pass
+  - 报告：`docs/evidence/20260613-reference-basis-guard.json` / `.md`
+  - 关键信息：20 个受管任务、13 个模块、`snapshot_parity = match`、本机 external corpus 存在。
 - `tools/run-live-pilot-closeout-plan-guard.ps1`
-  - 2026-06-09 repo-side closeout 计划 guard 通过。
-  - 结果报告：`docs/evidence/20260609-live-pilot-closeout-plan-guard.json`
-  - 人工摘要：`docs/evidence/20260609-live-pilot-closeout-plan-guard.md`
+  - 状态：pass
+  - 报告：`docs/evidence/20260613-live-pilot-closeout-plan-guard.json` / `.md`
+  - 关键信息：26 行 closeout 计划全部保持 `待办`，`REAL005 = not_closed`，`REAL005A/P001A/P003A/P005A/P006A` 仍是 next open slice。
+- `tools/run-ns905-status-sync-audit.ps1`
+  - 状态：pass
+  - 报告：`docs/evidence/20260613-ns905-status-sync.md`
+  - 关键信息：`release_ready_count = 0`、`next_task = P001` 的 area 仍有 16 个、`teacher_validated` area 为 14 个，且 `non_site_validated` 没有被误写成已完成。
 
-### 2.2 非现场教师主链路
+### 2.3 非现场教师主链路
 
-以下链路本轮都通过真实脚本运行而非仅静态检查：
+以下链路已有非现场可复跑证据，不再只是合同层闭环：
 
 - 导入与异常确认
 - 人工接管 / 切题修订 / 来源回看
@@ -49,33 +65,36 @@
 
 ## 3. 本地可见验证
 
-### 3.1 Web 壳
+### 3.1 教师 Web 壳与 API 联调
 
 - 本地 Web 入口：`http://127.0.0.1:5173/`
-- 2026-06-09 验证结果：
+- 本地 API readiness：`http://127.0.0.1:5275/health/ready`
+- 最新页面级 walkthrough 证据仍是 2026-06-09：
   - 页面可打开
   - 教师四入口可见
   - 导入 / 审核 / 组卷 / 成绩 / 分析主面板可见
   - walkthrough 证据：`docs/evidence/20260609-teacher-visible-walkthrough.md`
 
-### 3.2 API 常驻联调
-
-- 本地 API 常驻入口：`.\tools\start-local-api.ps1`
-- 2026-06-09 验证结果：
-  - `http://127.0.0.1:5275/health/ready` 可用
-  - 浏览器中的服务状态从“服务未连接”切换为“服务状态 正常”
-  - 真卷复核区切换为“数据库队列 / 24 题待复核”
-  - 浏览器控制台错误为 `0`
-  - 截图与页面级 walkthrough：`docs/evidence/20260609-teacher-visible-walkthrough.md`
-  - 运行模型说明：`docs/113_LocalRuntimeOperations_20260609.md`
-
 这意味着：
 
 - Web 壳与教师入口是活的。
-- API 也已经具备低摩擦的本地常驻入口。
+- API 已具备低摩擦的本地常驻入口。
 - 若只开 Web 不开 API，页面仍会合理退回本地证据预览模式，而不是前端损坏。
 
-## 4. 仍然不能夸大的边界
+### 3.2 管理员 AI 设置入口
+
+- 2026-06-11 `NS1305A` contract 已通过：`docs/evidence/20260609-ns1305a-admin-ai-settings-dialog.json`
+- 本地入口：`http://127.0.0.1:5173/?admin=1`
+- 操作路径：`打开设置 -> 管理员 AI 设置`
+- 当前已验证能力：
+  - provider settings save
+  - `provider-settings/test` 结构化 smoke
+  - masked secret input
+  - typed client / typed contract
+  - 后端管理员 API 路由真实存在
+- 当前边界仍是 `draft/test`、`pending_review`、`no-active-write`
+
+## 4. 当前不能夸大的边界
 
 ### 4.1 `REAL005`
 
@@ -90,37 +109,41 @@
 ### 4.3 `release_ready`
 
 - 当前不是 `release_ready`。
-- 当前更接近：
-  - 仓库级通过
-  - 非现场能力高覆盖
-  - 现场发布仍受阻断条件约束
+- `docs/evidence/20260613-ns905-status-sync.md` 已明确 `release_ready_count = 0`。
 
-## 5. 本轮新增的关键稳健性修复
+### 4.4 repo-side 守卫通过的真实含义
 
-### 5.1 NS202
+- `reference-basis guard` 通过，只证明高风险任务和模块面已声明官方来源与本地参考锚点。
+- `closeout plan guard` 通过，只证明 closeout 计划、backlog 和入口文档保持一致。
+- `status sync audit` 通过，只证明机器表与文档没有继续漂移。
+- 它们都不能替代现场签字、隔离机演练、打印链路、域权限或最终发布裁决。
 
-- 问题：`/api/admin/storage/summary` 在 full gate 下偶发被真实大目录扫描拖慢，导致 `NS202` 超时。
-- 修复：`tools/run-ns202-admin-internal-fail-closed.ps1` 改为在隔离的临时存储根上验证同样的鉴权/角色/开发旁路边界。
+## 5. 最近补齐的 repo-side 收口
 
-### 5.2 NS504
+### 5.1 reference-basis / snapshot parity
 
-- 问题：仍依赖旧版 `S007C` 的全库题目计数断言。
-- 修复：改为读取 `S007C` 当前真实生命周期证据，验证 confirm 生成题目存在、undo 后消失。
+- 2026-06-13 已再次证明外部 reference shelf、仓内 snapshot 和 guard 规则在 repo-side 口径上同构。
+- 当前高风险编码任务不再只“建议查参考”，而是缺锚点直接 fail。
 
-### 5.3 NS1305
+### 5.2 live closeout truthful boundary
 
-- 问题：full gate 场景下 YAML -> JSON 解析偶发受标准输出脆弱性影响。
-- 修复：改为 Python 先写临时 JSON 文件，再由 PowerShell 读文件解析。
+- `tasks/live-pilot-closeout-plan.csv` 的 26 行 closeout 计划已被 guard 校验。
+- 最新 next open slice 仍是 `REAL005A/P001A/P003A/P005A/P006A`。
 
-### 5.4 closeout 计划入口
+### 5.3 status sync truthful No-Go
 
-- 问题：`REAL005 / P001 / P003 / P005 / P006` 的剩余关闭步骤散落在 backlog、发布卡、README 和证据 JSON 中，现场 closeout 需要人工再次提炼。
-- 修复：新增 `tasks/live-pilot-closeout-plan.csv` 和 `tools/run-live-pilot-closeout-plan-guard.ps1`，把最小关闭步骤、入口文档和 truthful No-Go 边界收成可机验入口。
+- `NS905` 已确认 `backlog / completion dashboard / non-site plan / live closeout plan` 没有把旧完成态错误覆盖到当前口径。
+- 当前仍然只能对外给出 truthful No-Go，而不是 release-ready。
+
+### 5.4 管理员 AI 本地壳入口
+
+- `NS1305A` 已把管理员 AI 设置从“展示层”推进到真实可 save/test 的本地壳入口。
+- 这提高了本地验证效率，但不改变生产 AI 写入边界。
 
 ## 6. 下一步推荐
 
 若继续自动自主推进，优先级建议如下：
 
 1. 按 `tasks/live-pilot-closeout-plan.csv` 收口 `REAL005` 与 `P001/P003/P005/P006`，不再从长文档里手工提炼剩余阻断。
-2. 对 full gate 中最重的几段演练继续做减重，而不是重复功能性修复。
-3. 若要追求真正“项目终态完成”，下一跳必须转入 `P001 / REAL005` 的现场级证据，而不是继续在本机夸大关闭状态。
+2. 若需要改写对外发布口径，先区分“最新完整 full gate 仍是 2026-06-09”与“最新 repo-side 守卫刷新到 2026-06-13”，不要混写。
+3. 对任何新的高风险架构 / 运维 / 发布任务，先补 `reference-basis` 锚点，再进入编码或文档裁决。

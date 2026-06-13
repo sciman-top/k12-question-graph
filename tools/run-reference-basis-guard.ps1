@@ -13,12 +13,13 @@ param(
     [string] $SnapshotManifestPath = 'sources/reference-shelf.manifest.snapshot.json',
     [string] $ExternalReferenceRoot = 'D:\CODE\external\k12-question-graph-references',
     [string] $ExternalManifestPath = 'D:\CODE\external\k12-question-graph-references\references.manifest.json',
-    [string] $JsonReportPath = 'docs/evidence/20260609-reference-basis-guard.json',
-    [string] $MarkdownReportPath = 'docs/evidence/20260609-reference-basis-guard.md'
+    [string] $JsonReportPath = '',
+    [string] $MarkdownReportPath = ''
 )
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+$runDate = Get-Date -Format 'yyyyMMdd'
 $checkExternalDisk = $ValidationMode -eq 'Local'
 
 function Resolve-RepoPath([string] $Path) {
@@ -53,6 +54,15 @@ $readmeFullPath = Resolve-RepoPath $ReadmePath
 $toolsReadmeFullPath = Resolve-RepoPath $ToolsReadmePath
 $navigationFullPath = Resolve-RepoPath $NavigationPath
 $snapshotManifestFullPath = Resolve-RepoPath $SnapshotManifestPath
+
+if ([string]::IsNullOrWhiteSpace($JsonReportPath)) {
+    $JsonReportPath = ('docs/evidence/{0}-reference-basis-guard.json' -f $runDate)
+}
+
+if ([string]::IsNullOrWhiteSpace($MarkdownReportPath)) {
+    $MarkdownReportPath = ('docs/evidence/{0}-reference-basis-guard.md' -f $runDate)
+}
+
 $jsonReportFullPath = Resolve-RepoPath $JsonReportPath
 $markdownReportFullPath = Resolve-RepoPath $MarkdownReportPath
 

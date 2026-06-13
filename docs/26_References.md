@@ -1,6 +1,6 @@
 # 26 · 官方文档、社区项目与最佳实践参考
 
-本文件只记录会影响本项目架构、路线图和实现顺序的资料。可复制的 URL 清单见 `sources/references.md`。最近一次外部复核与参考库整理：2026-06-09。
+本文件只记录会影响本项目架构、路线图和实现顺序的资料。可复制的 URL 清单见 `sources/references.md`。最近一次外部参考库整理：2026-06-09；最新 repo-side `reference-basis` / parity 核对：2026-06-13。
 
 复核口径：优先使用官方文档或项目一手资料。社区文章只作为发现候选，不作为本仓规则依据。
 
@@ -39,6 +39,8 @@ cd D:\CODE\external\k12-question-graph-references
 ```powershell
 pwsh -NoProfile -ExecutionPolicy Bypass -File tools/sync-reference-shelf-snapshot.ps1
 ```
+
+2026-06-13 最新核对结果：`tools/run-reference-basis-guard.ps1` 已通过，覆盖 20 个高风险任务和 13 个模块面，且 `sources/reference-shelf.manifest.snapshot.json` 与外部 `references.manifest.json` 保持 `snapshot_parity = match`。这说明当前仓内 snapshot、外部参考库和 guard 规则在 repo-side 口径上是一致的。
 
 已落地仓库：
 

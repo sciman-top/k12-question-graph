@@ -5,13 +5,14 @@ param(
     [string] $ClosureSummaryPath = 'docs/112_CurrentClosureStatus_20260609.md',
     [string] $NavigationPath = 'docs/111_ProjectNavigationOverview.md',
     [string] $ReadmePath = 'README.md',
-    [string] $Real005ReportPath = 'docs/evidence/20260512-real005-guangzhou-2015-2025-closure-standard-report.json',
-    [string] $JsonReportPath = 'docs/evidence/20260609-live-pilot-closeout-plan-guard.json',
-    [string] $MarkdownReportPath = 'docs/evidence/20260609-live-pilot-closeout-plan-guard.md'
+    [string] $Real005ReportPath = '',
+    [string] $JsonReportPath = '',
+    [string] $MarkdownReportPath = ''
 )
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+$runDate = Get-Date -Format 'yyyyMMdd'
 
 function Assert-True([bool] $Condition, [string] $Message) {
     if (-not $Condition) { throw $Message }
@@ -52,6 +53,22 @@ function Read-Json([string] $RelativePath) {
     $fullPath = Resolve-InRepoPath $RelativePath
     Assert-True (Test-Path -LiteralPath $fullPath) "missing JSON report: $RelativePath"
     return Get-Content -LiteralPath $fullPath -Raw | ConvertFrom-Json
+}
+
+function Resolve-LatestReal005ReportPath([string] $PreferredPath) {
+    if (-not [string]::IsNullOrWhiteSpace($PreferredPath)) {
+        return $PreferredPath
+    }
+
+    $evidenceRoot = Resolve-InRepoPath 'docs/evidence'
+    Assert-True (Test-Path -LiteralPath $evidenceRoot) 'missing docs/evidence directory'
+    $latest = @(
+        Get-ChildItem -LiteralPath $evidenceRoot -Filter '*-real005-guangzhou-2015-2025-closure-standard-report.json' -File |
+            Sort-Object Name -Descending |
+            Select-Object -First 1
+    )
+    Assert-True ($latest.Count -eq 1) 'missing REAL005 closure standard report under docs/evidence'
+    return [System.IO.Path]::GetRelativePath($repoRoot, $latest[0].FullName).Replace('\', '/')
 }
 
 $requiredColumns = @(
@@ -106,6 +123,15 @@ $docReferences = @(
 
 $planFullPath = Resolve-InRepoPath $PlanPath
 $backlogFullPath = Resolve-InRepoPath $BacklogPath
+
+if ([string]::IsNullOrWhiteSpace($JsonReportPath)) {
+    $JsonReportPath = ('docs/evidence/{0}-live-pilot-closeout-plan-guard.json' -f $runDate)
+}
+
+if ([string]::IsNullOrWhiteSpace($MarkdownReportPath)) {
+    $MarkdownReportPath = ('docs/evidence/{0}-live-pilot-closeout-plan-guard.md' -f $runDate)
+}
+
 $jsonReportFullPath = Resolve-InRepoPath $JsonReportPath
 $markdownReportFullPath = Resolve-InRepoPath $MarkdownReportPath
 
@@ -169,10 +195,19 @@ Assert-True ([string] (Get-RequiredRow $planRows 'P003A').depends_on -eq 'P002')
 Assert-True ([string] (Get-RequiredRow $planRows 'P005A').depends_on -eq 'P004') 'P005A must depend on P004'
 Assert-True ([string] (Get-RequiredRow $planRows 'P006A').depends_on -eq 'P005D') 'P006A must depend on P005D'
 
+$Real005ReportPath = Resolve-LatestReal005ReportPath $Real005ReportPath
 $real005Report = Read-Json $Real005ReportPath
 Assert-True ([string] $real005Report.status -eq 'pass') 'REAL005 report must pass as a guard definition'
 Assert-True ([string] $real005Report.closureStatus -eq 'not_closed') 'REAL005 report must stay not_closed'
 Assert-True (-not [bool] $real005Report.fullClosureAllowed) 'REAL005 fullClosureAllowed must remain false'
+$real005SliceCoverage = $real005Report.sliceCoverage
+Assert-True ($null -ne $real005SliceCoverage) 'REAL005 report must expose sliceCoverage'
+$real005NextSlice = $real005SliceCoverage.REAL005A
+Assert-True ($null -ne $real005NextSlice) 'REAL005 report must expose sliceCoverage.REAL005A'
+Assert-True ((@($real005NextSlice.criteriaIds)) -contains 'RG001') 'REAL005A must keep RG001 in slice coverage'
+Assert-True ((@($real005NextSlice.criteriaIds)) -contains 'RG002') 'REAL005A must keep RG002 in slice coverage'
+Assert-True ([string] $real005NextSlice.status -in @('blocked', 'partial')) 'REAL005A must remain blocked or partial while closeout stays open'
+Assert-True (@($real005NextSlice.blockers).Count -ge 1) 'REAL005A must list blockers while closeout stays open'
 
 foreach ($entry in $docReferences) {
     $fullPath = Resolve-InRepoPath $entry.path
@@ -210,6 +245,7 @@ foreach ($parent in @('REAL005','P001','P003','P005','P006')) {
     $nextOpen = @($planRows | Where-Object { [string] $_.parent_id -eq $parent -and [string] $_.status -ne '已完成' } | Select-Object -First 1)
     $nextOpenByParent[$parent] = if ($nextOpen.Count -gt 0) { [string] $nextOpen[0].id } else { 'none' }
 }
+Assert-True ($nextOpenByParent['REAL005'] -eq 'REAL005A') 'closeout plan must keep REAL005A as the next open slice while REAL005 is not_closed'
 
 $checkedAt = (Get-Date).ToString('s')
 $report = [ordered]@{
@@ -220,8 +256,15 @@ $report = [ordered]@{
     backlogPath = $BacklogPath
     releaseCardPath = $ReleaseCardPath
     closureSummaryPath = $ClosureSummaryPath
+    real005ReportPath = $Real005ReportPath
     real005ClosureStatus = [string] $real005Report.closureStatus
     fullClosureAllowed = [bool] $real005Report.fullClosureAllowed
+    real005NextSlice = [ordered]@{
+        id = 'REAL005A'
+        status = [string] $real005NextSlice.status
+        criteriaIds = @($real005NextSlice.criteriaIds)
+        blockers = @($real005NextSlice.blockers)
+    }
     rowCount = $planRows.Count
     statusCounts = $statusCounts
     parentCounts = $parentCounts
@@ -246,6 +289,7 @@ $lines.Add("- status: pass")
 $lines.Add("- checked_at: $checkedAt")
 $lines.Add("- plan_path: $PlanPath")
 $lines.Add("- row_count: $($planRows.Count)")
+$lines.Add("- real005_report_path: $Real005ReportPath")
 $lines.Add("- real005_closure_status: $($real005Report.closureStatus)")
 $lines.Add("- full_closure_allowed: $([bool] $real005Report.fullClosureAllowed)")
 $lines.Add('')
@@ -263,6 +307,12 @@ $lines.Add('## Next Open Slice By Parent')
 foreach ($entry in $nextOpenByParent.GetEnumerator()) {
     $lines.Add("- $($entry.Key): $($entry.Value)")
 }
+$lines.Add('')
+$lines.Add('## REAL005 Next Slice')
+$lines.Add("- id: REAL005A")
+$lines.Add("- status: $($real005NextSlice.status)")
+$lines.Add("- criteria: $(@($real005NextSlice.criteriaIds) -join ', ')")
+$lines.Add("- blockers: $(if (@($real005NextSlice.blockers).Count -eq 0) { '无' } else { @($real005NextSlice.blockers) -join ' | ' })")
 $lines.Add('')
 $lines.Add('## Boundary')
 $lines.Add('This guard validates the repo-side closeout plan, path anchors, and truthful No-Go wording. It does not execute isolated-machine work, printer/network/domain checks, onsite pilot observation, or final signoff.')

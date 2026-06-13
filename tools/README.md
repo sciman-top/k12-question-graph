@@ -78,6 +78,31 @@ When the external corpus is unavailable, CI falls back to
 metadata anchor. Local runs now also compare the external manifest with the
 repo snapshot, so snapshot drift is caught before GitHub Actions sees it.
 
+Repo-side truth-maintenance report defaults:
+
+```powershell
+.\tools\run-real005-guangzhou-2015-2025-closure-standard.ps1
+.\tools\run-live-pilot-closeout-plan-guard.ps1
+.\tools\run-reference-basis-guard.ps1 -ValidationMode Local
+.\tools\run-ns905-status-sync-audit.ps1
+```
+
+When these guards run without explicit output-path arguments, they now emit
+fresh date-scoped evidence under `docs/evidence/<yyyyMMdd>-...` instead of
+rewriting older historical anchors. Pass explicit paths when you need to
+refresh a specific dated report on purpose.
+
+Repo-side fresh report path contract:
+
+```powershell
+.\tools\run-repo-side-guard-fresh-report-path-contract.ps1
+```
+
+This statically verifies that the repo-side truth-maintenance guards derive a
+fresh `yyyyMMdd` stamp and only fill their default report paths when the caller
+does not pass explicit outputs. It covers `REAL005`, live closeout,
+reference-basis, and `NS905`.
+
 Reference shelf snapshot sync:
 
 ```powershell
@@ -342,7 +367,9 @@ NS904. It keeps P001-P006 as `待办`, requires zero `release_ready` and zero
 backlog tasks, checks NS903/NS904 runtime evidence cannot be overwritten by
 older planned states, and now also reads `tasks/live-pilot-closeout-plan.csv`
 to keep the next open slices for `REAL005/P001/P003/P005/P006` explicit in the
-status audit. The latest repo evidence is
+status audit. It also resolves the latest existing REAL005 closure-standard
+report by default and requires `sliceCoverage.REAL005A` to stay aligned with
+that next-open boundary. The latest repo evidence is
 `docs/evidence/20260609-ns905-status-sync.md`.
 
 Live pilot closeout plan guard:
@@ -357,10 +384,75 @@ backlog sync for `REAL005/P001/P003/P005/P006`, and the current No-Go wording
 in `README.md`, `docs/109_ReleaseGoNoGoCard.md`,
 `docs/111_ProjectNavigationOverview.md`, and
 `docs/112_CurrentClosureStatus_20260609.md`. It requires the REAL005 closure
-report to stay `not_closed`, writes the latest JSON/Markdown summaries to
+report to stay `not_closed`, resolves the latest existing REAL005 report by
+default, and requires `sliceCoverage.REAL005A` to remain the current next-open
+slice. It writes the latest JSON/Markdown summaries to
 `docs/evidence/20260609-live-pilot-closeout-plan-guard.json` and
 `docs/evidence/20260609-live-pilot-closeout-plan-guard.md`, and does not
 fabricate onsite evidence.
+
+REAL005 transient report-lock contract:
+
+```powershell
+.\tools\run-real005-report-write-lock-contract.ps1
+```
+
+This holds a temporary read lock on the REAL005 JSON report path, then reruns
+`run-real005-guangzhou-2015-2025-closure-standard.ps1` against temp outputs.
+It proves the REAL005 report writer tolerates a short-lived read lock from a
+consumer process instead of failing immediately with `file is being used by
+another process`. Use it when changing REAL005 report writing or when
+diagnosing parallel repo-side guard orchestration.
+
+REAL005 slice coverage contract:
+
+```powershell
+.\tools\run-real005-slice-coverage-contract.ps1
+```
+
+This checks that the REAL005 report exposes machine-readable
+`sliceCoverage.REAL005A/B/C/D` instead of leaving closeout advancement to prose
+alone. The contract requires `REAL005A` to stay evidence-blocked by current
+source/adapter gaps, keeps later slices blocked behind earlier ones, and is
+run from temp outputs by default and inside both `run-gate-group.ps1 -Group
+pqr` and the full gate so historical evidence is not rewritten during local
+verification.
+
+Live pilot closeout import contract:
+
+```powershell
+.\tools\run-live-pilot-closeout-import-contract.ps1
+```
+
+This validates the repo-side return/import path for three closeout artifacts:
+returned `P001/NS1001` isolated-machine evidence, structured `P005` feedback
+triage, and structured `P006` release decision records. It uses smoke fixtures
+and temp outputs only, and it must not change backlog status or release-ready
+state.
+
+PQR gate-group temp outputs:
+
+```powershell
+.\tools\run-gate-group.ps1 -Group pqr
+```
+
+The `pqr` gate-group now writes its generated pack/freshness/dashboard/
+orchestration summaries under `tmp/gate-group-pqr/` instead of mutating the
+historical `docs/evidence/20260505-*` anchors. This keeps lightweight
+verification and orchestration checks from dirtying long-lived evidence files
+when you only want a local repo-side sanity run. It also generates a temporary
+REAL005 closure-standard report there before validating slice coverage.
+
+PQR full-gate temp output contract:
+
+```powershell
+.\tools\run-pqr-full-gate-path-contract.ps1
+```
+
+This statically verifies that `tools/run-gates.ps1` sends the PQR
+self-reporting steps and the temporary REAL005 slice-coverage report to
+`tmp/full-gate-pqr/` instead of mutating the historical
+`docs/evidence/20260505-*` files during a full gate run.
 
 NS1101 second-subject candidate boundary pack:
 

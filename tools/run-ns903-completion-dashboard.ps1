@@ -2,6 +2,7 @@ param(
     [string] $ReportPath = 'docs/evidence/20260530-ns903-completion-dashboard.json',
     [string] $S001JsonReportPath = 'docs/evidence/20260506-s001-completion-state-dashboard.json',
     [string] $S001MarkdownReportPath = 'docs/evidence/20260506-s001-completion-state-dashboard.md',
+    [string] $REAL005ReportPath = '',
     [switch] $SkipS001Refresh
 )
 
@@ -16,6 +17,22 @@ function Read-Json([string] $Path) {
     $fullPath = Join-Path $repoRoot $Path
     Assert-Condition (Test-Path -LiteralPath $fullPath) "missing report: $Path"
     return Get-Content -LiteralPath $fullPath -Raw | ConvertFrom-Json
+}
+
+function Resolve-LatestReal005ReportPath([string] $PreferredPath) {
+    if (-not [string]::IsNullOrWhiteSpace($PreferredPath)) {
+        return $PreferredPath
+    }
+
+    $evidenceRoot = Join-Path $repoRoot 'docs/evidence'
+    Assert-Condition (Test-Path -LiteralPath $evidenceRoot) 'missing docs/evidence directory'
+    $latest = @(
+        Get-ChildItem -LiteralPath $evidenceRoot -Filter '*-real005-guangzhou-2015-2025-closure-standard-report.json' -File |
+            Sort-Object Name -Descending |
+            Select-Object -First 1
+    )
+    Assert-Condition ($latest.Count -eq 1) 'missing REAL005 closure standard report under docs/evidence'
+    return [System.IO.Path]::GetRelativePath($repoRoot, $latest[0].FullName).Replace('\', '/')
 }
 
 function Convert-OutputToJson([object[]] $Output, [string] $Label) {
@@ -55,7 +72,8 @@ try {
     $ns902 = Read-Json 'docs/evidence/20260528-non-site-e2e-rehearsal-report.json'
     $ns906 = Read-Json 'docs/evidence/20260528-ns906-visual-surrogate-review-report.json'
     $p001 = Read-Json 'docs/evidence/20260530-p001-live-pilot-readiness-preflight-report.json'
-    $real005 = Read-Json 'docs/evidence/20260512-real005-guangzhou-2015-2025-closure-standard-report.json'
+    $REAL005ReportPath = Resolve-LatestReal005ReportPath $REAL005ReportPath
+    $real005 = Read-Json $REAL005ReportPath
 
     Assert-Condition ($s001.status -eq 'pass') 'NS903 dependency S001 dashboard did not pass'
     Assert-Condition ($ns901.status -eq 'pass') 'NS903 dependency NS901 report did not pass'
@@ -72,6 +90,9 @@ try {
     Assert-Condition ([int]@($ns906.workflowCoverage.missing).Count -eq 0) 'NS903 requires NS906 workflow coverage to have no missing steps'
     Assert-Condition ($real005.closureStatus -eq 'not_closed') 'NS903 must keep REAL005 not_closed'
     Assert-Condition (-not [bool]$real005.fullClosureAllowed) 'NS903 must not allow REAL005 full closure'
+    Assert-Condition ($null -ne $real005.sliceCoverage) 'NS903 requires REAL005 sliceCoverage'
+    Assert-Condition ($null -ne $real005.sliceCoverage.REAL005A) 'NS903 requires REAL005A slice coverage'
+    Assert-Condition ([string]$real005.sliceCoverage.REAL005A.status -in @('blocked', 'partial')) 'NS903 requires REAL005A to remain blocked or partial while closeout is open'
     Assert-Condition (-not [bool]$p001.p001CanClose) 'NS903 must keep P001 open until isolated-machine evidence exists'
     Assert-Condition (@($p001.blockers).Count -gt 0) 'NS903 requires P001 blockers to stay explicit'
 
@@ -149,7 +170,7 @@ try {
             ns902 = 'docs/evidence/20260528-non-site-e2e-rehearsal-report.json'
             ns906 = 'docs/evidence/20260528-ns906-visual-surrogate-review-report.json'
             p001 = 'docs/evidence/20260530-p001-live-pilot-readiness-preflight-report.json'
-            real005 = 'docs/evidence/20260512-real005-guangzhou-2015-2025-closure-standard-report.json'
+            real005 = $REAL005ReportPath
         }
         dashboard = [ordered]@{
             areaCount = [int]$s001.areaCount
@@ -175,6 +196,7 @@ try {
             p001Blockers = @($p001.blockers)
             real005ClosureStatus = [string]$real005.closureStatus
             real005FullClosureAllowed = [bool]$real005.fullClosureAllowed
+            real005NextSliceStatus = [string]$real005.sliceCoverage.REAL005A.status
             ns901NonSiteValidated = [bool]$ns901.nonSiteValidated
         }
         acceptance = [ordered]@{

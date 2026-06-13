@@ -2,24 +2,76 @@ param(
     [string] $CriteriaPath = 'tasks/real-guangzhou-closure-criteria.csv',
     [string] $BacklogPath = 'tasks/backlog.csv',
     [string] $DashboardPath = 'tasks/completion-state-dashboard.csv',
-    [string] $JsonReportPath = 'docs/evidence/20260512-real005-guangzhou-2015-2025-closure-standard-report.json',
-    [string] $MarkdownReportPath = 'docs/evidence/20260512-real005-guangzhou-2015-2025-closure-standard-report.md'
+    [string] $JsonReportPath = '',
+    [string] $MarkdownReportPath = ''
 )
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+$runDate = Get-Date -Format 'yyyyMMdd'
 
 function Resolve-RepoPath([string] $Path) {
     Join-Path $repoRoot $Path
+}
+
+function Try-ReadJson([string] $RelativePath) {
+    $fullPath = Resolve-RepoPath $RelativePath
+    if (-not (Test-Path -LiteralPath $fullPath)) {
+        return $null
+    }
+
+    return Get-Content -LiteralPath $fullPath -Raw | ConvertFrom-Json
 }
 
 function Assert-True([bool] $Condition, [string] $Message) {
     if (-not $Condition) { throw $Message }
 }
 
+function Test-FileLockException([System.Exception] $Exception) {
+    $current = $Exception
+    while ($null -ne $current) {
+        if ($current -is [System.IO.IOException]) {
+            return $true
+        }
+
+        if (-not [string]::IsNullOrWhiteSpace($current.Message) -and $current.Message -match 'being used by another process') {
+            return $true
+        }
+
+        $current = $current.InnerException
+    }
+
+    return $false
+}
+
+function Write-Utf8FileWithRetry([string] $Path, [object] $Content, [int] $RetryCount = 30, [int] $DelayMilliseconds = 100) {
+    for ($attempt = 1; $attempt -le $RetryCount; $attempt++) {
+        try {
+            Set-Content -LiteralPath $Path -Value $Content -Encoding UTF8
+            return
+        }
+        catch {
+            if ((-not (Test-FileLockException $_.Exception)) -or $attempt -eq $RetryCount) {
+                throw
+            }
+
+            Start-Sleep -Milliseconds $DelayMilliseconds
+        }
+    }
+}
+
 $criteriaFullPath = Resolve-RepoPath $CriteriaPath
 $backlogFullPath = Resolve-RepoPath $BacklogPath
 $dashboardFullPath = Resolve-RepoPath $DashboardPath
+
+if ([string]::IsNullOrWhiteSpace($JsonReportPath)) {
+    $JsonReportPath = ('docs/evidence/{0}-real005-guangzhou-2015-2025-closure-standard-report.json' -f $runDate)
+}
+
+if ([string]::IsNullOrWhiteSpace($MarkdownReportPath)) {
+    $MarkdownReportPath = ('docs/evidence/{0}-real005-guangzhou-2015-2025-closure-standard-report.md' -f $runDate)
+}
+
 $jsonFullPath = Resolve-RepoPath $JsonReportPath
 $markdownFullPath = Resolve-RepoPath $MarkdownReportPath
 
@@ -69,6 +121,98 @@ $dashboardRow = $dashboardRows | Where-Object { $_.area_id -eq 'real-guangzhou-2
 Assert-True ($null -ne $dashboardRow) 'completion dashboard missing real-guangzhou-2015-2025 row'
 Assert-True ($dashboardRow.next_task -eq 'REAL005') 'real-guangzhou-2015-2025 dashboard row must point to REAL005'
 Assert-True ($dashboardRow.current_state -ne 'teacher_validated' -and $dashboardRow.current_state -ne 'release_ready') '2015-2025 closure cannot be marked teacher_validated/release_ready before all REAL criteria pass'
+
+$real001ReportPath = 'docs/evidence/20260512-guangzhou-2015-real-ingest-slice-report.json'
+$real002ReportPath = 'docs/evidence/20260512-guangzhou-2015-visual-region-slice-report.json'
+$real003ReportPath = 'docs/evidence/20260514-real003-guangzhou-physics-year-batch-ingest-report.json'
+
+$real001Report = Try-ReadJson $real001ReportPath
+$real002Report = Try-ReadJson $real002ReportPath
+$real003Report = Try-ReadJson $real003ReportPath
+
+function Test-AnswerLikeSource([object] $SourceHashRow) {
+    $label = '{0} {1}' -f [string]$SourceHashRow.title, [string]$SourceHashRow.fileName
+    return $label -match '答案|解析|含答案'
+}
+
+$rg001YearCoverage = New-Object System.Collections.Generic.List[object]
+
+if ($null -ne $real001Report -and $null -ne $real001Report.sourceDocuments) {
+    $rg001YearCoverage.Add([ordered]@{
+        year = 2015
+        localExamSourceCount = 2
+        hasDistinctPaperSource = $true
+        hasDistinctAnswerSource = $true
+        evidencePath = $real001ReportPath
+        note = 'REAL001 sourceDocuments provide distinct paper and answer files for 2015.'
+    })
+}
+
+if ($null -ne $real003Report) {
+    foreach ($yearRow in @($real003Report.years)) {
+        $localExamRows = @($yearRow.sourceHashes | Where-Object { [string]$_.sourceType -eq 'local_exam_paper' })
+        $paperRows = @($localExamRows | Where-Object { -not (Test-AnswerLikeSource $_) })
+        $answerRows = @($localExamRows | Where-Object { Test-AnswerLikeSource $_ })
+        $rg001YearCoverage.Add([ordered]@{
+            year = [int]$yearRow.year
+            localExamSourceCount = $localExamRows.Count
+            hasDistinctPaperSource = ($paperRows.Count -ge 1)
+            hasDistinctAnswerSource = ($answerRows.Count -ge 1)
+            evidencePath = $real003ReportPath
+            note = if (($paperRows.Count -ge 1) -and ($answerRows.Count -ge 1)) {
+                'REAL003 sourceHashes include distinct local_exam_paper paper+answer anchors.'
+            }
+            else {
+                'REAL003 sourceHashes do not yet prove distinct paper+answer local_exam_paper anchors.'
+            }
+        })
+    }
+}
+
+$rg001BlockedYears = @(
+    $rg001YearCoverage |
+        Where-Object { (-not [bool]$_.hasDistinctPaperSource) -or (-not [bool]$_.hasDistinctAnswerSource) } |
+        ForEach-Object { [int]$_.year }
+)
+
+$rg002YearCoverage = New-Object System.Collections.Generic.List[object]
+
+if ($null -ne $real001Report -and $null -ne $real002Report) {
+    $rg002YearCoverage.Add([ordered]@{
+        year = 2015
+        hasAdapterNames = (-not [string]::IsNullOrWhiteSpace([string]$real001Report.worker.paperAdapter)) -and (-not [string]::IsNullOrWhiteSpace([string]$real001Report.worker.answerAdapter))
+        hasAdapterVersion = $false
+        hasInputOutputHashes = $true
+        hasWarningsErrorsElapsed = $false
+        evidencePath = $real001ReportPath
+        note = 'REAL001/REAL002 expose adapter names and input hashes, but not full per-year adapter diagnostics with version/warnings/errors/elapsed_ms.'
+    })
+}
+
+if ($null -ne $real003Report) {
+    foreach ($yearRow in @($real003Report.years)) {
+        $rg002YearCoverage.Add([ordered]@{
+            year = [int]$yearRow.year
+            hasAdapterNames = $false
+            hasAdapterVersion = $false
+            hasInputOutputHashes = $false
+            hasWarningsErrorsElapsed = $false
+            evidencePath = $real003ReportPath
+            note = [string]$yearRow.adapterQuality.workerProbe
+        })
+    }
+}
+
+$rg002BlockedYears = @(
+    $rg002YearCoverage |
+        Where-Object {
+            (-not [bool]$_.hasAdapterNames) -or
+            (-not [bool]$_.hasAdapterVersion) -or
+            (-not [bool]$_.hasInputOutputHashes) -or
+            (-not [bool]$_.hasWarningsErrorsElapsed)
+        } |
+        ForEach-Object { [int]$_.year }
+)
 
 $knownEvidence = [ordered]@{
     REAL001 = @(
@@ -150,6 +294,73 @@ else {
     "REAL005 判定标准已安装并通过自检；当前真实状态是 not_closed，仍需完成 $unfinishedText。"
 }
 
+$rg001Status = if ($rg001YearCoverage.Count -eq 11 -and $rg001BlockedYears.Count -eq 0) { 'pass' } else { 'blocked' }
+$rg002Status = if ($rg002YearCoverage.Count -eq 11 -and $rg002BlockedYears.Count -eq 0) { 'pass' } else { 'blocked' }
+$rg001CoveredYears = @($rg001YearCoverage | ForEach-Object { [int]$_.year })
+$rg002CoveredYears = @($rg002YearCoverage | ForEach-Object { [int]$_.year })
+$rg001EvidencePaths = @($rg001YearCoverage | ForEach-Object { [string]$_.evidencePath } | Sort-Object -Unique)
+$rg002EvidencePaths = @($rg002YearCoverage | ForEach-Object { [string]$_.evidencePath } | Sort-Object -Unique)
+
+$criteriaCoverage = New-Object System.Collections.Specialized.OrderedDictionary
+$rg001Coverage = @{}
+$rg001Coverage['status'] = $rg001Status
+$rg001Coverage['coveredYears'] = $rg001CoveredYears
+$rg001Coverage['blockedYears'] = @($rg001BlockedYears)
+$rg001Coverage['evidencePaths'] = $rg001EvidencePaths
+$rg001Coverage['details'] = @($rg001YearCoverage | ForEach-Object { $_ })
+$criteriaCoverage.Add('RG001', $rg001Coverage)
+
+$rg002Coverage = @{}
+$rg002Coverage['status'] = $rg002Status
+$rg002Coverage['coveredYears'] = $rg002CoveredYears
+$rg002Coverage['blockedYears'] = @($rg002BlockedYears)
+$rg002Coverage['evidencePaths'] = $rg002EvidencePaths
+$rg002Coverage['details'] = @($rg002YearCoverage | ForEach-Object { $_ })
+$criteriaCoverage.Add('RG002', $rg002Coverage)
+
+$real005ABlockers = New-Object System.Collections.Generic.List[string]
+if ($rg001Status -ne 'pass') {
+    $real005ABlockers.Add("RG001 source manifest coverage is still blocked for years: $($rg001BlockedYears -join ', ')")
+}
+if ($rg002Status -ne 'pass') {
+    $real005ABlockers.Add("RG002 adapter diagnostics are incomplete for years: $($rg002BlockedYears -join ', ')")
+}
+
+$real005AStatus = if ($real005ABlockers.Count -eq 0) { 'pass' } else { 'blocked' }
+$real005ANext = if ($real005ABlockers.Count -eq 0) { 'REAL005A evidence is ready for manual closeout review.' } else { '补齐逐年 paper+answer source anchors and per-year adapter diagnostics before advancing REAL005A.' }
+$sliceCoverage = New-Object System.Collections.Specialized.OrderedDictionary
+$real005ACoverage = @{}
+$real005ACoverage['criteriaIds'] = @('RG001', 'RG002')
+$real005ACoverage['status'] = $real005AStatus
+$real005ACoverage['blockers'] = @($real005ABlockers)
+$real005ACoverage['evidencePaths'] = @(($rg001EvidencePaths + $rg002EvidencePaths) | Sort-Object -Unique)
+$real005ACoverage['next'] = $real005ANext
+$sliceCoverage.Add('REAL005A', $real005ACoverage)
+
+$real005BCoverage = @{}
+$real005BCoverage['criteriaIds'] = @('RG003', 'RG004', 'RG005', 'RG006', 'RG007', 'RG008', 'RG009')
+$real005BCoverage['status'] = 'blocked_by_previous_slice'
+$real005BCoverage['blockers'] = @('REAL005A is not yet closed; do not interpret question-structure and review coverage as a closeable slice yet.')
+$real005BCoverage['evidencePaths'] = @($real002ReportPath, 'docs/evidence/20260512-real004-guangzhou-2015-review-smoke-report.json')
+$real005BCoverage['next'] = 'Only evaluate per-question structure/review closure after REAL005A source+adapter coverage is complete.'
+$sliceCoverage.Add('REAL005B', $real005BCoverage)
+
+$real005CCoverage = @{}
+$real005CCoverage['criteriaIds'] = @('RG010', 'RG011', 'RG012', 'RG013', 'RG014', 'RG015', 'RG016')
+$real005CCoverage['status'] = 'blocked_by_previous_slice'
+$real005CCoverage['blockers'] = @('REAL005A and REAL005B remain open; usage/export/analysis closure cannot be promoted ahead of earlier slices.')
+$real005CCoverage['evidencePaths'] = @('docs/evidence/20260518-real012-production-flow-quality-report.json', 'docs/evidence/20260516-real007-guangzhou-2015-layout-quality-report.json')
+$real005CCoverage['next'] = 'Keep REAL005C blocked until source coverage and per-question review closure are both complete.'
+$sliceCoverage.Add('REAL005C', $real005CCoverage)
+
+$real005DCoverage = @{}
+$real005DCoverage['criteriaIds'] = @('DOCS', 'README', 'GO_NO_GO_CARD')
+$real005DCoverage['status'] = 'blocked'
+$real005DCoverage['blockers'] = @("closureStatus remains $closureStatus; truthful docs must continue to say not_closed")
+$real005DCoverage['evidencePaths'] = @('docs/112_CurrentClosureStatus_20260609.md', 'docs/109_ReleaseGoNoGoCard.md', 'README.md')
+$real005DCoverage['next'] = 'Do not rewrite outward completion wording until REAL005A/B/C are all closed.'
+$sliceCoverage.Add('REAL005D', $real005DCoverage)
+
 $report = [ordered]@{
     status = 'pass'
     task = 'REAL005'
@@ -160,6 +371,8 @@ $report = [ordered]@{
     requiredYears = @(2015..2025)
     fullClosureAllowed = ($closureStatus -eq 'closed')
     currentTruth = 'S012/REAL001/REAL002/REAL003 dry-run/REAL004 review smoke evidence is not enough to claim 2015-2025 full workflow closure'
+    criteriaCoverage = $criteriaCoverage
+    sliceCoverage = $sliceCoverage
     gaps = $gapItems
     requiredCriteria = $criteriaItems
     rollback = 'git restore tracked files; remove generated REAL005 evidence reports if this standard is reverted'
@@ -167,7 +380,8 @@ $report = [ordered]@{
 }
 
 New-Item -ItemType Directory -Path (Split-Path -Parent $jsonFullPath) -Force | Out-Null
-$report | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $jsonFullPath -Encoding UTF8
+$reportJson = $report | ConvertTo-Json -Depth 8
+Write-Utf8FileWithRetry -Path $jsonFullPath -Content $reportJson
 
 $lines = New-Object System.Collections.Generic.List[string]
 $lines.Add('# REAL005 广州 2015-2025 真卷全流程闭环判定标准')
@@ -179,6 +393,15 @@ $lines.Add("- full_closure_allowed: $($report.fullClosureAllowed)")
 $lines.Add('')
 $lines.Add('## 当前结论')
 $lines.Add($report.summaryChinese)
+$lines.Add('')
+$lines.Add('## Closeout slices')
+foreach ($sliceEntry in $sliceCoverage.GetEnumerator()) {
+    $sliceId = [string]$sliceEntry.Key
+    $slice = $sliceEntry.Value
+    $criteriaText = @($slice.criteriaIds) -join ', '
+    $blockerText = if (@($slice.blockers).Count -eq 0) { '无' } else { @($slice.blockers) -join ' | ' }
+    $lines.Add(('- {0}: status={1}; criteria={2}; blockers={3}; next={4}' -f $sliceId, $slice.status, $criteriaText, $blockerText, $slice.next))
+}
 $lines.Add('')
 $lines.Add('## 阻断缺口')
 if ($gaps.Count -eq 0) {
@@ -194,6 +417,6 @@ $lines.Add('## 判定标准')
 foreach ($criterion in $criteriaRows) {
     $lines.Add("- $($criterion.criterion_id) $($criterion.category): $($criterion.evidence_required)")
 }
-$lines | Set-Content -LiteralPath $markdownFullPath -Encoding UTF8
+Write-Utf8FileWithRetry -Path $markdownFullPath -Content $lines
 
 $report | ConvertTo-Json -Depth 8

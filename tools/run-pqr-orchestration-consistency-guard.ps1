@@ -45,6 +45,10 @@ foreach ($row in $targets) {
 }
 
 foreach ($guard in @(
+    'tools/run-repo-side-guard-fresh-report-path-contract.ps1',
+    'tools/run-live-pilot-closeout-import-contract.ps1',
+    'tools/run-real005-report-write-lock-contract.ps1',
+    'tools/run-real005-slice-coverage-contract.ps1',
     'tools/run-pqr-preflight-pack-contract.ps1',
     'tools/run-pqr-preflight-freshness-guard.ps1',
     'tools/run-pqr-preflight-dashboard-contract.ps1'

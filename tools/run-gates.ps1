@@ -152,6 +152,7 @@ function Get-HostLocalFrontendDebrisPaths {
 
 Push-Location $repoRoot
 $p0LiveRunDate = Get-Date -Format 'yyyyMMdd'
+$pqrReportRoot = 'tmp/full-gate-pqr'
 $resumeDefaultLocalApi = $false
 $defaultLocalApi = Get-DefaultLocalApiProcess
 if ($null -ne $defaultLocalApi) {
@@ -171,6 +172,8 @@ if ($null -ne $defaultLocalApi) {
 }
 
 try {
+    New-Item -ItemType Directory -Path (Join-Path $repoRoot $pqrReportRoot) -Force | Out-Null
+
     Invoke-GateStep 'backend build' {
         dotnet build apps\api\K12QuestionGraph.Api.csproj -c Release | Write-Host
         if ($LASTEXITCODE -ne 0) { throw "dotnet build failed" }
@@ -1048,17 +1051,41 @@ try {
     Invoke-GateStep 'p0 live preflight refresh path contract' {
         .\tools\run-p0-live-preflight-refresh-path-contract.ps1 | Write-Host
     }
+    Invoke-GateStep 'repo side guard fresh report path contract' {
+        .\tools\run-repo-side-guard-fresh-report-path-contract.ps1 | Write-Host
+    }
+    Invoke-GateStep 'live pilot closeout import contract' {
+        .\tools\run-live-pilot-closeout-import-contract.ps1 | Write-Host
+    }
+    Invoke-GateStep 'real005 report write lock contract' {
+        .\tools\run-real005-report-write-lock-contract.ps1 | Write-Host
+    }
+    Invoke-GateStep 'real005 slice coverage contract' {
+        $real005JsonPath = Join-Path $pqrReportRoot 'real005-closure-standard-report.json'
+        $real005MarkdownPath = Join-Path $pqrReportRoot 'real005-closure-standard-report.md'
+        .\tools\run-real005-slice-coverage-contract.ps1 `
+            -ReportPath $real005JsonPath `
+            -MarkdownReportPath $real005MarkdownPath | Write-Host
+    }
+    Invoke-GateStep 'pqr full gate path contract' {
+        .\tools\run-pqr-full-gate-path-contract.ps1 | Write-Host
+    }
     Invoke-GateStep 'pqr preflight pack contract' {
-        .\tools\run-pqr-preflight-pack-contract.ps1 | Write-Host
+        .\tools\run-pqr-preflight-pack-contract.ps1 `
+            -ReportPath (Join-Path $pqrReportRoot 'pqr-preflight-pack-report.json') | Write-Host
     }
     Invoke-GateStep 'pqr preflight freshness guard' {
-        .\tools\run-pqr-preflight-freshness-guard.ps1 | Write-Host
+        .\tools\run-pqr-preflight-freshness-guard.ps1 `
+            -ReportPath (Join-Path $pqrReportRoot 'pqr-preflight-freshness-report.json') | Write-Host
     }
     Invoke-GateStep 'pqr preflight dashboard contract' {
-        .\tools\run-pqr-preflight-dashboard-contract.ps1 | Write-Host
+        .\tools\run-pqr-preflight-dashboard-contract.ps1 `
+            -DashboardJsonPath (Join-Path $pqrReportRoot 'pqr-preflight-dashboard.json') `
+            -DashboardMarkdownPath (Join-Path $pqrReportRoot 'pqr-preflight-dashboard.md') | Write-Host
     }
     Invoke-GateStep 'pqr orchestration consistency guard' {
-        .\tools\run-pqr-orchestration-consistency-guard.ps1 | Write-Host
+        .\tools\run-pqr-orchestration-consistency-guard.ps1 `
+            -ReportPath (Join-Path $pqrReportRoot 'pqr-orchestration-consistency-report.json') | Write-Host
     }
     Invoke-GateStep 'ns1306 agent tool orchestration contract' {
         .\tools\run-ns1306-agent-tool-orchestration-contract.ps1 -ReportPath ('docs/evidence/{0}-ns1306-agent-tool-orchestration.json' -f $p0LiveRunDate) | Write-Host

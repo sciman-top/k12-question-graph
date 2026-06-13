@@ -4,11 +4,13 @@
 
 ## 当前状态入口
 
-如果你想知道“现在到底闭环到哪了”，先看 `docs/112_CurrentClosureStatus_20260609.md`、`docs/103_ExecutionControlBoard.md`、`docs/109_ReleaseGoNoGoCard.md` 和 `tasks/completion-state-dashboard.csv`。如果你想知道“本地 Web/API 现在应该怎么跑、怎么看活着没”，先看 `docs/113_LocalRuntimeOperations_20260609.md`。README 这里只保留稳定背景、常用启动命令和少量历史摘要。
+如果你想知道“现在到底闭环到哪了”，先看 `docs/112_CurrentClosureStatus_20260609.md`、`docs/103_ExecutionControlBoard.md`、`docs/109_ReleaseGoNoGoCard.md` 和 `tasks/completion-state-dashboard.csv`。如果你想知道“本地 Web/API 现在应该怎么跑、怎么看活着没”，先看 `docs/113_LocalRuntimeOperations_20260609.md`。这些入口已在 2026-06-13 按 2026-06-13 最新 repo-side 证据刷新；README 这里只保留稳定背景、常用启动命令和少量历史摘要。
 
 ## 当前仓库状态
 
 本仓已从**编码前设计包**进入可运行实现阶段：已有产品、架构、schema、配置、runbook、任务清单、ASP.NET Core API、React/Vite/Ant Design 前端、PostgreSQL/EF Core migration、Python Worker 占位、FileStore、ImportJob、health、backup 和统一 gate。
+
+2026-06-13 文档刷新口径：最新完整 `full gate` 仍是 2026-06-09 通过；最新 repo-side 守卫与状态同步核对到 2026-06-13，其中 `tools/run-reference-basis-guard.ps1` 通过（20 个受管任务、13 个模块、`snapshot_parity = match`），`tools/run-live-pilot-closeout-plan-guard.ps1` 通过（26 行 closeout 计划、`REAL005 = not_closed`、`REAL005A/P001A/P003A/P005A/P006A` 仍是 next open slice），`docs/evidence/20260613-ns905-status-sync.md` 也确认 `release_ready_count = 0`、`P001/P003/P005/P006` 仍为 `待办`。这意味着仓库侧 closeout、参考基线和状态口径已进一步收口，但没有把现场 / 隔离机 / 签字级闭环“提前算完成”。
 
 2026-05-02 外部资料复核后的判断：最高原则、默认技术栈、模块化单体架构和 P0/P1 纵切路线保持正确；需要在进入编码前先完成 P0 准入预检，锁定 SDK/runtime、PostgreSQL 版本、数据目录、Windows Service/content root 约束、BackgroundService job lease/retry 规则、学生数据/合规辖区边界和文档门禁。
 
@@ -74,6 +76,8 @@ Web:
 该入口会把 API 固定到 `http://127.0.0.1:5275`，自动解析本机 `PGPASSWORD` 或 `KQG_CONNECTION_STRING`，后台启动并把 PID/日志写入 `logs/dev-api/`。需要重启或停止时使用 `.\tools\start-local-api.ps1 -Restart` / `.\tools\start-local-api.ps1 -Stop`。
 日常运行模型、状态语义和排查顺序见 `docs/113_LocalRuntimeOperations_20260609.md`。
 
+管理员 AI 路由本地验证入口：打开 `http://127.0.0.1:5173/?admin=1`，通过 `打开设置 -> 管理员 AI 设置` 进行 `provider-settings` 保存和 `provider-settings/test` 结构化 smoke。该入口已在 2026-06-11 通过 `NS1305A` contract，配置持久化到 `D:\KQG_Data\config\admin\ai-provider-settings.local.json`，但边界仍是 `draft/test`、`pending_review`、`no-active-write`。
+
 统一 gate:
 
 ```powershell
@@ -88,6 +92,15 @@ $env:PGPASSWORD='<local-password>'
 ```
 
 该命令验证 source material admission、draft -> formal replacement mapping、migration impact、candidate admission 和 activation guard，不连接数据库、不写生产数据。完整数据库 contract 仍需要 `PGPASSWORD` 并运行 `tools/run-gates.ps1`。
+
+仓库级预检（reference-basis / roadmap / closeout 一致性）：
+
+```powershell
+.\tools\run-repo-preflight.ps1 -Mode Ci
+.\tools\run-repo-preflight.ps1 -Mode Release
+```
+
+`-Mode Ci` 只跑 repo-side build/lint/guard；`-Mode Release` 在此基础上追加本地 full gate。2026-06-11 最近一次 reference/preflight slice closeout 结论是 `pass_with_parallel_drift`：主线已可单独识别，但提交或交接时要把 dedicated/shared/evidence 与并行脏改动分开。
 
 C002 候选资料与真实来源资料入口：
 

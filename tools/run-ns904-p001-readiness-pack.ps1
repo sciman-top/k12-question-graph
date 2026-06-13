@@ -11,7 +11,7 @@ param(
     [string] $NS806ReportPath = 'docs/evidence/20260530-ns806-upgrade-bundle.json',
     [string] $NS901ReportPath = 'docs/evidence/20260530-ns901-non-site-scenario-pack.json',
     [string] $NS906ReportPath = 'docs/evidence/20260528-ns906-visual-surrogate-review-report.json',
-    [string] $REAL005ReportPath = 'docs/evidence/20260512-real005-guangzhou-2015-2025-closure-standard-report.json'
+    [string] $REAL005ReportPath = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -31,6 +31,22 @@ function Read-Json([string] $Path) {
     return Get-Content -LiteralPath $fullPath -Raw | ConvertFrom-Json
 }
 
+function Resolve-LatestReal005ReportPath([string] $PreferredPath) {
+    if (-not [string]::IsNullOrWhiteSpace($PreferredPath)) {
+        return $PreferredPath
+    }
+
+    $evidenceRoot = Resolve-InRepoPath 'docs/evidence'
+    Assert-Condition (Test-Path -LiteralPath $evidenceRoot) 'missing docs/evidence directory'
+    $latest = @(
+        Get-ChildItem -LiteralPath $evidenceRoot -Filter '*-real005-guangzhou-2015-2025-closure-standard-report.json' -File |
+            Sort-Object Name -Descending |
+            Select-Object -First 1
+    )
+    Assert-Condition ($latest.Count -eq 1) 'missing REAL005 closure standard report under docs/evidence'
+    return [System.IO.Path]::GetRelativePath($repoRoot, $latest[0].FullName).Replace('\', '/')
+}
+
 function Assert-TextContains([string] $Text, [string[]] $Needles, [string] $Label) {
     foreach ($needle in $Needles) {
         Assert-Condition ($Text.Contains($needle)) "$Label missing keyword: $needle"
@@ -45,6 +61,7 @@ function Assert-ItemsContain([string[]] $Actual, [string[]] $Required, [string] 
 
 Push-Location $repoRoot
 try {
+    $REAL005ReportPath = Resolve-LatestReal005ReportPath $REAL005ReportPath
     $ns903 = Read-Json $NS903ReportPath
     $p001 = Read-Json $P001ReportPath
     $ns803 = Read-Json $NS803ReportPath
@@ -124,6 +141,9 @@ try {
 
     Assert-Condition ($real005.closureStatus -eq 'not_closed') 'NS904 must keep REAL005 closureStatus not_closed'
     Assert-Condition (-not [bool]$real005.fullClosureAllowed) 'NS904 must not allow REAL005 full closure'
+    Assert-Condition ($null -ne $real005.sliceCoverage) 'NS904 requires REAL005 sliceCoverage'
+    Assert-Condition ($null -ne $real005.sliceCoverage.REAL005A) 'NS904 requires REAL005A slice coverage'
+    Assert-Condition ([string]$real005.sliceCoverage.REAL005A.status -in @('blocked', 'partial')) 'NS904 requires REAL005A to remain blocked or partial while P001 is still preflight-only'
 
     $checklistFullPath = Resolve-InRepoPath $ChecklistPath
     $isolatedMachineEvidenceTemplateFullPath = Resolve-InRepoPath $IsolatedMachineEvidenceTemplatePath
