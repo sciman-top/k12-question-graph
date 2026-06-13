@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import {
+  getAdminAiProviderSettings,
   getCutCandidates,
   getImportJob,
   getReadyHealth,
@@ -10,6 +11,7 @@ import {
 
 export const serverStateQueryKeys = {
   readyHealth: ['server-state', 'ready-health'] as const,
+  adminAiProviderSettings: ['server-state', 'admin-ai-provider-settings'] as const,
   sourceMaterials: (sourceType?: string) => ['server-state', 'source-materials', sourceType ?? 'all'] as const,
   importJob: (id: string) => ['server-state', 'import-job', id] as const,
   sourcePreview: (sourceDocumentId: string) =>
@@ -26,6 +28,15 @@ export function useReadyHealthQuery() {
     queryFn: getReadyHealth,
     retry: false,
     staleTime: 30_000,
+  })
+}
+
+export function useAdminAiProviderSettingsQuery() {
+  return useQuery({
+    queryKey: serverStateQueryKeys.adminAiProviderSettings,
+    queryFn: getAdminAiProviderSettings,
+    retry: false,
+    staleTime: 10_000,
   })
 }
 

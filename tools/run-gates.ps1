@@ -67,34 +67,130 @@ function Wait-ApiReady([System.Diagnostics.Process] $Process, [string] $ApiUrl, 
     throw "API did not become ready on $ApiUrl"
 }
 
+function Get-ProcessCommandLine([int] $ProcessId) {
+    $process = Get-CimInstance Win32_Process -Filter "ProcessId = $ProcessId" -ErrorAction SilentlyContinue
+    if ($null -eq $process) {
+        return ''
+    }
+
+    return [string]$process.CommandLine
+}
+
+function Get-DefaultLocalApiProcess {
+    $expectedPath = Join-Path $repoRoot 'apps\api\bin\Release\net10.0\K12QuestionGraph.Api.exe'
+    $expectedDllPath = Join-Path $repoRoot 'apps\api\bin\Release\net10.0\K12QuestionGraph.Api.dll'
+    $expectedContentRoot = Join-Path $repoRoot 'apps\api'
+    $listener = Get-NetTCPConnection -LocalPort 5275 -State Listen -ErrorAction SilentlyContinue |
+        Select-Object -First 1
+
+    if ($null -eq $listener) {
+        return $null
+    }
+
+    $process = Get-Process -Id $listener.OwningProcess -ErrorAction SilentlyContinue
+    if ($null -eq $process) {
+        return $null
+    }
+
+    $processPath = $null
+    try {
+        $processPath = $process.Path
+    }
+    catch {
+        return $null
+    }
+
+    if ($process.ProcessName -notin @('K12QuestionGraph.Api', 'dotnet')) {
+        return $null
+    }
+
+    if ([string]::IsNullOrWhiteSpace($processPath)) {
+        return $null
+    }
+
+    if ($process.ProcessName -eq 'K12QuestionGraph.Api') {
+        if (-not $processPath.Equals($expectedPath, [System.StringComparison]::OrdinalIgnoreCase)) {
+            return $null
+        }
+    }
+    else {
+        if (-not $processPath.Equals((Get-Command dotnet).Source, [System.StringComparison]::OrdinalIgnoreCase)) {
+            return $null
+        }
+
+        $commandLine = Get-ProcessCommandLine -ProcessId $process.Id
+        if ([string]::IsNullOrWhiteSpace($commandLine)) {
+            return $null
+        }
+
+        $normalizedCommandLine = $commandLine.ToLowerInvariant()
+        $normalizedExpectedDllPath = $expectedDllPath.ToLowerInvariant()
+        $normalizedExpectedContentRoot = $expectedContentRoot.ToLowerInvariant()
+
+        if (-not $normalizedCommandLine.Contains($normalizedExpectedDllPath.ToLowerInvariant())) {
+            return $null
+        }
+
+        if (-not $normalizedCommandLine.Contains($normalizedExpectedContentRoot)) {
+            return $null
+        }
+    }
+
+    return $process
+}
+
+function Get-HostLocalFrontendDebrisPaths {
+    $webRoot = Join-Path $repoRoot 'apps\web'
+    $debrisDirs = @(Get-ChildItem -Path $webRoot -Directory -Filter 'node_modules_broken_*' -ErrorAction SilentlyContinue)
+
+    return @(
+        $debrisDirs |
+        ForEach-Object { [System.IO.Path]::GetRelativePath($repoRoot, $_.FullName) -replace '\\', '/' } |
+        Sort-Object -Unique
+    )
+}
+
 Push-Location $repoRoot
 $p0LiveRunDate = Get-Date -Format 'yyyyMMdd'
+$resumeDefaultLocalApi = $false
+$defaultLocalApi = Get-DefaultLocalApiProcess
+if ($null -ne $defaultLocalApi) {
+    Stop-Process -Id $defaultLocalApi.Id -Force
+    Start-Sleep -Milliseconds 800
+
+    if (Test-Path -LiteralPath 'logs\dev-api\api.pid') {
+        Remove-Item -LiteralPath 'logs\dev-api\api.pid' -Force
+    }
+
+    $stillRunning = Get-Process -Id $defaultLocalApi.Id -ErrorAction SilentlyContinue
+    if ($null -ne $stillRunning) {
+        throw "failed to pause default local API process $($defaultLocalApi.Id) before full gate"
+    }
+
+    $resumeDefaultLocalApi = $true
+}
+
 try {
     Invoke-GateStep 'backend build' {
         dotnet build apps\api\K12QuestionGraph.Api.csproj -c Release | Write-Host
         if ($LASTEXITCODE -ne 0) { throw "dotnet build failed" }
     }
 
-    Invoke-GateStep 'frontend build' {
-        Push-Location apps\web
-        try {
-            npm run build | Write-Host
-            if ($LASTEXITCODE -ne 0) { throw "npm run build failed" }
-        }
-        finally {
-            Pop-Location
+    Invoke-GateStep 'frontend host-local debris guard' {
+        $debrisPaths = @(Get-HostLocalFrontendDebrisPaths)
+        if ($debrisPaths.Count -gt 0) {
+            throw ("host-local frontend debris blocks full gate: {0}. Remove or move these temporary directories outside apps/web before rerunning. This is host-local drift, not repo source lint failure." -f ($debrisPaths -join ', '))
         }
     }
 
+    Invoke-GateStep 'frontend build' {
+        npm --prefix apps/web run build | Write-Host
+        if ($LASTEXITCODE -ne 0) { throw "npm run build failed" }
+    }
+
     Invoke-GateStep 'frontend lint' {
-        Push-Location apps\web
-        try {
-            npm run lint | Write-Host
-            if ($LASTEXITCODE -ne 0) { throw "npm run lint failed" }
-        }
-        finally {
-            Pop-Location
-        }
+        npm --prefix apps/web run lint | Write-Host
+        if ($LASTEXITCODE -ne 0) { throw "npm run lint failed" }
     }
 
     Invoke-GateStep 'i001 teacher home ui contract' {
@@ -255,6 +351,10 @@ try {
         .\tools\run-automation-first-feature-contract-guard.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'reference basis guard' {
+        .\tools\run-reference-basis-guard.ps1 -JsonReportPath ('docs/evidence/{0}-reference-basis-guard.json' -f $p0LiveRunDate) -MarkdownReportPath ('docs/evidence/{0}-reference-basis-guard.md' -f $p0LiveRunDate) | Write-Host
+    }
+
     Invoke-GateStep 'non-site implementation plan guard' {
         .\tools\run-non-site-implementation-plan-guard.ps1 | Write-Host
     }
@@ -285,6 +385,10 @@ try {
 
     Invoke-GateStep 'ns1305 role routed ai contract' {
         .\tools\run-ns1305-role-routed-ai-contract.ps1 | Write-Host
+    }
+
+    Invoke-GateStep 'ns1305a admin ai settings dialog contract' {
+        .\tools\run-ns1305a-admin-ai-settings-dialog-contract.ps1 | Write-Host
     }
 
     Invoke-GateStep 'ns1308 release evidence pack contract' {
@@ -1239,6 +1343,15 @@ try {
     exit 0
 }
 finally {
+    if ($resumeDefaultLocalApi) {
+        try {
+            .\tools\start-local-api.ps1 | Out-Null
+        }
+        catch {
+            throw "full gate finished but failed to restore default local API: $($_.Exception.Message)"
+        }
+    }
+
     Pop-Location
 }
 

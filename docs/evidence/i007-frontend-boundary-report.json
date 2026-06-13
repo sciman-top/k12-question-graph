@@ -11,14 +11,21 @@
   "highRiskOperationSource": "api-contract-source-of-truth",
   "bundleWarningResolved": true,
   "chunks": [
-    "antd-core-vendor-DLRk65BZ.js",
-    "antd-icons-vendor-C8E4Da8I.js",
-    "antd-vendor-BkW6-IDU.js",
-    "index-B37lCgh7.js",
-    "index-jBO2Yfr7.css",
-    "query-vendor-DkY0-M4z.js",
+    "AdminGovernancePanels-B4t1VvAm.js",
+    "antd-admin-rc-vendor-DA29KYkv.js",
+    "antd-core-vendor-BBUyonJY.js",
+    "antd-icons-vendor-sZztBZ3R.js",
+    "antd-rc-vendor-hR7Os2RZ.js",
+    "antd-vendor--ezBWhin.js",
+    "antd-vendor-admin-D9bVvIoB.js",
+    "antd-vendor-feedback-geX_tfTN.js",
+    "antd-vendor-foundation-YNOtRAFJ.js",
+    "antd-vendor-input-BSvY-70q.js",
+    "index-2xZZgjMa.css",
+    "index-DDlTwp5Y.js",
+    "query-vendor-D3f6wuaY.js",
     "rolldown-runtime-jpDsebLB.js",
-    "vendor-Bp1l84jg.js"
+    "vendor-14GIUy0w.js"
   ],
   "buildChecked": true
 }

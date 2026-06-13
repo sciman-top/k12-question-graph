@@ -1,6 +1,6 @@
 # 111 · 项目导航总览
 
-日期：2026-06-06。
+日期：2026-06-09。
 
 ## 1. 用途
 
@@ -24,6 +24,9 @@
 | 我只想知道“当前到底闭环到哪了” | `docs/112_CurrentClosureStatus_20260609.md` | 当前仓库级 / 非现场 / 现场阻断的短总览 |
 | 本地 Web/API 怎么启动、重启、判断是否真的活着 | `docs/113_LocalRuntimeOperations_20260609.md` | 本地联调运行模型、状态语义和排查入口 |
 | 任务链和机器顺序到底以什么为准 | `tasks/backlog.csv` | 主线顺序权威入口 |
+| 高风险编码任务必须先查哪些参考 | `tasks/reference-basis-requirements.csv` + `tools/run-reference-basis-guard.ps1` | 架构、Windows Service、PowerShell 运维、OCR/toolchain、导出、成绩分析、AI routing、搜索、互操作和 live pilot 预演等强制参考入口 |
+| 按代码板块看“该参考/复刻/复用哪个仓” | `tasks/reference-basis-module-map.csv` | API、Web、export、score-analysis、AI routing、OCR、Windows Service、release pack、搜索、队列、互操作的 machine-readable 参考映射 |
+| 想把本次 reference/preflight 主线和并行脏改动正式分开 | `tools/run-reference-basis-closeout-report.ps1` | 输出 dedicated/shared/evidence/temp/unrelated 五类清单，便于收口、挑选提交或交接 |
 | `P001 / P003 / P005 / P006 / REAL005` 还差哪几步 | `tasks/live-pilot-closeout-plan.csv` | 现场 closeout 最小执行顺序入口 |
 | 当前对外完成态该怎么说 | `tasks/completion-state-dashboard.csv` | 不只看 backlog 的 `已完成` |
 | 非现场能力落到了哪一步 | `docs/101_NonSiteCapabilityImplementationRoadmap.md` + `tasks/non-site-implementation-plan.csv` | 看 `planned -> runtime_verified -> blocked_by_onsite` |
@@ -32,7 +35,8 @@
 | AI 在本项目里到底能做什么、不能做什么 | `docs/107_AITrustAndReviewContract.md` + `docs/09_AI_ModelRouting_CostControl.md` | 一个看边界，一个看路由与成本 |
 | 标准互操作到底承诺到哪里 | `docs/108_InteroperabilityProfileBoundary.md` | 只做 profile map，不做完整实现 |
 | 角色审批和高风险动作归谁 | `docs/105_RoleApprovalAndExceptionMatrix.md` | 角色、复核、例外、回滚 |
-| 外部参考资料去哪里看 | `docs/26_References.md` + `D:\CODE\external\k12-question-graph-references\references.manifest.json` | 一个看人工摘要，一个看机器清单 |
+| 外部参考资料去哪里看 | `docs/26_References.md` + `D:\CODE\external\k12-question-graph-references\references.manifest.json` + `sources/reference-shelf.manifest.snapshot.json` + `tools/sync-reference-shelf-snapshot.ps1` | 一个看人工摘要，一个看外部机器清单，一个看仓内快照，一个做 snapshot 同步 |
+| 本地 / CI 的正式预检入口是什么 | `tools/run-repo-preflight.ps1` + `.github/workflows/repo-preflight.yml` | 本地 release preflight 与 CI preflight 双入口 |
 | 当前技术栈和工具链默认选型 | `docs/04_TechnologyStack.md` | 具体到栈、工具、后置条件 |
 | 为什么当初这样选 | `docs/27_ExternalReview_DecisionLog.md` + `docs/88_EngineeringEndStateExternalReview_20260504.md` | 历史外部复核与决策原因 |
 | 真卷闭环到底到哪了 | `docs/19_Roadmap.md` + `tasks/real-guangzhou-closure-criteria.csv` + `docs/evidence/` | 判定入口与证据都在这条线上 |
@@ -112,6 +116,7 @@
 - 不要只看历史外部复核结论，不看当前 `Go / No-Go`。
 - 不要把长期终态判断和当前发布状态混成一件事。
 - 不要把未决事项误当成“缺少任务”；先看 `docs/104` 是否已映射到现有任务链。
+- 不要只记住“要查参考”，不看 `reference-basis` 两张清单和 guard；高风险改动现在已经有机器守卫，不再是口头约定。
 
 ## 6. 维护规则
 

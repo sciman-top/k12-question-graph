@@ -5,9 +5,9 @@
 ## Result
 
 - 状态：`pass`。
-- API endpoint count: `50`。
-- typed client function count: `18`。
-- typed contract count: `27`。
+- API endpoint count: `53`。
+- typed client function count: `21`。
+- typed contract count: `30`。
 - error code count: `64`。
 - 本快照是静态 typed API snapshot，不宣称 OpenAPI runtime 已验证；后续若拉起 API 服务并抓取 `/openapi/v1.json`，可把 NS103 升级为 `runtime_verified`。
 
@@ -15,56 +15,59 @@
 
 | Method | Route | Name | Source |
 |---|---|---|---|
-| GET | `/health` |  | `apps/api/Program.cs:45` |
-| POST | `/review-queue/batch-resolve` |  | `apps/api/Program.cs:1368` |
-| POST | `/review-queue/{id:guid}/resolve` |  | `apps/api/Program.cs:1426` |
-| POST | `/review-workbench/actions` |  | `apps/api/Program.cs:1469` |
-| POST | `/questions` |  | `apps/api/Program.cs:1712` |
-| GET | `/questions` |  | `apps/api/Program.cs:1857` |
-| GET | `/questions/{id:guid}` |  | `apps/api/Program.cs:2160` |
-| PATCH | `/questions/{id:guid}` |  | `apps/api/Program.cs:2183` |
-| POST | `/questions/{id:guid}/assets` |  | `apps/api/Program.cs:2418` |
-| DELETE | `/questions/{id:guid}/assets/{assetId:guid}` |  | `apps/api/Program.cs:2503` |
-| GET | `/questions/{id:guid}/sources` |  | `apps/api/Program.cs:2565` |
-| POST | `/paper-baskets` |  | `apps/api/Program.cs:2622` |
-| GET | `/paper-baskets/{id:guid}` |  | `apps/api/Program.cs:2714` |
-| POST | `/score-imports` |  | `apps/api/Program.cs:2735` |
-| POST | `/assessments/{assessmentId:guid}/item-score-mappings/preview` |  | `apps/api/Program.cs:2775` |
-| POST | `/assessments/{assessmentId:guid}/commentary-report/export` |  | `apps/api/Program.cs:2797` |
-| POST | `/paper-baskets/{id:guid}/export-preflight` |  | `apps/api/Program.cs:2824` |
-| POST | `/paper-requests/parse` |  | `apps/api/Program.cs:2843` |
-| POST | `/paper-blueprints` |  | `apps/api/Program.cs:2872` |
-| POST | `/paper-blueprints/{id:guid}/confirm` |  | `apps/api/Program.cs:2891` |
-| POST | `/paper-requests/replace-question` |  | `apps/api/Program.cs:2927` |
-| POST | `/knowledge-version-explanations/resolve` |  | `apps/api/Program.cs:2989` |
-| GET | `/review-queue` |  | `apps/api/Program.cs:1328` |
-| GET | `/source-documents/{id:guid}/cut-candidates` |  | `apps/api/Program.cs:1302` |
-| POST | `/source-documents/{id:guid}/cut-candidates/generate` |  | `apps/api/Program.cs:1281` |
-| GET | `/source-regions/{id:guid}/page-screenshot` |  | `apps/api/Program.cs:1245` |
-| GET | `/health/db` | `DatabaseHealth` | `apps/api/Program.cs:65` |
-| GET | `/health/ready` |  | `apps/api/Program.cs:78` |
-| GET | `/api/admin/storage/summary` |  | `apps/api/Program.cs:106` |
-| POST | `/api/admin/cache/cleanup` | `AdminCacheCleanup` | `apps/api/Program.cs:127` |
-| POST | `/internal/ai/model-route` | `RouteAiModel` | `apps/api/Program.cs:136` |
-| GET | `/internal/ai/providers` | `ListAiProviders` | `apps/api/Program.cs:149` |
-| POST | `/internal/ai/jobs/stub` |  | `apps/api/Program.cs:155` |
-| POST | `/ai-suggestions/enqueue` |  | `apps/api/Program.cs:243` |
-| POST | `/ai-suggestions/{id:guid}/feedback` |  | `apps/api/Program.cs:355` |
-| GET | `/feedback-events/eval-samples` |  | `apps/api/Program.cs:453` |
-| POST | `/imports/{id:guid}/status` |  | `apps/api/Program.cs:3055` |
-| POST | `/ai-suggestions/{id:guid}/confirm` |  | `apps/api/Program.cs:494` |
-| POST | `/files` |  | `apps/api/Program.cs:649` |
-| GET | `/source-documents` |  | `apps/api/Program.cs:677` |
-| PATCH | `/source-documents/{id:guid}/authorization` |  | `apps/api/Program.cs:711` |
-| POST | `/imports` |  | `apps/api/Program.cs:804` |
-| GET | `/imports/{id:guid}` | `GetImportJob` | `apps/api/Program.cs:854` |
-| POST | `/source-documents/{id:guid}/regions` |  | `apps/api/Program.cs:864` |
-| PATCH | `/source-regions/{id:guid}` |  | `apps/api/Program.cs:917` |
-| GET | `/source-documents/{id:guid}/preview` |  | `apps/api/Program.cs:1011` |
-| GET | `/source-documents/{id:guid}/quality-report` |  | `apps/api/Program.cs:1050` |
-| GET | `/source-regions/{id:guid}/screenshot` |  | `apps/api/Program.cs:1211` |
-| POST | `/ai-suggestions/{id:guid}/undo-confirm` |  | `apps/api/Program.cs:600` |
-| POST | `/imports/{id:guid}/worker-smoke` |  | `apps/api/Program.cs:3102` |
+| GET | `/health` |  | `apps/api/Program.cs:52` |
+| GET | `/source-documents/{id:guid}/cut-candidates` |  | `apps/api/Program.cs:1340` |
+| GET | `/review-queue` |  | `apps/api/Program.cs:1366` |
+| POST | `/review-queue/batch-resolve` |  | `apps/api/Program.cs:1406` |
+| POST | `/review-queue/{id:guid}/resolve` |  | `apps/api/Program.cs:1464` |
+| POST | `/review-workbench/actions` |  | `apps/api/Program.cs:1507` |
+| POST | `/questions` |  | `apps/api/Program.cs:1750` |
+| GET | `/questions` |  | `apps/api/Program.cs:1895` |
+| GET | `/questions/{id:guid}` |  | `apps/api/Program.cs:2198` |
+| PATCH | `/questions/{id:guid}` |  | `apps/api/Program.cs:2221` |
+| POST | `/questions/{id:guid}/assets` |  | `apps/api/Program.cs:2456` |
+| DELETE | `/questions/{id:guid}/assets/{assetId:guid}` |  | `apps/api/Program.cs:2541` |
+| GET | `/questions/{id:guid}/sources` |  | `apps/api/Program.cs:2603` |
+| POST | `/paper-baskets` |  | `apps/api/Program.cs:2660` |
+| GET | `/paper-baskets/{id:guid}` |  | `apps/api/Program.cs:2752` |
+| POST | `/score-imports` |  | `apps/api/Program.cs:2773` |
+| POST | `/assessments/{assessmentId:guid}/item-score-mappings/preview` |  | `apps/api/Program.cs:2813` |
+| POST | `/assessments/{assessmentId:guid}/commentary-report/export` |  | `apps/api/Program.cs:2835` |
+| POST | `/paper-baskets/{id:guid}/export-preflight` |  | `apps/api/Program.cs:2862` |
+| POST | `/paper-requests/parse` |  | `apps/api/Program.cs:2881` |
+| POST | `/paper-blueprints` |  | `apps/api/Program.cs:2910` |
+| POST | `/paper-blueprints/{id:guid}/confirm` |  | `apps/api/Program.cs:2929` |
+| POST | `/paper-requests/replace-question` |  | `apps/api/Program.cs:2965` |
+| POST | `/knowledge-version-explanations/resolve` |  | `apps/api/Program.cs:3027` |
+| POST | `/source-documents/{id:guid}/cut-candidates/generate` |  | `apps/api/Program.cs:1319` |
+| POST | `/imports/{id:guid}/status` |  | `apps/api/Program.cs:3093` |
+| GET | `/source-regions/{id:guid}/page-screenshot` |  | `apps/api/Program.cs:1283` |
+| GET | `/source-documents/{id:guid}/quality-report` |  | `apps/api/Program.cs:1088` |
+| GET | `/health/db` | `DatabaseHealth` | `apps/api/Program.cs:72` |
+| GET | `/health/ready` |  | `apps/api/Program.cs:85` |
+| GET | `/api/admin/storage/summary` |  | `apps/api/Program.cs:113` |
+| POST | `/api/admin/cache/cleanup` | `AdminCacheCleanup` | `apps/api/Program.cs:134` |
+| GET | `/api/admin/ai/provider-settings` | `GetAdminAiProviderSettings` | `apps/api/Program.cs:143` |
+| POST | `/api/admin/ai/provider-settings` | `SaveAdminAiProviderSettings` | `apps/api/Program.cs:152` |
+| POST | `/api/admin/ai/provider-settings/test` | `TestAdminAiProviderSettings` | `apps/api/Program.cs:162` |
+| POST | `/internal/ai/model-route` | `RouteAiModel` | `apps/api/Program.cs:174` |
+| GET | `/internal/ai/providers` | `ListAiProviders` | `apps/api/Program.cs:187` |
+| POST | `/internal/ai/jobs/stub` |  | `apps/api/Program.cs:193` |
+| POST | `/ai-suggestions/enqueue` |  | `apps/api/Program.cs:281` |
+| POST | `/ai-suggestions/{id:guid}/feedback` |  | `apps/api/Program.cs:393` |
+| GET | `/feedback-events/eval-samples` |  | `apps/api/Program.cs:491` |
+| POST | `/ai-suggestions/{id:guid}/confirm` |  | `apps/api/Program.cs:532` |
+| POST | `/ai-suggestions/{id:guid}/undo-confirm` |  | `apps/api/Program.cs:638` |
+| POST | `/files` |  | `apps/api/Program.cs:687` |
+| GET | `/source-documents` |  | `apps/api/Program.cs:715` |
+| PATCH | `/source-documents/{id:guid}/authorization` |  | `apps/api/Program.cs:749` |
+| POST | `/imports` |  | `apps/api/Program.cs:842` |
+| GET | `/imports/{id:guid}` | `GetImportJob` | `apps/api/Program.cs:892` |
+| POST | `/source-documents/{id:guid}/regions` |  | `apps/api/Program.cs:902` |
+| PATCH | `/source-regions/{id:guid}` |  | `apps/api/Program.cs:955` |
+| GET | `/source-documents/{id:guid}/preview` |  | `apps/api/Program.cs:1049` |
+| GET | `/source-regions/{id:guid}/screenshot` |  | `apps/api/Program.cs:1249` |
+| POST | `/imports/{id:guid}/worker-smoke` |  | `apps/api/Program.cs:3140` |
 
 ## Typed Client Functions
 
@@ -79,14 +82,17 @@
 | `getReviewQueueItems` | `ReviewQueueListContract` | `/review-queue?${query.toString()}` |
 | `applyReviewWorkbenchAction` | `ReviewWorkbenchActionContract` |  |
 | `generateCutCandidates` | `CutCandidateGenerationContract` |  |
+| `previewItemScoreMappings` | `ItemScoreMappingPreviewContract` |  |
 | `getCutCandidates` | `CutCandidateListContract` |  |
-| `getSourceDocumentPreview` | `SourceDocumentPreviewContract` |  |
 | `createScoreImport` | `ScoreImportContract` |  |
 | `runDocumentWorkerSmoke` | `ImportJobContract` | `/imports/${encodeURIComponent(id)}/worker-smoke` |
 | `uploadImportFile` | `ImportJobContract` |  |
 | `getImportJob` | `ImportJobContract` | `/imports/${encodeURIComponent(id)}` |
 | `getSourceMaterials` | `SourceMaterialListContract` | `/source-documents${query}` |
-| `previewItemScoreMappings` | `ItemScoreMappingPreviewContract` |  |
+| `testAdminAiProviderSettings` | `AdminAiProviderSettingsTestContract` |  |
+| `saveAdminAiProviderSettings` | `AdminAiProviderSettingsSaveContract` |  |
+| `getAdminAiProviderSettings` | `AdminAiProviderSettingsContract` |  |
+| `getSourceDocumentPreview` | `SourceDocumentPreviewContract` |  |
 | `exportCommentaryReport` | `CommentaryReportExportContract` |  |
 
 ## DTO Contracts
@@ -94,6 +100,9 @@
 | Kind | Name |
 |---|---|
 | `type` | `ApiResult` |
+| `interface` | `AdminAiProviderSettingsContract` |
+| `interface` | `CommentaryReportExportContract` |
+| `interface` | `ItemScoreMappingPreviewContract` |
 | `interface` | `ItemScoreMappingPreviewRowContract` |
 | `interface` | `ScoreImportContract` |
 | `interface` | `ImportJobContract` |
@@ -105,8 +114,8 @@
 | `interface` | `QuestionSourceReviewContract` |
 | `interface` | `QuestionSourceRegionContract` |
 | `interface` | `ReviewQueueListContract` |
-| `interface` | `ItemScoreMappingPreviewContract` |
 | `interface` | `ReviewQueueItemContract` |
+| `interface` | `ReviewQueuePayloadContract` |
 | `interface` | `ReviewWorkbenchActionContract` |
 | `interface` | `CutCandidateGenerationContract` |
 | `interface` | `CutCandidateListContract` |
@@ -118,8 +127,8 @@
 | `interface` | `SourceMaterialContract` |
 | `interface` | `ReadyHealthContract` |
 | `type` | `ReadyHealthStatus` |
-| `interface` | `ReviewQueuePayloadContract` |
-| `interface` | `CommentaryReportExportContract` |
+| `interface` | `AdminAiProviderSettingsSaveContract` |
+| `interface` | `AdminAiProviderSettingsTestContract` |
 
 ## Error Codes
 
@@ -192,11 +201,13 @@
 
 - `ai_suggestion_pending_review`
 - `allow_draft_test_bypass`
+- `cloud_openai_candidate`
 - `deny_invalid_admin_key`
 - `dismissed`
 - `draft`
 - `draft_test`
 - `draft_test_stub`
+- `failed`
 - `invalid_admin_internal_key`
 - `invalid_bbox`
 - `invalid_block_type`
@@ -209,7 +220,9 @@
 - `invalid_status_transition`
 - `manual_review_pending`
 - `open`
+- `openai_compatible`
 - `pending_review`
+- `provider_request_failed`
 - `real_model_calls_not_allowed_in_draft_test`
 - `real_model_provider_not_allowed_in_draft_test`
 - `review_queue_item_not_open`

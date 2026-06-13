@@ -1,0 +1,258 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-06-11T21:25:35+08:00",
+  "source": "D:\\CODE\\external\\k12-question-graph-references\\references.manifest.json",
+  "entries": [
+    {
+      "group": "core",
+      "category": "official-docs",
+      "relativePath": "official-docs/AspNetCore.Docs",
+      "upstream": "https://github.com/dotnet/AspNetCore.Docs",
+      "lastVerifiedCommit": "0bb3c1d",
+      "notes": "Core default. Primary source for hosted services, Windows Service, health checks, and deployment guidance.",
+      "mandatoryOnUse": null,
+      "mandatoryOnUseTaskIds": null
+    },
+    {
+      "group": "core",
+      "category": "official-docs",
+      "relativePath": "official-docs/PowerShell-Docs",
+      "upstream": "https://github.com/MicrosoftDocs/PowerShell-Docs",
+      "lastVerifiedCommit": "6b71dcc",
+      "notes": "Core default. Primary source for the repo's PowerShell-heavy install, diagnostic, backup/restore, and operator-runbook surfaces.",
+      "mandatoryOnUse": null,
+      "mandatoryOnUseTaskIds": null
+    },
+    {
+      "group": "core",
+      "category": "official-docs",
+      "relativePath": "official-docs/EntityFramework.Docs",
+      "upstream": "https://github.com/dotnet/EntityFramework.Docs",
+      "lastVerifiedCommit": "058a5fc",
+      "notes": "Core default. Primary source for migration bundle, query, and test guidance.",
+      "mandatoryOnUse": null,
+      "mandatoryOnUseTaskIds": null
+    },
+    {
+      "group": "core",
+      "category": "official-docs",
+      "relativePath": "official-docs/npgsql-doc",
+      "upstream": "https://github.com/npgsql/doc",
+      "lastVerifiedCommit": "d04d8fd",
+      "notes": "Core default. Primary provider-specific reference for PostgreSQL integration.",
+      "mandatoryOnUse": null,
+      "mandatoryOnUseTaskIds": null
+    },
+    {
+      "group": "core",
+      "category": "official-docs",
+      "relativePath": "official-docs/Open-XML-SDK",
+      "upstream": "https://github.com/dotnet/Open-XML-SDK",
+      "lastVerifiedCommit": "9fe57e8",
+      "notes": "Core default. Matches current docx/xlsx and OMML-heavy import/export path.",
+      "mandatoryOnUse": null,
+      "mandatoryOnUseTaskIds": null
+    },
+    {
+      "group": "core",
+      "category": "official-docs",
+      "relativePath": "official-docs/openai-dotnet",
+      "upstream": "https://github.com/openai/openai-dotnet",
+      "lastVerifiedCommit": "d4e7e29",
+      "notes": "Core default. Added because NS1305/O008 reference-basis hard gates now require a code-level official SDK anchor instead of only web guides or Cookbook examples.",
+      "mandatoryOnUse": null,
+      "mandatoryOnUseTaskIds": null
+    },
+    {
+      "group": "core",
+      "category": "official-docs",
+      "relativePath": "official-docs/openai-python",
+      "upstream": "https://github.com/openai/openai-python",
+      "lastVerifiedCommit": "3842a5e",
+      "notes": "Core default. Added as the Python-side official anchor for AI helper scripts and future worker/tool experiments; not a reason to bypass local eval/draft-test boundaries.",
+      "mandatoryOnUse": null,
+      "mandatoryOnUseTaskIds": null
+    },
+    {
+      "group": "core",
+      "category": "official-docs",
+      "relativePath": "official-docs/react.dev",
+      "upstream": "https://github.com/reactjs/react.dev",
+      "lastVerifiedCommit": "6ec6134",
+      "notes": "Core default. Primary source for current React programming model.",
+      "mandatoryOnUse": null,
+      "mandatoryOnUseTaskIds": null
+    },
+    {
+      "group": "core",
+      "category": "official-docs",
+      "relativePath": "official-docs/playwright",
+      "upstream": "https://github.com/microsoft/playwright",
+      "lastVerifiedCommit": "e540211",
+      "notes": "Core default. Closest official reference for the repo's browser smoke, visual surrogate review, and teacher-workbench verification flows.",
+      "mandatoryOnUse": null,
+      "mandatoryOnUseTaskIds": null
+    },
+    {
+      "group": "core",
+      "category": "official-docs",
+      "relativePath": "official-docs/vite",
+      "upstream": "https://github.com/vitejs/vite",
+      "lastVerifiedCommit": "689a066",
+      "notes": "Core default. Primary source for current SPA build and chunk behavior.",
+      "mandatoryOnUse": null,
+      "mandatoryOnUseTaskIds": null
+    },
+    {
+      "group": "core",
+      "category": "official-docs",
+      "relativePath": "official-docs/ant-design",
+      "upstream": "https://github.com/ant-design/ant-design",
+      "lastVerifiedCommit": "695c1bb",
+      "notes": "Core default. Closest UI reference for teacher workbench data-heavy patterns.",
+      "mandatoryOnUse": null,
+      "mandatoryOnUseTaskIds": null
+    },
+    {
+      "group": "core",
+      "category": "official-docs",
+      "relativePath": "official-docs/tanstack-query",
+      "upstream": "https://github.com/TanStack/query",
+      "lastVerifiedCommit": "763782a",
+      "notes": "Core default. Used to keep server-state boundary aligned with project contracts.",
+      "mandatoryOnUse": null,
+      "mandatoryOnUseTaskIds": null
+    },
+    {
+      "group": "core",
+      "category": "architecture-samples",
+      "relativePath": "architecture-samples/CleanArchitecture",
+      "upstream": "https://github.com/jasontaylordev/CleanArchitecture",
+      "lastVerifiedCommit": "43831e2",
+      "notes": "Core default. Main architecture sample for layering and use-case structure.",
+      "mandatoryOnUse": null,
+      "mandatoryOnUseTaskIds": null
+    },
+    {
+      "group": "core",
+      "category": "document-ocr-ai",
+      "relativePath": "document-ocr-ai/docling",
+      "upstream": "https://github.com/docling-project/docling",
+      "lastVerifiedCommit": "b108ca8",
+      "notes": "Core default. Main structured document conversion reference.",
+      "mandatoryOnUse": null,
+      "mandatoryOnUseTaskIds": null
+    },
+    {
+      "group": "core",
+      "category": "document-ocr-ai",
+      "relativePath": "document-ocr-ai/RapidOCR",
+      "upstream": "https://github.com/RapidAI/RapidOCR",
+      "lastVerifiedCommit": "7b2d368",
+      "notes": "Core default. Closest reference to current lightweight local OCR path.",
+      "mandatoryOnUse": null,
+      "mandatoryOnUseTaskIds": null
+    },
+    {
+      "group": "core",
+      "category": "document-ocr-ai",
+      "relativePath": "document-ocr-ai/PaddleOCR",
+      "upstream": "https://github.com/PaddlePaddle/PaddleOCR",
+      "lastVerifiedCommit": "1e5aa0a",
+      "notes": "Core default. Official reference for PP-Structure and formula/OCR profile options.",
+      "mandatoryOnUse": null,
+      "mandatoryOnUseTaskIds": null
+    },
+    {
+      "group": "core",
+      "category": "document-ocr-ai",
+      "relativePath": "document-ocr-ai/OCRmyPDF",
+      "upstream": "https://github.com/ocrmypdf/OCRmyPDF",
+      "lastVerifiedCommit": "5cb5d7a",
+      "notes": "Core default. Closest reference for scanned PDF preprocessing and OCR text-layer workflow.",
+      "mandatoryOnUse": null,
+      "mandatoryOnUseTaskIds": null
+    },
+    {
+      "group": "optional",
+      "category": "architecture-samples",
+      "relativePath": "architecture-samples/dotnet-eShop",
+      "upstream": "https://github.com/dotnet/eShop",
+      "lastVerifiedCommit": "9b4f943",
+      "notes": "Optional. Keep for broad .NET sample reference, but not a default solution path for current architecture.",
+      "mandatoryOnUse": null,
+      "mandatoryOnUseTaskIds": null
+    },
+    {
+      "group": "optional",
+      "category": "education-assessment",
+      "relativePath": "education-assessment/moodle",
+      "upstream": "https://github.com/moodle/moodle",
+      "lastVerifiedCommit": "99f185044",
+      "notes": "Optional by default, but mandatory-on-use for reference-basis tasks P003, P005, and R007.",
+      "mandatoryOnUse": true,
+      "mandatoryOnUseTaskIds": [
+        "P003",
+        "P005",
+        "R007"
+      ]
+    },
+    {
+      "group": "optional",
+      "category": "education-assessment",
+      "relativePath": "education-assessment/OpenOLAT",
+      "upstream": "https://github.com/OpenOLAT/OpenOLAT",
+      "lastVerifiedCommit": "52dee1693b",
+      "notes": "Optional by default, but mandatory-on-use for reference-basis tasks P003, P005, and R007.",
+      "mandatoryOnUse": true,
+      "mandatoryOnUseTaskIds": [
+        "P003",
+        "P005",
+        "R007"
+      ]
+    },
+    {
+      "group": "optional",
+      "category": "official-docs",
+      "relativePath": "official-docs/react-router",
+      "upstream": "https://github.com/remix-run/react-router",
+      "lastVerifiedCommit": "02ab741",
+      "notes": "Optional by default, but mandatory-on-use for reference-basis tasks NS1301 and P005.",
+      "mandatoryOnUse": true,
+      "mandatoryOnUseTaskIds": [
+        "NS1301",
+        "P005"
+      ]
+    },
+    {
+      "group": "optional",
+      "category": "document-workflows",
+      "relativePath": "document-workflows/paperless-ngx",
+      "upstream": "https://github.com/paperless-ngx/paperless-ngx",
+      "lastVerifiedCommit": "82aefe5",
+      "notes": "Optional by default, but mandatory-on-use for reference-basis tasks S004, REAL010, NS1304, NS1306, NS1307, NS1308, O008, P001, and P006 because the repo-side module map also uses it as a local-service and release-pack community anchor.",
+      "mandatoryOnUse": true,
+      "mandatoryOnUseTaskIds": [
+        "NS1304",
+        "NS1306",
+        "NS1307",
+        "NS1308",
+        "O008",
+        "P001",
+        "P006",
+        "REAL010",
+        "S004"
+      ]
+    },
+    {
+      "group": "optional",
+      "category": "data-search",
+      "relativePath": "data-search/pgvector",
+      "upstream": "https://github.com/pgvector/pgvector",
+      "lastVerifiedCommit": "12368bd",
+      "notes": "Optional by default, but mandatory-on-use for reference-basis task R001.",
+      "mandatoryOnUse": true,
+      "mandatoryOnUseTaskIds": "R001"
+    }
+  ]
+}

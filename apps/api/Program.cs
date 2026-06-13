@@ -6,17 +6,22 @@ using K12QuestionGraph.Api.FileStore;
 using K12QuestionGraph.Api.ImportJobs;
 using K12QuestionGraph.Api.Workers;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Hosting.WindowsServices;
 using System.Globalization;
+using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseWindowsService();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddDataProtection();
 builder.Services.Configure<KqgPathsOptions>(builder.Configuration.GetSection("KqgPaths"));
 builder.Services.Configure<PythonWorkerOptions>(builder.Configuration.GetSection("PythonWorker"));
 builder.Services.Configure<AiRoutingOptions>(builder.Configuration.GetSection("AiRouting"));
@@ -32,6 +37,8 @@ builder.Services.AddScoped<IPaperWorkflowService, PaperWorkflowService>();
 builder.Services.AddScoped<IScoreAnalysisWorkflowService, ScoreAnalysisWorkflowService>();
 builder.Services.AddSingleton<IAiModelRouter, AiModelRouter>();
 builder.Services.AddSingleton<IAiProvider, StubAiProvider>();
+builder.Services.AddSingleton<IAiProviderSettingsStore, FileAiProviderSettingsStore>();
+builder.Services.AddHttpClient<IAiProviderSmokeTestService, OpenAiCompatibleSmokeTestService>();
 
 var app = builder.Build();
 
@@ -132,6 +139,37 @@ app.MapPost("/api/admin/cache/cleanup", (CacheCleanupRequest request, IConfigura
     return Results.Ok(result);
 })
 .WithName("AdminCacheCleanup");
+
+app.MapGet("/api/admin/ai/provider-settings", async (
+    IAiProviderSettingsStore settingsStore,
+    CancellationToken cancellationToken) =>
+{
+    var settings = await settingsStore.GetAsync(cancellationToken);
+    return Results.Ok(settings);
+})
+.WithName("GetAdminAiProviderSettings");
+
+app.MapPost("/api/admin/ai/provider-settings", async (
+    AdminAiProviderSettingsSaveRequest request,
+    IAiProviderSettingsStore settingsStore,
+    CancellationToken cancellationToken) =>
+{
+    var result = await settingsStore.SaveAsync(request, cancellationToken);
+    return Results.Ok(result);
+})
+.WithName("SaveAdminAiProviderSettings");
+
+app.MapPost("/api/admin/ai/provider-settings/test", async (
+    AdminAiProviderSettingsTestRequest request,
+    IAiProviderSettingsStore settingsStore,
+    IAiProviderSmokeTestService smokeTestService,
+    CancellationToken cancellationToken) =>
+{
+    var settings = await settingsStore.GetAsync(cancellationToken);
+    var result = await smokeTestService.RunAsync(settings, request, cancellationToken);
+    return Results.Ok(result);
+})
+.WithName("TestAdminAiProviderSettings");
 
 app.MapPost("/internal/ai/model-route", (AiRouteRequest request, IAiModelRouter router) =>
 {
@@ -4176,6 +4214,617 @@ public sealed record CacheCleanupResponse(
     IReadOnlyList<CacheCleanupCandidate> Candidates);
 
 public sealed record CacheCleanupCandidate(string RelativePath, long SizeBytes, DateTime LastWriteTimeUtc);
+
+public sealed record AdminAiProviderSettingsContract(
+    string Status,
+    string Mode,
+    bool ProductionEligible,
+    string ProviderProfileId,
+    string ProviderType,
+    string BaseUrl,
+    string CredentialMode,
+    string MaskedSecret,
+    bool SecretConfigured,
+    int MaxConcurrency,
+    int MonthlyBudgetCny,
+    bool DisabledByDefault,
+    bool AllowRealModelCalls,
+    string DefaultSmokeTaskType,
+    string DefaultSmokeModel,
+    string LastUpdatedAt,
+    string TeacherMessage,
+    IReadOnlyList<string> AuditTrail);
+
+public sealed record AdminAiProviderSettingsSaveRequest(
+    string ProviderProfileId,
+    string? BaseUrl,
+    string? ApiKey,
+    int MaxConcurrency,
+    int MonthlyBudgetCny,
+    bool DisabledByDefault,
+    bool AllowRealModelCalls,
+    string? DefaultSmokeTaskType,
+    string? DefaultSmokeModel,
+    string? OperatorNote);
+
+public sealed record AdminAiProviderSettingsSaveResult(
+    string Status,
+    string Mode,
+    bool ProductionEligible,
+    string ProviderProfileId,
+    bool SecretConfigured,
+    string MaskedSecret,
+    string LastUpdatedAt,
+    string TeacherMessage,
+    IReadOnlyList<string> AuditTrail);
+
+public sealed record AdminAiProviderSettingsTestRequest(
+    string TaskType,
+    string? InputJson,
+    string? Model,
+    string? BaseUrlOverride);
+
+public sealed record AdminAiProviderSettingsTestResult(
+    string Status,
+    string Mode,
+    bool ProductionEligible,
+    string ProviderProfileId,
+    string ProviderType,
+    string Model,
+    string TaskType,
+    string ReviewStatus,
+    bool Passed,
+    int HttpStatusCode,
+    string Message,
+    string OutputJson,
+    int InputTokens,
+    int OutputTokens,
+    int CachedTokens,
+    decimal Cost,
+    int LatencyMs,
+    IReadOnlyList<string> Blockers,
+    IReadOnlyList<string> AuditTrail);
+
+internal sealed record StoredAdminAiProviderSettings(
+    string SchemaVersion,
+    string ProviderProfileId,
+    string ProviderType,
+    string BaseUrl,
+    string CredentialMode,
+    string SecretCiphertext,
+    int MaxConcurrency,
+    int MonthlyBudgetCny,
+    bool DisabledByDefault,
+    bool AllowRealModelCalls,
+    string DefaultSmokeTaskType,
+    string DefaultSmokeModel,
+    DateTimeOffset UpdatedAtUtc,
+    string LastOperatorNote);
+
+public interface IAiProviderSettingsStore
+{
+    Task<AdminAiProviderSettingsContract> GetAsync(CancellationToken cancellationToken);
+    Task<AdminAiProviderSettingsSaveResult> SaveAsync(AdminAiProviderSettingsSaveRequest request, CancellationToken cancellationToken);
+    Task<string> GetPlaintextSecretAsync(CancellationToken cancellationToken);
+}
+
+public interface IAiProviderSmokeTestService
+{
+    Task<AdminAiProviderSettingsTestResult> RunAsync(
+        AdminAiProviderSettingsContract settings,
+        AdminAiProviderSettingsTestRequest request,
+        CancellationToken cancellationToken);
+}
+
+public sealed class FileAiProviderSettingsStore(
+    IConfiguration configuration,
+    IDataProtectionProvider dataProtectionProvider,
+    IWebHostEnvironment environment)
+    : IAiProviderSettingsStore
+{
+    private const string SchemaVersion = "admin-ai-provider-settings.v0.1";
+    private const string DefaultProviderProfileId = "cloud_openai_candidate";
+    private const string DefaultProviderType = "openai_compatible";
+    private const string DefaultCredentialMode = "dialog_secret_local_machine";
+    private const string DefaultSmokeTaskType = "knowledge_tagging";
+    private const string DefaultSmokeModel = "gpt-5.4-mini";
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web) { WriteIndented = true };
+    private readonly IDataProtector protector = dataProtectionProvider.CreateProtector("k12-question-graph.admin-ai-provider-settings.v0.1");
+
+    public async Task<AdminAiProviderSettingsContract> GetAsync(CancellationToken cancellationToken)
+    {
+        var settings = await LoadStoredAsync(cancellationToken);
+        return ToContract(settings);
+    }
+
+    public async Task<AdminAiProviderSettingsSaveResult> SaveAsync(
+        AdminAiProviderSettingsSaveRequest request,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var existing = await LoadStoredAsync(cancellationToken);
+        var normalizedSecret = request.ApiKey?.Trim();
+        var secretCiphertext = string.IsNullOrWhiteSpace(normalizedSecret)
+            ? existing.SecretCiphertext
+            : ProtectSecret(normalizedSecret);
+        var now = DateTimeOffset.UtcNow;
+        var stored = new StoredAdminAiProviderSettings(
+            SchemaVersion,
+            Normalize(request.ProviderProfileId, DefaultProviderProfileId),
+            DefaultProviderType,
+            NormalizeBaseUrl(request.BaseUrl),
+            DefaultCredentialMode,
+            secretCiphertext,
+            NormalizeRange(request.MaxConcurrency, 1, 8, fallback: existing.MaxConcurrency),
+            NormalizeRange(request.MonthlyBudgetCny, 0, 100000, fallback: existing.MonthlyBudgetCny),
+            request.DisabledByDefault,
+            request.AllowRealModelCalls,
+            Normalize(request.DefaultSmokeTaskType, existing.DefaultSmokeTaskType),
+            Normalize(request.DefaultSmokeModel, existing.DefaultSmokeModel),
+            now,
+            Normalize(request.OperatorNote, existing.LastOperatorNote));
+
+        Directory.CreateDirectory(Path.GetDirectoryName(GetSettingsFilePath())!);
+        await File.WriteAllTextAsync(
+            GetSettingsFilePath(),
+            JsonSerializer.Serialize(stored, JsonOptions),
+            Encoding.UTF8,
+            cancellationToken);
+
+        return new AdminAiProviderSettingsSaveResult(
+            Status: "ok",
+            Mode: "draft_test",
+            ProductionEligible: false,
+            ProviderProfileId: stored.ProviderProfileId,
+            SecretConfigured: !string.IsNullOrWhiteSpace(stored.SecretCiphertext),
+            MaskedSecret: MaskSecret(UnprotectSecret(stored.SecretCiphertext)),
+            LastUpdatedAt: stored.UpdatedAtUtc.ToString("O"),
+            TeacherMessage: "管理员 AI 设置已保存；密钥仅保留本机加密副本，试跑仍保持 pending_review。",
+            AuditTrail: [
+                "save_admin_ai_provider_settings",
+                $"provider_profile={stored.ProviderProfileId}",
+                $"allow_real_model_calls={stored.AllowRealModelCalls.ToString().ToLowerInvariant()}",
+                $"secret_configured={(!string.IsNullOrWhiteSpace(stored.SecretCiphertext)).ToString().ToLowerInvariant()}"
+            ]);
+    }
+
+    public async Task<string> GetPlaintextSecretAsync(CancellationToken cancellationToken)
+    {
+        var stored = await LoadStoredAsync(cancellationToken);
+        return UnprotectSecret(stored.SecretCiphertext);
+    }
+
+    private async Task<StoredAdminAiProviderSettings> LoadStoredAsync(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var path = GetSettingsFilePath();
+        if (!File.Exists(path))
+        {
+            return BuildDefault();
+        }
+
+        try
+        {
+            var json = await File.ReadAllTextAsync(path, cancellationToken);
+            var loaded = JsonSerializer.Deserialize<StoredAdminAiProviderSettings>(json, JsonOptions);
+            return loaded is null ? BuildDefault() : NormalizeLoaded(loaded);
+        }
+        catch
+        {
+            return BuildDefault();
+        }
+    }
+
+    private AdminAiProviderSettingsContract ToContract(StoredAdminAiProviderSettings settings)
+    {
+        var plaintextSecret = UnprotectSecret(settings.SecretCiphertext);
+        return new AdminAiProviderSettingsContract(
+            Status: "ok",
+            Mode: "draft_test",
+            ProductionEligible: false,
+            ProviderProfileId: settings.ProviderProfileId,
+            ProviderType: settings.ProviderType,
+            BaseUrl: settings.BaseUrl,
+            CredentialMode: settings.CredentialMode,
+            MaskedSecret: MaskSecret(plaintextSecret),
+            SecretConfigured: !string.IsNullOrWhiteSpace(plaintextSecret),
+            MaxConcurrency: settings.MaxConcurrency,
+            MonthlyBudgetCny: settings.MonthlyBudgetCny,
+            DisabledByDefault: settings.DisabledByDefault,
+            AllowRealModelCalls: settings.AllowRealModelCalls,
+            DefaultSmokeTaskType: settings.DefaultSmokeTaskType,
+            DefaultSmokeModel: settings.DefaultSmokeModel,
+            LastUpdatedAt: settings.UpdatedAtUtc.ToString("O"),
+            TeacherMessage: "当前为管理员级本机 AI 设置；普通教师侧仍只看到简化模式。",
+            AuditTrail: [
+                "load_admin_ai_provider_settings",
+                $"provider_profile={settings.ProviderProfileId}",
+                $"secret_configured={(!string.IsNullOrWhiteSpace(plaintextSecret)).ToString().ToLowerInvariant()}",
+                $"allow_real_model_calls={settings.AllowRealModelCalls.ToString().ToLowerInvariant()}"
+            ]);
+    }
+
+    private StoredAdminAiProviderSettings BuildDefault()
+    {
+        var defaults = LoadDefaultsFromYaml();
+        return new StoredAdminAiProviderSettings(
+            SchemaVersion,
+            DefaultProviderProfileId,
+            DefaultProviderType,
+            defaults.baseUrl,
+            DefaultCredentialMode,
+            string.Empty,
+            defaults.maxConcurrency,
+            defaults.monthlyBudgetCny,
+            true,
+            false,
+            DefaultSmokeTaskType,
+            DefaultSmokeModel,
+            DateTimeOffset.MinValue,
+            string.Empty);
+    }
+
+    private StoredAdminAiProviderSettings NormalizeLoaded(StoredAdminAiProviderSettings loaded)
+    {
+        var defaults = LoadDefaultsFromYaml();
+        return loaded with
+        {
+            ProviderProfileId = Normalize(loaded.ProviderProfileId, DefaultProviderProfileId),
+            ProviderType = Normalize(loaded.ProviderType, DefaultProviderType),
+            BaseUrl = NormalizeBaseUrl(string.IsNullOrWhiteSpace(loaded.BaseUrl) ? defaults.baseUrl : loaded.BaseUrl),
+            CredentialMode = Normalize(loaded.CredentialMode, DefaultCredentialMode),
+            MaxConcurrency = NormalizeRange(loaded.MaxConcurrency, 1, 8, defaults.maxConcurrency),
+            MonthlyBudgetCny = NormalizeRange(loaded.MonthlyBudgetCny, 0, 100000, defaults.monthlyBudgetCny),
+            DefaultSmokeTaskType = Normalize(loaded.DefaultSmokeTaskType, DefaultSmokeTaskType),
+            DefaultSmokeModel = Normalize(loaded.DefaultSmokeModel, DefaultSmokeModel),
+        };
+    }
+
+    private (string baseUrl, int maxConcurrency, int monthlyBudgetCny) LoadDefaultsFromYaml()
+    {
+        var repoRoot = Path.GetFullPath(Path.Combine(environment.ContentRootPath, "..", ".."));
+        var yamlPath = Path.Combine(repoRoot, "configs", "ai-provider-profiles.defaults.yaml");
+        if (!File.Exists(yamlPath))
+        {
+            return ("https://api.openai.com/v1", 2, 300);
+        }
+
+        try
+        {
+            var deserializer = new DeserializerBuilder()
+                .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                .IgnoreUnmatchedProperties()
+                .Build();
+            var yaml = deserializer.Deserialize<AiProviderProfilesDefaultsDocument>(File.ReadAllText(yamlPath, Encoding.UTF8));
+            var profile = yaml?.ProviderProfiles?.FirstOrDefault(x => string.Equals(x.Id, DefaultProviderProfileId, StringComparison.OrdinalIgnoreCase));
+            return (
+                profile?.BaseUrl ?? "https://api.openai.com/v1",
+                profile?.MaxConcurrency ?? 2,
+                profile?.MonthlyBudgetCny ?? 300);
+        }
+        catch
+        {
+            return ("https://api.openai.com/v1", 2, 300);
+        }
+    }
+
+    private string GetSettingsFilePath()
+    {
+        var paths = configuration.GetSection("KqgPaths").Get<KqgPathsOptions>() ?? new KqgPathsOptions();
+        var settingsRoot = Path.Combine(Path.GetFullPath(paths.DataRoot), "config", "admin");
+        return Path.Combine(settingsRoot, "ai-provider-settings.local.json");
+    }
+
+    private static string Normalize(string? value, string fallback)
+    {
+        return string.IsNullOrWhiteSpace(value) ? fallback : value.Trim();
+    }
+
+    private static int NormalizeRange(int value, int min, int max, int fallback)
+    {
+        if (value < min || value > max)
+        {
+            return fallback;
+        }
+
+        return value;
+    }
+
+    private static string NormalizeBaseUrl(string? value)
+    {
+        var normalized = Normalize(value, "https://api.openai.com/v1");
+        return normalized.TrimEnd('/');
+    }
+
+    private string ProtectSecret(string value)
+    {
+        return protector.Protect(value);
+    }
+
+    private string UnprotectSecret(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return string.Empty;
+        }
+
+        try
+        {
+            return protector.Unprotect(value);
+        }
+        catch
+        {
+            return string.Empty;
+        }
+    }
+
+    private static string MaskSecret(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return "";
+        }
+
+        var trimmed = value.Trim();
+        if (trimmed.Length <= 8)
+        {
+            return new string('*', trimmed.Length);
+        }
+
+        return $"{trimmed[..4]}****{trimmed[^4..]}";
+    }
+}
+
+public sealed class OpenAiCompatibleSmokeTestService(
+    HttpClient httpClient,
+    IAiProviderSettingsStore settingsStore,
+    IWebHostEnvironment environment)
+    : IAiProviderSmokeTestService
+{
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
+
+    public async Task<AdminAiProviderSettingsTestResult> RunAsync(
+        AdminAiProviderSettingsContract settings,
+        AdminAiProviderSettingsTestRequest request,
+        CancellationToken cancellationToken)
+    {
+        var blockers = new List<string>();
+        if (!settings.SecretConfigured)
+        {
+            blockers.Add("provider_secret_not_configured");
+        }
+
+        if (settings.DisabledByDefault)
+        {
+            blockers.Add("provider_profile_disabled_by_default");
+        }
+
+        if (!settings.AllowRealModelCalls)
+        {
+            blockers.Add("allow_real_model_calls_false");
+        }
+
+        if (blockers.Count > 0)
+        {
+            return new AdminAiProviderSettingsTestResult(
+                Status: "blocked",
+                Mode: "draft_test",
+                ProductionEligible: false,
+                ProviderProfileId: settings.ProviderProfileId,
+                ProviderType: settings.ProviderType,
+                Model: string.IsNullOrWhiteSpace(request.Model) ? settings.DefaultSmokeModel : request.Model.Trim(),
+                TaskType: NormalizeTaskType(request.TaskType, settings.DefaultSmokeTaskType),
+                ReviewStatus: "pending_review",
+                Passed: false,
+                HttpStatusCode: 0,
+                Message: "管理员 AI 设置未满足真实试跑前置条件；请启用 provider、配置密钥并明确允许 draft/test 试跑。",
+                OutputJson: "{}",
+                InputTokens: 0,
+                OutputTokens: 0,
+                CachedTokens: 0,
+                Cost: 0,
+                LatencyMs: 0,
+                Blockers: blockers,
+                AuditTrail: [
+                    "test_admin_ai_provider_settings_blocked",
+                    ..blockers
+                ]);
+        }
+
+        var secret = await settingsStore.GetPlaintextSecretAsync(cancellationToken);
+        if (string.IsNullOrWhiteSpace(secret))
+        {
+            return new AdminAiProviderSettingsTestResult(
+                Status: "blocked",
+                Mode: "draft_test",
+                ProductionEligible: false,
+                ProviderProfileId: settings.ProviderProfileId,
+                ProviderType: settings.ProviderType,
+                Model: string.IsNullOrWhiteSpace(request.Model) ? settings.DefaultSmokeModel : request.Model.Trim(),
+                TaskType: NormalizeTaskType(request.TaskType, settings.DefaultSmokeTaskType),
+                ReviewStatus: "pending_review",
+                Passed: false,
+                HttpStatusCode: 0,
+                Message: "本机密钥解密失败，未执行云试跑。",
+                OutputJson: "{}",
+                InputTokens: 0,
+                OutputTokens: 0,
+                CachedTokens: 0,
+                Cost: 0,
+                LatencyMs: 0,
+                Blockers: ["provider_secret_unavailable"],
+                AuditTrail: [ "test_admin_ai_provider_settings_secret_unavailable" ]);
+        }
+
+        var taskType = NormalizeTaskType(request.TaskType, settings.DefaultSmokeTaskType);
+        var schema = LoadSchemaForTaskType(taskType);
+        var payload = new
+        {
+            model = NormalizeModel(request.Model, settings.DefaultSmokeModel),
+            store = false,
+            input = NormalizeInputJson(request.InputJson, taskType),
+            text = new
+            {
+                format = new
+                {
+                    type = "json_schema",
+                    name = $"{taskType}_smoke_result",
+                    strict = true,
+                    schema
+                }
+            }
+        };
+
+        using var message = new HttpRequestMessage(HttpMethod.Post, $"{NormalizeBaseUrl(request.BaseUrlOverride, settings.BaseUrl)}/responses");
+        message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", secret);
+        message.Content = new StringContent(JsonSerializer.Serialize(payload, JsonOptions), Encoding.UTF8, "application/json");
+
+        var startedAt = DateTimeOffset.UtcNow;
+        try
+        {
+            using var response = await httpClient.SendAsync(message, cancellationToken);
+            var body = await response.Content.ReadAsStringAsync(cancellationToken);
+            var latencyMs = (int)Math.Max(1, (DateTimeOffset.UtcNow - startedAt).TotalMilliseconds);
+            var parsed = ParseSmokeResponse(body);
+            return new AdminAiProviderSettingsTestResult(
+                Status: response.IsSuccessStatusCode ? "ok" : "failed",
+                Mode: "draft_test",
+                ProductionEligible: false,
+                ProviderProfileId: settings.ProviderProfileId,
+                ProviderType: settings.ProviderType,
+                Model: NormalizeModel(request.Model, settings.DefaultSmokeModel),
+                TaskType: taskType,
+                ReviewStatus: "pending_review",
+                Passed: response.IsSuccessStatusCode,
+                HttpStatusCode: (int)response.StatusCode,
+                Message: response.IsSuccessStatusCode ? "结构化 smoke 试跑完成；结果仅作 pending_review 候选验证。" : $"云试跑失败：HTTP {(int)response.StatusCode}",
+                OutputJson: parsed.outputJson,
+                InputTokens: parsed.inputTokens,
+                OutputTokens: parsed.outputTokens,
+                CachedTokens: parsed.cachedTokens,
+                Cost: 0,
+                LatencyMs: latencyMs,
+                Blockers: [],
+                AuditTrail: [
+                    "test_admin_ai_provider_settings",
+                    $"task_type={taskType}",
+                    $"http_status={(int)response.StatusCode}",
+                    "review_status=pending_review"
+                ]);
+        }
+        catch (Exception ex)
+        {
+            return new AdminAiProviderSettingsTestResult(
+                Status: "failed",
+                Mode: "draft_test",
+                ProductionEligible: false,
+                ProviderProfileId: settings.ProviderProfileId,
+                ProviderType: settings.ProviderType,
+                Model: NormalizeModel(request.Model, settings.DefaultSmokeModel),
+                TaskType: taskType,
+                ReviewStatus: "pending_review",
+                Passed: false,
+                HttpStatusCode: 0,
+                Message: $"云试跑异常：{ex.Message}",
+                OutputJson: "{}",
+                InputTokens: 0,
+                OutputTokens: 0,
+                CachedTokens: 0,
+                Cost: 0,
+                LatencyMs: (int)Math.Max(1, (DateTimeOffset.UtcNow - startedAt).TotalMilliseconds),
+                Blockers: ["provider_request_failed"],
+                AuditTrail: [
+                    "test_admin_ai_provider_settings_exception",
+                    "provider_request_failed"
+                ]);
+        }
+    }
+
+    private static string NormalizeTaskType(string? value, string fallback) =>
+        string.IsNullOrWhiteSpace(value) ? fallback : value.Trim();
+
+    private static string NormalizeModel(string? value, string fallback) =>
+        string.IsNullOrWhiteSpace(value) ? fallback : value.Trim();
+
+    private static string NormalizeBaseUrl(string? overrideValue, string fallback)
+    {
+        var source = string.IsNullOrWhiteSpace(overrideValue) ? fallback : overrideValue.Trim();
+        return source.TrimEnd('/');
+    }
+
+    private static string NormalizeInputJson(string? value, string taskType)
+    {
+        if (!string.IsNullOrWhiteSpace(value))
+        {
+            return value;
+        }
+
+        return taskType switch
+        {
+            "question_extraction" => "请根据题目图片 OCR 文本，输出结构化题目草稿。",
+            "natural_language_paper_request" => "请把这段教师组卷需求解析成结构化蓝图。",
+            "answer_verification" => "请独立校验一道物理题答案与解析是否一致。",
+            _ => "请给出初中物理知识点映射候选，并保留人工复核边界。"
+        };
+    }
+
+    private JsonDocument LoadSchemaForTaskType(string taskType)
+    {
+        var repoRoot = Path.GetFullPath(Path.Combine(environment.ContentRootPath, "..", ".."));
+        var schemaRelativePath = taskType switch
+        {
+            "question_extraction" => Path.Combine("schemas", "ai", "question_extraction.schema.json"),
+            "natural_language_paper_request" => Path.Combine("schemas", "ai", "natural_language_paper_request.schema.json"),
+            "answer_verification" => Path.Combine("schemas", "ai", "answer_verification.schema.json"),
+            _ => Path.Combine("schemas", "ai", "knowledge_mapping.schema.json")
+        };
+        var schemaText = File.ReadAllText(Path.Combine(repoRoot, schemaRelativePath), Encoding.UTF8);
+        return JsonDocument.Parse(schemaText);
+    }
+
+    private static (string outputJson, int inputTokens, int outputTokens, int cachedTokens) ParseSmokeResponse(string body)
+    {
+        try
+        {
+            using var document = JsonDocument.Parse(body);
+            var root = document.RootElement;
+            var usage = root.TryGetProperty("usage", out var usageElement) ? usageElement : default;
+            var inputTokens = usage.ValueKind == JsonValueKind.Object && usage.TryGetProperty("input_tokens", out var inputTokenElement)
+                ? inputTokenElement.GetInt32()
+                : 0;
+            var outputTokens = usage.ValueKind == JsonValueKind.Object && usage.TryGetProperty("output_tokens", out var outputTokenElement)
+                ? outputTokenElement.GetInt32()
+                : 0;
+            var cachedTokens = usage.ValueKind == JsonValueKind.Object &&
+                usage.TryGetProperty("input_tokens_details", out var detailsElement) &&
+                detailsElement.TryGetProperty("cached_tokens", out var cachedTokenElement)
+                ? cachedTokenElement.GetInt32()
+                : 0;
+            var outputJson = root.TryGetProperty("output_text", out var outputTextElement)
+                ? outputTextElement.GetString() ?? "{}"
+                : body;
+            return (outputJson, inputTokens, outputTokens, cachedTokens);
+        }
+        catch
+        {
+            return (body, 0, 0, 0);
+        }
+    }
+}
+
+internal sealed class AiProviderProfilesDefaultsDocument
+{
+    public List<AiProviderProfilesDefaultsProfile>? ProviderProfiles { get; init; }
+}
+
+internal sealed class AiProviderProfilesDefaultsProfile
+{
+    public string? Id { get; init; }
+    public string? BaseUrl { get; init; }
+    public int? MaxConcurrency { get; init; }
+    public int? MonthlyBudgetCny { get; init; }
+}
 
 public sealed record SourceRegionCreateRequest(
     int PageNumber,

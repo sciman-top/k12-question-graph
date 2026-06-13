@@ -59,6 +59,7 @@
 - PID 与日志写入 `logs/dev-api/`
 - 优先读取本机 `KQG_CONNECTION_STRING`
 - 若未提供连接串，则回退到 `PGPASSWORD` / 脚本参数拼接本地 PostgreSQL 连接
+- 2026-06-09 起，`tools/run-gates.ps1` 若检测到这个标准本地 API 正在占用默认 Release 输出，会在 full gate 期间自动暂停并在结束后恢复，不再要求人工先停后启
 
 若完全没有数据库凭据，脚本会直接报错，而不是假启动。
 

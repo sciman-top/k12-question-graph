@@ -8,6 +8,7 @@
 - ASP.NET Core hosted services: https://learn.microsoft.com/aspnet/core/fundamentals/host/hosted-services?view=aspnetcore-10.0
 - ASP.NET Core Windows Service hosting: https://learn.microsoft.com/aspnet/core/host-and-deploy/windows-service?view=aspnetcore-10.0
 - ASP.NET Core Docs GitHub: https://github.com/dotnet/AspNetCore.Docs
+- PowerShell Docs GitHub: https://github.com/MicrosoftDocs/PowerShell-Docs
 - EF Core Docs GitHub: https://github.com/dotnet/EntityFramework.Docs
 - Npgsql docs GitHub: https://github.com/npgsql/doc
 - Open XML SDK GitHub: https://github.com/dotnet/Open-XML-SDK
@@ -15,12 +16,15 @@
 - OpenAI Prompt Caching: https://platform.openai.com/docs/guides/prompt-caching
 - OpenAI Batch API: https://platform.openai.com/docs/guides/batch
 - OpenAI Evals API: https://platform.openai.com/docs/api-reference/evals/create
+- OpenAI .NET SDK: https://github.com/openai/openai-dotnet
+- OpenAI Python SDK: https://github.com/openai/openai-python
 - OpenAI Cookbook: https://github.com/openai/openai-cookbook
 - ASP.NET Core documentation: https://learn.microsoft.com/en-us/aspnet/core/
 - Open XML SDK: https://learn.microsoft.com/en-us/office/open-xml/open-xml-sdk
 - OfficeMath / OMML: https://learn.microsoft.com/en-us/dotnet/api/documentformat.openxml.math.officemath
 - React TypeScript guide: https://react.dev/learn/typescript
 - React docs GitHub: https://github.com/reactjs/react.dev
+- Playwright GitHub: https://github.com/microsoft/playwright
 - Vite getting started: https://vite.dev/guide/
 - Vite GitHub: https://github.com/vitejs/vite
 - Ant Design React introduction: https://ant.design/docs/react/introduce/
@@ -28,6 +32,7 @@
 - TanStack Query React overview: https://tanstack.com/query/latest/docs/react/overview
 - TanStack Query GitHub: https://github.com/TanStack/query
 - React Router: https://reactrouter.com/_docs/home
+- React Router GitHub: https://github.com/remix-run/react-router
 - PostgreSQL current documentation: https://www.postgresql.org/docs/current/
 - PostgreSQL pg_dump: https://www.postgresql.org/docs/current/app-pgdump.html
 - PostgreSQL PITR/WAL: https://www.postgresql.org/docs/current/continuous-archiving.html

@@ -1,6 +1,6 @@
 # 103 · 执行总控板
 
-日期：2026-06-06。
+日期：2026-06-09。
 
 ## 1. 判断
 
@@ -15,7 +15,9 @@ AI 推荐：当前唯一主目标不是继续扩能力面，而是把 `P001 -> P
 | 用途 | 单一入口 | 说明 |
 |---|---|---|
 | 当前对外完成态 | `tasks/completion-state-dashboard.csv` | 对外只引用这里，不只引用 backlog 的 `已完成` |
+| 本地联调运行模型 | `docs/113_LocalRuntimeOperations_20260609.md` | 决定 Web/API 怎么启动、重启、判断 ready 和排查 |
 | 主线顺序与依赖 | `tasks/backlog.csv` | 决定先做什么、后做什么 |
+| 高风险任务参考依据 | `tasks/reference-basis-requirements.csv` | 决定哪些架构/运维/OCR/AI/搜索/互操作/发布任务必须先补官方与本地参考锚点 |
 | 非现场产品化与运行形态 | `tasks/non-site-implementation-plan.csv` | 决定 NS0-NS13 的实现顺序和证据 |
 | 产品化闭环拆解 | `tasks/productization-roadmap.csv` / `tasks/productization-s0-execution-plan.csv` | 决定 S0 子任务归宿 |
 | 现场 closeout 拆解 | `tasks/live-pilot-closeout-plan.csv` | 决定 `REAL005` 与 `P001/P003/P005/P006` 的最小关闭步骤 |
@@ -30,6 +32,9 @@ AI 推荐：当前唯一主目标不是继续扩能力面，而是把 `P001 -> P
 |---|---|---|---|
 | `P001` readiness | 把非现场闭环变成现场前置包，而不是聊天判断 | 只剩隔离机、现场教师、打印、权限域、真实网络阻断项 | 发布负责人 + 试点支持负责人 |
 | `P005/P006` 发布裁决 | 形成可签字的 go / no-go 卡，而不是只有 preflight | `P005` 反馈分流完成，`P006` 发布卡留痕，回滚和 tag candidate 策略明确 | 产品负责人 + 发布负责人 + 数据责任方代表 |
+
+当前 repo-side closeout 一致性已由 `tools/run-live-pilot-closeout-plan-guard.ps1` 覆盖；最新证据为 `docs/evidence/20260609-live-pilot-closeout-plan-guard.json` / `.md`。它只能证明 closeout 计划、backlog 和入口文档同步，不替代任何现场事实。
+同日新增的 `reference-basis` 硬门禁已把 `P005/P006` 纳入强制参考范围，避免反馈分流、发布卡、回滚策略和 tag candidate 口径只凭聊天记忆或单次现场印象被改写。
 
 ### Next
 

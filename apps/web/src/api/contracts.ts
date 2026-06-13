@@ -335,6 +335,61 @@ export interface CommentaryReportExportContract {
   auditTrail: string[]
 }
 
+export interface AdminAiProviderSettingsContract {
+  status: string
+  mode: string
+  productionEligible: boolean
+  providerProfileId: string
+  providerType: string
+  baseUrl: string
+  credentialMode: string
+  maskedSecret: string
+  secretConfigured: boolean
+  maxConcurrency: number
+  monthlyBudgetCny: number
+  disabledByDefault: boolean
+  allowRealModelCalls: boolean
+  defaultSmokeTaskType: string
+  defaultSmokeModel: string
+  lastUpdatedAt: string
+  teacherMessage: string
+  auditTrail: string[]
+}
+
+export interface AdminAiProviderSettingsSaveContract {
+  status: string
+  mode: string
+  productionEligible: boolean
+  providerProfileId: string
+  secretConfigured: boolean
+  maskedSecret: string
+  lastUpdatedAt: string
+  teacherMessage: string
+  auditTrail: string[]
+}
+
+export interface AdminAiProviderSettingsTestContract {
+  status: string
+  mode: string
+  productionEligible: boolean
+  providerProfileId: string
+  providerType: string
+  model: string
+  taskType: string
+  reviewStatus: string
+  passed: boolean
+  httpStatusCode: number
+  message: string
+  outputJson: string
+  inputTokens: number
+  outputTokens: number
+  cachedTokens: number
+  cost: number
+  latencyMs: number
+  blockers: string[]
+  auditTrail: string[]
+}
+
 function readStringField(value: unknown, field: string): string | undefined {
   if (!value || typeof value !== 'object' || !(field in value)) {
     return undefined
@@ -804,6 +859,73 @@ export function normalizeCommentaryReportExportResponse(
       codes: readArrayField(issue, 'codes').map(String),
     })),
     teacherMessage: readStringField(value, 'teacherMessage') ?? '',
+    auditTrail: readArrayField(value, 'auditTrail').map(String),
+  }
+}
+
+export function normalizeAdminAiProviderSettingsResponse(
+  value: unknown,
+): AdminAiProviderSettingsContract {
+  return {
+    status: readStringField(value, 'status') ?? 'unknown',
+    mode: readStringField(value, 'mode') ?? 'unknown',
+    productionEligible: readBooleanField(value, 'productionEligible'),
+    providerProfileId: readStringField(value, 'providerProfileId') ?? '',
+    providerType: readStringField(value, 'providerType') ?? '',
+    baseUrl: readStringField(value, 'baseUrl') ?? '',
+    credentialMode: readStringField(value, 'credentialMode') ?? '',
+    maskedSecret: readStringField(value, 'maskedSecret') ?? '',
+    secretConfigured: readBooleanField(value, 'secretConfigured'),
+    maxConcurrency: readNumberField(value, 'maxConcurrency'),
+    monthlyBudgetCny: readNumberField(value, 'monthlyBudgetCny'),
+    disabledByDefault: readBooleanField(value, 'disabledByDefault'),
+    allowRealModelCalls: readBooleanField(value, 'allowRealModelCalls'),
+    defaultSmokeTaskType: readStringField(value, 'defaultSmokeTaskType') ?? '',
+    defaultSmokeModel: readStringField(value, 'defaultSmokeModel') ?? '',
+    lastUpdatedAt: readStringField(value, 'lastUpdatedAt') ?? '',
+    teacherMessage: readStringField(value, 'teacherMessage') ?? '',
+    auditTrail: readArrayField(value, 'auditTrail').map(String),
+  }
+}
+
+export function normalizeAdminAiProviderSettingsSaveResponse(
+  value: unknown,
+): AdminAiProviderSettingsSaveContract {
+  return {
+    status: readStringField(value, 'status') ?? 'unknown',
+    mode: readStringField(value, 'mode') ?? 'unknown',
+    productionEligible: readBooleanField(value, 'productionEligible'),
+    providerProfileId: readStringField(value, 'providerProfileId') ?? '',
+    secretConfigured: readBooleanField(value, 'secretConfigured'),
+    maskedSecret: readStringField(value, 'maskedSecret') ?? '',
+    lastUpdatedAt: readStringField(value, 'lastUpdatedAt') ?? '',
+    teacherMessage: readStringField(value, 'teacherMessage') ?? '',
+    auditTrail: readArrayField(value, 'auditTrail').map(String),
+  }
+}
+
+export function normalizeAdminAiProviderSettingsTestResponse(
+  value: unknown,
+): AdminAiProviderSettingsTestContract {
+  return {
+    status: readStringField(value, 'status') ?? 'unknown',
+    mode: readStringField(value, 'mode') ?? 'unknown',
+    productionEligible: readBooleanField(value, 'productionEligible'),
+    providerProfileId: readStringField(value, 'providerProfileId') ?? '',
+    providerType: readStringField(value, 'providerType') ?? '',
+    model: readStringField(value, 'model') ?? '',
+    taskType: readStringField(value, 'taskType') ?? '',
+    reviewStatus: readStringField(value, 'reviewStatus') ?? '',
+    passed: readBooleanField(value, 'passed'),
+    httpStatusCode: readNumberField(value, 'httpStatusCode'),
+    message: readStringField(value, 'message') ?? '',
+    outputJson: readStringField(value, 'outputJson') ?? '',
+    inputTokens: readNumberField(value, 'inputTokens'),
+    outputTokens: readNumberField(value, 'outputTokens'),
+    cachedTokens: readNumberField(value, 'cachedTokens'),
+    cost: readNumberField(value, 'cost'),
+    latencyMs: readNumberField(value, 'latencyMs'),
+    blockers: readArrayField(value, 'blockers').map(String),
     auditTrail: readArrayField(value, 'auditTrail').map(String),
   }
 }

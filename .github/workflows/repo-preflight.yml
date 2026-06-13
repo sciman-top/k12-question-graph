@@ -1,0 +1,72 @@
+name: repo-preflight
+
+permissions:
+  contents: read
+
+on:
+  push:
+    paths:
+      - 'README.md'
+      - 'apps/**'
+      - 'configs/**'
+      - 'docs/**'
+      - 'global.json'
+      - 'schemas/**'
+      - 'sources/**'
+      - 'tasks/**'
+      - 'tools/**'
+      - 'workers/**'
+      - '.github/workflows/repo-preflight.yml'
+  pull_request:
+    paths:
+      - 'README.md'
+      - 'apps/**'
+      - 'configs/**'
+      - 'docs/**'
+      - 'global.json'
+      - 'schemas/**'
+      - 'sources/**'
+      - 'tasks/**'
+      - 'tools/**'
+      - 'workers/**'
+      - '.github/workflows/repo-preflight.yml'
+  workflow_dispatch:
+
+jobs:
+  preflight:
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Run repo preflight
+        shell: pwsh
+        run: >
+          .\tools\run-repo-preflight.ps1
+          -Mode Ci
+          -InstallFrontendDependencies
+          -ReportRoot tmp\ci\repo-preflight
+          -JsonReportPath tmp\ci\repo-preflight-report.json
+
+      - name: Upload preflight report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: repo-preflight-report
+          path: |
+            tmp/ci/repo-preflight-report.json
+            tmp/ci/repo-preflight/**
+          if-no-files-found: error

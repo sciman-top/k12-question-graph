@@ -1,6 +1,6 @@
 # 110 · 工程终态对照清单
 
-日期：2026-06-06。
+日期：2026-06-09。
 
 用途：给后续评审、扩范围、换栈、引新工具时快速对照，避免每次重读长评审。
 
@@ -19,6 +19,7 @@
 - `AI as candidate/draft pipeline only`
 - `profile-map-first interoperability`
 - `backup / restore / upgrade / release evidence before live`
+- `automation-first + reference-basis + live-closeout guards`
 
 ## 2. 默认先问自己
 
@@ -27,6 +28,7 @@
 3. 它是否削弱了备份、恢复、回滚或审计能力？
 4. 它是否把外部标准、第三方工具或 AI 输出直接污染内部主模型？
 5. 它是否有真实 benchmark、真实现场约束变化或真实对接需求支撑？
+6. 若它属于高风险任务，`tasks/reference-basis-requirements.csv` 是否已经绑定了官方与本地参考锚点？
 
 只要有一项回答不清，就不应默认进入主线。
 

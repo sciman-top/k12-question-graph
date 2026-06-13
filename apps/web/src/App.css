@@ -48,6 +48,34 @@
   display: none;
 }
 
+.admin-workspace.is-open {
+  display: grid;
+  gap: 20px;
+  max-width: 1560px;
+  width: 100%;
+  margin: 0 auto 36px;
+  padding: 0 28px 36px;
+  box-sizing: border-box;
+}
+
+.admin-workspace.is-open > * {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.admin-workspace.is-open .service-control-panel,
+.admin-workspace.is-open .ai-routing-panel,
+.admin-workspace.is-open .admin-knowledge-panel,
+.admin-workspace.is-open .activation-panel,
+.admin-workspace.is-open .knowledge-health-panel,
+.admin-workspace.is-open .storage-panel,
+.admin-workspace.is-open .source-material-panel,
+.admin-workspace.is-open .review-panel,
+.admin-workspace.is-open .guardrail-panel {
+  display: block;
+}
+
 .primary-panel,
 .status-panel,
 .question-panel,
@@ -518,6 +546,30 @@
   flex-wrap: wrap;
   gap: 10px;
   margin-top: 16px;
+}
+
+.ai-provider-settings-card {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  margin-top: 18px;
+  padding: 16px;
+}
+
+.ai-smoke-output {
+  margin: 0;
+  max-height: 240px;
+  overflow: auto;
+  border-radius: 8px;
+  background: #f5f7f6;
+  color: #1b2d26;
+  padding: 12px;
+  font-size: 12px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .paper-workbench-panel {

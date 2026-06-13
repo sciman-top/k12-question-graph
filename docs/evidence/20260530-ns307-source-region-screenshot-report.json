@@ -1,13 +1,13 @@
 {
   "status": "pass",
   "taskId": "NS307",
-  "checkedAt": "2026-06-09T01:44:07",
+  "checkedAt": "2026-06-11T21:59:39",
   "mode": "s006c_source_review_screenshot_path_wrapper",
   "productionEligible": false,
   "dependency": {
     "task": "S006C",
     "report": "docs/evidence/20260506-s006c-source-review-closure-smoke-report.json",
-    "questionId": "0a9c8056-6b40-4507-9989-f7ee4836a23b"
+    "questionId": "cc35ee01-27d8-41bb-9fb7-782a60120469"
   },
   "sourceRegion": {
     "sourceRegionCount": 1,

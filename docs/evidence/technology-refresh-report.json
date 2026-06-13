@@ -2,7 +2,7 @@
   "status": "pass",
   "task": "O008",
   "mode": "report_only",
-  "checkedAt": "2026-06-09T02:13:12",
+  "checkedAt": "2026-06-11T22:29:48",
   "sources": {
     "path": "configs/technology-refresh.sources.yaml",
     "sourceTierCount": 4,

@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS802",
-  "checkedAt": "2026-06-09T01:52:43",
+  "checkedAt": "2026-06-11T22:06:32",
   "mode": "isolated_restore_drill",
   "productionEligible": false,
   "externalAiCalls": 0,
@@ -12,11 +12,11 @@
     "ns801": "docs/evidence/20260530-ns801-backup-manifest-report.json"
   },
   "restore": {
-    "sourceManifest": "tmp/ns801-backups/20260609-014758/manifest.json",
+    "sourceManifest": "tmp/ns801-backups/20260611-220336/manifest.json",
     "isolatedRoot": "tmp/ns802-restore",
     "databaseRestorePlan": "tmp/ns802-restore/database/database.restore-plan.txt",
     "databaseSchemaOnlySql": "tmp/ns802-restore/database/database.schema-only.sql",
-    "fileStoreRestoredCount": 19140,
+    "fileStoreRestoredCount": 19727,
     "configRestoredCount": 3,
     "templateRestoredCount": 4,
     "evidenceRestoredCount": 6

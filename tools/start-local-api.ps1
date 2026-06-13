@@ -20,6 +20,9 @@ $logRoot = Join-Path $repoRoot 'logs\dev-api'
 $pidPath = Join-Path $logRoot 'api.pid'
 $stdoutPath = Join-Path $logRoot 'api.out.log'
 $stderrPath = Join-Path $logRoot 'api.err.log'
+$apiBinaryDirectory = Join-Path $repoRoot "apps\api\bin\$Configuration\net10.0"
+$apiDllPath = Join-Path $apiBinaryDirectory 'K12QuestionGraph.Api.dll'
+$apiContentRoot = Join-Path $repoRoot 'apps\api'
 
 . (Join-Path $PSScriptRoot 'database-env.ps1')
 
@@ -36,6 +39,18 @@ function Get-ListenerProcess {
     }
 
     return Get-Process -Id $connection.OwningProcess -ErrorAction SilentlyContinue
+}
+
+function Get-RepoApiProcesses {
+    $processes = Get-CimInstance Win32_Process -ErrorAction SilentlyContinue | Where-Object {
+        ($_.Name -eq 'dotnet.exe' -or $_.Name -eq 'K12QuestionGraph.Api.exe') -and
+        $_.CommandLine -like '*K12QuestionGraph.Api*' -and
+        $_.CommandLine -like '*k12-question-graph*'
+    }
+
+    foreach ($process in $processes) {
+        Get-Process -Id $process.ProcessId -ErrorAction SilentlyContinue
+    }
 }
 
 function Test-ApiReady {
@@ -59,8 +74,32 @@ function Stop-ApiServer {
         Start-Sleep -Milliseconds 500
     }
 
+    $repoProcesses = Get-RepoApiProcesses | Where-Object { $null -ne $_ }
+    foreach ($process in $repoProcesses) {
+        if ($null -ne $listener -and $process.Id -eq $listener.Id) {
+            continue
+        }
+
+        Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+    }
+
+    if ($repoProcesses.Count -gt 0) {
+        Start-Sleep -Milliseconds 500
+    }
+
     if (Test-Path -LiteralPath $pidPath) {
         Remove-Item -LiteralPath $pidPath -Force
+    }
+}
+
+function Ensure-ApiBinary {
+    if (Test-Path -LiteralPath $apiDllPath) {
+        return
+    }
+
+    dotnet build apps\api\K12QuestionGraph.Api.csproj -c $Configuration | Write-Host
+    if ($LASTEXITCODE -ne 0) {
+        throw "dotnet build failed while preparing local API binary"
     }
 }
 
@@ -147,6 +186,7 @@ $previousConnectionString = $env:KQG_CONNECTION_STRING
 $previousEnvironment = $env:ASPNETCORE_ENVIRONMENT
 
 try {
+    Ensure-ApiBinary
     $env:KQG_CONNECTION_STRING = $resolvedConnectionString
     $env:ASPNETCORE_ENVIRONMENT = $Environment
 
@@ -156,16 +196,11 @@ try {
     $process = Start-Process `
         -FilePath 'dotnet' `
         -ArgumentList @(
-            'run',
-            '--project',
-            'apps\api\K12QuestionGraph.Api.csproj',
-            '-c',
-            $Configuration,
-            '--no-build',
-            '--no-launch-profile',
-            '--',
+            $apiDllPath,
             '--urls',
-            $url
+            $url,
+            '--contentRoot',
+            $apiContentRoot
         ) `
         -WorkingDirectory $repoRoot `
         -PassThru `

@@ -14,6 +14,7 @@ $logRoot = Join-Path $repoRoot 'logs\dev-web'
 $pidPath = Join-Path $logRoot 'vite.pid'
 $stdoutPath = Join-Path $logRoot 'vite.out.log'
 $stderrPath = Join-Path $logRoot 'vite.err.log'
+$viteShimPath = Join-Path $webRoot 'node_modules\.bin\vite.cmd'
 
 function Get-ListenerProcess {
     param(
@@ -54,6 +55,10 @@ function Stop-WebServer {
     if (Test-Path -LiteralPath $pidPath) {
         Remove-Item -LiteralPath $pidPath -Force
     }
+}
+
+function Test-WebToolchainReady {
+    return (Test-Path -LiteralPath $viteShimPath)
 }
 
 New-Item -ItemType Directory -Path $logRoot -Force | Out-Null
@@ -107,7 +112,10 @@ if (-not (Test-Path -LiteralPath (Join-Path $webRoot 'package.json'))) {
     throw "Web package.json not found: $webRoot"
 }
 
-if (-not (Test-Path -LiteralPath (Join-Path $webRoot 'node_modules'))) {
+if (
+    -not (Test-Path -LiteralPath (Join-Path $webRoot 'node_modules')) -or
+    -not (Test-WebToolchainReady)
+) {
     Push-Location $webRoot
     try {
         npm ci
@@ -121,8 +129,6 @@ Set-Content -LiteralPath $stdoutPath -Value ''
 Set-Content -LiteralPath $stderrPath -Value ''
 
 $arguments = @(
-    '/c',
-    'npm',
     'run',
     'dev',
     '--',
@@ -134,7 +140,7 @@ $arguments = @(
 )
 
 $process = Start-Process `
-    -FilePath 'cmd.exe' `
+    -FilePath 'npm.cmd' `
     -ArgumentList $arguments `
     -WorkingDirectory $webRoot `
     -PassThru `

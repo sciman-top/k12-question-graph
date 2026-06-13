@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS104",
-  "checkedAt": "2026-06-09T01:42:00",
+  "checkedAt": "2026-06-11T21:57:48",
   "mode": "static_architecture_guard_plus_build",
   "productionEligible": false,
   "build": {
@@ -17,7 +17,7 @@
   "serviceBackedEndpoints": [
     {
       "route": "/source-documents/{id:guid}/cut-candidates/generate",
-      "line": 1281,
+      "line": 1319,
       "requiredService": "ICutCandidateGenerationService",
       "serviceInjected": true,
       "directDbContext": false,
@@ -31,7 +31,7 @@
     },
     {
       "route": "/score-imports",
-      "line": 2735,
+      "line": 2773,
       "requiredService": "IScoreAnalysisWorkflowService",
       "serviceInjected": true,
       "directDbContext": false,
@@ -45,7 +45,7 @@
     },
     {
       "route": "/assessments/{assessmentId:guid}/item-score-mappings/preview",
-      "line": 2775,
+      "line": 2813,
       "requiredService": "IScoreAnalysisWorkflowService",
       "serviceInjected": true,
       "directDbContext": false,
@@ -59,7 +59,7 @@
     },
     {
       "route": "/assessments/{assessmentId:guid}/commentary-report/export",
-      "line": 2797,
+      "line": 2835,
       "requiredService": "IScoreAnalysisWorkflowService",
       "serviceInjected": true,
       "directDbContext": false,
@@ -73,7 +73,7 @@
     },
     {
       "route": "/paper-baskets/{id:guid}/export-preflight",
-      "line": 2824,
+      "line": 2862,
       "requiredService": "IPaperWorkflowService",
       "serviceInjected": true,
       "directDbContext": false,
@@ -87,7 +87,7 @@
     },
     {
       "route": "/paper-requests/parse",
-      "line": 2843,
+      "line": 2881,
       "requiredService": "IPaperWorkflowService",
       "serviceInjected": true,
       "directDbContext": false,
@@ -101,7 +101,7 @@
     },
     {
       "route": "/paper-blueprints",
-      "line": 2872,
+      "line": 2910,
       "requiredService": "IPaperWorkflowService",
       "serviceInjected": true,
       "directDbContext": false,
@@ -115,7 +115,7 @@
     },
     {
       "route": "/paper-blueprints/{id:guid}/confirm",
-      "line": 2891,
+      "line": 2929,
       "requiredService": "IPaperWorkflowService",
       "serviceInjected": true,
       "directDbContext": false,
@@ -129,7 +129,7 @@
     },
     {
       "route": "/paper-requests/replace-question",
-      "line": 2927,
+      "line": 2965,
       "requiredService": "IPaperWorkflowService",
       "serviceInjected": true,
       "directDbContext": false,
@@ -143,7 +143,7 @@
     },
     {
       "route": "/knowledge-version-explanations/resolve",
-      "line": 2989,
+      "line": 3027,
       "requiredService": "IPaperWorkflowService",
       "serviceInjected": true,
       "directDbContext": false,
@@ -160,7 +160,7 @@
   "legacyDirectDbEndpointDebt": [
     {
       "route": "/imports",
-      "line": 804,
+      "line": 842,
       "directDbContext": true,
       "saveChangesInEndpoint": true,
       "owner": "NS301/NS401 import source service extraction",
@@ -168,7 +168,7 @@
     },
     {
       "route": "/imports/{id:guid}",
-      "line": 854,
+      "line": 892,
       "directDbContext": true,
       "saveChangesInEndpoint": false,
       "owner": "NS301/NS401 import source service extraction",
@@ -176,7 +176,7 @@
     },
     {
       "route": "/review-queue",
-      "line": 1328,
+      "line": 1366,
       "directDbContext": true,
       "saveChangesInEndpoint": false,
       "owner": "NS402/NS403 review API/workbench",
@@ -184,7 +184,7 @@
     },
     {
       "route": "/review-queue/batch-resolve",
-      "line": 1368,
+      "line": 1406,
       "directDbContext": true,
       "saveChangesInEndpoint": true,
       "owner": "NS402/NS403 review API/workbench",
@@ -192,7 +192,7 @@
     },
     {
       "route": "/review-queue/{id:guid}/resolve",
-      "line": 1426,
+      "line": 1464,
       "directDbContext": true,
       "saveChangesInEndpoint": true,
       "owner": "NS402/NS403 review API/workbench",
@@ -200,7 +200,7 @@
     },
     {
       "route": "/review-workbench/actions",
-      "line": 1469,
+      "line": 1507,
       "directDbContext": true,
       "saveChangesInEndpoint": true,
       "owner": "NS402/NS403 review API/workbench",
@@ -208,7 +208,7 @@
     },
     {
       "route": "/paper-baskets",
-      "line": 2622,
+      "line": 2660,
       "directDbContext": true,
       "saveChangesInEndpoint": true,
       "owner": "NS603 paper basket legacy compatibility",
@@ -216,7 +216,7 @@
     },
     {
       "route": "/paper-baskets/{id:guid}",
-      "line": 2714,
+      "line": 2752,
       "directDbContext": true,
       "saveChangesInEndpoint": false,
       "owner": "NS603 paper basket legacy compatibility",

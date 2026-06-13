@@ -1,0 +1,364 @@
+{
+  "status": "pass_with_parallel_drift",
+  "checkedAt": "2026-06-11T21:20:23",
+  "repoRoot": "D:\\CODE\\k12-question-graph",
+  "recommendation": "本次主线已可单独识别，但提交或交接时应只挑选 dedicated/shared/evidence 清单，不要混入并行脏改动或临时产物。",
+  "dedicatedSlicePaths": [
+    ".github/workflows/repo-preflight.yml",
+    "sources/reference-shelf.manifest.snapshot.json",
+    "tasks/reference-basis-module-map.csv",
+    "tasks/reference-basis-requirements.csv",
+    "tools/run-reference-basis-guard.ps1",
+    "tools/run-repo-preflight.ps1",
+    "tools/run-reference-basis-closeout-report.ps1",
+    "tools/sync-reference-shelf-snapshot.ps1"
+  ],
+  "sharedTouchpointPaths": [
+    "README.md",
+    "docs/26_References.md",
+    "docs/111_ProjectNavigationOverview.md",
+    "sources/references.md",
+    "tools/README.md",
+    "tools/run-gates.ps1"
+  ],
+  "retainedEvidencePaths": [
+    "docs/evidence/20260609-reference-basis-guard.json",
+    "docs/evidence/20260609-reference-basis-guard.md"
+  ],
+  "generatedThisRunPaths": [
+    "docs/evidence/20260611-reference-basis-preflight-closeout.json",
+    "docs/evidence/20260611-reference-basis-preflight-closeout.md"
+  ],
+  "temporaryDirtyPatterns": [
+    "tmp/*",
+    "apps/web/node_modules_broken_*"
+  ],
+  "missingDedicatedPaths": [],
+  "dirtyCounts": {
+    "dedicated": 8,
+    "sharedTouchpoints": 6,
+    "retainedEvidence": 4,
+    "generatedThisRun": 2,
+    "temporary": 0,
+    "unrelated": 56
+  },
+  "dedicatedDirty": [
+    {
+      "gitStatus": "??",
+      "path": ".github/workflows/repo-preflight.yml"
+    },
+    {
+      "gitStatus": "??",
+      "path": "sources/reference-shelf.manifest.snapshot.json"
+    },
+    {
+      "gitStatus": "??",
+      "path": "tasks/reference-basis-module-map.csv"
+    },
+    {
+      "gitStatus": "??",
+      "path": "tasks/reference-basis-requirements.csv"
+    },
+    {
+      "gitStatus": "??",
+      "path": "tools/run-reference-basis-closeout-report.ps1"
+    },
+    {
+      "gitStatus": "??",
+      "path": "tools/run-reference-basis-guard.ps1"
+    },
+    {
+      "gitStatus": "??",
+      "path": "tools/run-repo-preflight.ps1"
+    },
+    {
+      "gitStatus": "??",
+      "path": "tools/sync-reference-shelf-snapshot.ps1"
+    }
+  ],
+  "sharedTouchpointDirty": [
+    {
+      "gitStatus": "M",
+      "path": "README.md"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/111_ProjectNavigationOverview.md"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/26_References.md"
+    },
+    {
+      "gitStatus": "M",
+      "path": "sources/references.md"
+    },
+    {
+      "gitStatus": "M",
+      "path": "tools/README.md"
+    },
+    {
+      "gitStatus": "M",
+      "path": "tools/run-gates.ps1"
+    }
+  ],
+  "retainedEvidenceDirty": [
+    {
+      "gitStatus": "??",
+      "path": "docs/evidence/20260609-reference-basis-guard.json"
+    },
+    {
+      "gitStatus": "??",
+      "path": "docs/evidence/20260609-reference-basis-guard.md"
+    },
+    {
+      "gitStatus": "??",
+      "path": "docs/evidence/20260611-reference-basis-guard.json"
+    },
+    {
+      "gitStatus": "??",
+      "path": "docs/evidence/20260611-reference-basis-guard.md"
+    }
+  ],
+  "generatedThisRunDirty": [
+    {
+      "gitStatus": "??",
+      "path": "docs/evidence/20260611-reference-basis-preflight-closeout.json"
+    },
+    {
+      "gitStatus": "??",
+      "path": "docs/evidence/20260611-reference-basis-preflight-closeout.md"
+    }
+  ],
+  "temporaryDirty": [],
+  "temporaryOnDiskPaths": [
+    "tmp/ci",
+    "tmp/repo-preflight"
+  ],
+  "unrelatedDirty": [
+    {
+      "gitStatus": "M",
+      "path": "apps/api/K12QuestionGraph.Api.csproj"
+    },
+    {
+      "gitStatus": "M",
+      "path": "apps/api/Program.cs"
+    },
+    {
+      "gitStatus": "M",
+      "path": "apps/web/.gitignore"
+    },
+    {
+      "gitStatus": "M",
+      "path": "apps/web/eslint.config.js"
+    },
+    {
+      "gitStatus": "M",
+      "path": "apps/web/src/App.css"
+    },
+    {
+      "gitStatus": "M",
+      "path": "apps/web/src/App.tsx"
+    },
+    {
+      "gitStatus": "M",
+      "path": "apps/web/src/api/client.ts"
+    },
+    {
+      "gitStatus": "M",
+      "path": "apps/web/src/api/contracts.ts"
+    },
+    {
+      "gitStatus": "M",
+      "path": "apps/web/src/api/queries.ts"
+    },
+    {
+      "gitStatus": "M",
+      "path": "apps/web/src/ui/AiRoutingControlPanel.tsx"
+    },
+    {
+      "gitStatus": "M",
+      "path": "apps/web/vite.config.ts"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/103_ExecutionControlBoard.md"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/104_OpenQuestionsAndAssumptions.md"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/105_RoleApprovalAndExceptionMatrix.md"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/107_AITrustAndReviewContract.md"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/109_ReleaseGoNoGoCard.md"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/110_EngineeringEndStateChecklist.md"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/112_CurrentClosureStatus_20260609.md"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/113_LocalRuntimeOperations_20260609.md"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/99_ProductizationFullRoadmapAndTaskPlan.md"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/evidence/20260506-s0-execution-plan-guard.json"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/evidence/20260506-s001-completion-state-dashboard.json"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/evidence/20260506-s001-completion-state-dashboard.md"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/evidence/20260508-automation-first-feature-contract-report.json"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/evidence/20260512-real005-guangzhou-2015-2025-closure-standard-report.json"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/evidence/20260528-ns004-non-site-plan-guard-report.json"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/evidence/20260529-ns104-application-service-boundary-report.json"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/evidence/20260529-ns105-teacher-route-client-boundary-report.json"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/evidence/20260529-ns106-feature-profile-guard-report.json"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/evidence/20260529-ns201-role-audit-baseline-report.json"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/evidence/20260529-ns202-admin-internal-fail-closed-report.json"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/evidence/20260529-ns203-privacy-license-scan-report.json"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/evidence/20260529-ns204-no-active-write-guard-report.json"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/evidence/20260607-ns1301-architecture-slimming.json"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/evidence/20260607-ns1302-service-control-panel.json"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/evidence/20260607-ns1303-host-capability-diagnostic-report.json"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/evidence/20260607-ns1303-runtime-profile.json"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/evidence/20260607-ns1304-toolchain-profile.json"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/evidence/20260607-ns1305-role-routed-ai.json"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/evidence/20260607-ns1308-release-evidence-pack.json"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/evidence/i007-frontend-boundary-report.json"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/evidence/j004-fidelity-regression-report.json"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/evidence/j005-adapter-diagnostic-supply-chain-report.json"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/evidence/j006-import-accuracy-workload-report.json"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/evidence/k001-active-c002-production-query-report.json"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/evidence/k002-c002r-teacher-revision-ux-report.json"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/evidence/k003-mapping-review-workbench-ui-report.json"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/evidence/k004-historical-version-explanation-report.json"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/evidence/k005-c002-second-revision-drill-report.json"
+    },
+    {
+      "gitStatus": "M",
+      "path": "docs/evidence/k006-knowledge-asset-health-dashboard-report.json"
+    },
+    {
+      "gitStatus": "M",
+      "path": "tasks/automation-first-contract.csv"
+    },
+    {
+      "gitStatus": "M",
+      "path": "tools/run-ns203-privacy-license-scan.ps1"
+    },
+    {
+      "gitStatus": "M",
+      "path": "tools/start-local-api.ps1"
+    },
+    {
+      "gitStatus": "M",
+      "path": "tools/start-local-web.ps1"
+    },
+    {
+      "gitStatus": "??",
+      "path": "docs/evidence/20260609-ns1305a-admin-ai-settings-dialog.json"
+    },
+    {
+      "gitStatus": "??",
+      "path": "tools/run-ns1305a-admin-ai-settings-dialog-contract.ps1"
+    }
+  ]
+}

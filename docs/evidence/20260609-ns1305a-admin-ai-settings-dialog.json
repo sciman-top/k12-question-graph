@@ -1,0 +1,20 @@
+{
+  "status": "pass",
+  "taskId": "NS1305A",
+  "checkedAt": "2026-06-11T21:58:21",
+  "mode": "admin_ai_settings_dialog_contract",
+  "productionEligible": false,
+  "acceptance": {
+    "dialogExists": true,
+    "saveActionExists": true,
+    "testActionExists": true,
+    "maskedSecretInputOnly": true,
+    "typedClientContractsExist": true,
+    "backendAdminRoutesExist": true,
+    "structuredSmokeRouteExists": true,
+    "uiReachableInLocalShell": true,
+    "adminProxyRouteExists": true
+  },
+  "boundary": "NS1305A proves the admin AI routing surface is no longer display-only: it must expose a reachable local-shell admin entry, a provider settings dialog, typed save/test APIs, and masked secret handling while remaining draft/test and no-active-write.",
+  "rollback": "git restore apps/web/src/App.tsx apps/web/src/App.css apps/web/vite.config.ts apps/web/src/ui/AiRoutingControlPanel.tsx apps/web/src/api/client.ts apps/web/src/api/contracts.ts apps/api/Program.cs tools/run-gates.ps1 tools/README.md; git clean -f -- docs/evidence/20260609-ns1305a-admin-ai-settings-dialog.json tools/run-ns1305a-admin-ai-settings-dialog-contract.ps1"
+}

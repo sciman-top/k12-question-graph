@@ -1,6 +1,6 @@
 # 105 · 角色审批与例外矩阵
 
-日期：2026-06-06。
+日期：2026-06-09。
 
 ## 1. 角色定义
 
@@ -24,7 +24,8 @@
 | AI provider/profile 启用或默认切换 | 管理员 | AI 负责人或发布负责人复核 | profile diff、eval、成本、隐私、no-active-write、secret redaction | 禁用 profile / 恢复旧 profile |
 | 生产 restore / 覆盖式恢复 | 管理员 + 试点支持负责人 | 数据责任方代表复核 | restore drill、恢复窗口、受影响范围、回滚说明 | restore manifest / pre-restore backup |
 | 进入现场试点 | 试点支持负责人 | 数据责任方代表 + 发布负责人复核 | `P003/P004` 证据、授权、支持人、回滚路径 | 试点停止、版本回退、数据 restore |
-| `P006` 发布裁决 | 发布负责人 | 数据责任方代表 + 管理员复核 | `docs/109_ReleaseGoNoGoCard.md`、gate、backup/restore、效率、隐私、权限 | 撤销 tag candidate、恢复上一个发布包 |
+| 试点反馈分流与 backlog/范围回写 | 产品负责人 | 发布负责人或试点支持负责人复核 | feedback triage record、教师效率/频率/风险/成本理由、reference-basis guard | 撤销 backlog/doc 回写并恢复上一版范围文档 |
+| `P006` 发布裁决 | 发布负责人 | 数据责任方代表 + 管理员复核 | `docs/109_ReleaseGoNoGoCard.md`、gate、backup/restore、效率、隐私、权限、reference-basis guard | 撤销 tag candidate、恢复上一个发布包 |
 
 ## 3. 普通教师不得单独执行的动作
 
@@ -54,3 +55,4 @@
 1. 权限模型、UI 显示面和运行脚本必须同时遵守本矩阵。
 2. 若脚本、API 或 UI 允许了更宽权限，以更严格的矩阵为准，并修复实现。
 3. 现场试点前必须把本矩阵映射到 `P003-P006` 证据中。
+4. `P005/P006` 这类会改范围裁决、发布口径或回滚策略的高风险动作，在进入人工复核和签字前必须先通过 `tasks/reference-basis-requirements.csv` + `tools/run-reference-basis-guard.ps1`。

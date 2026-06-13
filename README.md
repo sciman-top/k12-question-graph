@@ -31,6 +31,8 @@
 
 2026-06-09 起，`REAL005` 与 `P001/P003/P005/P006` 的剩余现场阻断不再只散落在 README、发布卡和证据 JSON 中；新的最小执行顺序入口是 `tasks/live-pilot-closeout-plan.csv`，专门用于隔离机事实、签收、反馈分流和发布裁决 closeout。
 
+同样从 2026-06-09 起，高风险编码任务不再只“建议查参考”。`tasks/reference-basis-requirements.csv` + `tasks/reference-basis-module-map.csv` + `tools/run-reference-basis-guard.ps1` 已进入主 gate，当前首批强制覆盖 `S004`、`S010`、`S011`、`REAL010`、`NS1301-NS1308`、`O008`、`P001`、`P003`、`P005`、`P006`、`R001`、`R002`、`R007`；这些任务若缺少官方来源或本地参考库锚点，统一视为 gate fail。`requirements` 解决“哪些高风险任务必须查参考”，`module-map` 解决“哪个代码板块该参考/复刻/复用哪个仓”，`tools/sync-reference-shelf-snapshot.ps1` 负责把外部参考架同步成仓内 snapshot，避免 CI 因 snapshot 漂移假失败。
+
 当前完成态速览：
 
 | 范围 | 当前完成态 | 可用性结论 | 下一阻断 |
@@ -223,6 +225,13 @@ tests/      自动化测试与黄金样本
 - `docs/103_ExecutionControlBoard.md`：当前 Now / Next / Later 与硬阻断。
 - `docs/104_OpenQuestionsAndAssumptions.md`：尚未拍板但会影响发布与范围的边界。
 - `docs/109_ReleaseGoNoGoCard.md`：`P006` 单页发布裁决入口。
+- `docs/112_CurrentClosureStatus_20260609.md`：当前仓库级 / 非现场 / 现场阻断的最短真实口径。
+- `docs/113_LocalRuntimeOperations_20260609.md`：本地 Web/API 联调运行模型、状态语义和排查入口。
+- `tasks/reference-basis-requirements.csv`：高风险任务强制参考依据入口，决定哪些改动必须先补官方与本地参考锚点。
+- `tasks/reference-basis-module-map.csv`：板块级 reference-basis 清单，把 API、Web、export、score-analysis、AI routing、OCR、Windows Service、release pack、搜索、队列、互操作等板块和参考仓映射成机器可读表。
+- `sources/reference-shelf.manifest.snapshot.json`：外部 reference shelf 的仓内快照，供 CI 在无本机 `D:\CODE\external\k12-question-graph-references` 挂载时仍能校验 reference-basis 元数据。
+- `tools/sync-reference-shelf-snapshot.ps1`：从外部 `references.manifest.json` + 当前 hard-rule 任务/模块绑定重建仓内 snapshot，供参考库更新后快速同步。
+- `tasks/live-pilot-closeout-plan.csv`：`REAL005` 与 `P001/P003/P005/P006` 的剩余现场 closeout 最小执行顺序。
 
 ## 当前运行入口
 
@@ -231,6 +240,8 @@ tests/      自动化测试与黄金样本
 - `workers/document`: 提供 worker smoke entry。
 - `tools/run-gates.ps1`: 统一门禁入口。
 - `tools/run-automation-first-feature-contract-guard.ps1`: 功能实现 automation-first 合同守卫，确保待办任务先声明规则、脚本、专用功能和 evidence，再限定 AI/agent 使用范围。
+- `tools/run-reference-basis-guard.ps1`: 高风险任务参考依据守卫，要求架构、Windows Service、PowerShell 运维、OCR/toolchain、export、score-analysis、AI routing、搜索、互操作以及 `P001/P003/P005/P006` 这类 live pilot / release closeout 任务先在 `tasks/reference-basis-requirements.csv` 中登记官方来源与本地参考库锚点；本机若挂载了外部参考库，还会同时核对仓内 snapshot 与外部 manifest 是否同构。
+- `tools/run-repo-preflight.ps1`: 正式 repo 预检入口；`-Mode Ci` 跑 repo-side build/lint/guard，`-Mode Release` 在此基础上追加本地 full gate。
 - `tools/run-c002-dry-run-suite.ps1`: 无数据库的 C002 动态资产 dry-run 入口。
 - `tools/run-d001-model-router-contract.ps1`: D001 draft/test ModelRouter 合同。
 - `tools/run-d003-structured-output-eval.ps1`: D003 draft/test 结构化输出 eval smoke。
@@ -259,6 +270,7 @@ tests/      自动化测试与黄金样本
 - `tools/run-guangzhou-physics-year-batch-ingest.ps1`: REAL003 2016-2025 广州物理真卷批量 dry-run 入口，记录来源 hash、题数、答案覆盖、接管点和回滚 SQL。
 - `tools/run-real004-guangzhou-2015-review-smoke.ps1`: REAL004 2015 真卷审核队列 API/Web smoke，验证筛选、来源加载、确认、退回、教师修订和 audit。
 - `tools/run-real005-guangzhou-2015-2025-closure-standard.ps1`: REAL005 真卷全流程闭环判定入口；当前应输出 `closureStatus=not_closed`。
+- `tools/run-live-pilot-closeout-plan-guard.ps1`: 校验 `tasks/live-pilot-closeout-plan.csv`、`tasks/backlog.csv`、`docs/109_ReleaseGoNoGoCard.md`、`docs/112_CurrentClosureStatus_20260609.md` 等入口是否仍保持一致且不夸大现场闭环。
 - `tools/prepare-c002-candidate-csvs.ps1`: C002 ChatGPT Web 候选 CSV 清洗和预检入口。
 - `tools/import-c002-source-materials.ps1`: C002 原始来源资料 dry-run / evidence-layer 导入入口。
 - `tools/import-c002-candidate-assets.ps1`: C002 cleaned candidate DB dry-run / apply 入口。
@@ -301,6 +313,9 @@ python -c "import pathlib, yaml; [yaml.safe_load(p.read_text(encoding='utf-8')) 
 - `tasks/non-site-implementation-plan.csv`：非现场能力从 planned 到 runtime/non-site 验证的细化机器可读任务清单。
 - `tasks/real-guangzhou-closure-criteria.csv`：REAL005 真卷全流程闭环 12 项机器可读判定标准。
 - `tasks/automation-first-contract.csv`：待办功能的 automation-first 机器可读合同，声明确定性预检、专用功能面、AI/agent 允许范围、例外策略和 evidence 命令。
+- `tasks/reference-basis-requirements.csv`：高风险任务的官方文档、本地参考库和社区样例锚点清单，缺锚点时主 gate 直接失败。
+- `tasks/reference-basis-module-map.csv`：板块级 reference-basis 清单，把 API、Web、export、score-analysis、AI routing、OCR、Windows Service、release pack、搜索、队列、互操作等板块和参考仓映射成机器可读表。
+- `sources/reference-shelf.manifest.snapshot.json`：从外部参考架同步进仓的只读快照，给 CI 和离线审查提供“参考库当时长什么样”的可携带锚点。
 - `docs/78_SubjectDomainAssetActivationRunbook.md`：后续新学科动态资产激活统一 runbook。
 - `docs/79_TeacherCandidateReviewAndActivationGuide.md`：教师候选复核和激活确认操作指南。
 - `docs/80_SubjectActivationWorkbenchV0.md`：学科激活工作台 v0 的教师侧边界、UI 合同和验证方式。

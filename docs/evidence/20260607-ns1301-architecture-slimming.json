@@ -1,12 +1,12 @@
 {
   "status": "pass",
   "taskId": "NS1301",
-  "checkedAt": "2026-06-09T01:42:09",
+  "checkedAt": "2026-06-11T21:57:59",
   "mode": "static_architecture_inventory_and_app_slimming_guard",
   "productionEligible": false,
   "app": {
     "path": "apps/web/src/App.tsx",
-    "lineCount": 1916,
+    "lineCount": 1964,
     "extractedComponents": [
       "TeacherHomePanelContent",
       "ScoreWorkbenchPanelContent",

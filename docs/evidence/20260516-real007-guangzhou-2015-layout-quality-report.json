@@ -60,9 +60,9 @@
   "noiseOverlapCount": 0,
   "pageSummary": [
     {
-      "sourceGroup": "answer",
-      "pageNumber": 4,
-      "retainedRegionCount": 1,
+      "sourceGroup": "paper",
+      "pageNumber": 2,
+      "retainedRegionCount": 8,
       "noiseRegionKinds": [
         "top_margin",
         "footer_page_number"
@@ -79,7 +79,7 @@
     },
     {
       "sourceGroup": "paper",
-      "pageNumber": 7,
+      "pageNumber": 5,
       "retainedRegionCount": 4,
       "noiseRegionKinds": [
         "top_margin",
@@ -97,15 +97,6 @@
     },
     {
       "sourceGroup": "paper",
-      "pageNumber": 3,
-      "retainedRegionCount": 8,
-      "noiseRegionKinds": [
-        "top_margin",
-        "footer_page_number"
-      ]
-    },
-    {
-      "sourceGroup": "paper",
       "pageNumber": 6,
       "retainedRegionCount": 4,
       "noiseRegionKinds": [
@@ -115,17 +106,17 @@
     },
     {
       "sourceGroup": "paper",
-      "pageNumber": 5,
-      "retainedRegionCount": 4,
+      "pageNumber": 8,
+      "retainedRegionCount": 2,
       "noiseRegionKinds": [
         "top_margin",
         "footer_page_number"
       ]
     },
     {
-      "sourceGroup": "answer",
-      "pageNumber": 3,
-      "retainedRegionCount": 2,
+      "sourceGroup": "paper",
+      "pageNumber": 7,
+      "retainedRegionCount": 4,
       "noiseRegionKinds": [
         "top_margin",
         "footer_page_number"
@@ -144,7 +135,7 @@
     },
     {
       "sourceGroup": "paper",
-      "pageNumber": 2,
+      "pageNumber": 3,
       "retainedRegionCount": 8,
       "noiseRegionKinds": [
         "top_margin",
@@ -161,8 +152,17 @@
       ]
     },
     {
-      "sourceGroup": "paper",
-      "pageNumber": 8,
+      "sourceGroup": "answer",
+      "pageNumber": 4,
+      "retainedRegionCount": 1,
+      "noiseRegionKinds": [
+        "top_margin",
+        "footer_page_number"
+      ]
+    },
+    {
+      "sourceGroup": "answer",
+      "pageNumber": 3,
       "retainedRegionCount": 2,
       "noiseRegionKinds": [
         "top_margin",
@@ -225,9 +225,9 @@
     ]
   },
   "latestRecropAudit": {
-    "id": "4831c44e-50ce-4b5e-a4bc-874526bc0038",
-    "createdAt": "2026-06-09T01:59:19.847663+08:00",
-    "resolvedAt": "2026-06-09T01:59:19.847663+08:00"
+    "id": "ae5d9dc2-8a86-4b3c-ba31-2cea82c70d51",
+    "createdAt": "2026-06-11T22:14:10.811547+08:00",
+    "resolvedAt": "2026-06-11T22:14:10.811547+08:00"
   },
   "blockers": [],
   "samples": {

@@ -42,7 +42,8 @@ function New-Hit([string] $Kind, [string] $Path, [int] $Line, [string] $Excerpt,
 
 function Test-AllowlistedCredentialLine([string] $Line) {
     return $Line -match '(?i)(redacted|placeholder|sample|example|contract-secret|ns202-contract-secret|o004-contract-secret|o004b-contract-secret|test-secret|your-|your_|dummy|fake|stub|changeme)' -or
-        $Line -match '(?i)(Use-KqgDatabasePassword|args\.password|\$DatabasePassword\s*=)' -or
+        $Line -match '(?i)(Use-KqgDatabasePassword|Resolve-KqgDatabasePassword|args\.password|\$DatabasePassword\s*=)' -or
+        $Line -match '(?i)(request\.ApiKey|values\.apiKey|ProtectSecret\(|UnprotectSecret\(|maskedSecret\s*:|readStringField\(value,\s*''maskedSecret''\))' -or
         $Line -match '(?i)(ApiKey|Password|Token|Secret)["'']?\s*[:=]\s*["'']?\s*["'']?\s*(,|$)' -or
         $Line -match '(?i)(HeaderName|RoleHeaderName|OperatorIdHeaderName|RollbackRefHeaderName)'
 }
@@ -142,12 +143,13 @@ try {
         $extension = [System.IO.Path]::GetExtension($relativePath).ToLowerInvariant()
         if ($binaryExtensions -contains $extension) {
             $isAllowedEvidenceScreenshot = $normalized -eq 'docs/evidence/20260512-real004-guangzhou-2015-review-ui.png'
+            $isAllowedTeacherVisibleWalkthroughScreenshot = $normalized -match '^docs/evidence/\d{8}-teacher-visible-walkthrough/[^/]+\.png$'
             $isAllowedAppAsset = $normalized -eq 'apps/web/src/assets/hero.png'
             $trackedBinaryFiles.Add([ordered]@{
                 path = $relativePath
                 extension = $extension
-                allowed = ($isAllowedEvidenceScreenshot -or $isAllowedAppAsset)
-                reason = if ($isAllowedEvidenceScreenshot) { 'generated UI evidence screenshot, not raw source material' } elseif ($isAllowedAppAsset) { 'application visual asset, not raw source/student material' } else { 'tracked binary requires explicit source/license review' }
+                allowed = ($isAllowedEvidenceScreenshot -or $isAllowedTeacherVisibleWalkthroughScreenshot -or $isAllowedAppAsset)
+                reason = if ($isAllowedEvidenceScreenshot -or $isAllowedTeacherVisibleWalkthroughScreenshot) { 'generated UI evidence screenshot, not raw source material' } elseif ($isAllowedAppAsset) { 'application visual asset, not raw source/student material' } else { 'tracked binary requires explicit source/license review' }
             })
             continue
         }

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Alert,
   Badge,
@@ -51,7 +51,6 @@ import {
   useSourceMaterialsQuery,
   useSourcePreviewQuery,
 } from './api/queries'
-import { AdminGovernancePanels } from './ui/AdminGovernancePanels'
 import { AnalysisPanelContent } from './ui/AnalysisPanelContent'
 import { PaperWorkbenchPanels } from './ui/PaperWorkbenchPanels'
 import { ScoreWorkbenchPanelContent } from './ui/ScoreWorkbenchPanelContent'
@@ -80,6 +79,11 @@ import {
   type StarterDemoStep,
   type TeacherView,
 } from './ui/workbenchData'
+
+const AdminGovernancePanels = lazy(async () => {
+  const module = await import('./ui/AdminGovernancePanels')
+  return { default: module.AdminGovernancePanels }
+})
 
 /*
 Legacy App.tsx gate anchors retained during NS1301 view extraction.
@@ -230,6 +234,13 @@ data-contract="export-preview"
 
 function App() {
   const readyHealthQuery = useReadyHealthQuery()
+  const [adminWorkspaceVisible, setAdminWorkspaceVisible] = useState<boolean>(() => {
+    if (typeof window === 'undefined') {
+      return false
+    }
+
+    return new URLSearchParams(window.location.search).get('admin') === '1'
+  })
   const [sourceTypeFilter, setSourceTypeFilter] = useState('all')
   const [importJobLookupId, setImportJobLookupId] = useState('')
   const [selectedSourceDocumentId, setSelectedSourceDocumentId] = useState('')
@@ -362,6 +373,24 @@ function App() {
     null,
     2,
   )
+
+  const toggleAdminWorkspace = useCallback(() => {
+    setAdminWorkspaceVisible((current) => {
+      const next = !current
+      if (typeof window !== 'undefined') {
+        const url = new URL(window.location.href)
+        if (next) {
+          url.searchParams.set('admin', '1')
+        } else {
+          url.searchParams.delete('admin')
+        }
+
+        window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`)
+      }
+
+      return next
+    })
+  }, [])
 
   useEffect(() => {
     const timer = window.setInterval(() => setNowMs(Date.now()), 30_000)
@@ -1166,6 +1195,15 @@ function App() {
             <Tag data-contract="server-state-query-boundary">
               服务状态 {readyHealthStatusLabel}
             </Tag>
+            <Button
+              size="small"
+              onClick={toggleAdminWorkspace}
+              aria-expanded={adminWorkspaceVisible}
+              data-action="toggle-admin-governance-panels"
+              data-contract="admin-governance-entry"
+            >
+              {adminWorkspaceVisible ? '收起管理员入口' : '管理员调试入口'}
+            </Button>
           </Space>
         </header>
 
@@ -2015,9 +2053,24 @@ function App() {
           </section>
 
         </main>
-        <aside className="admin-workspace" data-shell="admin-governance-staging" aria-hidden="true">
-          <AdminGovernancePanels />
-        </aside>
+        {adminWorkspaceVisible ? (
+          <aside
+            className="admin-workspace is-open"
+            data-shell="admin-governance-staging"
+            data-contract="admin-governance-reachable"
+            aria-hidden={false}
+          >
+            <Suspense fallback={<div className="admin-workspace-loading">正在加载管理员治理面板…</div>}>
+              <AdminGovernancePanels />
+            </Suspense>
+          </aside>
+        ) : (
+          <aside
+            className="admin-workspace"
+            data-shell="admin-governance-staging"
+            aria-hidden="true"
+          />
+        )}
       </Layout>
     </ConfigProvider>
   )

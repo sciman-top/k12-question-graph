@@ -6,6 +6,8 @@ Current entries:
 
 ```powershell
 tools/run-gates.ps1
+tools/run-reference-basis-guard.ps1
+tools/run-repo-preflight.ps1
 tools/run-live-pilot-closeout-plan-guard.ps1
 tools/backup.ps1
 tools/verify-backup.ps1
@@ -33,6 +35,88 @@ Run gates:
 $env:PGPASSWORD='<local-password>'
 .\tools\run-gates.ps1
 ```
+
+If the standard local API is already running on `http://127.0.0.1:5275` from
+`apps/api/bin/Release/net10.0/K12QuestionGraph.Api.exe`, `run-gates.ps1`
+temporarily pauses it before the backend build and restores it afterwards. This
+avoids the default Release output lock without asking the operator to stop and
+restart the repo-local API by hand.
+
+Reference basis guard:
+
+```powershell
+.\tools\run-reference-basis-guard.ps1
+```
+
+This enforces `tasks/reference-basis-requirements.csv` for high-risk work. It
+requires selected architecture/runtime/OCR/AI/search/interop/live-pilot tasks
+to bind official reference URLs from `sources/references.md` and local corpus
+paths under `D:\CODE\external\k12-question-graph-references`. Missing
+reference-basis rows or broken local-reference anchors now fail the gate.
+The current first-wave coverage also includes `P005/P006`, so pilot-feedback
+triage and release-decision wording cannot drift without anchored references.
+`tasks/reference-basis-module-map.csv` extends this from task-level coverage to
+module-level coverage, so API/Web/export/score-analysis/AI/OCR/Windows-Service/search/queue/interop
+surfaces also declare which official and local reference repos they are
+allowed to borrow from and whether they are `official_semantics_first`,
+`official_semantics_plus_selective_pattern_reuse`,
+`official_semantics_plus_eval_first`, or `reference_only_no_copy`.
+
+Reference-basis CI/local modes:
+
+```powershell
+.\tools\run-reference-basis-guard.ps1 -ValidationMode Local
+.\tools\run-reference-basis-guard.ps1 -ValidationMode Ci
+```
+
+`Local` mode requires the local external corpus under
+`D:\CODE\external\k12-question-graph-references` to exist on disk.
+`Ci` mode keeps the guard fail-closed on repo-side declarations, docs, and
+mappings without assuming a CI runner has the same local corpus path.
+When the external corpus is unavailable, CI falls back to
+`sources/reference-shelf.manifest.snapshot.json` as the portable reference-shelf
+metadata anchor. Local runs now also compare the external manifest with the
+repo snapshot, so snapshot drift is caught before GitHub Actions sees it.
+
+Reference shelf snapshot sync:
+
+```powershell
+.\tools\sync-reference-shelf-snapshot.ps1
+```
+
+Run this after refreshing `D:\CODE\external\k12-question-graph-references` or
+after changing `tasks/reference-basis-requirements.csv` /
+`tasks/reference-basis-module-map.csv`. It rebuilds the repo-side snapshot from
+the external manifest and current hard-rule task/module bindings.
+
+Reference/preflight closeout report:
+
+```powershell
+.\tools\run-reference-basis-closeout-report.ps1
+```
+
+This classifies the current worktree into dedicated reference-basis/preflight
+slice files, shared touchpoints, retained evidence, generated closeout outputs,
+temporary host-local artifacts, and unrelated dirty paths. Use it before
+staging or handoff when the repo already has parallel in-progress changes.
+
+Unified repo preflight:
+
+```powershell
+.\tools\run-repo-preflight.ps1 -Mode Ci -InstallFrontendDependencies
+.\tools\run-repo-preflight.ps1 -Mode Release
+```
+
+`Mode Ci` runs the repo-side build/lint/planning/reference/release-pack guards
+without pretending to replace the local full gate. `Mode Release` runs the
+same stack and then adds `run-gates.ps1` unless `-SkipFullGate` is supplied.
+The GitHub Actions entrypoint is `.github/workflows/repo-preflight.yml`.
+If `-InstallFrontendDependencies` is used while the repo-local Vite dev server
+is still running on `127.0.0.1:5173`, preflight now fails fast with a clear
+message instead of surfacing a later Windows `EPERM` from `npm ci`. Local
+preflight and full gate now also fail fast on host-local temporary directories
+such as `apps/web/node_modules_broken_*`, so this kind of drift is reported as
+an environment cleanup issue instead of hundreds of misleading ESLint errors.
 
 The gate also covers `i001-i008 teacher workflow UI contracts`,
 `b001 duplicate upload smoke`, `b002 adapter contract smoke`,
@@ -521,6 +605,21 @@ remaining `false`, and business routing code staying free of hard-coded model
 names. It writes `docs/evidence/20260607-ns1305-role-routed-ai.json` and does
 not enable real provider calls, store plaintext secrets, download local model
 weights, or switch production defaults.
+
+NS1305A admin AI settings dialog contract:
+
+```powershell
+.\tools\run-ns1305a-admin-ai-settings-dialog-contract.ps1
+```
+
+This verifies that the administrator AI routing surface is no longer display
+only. The `AiRoutingControlPanel` must expose a real provider settings dialog,
+typed save/test client APIs, masked secret input, and backend admin routes for
+`/api/admin/ai/provider-settings` and `/api/admin/ai/provider-settings/test`.
+The test route remains bounded to `draft_test`, `pending_review`, and
+`no-active-write`; it proves that after an administrator fills API parameters
+in the dialog, the repo has a controlled structured smoke path instead of only
+static contract cards.
 
 NS1308 release evidence pack contract:
 

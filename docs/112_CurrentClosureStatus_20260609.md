@@ -23,6 +23,10 @@
   - 2026-06-09 detached full gate 完整通过。
   - 结果日志：`docs/evidence/20260609-run-gates-detached-2.out.log`
   - 错误日志：`docs/evidence/20260609-run-gates-detached-2.err.log`
+- `tools/run-live-pilot-closeout-plan-guard.ps1`
+  - 2026-06-09 repo-side closeout 计划 guard 通过。
+  - 结果报告：`docs/evidence/20260609-live-pilot-closeout-plan-guard.json`
+  - 人工摘要：`docs/evidence/20260609-live-pilot-closeout-plan-guard.md`
 
 ### 2.2 非现场教师主链路
 
@@ -107,6 +111,11 @@
 
 - 问题：full gate 场景下 YAML -> JSON 解析偶发受标准输出脆弱性影响。
 - 修复：改为 Python 先写临时 JSON 文件，再由 PowerShell 读文件解析。
+
+### 5.4 closeout 计划入口
+
+- 问题：`REAL005 / P001 / P003 / P005 / P006` 的剩余关闭步骤散落在 backlog、发布卡、README 和证据 JSON 中，现场 closeout 需要人工再次提炼。
+- 修复：新增 `tasks/live-pilot-closeout-plan.csv` 和 `tools/run-live-pilot-closeout-plan-guard.ps1`，把最小关闭步骤、入口文档和 truthful No-Go 边界收成可机验入口。
 
 ## 6. 下一步推荐
 

@@ -1,4 +1,7 @@
 import type {
+  AdminAiProviderSettingsContract,
+  AdminAiProviderSettingsSaveContract,
+  AdminAiProviderSettingsTestContract,
   ApiResult,
   CommentaryReportExportContract,
   CutCandidateGenerationContract,
@@ -18,6 +21,9 @@ import type {
   SourceMaterialListContract,
 } from './contracts'
 import {
+  normalizeAdminAiProviderSettingsResponse,
+  normalizeAdminAiProviderSettingsSaveResponse,
+  normalizeAdminAiProviderSettingsTestResponse,
   normalizeCommentaryReportExportResponse,
   normalizeCutCandidateGenerationResponse,
   normalizeCutCandidateListResponse,
@@ -80,6 +86,15 @@ async function requestJson<T>(path: string, normalize: (value: unknown) => T): P
   }
 }
 
+function adminHeaders() {
+  return {
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+    'X-KQG-Operator-Role': 'admin',
+    'X-KQG-Operator-Id': 'codex-admin',
+  }
+}
+
 async function postJson<T>(
   path: string,
   body: unknown,
@@ -121,8 +136,114 @@ async function postJson<T>(
   }
 }
 
+async function requestAdminJson<T>(path: string, normalize: (value: unknown) => T): Promise<ApiResult<T>> {
+  try {
+    const response = await fetch(buildApiUrl(path), {
+      headers: adminHeaders(),
+    })
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        error: {
+          code: 'network_error',
+          message: `HTTP ${response.status}`,
+        },
+      }
+    }
+
+    const json: unknown = await response.json()
+    return {
+      ok: true,
+      data: normalize(json),
+    }
+  } catch (error) {
+    return {
+      ok: false,
+      error: {
+        code: 'network_error',
+        message: error instanceof Error ? error.message : 'Unknown network error',
+      },
+    }
+  }
+}
+
+async function postAdminJson<T>(
+  path: string,
+  body: unknown,
+  normalize: (value: unknown) => T,
+): Promise<ApiResult<T>> {
+  try {
+    const response = await fetch(buildApiUrl(path), {
+      method: 'POST',
+      headers: adminHeaders(),
+      body: JSON.stringify(body),
+    })
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        error: {
+          code: 'network_error',
+          message: `HTTP ${response.status}`,
+        },
+      }
+    }
+
+    const json: unknown = await response.json()
+    return {
+      ok: true,
+      data: normalize(json),
+    }
+  } catch (error) {
+    return {
+      ok: false,
+      error: {
+        code: 'network_error',
+        message: error instanceof Error ? error.message : 'Unknown network error',
+      },
+    }
+  }
+}
+
 export async function getReadyHealth(): Promise<ApiResult<ReadyHealthContract>> {
   return requestJson('/health/ready', normalizeReadyHealthResponse)
+}
+
+export async function getAdminAiProviderSettings(): Promise<ApiResult<AdminAiProviderSettingsContract>> {
+  return requestAdminJson('/api/admin/ai/provider-settings', normalizeAdminAiProviderSettingsResponse)
+}
+
+export async function saveAdminAiProviderSettings(request: {
+  providerProfileId: string
+  baseUrl: string
+  apiKey: string
+  maxConcurrency: number
+  monthlyBudgetCny: number
+  disabledByDefault: boolean
+  allowRealModelCalls: boolean
+  defaultSmokeTaskType: string
+  defaultSmokeModel: string
+  operatorNote?: string
+}): Promise<ApiResult<AdminAiProviderSettingsSaveContract>> {
+  return postAdminJson(
+    '/api/admin/ai/provider-settings',
+    request,
+    normalizeAdminAiProviderSettingsSaveResponse,
+  )
+}
+
+export async function testAdminAiProviderSettings(request: {
+  taskType: string
+  inputJson?: string
+  model?: string
+  baseUrlOverride?: string
+}): Promise<ApiResult<AdminAiProviderSettingsTestContract>> {
+  return postAdminJson(
+    '/api/admin/ai/provider-settings/test',
+    request,
+    normalizeAdminAiProviderSettingsTestResponse,
+  )
 }
 
 export async function getSourceMaterials(sourceType?: string): Promise<ApiResult<SourceMaterialListContract>> {

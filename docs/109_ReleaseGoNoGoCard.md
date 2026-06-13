@@ -18,6 +18,8 @@
 
 若需要继续追踪 `REAL005`、`P001`、`P003`、`P005`、`P006` 的最小关闭步骤，请同时查看 `tasks/live-pilot-closeout-plan.csv`；本卡只做最终裁决，不承担子项排程。
 
+自 2026-06-09 起，`P005/P006` 的结构变化还受 `tasks/reference-basis-requirements.csv` + `tools/run-reference-basis-guard.ps1` 约束；缺少官方来源或本地参考锚点时，不允许把反馈分流、发布卡、tag candidate 或 rollback 口径写成“可发布”。
+
 ## 3. 当前裁决卡
 
 ### 发布身份
@@ -35,6 +37,7 @@
 | 项目 | 通过标准 | 当前状态 |
 |---|---|---|
 | build / test / contract / hotspot | 全通过或有效 N/A | `开发机通过，但不足以构成发布结论`。已有 `docs/evidence/20260504-h0-full-gate-evidence.md` 与 `docs/evidence/20260509-p0-live-auto-progress.md`；仍缺现场链路证据。 |
+| reference basis | `P005/P006` 高风险变更已登记官方与本地参考锚点 | `repo-side 通过`。2026-06-09 起 `P005/P006` 已纳入 `reference-basis` 主 gate；缺少参考依据时不得改发布口径。 |
 | automation / visual surrogate preflight | 非现场客观检查尽量闭合 | `非现场通过`。`NS906`、`NS904`、`NS801-NS806` 已覆盖 route smoke、artifact、source screenshot、backup/restore、visual surrogate；但它们不能替代隔离机、打印、权限域、真实网络和签字。 |
 | backup | manifest 可验证 | `非现场通过`。`G001-G004`、`O003` 和 `NS801-NS806` 证据存在，但隔离机实跑未完成。 |
 | restore | restore drill 通过 | `非现场通过 / 现场未验证`。`docs/evidence/20260505-o003-recovery-drill-upgrade.md` 已证明隔离恢复演练，现场恢复窗口和操作者签收未完成。 |
@@ -54,6 +57,8 @@
 | P001 isolated-machine evidence template | `docs/templates/p001-isolated-machine-evidence-template.md` |
 | NS906 visual surrogate | `docs/evidence/20260528-ns906-visual-surrogate-review-report.json` |
 | NS1308 release evidence pack | `docs/evidence/20260607-ns1308-release-evidence-pack.json` |
+| reference basis guard | `docs/evidence/20260609-reference-basis-guard.json` |
+| closeout plan guard | `docs/evidence/20260609-live-pilot-closeout-plan-guard.json` |
 | P003 admission preflight | `docs/evidence/20260609-p003-onsite-pilot-admission-report.json` |
 | P005 feedback triage preflight | `docs/evidence/20260609-p005-pilot-feedback-backlog-admission-report.json` |
 | P005 feedback triage template | `docs/templates/p005-pilot-feedback-triage-template.json` |
@@ -106,7 +111,9 @@
 ## 5. 与现有清单的关系
 
 - 证据来源仍来自 `docs/evidence/`、`tasks/completion-state-dashboard.csv` 和 `P001-P006`。
+- `P005/P006` 的强制参考依据入口由 `tasks/reference-basis-requirements.csv` 承接。
 - 现场 closeout 的更细执行顺序由 `tasks/live-pilot-closeout-plan.csv` 承接。
+- repo-side closeout 计划与入口文档的一致性由 `tools/run-live-pilot-closeout-plan-guard.ps1` 与其 2026-06-09 evidence 承接。
 - `docs/templates/p006-release-decision-checklist.md` 负责逐项核对。
 - 本卡负责最终一页式裁决，不再只靠分散 preflight 结论。
 

@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS203",
-  "checkedAt": "2026-06-09T01:43:37",
+  "checkedAt": "2026-06-11T21:59:11",
   "mode": "tracked_text_privacy_license_scan",
   "productionEligible": false,
   "scanScope": {
@@ -18,26 +18,66 @@
       "README.md",
       "ALL_IN_ONE_EXECUTIVE_SPEC.md"
     ],
-    "trackedFileCount": 1015,
+    "trackedFileCount": 1050,
     "policyPath": "docs/102_NonSiteFixturePrivacyPolicy.md",
     "fixturePolicyPath": "tests/golden-import/privacy_and_license.md",
     "rawIgnorePath": "sources/raw/.gitignore"
   },
   "counts": {
-    "secretLikeHits": 71,
+    "secretLikeHits": 77,
     "blockingSecretHits": 0,
     "piiValueHits": 0,
     "blockingPiiHits": 0,
-    "trackedBinaryFiles": 2,
+    "trackedBinaryFiles": 8,
     "blockingTrackedBinaryFiles": 0,
     "trackedRawSourceBlockers": 0,
     "localRawSourceFiles": 0,
-    "policyMentionCount": 474,
+    "policyMentionCount": 493,
     "copyrightRawPathMarkers": 0,
     "excludedGeneratedScanReports": 1
   },
   "allowedFindings": {
     "allowedCredentialLikeHitsSample": [
+      {
+        "kind": "credential_assignment_like",
+        "path": "apps/api/Program.cs",
+        "line": 4347,
+        "excerpt": "var normalizedSecret = request.ApiKey?.Trim();",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "apps/api/Program.cs",
+        "line": 4421,
+        "excerpt": "var plaintextSecret = UnprotectSecret(settings.SecretCiphertext);",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "apps/web/src/api/contracts.ts",
+        "line": 877,
+        "excerpt": "maskedSecret: readStringField(value, 'maskedSecret') ?? '',",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "apps/web/src/api/contracts.ts",
+        "line": 900,
+        "excerpt": "maskedSecret: readStringField(value, 'maskedSecret') ?? '',",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "apps/web/src/ui/AiRoutingControlPanel.tsx",
+        "line": 184,
+        "excerpt": "apiKey: values.apiKey,",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
       {
         "kind": "credential_assignment_like",
         "path": "tools/generate-c002-review-decisions.ps1",
@@ -605,9 +645,17 @@
         "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/start-local-api.ps1",
+        "line": 112,
+        "excerpt": "$resolvedPassword = Resolve-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
       }
     ],
-    "allowedCredentialLikeHitCount": 71,
+    "allowedCredentialLikeHitCount": 77,
     "allowedCredentialLikeHitSampleLimit": 80,
     "allowedTrackedBinaryFiles": [
       {
@@ -618,6 +666,42 @@
       },
       {
         "path": "docs/evidence/20260512-real004-guangzhou-2015-review-ui.png",
+        "extension": ".png",
+        "allowed": true,
+        "reason": "generated UI evidence screenshot, not raw source material"
+      },
+      {
+        "path": "docs/evidence/20260609-teacher-visible-walkthrough/20260609-analysis-summary.png",
+        "extension": ".png",
+        "allowed": true,
+        "reason": "generated UI evidence screenshot, not raw source material"
+      },
+      {
+        "path": "docs/evidence/20260609-teacher-visible-walkthrough/20260609-analysis.png",
+        "extension": ".png",
+        "allowed": true,
+        "reason": "generated UI evidence screenshot, not raw source material"
+      },
+      {
+        "path": "docs/evidence/20260609-teacher-visible-walkthrough/20260609-compose.png",
+        "extension": ".png",
+        "allowed": true,
+        "reason": "generated UI evidence screenshot, not raw source material"
+      },
+      {
+        "path": "docs/evidence/20260609-teacher-visible-walkthrough/20260609-home.png",
+        "extension": ".png",
+        "allowed": true,
+        "reason": "generated UI evidence screenshot, not raw source material"
+      },
+      {
+        "path": "docs/evidence/20260609-teacher-visible-walkthrough/20260609-import.png",
+        "extension": ".png",
+        "allowed": true,
+        "reason": "generated UI evidence screenshot, not raw source material"
+      },
+      {
+        "path": "docs/evidence/20260609-teacher-visible-walkthrough/20260609-score-import.png",
         "extension": ".png",
         "allowed": true,
         "reason": "generated UI evidence screenshot, not raw source material"
