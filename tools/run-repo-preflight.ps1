@@ -235,6 +235,11 @@ try {
             -ReportPath (Join-Path $ReportRoot 'reference-basis-diff-aware-contract.json') | Out-Null
     }))
 
+    $steps.Add((Invoke-PreflightStep 'reference-basis adoption record contract' {
+        .\tools\run-reference-basis-adoption-record-contract.ps1 `
+            -ReportPath (Join-Path $ReportRoot 'reference-basis-adoption-record-contract.json') | Out-Null
+    }))
+
     $steps.Add((Invoke-PreflightStep 'live-closeout guard' {
         .\tools\run-live-pilot-closeout-plan-guard.ps1 `
             -JsonReportPath (Join-Path $ReportRoot 'live-pilot-closeout-plan-guard.json') `

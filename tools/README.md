@@ -96,6 +96,19 @@ The current contract uses one web path and one document-worker path to verify
 that impacted module IDs, impacted task IDs, and `changedPathsOutsideGuardedModules`
 are all emitted into the report.
 
+Reference-basis adoption record contract:
+
+```powershell
+.\tools\run-reference-basis-adoption-record-contract.ps1
+```
+
+This is the next v2 slice. It currently binds `P005` and `P006` closeout
+artifacts to explicit reference-adoption structure: `referenceContext`,
+`impactedSurfaceIds`, `referencesReviewed`, and `adoptionDecision`.
+That means pilot feedback triage and release decision records are no longer
+allowed to drift as pure wording changes without stating which guarded surfaces
+were touched and which references were reviewed.
+
 Repo-side truth-maintenance report defaults:
 
 ```powershell
@@ -163,9 +176,10 @@ message instead of surfacing a later Windows `EPERM` from `npm ci`. Local
 preflight and full gate now also fail fast on host-local temporary directories
 such as `apps/web/node_modules_broken_*`, so this kind of drift is reported as
 an environment cleanup issue instead of hundreds of misleading ESLint errors.
-Repo preflight now also runs `run-reference-basis-diff-aware-contract.ps1`, so
-reference governance is checked both as static registration and as a minimal
-diff-aware projection contract.
+Repo preflight now also runs `run-reference-basis-diff-aware-contract.ps1` and
+`run-reference-basis-adoption-record-contract.ps1`, so reference governance is
+checked as static registration, minimal diff-aware projection, and early
+closeout-level adoption-record structure.
 
 The gate also covers `i001-i008 teacher workflow UI contracts`,
 `b001 duplicate upload smoke`, `b002 adapter contract smoke`,

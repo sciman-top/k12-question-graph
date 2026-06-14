@@ -73,10 +73,19 @@ foreach ($keyword in @('教师效率', '频率', '风险', '成本', '保留', '
 
 $triageTemplate = Get-Content -LiteralPath $triageTemplateFullPath -Raw | ConvertFrom-Json
 Assert-True ($triageTemplate.schemaVersion -eq 'p005-pilot-feedback-triage.v1') 'P005 triage template schema mismatch'
-foreach ($requiredField in @('pilotContext', 'summary', 'items', 'decisionNotes', 'signoff')) {
+foreach ($requiredField in @('pilotContext', 'summary', 'referenceContext', 'impactedSurfaceIds', 'referencesReviewed', 'adoptionDecision', 'items', 'decisionNotes', 'signoff')) {
     Assert-True ($triageTemplate.PSObject.Properties.Name -contains $requiredField) "P005 triage template missing field: $requiredField"
 }
 Assert-True (@($triageTemplate.items).Count -ge 1) 'P005 triage template must contain at least one sample item'
+Assert-True (@($triageTemplate.impactedSurfaceIds).Count -ge 1) 'P005 triage template must include impactedSurfaceIds'
+Assert-True (@($triageTemplate.referencesReviewed).Count -ge 1) 'P005 triage template must include referencesReviewed'
+foreach ($requiredReferenceContextField in @('referenceBasisPolicy', 'referenceRequirements', 'referenceModuleMap', 'guardEvidence')) {
+    Assert-True ($triageTemplate.referenceContext.PSObject.Properties.Name -contains $requiredReferenceContextField) "P005 referenceContext missing field: $requiredReferenceContextField"
+    Assert-True (-not [string]::IsNullOrWhiteSpace([string] $triageTemplate.referenceContext.$requiredReferenceContextField)) "P005 referenceContext field is blank: $requiredReferenceContextField"
+}
+foreach ($requiredAdoptionField in @('summary', 'adopted', 'rejected', 'followUpEvidence')) {
+    Assert-True ($triageTemplate.adoptionDecision.PSObject.Properties.Name -contains $requiredAdoptionField) "P005 adoptionDecision missing field: $requiredAdoptionField"
+}
 
 $evidenceText = Get-Content -LiteralPath $evidenceFullPath -Raw
 foreach ($keyword in @('preflight', 'P005', 'platform_na', 'gate_na', '试点反馈转 backlog', '下一步')) {

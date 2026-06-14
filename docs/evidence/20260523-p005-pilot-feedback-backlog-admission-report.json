@@ -2,14 +2,20 @@
   "status": "pass",
   "taskId": "P005",
   "mode": "preflight_only",
-  "checkedAt": "2026-05-24T21:22:48",
+  "checkedAt": "2026-06-14T23:55:38",
+  "liveCloseoutPlanPath": "tasks/live-pilot-closeout-plan.csv",
   "p004Status": "待办",
   "p005Status": "待办",
   "closeTaskAllowed": false,
   "currentDecision": "keep_P005_todo_until_pilot_feedback_triage_evidence_close",
   "checklistPath": "docs/templates/p005-pilot-feedback-backlog-checklist.md",
+  "triageTemplatePath": "docs/templates/p005-pilot-feedback-triage-template.json",
   "evidencePath": "docs/evidence/20260505-p005-pilot-feedback-backlog-preflight.md",
   "reportPath": "docs/evidence/20260523-p005-pilot-feedback-backlog-admission-report.json",
+  "closeoutPlan": {
+    "rowCount": 26,
+    "nextOpenP005": "P005A"
+  },
   "blockers": [
     "P004 onsite pilot evidence is not closed.",
     "Feedback items are not classified by teacher efficiency, frequency, risk, and cost.",
@@ -17,6 +23,7 @@
   ],
   "nextRequiredEvidence": [
     "teacher pilot evidence from P004",
+    "structured P005 triage template",
     "feedback item list with frequency and teacher-efficiency impact",
     "risk and cost scoring",
     "backlog triage decisions: keep, modify, defer, do_not_do"
@@ -26,6 +33,6 @@
     "Do not modify roadmap/backlog from untriaged feedback.",
     "Do not advance P006 release decision until P005 triage is complete."
   ],
-  "boundary": "pilot feedback triage is not executed in this contract; keep P005 as todo until P004 closes and backlog triage evidence is complete",
+  "boundary": "pilot feedback triage is not executed in this contract; keep P005 as todo until P004 closes and backlog triage evidence is complete, and keep nextOpenP005 explicit while the onsite boundary is still open",
   "rollback": "revert tools/run-p005-pilot-feedback-backlog-preflight-contract.ps1, tasks/backlog.csv, and remove the generated P005 admission report."
 }

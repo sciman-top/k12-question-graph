@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS704",
-  "checkedAt": "2026-06-14T20:10:44",
+  "checkedAt": "2026-06-14T23:59:11",
   "mode": "commentary_report_and_tiered_suggestions",
   "productionEligible": false,
   "externalAiCalls": 0,
@@ -18,9 +18,9 @@
   },
   "report": {
     "endpoint": "/assessments/{assessmentId}/commentary-report/export",
-    "assessmentId": "1dd9f04a-ed64-4562-88d4-d1437429b27c",
-    "artifactPath": "draft://commentary-reports/1dd9f04aed64456288d4d1437429b27c.md",
-    "manifestSha256": "1cd0a3ce149afe7918dfed6e72432584fbee1c4eabfb09d931babadee5748e20",
+    "assessmentId": "f2d9bc27-3b43-4580-a5eb-3409eb6f210a",
+    "artifactPath": "draft://commentary-reports/f2d9bc273b434580a5eb3409eb6f210a.md",
+    "manifestSha256": "ebf21ab15b45d933155af3698206550aa3ef4be54dcd4a402efdcba139d18cc2",
     "sectionCount": 3,
     "weakKnowledgePointCount": 2,
     "practiceSuggestionCount": 2,

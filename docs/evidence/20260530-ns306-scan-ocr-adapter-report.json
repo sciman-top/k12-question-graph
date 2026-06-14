@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS306",
-  "checkedAt": "2026-06-14T20:06:05",
+  "checkedAt": "2026-06-14T23:54:47",
   "mode": "j003_scanned_ocr_adapter_contract_wrapper",
   "productionEligible": false,
   "dependency": {

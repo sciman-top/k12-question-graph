@@ -16,6 +16,34 @@
     "overallTeacherEfficiencyImpact": "",
     "topBlockingThemes": []
   },
+  "referenceContext": {
+    "referenceBasisPolicy": "tasks/reference-basis-policy.json",
+    "referenceRequirements": "tasks/reference-basis-requirements.csv",
+    "referenceModuleMap": "tasks/reference-basis-module-map.csv",
+    "guardEvidence": "docs/evidence/<date>-reference-basis-guard.json"
+  },
+  "impactedSurfaceIds": [
+    "WEB_TEACHER_WORKBENCH",
+    "P005"
+  ],
+  "referencesReviewed": [
+    {
+      "id": "official-docs/react.dev",
+      "kind": "local_official",
+      "why": "feedback form and interaction simplification reference"
+    },
+    {
+      "id": "education-assessment/moodle",
+      "kind": "local_community",
+      "why": "feedback governance and triage workflow reference"
+    }
+  ],
+  "adoptionDecision": {
+    "summary": "",
+    "adopted": [],
+    "rejected": [],
+    "followUpEvidence": ""
+  },
   "items": [
     {
       "id": "feedback-001",

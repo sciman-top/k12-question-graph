@@ -76,8 +76,17 @@ foreach ($keyword in @('门禁', '备份', '恢复', '教师效率', '隐私边�
 
 $decisionRecordTemplate = Get-Content -LiteralPath $decisionRecordTemplateFullPath -Raw | ConvertFrom-Json
 Assert-True ($decisionRecordTemplate.schemaVersion -eq 'p006-release-decision-record.v1') 'P006 decision record template schema mismatch'
-foreach ($requiredField in @('decisionContext', 'evidenceAnchors', 'gateReview', 'exceptions', 'tagCandidatePlan', 'signoff', 'finalRationale')) {
+foreach ($requiredField in @('decisionContext', 'referenceContext', 'impactedSurfaceIds', 'referencesReviewed', 'adoptionDecision', 'evidenceAnchors', 'gateReview', 'exceptions', 'tagCandidatePlan', 'signoff', 'finalRationale')) {
     Assert-True ($decisionRecordTemplate.PSObject.Properties.Name -contains $requiredField) "P006 decision record template missing field: $requiredField"
+}
+Assert-True (@($decisionRecordTemplate.impactedSurfaceIds).Count -ge 1) 'P006 decision record template must include impactedSurfaceIds'
+Assert-True (@($decisionRecordTemplate.referencesReviewed).Count -ge 1) 'P006 decision record template must include referencesReviewed'
+foreach ($requiredReferenceContextField in @('referenceBasisPolicy', 'referenceRequirements', 'referenceModuleMap', 'guardEvidence')) {
+    Assert-True ($decisionRecordTemplate.referenceContext.PSObject.Properties.Name -contains $requiredReferenceContextField) "P006 referenceContext missing field: $requiredReferenceContextField"
+    Assert-True (-not [string]::IsNullOrWhiteSpace([string] $decisionRecordTemplate.referenceContext.$requiredReferenceContextField)) "P006 referenceContext field is blank: $requiredReferenceContextField"
+}
+foreach ($requiredAdoptionField in @('summary', 'adopted', 'rejected', 'followUpEvidence')) {
+    Assert-True ($decisionRecordTemplate.adoptionDecision.PSObject.Properties.Name -contains $requiredAdoptionField) "P006 adoptionDecision missing field: $requiredAdoptionField"
 }
 
 $goNoGoCardText = Get-Content -LiteralPath $goNoGoCardFullPath -Raw

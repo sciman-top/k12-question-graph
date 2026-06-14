@@ -8,6 +8,34 @@
     "deploymentMode": "offline_first",
     "siteScope": ""
   },
+  "referenceContext": {
+    "referenceBasisPolicy": "tasks/reference-basis-policy.json",
+    "referenceRequirements": "tasks/reference-basis-requirements.csv",
+    "referenceModuleMap": "tasks/reference-basis-module-map.csv",
+    "guardEvidence": "docs/evidence/<date>-reference-basis-guard.json"
+  },
+  "impactedSurfaceIds": [
+    "BACKUP_RESTORE_RELEASE_EVIDENCE",
+    "P006"
+  ],
+  "referencesReviewed": [
+    {
+      "id": "official-docs/AspNetCore.Docs",
+      "kind": "local_official",
+      "why": "windows service / hosting / deploy semantics for release decision"
+    },
+    {
+      "id": "document-workflows/paperless-ngx",
+      "kind": "local_community",
+      "why": "local service / release evidence / rollback workflow reference"
+    }
+  ],
+  "adoptionDecision": {
+    "summary": "",
+    "adopted": [],
+    "rejected": [],
+    "followUpEvidence": ""
+  },
   "evidenceAnchors": {
     "p001ReadinessPack": "docs/evidence/20260607-ns904-p001-readiness.json",
     "p005Triage": "",

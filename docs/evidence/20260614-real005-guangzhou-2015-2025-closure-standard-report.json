@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "task": "REAL005",
-  "checkedAt": "2026-06-14T23:49:34",
+  "checkedAt": "2026-06-14T23:55:55",
   "closureStatus": "not_closed",
   "criteriaPath": "tasks/real-guangzhou-closure-criteria.csv",
   "criteriaCount": 16,
@@ -22,20 +22,6 @@
   "currentTruth": "S012/REAL001/REAL002/REAL003 dry-run/REAL004 review smoke evidence is not enough to claim 2015-2025 full workflow closure",
   "criteriaCoverage": {
     "RG001": {
-      "coveredYears": [
-        2015,
-        2016,
-        2017,
-        2018,
-        2019,
-        2020,
-        2021,
-        2022,
-        2023,
-        2024,
-        2025
-      ],
-      "blockedYears": [],
       "evidencePaths": [
         "docs/evidence/20260512-guangzhou-2015-real-ingest-slice-report.json",
         "docs/evidence/20260514-real003-guangzhou-physics-year-batch-ingest-report.json"
@@ -130,9 +116,7 @@
           "note": "REAL003 sourceHashes include a combined paper+answer local_exam_paper anchor such as 含答案/解析版."
         }
       ],
-      "status": "pass"
-    },
-    "RG002": {
+      "blockedYears": [],
       "coveredYears": [
         2015,
         2016,
@@ -146,7 +130,9 @@
         2024,
         2025
       ],
-      "blockedYears": [],
+      "status": "pass"
+    },
+    "RG002": {
       "evidencePaths": [
         "docs/evidence/20260614-real005-yearly-adapter-diagnostics.json"
       ],
@@ -273,6 +259,20 @@
           "note": "REAL005 yearly adapter diagnostics include adapter name/version, input/output hashes, warnings/errors, and durationMs for paper and answer anchors."
         }
       ],
+      "blockedYears": [],
+      "coveredYears": [
+        2015,
+        2016,
+        2017,
+        2018,
+        2019,
+        2020,
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
       "status": "pass"
     }
   },
@@ -284,11 +284,11 @@
         "docs/evidence/20260614-real005-yearly-adapter-diagnostics.json"
       ],
       "blockers": [],
-      "next": "REAL005A evidence is ready for manual closeout review.",
       "criteriaIds": [
         "RG001",
         "RG002"
       ],
+      "next": "REAL005A evidence is ready for manual closeout review.",
       "status": "pass"
     },
     "REAL005B": {
@@ -310,6 +310,17 @@
         "RG009:2016_2025_reviewed_question_save_and_source_detail_smoke_not_present",
         "RG009:all_years_reviewed_question_terminal_status_required_before_save_source_review_closure"
       ],
+      "criteriaStatus": {
+        "RG003": "pass",
+        "RG004": "partial",
+        "RG005": "blocked",
+        "RG006": "blocked",
+        "RG007": "blocked",
+        "RG008": "blocked",
+        "RG009": "blocked"
+      },
+      "status": "partial",
+      "next": "REAL005B remains partial until RG004-RG009 have per-question source anchors, structured fields, teacher review terminal status, and source-review save/detail evidence.",
       "evidencePaths": [
         "docs/evidence/20260512-guangzhou-2015-real-ingest-slice-report.json",
         "docs/evidence/20260512-guangzhou-2015-visual-region-slice-report.json",
@@ -330,18 +341,7 @@
         "RG007",
         "RG008",
         "RG009"
-      ],
-      "criteriaStatus": {
-        "RG003": "pass",
-        "RG004": "partial",
-        "RG005": "blocked",
-        "RG006": "blocked",
-        "RG007": "blocked",
-        "RG008": "blocked",
-        "RG009": "blocked"
-      },
-      "next": "REAL005B remains partial until RG004-RG009 have per-question source anchors, structured fields, teacher review terminal status, and source-review save/detail evidence.",
-      "status": "partial"
+      ]
     },
     "REAL005C": {
       "evidencePaths": [
@@ -351,7 +351,6 @@
       "blockers": [
         "REAL005A and REAL005B remain open; usage/export/analysis closure cannot be promoted ahead of earlier slices."
       ],
-      "next": "Keep REAL005C blocked until source coverage and per-question review closure are both complete.",
       "criteriaIds": [
         "RG010",
         "RG011",
@@ -361,6 +360,7 @@
         "RG015",
         "RG016"
       ],
+      "next": "Keep REAL005C blocked until source coverage and per-question review closure are both complete.",
       "status": "blocked_by_previous_slice"
     },
     "REAL005D": {
@@ -372,12 +372,12 @@
       "blockers": [
         "closureStatus remains not_closed; truthful docs must continue to say not_closed"
       ],
-      "next": "Do not rewrite outward completion wording until REAL005A/B/C are all closed.",
       "criteriaIds": [
         "DOCS",
         "README",
         "GO_NO_GO_CARD"
       ],
+      "next": "Do not rewrite outward completion wording until REAL005A/B/C are all closed.",
       "status": "blocked"
     }
   },

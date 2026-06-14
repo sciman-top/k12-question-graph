@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "REFERENCE_BASIS_GUARD",
-  "checkedAt": "2026-06-14T23:49:35",
+  "checkedAt": "2026-06-14T23:52:26",
   "validationMode": "Local",
   "policyPath": "tasks/reference-basis-policy.json",
   "requirementsPath": "tasks/reference-basis-requirements.csv",
