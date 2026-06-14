@@ -136,6 +136,8 @@ type SettingsFormValues = {
   providerProfileId: string
   baseUrl: string
   apiKey: string
+  imageBaseUrl: string
+  imageApiKey: string
   maxConcurrency: number
   monthlyBudgetCny: number
   disabledByDefault: boolean
@@ -165,6 +167,8 @@ export function AiRoutingControlPanel() {
       providerProfileId: settings.providerProfileId,
       baseUrl: settings.baseUrl,
       apiKey: '',
+      imageBaseUrl: settings.imageBaseUrl,
+      imageApiKey: '',
       maxConcurrency: settings.maxConcurrency,
       monthlyBudgetCny: settings.monthlyBudgetCny,
       disabledByDefault: settings.disabledByDefault,
@@ -182,6 +186,8 @@ export function AiRoutingControlPanel() {
       providerProfileId: values.providerProfileId,
       baseUrl: values.baseUrl,
       apiKey: values.apiKey,
+      imageBaseUrl: values.imageBaseUrl,
+      imageApiKey: values.imageApiKey,
       maxConcurrency: values.maxConcurrency,
       monthlyBudgetCny: values.monthlyBudgetCny,
       disabledByDefault: values.disabledByDefault,
@@ -200,6 +206,7 @@ export function AiRoutingControlPanel() {
     message.success('管理员 AI 设置已保存')
     setTestSummaryOverride(result.data.teacherMessage)
     form.setFieldValue('apiKey', '')
+    form.setFieldValue('imageApiKey', '')
     await queryClient.invalidateQueries({ queryKey: serverStateQueryKeys.adminAiProviderSettings })
   }
 
@@ -234,9 +241,13 @@ export function AiRoutingControlPanel() {
     providerProfileId: 'cloud_openai_candidate',
     providerType: 'openai_compatible',
     baseUrl: 'https://api.openai.com/v1',
+    imageBaseUrl: 'https://api.openai.com/v1',
     credentialMode: 'dialog_secret_local_machine',
     maskedSecret: '',
     secretConfigured: false,
+    maskedImageSecret: '',
+    imageSecretConfigured: false,
+    imageUsesPrimarySecret: true,
     maxConcurrency: 2,
     monthlyBudgetCny: 300,
     disabledByDefault: true,
@@ -340,6 +351,8 @@ export function AiRoutingControlPanel() {
           <span><Typography.Text type="secondary">providerProfile</Typography.Text><code>{providerSettingsCard.providerProfileId}</code></span>
           <span><Typography.Text type="secondary">baseUrl</Typography.Text><code>{providerSettingsCard.baseUrl}</code></span>
           <span><Typography.Text type="secondary">secret</Typography.Text><code>{providerSettingsCard.maskedSecret || '未配置'}</code></span>
+          <span><Typography.Text type="secondary">imageBaseUrl</Typography.Text><code>{providerSettingsCard.imageBaseUrl || providerSettingsCard.baseUrl}</code></span>
+          <span><Typography.Text type="secondary">imageSecret</Typography.Text><code>{providerSettingsCard.maskedImageSecret || (providerSettingsCard.imageUsesPrimarySecret ? '复用主 key' : '未配置')}</code></span>
           <span><Typography.Text type="secondary">并发</Typography.Text><strong>{providerSettingsCard.maxConcurrency}</strong></span>
           <span><Typography.Text type="secondary">预算</Typography.Text><strong>{providerSettingsCard.monthlyBudgetCny} 元 / 月</strong></span>
           <span><Typography.Text type="secondary">默认试跑</Typography.Text><code>{providerSettingsCard.defaultSmokeTaskType} / {providerSettingsCard.defaultSmokeModel}</code></span>
@@ -347,7 +360,7 @@ export function AiRoutingControlPanel() {
         <Alert
           showIcon
           type={providerSettingsCard.secretConfigured ? 'info' : 'warning'}
-          title={providerSettingsCard.secretConfigured ? '本机密钥已配置' : '尚未配置本机密钥'}
+          title={providerSettingsCard.secretConfigured ? '主 key 已配置' : '尚未配置主 key'}
           description={testSummary}
           data-contract="ai-provider-structured-smoke-test"
         />
@@ -376,8 +389,8 @@ export function AiRoutingControlPanel() {
       <Alert
         showIcon
         type="info"
-        title="密钥只保留引用，不保留明文"
-        description="provider profile 只记录 env 引用、base URL、并发、预算和 fallback；任何真实 secret、token 或生产默认切换都必须走脱敏检查和人工确认。"
+        title="默认单 key，图片覆盖可选"
+        description="管理员设置默认只要求一把主 key；图片专用 base URL / key 可留空并自动复用主配置。所有真实 secret 仍只保留本机加密副本，不在前端明文显示。"
         data-contract="ai-secret-redaction-no-active-write"
       />
 
@@ -397,12 +410,26 @@ export function AiRoutingControlPanel() {
             <Input />
           </Form.Item>
           <Form.Item
-            label="API Key"
+            label="主 API Key"
             name="apiKey"
             extra={`当前仅显示掩码：${providerSettingsCard.maskedSecret || '未配置'}；留空则保留现有本机密钥。`}
             data-contract="ai-provider-secret-masked-input"
           >
             <Input.Password placeholder="sk-..." />
+          </Form.Item>
+          <Form.Item
+            label="图片 base URL（可选）"
+            name="imageBaseUrl"
+            extra="留空时默认复用主 base URL；只有中继网关把生图单独挂到另一路径时才需要单独填写。"
+          >
+            <Input placeholder="https://api.openai.com/v1" />
+          </Form.Item>
+          <Form.Item
+            label="图片专用 API Key（可选）"
+            name="imageApiKey"
+            extra={`当前仅显示掩码：${providerSettingsCard.maskedImageSecret || (providerSettingsCard.imageUsesPrimarySecret ? '复用主 key' : '未配置')}；留空则复用主 key。`}
+          >
+            <Input.Password placeholder="留空则复用主 key" />
           </Form.Item>
           <Form.Item label="最大并发" name="maxConcurrency" rules={[{ required: true }]}>
             <InputNumber min={1} max={8} style={{ width: '100%' }} />

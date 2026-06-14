@@ -41,6 +41,17 @@ foreach ($row in $targets) {
     if (-not (Test-Path -LiteralPath $contractPath)) { $missing.Add([ordered]@{ id = $row.id; issue = "missing contract path: $($parts[0])" }) }
     if (-not (Test-Path -LiteralPath $checklistPath)) { $missing.Add([ordered]@{ id = $row.id; issue = "missing checklist path: $($parts[1])" }) }
 
+    foreach ($part in $parts | Where-Object { $_ -match '^(docs|tasks|tools|configs|sources)/\S+$' }) {
+        if ($part.Contains('<') -or $part.Contains('>')) {
+            continue
+        }
+
+        $repoPath = Join-Path $repoRoot ($part -replace '\\', '/')
+        if (-not (Test-Path -LiteralPath $repoPath)) {
+            $missing.Add([ordered]@{ id = $row.id; issue = "missing referenced path: $part" })
+        }
+    }
+
     $normalizedId = $row.id.ToLower()
     $evidenceMap = @{
         'p001' = 'docs/evidence/20260505-p001-live-pilot-readiness-preflight.md'
@@ -84,6 +95,12 @@ $summary = [ordered]@{
         P = ($targets | Where-Object { $_.id -like 'P*' } | Select-Object -ExpandProperty id)
         Q = ($targets | Where-Object { $_.id -like 'Q*' } | Select-Object -ExpandProperty id)
         R = ($targets | Where-Object { $_.id -like 'R*' } | Select-Object -ExpandProperty id)
+    }
+    templateAnchors = [ordered]@{
+        p003AdmissionCard = 'docs/templates/p003-onsite-pilot-admission-card-template.json'
+        p004TeacherPilotEvidence = 'docs/templates/p004-onsite-pilot-round1-evidence-template.json'
+        p005FeedbackTriage = 'docs/templates/p005-pilot-feedback-triage-template.json'
+        p006ReleaseDecision = 'docs/templates/p006-release-decision-record-template.json'
     }
     boundary = 'preflight only; no S0 productization or live execution state transition is performed'
     report = $ReportPath

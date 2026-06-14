@@ -4222,9 +4222,13 @@ public sealed record AdminAiProviderSettingsContract(
     string ProviderProfileId,
     string ProviderType,
     string BaseUrl,
+    string ImageBaseUrl,
     string CredentialMode,
     string MaskedSecret,
     bool SecretConfigured,
+    string MaskedImageSecret,
+    bool ImageSecretConfigured,
+    bool ImageUsesPrimarySecret,
     int MaxConcurrency,
     int MonthlyBudgetCny,
     bool DisabledByDefault,
@@ -4239,6 +4243,8 @@ public sealed record AdminAiProviderSettingsSaveRequest(
     string ProviderProfileId,
     string? BaseUrl,
     string? ApiKey,
+    string? ImageBaseUrl,
+    string? ImageApiKey,
     int MaxConcurrency,
     int MonthlyBudgetCny,
     bool DisabledByDefault,
@@ -4254,6 +4260,9 @@ public sealed record AdminAiProviderSettingsSaveResult(
     string ProviderProfileId,
     bool SecretConfigured,
     string MaskedSecret,
+    bool ImageSecretConfigured,
+    string MaskedImageSecret,
+    bool ImageUsesPrimarySecret,
     string LastUpdatedAt,
     string TeacherMessage,
     IReadOnlyList<string> AuditTrail);
@@ -4290,8 +4299,10 @@ internal sealed record StoredAdminAiProviderSettings(
     string ProviderProfileId,
     string ProviderType,
     string BaseUrl,
+    string ImageBaseUrl,
     string CredentialMode,
     string SecretCiphertext,
+    string ImageSecretCiphertext,
     int MaxConcurrency,
     int MonthlyBudgetCny,
     bool DisabledByDefault,
@@ -4306,6 +4317,7 @@ public interface IAiProviderSettingsStore
     Task<AdminAiProviderSettingsContract> GetAsync(CancellationToken cancellationToken);
     Task<AdminAiProviderSettingsSaveResult> SaveAsync(AdminAiProviderSettingsSaveRequest request, CancellationToken cancellationToken);
     Task<string> GetPlaintextSecretAsync(CancellationToken cancellationToken);
+    Task<string> GetPlaintextImageSecretAsync(CancellationToken cancellationToken);
 }
 
 public interface IAiProviderSmokeTestService
@@ -4328,6 +4340,15 @@ public sealed class FileAiProviderSettingsStore(
     private const string DefaultCredentialMode = "dialog_secret_local_machine";
     private const string DefaultSmokeTaskType = "knowledge_tagging";
     private const string DefaultSmokeModel = "gpt-5.4-mini";
+    private const string PrimaryEnvSecretName = "KQG_AI_OPENAI_KEY";
+    private const string PrimaryEnvBaseUrlName = "KQG_AI_OPENAI_BASE_URL";
+    private const string ImageEnvSecretName = "KQG_AI_IMAGE_OPENAI_KEY";
+    private const string ImageEnvBaseUrlName = "KQG_AI_IMAGE_OPENAI_BASE_URL";
+    private const string LegacyPrimaryEnvSecretName = "TEXT_PROVIDER_API_KEY";
+    private const string LegacyPrimaryEnvBaseUrlName = "TEXT_PROVIDER_BASE_URL";
+    private const string LegacyPrimaryEnvModelName = "TEXT_PROVIDER_MODEL";
+    private const string LegacyImageEnvSecretName = "IMAGE_PROVIDER_API_KEY_1";
+    private const string LegacyImageEnvBaseUrlName = "IMAGE_PROVIDER_BASE_URL";
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web) { WriteIndented = true };
     private readonly IDataProtector protector = dataProtectionProvider.CreateProtector("k12-question-graph.admin-ai-provider-settings.v0.1");
 
@@ -4345,17 +4366,25 @@ public sealed class FileAiProviderSettingsStore(
 
         var existing = await LoadStoredAsync(cancellationToken);
         var normalizedSecret = request.ApiKey?.Trim();
+        var normalizedImageSecret = request.ImageApiKey?.Trim();
         var secretCiphertext = string.IsNullOrWhiteSpace(normalizedSecret)
             ? existing.SecretCiphertext
             : ProtectSecret(normalizedSecret);
+        var imageSecretCiphertext = normalizedImageSecret is null
+            ? existing.ImageSecretCiphertext
+            : string.IsNullOrWhiteSpace(normalizedImageSecret)
+                ? string.Empty
+                : ProtectSecret(normalizedImageSecret);
         var now = DateTimeOffset.UtcNow;
         var stored = new StoredAdminAiProviderSettings(
             SchemaVersion,
             Normalize(request.ProviderProfileId, DefaultProviderProfileId),
             DefaultProviderType,
             NormalizeBaseUrl(request.BaseUrl),
+            NormalizeOptionalBaseUrl(request.ImageBaseUrl),
             DefaultCredentialMode,
             secretCiphertext,
+            imageSecretCiphertext,
             NormalizeRange(request.MaxConcurrency, 1, 8, fallback: existing.MaxConcurrency),
             NormalizeRange(request.MonthlyBudgetCny, 0, 100000, fallback: existing.MonthlyBudgetCny),
             request.DisabledByDefault,
@@ -4372,20 +4401,27 @@ public sealed class FileAiProviderSettingsStore(
             Encoding.UTF8,
             cancellationToken);
 
+        var plaintextPrimarySecret = UnprotectSecret(stored.SecretCiphertext);
+        var plaintextImageSecret = ResolveEffectiveImageSecret(plaintextPrimarySecret, stored.ImageSecretCiphertext);
         return new AdminAiProviderSettingsSaveResult(
             Status: "ok",
             Mode: "draft_test",
             ProductionEligible: false,
             ProviderProfileId: stored.ProviderProfileId,
-            SecretConfigured: !string.IsNullOrWhiteSpace(stored.SecretCiphertext),
-            MaskedSecret: MaskSecret(UnprotectSecret(stored.SecretCiphertext)),
+            SecretConfigured: !string.IsNullOrWhiteSpace(plaintextPrimarySecret),
+            MaskedSecret: MaskSecret(plaintextPrimarySecret),
+            ImageSecretConfigured: !string.IsNullOrWhiteSpace(plaintextImageSecret),
+            MaskedImageSecret: MaskSecret(plaintextImageSecret),
+            ImageUsesPrimarySecret: string.IsNullOrWhiteSpace(UnprotectSecret(stored.ImageSecretCiphertext)),
             LastUpdatedAt: stored.UpdatedAtUtc.ToString("O"),
-            TeacherMessage: "管理员 AI 设置已保存；密钥仅保留本机加密副本，试跑仍保持 pending_review。",
+            TeacherMessage: "管理员 AI 设置已保存；默认单 key 生效，图片专用 key 留空时会复用主 key；本机仍只保留加密副本，试跑保持 pending_review。",
             AuditTrail: [
                 "save_admin_ai_provider_settings",
                 $"provider_profile={stored.ProviderProfileId}",
                 $"allow_real_model_calls={stored.AllowRealModelCalls.ToString().ToLowerInvariant()}",
-                $"secret_configured={(!string.IsNullOrWhiteSpace(stored.SecretCiphertext)).ToString().ToLowerInvariant()}"
+                $"secret_configured={(!string.IsNullOrWhiteSpace(plaintextPrimarySecret)).ToString().ToLowerInvariant()}",
+                $"image_secret_configured={(!string.IsNullOrWhiteSpace(plaintextImageSecret)).ToString().ToLowerInvariant()}",
+                $"image_uses_primary_secret={(string.IsNullOrWhiteSpace(UnprotectSecret(stored.ImageSecretCiphertext))).ToString().ToLowerInvariant()}"
             ]);
     }
 
@@ -4393,6 +4429,13 @@ public sealed class FileAiProviderSettingsStore(
     {
         var stored = await LoadStoredAsync(cancellationToken);
         return UnprotectSecret(stored.SecretCiphertext);
+    }
+
+    public async Task<string> GetPlaintextImageSecretAsync(CancellationToken cancellationToken)
+    {
+        var stored = await LoadStoredAsync(cancellationToken);
+        var plaintextPrimarySecret = UnprotectSecret(stored.SecretCiphertext);
+        return ResolveEffectiveImageSecret(plaintextPrimarySecret, stored.ImageSecretCiphertext);
     }
 
     private async Task<StoredAdminAiProviderSettings> LoadStoredAsync(CancellationToken cancellationToken)
@@ -4419,6 +4462,8 @@ public sealed class FileAiProviderSettingsStore(
     private AdminAiProviderSettingsContract ToContract(StoredAdminAiProviderSettings settings)
     {
         var plaintextSecret = UnprotectSecret(settings.SecretCiphertext);
+        var plaintextImageSecret = ResolveEffectiveImageSecret(plaintextSecret, settings.ImageSecretCiphertext);
+        var explicitImageSecret = UnprotectSecret(settings.ImageSecretCiphertext);
         return new AdminAiProviderSettingsContract(
             Status: "ok",
             Mode: "draft_test",
@@ -4426,9 +4471,13 @@ public sealed class FileAiProviderSettingsStore(
             ProviderProfileId: settings.ProviderProfileId,
             ProviderType: settings.ProviderType,
             BaseUrl: settings.BaseUrl,
+            ImageBaseUrl: ResolveEffectiveImageBaseUrl(settings.BaseUrl, settings.ImageBaseUrl),
             CredentialMode: settings.CredentialMode,
             MaskedSecret: MaskSecret(plaintextSecret),
             SecretConfigured: !string.IsNullOrWhiteSpace(plaintextSecret),
+            MaskedImageSecret: MaskSecret(plaintextImageSecret),
+            ImageSecretConfigured: !string.IsNullOrWhiteSpace(plaintextImageSecret),
+            ImageUsesPrimarySecret: string.IsNullOrWhiteSpace(explicitImageSecret),
             MaxConcurrency: settings.MaxConcurrency,
             MonthlyBudgetCny: settings.MonthlyBudgetCny,
             DisabledByDefault: settings.DisabledByDefault,
@@ -4436,11 +4485,13 @@ public sealed class FileAiProviderSettingsStore(
             DefaultSmokeTaskType: settings.DefaultSmokeTaskType,
             DefaultSmokeModel: settings.DefaultSmokeModel,
             LastUpdatedAt: settings.UpdatedAtUtc.ToString("O"),
-            TeacherMessage: "当前为管理员级本机 AI 设置；普通教师侧仍只看到简化模式。",
+            TeacherMessage: "当前为管理员级本机 AI 设置；默认单 key，图片专用 key 可选覆盖；普通教师侧仍只看到简化模式。",
             AuditTrail: [
                 "load_admin_ai_provider_settings",
                 $"provider_profile={settings.ProviderProfileId}",
                 $"secret_configured={(!string.IsNullOrWhiteSpace(plaintextSecret)).ToString().ToLowerInvariant()}",
+                $"image_secret_configured={(!string.IsNullOrWhiteSpace(plaintextImageSecret)).ToString().ToLowerInvariant()}",
+                $"image_uses_primary_secret={(string.IsNullOrWhiteSpace(explicitImageSecret)).ToString().ToLowerInvariant()}",
                 $"allow_real_model_calls={settings.AllowRealModelCalls.ToString().ToLowerInvariant()}"
             ]);
     }
@@ -4448,19 +4499,26 @@ public sealed class FileAiProviderSettingsStore(
     private StoredAdminAiProviderSettings BuildDefault()
     {
         var defaults = LoadDefaultsFromYaml();
+        var envPrimarySecret = ReadFirstEnvironmentValue(PrimaryEnvSecretName, LegacyPrimaryEnvSecretName);
+        var envImageSecret = ReadFirstEnvironmentValue(ImageEnvSecretName, LegacyImageEnvSecretName);
+        var envPrimaryBaseUrl = ReadFirstEnvironmentValue(PrimaryEnvBaseUrlName, LegacyPrimaryEnvBaseUrlName);
+        var envImageBaseUrl = ReadFirstEnvironmentValue(ImageEnvBaseUrlName, LegacyImageEnvBaseUrlName);
+        var envDefaultSmokeModel = ReadFirstEnvironmentValue(LegacyPrimaryEnvModelName);
         return new StoredAdminAiProviderSettings(
             SchemaVersion,
             DefaultProviderProfileId,
             DefaultProviderType,
-            defaults.baseUrl,
+            NormalizeBaseUrl(string.IsNullOrWhiteSpace(envPrimaryBaseUrl) ? defaults.baseUrl : envPrimaryBaseUrl),
+            NormalizeOptionalBaseUrl(envImageBaseUrl),
             DefaultCredentialMode,
-            string.Empty,
+            string.IsNullOrWhiteSpace(envPrimarySecret) ? string.Empty : ProtectSecret(envPrimarySecret),
+            string.IsNullOrWhiteSpace(envImageSecret) ? string.Empty : ProtectSecret(envImageSecret),
             defaults.maxConcurrency,
             defaults.monthlyBudgetCny,
             true,
             false,
             DefaultSmokeTaskType,
-            DefaultSmokeModel,
+            Normalize(envDefaultSmokeModel, DefaultSmokeModel),
             DateTimeOffset.MinValue,
             string.Empty);
     }
@@ -4473,6 +4531,7 @@ public sealed class FileAiProviderSettingsStore(
             ProviderProfileId = Normalize(loaded.ProviderProfileId, DefaultProviderProfileId),
             ProviderType = Normalize(loaded.ProviderType, DefaultProviderType),
             BaseUrl = NormalizeBaseUrl(string.IsNullOrWhiteSpace(loaded.BaseUrl) ? defaults.baseUrl : loaded.BaseUrl),
+            ImageBaseUrl = NormalizeOptionalBaseUrl(loaded.ImageBaseUrl),
             CredentialMode = Normalize(loaded.CredentialMode, DefaultCredentialMode),
             MaxConcurrency = NormalizeRange(loaded.MaxConcurrency, 1, 8, defaults.maxConcurrency),
             MonthlyBudgetCny = NormalizeRange(loaded.MonthlyBudgetCny, 0, 100000, defaults.monthlyBudgetCny),
@@ -4537,6 +4596,11 @@ public sealed class FileAiProviderSettingsStore(
         return normalized.TrimEnd('/');
     }
 
+    private static string NormalizeOptionalBaseUrl(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim().TrimEnd('/');
+    }
+
     private string ProtectSecret(string value)
     {
         return protector.Protect(value);
@@ -4573,6 +4637,31 @@ public sealed class FileAiProviderSettingsStore(
         }
 
         return $"{trimmed[..4]}****{trimmed[^4..]}";
+    }
+
+    private string ResolveEffectiveImageSecret(string primarySecret, string? imageSecretCiphertext)
+    {
+        var explicitImageSecret = UnprotectSecret(imageSecretCiphertext);
+        return string.IsNullOrWhiteSpace(explicitImageSecret) ? primarySecret : explicitImageSecret;
+    }
+
+    private static string ResolveEffectiveImageBaseUrl(string primaryBaseUrl, string? imageBaseUrl)
+    {
+        return string.IsNullOrWhiteSpace(imageBaseUrl) ? primaryBaseUrl : imageBaseUrl.TrimEnd('/');
+    }
+
+    private static string ReadFirstEnvironmentValue(params string[] variableNames)
+    {
+        foreach (var variableName in variableNames)
+        {
+            var value = Environment.GetEnvironmentVariable(variableName)?.Trim();
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                return value;
+            }
+        }
+
+        return string.Empty;
     }
 }
 

@@ -218,6 +218,8 @@ export async function saveAdminAiProviderSettings(request: {
   providerProfileId: string
   baseUrl: string
   apiKey: string
+  imageBaseUrl?: string
+  imageApiKey?: string
   maxConcurrency: number
   monthlyBudgetCny: number
   disabledByDefault: boolean

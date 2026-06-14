@@ -92,7 +92,10 @@ try {
     Assert-Condition (-not [bool]$real005.fullClosureAllowed) 'NS903 must not allow REAL005 full closure'
     Assert-Condition ($null -ne $real005.sliceCoverage) 'NS903 requires REAL005 sliceCoverage'
     Assert-Condition ($null -ne $real005.sliceCoverage.REAL005A) 'NS903 requires REAL005A slice coverage'
-    Assert-Condition ([string]$real005.sliceCoverage.REAL005A.status -in @('blocked', 'partial')) 'NS903 requires REAL005A to remain blocked or partial while closeout is open'
+    Assert-Condition ($null -ne $real005.sliceCoverage.REAL005B) 'NS903 requires REAL005B slice coverage'
+    Assert-Condition ([string]$real005.sliceCoverage.REAL005A.status -eq 'pass') 'NS903 requires REAL005A to pass after RG001/RG002 source and adapter evidence is complete'
+    Assert-Condition ([string]$real005.sliceCoverage.REAL005B.status -ne 'pass') 'NS903 requires REAL005B to remain open while per-question structure and review evidence is incomplete'
+    Assert-Condition (@($real005.sliceCoverage.REAL005B.blockers).Count -ge 1) 'NS903 requires REAL005B blockers while REAL005 full closure is open'
     Assert-Condition (-not [bool]$p001.p001CanClose) 'NS903 must keep P001 open until isolated-machine evidence exists'
     Assert-Condition (@($p001.blockers).Count -gt 0) 'NS903 requires P001 blockers to stay explicit'
 
@@ -196,7 +199,10 @@ try {
             p001Blockers = @($p001.blockers)
             real005ClosureStatus = [string]$real005.closureStatus
             real005FullClosureAllowed = [bool]$real005.fullClosureAllowed
-            real005NextSliceStatus = [string]$real005.sliceCoverage.REAL005A.status
+            real005ASliceStatus = [string]$real005.sliceCoverage.REAL005A.status
+            real005BStatus = [string]$real005.sliceCoverage.REAL005B.status
+            real005BBlockers = @($real005.sliceCoverage.REAL005B.blockers)
+            real005NextOpenSlice = 'REAL005B'
             ns901NonSiteValidated = [bool]$ns901.nonSiteValidated
         }
         acceptance = [ordered]@{

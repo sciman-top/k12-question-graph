@@ -1,0 +1,33 @@
+{
+  "status": "pass",
+  "taskId": "P004",
+  "mode": "preflight_only",
+  "checkedAt": "2026-06-14T20:38:17",
+  "p003Status": "待办",
+  "p004Status": "待办",
+  "closeTaskAllowed": false,
+  "currentDecision": "keep_P004_todo_until_onsite_round1_evidence_close",
+  "checklistPath": "docs/templates/p004-onsite-pilot-round1-checklist.md",
+  "evidenceTemplatePath": "docs/templates/p004-onsite-pilot-round1-evidence-template.json",
+  "evidencePath": "docs/evidence/20260505-p004-onsite-pilot-round1-preflight.md",
+  "reportPath": "docs/evidence/20260614-p004-onsite-pilot-round1-report.json",
+  "blockers": [
+    "P003 onsite admission card is not closed.",
+    "Actual teacher elapsed time is not recorded.",
+    "Operation friction, error, copy confusion, rollback event, and teacher evidence are not recorded."
+  ],
+  "nextRequiredEvidence": [
+    "pilot admission card from P003",
+    "structured P004 teacher pilot evidence template",
+    "onsite teacher pilot evidence",
+    "elapsed time and operation friction log",
+    "rollback event log and support-owner notes"
+  ],
+  "failClosedRules": [
+    "Do not execute onsite pilot round1 from this preflight contract.",
+    "Do not mark P004 complete without actual teacher/onsite or explicitly authorized proxy evidence.",
+    "Do not advance P005 feedback backlog until P004 teacher pilot evidence exists."
+  ],
+  "boundary": "onsite pilot round1 is not executed in this contract; keep P004 as todo until P003 closes and teacher pilot evidence is complete",
+  "rollback": "revert tools/run-p004-onsite-pilot-round1-preflight-contract.ps1, tasks/backlog.csv, and remove the generated P004 admission report."
+}

@@ -11,7 +11,7 @@
   "highRiskOperationSource": "api-contract-source-of-truth",
   "bundleWarningResolved": true,
   "chunks": [
-    "AdminGovernancePanels-B4t1VvAm.js",
+    "AdminGovernancePanels-BvE5bMWV.js",
     "antd-admin-rc-vendor-DA29KYkv.js",
     "antd-core-vendor-BBUyonJY.js",
     "antd-icons-vendor-sZztBZ3R.js",
@@ -21,8 +21,8 @@
     "antd-vendor-feedback-geX_tfTN.js",
     "antd-vendor-foundation-YNOtRAFJ.js",
     "antd-vendor-input-BSvY-70q.js",
+    "index-0USQiqFD.js",
     "index-2xZZgjMa.css",
-    "index-DDlTwp5Y.js",
     "query-vendor-D3f6wuaY.js",
     "rolldown-runtime-jpDsebLB.js",
     "vendor-14GIUy0w.js"

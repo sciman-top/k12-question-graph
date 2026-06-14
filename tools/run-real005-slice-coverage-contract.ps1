@@ -56,16 +56,18 @@ foreach ($sliceId in @('REAL005A', 'REAL005B', 'REAL005C', 'REAL005D')) {
 $sliceA = $sliceCoverage.REAL005A
 Assert-True ((@($sliceA.criteriaIds)) -contains 'RG001') 'REAL005A must include RG001'
 Assert-True ((@($sliceA.criteriaIds)) -contains 'RG002') 'REAL005A must include RG002'
-Assert-True ([string]$sliceA.status -in @('blocked', 'partial')) 'REAL005A should currently be blocked or partial'
-Assert-True (@($sliceA.blockers).Count -ge 1) 'REAL005A must list current blockers'
+Assert-True ([string]$sliceA.status -eq 'pass') 'REAL005A should currently pass after RG001/RG002 repo-side evidence is complete'
+Assert-True (@($sliceA.blockers).Count -eq 0) 'REAL005A must not list blockers after RG001/RG002 pass'
 
 $sliceB = $sliceCoverage.REAL005B
 Assert-True ((@($sliceB.criteriaIds)) -contains 'RG003') 'REAL005B must include RG003'
 Assert-True ((@($sliceB.criteriaIds)) -contains 'RG009') 'REAL005B must include RG009'
+Assert-True ([string]$sliceB.status -ne 'pass') 'REAL005B must not pass before per-question structure and review coverage is closed'
 
 $sliceC = $sliceCoverage.REAL005C
 Assert-True ((@($sliceC.criteriaIds)) -contains 'RG010') 'REAL005C must include RG010'
 Assert-True ((@($sliceC.criteriaIds)) -contains 'RG016') 'REAL005C must include RG016'
+Assert-True ([string]$sliceC.status -ne 'pass') 'REAL005C must not pass before usage/export/analysis coverage is closed'
 
 $sliceD = $sliceCoverage.REAL005D
 Assert-True ((@($sliceD.criteriaIds)) -contains 'DOCS') 'REAL005D must include docs closeout marker'

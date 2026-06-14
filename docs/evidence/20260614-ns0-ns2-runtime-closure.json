@@ -1,0 +1,122 @@
+{
+  "status": "pass",
+  "taskId": "NS0_NS2_RUNTIME_CLOSURE",
+  "checkedAt": "2026-06-14T20:05:36",
+  "mode": "repo_landed_to_runtime_verified_closure_guard",
+  "targetRows": [
+    "NS001",
+    "NS002",
+    "NS003",
+    "NS004",
+    "NS005",
+    "NS103",
+    "NS105",
+    "NS106",
+    "NS201",
+    "NS202",
+    "NS203",
+    "NS204"
+  ],
+  "productionEligible": false,
+  "externalAiCalls": 0,
+  "realStudentDataUsed": false,
+  "writesProductionHistory": false,
+  "activeAssetMutation": false,
+  "documentEvidence": {
+    "roadmapStatusDictionary": true,
+    "completionDashboardRows": 24,
+    "moduleOwnershipMarkers": [
+      "apps/api",
+      "apps/web",
+      "workers/document",
+      "tools",
+      "tests",
+      "docs/evidence"
+    ],
+    "fixturePolicyPresent": true,
+    "rawSourcesTrackedOnlyGitignore": true,
+    "ns103Snapshot": "docs/evidence/20260531-ns103-api-snapshot.md"
+  },
+  "runtimeGates": [
+    {
+      "name": "NS004 non-site implementation plan guard",
+      "script": "tools/run-non-site-implementation-plan-guard.ps1",
+      "status": "pass",
+      "taskId": "",
+      "durationMs": 84
+    },
+    {
+      "name": "NS105 teacher route typed client boundary",
+      "script": "tools/run-ns105-teacher-route-client-boundary.ps1",
+      "status": "pass",
+      "taskId": "NS105",
+      "durationMs": 13515
+    },
+    {
+      "name": "NS106 feature profile guard",
+      "script": "tools/run-ns106-feature-profile-guard.ps1",
+      "status": "pass",
+      "taskId": "NS106",
+      "durationMs": 15
+    },
+    {
+      "name": "NS201 role audit baseline",
+      "script": "tools/run-ns201-role-audit-baseline.ps1",
+      "status": "pass",
+      "taskId": "NS201",
+      "durationMs": 5547
+    },
+    {
+      "name": "NS202 admin internal fail closed",
+      "script": "tools/run-ns202-admin-internal-fail-closed.ps1",
+      "status": "pass",
+      "taskId": "NS202",
+      "durationMs": 17706
+    },
+    {
+      "name": "NS203 privacy license scan",
+      "script": "tools/run-ns203-privacy-license-scan.ps1",
+      "status": "pass",
+      "taskId": "NS203",
+      "durationMs": 2004
+    },
+    {
+      "name": "NS204 no active write guard",
+      "script": "tools/run-ns204-no-active-write-guard.ps1",
+      "status": "pass",
+      "taskId": "NS204",
+      "durationMs": 19
+    }
+  ],
+  "fullGateEvidence": {
+    "path": "docs/evidence/20260531-run-gates-ns1104-after-s012a-fix-2.log",
+    "present": true,
+    "failStatusCount": 0,
+    "exceptionCount": 0
+  },
+  "acceptance": {
+    "ns001StatusDictionaryVerified": true,
+    "ns002CompletionDashboardParsed": true,
+    "ns003ModuleOwnershipVerified": true,
+    "ns004PlanGuardPassed": true,
+    "ns005FixturePrivacyPolicyVerified": true,
+    "ns103ApiSnapshotRefreshed": true,
+    "ns105TeacherRouteBoundaryPassed": true,
+    "ns106FeatureProfileGuardPassed": true,
+    "ns201RoleAuditBaselinePassed": true,
+    "ns202AdminInternalFailClosedPassed": true,
+    "ns203PrivacyLicenseScanPassed": true,
+    "ns204NoActiveWriteGuardPassed": true,
+    "noRawSourceTracked": true,
+    "noProductionWrite": true
+  },
+  "verification": {
+    "build": "NS103 runs dotnet build before snapshot refresh",
+    "test": "NS004/NS105/NS106/NS201/NS202/NS203/NS204 gates plus document/CSV/privacy probes",
+    "contractInvariant": "NS0 state dictionary, dashboard, module ownership, fixture policy, API typed snapshot, feature/security/privacy/no-active-write boundaries are current and concrete",
+    "hotspot": "gate_na: this is a governance/runtime-boundary closure pack; teacher-facing workflow hotspots are covered by later NS3-NS9 runtime scripts and full gate"
+  },
+  "boundary": "This closure pack upgrades early repo_landed NS0/NS1/NS2 governance and safety rows to runtime evidence. It does not change production defaults, process real student data, enable external AI, or close onsite/live pilot blockers.",
+  "rollback": "git restore tasks/non-site-implementation-plan.csv tools/README.md; git clean -f -- tools/run-ns0-ns2-runtime-closure.ps1 docs/evidence/20260531-ns0-ns2-runtime-closure.json docs/evidence/20260531-ns103-api-snapshot.md",
+  "next": "If this report passes, NS001-NS005, NS103, NS105, NS106, and NS201-NS204 can be marked runtime_verified while NS1001-NS1005 remain blocked_by_onsite."
+}

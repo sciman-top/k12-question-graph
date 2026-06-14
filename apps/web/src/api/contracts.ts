@@ -342,9 +342,13 @@ export interface AdminAiProviderSettingsContract {
   providerProfileId: string
   providerType: string
   baseUrl: string
+  imageBaseUrl: string
   credentialMode: string
   maskedSecret: string
   secretConfigured: boolean
+  maskedImageSecret: string
+  imageSecretConfigured: boolean
+  imageUsesPrimarySecret: boolean
   maxConcurrency: number
   monthlyBudgetCny: number
   disabledByDefault: boolean
@@ -363,6 +367,9 @@ export interface AdminAiProviderSettingsSaveContract {
   providerProfileId: string
   secretConfigured: boolean
   maskedSecret: string
+  imageSecretConfigured: boolean
+  maskedImageSecret: string
+  imageUsesPrimarySecret: boolean
   lastUpdatedAt: string
   teacherMessage: string
   auditTrail: string[]
@@ -873,9 +880,13 @@ export function normalizeAdminAiProviderSettingsResponse(
     providerProfileId: readStringField(value, 'providerProfileId') ?? '',
     providerType: readStringField(value, 'providerType') ?? '',
     baseUrl: readStringField(value, 'baseUrl') ?? '',
+    imageBaseUrl: readStringField(value, 'imageBaseUrl') ?? '',
     credentialMode: readStringField(value, 'credentialMode') ?? '',
     maskedSecret: readStringField(value, 'maskedSecret') ?? '',
     secretConfigured: readBooleanField(value, 'secretConfigured'),
+    maskedImageSecret: readStringField(value, 'maskedImageSecret') ?? '',
+    imageSecretConfigured: readBooleanField(value, 'imageSecretConfigured'),
+    imageUsesPrimarySecret: readBooleanField(value, 'imageUsesPrimarySecret'),
     maxConcurrency: readNumberField(value, 'maxConcurrency'),
     monthlyBudgetCny: readNumberField(value, 'monthlyBudgetCny'),
     disabledByDefault: readBooleanField(value, 'disabledByDefault'),
@@ -898,6 +909,9 @@ export function normalizeAdminAiProviderSettingsSaveResponse(
     providerProfileId: readStringField(value, 'providerProfileId') ?? '',
     secretConfigured: readBooleanField(value, 'secretConfigured'),
     maskedSecret: readStringField(value, 'maskedSecret') ?? '',
+    imageSecretConfigured: readBooleanField(value, 'imageSecretConfigured'),
+    maskedImageSecret: readStringField(value, 'maskedImageSecret') ?? '',
+    imageUsesPrimarySecret: readBooleanField(value, 'imageUsesPrimarySecret'),
     lastUpdatedAt: readStringField(value, 'lastUpdatedAt') ?? '',
     teacherMessage: readStringField(value, 'teacherMessage') ?? '',
     auditTrail: readArrayField(value, 'auditTrail').map(String),

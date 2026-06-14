@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS803",
-  "checkedAt": "2026-06-11T22:06:40",
+  "checkedAt": "2026-06-14T20:13:53",
   "mode": "installer_host_diagnostic",
   "productionEligible": false,
   "externalAiCalls": 0,
@@ -94,7 +94,7 @@
       "mode": "admin_internal_guard_key",
       "rotateRequiredOnFirstLogin": true,
       "persistedPlaintext": false,
-      "adminKeySha256": "473b9a8ce814dfe8806c5a0d8d73c47bb93c123869dfb38bfeee375883be9a69"
+      "adminKeySha256": "2717cfb214e4a1583d02000ba2cdf85cb38f383b164b5e57d1e4041e81265f6d"
     }
   },
   "acceptance": {

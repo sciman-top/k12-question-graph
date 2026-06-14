@@ -1,6 +1,6 @@
 # 26 · 官方文档、社区项目与最佳实践参考
 
-本文件只记录会影响本项目架构、路线图和实现顺序的资料。可复制的 URL 清单见 `sources/references.md`。最近一次外部参考库整理：2026-06-09；最新 repo-side `reference-basis` / parity 核对：2026-06-13。
+本文件只记录会影响本项目架构、路线图和实现顺序的资料。可复制的 URL 清单见 `sources/references.md`。最近一次外部参考库整理：2026-06-09；最新 repo-side `reference-basis` / parity 核对：2026-06-14。
 
 复核口径：优先使用官方文档或项目一手资料。社区文章只作为发现候选，不作为本仓规则依据。
 
@@ -40,7 +40,7 @@ cd D:\CODE\external\k12-question-graph-references
 pwsh -NoProfile -ExecutionPolicy Bypass -File tools/sync-reference-shelf-snapshot.ps1
 ```
 
-2026-06-13 最新核对结果：`tools/run-reference-basis-guard.ps1` 已通过，覆盖 20 个高风险任务和 13 个模块面，且 `sources/reference-shelf.manifest.snapshot.json` 与外部 `references.manifest.json` 保持 `snapshot_parity = match`。这说明当前仓内 snapshot、外部参考库和 guard 规则在 repo-side 口径上是一致的。
+2026-06-14 最新核对结果：`tools/run-reference-basis-guard.ps1` 已通过，覆盖 20 个高风险任务和 13 个模块面，且 `sources/reference-shelf.manifest.snapshot.json` 与外部 `references.manifest.json` 保持 `snapshot_parity = match`。这说明当前仓内 snapshot、外部参考库和 guard 规则在 repo-side 口径上是一致的。同期新增了 `tasks/reference-basis-policy.json` 与 `tools/run-reference-basis-diff-aware-contract.ps1`，开始把 v2 参考治理从“静态登记完整”升级到“changed paths 能投影到受管模块/任务”的最小可验证形态。
 
 已落地仓库：
 
@@ -74,9 +74,9 @@ OpenAI Cookbook 作为在线参考保留：`https://github.com/openai/openai-coo
 
 使用边界：本地浅克隆用于 `rg` 检索、结构阅读和技术决策复核；官方语义仍以官网/当前版本文档为准。默认只更新 `core` 参考集；`dotnet-eShop`、`OpenOLAT`、`moodle`、`react-router`、`paperless-ngx` 和 `pgvector` 作为 `optional`，只在明确研究对应方向时更新。仓库分组、上游 URL、用途说明、最近一次验证提交号和补充说明都以外部 `references.manifest.json` 为单一真相入口。Moodle、OpenOLAT 等大型教育平台只提炼题库、测评、课程资产、权限、审计和迁移做法，不复制其完整 LMS 路线。
 
-自 2026-06-09 起，部分高风险任务不再只“建议”查参考，而是受 `tasks/reference-basis-requirements.csv` + `tasks/reference-basis-module-map.csv` + `tools/run-reference-basis-guard.ps1` 约束：缺少官方来源或本地参考库锚点时，主 gate 直接失败。当前首批强制覆盖 `S004`、`S010`、`S011`、`REAL010`、`NS1301-NS1308`、`O008`、`P001`、`P003`、`P005`、`P006`、`R001`、`R002`、`R007`，并把 API/Web/export/score-analysis/AI routing/OCR/Windows Service/release pack/search/queue/interop 这些板块映射成机器可读 module map；守卫在本机有外部参考库时还会额外核对 `sources/reference-shelf.manifest.snapshot.json` 与外部 `references.manifest.json` 是否同构，避免“本地能过、CI 假挂”。
+自 2026-06-09 起，部分高风险任务不再只“建议”查参考，而是受 `tasks/reference-basis-requirements.csv` + `tasks/reference-basis-module-map.csv` + `tasks/reference-basis-policy.json` + `tools/run-reference-basis-guard.ps1` 约束：缺少官方来源或本地参考库锚点时，主 gate 直接失败。当前首批强制覆盖 `S004`、`S010`、`S011`、`REAL010`、`NS1301-NS1308`、`O008`、`P001`、`P003`、`P005`、`P006`、`R001`、`R002`、`R007`，并把 API/Web/export/score-analysis/AI routing/OCR/Windows Service/release pack/search/queue/interop 这些板块映射成机器可读 module map；守卫在本机有外部参考库时还会额外核对 `sources/reference-shelf.manifest.snapshot.json` 与外部 `references.manifest.json` 是否同构，避免“本地能过、CI 假挂”。
 
-`tasks/reference-basis-module-map.csv` 用来回答“哪些代码板块需要参考/复刻/复用哪个官方或社区仓”，其 `adoption_mode` 当前分为 `official_semantics_first`、`official_semantics_plus_selective_pattern_reuse`、`official_semantics_plus_eval_first`、`reference_only_no_copy`。`sources/reference-shelf.manifest.snapshot.json` 则把外部参考架的最近一次可信快照带回仓内，供 CI 和离线审查读取，而不要求 CI runner 真有 `D:\CODE\external\...`。
+`tasks/reference-basis-module-map.csv` 用来回答“哪些代码板块需要参考/复刻/复用哪个官方或社区仓”，其 `adoption_mode` 当前分为 `official_semantics_first`、`official_semantics_plus_selective_pattern_reuse`、`official_semantics_plus_eval_first`、`reference_only_no_copy`。`tasks/reference-basis-policy.json` 则把当前受管 task/module 集与 adoption mode 白名单从 PowerShell 脚本里下沉成单独 policy。`sources/reference-shelf.manifest.snapshot.json` 把外部参考架的最近一次可信快照带回仓内，供 CI 和离线审查读取，而不要求 CI runner 真有 `D:\CODE\external\...`。v2 最小切片还新增了 `ChangedPaths` 投影能力：`tools/run-reference-basis-guard.ps1 -ChangedPaths ...` 会报告本轮命中的 `impactedTaskIds`、`impactedModuleIds` 和 `changedPathsOutsideGuardedModules`，但这一步目前仍只证明“变更命中哪些受管面”，还没有把 adoption 证据强制接到每个 feature contract。
 
 ## 1. AI 与 API
 

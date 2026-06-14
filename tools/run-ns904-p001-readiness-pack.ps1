@@ -143,7 +143,10 @@ try {
     Assert-Condition (-not [bool]$real005.fullClosureAllowed) 'NS904 must not allow REAL005 full closure'
     Assert-Condition ($null -ne $real005.sliceCoverage) 'NS904 requires REAL005 sliceCoverage'
     Assert-Condition ($null -ne $real005.sliceCoverage.REAL005A) 'NS904 requires REAL005A slice coverage'
-    Assert-Condition ([string]$real005.sliceCoverage.REAL005A.status -in @('blocked', 'partial')) 'NS904 requires REAL005A to remain blocked or partial while P001 is still preflight-only'
+    Assert-Condition ($null -ne $real005.sliceCoverage.REAL005B) 'NS904 requires REAL005B slice coverage'
+    Assert-Condition ([string]$real005.sliceCoverage.REAL005A.status -eq 'pass') 'NS904 requires REAL005A to pass after RG001/RG002 source and adapter evidence is complete'
+    Assert-Condition ([string]$real005.sliceCoverage.REAL005B.status -ne 'pass') 'NS904 requires REAL005B to remain open while per-question structure and review evidence is incomplete'
+    Assert-Condition (@($real005.sliceCoverage.REAL005B.blockers).Count -ge 1) 'NS904 requires REAL005B blockers while P001 is still preflight-only'
 
     $checklistFullPath = Resolve-InRepoPath $ChecklistPath
     $isolatedMachineEvidenceTemplateFullPath = Resolve-InRepoPath $IsolatedMachineEvidenceTemplatePath
@@ -295,6 +298,9 @@ try {
             releaseReadyCount = [int]$ns903.dashboard.releaseReadyCount
             nonSiteValidatedCount = [int]$ns903.nonSitePlan.nonSiteValidatedCount
             real005ClosureStatus = [string]$real005.closureStatus
+            real005ASliceStatus = [string]$real005.sliceCoverage.REAL005A.status
+            real005BStatus = [string]$real005.sliceCoverage.REAL005B.status
+            real005NextOpenSlice = 'REAL005B'
         }
         remainingSiteBlockers = $remainingSiteBlockers
         originalP001Blockers = @($p001.blockers)

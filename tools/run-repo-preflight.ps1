@@ -230,6 +230,11 @@ try {
             -MarkdownReportPath (Join-Path $ReportRoot 'reference-basis-guard.md') | Out-Null
     }))
 
+    $steps.Add((Invoke-PreflightStep 'reference-basis diff-aware contract' {
+        .\tools\run-reference-basis-diff-aware-contract.ps1 `
+            -ReportPath (Join-Path $ReportRoot 'reference-basis-diff-aware-contract.json') | Out-Null
+    }))
+
     $steps.Add((Invoke-PreflightStep 'live-closeout guard' {
         .\tools\run-live-pilot-closeout-plan-guard.ps1 `
             -JsonReportPath (Join-Path $ReportRoot 'live-pilot-closeout-plan-guard.json') `
@@ -250,6 +255,11 @@ try {
     $steps.Add((Invoke-PreflightStep 'pqr preflight freshness guard' {
         .\tools\run-pqr-preflight-freshness-guard.ps1 `
             -ReportPath (Join-Path $ReportRoot 'pqr-preflight-freshness-report.json') | Out-Null
+    }))
+
+    $steps.Add((Invoke-PreflightStep 'repo preflight local api detection contract' {
+        .\tools\run-repo-preflight-local-api-detection-contract.ps1 `
+            -ReportPath (Join-Path $ReportRoot 'repo-preflight-local-api-detection-contract.json') | Out-Null
     }))
 
     $steps.Add((Invoke-PreflightStep 'ns1308 release evidence pack contract' {

@@ -25,6 +25,8 @@ $apiDllPath = Join-Path $apiBinaryDirectory 'K12QuestionGraph.Api.dll'
 $apiContentRoot = Join-Path $repoRoot 'apps\api'
 
 . (Join-Path $PSScriptRoot 'database-env.ps1')
+. (Join-Path $PSScriptRoot 'dotenv.ps1')
+Import-KqgDotEnv -RepoRoot $repoRoot
 
 function Get-ListenerProcess {
     param(

@@ -1,6 +1,7 @@
 param(
     [ValidateSet('Local', 'Ci')]
     [string] $ValidationMode = 'Local',
+    [string] $PolicyPath = 'tasks/reference-basis-policy.json',
     [string] $RequirementsPath = 'tasks/reference-basis-requirements.csv',
     [string] $ModuleMapPath = 'tasks/reference-basis-module-map.csv',
     [string] $AutomationContractPath = 'tasks/automation-first-contract.csv',
@@ -13,6 +14,7 @@ param(
     [string] $SnapshotManifestPath = 'sources/reference-shelf.manifest.snapshot.json',
     [string] $ExternalReferenceRoot = 'D:\CODE\external\k12-question-graph-references',
     [string] $ExternalManifestPath = 'D:\CODE\external\k12-question-graph-references\references.manifest.json',
+    [string[]] $ChangedPaths = @(),
     [string] $JsonReportPath = '',
     [string] $MarkdownReportPath = ''
 )
@@ -44,6 +46,30 @@ function Split-Values([string] $Value) {
     )
 }
 
+function Normalize-RepoPath([string] $Path) {
+    return ($Path -replace '\\', '/').Trim()
+}
+
+function Test-PathPrefixMatch([string] $ChangedPath, [string] $ModulePath) {
+    $normalizedChangedPath = Normalize-RepoPath $ChangedPath
+    $normalizedModulePath = Normalize-RepoPath $ModulePath
+
+    if ([string]::IsNullOrWhiteSpace($normalizedChangedPath) -or [string]::IsNullOrWhiteSpace($normalizedModulePath)) {
+        return $false
+    }
+
+    if ($normalizedChangedPath.Equals($normalizedModulePath, [System.StringComparison]::OrdinalIgnoreCase)) {
+        return $true
+    }
+
+    if ($normalizedChangedPath.StartsWith($normalizedModulePath + '/', [System.StringComparison]::OrdinalIgnoreCase)) {
+        return $true
+    }
+
+    return $false
+}
+
+$policyFullPath = Resolve-RepoPath $PolicyPath
 $requirementsFullPath = Resolve-RepoPath $RequirementsPath
 $moduleMapFullPath = Resolve-RepoPath $ModuleMapPath
 $automationContractFullPath = Resolve-RepoPath $AutomationContractPath
@@ -67,6 +93,7 @@ $jsonReportFullPath = Resolve-RepoPath $JsonReportPath
 $markdownReportFullPath = Resolve-RepoPath $MarkdownReportPath
 
 foreach ($path in @(
+    $policyFullPath,
     $requirementsFullPath,
     $moduleMapFullPath,
     $automationContractFullPath,
@@ -107,51 +134,14 @@ $requiredModuleColumns = @(
     'minimum_expectation'
 )
 
-$expectedTaskIds = @(
-    'S004',
-    'S010',
-    'S011',
-    'REAL010',
-    'NS1301',
-    'NS1302',
-    'NS1303',
-    'NS1304',
-    'NS1305',
-    'NS1306',
-    'NS1307',
-    'NS1308',
-    'O008',
-    'P001',
-    'P003',
-    'P005',
-    'P006',
-    'R001',
-    'R002',
-    'R007'
-)
+$policy = Get-Content -LiteralPath $policyFullPath -Raw | ConvertFrom-Json
+$expectedTaskIds = @($policy.expectedTaskIds | ForEach-Object { [string] $_ })
+$expectedModuleIds = @($policy.expectedModuleIds | ForEach-Object { [string] $_ })
+$allowedAdoptionModes = @($policy.allowedAdoptionModes | ForEach-Object { [string] $_ })
 
-$expectedModuleIds = @(
-    'API_HOST_AND_WORKFLOW_BOUNDARY',
-    'WEB_TEACHER_WORKBENCH',
-    'EXPORT_ARTIFACT_CHAIN_AND_FIDELITY',
-    'SCORE_ANALYSIS_AND_COMMENTARY',
-    'AI_ROUTING_AND_EVAL',
-    'DOCUMENT_IMPORT_OCR_FORMULA',
-    'QUESTION_BANK_DOMAIN_ASSET_GOVERNANCE',
-    'WINDOWS_SERVICE_INSTALLER_OPERATIONS',
-    'BACKUP_RESTORE_RELEASE_EVIDENCE',
-    'VISUAL_SURROGATE_AND_UI_VERIFICATION',
-    'SEARCH_RETRIEVAL_ADMISSION',
-    'QUEUE_BACKGROUND_SERVICE_ADMISSION',
-    'INTEROP_PROFILE_AND_EDU_GOVERNANCE'
-)
-
-$allowedAdoptionModes = @(
-    'official_semantics_first',
-    'official_semantics_plus_selective_pattern_reuse',
-    'official_semantics_plus_eval_first',
-    'reference_only_no_copy'
-)
+Assert-True ($expectedTaskIds.Count -gt 0) 'reference-basis policy must define expectedTaskIds'
+Assert-True ($expectedModuleIds.Count -gt 0) 'reference-basis policy must define expectedModuleIds'
+Assert-True ($allowedAdoptionModes.Count -gt 0) 'reference-basis policy must define allowedAdoptionModes'
 
 $requirementsRows = @(Import-Csv -LiteralPath $requirementsFullPath -Encoding UTF8)
 $moduleMapRows = @(Import-Csv -LiteralPath $moduleMapFullPath -Encoding UTF8)
@@ -311,11 +301,46 @@ foreach ($keyword in @(
 
 $communityTaskCount = @($requirementsRows | Where-Object { (Split-Values $_.community_reference_paths).Count -gt 0 }).Count
 
+$normalizedChangedPaths = @(
+    $ChangedPaths |
+    ForEach-Object { Normalize-RepoPath $_ } |
+    Where-Object { -not [string]::IsNullOrWhiteSpace($_) } |
+    Sort-Object -Unique
+)
+$impactedModuleIds = New-Object System.Collections.Generic.List[string]
+$impactedTaskIds = New-Object System.Collections.Generic.HashSet[string] ([System.StringComparer]::OrdinalIgnoreCase)
+$changedPathsOutsideGuardedModules = New-Object System.Collections.Generic.List[string]
+
+foreach ($changedPath in $normalizedChangedPaths) {
+    $matchedModuleIds = @()
+
+    foreach ($moduleId in $expectedModuleIds) {
+        $moduleRow = $moduleRowsById[$moduleId]
+        $modulePaths = Split-Values $moduleRow.module_paths
+        if (@($modulePaths | Where-Object { Test-PathPrefixMatch $changedPath $_ }).Count -gt 0) {
+            $matchedModuleIds += $moduleId
+
+            if ($impactedModuleIds -notcontains $moduleId) {
+                $impactedModuleIds.Add($moduleId)
+            }
+
+            foreach ($taskId in (Split-Values $moduleRow.task_ids)) {
+                $null = $impactedTaskIds.Add($taskId)
+            }
+        }
+    }
+
+    if ($matchedModuleIds.Count -eq 0) {
+        $changedPathsOutsideGuardedModules.Add($changedPath)
+    }
+}
+
 $report = [ordered]@{
     status = 'pass'
     taskId = 'REFERENCE_BASIS_GUARD'
     checkedAt = (Get-Date).ToString('s')
     validationMode = $ValidationMode
+    policyPath = $PolicyPath
     requirementsPath = $RequirementsPath
     moduleMapPath = $ModuleMapPath
     snapshotManifestPath = $SnapshotManifestPath
@@ -332,6 +357,11 @@ $report = [ordered]@{
     externalEntryCount = $externalManifestPaths.Count
     snapshotParity = $manifestParity
     physicalExternalCheck = $checkExternalDisk
+    changedPathCount = $normalizedChangedPaths.Count
+    changedPaths = $normalizedChangedPaths
+    impactedModuleIds = @($impactedModuleIds)
+    impactedTaskIds = @($impactedTaskIds | Sort-Object)
+    changedPathsOutsideGuardedModules = @($changedPathsOutsideGuardedModules)
     enforcedBoundary = 'high-risk tasks and guarded repo modules must register official references plus local reference corpus anchors before they can claim gate-ready evidence'
 }
 
@@ -344,6 +374,7 @@ $lines.Add('')
 $lines.Add("- status: pass")
 $lines.Add("- checked_at: $($report.checkedAt)")
 $lines.Add("- validation_mode: $ValidationMode")
+$lines.Add("- policy_path: $PolicyPath")
 $lines.Add("- requirements_path: $RequirementsPath")
 $lines.Add("- module_map_path: $ModuleMapPath")
 $lines.Add("- snapshot_manifest_path: $SnapshotManifestPath")
@@ -355,6 +386,47 @@ $lines.Add("- snapshot_entry_count: $($report.snapshotEntryCount)")
 $lines.Add("- external_entry_count: $($report.externalEntryCount)")
 $lines.Add("- snapshot_parity: $($report.snapshotParity)")
 $lines.Add("- physical_external_check: $checkExternalDisk")
+$lines.Add("- changed_path_count: $($report.changedPathCount)")
+$lines.Add('')
+$lines.Add('## Changed Paths')
+if ($normalizedChangedPaths.Count -eq 0) {
+    $lines.Add('- none')
+}
+else {
+    foreach ($changedPath in $normalizedChangedPaths) {
+        $lines.Add("- $changedPath")
+    }
+}
+$lines.Add('')
+$lines.Add('## Impacted Tasks')
+if (@($report.impactedTaskIds).Count -eq 0) {
+    $lines.Add('- none')
+}
+else {
+    foreach ($taskId in $report.impactedTaskIds) {
+        $lines.Add("- $taskId")
+    }
+}
+$lines.Add('')
+$lines.Add('## Impacted Modules')
+if (@($report.impactedModuleIds).Count -eq 0) {
+    $lines.Add('- none')
+}
+else {
+    foreach ($moduleId in $report.impactedModuleIds) {
+        $lines.Add("- $moduleId")
+    }
+}
+$lines.Add('')
+$lines.Add('## Changed Paths Outside Guarded Modules')
+if (@($report.changedPathsOutsideGuardedModules).Count -eq 0) {
+    $lines.Add('- none')
+}
+else {
+    foreach ($path in $report.changedPathsOutsideGuardedModules) {
+        $lines.Add("- $path")
+    }
+}
 $lines.Add('')
 $lines.Add('## Covered Tasks')
 foreach ($taskId in $expectedTaskIds) {

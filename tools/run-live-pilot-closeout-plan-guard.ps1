@@ -206,8 +206,17 @@ $real005NextSlice = $real005SliceCoverage.REAL005A
 Assert-True ($null -ne $real005NextSlice) 'REAL005 report must expose sliceCoverage.REAL005A'
 Assert-True ((@($real005NextSlice.criteriaIds)) -contains 'RG001') 'REAL005A must keep RG001 in slice coverage'
 Assert-True ((@($real005NextSlice.criteriaIds)) -contains 'RG002') 'REAL005A must keep RG002 in slice coverage'
-Assert-True ([string] $real005NextSlice.status -in @('blocked', 'partial')) 'REAL005A must remain blocked or partial while closeout stays open'
-Assert-True (@($real005NextSlice.blockers).Count -ge 1) 'REAL005A must list blockers while closeout stays open'
+$real005APlanRow = Get-RequiredRow $planRows 'REAL005A'
+$real005ASliceStatus = [string] $real005NextSlice.status
+if ($real005ASliceStatus -eq 'pass') {
+    Assert-True ([string] $real005APlanRow.status -eq '已完成') 'REAL005A plan row must be completed when RG001/RG002 pass'
+    Assert-True (@($real005NextSlice.blockers).Count -eq 0) 'REAL005A must not list blockers when RG001/RG002 pass'
+}
+else {
+    Assert-True ($real005ASliceStatus -in @('blocked', 'partial')) 'REAL005A must be pass, blocked, or partial while closeout stays open'
+    Assert-True ([string] $real005APlanRow.status -ne '已完成') 'REAL005A plan row cannot be completed while RG001/RG002 remain blocked or partial'
+    Assert-True (@($real005NextSlice.blockers).Count -ge 1) 'REAL005A must list blockers while RG001/RG002 remain blocked or partial'
+}
 
 foreach ($entry in $docReferences) {
     $fullPath = Resolve-InRepoPath $entry.path
@@ -245,7 +254,8 @@ foreach ($parent in @('REAL005','P001','P003','P005','P006')) {
     $nextOpen = @($planRows | Where-Object { [string] $_.parent_id -eq $parent -and [string] $_.status -ne '已完成' } | Select-Object -First 1)
     $nextOpenByParent[$parent] = if ($nextOpen.Count -gt 0) { [string] $nextOpen[0].id } else { 'none' }
 }
-Assert-True ($nextOpenByParent['REAL005'] -eq 'REAL005A') 'closeout plan must keep REAL005A as the next open slice while REAL005 is not_closed'
+$expectedReal005NextOpen = if ($real005ASliceStatus -eq 'pass') { 'REAL005B' } else { 'REAL005A' }
+Assert-True ($nextOpenByParent['REAL005'] -eq $expectedReal005NextOpen) "closeout plan REAL005 next open mismatch: expected $expectedReal005NextOpen, actual $($nextOpenByParent['REAL005'])"
 
 $checkedAt = (Get-Date).ToString('s')
 $report = [ordered]@{
@@ -259,12 +269,13 @@ $report = [ordered]@{
     real005ReportPath = $Real005ReportPath
     real005ClosureStatus = [string] $real005Report.closureStatus
     fullClosureAllowed = [bool] $real005Report.fullClosureAllowed
-    real005NextSlice = [ordered]@{
+    real005aSlice = [ordered]@{
         id = 'REAL005A'
         status = [string] $real005NextSlice.status
         criteriaIds = @($real005NextSlice.criteriaIds)
         blockers = @($real005NextSlice.blockers)
     }
+    real005NextOpen = [string] $nextOpenByParent['REAL005']
     rowCount = $planRows.Count
     statusCounts = $statusCounts
     parentCounts = $parentCounts
@@ -308,11 +319,12 @@ foreach ($entry in $nextOpenByParent.GetEnumerator()) {
     $lines.Add("- $($entry.Key): $($entry.Value)")
 }
 $lines.Add('')
-$lines.Add('## REAL005 Next Slice')
+$lines.Add('## REAL005A Slice')
 $lines.Add("- id: REAL005A")
 $lines.Add("- status: $($real005NextSlice.status)")
 $lines.Add("- criteria: $(@($real005NextSlice.criteriaIds) -join ', ')")
 $lines.Add("- blockers: $(if (@($real005NextSlice.blockers).Count -eq 0) { '无' } else { @($real005NextSlice.blockers) -join ' | ' })")
+$lines.Add("- real005_next_open: $($nextOpenByParent['REAL005'])")
 $lines.Add('')
 $lines.Add('## Boundary')
 $lines.Add('This guard validates the repo-side closeout plan, path anchors, and truthful No-Go wording. It does not execute isolated-machine work, printer/network/domain checks, onsite pilot observation, or final signoff.')

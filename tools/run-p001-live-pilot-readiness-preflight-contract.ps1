@@ -80,7 +80,7 @@ $real005NextCloseout = @($closeoutRows | Where-Object { [string] $_.parent_id -e
 Assert-True ($p001NextCloseout.Count -eq 1) 'live closeout plan must expose next P001 slice'
 Assert-True ($real005NextCloseout.Count -eq 1) 'live closeout plan must expose next REAL005 slice'
 Assert-True ([string] $p001NextCloseout[0].id -eq 'P001A') 'next P001 closeout slice must remain P001A before isolated-machine run'
-Assert-True ([string] $real005NextCloseout[0].id -eq 'REAL005A') 'next REAL005 closeout slice must remain REAL005A before full closure'
+Assert-True ([string] $real005NextCloseout[0].id -match '^REAL005[A-D]$') 'next REAL005 closeout slice must stay within REAL005A-D before full closure'
 
 foreach ($requiredTaskId in @('S012', 'O004B', 'O006', 'O007', 'O008', 'REAL001', 'REAL002', 'REAL003', 'REAL004', 'REAL005', 'REAL006', 'REAL007', 'REAL008', 'REAL009', 'REAL010', 'REAL011', 'REAL012', 'P001')) {
     Assert-True ($byId.ContainsKey($requiredTaskId)) "P001 prerequisite task missing: $requiredTaskId"
@@ -127,9 +127,25 @@ foreach ($entry in $realEvidencePaths.GetEnumerator()) {
 $real005Report = Read-JsonFile $realEvidencePaths['REAL005']
 $real012Report = Read-JsonFile $realEvidencePaths['REAL012']
 Assert-True ($real005Report.status -eq 'pass') 'REAL005 report must pass before P001 preflight'
+Assert-True ($real005Report.closureStatus -eq 'not_closed') 'REAL005 full closure must remain not_closed before live pilot'
+Assert-True (-not [bool]$real005Report.fullClosureAllowed) 'REAL005 full closure must not be allowed before live pilot'
 Assert-True ($null -ne $real005Report.sliceCoverage) 'P001 preflight requires REAL005 sliceCoverage'
 Assert-True ($null -ne $real005Report.sliceCoverage.REAL005A) 'P001 preflight requires REAL005A slice coverage'
-Assert-True ([string]$real005Report.sliceCoverage.REAL005A.status -in @('blocked', 'partial')) 'P001 preflight requires REAL005A to remain blocked or partial while live pilot is preflight-only'
+Assert-True ($null -ne $real005Report.sliceCoverage.REAL005B) 'P001 preflight requires REAL005B slice coverage'
+$real005AStatus = [string]$real005Report.sliceCoverage.REAL005A.status
+$real005BStatus = [string]$real005Report.sliceCoverage.REAL005B.status
+$real005NextOpenId = [string] $real005NextCloseout[0].id
+if ($real005AStatus -eq 'pass') {
+    Assert-True ($real005NextOpenId -eq 'REAL005B') 'P001 preflight requires REAL005B to be the next REAL005 closeout slice after REAL005A passes'
+    Assert-True ($real005BStatus -ne 'pass') 'P001 preflight requires REAL005B to remain open while per-question structure and review evidence is incomplete'
+    Assert-True (@($real005Report.sliceCoverage.REAL005B.blockers).Count -ge 1) 'P001 preflight requires REAL005B blockers while live pilot is preflight-only'
+}
+else {
+    Assert-True ($real005AStatus -in @('blocked', 'partial')) 'P001 preflight requires REAL005A to be pass, blocked, or partial while full closure is open'
+    Assert-True ($real005NextOpenId -eq 'REAL005A') 'P001 preflight requires REAL005A to remain next open until RG001/RG002 pass'
+}
+$real005NextSliceCoverage = $real005Report.sliceCoverage.PSObject.Properties[$real005NextOpenId].Value
+Assert-True ($null -ne $real005NextSliceCoverage) "P001 preflight requires REAL005 slice coverage for next open slice: $real005NextOpenId"
 Assert-True ($real012Report.status -eq 'pass') 'REAL012 report must pass before P001 preflight'
 Assert-True (@($real012Report.searchProbe.selectedQuestionNos).Count -ge 3) 'REAL012 must prove ordered real-question search sample'
 Assert-True ([int]$real012Report.searchProbe.hasImageCount -ge 3) 'REAL012 must prove image-backed real question cards'
@@ -241,9 +257,9 @@ $report = [ordered]@{
     closeoutPlan = [ordered]@{
         rowCount = $closeoutRows.Count
         nextOpenP001 = [string] $p001NextCloseout[0].id
-        nextOpenREAL005 = [string] $real005NextCloseout[0].id
+        nextOpenREAL005 = $real005NextOpenId
         real005ReportPath = $REAL005ReportPath
-        real005NextSliceStatus = [string]$real005Report.sliceCoverage.REAL005A.status
+        real005NextSliceStatus = [string]$real005NextSliceCoverage.status
     }
     readyForIsolatedMachineRun = $true
     p001CanClose = $false

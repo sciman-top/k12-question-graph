@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "p004-onsite-pilot-round1-evidence.v1",
+  "pilotContext": {
+    "date": "<YYYY-MM-DD>",
+    "site": "",
+    "operator": "",
+    "teacher": "",
+    "sourceEvidence": "docs/evidence/<date>-p003-admission-card-validation.json",
+    "decision": "continue_p005|keep_blocked"
+  },
+  "prefilledChecks": {
+    "routeSmoke": "",
+    "artifactProbe": "",
+    "visualSurrogate": "",
+    "traceLog": ""
+  },
+  "workflowTiming": [
+    {
+      "step": "import|paper|score|analysis|other",
+      "durationMinutes": "",
+      "outcome": ""
+    }
+  ],
+  "frictionItems": [
+    {
+      "category": "copy_confusion|operation_blocker|environment_blocker|error|other",
+      "detail": "",
+      "severity": "high|medium|low"
+    }
+  ],
+  "rollbackEvents": [
+    {
+      "trigger": "",
+      "action": "",
+      "recoveryMinutes": ""
+    }
+  ],
+  "summary": {
+    "teacherUnderstanding": "",
+    "environmentBlockers": [
+      "printer|network|domain_permission|file_share|none|other"
+    ],
+    "recommendation": "continue_p005|keep_blocked|rerun_round1"
+  },
+  "signoff": {
+    "pilotOwner": "",
+    "supportOwner": "",
+    "releaseOwner": ""
+  }
+}

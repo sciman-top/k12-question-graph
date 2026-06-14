@@ -61,7 +61,7 @@
       "probe": {
         "available": true,
         "exitCode": 0,
-        "versionLine": "5.1.26100.8521"
+        "versionLine": "5.1.26100.8655"
       }
     },
     "python": {
@@ -218,12 +218,12 @@
       }
     },
     "soffice": {
-      "present": false,
-      "path": null,
+      "present": true,
+      "path": "C:\\Program Files\\LibreOffice\\program\\soffice.COM",
       "probe": {
         "available": false,
         "exitCode": null,
-        "versionLine": ""
+        "versionLine": "Command '['soffice', '--version']' timed out after 20 seconds"
       }
     },
     "robocopy": {
@@ -307,14 +307,14 @@
       "anchor": "D:\\",
       "available": true,
       "totalGb": 930.0,
-      "freeGb": 303.59
+      "freeGb": 261.54
     },
     "backupRoot": {
       "path": "D:\\KQG_Backups",
       "anchor": "D:\\",
       "available": true,
       "totalGb": 930.0,
-      "freeGb": 303.59
+      "freeGb": 261.54
     }
   },
   "workerOcrProfile": {

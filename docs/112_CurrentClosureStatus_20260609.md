@@ -1,22 +1,24 @@
 # 112 · 当前闭环状态总览
 
-日期：2026-06-13。状态证据核对到 2026-06-13。文件名保留 `20260609` 作为稳定入口。
+日期：2026-06-14。状态证据核对到 2026-06-14。文件名保留 `20260609` 作为稳定入口。
 
 ## 1. 当前结论
 
 截至最新已验证证据，本仓的真实状态是：
 
-- 最新一次完整 `full gate` 仍是 2026-06-09，通过。
-- 2026-06-13 又刷新了三条 repo-side 真值守卫：
+- 最新一次完整 `full gate` 仍是 2026-06-09，通过；2026-06-14 full gate 重跑未取得最终退出码，不能作为新的完整通过证据。
+- 2026-06-14 又刷新了 repo-side 真值守卫与预检：
   - `tools/run-reference-basis-guard.ps1`：pass
   - `tools/run-live-pilot-closeout-plan-guard.ps1`：pass
   - `tools/run-ns905-status-sync-audit.ps1`：pass
+  - `tools/run-gate-group.ps1 -Group pqr`：pass
+  - `tools/run-repo-preflight.ps1 -Mode Ci`：pass
 - 非现场教师主链路、Web/API 本地联调和管理员 AI 设置入口都已有仓库内证据或 contract，不再只是规划。
 - 但项目仍不能宣称 `release_ready`，也不能宣称“现场发布闭环完成”。
 
 当前最准确的对外口径是：
 
-> 仓库内代码、脚本、非现场工作流、参考基线和发布前置口径已经进一步收口；最新完整 full gate 仍停留在 2026-06-09，现场 / 隔离机 / 签收级闭环仍被 `REAL005 = not_closed` 与 `P001/P003/P005/P006` 阻断。
+> 仓库内代码、脚本、非现场工作流、参考基线和发布前置口径已经进一步收口；2026-06-14 的 CI 预检、PQR 分组门禁、closeout/status 守卫均通过，但最新完整 full gate 仍不能更新为 2026-06-14。现场 / 隔离机 / 签收级闭环仍被 `REAL005 = not_closed`、当前 next open `REAL005B` 与 `P001/P003/P005/P006` 阻断。
 
 ## 2. 最新已验证层级
 
@@ -27,22 +29,29 @@
   - 结果日志：`docs/evidence/20260609-run-gates-detached-2.out.log`
   - 错误日志：`docs/evidence/20260609-run-gates-detached-2.err.log`
 
-这仍是当前可引用的最新完整 full gate，不应被 2026-06-13 的 repo-side 子守卫误写成“又完整跑过一遍 full gate”。
+这仍是当前可引用的最新完整 full gate，不应被 2026-06-14 的 repo-side 子守卫、CI 预检或超时 full gate 重跑误写成“又完整跑过一遍 full gate”。
 
-### 2.2 2026-06-13 repo-side 守卫刷新
+### 2.2 2026-06-14 repo-side 守卫刷新
 
 - `tools/run-reference-basis-guard.ps1`
   - 状态：pass
-  - 报告：`docs/evidence/20260613-reference-basis-guard.json` / `.md`
+  - 报告：`docs/evidence/20260614-reference-basis-guard.json` / `.md`
   - 关键信息：20 个受管任务、13 个模块、`snapshot_parity = match`、本机 external corpus 存在。
 - `tools/run-live-pilot-closeout-plan-guard.ps1`
   - 状态：pass
-  - 报告：`docs/evidence/20260613-live-pilot-closeout-plan-guard.json` / `.md`
-  - 关键信息：26 行 closeout 计划全部保持 `待办`，`REAL005 = not_closed`，`REAL005A/P001A/P003A/P005A/P006A` 仍是 next open slice。
+  - 报告：`docs/evidence/20260614-live-pilot-closeout-plan-guard.json` / `.md`
+  - 关键信息：26 行 closeout 计划中 1 行 `REAL005A` 已完成、25 行仍待办，`REAL005 = not_closed`，`REAL005B/P001A/P003A/P005A/P006A` 仍是 next open slice。
 - `tools/run-ns905-status-sync-audit.ps1`
   - 状态：pass
-  - 报告：`docs/evidence/20260613-ns905-status-sync.md`
+  - 报告：`docs/evidence/20260614-ns905-status-sync.md`
   - 关键信息：`release_ready_count = 0`、`next_task = P001` 的 area 仍有 16 个、`teacher_validated` area 为 14 个，且 `non_site_validated` 没有被误写成已完成。
+- `tools/run-gate-group.ps1 -Group pqr`
+  - 状态：pass
+  - 关键信息：12 步通过，包含 `REAL005B` 诊断、slice coverage、PQR pack 和 orchestration。
+- `tools/run-repo-preflight.ps1 -Mode Ci`
+  - 状态：pass
+  - 报告：`docs/evidence/20260614-repo-preflight-ci-summary.json`
+  - 关键信息：13 步通过，含后端 build、前端 lint/build、reference-basis、closeout、PQR、roadmap guard；不包含 full gate。
 
 ### 2.3 非现场教师主链路
 
@@ -109,7 +118,7 @@
 ### 4.3 `release_ready`
 
 - 当前不是 `release_ready`。
-- `docs/evidence/20260613-ns905-status-sync.md` 已明确 `release_ready_count = 0`。
+- `docs/evidence/20260614-ns905-status-sync.md` 已明确 `release_ready_count = 0`。
 
 ### 4.4 repo-side 守卫通过的真实含义
 
@@ -122,13 +131,13 @@
 
 ### 5.1 reference-basis / snapshot parity
 
-- 2026-06-13 已再次证明外部 reference shelf、仓内 snapshot 和 guard 规则在 repo-side 口径上同构。
+- 2026-06-14 已再次证明外部 reference shelf、仓内 snapshot 和 guard 规则在 repo-side 口径上同构。
 - 当前高风险编码任务不再只“建议查参考”，而是缺锚点直接 fail。
 
 ### 5.2 live closeout truthful boundary
 
 - `tasks/live-pilot-closeout-plan.csv` 的 26 行 closeout 计划已被 guard 校验。
-- 最新 next open slice 仍是 `REAL005A/P001A/P003A/P005A/P006A`。
+- 最新 next open slice 是 `REAL005B/P001A/P003A/P005A/P006A`；`REAL005A` 仅表示逐年来源与 adapter 覆盖已 repo-side 完成，不表示 `REAL005` 整体闭环。
 
 ### 5.3 status sync truthful No-Go
 
@@ -145,5 +154,5 @@
 若继续自动自主推进，优先级建议如下：
 
 1. 按 `tasks/live-pilot-closeout-plan.csv` 收口 `REAL005` 与 `P001/P003/P005/P006`，不再从长文档里手工提炼剩余阻断。
-2. 若需要改写对外发布口径，先区分“最新完整 full gate 仍是 2026-06-09”与“最新 repo-side 守卫刷新到 2026-06-13”，不要混写。
+2. 若需要改写对外发布口径，先区分“最新完整 full gate 仍是 2026-06-09”与“最新 repo-side 守卫/CI/PQR 刷新到 2026-06-14”，不要混写。
 3. 对任何新的高风险架构 / 运维 / 发布任务，先补 `reference-basis` 锚点，再进入编码或文档裁决。

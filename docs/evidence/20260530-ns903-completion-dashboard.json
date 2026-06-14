@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS903",
-  "checkedAt": "2026-06-13T23:55:23",
+  "checkedAt": "2026-06-14T20:19:52",
   "mode": "completion_dashboard_refresh",
   "productionEligible": false,
   "nonSiteValidated": false,
@@ -15,7 +15,7 @@
     "ns902": "docs/evidence/20260528-non-site-e2e-rehearsal-report.json",
     "ns906": "docs/evidence/20260528-ns906-visual-surrogate-review-report.json",
     "p001": "docs/evidence/20260530-p001-live-pilot-readiness-preflight-report.json",
-    "real005": "docs/evidence/20260613-real005-guangzhou-2015-2025-closure-standard-report.json"
+    "real005": "docs/evidence/20260614-real005-guangzhou-2015-2025-closure-standard-report.json"
   },
   "dashboard": {
     "areaCount": 24,
@@ -60,7 +60,27 @@
     ],
     "real005ClosureStatus": "not_closed",
     "real005FullClosureAllowed": false,
-    "real005NextSliceStatus": "blocked",
+    "real005ASliceStatus": "pass",
+    "real005BStatus": "partial",
+    "real005BBlockers": [
+      "RG004:per_question_answer_source_anchor_not_proven_for_year_batch",
+      "RG004:per_question_answer_source_hash_binding_not_proven",
+      "RG005:2015_q1_q18_use_text_group_placeholder_coordinates",
+      "RG005:2015_q19_q24_screenshot_manifest_pending_teacher_review",
+      "RG005:2016_2025_screenshot_level_source_regions_not_created_by_REAL003_dry_run",
+      "RG006:2016_2025_per_question_structured_blocks_not_emitted_in_year_batch_report",
+      "RG006:2015_questions_remain_pending_review",
+      "RG006:formula_table_image_fields_are_smoke_coverage_not_every_question_closure",
+      "RG007:2015_tags_remain_pending_review",
+      "RG007:2016_2025_per_question_tagging_suggestions_not_proven",
+      "RG007:teacher_confirmed_tag_terminal_status_not_present",
+      "RG008:no_per_question_terminal_teacher_review_for_2015_2025",
+      "RG008:2015_review_smoke_restores_open_review_items",
+      "RG008:2016_2025_review_queue_terminal_status_not_present",
+      "RG009:2016_2025_reviewed_question_save_and_source_detail_smoke_not_present",
+      "RG009:all_years_reviewed_question_terminal_status_required_before_save_source_review_closure"
+    ],
+    "real005NextOpenSlice": "REAL005B",
     "ns901NonSiteValidated": false
   },
   "acceptance": {

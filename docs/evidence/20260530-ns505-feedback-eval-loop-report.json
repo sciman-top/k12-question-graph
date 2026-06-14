@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS505",
-  "checkedAt": "2026-06-11T22:01:25",
+  "checkedAt": "2026-06-14T20:08:10",
   "mode": "teacher_feedback_event_eval_loop_no_prompt_mutation",
   "productionEligible": false,
   "externalAiCalls": 0,
@@ -11,10 +11,10 @@
     "migration": "20260530044956_AddFeedbackEventsForNS505"
   },
   "feedbackEvent": {
-    "id": "e61fdd8b-6746-4365-8f09-ae841f0f4df2",
-    "aiJobId": "0ea16331-3d56-410e-bdb6-5d1ff5e77bc4",
-    "countBefore": 170,
-    "countAfter": 171,
+    "id": "2ed0dca3-77b2-49ac-a6ce-67bd1ab2c2a0",
+    "aiJobId": "65500a65-2e42-487a-82ac-c7a723603627",
+    "countBefore": 186,
+    "countAfter": 187,
     "acceptedForEval": true,
     "reasonTag": "teacher_changed_knowledge_tag_for_eval",
     "taskType": "knowledge_tagging"

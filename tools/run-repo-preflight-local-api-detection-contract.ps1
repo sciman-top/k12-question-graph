@@ -65,6 +65,13 @@ $requiredLauncherPatterns = @(
 )
 Assert-ContainsAll -ScriptPath $StartLocalApiScriptPath -Text $startLocalApiText -Patterns $requiredLauncherPatterns
 
+$requiredPreflightOrchestrationPatterns = @(
+    "Invoke-PreflightStep 'repo preflight local api detection contract'",
+    "run-repo-preflight-local-api-detection-contract.ps1",
+    "-ReportPath (Join-Path `$ReportRoot 'repo-preflight-local-api-detection-contract.json')"
+)
+Assert-ContainsAll -ScriptPath $PreflightScriptPath -Text $preflightText -Patterns $requiredPreflightOrchestrationPatterns
+
 $report = [ordered]@{
     status = 'pass'
     taskId = 'REPO_PREFLIGHT_LOCAL_API_DETECTION_CONTRACT'

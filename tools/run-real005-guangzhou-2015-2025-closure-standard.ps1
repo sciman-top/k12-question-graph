@@ -2,6 +2,8 @@ param(
     [string] $CriteriaPath = 'tasks/real-guangzhou-closure-criteria.csv',
     [string] $BacklogPath = 'tasks/backlog.csv',
     [string] $DashboardPath = 'tasks/completion-state-dashboard.csv',
+    [string] $YearlyAdapterDiagnosticsPath = '',
+    [string] $QuestionStructureDiagnosticsPath = '',
     [string] $JsonReportPath = '',
     [string] $MarkdownReportPath = ''
 )
@@ -135,6 +137,11 @@ function Test-AnswerLikeSource([object] $SourceHashRow) {
     return $label -match '答案|解析|含答案'
 }
 
+function Test-CombinedPaperAnswerSource([object] $SourceHashRow) {
+    $label = '{0} {1}' -f [string]$SourceHashRow.title, [string]$SourceHashRow.fileName
+    return $label -match '含答案|解析版'
+}
+
 $rg001YearCoverage = New-Object System.Collections.Generic.List[object]
 
 if ($null -ne $real001Report -and $null -ne $real001Report.sourceDocuments) {
@@ -151,7 +158,7 @@ if ($null -ne $real001Report -and $null -ne $real001Report.sourceDocuments) {
 if ($null -ne $real003Report) {
     foreach ($yearRow in @($real003Report.years)) {
         $localExamRows = @($yearRow.sourceHashes | Where-Object { [string]$_.sourceType -eq 'local_exam_paper' })
-        $paperRows = @($localExamRows | Where-Object { -not (Test-AnswerLikeSource $_) })
+        $paperRows = @($localExamRows | Where-Object { (-not (Test-AnswerLikeSource $_)) -or (Test-CombinedPaperAnswerSource $_) })
         $answerRows = @($localExamRows | Where-Object { Test-AnswerLikeSource $_ })
         $rg001YearCoverage.Add([ordered]@{
             year = [int]$yearRow.year
@@ -160,7 +167,12 @@ if ($null -ne $real003Report) {
             hasDistinctAnswerSource = ($answerRows.Count -ge 1)
             evidencePath = $real003ReportPath
             note = if (($paperRows.Count -ge 1) -and ($answerRows.Count -ge 1)) {
-                'REAL003 sourceHashes include distinct local_exam_paper paper+answer anchors.'
+                if (@($localExamRows | Where-Object { Test-CombinedPaperAnswerSource $_ }).Count -ge 1) {
+                    'REAL003 sourceHashes include a combined paper+answer local_exam_paper anchor such as 含答案/解析版.'
+                }
+                else {
+                    'REAL003 sourceHashes include distinct local_exam_paper paper+answer anchors.'
+                }
             }
             else {
                 'REAL003 sourceHashes do not yet prove distinct paper+answer local_exam_paper anchors.'
@@ -177,29 +189,81 @@ $rg001BlockedYears = @(
 
 $rg002YearCoverage = New-Object System.Collections.Generic.List[object]
 
-if ($null -ne $real001Report -and $null -ne $real002Report) {
-    $rg002YearCoverage.Add([ordered]@{
-        year = 2015
-        hasAdapterNames = (-not [string]::IsNullOrWhiteSpace([string]$real001Report.worker.paperAdapter)) -and (-not [string]::IsNullOrWhiteSpace([string]$real001Report.worker.answerAdapter))
-        hasAdapterVersion = $false
-        hasInputOutputHashes = $true
-        hasWarningsErrorsElapsed = $false
-        evidencePath = $real001ReportPath
-        note = 'REAL001/REAL002 expose adapter names and input hashes, but not full per-year adapter diagnostics with version/warnings/errors/elapsed_ms.'
-    })
+if ([string]::IsNullOrWhiteSpace($YearlyAdapterDiagnosticsPath)) {
+    $latestAdapterDiagnostics = @(
+        Get-ChildItem -LiteralPath (Resolve-RepoPath 'docs/evidence') -Filter '*-real005-yearly-adapter-diagnostics.json' -File -ErrorAction SilentlyContinue |
+            Sort-Object Name -Descending |
+            Select-Object -First 1
+    )
+    if ($latestAdapterDiagnostics.Count -eq 1) {
+        $YearlyAdapterDiagnosticsPath = [System.IO.Path]::GetRelativePath($repoRoot, $latestAdapterDiagnostics[0].FullName).Replace('\', '/')
+    }
 }
 
-if ($null -ne $real003Report) {
-    foreach ($yearRow in @($real003Report.years)) {
+$yearlyAdapterDiagnostics = if ([string]::IsNullOrWhiteSpace($YearlyAdapterDiagnosticsPath)) { $null } else { Try-ReadJson $YearlyAdapterDiagnosticsPath }
+
+if ($null -ne $yearlyAdapterDiagnostics -and [string]$yearlyAdapterDiagnostics.status -eq 'pass') {
+    foreach ($yearRow in @($yearlyAdapterDiagnostics.years)) {
+        $documents = @($yearRow.documents)
+        $paperDocs = @($documents | Where-Object { @($_.roles) -contains 'paper' -and [string]$_.diagnosticStatus -eq 'pass' })
+        $answerDocs = @($documents | Where-Object { @($_.roles) -contains 'answer' -and [string]$_.diagnosticStatus -eq 'pass' })
+        $diagnostics = @($documents | ForEach-Object { @($_.adapterDiagnostics) })
+        $hasRequiredFields = $diagnostics.Count -ge 1 -and (@($diagnostics | Where-Object {
+            -not [string]::IsNullOrWhiteSpace([string]$_.adapterName) -and
+            -not [string]::IsNullOrWhiteSpace([string]$_.adapterVersion) -and
+            -not [string]::IsNullOrWhiteSpace([string]$_.inputSha256) -and
+            -not [string]::IsNullOrWhiteSpace([string]$_.outputSha256) -and
+            $null -ne $_.warnings -and
+            $null -ne $_.errors -and
+            $null -ne $_.durationMs
+        }).Count -eq $diagnostics.Count)
         $rg002YearCoverage.Add([ordered]@{
             year = [int]$yearRow.year
-            hasAdapterNames = $false
-            hasAdapterVersion = $false
-            hasInputOutputHashes = $false
-            hasWarningsErrorsElapsed = $false
-            evidencePath = $real003ReportPath
-            note = [string]$yearRow.adapterQuality.workerProbe
+            hasAdapterNames = $diagnostics.Count -ge 1
+            hasAdapterVersion = $hasRequiredFields
+            hasInputOutputHashes = $hasRequiredFields
+            hasWarningsErrorsElapsed = $hasRequiredFields
+            hasPaperDiagnostic = ($paperDocs.Count -ge 1)
+            hasAnswerDiagnostic = ($answerDocs.Count -ge 1)
+            evidencePath = $YearlyAdapterDiagnosticsPath
+            note = if ($hasRequiredFields -and $paperDocs.Count -ge 1 -and $answerDocs.Count -ge 1) {
+                'REAL005 yearly adapter diagnostics include adapter name/version, input/output hashes, warnings/errors, and durationMs for paper and answer anchors.'
+            }
+            else {
+                'REAL005 yearly adapter diagnostics are present but incomplete.'
+            }
         })
+    }
+}
+else {
+    if ($null -ne $real001Report -and $null -ne $real002Report) {
+        $rg002YearCoverage.Add([ordered]@{
+            year = 2015
+            hasAdapterNames = (-not [string]::IsNullOrWhiteSpace([string]$real001Report.worker.paperAdapter)) -and (-not [string]::IsNullOrWhiteSpace([string]$real001Report.worker.answerAdapter))
+            hasAdapterVersion = $false
+            hasInputOutputHashes = $true
+            hasWarningsErrorsElapsed = $false
+            hasPaperDiagnostic = $false
+            hasAnswerDiagnostic = $false
+            evidencePath = $real001ReportPath
+            note = 'REAL001/REAL002 expose adapter names and input hashes, but not full per-year adapter diagnostics with version/warnings/errors/elapsed_ms.'
+        })
+    }
+
+    if ($null -ne $real003Report) {
+        foreach ($yearRow in @($real003Report.years)) {
+            $rg002YearCoverage.Add([ordered]@{
+                year = [int]$yearRow.year
+                hasAdapterNames = $false
+                hasAdapterVersion = $false
+                hasInputOutputHashes = $false
+                hasWarningsErrorsElapsed = $false
+                hasPaperDiagnostic = $false
+                hasAnswerDiagnostic = $false
+                evidencePath = $real003ReportPath
+                note = [string]$yearRow.adapterQuality.workerProbe
+            })
+        }
     }
 }
 
@@ -209,10 +273,25 @@ $rg002BlockedYears = @(
             (-not [bool]$_.hasAdapterNames) -or
             (-not [bool]$_.hasAdapterVersion) -or
             (-not [bool]$_.hasInputOutputHashes) -or
-            (-not [bool]$_.hasWarningsErrorsElapsed)
+            (-not [bool]$_.hasWarningsErrorsElapsed) -or
+            (-not [bool]$_.hasPaperDiagnostic) -or
+            (-not [bool]$_.hasAnswerDiagnostic)
         } |
         ForEach-Object { [int]$_.year }
 )
+
+if ([string]::IsNullOrWhiteSpace($QuestionStructureDiagnosticsPath)) {
+    $latestQuestionStructureDiagnostics = @(
+        Get-ChildItem -LiteralPath (Resolve-RepoPath 'docs/evidence') -Filter '*-real005b-question-structure-diagnostics.json' -File -ErrorAction SilentlyContinue |
+            Sort-Object Name -Descending |
+            Select-Object -First 1
+    )
+    if ($latestQuestionStructureDiagnostics.Count -eq 1) {
+        $QuestionStructureDiagnosticsPath = [System.IO.Path]::GetRelativePath($repoRoot, $latestQuestionStructureDiagnostics[0].FullName).Replace('\', '/')
+    }
+}
+
+$questionStructureDiagnostics = if ([string]::IsNullOrWhiteSpace($QuestionStructureDiagnosticsPath)) { $null } else { Try-ReadJson $QuestionStructureDiagnosticsPath }
 
 $knownEvidence = [ordered]@{
     REAL001 = @(
@@ -339,10 +418,32 @@ $sliceCoverage.Add('REAL005A', $real005ACoverage)
 
 $real005BCoverage = @{}
 $real005BCoverage['criteriaIds'] = @('RG003', 'RG004', 'RG005', 'RG006', 'RG007', 'RG008', 'RG009')
-$real005BCoverage['status'] = 'blocked_by_previous_slice'
-$real005BCoverage['blockers'] = @('REAL005A is not yet closed; do not interpret question-structure and review coverage as a closeable slice yet.')
-$real005BCoverage['evidencePaths'] = @($real002ReportPath, 'docs/evidence/20260512-real004-guangzhou-2015-review-smoke-report.json')
-$real005BCoverage['next'] = 'Only evaluate per-question structure/review closure after REAL005A source+adapter coverage is complete.'
+if ($real005AStatus -ne 'pass') {
+    $real005BCoverage['status'] = 'blocked_by_previous_slice'
+    $real005BCoverage['blockers'] = @('REAL005A is not yet closed; do not interpret question-structure and review coverage as a closeable slice yet.')
+    $real005BCoverage['evidencePaths'] = @($real002ReportPath, 'docs/evidence/20260512-real004-guangzhou-2015-review-smoke-report.json')
+    $real005BCoverage['criteriaStatus'] = @{}
+    $real005BCoverage['next'] = 'Only evaluate per-question structure/review closure after REAL005A source+adapter coverage is complete.'
+}
+elseif ($null -ne $questionStructureDiagnostics -and [string]$questionStructureDiagnostics.status -eq 'pass') {
+    $real005BCoverage['status'] = [string]$questionStructureDiagnostics.real005BStatus
+    $real005BCoverage['blockers'] = @($questionStructureDiagnostics.blockers)
+    $real005BCoverage['evidencePaths'] = @($questionStructureDiagnostics.sourceEvidence + @($QuestionStructureDiagnosticsPath) | Sort-Object -Unique)
+    $criteriaStatus = [ordered]@{}
+    foreach ($criterionId in @('RG003', 'RG004', 'RG005', 'RG006', 'RG007', 'RG008', 'RG009')) {
+        $criterion = $questionStructureDiagnostics.criteria.$criterionId
+        $criteriaStatus[$criterionId] = if ($null -eq $criterion) { 'missing' } else { [string]$criterion.status }
+    }
+    $real005BCoverage['criteriaStatus'] = $criteriaStatus
+    $real005BCoverage['next'] = 'REAL005B remains partial until RG004-RG009 have per-question source anchors, structured fields, teacher review terminal status, and source-review save/detail evidence.'
+}
+else {
+    $real005BCoverage['status'] = 'blocked'
+    $real005BCoverage['blockers'] = @('REAL005B question-structure diagnostics report is missing or not passing.')
+    $real005BCoverage['evidencePaths'] = @($real002ReportPath, 'docs/evidence/20260512-real004-guangzhou-2015-review-smoke-report.json')
+    $real005BCoverage['criteriaStatus'] = @{}
+    $real005BCoverage['next'] = 'Run tools/run-real005b-question-structure-diagnostics.ps1 to classify RG003-RG009 before advancing REAL005B.'
+}
 $sliceCoverage.Add('REAL005B', $real005BCoverage)
 
 $real005CCoverage = @{}

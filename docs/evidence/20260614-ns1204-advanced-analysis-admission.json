@@ -1,0 +1,113 @@
+{
+  "status": "pass",
+  "taskId": "NS1204",
+  "checkedAt": "2026-06-14T20:38:19",
+  "mode": "advanced_analysis_admission_boundary",
+  "productionEligible": false,
+  "nonSiteValidated": false,
+  "releaseReady": false,
+  "externalAiCalls": 0,
+  "realStudentDataUsed": false,
+  "containsStudentPii": false,
+  "writesProductionHistory": false,
+  "activeAssetMutation": false,
+  "dependency": {
+    "ns704": "docs/evidence/20260530-ns704-commentary-report.json",
+    "r004Report": "docs/evidence/20260519-r004-advanced-analysis-admission-report.json",
+    "r004Decision": "docs/decisions/ADR-006-advanced-analysis-admission.md",
+    "r004Checklist": "docs/templates/r004-advanced-analysis-eval-checklist.md",
+    "r004PreflightEvidence": "docs/evidence/20260505-r004-advanced-analysis-eval-preflight.md",
+    "completionDashboard": "tasks/completion-state-dashboard.csv"
+  },
+  "backlog": {
+    "n004Status": "已完成",
+    "r004Status": "待办",
+    "r004CloseTaskAllowed": false,
+    "ns704Status": "runtime_verified",
+    "ns1204StatusAtCheck": "runtime_verified",
+    "ns1204DependsOn": "NS704"
+  },
+  "currentBaseline": {
+    "basicCttCommentary": "allowed_in_draft_test",
+    "f003StudentCount": 2,
+    "f003MinimumKnowledgeSampleSize": 2,
+    "real012AnalysisReady": true,
+    "real005ClosureStatus": "not_closed"
+  },
+  "admissionDecision": {
+    "basicCttCommentary": "allowed_in_draft_test",
+    "irtCalibration": "blocked",
+    "formEquating": "blocked",
+    "longitudinalGrowth": "blocked",
+    "currentDecision": "keep_R004_todo_fail_closed_for_advanced_methods"
+  },
+  "samplePolicy": {
+    "policyNature": "project admission thresholds; revise only through R004 ADR after evidence review",
+    "descriptiveCttMinimum": 2,
+    "descriptiveCttWarningBelow": 30,
+    "irtPilotMinimum": 500,
+    "operationalEquatingMinimum": 1000,
+    "longitudinalMinimumCohorts": 3,
+    "mandatoryEvidence": [
+      "authorized_or_anonymized_score_records",
+      "stable_item_to_question_mapping",
+      "active_knowledge_version_reference",
+      "missing_data_policy",
+      "psychometric_owner",
+      "teacher_explanation_boundary",
+      "rollback_or_disable_switch"
+    ]
+  },
+  "codeScan": {
+    "searchedRoots": [
+      "apps/api",
+      "apps/web/src",
+      "schemas",
+      "workers"
+    ],
+    "blockedPatterns": [
+      "IRT",
+      "item response theory",
+      "form equating",
+      "longitudinal growth",
+      "ability scale",
+      "growth score",
+      "DIF diagnostic"
+    ],
+    "hitCount": 0,
+    "noIrtEndpointOrMetric": true,
+    "noEquatingOutput": true,
+    "noLongitudinalGrowthRoute": true,
+    "noFormalHistoryMetric": true
+  },
+  "acceptance": {
+    "r004AdmissionReportPassed": true,
+    "adr006FailClosedAccepted": true,
+    "basicCttKeptDraftTest": true,
+    "irtBlocked": true,
+    "equatingBlocked": true,
+    "longitudinalGrowthBlocked": true,
+    "explanationDutyRecorded": true,
+    "ns704RemainsNonProduction": true,
+    "r004RemainsTodo": true,
+    "noRealStudentData": true,
+    "noProductionHistoryWrite": true,
+    "noAdvancedAnalysisRouteEnabled": true
+  },
+  "nextRequiredEvidence": [
+    "post-ADR feature admission with explicit owner, rollback, sample plan, and teacher explanation card",
+    "authorized/anonymized multi-class score sample after P001/P006 boundary is clear",
+    "CTT baseline benchmark showing why current descriptive reports are insufficient",
+    "independent review of IRT/equating/growth interpretation risk before any production UI"
+  ],
+  "verification": {
+    "build": "gate_na: admission boundary script only; no product code build required",
+    "test": "tools/run-r004-advanced-analysis-eval-preflight-contract.ps1 + tools/run-ns1204-advanced-analysis-admission.ps1",
+    "contractInvariant": "NS1204 keeps only basic CTT/commentary in draft/test, leaves R004 blocked, and verifies no IRT/equating/growth route or formal-history metric was enabled",
+    "hotspot": "gate_na: advanced-analysis admission requires real authorized sample, psychometric owner, explanation card, and rollback evidence"
+  },
+  "teacherEfficiencyBoundary": "ordinary teacher commentary remains descriptive and explainable; NS1204 prevents high-risk measurement claims from increasing teacher explanation burden prematurely",
+  "boundary": "NS1204 verifies the advanced-analysis admission boundary only. It does not process real student data, does not compute IRT/equating/growth metrics, does not add teacher-facing advanced-analysis UI, and does not write formal history.",
+  "rollback": "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1 tools/README.md; git clean -f -- tools/run-ns1204-advanced-analysis-admission.ps1 docs/evidence/20260614-ns1204-advanced-analysis-admission.json",
+  "next": "NS1205 can continue public/multischool deploy admission boundary; advanced analysis remains blocked until sample, owner, explanation, and rollback evidence exist."
+}

@@ -57,6 +57,9 @@ function Invoke-RoadmapGroup {
     Invoke-GateCommand 'automation-first feature contract guard' {
         & (Join-Path $PSScriptRoot 'run-automation-first-feature-contract-guard.ps1') | Write-Host
     }
+    Invoke-GateCommand 'reference-basis diff-aware contract' {
+        & (Join-Path $PSScriptRoot 'run-reference-basis-diff-aware-contract.ps1') | Write-Host
+    }
     Invoke-GateCommand 'non-site implementation plan guard' {
         & (Join-Path $PSScriptRoot 'run-non-site-implementation-plan-guard.ps1') | Write-Host
     }
@@ -103,6 +106,11 @@ function Invoke-PqrGroup {
         & (Join-Path $PSScriptRoot 'run-real005-slice-coverage-contract.ps1') `
             -ReportPath $real005JsonPath `
             -MarkdownReportPath $real005MarkdownPath | Write-Host
+    }
+    Invoke-GateCommand 'real005b-question-structure-diagnostics' {
+        & (Join-Path $PSScriptRoot 'run-real005b-question-structure-diagnostics.ps1') `
+            -ReportPath (Join-Path $reportRoot 'real005b-question-structure-diagnostics.json') `
+            -MarkdownReportPath (Join-Path $reportRoot 'real005b-question-structure-diagnostics.md') | Write-Host
     }
     Invoke-GateCommand 'pqr-preflight-pack-contract' {
         & (Join-Path $PSScriptRoot 'run-pqr-preflight-pack-contract.ps1') `

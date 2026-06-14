@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS806",
-  "checkedAt": "2026-06-11T22:25:57",
+  "checkedAt": "2026-06-14T20:34:13",
   "mode": "ef_migration_bundle_upgrade_rehearsal",
   "productionEligible": false,
   "externalAiCalls": 0,
@@ -27,10 +27,10 @@
   },
   "upgradeDrill": {
     "bundleRunExitCode": 0,
-    "backupManifest": "tmp\\o007\\backup-root\\20260611-222201\\manifest.json",
+    "backupManifest": "tmp\\o007\\backup-root\\20260614-202949\\manifest.json",
     "backupVerify": "pass",
     "restoreDrillReport": "docs/evidence/o007-o003-recovery-drill-report.json",
-    "restoreFileStoreCount": 19940,
+    "restoreFileStoreCount": 20899,
     "schemaOnlyExtracted": true
   },
   "acceptance": {

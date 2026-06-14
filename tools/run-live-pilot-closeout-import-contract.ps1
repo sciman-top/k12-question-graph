@@ -41,6 +41,135 @@ try {
     Assert-Condition ([string]$p001Report.taskId -eq 'NS1001') 'P001 import contract expected taskId=NS1001'
     Assert-Condition (-not [bool]$p001Report.decision.closeP001Allowed) 'P001 smoke fixture should keep closeP001Allowed=false'
 
+    $p003TemplatePath = 'docs/templates/p003-onsite-pilot-admission-card-template.json'
+    $p003Template = Get-Content -LiteralPath (Resolve-InRepoPath $p003TemplatePath) -Raw | ConvertFrom-Json
+    Assert-Condition ([string]$p003Template.schemaVersion -eq 'p003-onsite-pilot-admission-card.v1') 'P003 template schema mismatch'
+    Assert-Condition ($p003Template.PSObject.Properties.Name -contains 'admissionContext') 'P003 template missing admissionContext'
+
+    $p003RecordJsonPath = Join-Path $workRootFullPath 'p003/p003-pilot-admission-card.json'
+    $p003RecordMarkdownPath = Join-Path $workRootFullPath 'p003/p003-pilot-admission-card.md'
+    $p003ReportPath = Join-Path $WorkRoot 'p003/p003-validation.json'
+    $p003Record = [ordered]@{
+        schemaVersion = 'p003-onsite-pilot-admission-card.v1'
+        admissionContext = [ordered]@{
+            date = '2026-06-13'
+            site = 'school-lab'
+            operator = 'pilot-coordinator'
+            teacherOrProxy = 'proxy-teacher'
+            admissionDecision = 'keep_blocked'
+            sourceEvidence = 'docs/evidence/20260613-p002-teacher-proxy-pilot-admission-report.json'
+        }
+        teacherBoundary = [ordered]@{
+            participants = @('teacher-a')
+            allowedActions = @('import', 'paper', 'analysis')
+            forbiddenActions = @('admin_active_switch', 'real_external_ai')
+            observationGoal = 'validate teacher understanding before onsite round1'
+        }
+        dataAuthorization = [ordered]@{
+            materialScope = 'anonymized_only'
+            expiresAt = '2026-06-30'
+            owner = 'data-owner'
+            prohibitedActions = @('send_real_student_data_to_external_ai')
+        }
+        supportContacts = [ordered]@{
+            onsiteSupport = 'support-owner'
+            techSupport = 'tech-owner'
+            escalationContact = 'release-owner'
+        }
+        rollbackPlan = [ordered]@{
+            trigger = 'teacher confusion or environment blocker'
+            action = 'return to offline-first and operator takeover'
+            owner = 'release-owner'
+            recoveryEntry = 'docs/109_ReleaseGoNoGoCard.md'
+        }
+        feedbackTemplate = [ordered]@{
+            path = 'docs/templates/p005-pilot-feedback-triage-template.json'
+            collectionCadence = 'per_session'
+            escalationPath = 'product-owner -> release-owner'
+        }
+        signoff = [ordered]@{
+            productOwner = 'product-owner-signed'
+            dataOwnerRepresentative = 'data-owner-signed'
+            supportOwner = 'support-owner-signed'
+            releaseOwner = 'release-owner-signed'
+        }
+        decisionNotes = @(
+            'P002 proxy evidence exists, but onsite admission stays blocked until real site confirmation.',
+            'No AI or proxy replaces final responsibility signoff.'
+        )
+    }
+    Write-JsonFile -Path $p003RecordJsonPath -Value $p003Record
+    Set-Content -LiteralPath $p003RecordMarkdownPath -Value "# P003 pilot admission smoke`r`n" -Encoding UTF8
+
+    & (Join-Path $repoRoot 'tools/run-p003-onsite-pilot-admission-card-import.ps1') `
+        -RecordJsonPath ([System.IO.Path]::GetRelativePath($repoRoot, $p003RecordJsonPath).Replace('\', '/')) `
+        -RecordMarkdownPath ([System.IO.Path]::GetRelativePath($repoRoot, $p003RecordMarkdownPath).Replace('\', '/')) `
+        -ReportPath $p003ReportPath | Out-Null
+
+    $p003Report = Get-Content -LiteralPath (Resolve-InRepoPath $p003ReportPath) -Raw | ConvertFrom-Json
+    Assert-Condition ([string]$p003Report.status -eq 'pass') 'P003 import contract expected status=pass'
+    Assert-Condition ([string]$p003Report.taskId -eq 'P003') 'P003 import contract expected taskId=P003'
+    Assert-Condition ([string]$p003Report.decision.requested -eq 'keep_blocked') 'P003 import contract expected keep_blocked decision'
+
+    $p004TemplatePath = 'docs/templates/p004-onsite-pilot-round1-evidence-template.json'
+    $p004Template = Get-Content -LiteralPath (Resolve-InRepoPath $p004TemplatePath) -Raw | ConvertFrom-Json
+    Assert-Condition ([string]$p004Template.schemaVersion -eq 'p004-onsite-pilot-round1-evidence.v1') 'P004 template schema mismatch'
+    Assert-Condition ($p004Template.PSObject.Properties.Name -contains 'pilotContext') 'P004 template missing pilotContext'
+
+    $p004RecordJsonPath = Join-Path $workRootFullPath 'p004/p004-teacher-pilot-evidence.json'
+    $p004RecordMarkdownPath = Join-Path $workRootFullPath 'p004/p004-teacher-pilot-evidence.md'
+    $p004ReportPath = Join-Path $WorkRoot 'p004/p004-validation.json'
+    $p004Record = [ordered]@{
+        schemaVersion = 'p004-onsite-pilot-round1-evidence.v1'
+        pilotContext = [ordered]@{
+            date = '2026-06-13'
+            site = 'school-lab'
+            operator = 'pilot-coordinator'
+            teacher = 'teacher-a'
+            sourceEvidence = 'docs/evidence/20260613-p003-onsite-pilot-admission-report.json'
+            decision = 'keep_blocked'
+        }
+        prefilledChecks = [ordered]@{
+            routeSmoke = 'prefilled'
+            artifactProbe = 'prefilled'
+            visualSurrogate = 'prefilled'
+            traceLog = 'prefilled'
+        }
+        workflowTiming = @(
+            [ordered]@{ step = 'import'; durationMinutes = '8'; outcome = 'blocked by site-only evidence gap' },
+            [ordered]@{ step = 'paper'; durationMinutes = '6'; outcome = 'teacher can describe next action' },
+            [ordered]@{ step = 'analysis'; durationMinutes = '5'; outcome = 'needs real onsite teacher observation' }
+        )
+        frictionItems = @(
+            [ordered]@{ category = 'copy_confusion'; detail = 'export wording still needs teacher validation'; severity = 'medium' }
+        )
+        rollbackEvents = @(
+            [ordered]@{ trigger = 'onsite evidence absent'; action = 'keep workflow blocked'; recoveryMinutes = '1' }
+        )
+        summary = [ordered]@{
+            teacherUnderstanding = 'proxy_only'
+            environmentBlockers = @('printer', 'network', 'domain_permission')
+            recommendation = 'do_not_advance_p005'
+        }
+        signoff = [ordered]@{
+            pilotOwner = 'pilot-owner-signed'
+            supportOwner = 'support-owner-signed'
+            releaseOwner = 'release-owner-signed'
+        }
+    }
+    Write-JsonFile -Path $p004RecordJsonPath -Value $p004Record
+    Set-Content -LiteralPath $p004RecordMarkdownPath -Value "# P004 teacher pilot evidence smoke`r`n" -Encoding UTF8
+
+    & (Join-Path $repoRoot 'tools/run-p004-onsite-pilot-round1-evidence-import.ps1') `
+        -RecordJsonPath ([System.IO.Path]::GetRelativePath($repoRoot, $p004RecordJsonPath).Replace('\', '/')) `
+        -RecordMarkdownPath ([System.IO.Path]::GetRelativePath($repoRoot, $p004RecordMarkdownPath).Replace('\', '/')) `
+        -ReportPath $p004ReportPath | Out-Null
+
+    $p004Report = Get-Content -LiteralPath (Resolve-InRepoPath $p004ReportPath) -Raw | ConvertFrom-Json
+    Assert-Condition ([string]$p004Report.status -eq 'pass') 'P004 import contract expected status=pass'
+    Assert-Condition ([string]$p004Report.taskId -eq 'P004') 'P004 import contract expected taskId=P004'
+    Assert-Condition ([string]$p004Report.decision.requested -eq 'keep_blocked') 'P004 import contract expected keep_blocked decision'
+
     $p005Date = '2026-06-13'
     $p005RecordJsonPath = Join-Path $workRootFullPath 'p005/p005-triage-record.json'
     $p005RecordMarkdownPath = Join-Path $workRootFullPath 'p005/p005-triage-record.md'
@@ -201,6 +330,16 @@ try {
             reportPath = $p001ReportPath.Replace('\', '/')
             closeP001Allowed = [bool]$p001Report.decision.closeP001Allowed
         }
+        p003 = [ordered]@{
+            reportPath = $p003ReportPath.Replace('\', '/')
+            templatePath = $p003TemplatePath
+            decision = [string]$p003Report.decision.requested
+        }
+        p004 = [ordered]@{
+            reportPath = $p004ReportPath.Replace('\', '/')
+            templatePath = $p004TemplatePath
+            decision = [string]$p004Report.decision.requested
+        }
         p005 = [ordered]@{
             reportPath = $p005ReportPath.Replace('\', '/')
             totalFeedbackItems = [int]$p005Report.summary.totalFeedbackItems
@@ -209,7 +348,7 @@ try {
             reportPath = $p006ReportPath.Replace('\', '/')
             decision = [string]$p006Report.decision
         }
-        boundary = 'validates the repo-side import/archival scripts for returned P001 evidence, P005 triage, and P006 decision records without changing backlog status or release readiness'
+        boundary = 'validates the repo-side import/archival scripts for returned P001 evidence, P003 admission cards, P004 teacher pilot evidence, P005 triage, and P006 decision records without changing backlog status or release readiness'
     } | ConvertTo-Json -Depth 8
 }
 finally {

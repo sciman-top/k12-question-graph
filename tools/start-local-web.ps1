@@ -16,6 +16,9 @@ $stdoutPath = Join-Path $logRoot 'vite.out.log'
 $stderrPath = Join-Path $logRoot 'vite.err.log'
 $viteShimPath = Join-Path $webRoot 'node_modules\.bin\vite.cmd'
 
+. (Join-Path $PSScriptRoot 'dotenv.ps1')
+Import-KqgDotEnv -RepoRoot $repoRoot
+
 function Get-ListenerProcess {
     param(
         [int] $LocalPort

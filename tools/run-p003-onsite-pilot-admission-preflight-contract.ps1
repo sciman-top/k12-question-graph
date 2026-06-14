@@ -2,6 +2,7 @@ param(
     [string] $BacklogPath = 'tasks/backlog.csv',
     [string] $LiveCloseoutPlanPath = 'tasks/live-pilot-closeout-plan.csv',
     [string] $ChecklistPath = 'docs/templates/p003-onsite-pilot-admission-checklist.md',
+    [string] $AdmissionCardTemplatePath = 'docs/templates/p003-onsite-pilot-admission-card-template.json',
     [string] $EvidencePath = 'docs/evidence/20260505-p003-onsite-pilot-admission-preflight.md',
     [string] $ReportPath = 'docs/evidence/20260523-p003-onsite-pilot-admission-report.json'
 )
@@ -35,11 +36,13 @@ function Write-ContentIfChanged([string]$Path, [string]$Content) {
 $backlogFullPath = Resolve-RepoPath $BacklogPath
 $liveCloseoutPlanFullPath = Resolve-RepoPath $LiveCloseoutPlanPath
 $checklistFullPath = Resolve-RepoPath $ChecklistPath
+$admissionCardTemplateFullPath = Resolve-RepoPath $AdmissionCardTemplatePath
 $evidenceFullPath = Resolve-RepoPath $EvidencePath
 
 Assert-True (Test-Path -LiteralPath $backlogFullPath) "P003 backlog file missing: $BacklogPath"
 Assert-True (Test-Path -LiteralPath $liveCloseoutPlanFullPath) "live closeout plan missing: $LiveCloseoutPlanPath"
 Assert-True (Test-Path -LiteralPath $checklistFullPath) "P003 checklist missing: $ChecklistPath"
+Assert-True (Test-Path -LiteralPath $admissionCardTemplateFullPath) "P003 admission card template missing: $AdmissionCardTemplatePath"
 Assert-True (Test-Path -LiteralPath $evidenceFullPath) "P003 evidence markdown missing: $EvidencePath"
 
 $rows = Import-Csv -LiteralPath $backlogFullPath -Encoding UTF8
@@ -68,6 +71,18 @@ foreach ($keyword in @('教师参与边界', '数据授权', '支持人', '回�
     Assert-True ($checklistText.Contains($keyword)) "P003 checklist missing keyword: $keyword"
 }
 
+$admissionCardTemplate = Get-Content -LiteralPath $admissionCardTemplateFullPath -Raw | ConvertFrom-Json
+Assert-True ($admissionCardTemplate.schemaVersion -eq 'p003-onsite-pilot-admission-card.v1') 'P003 admission card template schema mismatch'
+foreach ($requiredField in @('admissionContext', 'teacherBoundary', 'dataAuthorization', 'supportContacts', 'rollbackPlan', 'feedbackTemplate', 'signoff', 'decisionNotes')) {
+    Assert-True ($admissionCardTemplate.PSObject.Properties.Name -contains $requiredField) "P003 admission card template missing field: $requiredField"
+}
+foreach ($field in @('date', 'site', 'operator', 'teacherOrProxy', 'admissionDecision', 'sourceEvidence')) {
+    Assert-True ($admissionCardTemplate.admissionContext.PSObject.Properties.Name -contains $field) "P003 admission card template missing admissionContext.$field"
+}
+Assert-True (@($admissionCardTemplate.teacherBoundary.participants).Count -ge 1) 'P003 admission card template must include participant placeholder'
+Assert-True (@($admissionCardTemplate.dataAuthorization.prohibitedActions).Count -ge 1) 'P003 admission card template must include prohibited action placeholder'
+Assert-True (@($admissionCardTemplate.decisionNotes).Count -ge 1) 'P003 admission card template must include at least one decision note placeholder'
+
 $evidenceText = Get-Content -LiteralPath $evidenceFullPath -Raw
 foreach ($keyword in @('preflight', 'P003', 'platform_na', 'gate_na', '现场教师试点准入', '下一步')) {
     Assert-True ($evidenceText.Contains($keyword)) "P003 evidence missing keyword: $keyword"
@@ -84,6 +99,7 @@ $report = [ordered]@{
     closeTaskAllowed = $false
     currentDecision = 'keep_P003_todo_until_proxy_pilot_and_onsite_admission_card_close'
     checklistPath = $ChecklistPath
+    admissionCardTemplatePath = $AdmissionCardTemplatePath
     evidencePath = $EvidencePath
     reportPath = $ReportPath
     closeoutPlan = [ordered]@{
@@ -97,6 +113,7 @@ $report = [ordered]@{
     )
     nextRequiredEvidence = @(
         'teacher proxy pilot report from P002',
+        'structured P003 admission card template',
         'onsite pilot admission card',
         'data authorization and support owner record',
         'rollback plan and feedback template'

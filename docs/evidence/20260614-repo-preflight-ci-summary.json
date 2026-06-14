@@ -1,96 +1,103 @@
 {
   "status": "pass",
-  "checkedAt": "2026-06-14T00:47:54",
+  "checkedAt": "2026-06-14T20:00:43",
   "mode": "Ci",
   "referenceValidationMode": "Ci",
   "reportRoot": "tmp/repo-preflight",
   "installFrontendDependencies": false,
   "fullGateIncluded": false,
-  "pausedDefaultLocalApi": true,
-  "stepCount": 12,
+  "pausedDefaultLocalApi": false,
+  "stepCount": 13,
   "steps": [
     {
       "name": "backend build",
-      "startedAt": "2026-06-14T00:47:06",
-      "finishedAt": "2026-06-14T00:47:23",
-      "durationSeconds": 17.071,
+      "startedAt": "2026-06-14T20:00:27",
+      "finishedAt": "2026-06-14T20:00:29",
+      "durationSeconds": 2.161,
       "status": "pass"
     },
     {
       "name": "frontend host-local debris guard",
-      "startedAt": "2026-06-14T00:47:23",
-      "finishedAt": "2026-06-14T00:47:23",
-      "durationSeconds": 0.035,
+      "startedAt": "2026-06-14T20:00:29",
+      "finishedAt": "2026-06-14T20:00:29",
+      "durationSeconds": 0.015,
       "status": "pass"
     },
     {
       "name": "frontend lint",
-      "startedAt": "2026-06-14T00:47:23",
-      "finishedAt": "2026-06-14T00:47:38",
-      "durationSeconds": 14.413,
+      "startedAt": "2026-06-14T20:00:29",
+      "finishedAt": "2026-06-14T20:00:36",
+      "durationSeconds": 6.286,
       "status": "pass"
     },
     {
       "name": "frontend build",
-      "startedAt": "2026-06-14T00:47:38",
-      "finishedAt": "2026-06-14T00:47:50",
-      "durationSeconds": 12.843,
+      "startedAt": "2026-06-14T20:00:36",
+      "finishedAt": "2026-06-14T20:00:41",
+      "durationSeconds": 5.688,
       "status": "pass"
     },
     {
       "name": "automation-first guard",
-      "startedAt": "2026-06-14T00:47:50",
-      "finishedAt": "2026-06-14T00:47:51",
-      "durationSeconds": 0.448,
+      "startedAt": "2026-06-14T20:00:41",
+      "finishedAt": "2026-06-14T20:00:41",
+      "durationSeconds": 0.173,
       "status": "pass"
     },
     {
       "name": "reference-basis guard",
-      "startedAt": "2026-06-14T00:47:51",
-      "finishedAt": "2026-06-14T00:47:51",
-      "durationSeconds": 0.601,
+      "startedAt": "2026-06-14T20:00:41",
+      "finishedAt": "2026-06-14T20:00:42",
+      "durationSeconds": 0.259,
       "status": "pass"
     },
     {
       "name": "live-closeout guard",
-      "startedAt": "2026-06-14T00:47:51",
-      "finishedAt": "2026-06-14T00:47:52",
-      "durationSeconds": 0.393,
+      "startedAt": "2026-06-14T20:00:42",
+      "finishedAt": "2026-06-14T20:00:42",
+      "durationSeconds": 0.181,
       "status": "pass"
     },
     {
       "name": "pqr preflight pack contract",
-      "startedAt": "2026-06-14T00:47:52",
-      "finishedAt": "2026-06-14T00:47:52",
-      "durationSeconds": 0.193,
+      "startedAt": "2026-06-14T20:00:42",
+      "finishedAt": "2026-06-14T20:00:42",
+      "durationSeconds": 0.092,
       "status": "pass"
     },
     {
       "name": "pqr preflight dashboard contract",
-      "startedAt": "2026-06-14T00:47:52",
-      "finishedAt": "2026-06-14T00:47:52",
-      "durationSeconds": 0.135,
+      "startedAt": "2026-06-14T20:00:42",
+      "finishedAt": "2026-06-14T20:00:42",
+      "durationSeconds": 0.06,
       "status": "pass"
     },
     {
       "name": "pqr preflight freshness guard",
-      "startedAt": "2026-06-14T00:47:52",
-      "finishedAt": "2026-06-14T00:47:52",
-      "durationSeconds": 0.111,
+      "startedAt": "2026-06-14T20:00:42",
+      "finishedAt": "2026-06-14T20:00:42",
+      "durationSeconds": 0.045,
+      "status": "pass"
+    },
+    {
+      "name": "repo preflight local api detection contract",
+      "startedAt": "2026-06-14T20:00:42",
+      "finishedAt": "2026-06-14T20:00:42",
+      "durationSeconds": 0.025,
       "status": "pass"
     },
     {
       "name": "ns1308 release evidence pack contract",
-      "startedAt": "2026-06-14T00:47:52",
-      "finishedAt": "2026-06-14T00:47:53",
-      "durationSeconds": 0.405,
+      "startedAt": "2026-06-14T20:00:42",
+      "finishedAt": "2026-06-14T20:00:42",
+      "durationSeconds": 0.058,
       "status": "pass"
     },
     {
       "name": "roadmap guard",
-      "startedAt": "2026-06-14T00:47:53",
-      "finishedAt": "2026-06-14T00:47:54",
-      "durationSeconds": 0.964,
+      "startedAt": "2026-06-14T20:00:42",
+      "finishedAt": "2026-06-14T20:00:43",
+      "durationSeconds": 0.461,
       "status": "pass"
     }
   ],

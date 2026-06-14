@@ -101,7 +101,17 @@ try {
     Assert-Condition ($null -ne $real005.sliceCoverage.REAL005A) 'NS905 requires REAL005A slice coverage'
     Assert-Condition ((@($real005.sliceCoverage.REAL005A.criteriaIds)) -contains 'RG001') 'NS905 requires REAL005A to keep RG001 coverage'
     Assert-Condition ((@($real005.sliceCoverage.REAL005A.criteriaIds)) -contains 'RG002') 'NS905 requires REAL005A to keep RG002 coverage'
-    Assert-Condition ([string]$real005.sliceCoverage.REAL005A.status -in @('blocked', 'partial')) 'NS905 requires REAL005A to remain blocked or partial while REAL005 is not_closed'
+    $real005ASliceStatus = [string]$real005.sliceCoverage.REAL005A.status
+    $real005APlanRow = Get-RequiredRow $closeoutRows 'REAL005A'
+    if ($real005ASliceStatus -eq 'pass') {
+        Assert-Condition ([string]$real005APlanRow.status -eq '已完成') 'NS905 requires REAL005A plan row to be completed when RG001/RG002 pass'
+        Assert-Condition (@($real005.sliceCoverage.REAL005A.blockers).Count -eq 0) 'NS905 requires REAL005A blockers to be empty when RG001/RG002 pass'
+    }
+    else {
+        Assert-Condition ($real005ASliceStatus -in @('blocked', 'partial')) 'NS905 requires REAL005A status to be pass, blocked, or partial while REAL005 is not_closed'
+        Assert-Condition ([string]$real005APlanRow.status -ne '已完成') 'NS905 must not complete REAL005A while RG001/RG002 remain blocked or partial'
+        Assert-Condition (@($real005.sliceCoverage.REAL005A.blockers).Count -ge 1) 'NS905 requires REAL005A blockers while RG001/RG002 remain blocked or partial'
+    }
 
     $p001Backlog = Get-RequiredRow $backlogRows 'P001'
     $p002Backlog = Get-RequiredRow $backlogRows 'P002'
@@ -131,7 +141,8 @@ try {
         Assert-Condition ($row.status -eq '待办') "P-live backlog task must remain todo: $($row.id)"
     }
     Assert-Condition ($real005Backlog.status -eq '已完成') 'REAL005 criteria task must remain completed as a guard definition'
-    Assert-Condition ($closeoutNextOpen['REAL005'] -eq 'REAL005A') 'next REAL005 closeout slice must start at REAL005A while not_closed'
+    $expectedReal005NextOpen = if ($real005ASliceStatus -eq 'pass') { 'REAL005B' } else { 'REAL005A' }
+    Assert-Condition ($closeoutNextOpen['REAL005'] -eq $expectedReal005NextOpen) "next REAL005 closeout slice mismatch: expected $expectedReal005NextOpen actual $($closeoutNextOpen['REAL005'])"
     Assert-Condition ($closeoutNextOpen['P001'] -eq 'P001A') 'next P001 closeout slice must start at P001A while todo'
     Assert-Condition ($closeoutNextOpen['P003'] -eq 'P003A') 'next P003 closeout slice must start at P003A while todo'
     Assert-Condition ($closeoutNextOpen['P005'] -eq 'P005A') 'next P005 closeout slice must start at P005A while todo'
@@ -279,8 +290,9 @@ try {
         $lines.Add("- next_open.$($entry.Key): $($entry.Value)")
     }
     $lines.Add("- real005_report_path: $REAL005ReportPath")
-    $lines.Add("- real005_next_slice_status: $($real005.sliceCoverage.REAL005A.status)")
-    $lines.Add("- real005_next_slice_blockers: $(if (@($real005.sliceCoverage.REAL005A.blockers).Count -eq 0) { '无' } else { @($real005.sliceCoverage.REAL005A.blockers) -join ' | ' })")
+    $lines.Add("- real005a_slice_status: $($real005.sliceCoverage.REAL005A.status)")
+    $lines.Add("- real005a_slice_blockers: $(if (@($real005.sliceCoverage.REAL005A.blockers).Count -eq 0) { '无' } else { @($real005.sliceCoverage.REAL005A.blockers) -join ' | ' })")
+    $lines.Add("- real005_next_open: $($closeoutNextOpen['REAL005'])")
     $lines.Add('')
     $lines.Add('## Acceptance')
     $lines.Add('- backlog_p001_p006_remain_todo: true')
@@ -318,7 +330,8 @@ try {
         p001Status = [string]$p001Backlog.status
         p001CanClose = [bool]$p001.p001CanClose
         real005ReportPath = $REAL005ReportPath
-        real005NextSliceStatus = [string]$real005.sliceCoverage.REAL005A.status
+        real005aSliceStatus = [string]$real005.sliceCoverage.REAL005A.status
+        real005NextOpen = [string]$closeoutNextOpen['REAL005']
         real005ClosureStatus = [string]$real005.closureStatus
         boundary = 'status sync audit only; no live/onsite closure'
     }

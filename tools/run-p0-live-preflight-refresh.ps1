@@ -51,6 +51,10 @@ foreach ($contract in $contracts) {
         mode = $obj.mode
         boundary = $obj.boundary
         checklistPath = $obj.checklistPath
+        admissionCardTemplatePath = $obj.admissionCardTemplatePath
+        evidenceTemplatePath = $obj.evidenceTemplatePath
+        triageTemplatePath = $obj.triageTemplatePath
+        decisionRecordTemplatePath = $obj.decisionRecordTemplatePath
         evidencePath = $obj.evidencePath
         reportPath = $obj.reportPath
         checkedAt = $obj.checkedAt

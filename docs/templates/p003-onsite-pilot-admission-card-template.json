@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "p003-onsite-pilot-admission-card.v1",
+  "admissionContext": {
+    "date": "<YYYY-MM-DD>",
+    "site": "",
+    "operator": "",
+    "teacherOrProxy": "",
+    "admissionDecision": "continue_p004|keep_blocked",
+    "sourceEvidence": "docs/evidence/<date>-p002-teacher-proxy-pilot-admission-report.json"
+  },
+  "teacherBoundary": {
+    "participants": [
+      ""
+    ],
+    "allowedActions": [
+      "import|paper|score|analysis|other"
+    ],
+    "forbiddenActions": [
+      "admin_active_switch|real_external_ai|other"
+    ],
+    "observationGoal": ""
+  },
+  "dataAuthorization": {
+    "materialScope": "real_authorized|anonymized_only|synthetic_only",
+    "expiresAt": "<YYYY-MM-DD>",
+    "owner": "",
+    "prohibitedActions": [
+      "send_real_student_data_to_external_ai"
+    ]
+  },
+  "supportContacts": {
+    "onsiteSupport": "",
+    "techSupport": "",
+    "escalationContact": ""
+  },
+  "rollbackPlan": {
+    "trigger": "",
+    "action": "",
+    "owner": "",
+    "recoveryEntry": "docs/109_ReleaseGoNoGoCard.md"
+  },
+  "feedbackTemplate": {
+    "path": "docs/templates/p005-pilot-feedback-triage-template.json",
+    "collectionCadence": "per_session|daily|round_end",
+    "escalationPath": ""
+  },
+  "signoff": {
+    "productOwner": "",
+    "dataOwnerRepresentative": "",
+    "supportOwner": "",
+    "releaseOwner": ""
+  },
+  "decisionNotes": [
+    ""
+  ]
+}

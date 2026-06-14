@@ -1,6 +1,7 @@
 param(
     [string] $BacklogPath = 'tasks/backlog.csv',
     [string] $ChecklistPath = 'docs/templates/p004-onsite-pilot-round1-checklist.md',
+    [string] $EvidenceTemplatePath = 'docs/templates/p004-onsite-pilot-round1-evidence-template.json',
     [string] $EvidencePath = 'docs/evidence/20260505-p004-onsite-pilot-round1-preflight.md',
     [string] $ReportPath = 'docs/evidence/20260523-p004-onsite-pilot-round1-report.json'
 )
@@ -33,10 +34,12 @@ function Write-ContentIfChanged([string]$Path, [string]$Content) {
 
 $backlogFullPath = Resolve-RepoPath $BacklogPath
 $checklistFullPath = Resolve-RepoPath $ChecklistPath
+$evidenceTemplateFullPath = Resolve-RepoPath $EvidenceTemplatePath
 $evidenceFullPath = Resolve-RepoPath $EvidencePath
 
 Assert-True (Test-Path -LiteralPath $backlogFullPath) "P004 backlog file missing: $BacklogPath"
 Assert-True (Test-Path -LiteralPath $checklistFullPath) "P004 checklist missing: $ChecklistPath"
+Assert-True (Test-Path -LiteralPath $evidenceTemplateFullPath) "P004 evidence template missing: $EvidenceTemplatePath"
 Assert-True (Test-Path -LiteralPath $evidenceFullPath) "P004 evidence markdown missing: $EvidencePath"
 
 $rows = Import-Csv -LiteralPath $backlogFullPath -Encoding UTF8
@@ -59,6 +62,19 @@ foreach ($keyword in @('实际耗时', '操作卡点', '错误', '文案困惑',
     Assert-True ($checklistText.Contains($keyword)) "P004 checklist missing keyword: $keyword"
 }
 
+$evidenceTemplate = Get-Content -LiteralPath $evidenceTemplateFullPath -Raw | ConvertFrom-Json
+Assert-True ($evidenceTemplate.schemaVersion -eq 'p004-onsite-pilot-round1-evidence.v1') 'P004 teacher pilot evidence template schema mismatch'
+foreach ($requiredField in @('pilotContext', 'prefilledChecks', 'workflowTiming', 'frictionItems', 'rollbackEvents', 'summary', 'signoff')) {
+    Assert-True ($evidenceTemplate.PSObject.Properties.Name -contains $requiredField) "P004 teacher pilot evidence template missing field: $requiredField"
+}
+foreach ($field in @('date', 'site', 'operator', 'teacher', 'sourceEvidence', 'decision')) {
+    Assert-True ($evidenceTemplate.pilotContext.PSObject.Properties.Name -contains $field) "P004 teacher pilot evidence template missing pilotContext.$field"
+}
+Assert-True (@($evidenceTemplate.workflowTiming).Count -ge 1) 'P004 teacher pilot evidence template must include workflow timing placeholder'
+Assert-True (@($evidenceTemplate.frictionItems).Count -ge 1) 'P004 teacher pilot evidence template must include friction item placeholder'
+Assert-True (@($evidenceTemplate.rollbackEvents).Count -ge 1) 'P004 teacher pilot evidence template must include rollback event placeholder'
+Assert-True (@($evidenceTemplate.summary.environmentBlockers).Count -ge 1) 'P004 teacher pilot evidence template must include environment blocker placeholder'
+
 $evidenceText = Get-Content -LiteralPath $evidenceFullPath -Raw
 foreach ($keyword in @('preflight', 'P004', 'platform_na', 'gate_na', '现场教师试点第 1 轮', '下一步')) {
     Assert-True ($evidenceText.Contains($keyword)) "P004 evidence missing keyword: $keyword"
@@ -74,6 +90,7 @@ $report = [ordered]@{
     closeTaskAllowed = $false
     currentDecision = 'keep_P004_todo_until_onsite_round1_evidence_close'
     checklistPath = $ChecklistPath
+    evidenceTemplatePath = $EvidenceTemplatePath
     evidencePath = $EvidencePath
     reportPath = $ReportPath
     blockers = @(
@@ -83,6 +100,7 @@ $report = [ordered]@{
     )
     nextRequiredEvidence = @(
         'pilot admission card from P003',
+        'structured P004 teacher pilot evidence template',
         'onsite teacher pilot evidence',
         'elapsed time and operation friction log',
         'rollback event log and support-owner notes'

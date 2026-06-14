@@ -1067,6 +1067,11 @@ try {
             -ReportPath $real005JsonPath `
             -MarkdownReportPath $real005MarkdownPath | Write-Host
     }
+    Invoke-GateStep 'real005b question structure diagnostics' {
+        .\tools\run-real005b-question-structure-diagnostics.ps1 `
+            -ReportPath (Join-Path $pqrReportRoot 'real005b-question-structure-diagnostics.json') `
+            -MarkdownReportPath (Join-Path $pqrReportRoot 'real005b-question-structure-diagnostics.md') | Write-Host
+    }
     Invoke-GateStep 'pqr full gate path contract' {
         .\tools\run-pqr-full-gate-path-contract.ps1 | Write-Host
     }

@@ -1,0 +1,816 @@
+{
+  "status": "pass",
+  "taskId": "REAL005_YEARLY_ADAPTER_DIAGNOSTICS",
+  "checkedAt": "2026-06-14T10:44:23.182216+00:00",
+  "fileRoot": "D:\\KQG_Data\\file_store",
+  "sourceEvidence": [
+    "docs/evidence/20260512-guangzhou-2015-real-ingest-slice-report.json",
+    "docs/evidence/20260514-real003-guangzhou-physics-year-batch-ingest-report.json"
+  ],
+  "requiredYears": [
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "blockedYears": [],
+  "activeWrite": false,
+  "externalAiCalls": 0,
+  "realStudentDataUsed": false,
+  "years": [
+    {
+      "year": 2015,
+      "status": "pass",
+      "hasPaperDiagnostic": true,
+      "hasAnswerDiagnostic": true,
+      "documentCount": 2,
+      "documents": [
+        {
+          "sourceDocumentId": "650e9218-c910-40b2-8af3-d5690788ddb6",
+          "sourceType": "local_exam_paper",
+          "title": "2015广州中考",
+          "fileName": "2015广州中考.pdf",
+          "relativePath": "original/53/4d/534d8eee3b99446d514af736aaf4cd8e36f2803154f7778c0f656f1832b7510c.pdf",
+          "roles": [
+            "paper"
+          ],
+          "expectedSha256": "534d8eee3b99446d514af736aaf4cd8e36f2803154f7778c0f656f1832b7510c",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "pdf_text_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/53/4d/534d8eee3b99446d514af736aaf4cd8e36f2803154f7778c0f656f1832b7510c.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 199,
+              "inputSha256": "534d8eee3b99446d514af736aaf4cd8e36f2803154f7778c0f656f1832b7510c",
+              "outputSha256": "a90b03167a3c22a466e7d0be2e49eba54d705cdd76a75949c9fb2f3218267265",
+              "warnings": [],
+              "errors": []
+            }
+          ],
+          "issues": []
+        },
+        {
+          "sourceDocumentId": "c6259aa6-23a0-4af8-9aa7-fa2f16e26659",
+          "sourceType": "local_exam_paper",
+          "title": "2015广州中考答案",
+          "fileName": "2015广州中考答案.pdf",
+          "relativePath": "original/06/5a/065a6293b5c1019ed2da199736df44c6d0304797d0a986a750449197ca9ba88d.pdf",
+          "roles": [
+            "answer"
+          ],
+          "expectedSha256": "065a6293b5c1019ed2da199736df44c6d0304797d0a986a750449197ca9ba88d",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "pdf_text_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/06/5a/065a6293b5c1019ed2da199736df44c6d0304797d0a986a750449197ca9ba88d.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 75,
+              "inputSha256": "065a6293b5c1019ed2da199736df44c6d0304797d0a986a750449197ca9ba88d",
+              "outputSha256": "c437c664b1d87ba90664845c957aa409a09dd0202acb4fd016ef65644662cf94",
+              "warnings": [],
+              "errors": []
+            }
+          ],
+          "issues": []
+        }
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2016,
+      "status": "pass",
+      "hasPaperDiagnostic": true,
+      "hasAnswerDiagnostic": true,
+      "documentCount": 2,
+      "documents": [
+        {
+          "sourceDocumentId": "bced0159-4568-4814-ba9d-82f19fbf0493",
+          "sourceType": "local_exam_paper",
+          "title": "2016广州中考",
+          "fileName": "2016广州中考.pdf",
+          "relativePath": "original/37/7d/377de2f0a5c7c8a35bff908ac5a4527b671702ac4265bf9d9728e531ae541cee.pdf",
+          "roles": [
+            "paper"
+          ],
+          "expectedSha256": "377de2f0a5c7c8a35bff908ac5a4527b671702ac4265bf9d9728e531ae541cee",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "pdf_text_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/37/7d/377de2f0a5c7c8a35bff908ac5a4527b671702ac4265bf9d9728e531ae541cee.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 112,
+              "inputSha256": "377de2f0a5c7c8a35bff908ac5a4527b671702ac4265bf9d9728e531ae541cee",
+              "outputSha256": "0f1edfc9289a67872c048e0a77cd6b505948727c0f8992e5d152b779d4377a3e",
+              "warnings": [],
+              "errors": []
+            }
+          ],
+          "issues": []
+        },
+        {
+          "sourceDocumentId": "12db801b-1d62-4693-a311-d0ea60f18425",
+          "sourceType": "local_exam_paper",
+          "title": "2016广州中考答案",
+          "fileName": "2016广州中考答案.pdf",
+          "relativePath": "original/fa/dc/fadc6107c2acaaf95de050f4693864a9fffcac71e456bf30a1f4593047ab408b.pdf",
+          "roles": [
+            "answer"
+          ],
+          "expectedSha256": "fadc6107c2acaaf95de050f4693864a9fffcac71e456bf30a1f4593047ab408b",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "pdf_text_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/fa/dc/fadc6107c2acaaf95de050f4693864a9fffcac71e456bf30a1f4593047ab408b.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 39,
+              "inputSha256": "fadc6107c2acaaf95de050f4693864a9fffcac71e456bf30a1f4593047ab408b",
+              "outputSha256": "e5495b412145ec739d142d6bd24f15550241ebb839351ac5a3322cf625ebad78",
+              "warnings": [],
+              "errors": []
+            }
+          ],
+          "issues": []
+        }
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2017,
+      "status": "pass",
+      "hasPaperDiagnostic": true,
+      "hasAnswerDiagnostic": true,
+      "documentCount": 2,
+      "documents": [
+        {
+          "sourceDocumentId": "a2972de8-f2d2-4f96-baff-63038be89150",
+          "sourceType": "local_exam_paper",
+          "title": "2017广州中考",
+          "fileName": "2017广州中考.pdf",
+          "relativePath": "original/3f/41/3f419b1779ebec02f74c694966924a2931611f3525d3d17701946bb63abfc4fa.pdf",
+          "roles": [
+            "paper"
+          ],
+          "expectedSha256": "3f419b1779ebec02f74c694966924a2931611f3525d3d17701946bb63abfc4fa",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "pdf_text_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/3f/41/3f419b1779ebec02f74c694966924a2931611f3525d3d17701946bb63abfc4fa.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 115,
+              "inputSha256": "3f419b1779ebec02f74c694966924a2931611f3525d3d17701946bb63abfc4fa",
+              "outputSha256": "2e068d48b168adc626ff061c5278808a0e74d24a9ccbcda7afd2cbf2f4917b2e",
+              "warnings": [],
+              "errors": []
+            }
+          ],
+          "issues": []
+        },
+        {
+          "sourceDocumentId": "abb7abf4-623a-4338-b04e-ce5fe07c47f0",
+          "sourceType": "local_exam_paper",
+          "title": "2017广州中考答案",
+          "fileName": "2017广州中考答案.pdf",
+          "relativePath": "original/f8/7c/f87c3cb8ed02969137ba916184045052ec3efecbd6331dd1d192fe52de67d207.pdf",
+          "roles": [
+            "answer"
+          ],
+          "expectedSha256": "f87c3cb8ed02969137ba916184045052ec3efecbd6331dd1d192fe52de67d207",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "pdf_text_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/f8/7c/f87c3cb8ed02969137ba916184045052ec3efecbd6331dd1d192fe52de67d207.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 50,
+              "inputSha256": "f87c3cb8ed02969137ba916184045052ec3efecbd6331dd1d192fe52de67d207",
+              "outputSha256": "6bd684f8b9fc311495956afcbf6efd225e8fb2fee02361b32b128f68c8a37bba",
+              "warnings": [],
+              "errors": []
+            }
+          ],
+          "issues": []
+        }
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2018,
+      "status": "pass",
+      "hasPaperDiagnostic": true,
+      "hasAnswerDiagnostic": true,
+      "documentCount": 2,
+      "documents": [
+        {
+          "sourceDocumentId": "82b67da3-8ab8-493f-abc3-61428e00d74f",
+          "sourceType": "local_exam_paper",
+          "title": "2018广州中考",
+          "fileName": "2018广州中考.pdf",
+          "relativePath": "original/c4/fe/c4feff77379271fbea32404b1ab3952800ff305639c8af446fa1c8c68a2fc794.pdf",
+          "roles": [
+            "paper"
+          ],
+          "expectedSha256": "c4feff77379271fbea32404b1ab3952800ff305639c8af446fa1c8c68a2fc794",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "pdf_text_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/c4/fe/c4feff77379271fbea32404b1ab3952800ff305639c8af446fa1c8c68a2fc794.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 133,
+              "inputSha256": "c4feff77379271fbea32404b1ab3952800ff305639c8af446fa1c8c68a2fc794",
+              "outputSha256": "0920f38f5b527969b982123215b3e71b82affd26e44257693a8e526797aaae81",
+              "warnings": [],
+              "errors": []
+            }
+          ],
+          "issues": []
+        },
+        {
+          "sourceDocumentId": "c7c2b85f-9139-475d-8431-1e1cfdd9e981",
+          "sourceType": "local_exam_paper",
+          "title": "2018广州中考答案",
+          "fileName": "2018广州中考答案.pdf",
+          "relativePath": "original/40/b1/40b1a15e8b70c44e862eabf265cbe4d63062151742a126133388d31a4b666ed6.pdf",
+          "roles": [
+            "answer"
+          ],
+          "expectedSha256": "40b1a15e8b70c44e862eabf265cbe4d63062151742a126133388d31a4b666ed6",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "pdf_text_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/40/b1/40b1a15e8b70c44e862eabf265cbe4d63062151742a126133388d31a4b666ed6.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 62,
+              "inputSha256": "40b1a15e8b70c44e862eabf265cbe4d63062151742a126133388d31a4b666ed6",
+              "outputSha256": "83470f7e5e237f3353ad8b61cd7906d4f2e824a80a3605159c1af2a07a699ad1",
+              "warnings": [],
+              "errors": []
+            }
+          ],
+          "issues": []
+        }
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2019,
+      "status": "pass",
+      "hasPaperDiagnostic": true,
+      "hasAnswerDiagnostic": true,
+      "documentCount": 2,
+      "documents": [
+        {
+          "sourceDocumentId": "e6394de7-0bb3-462f-801a-d762fa3e08ca",
+          "sourceType": "local_exam_paper",
+          "title": "2019广州中考",
+          "fileName": "2019广州中考.pdf",
+          "relativePath": "original/85/dd/85dd476db8eacd837f7a4590bac7c795ef5cf53f68a1c68a08f279e7d1731dba.pdf",
+          "roles": [
+            "paper"
+          ],
+          "expectedSha256": "85dd476db8eacd837f7a4590bac7c795ef5cf53f68a1c68a08f279e7d1731dba",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "pdf_text_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/85/dd/85dd476db8eacd837f7a4590bac7c795ef5cf53f68a1c68a08f279e7d1731dba.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 93,
+              "inputSha256": "85dd476db8eacd837f7a4590bac7c795ef5cf53f68a1c68a08f279e7d1731dba",
+              "outputSha256": "b1ea9c16b7480733490f937ddc07413b5b52d0abe6b9825e18a183161c19bd09",
+              "warnings": [],
+              "errors": []
+            }
+          ],
+          "issues": []
+        },
+        {
+          "sourceDocumentId": "d81871d7-f631-4d77-aac4-b54d01473026",
+          "sourceType": "local_exam_paper",
+          "title": "2019广州中考答案",
+          "fileName": "2019广州中考答案.pdf",
+          "relativePath": "original/b4/df/b4dfdef844f45be070eaf3db88961ede314eca829493b70e0ddbe17631c1d116.pdf",
+          "roles": [
+            "answer"
+          ],
+          "expectedSha256": "b4dfdef844f45be070eaf3db88961ede314eca829493b70e0ddbe17631c1d116",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "pdf_text_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/b4/df/b4dfdef844f45be070eaf3db88961ede314eca829493b70e0ddbe17631c1d116.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 134,
+              "inputSha256": "b4dfdef844f45be070eaf3db88961ede314eca829493b70e0ddbe17631c1d116",
+              "outputSha256": "31fe7359d5b9fa208492f512008a0660d83d6ad7780d1a3ad0360fd934d6e250",
+              "warnings": [],
+              "errors": []
+            }
+          ],
+          "issues": []
+        }
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2020,
+      "status": "pass",
+      "hasPaperDiagnostic": true,
+      "hasAnswerDiagnostic": true,
+      "documentCount": 1,
+      "documents": [
+        {
+          "sourceDocumentId": "fe71fada-ea61-4b68-a6f5-79efeccb78a1",
+          "sourceType": "local_exam_paper",
+          "title": "2020广州中考（含答案）",
+          "fileName": "2020广州中考（含答案）.pdf",
+          "relativePath": "original/03/b6/03b67dc46d0e37377d0ac076638e6d34b42305c8f2824489da3f664fe53875db.pdf",
+          "roles": [
+            "answer",
+            "paper"
+          ],
+          "expectedSha256": "03b67dc46d0e37377d0ac076638e6d34b42305c8f2824489da3f664fe53875db",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "pdf_text_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/03/b6/03b67dc46d0e37377d0ac076638e6d34b42305c8f2824489da3f664fe53875db.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 110,
+              "inputSha256": "03b67dc46d0e37377d0ac076638e6d34b42305c8f2824489da3f664fe53875db",
+              "outputSha256": "0a1d36f113bccda72edff3e392761ad226863cfe9c32aba764e91ccb77596384",
+              "warnings": [],
+              "errors": []
+            }
+          ],
+          "issues": []
+        }
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2021,
+      "status": "pass",
+      "hasPaperDiagnostic": true,
+      "hasAnswerDiagnostic": true,
+      "documentCount": 2,
+      "documents": [
+        {
+          "sourceDocumentId": "389ac111-52c5-4a10-a340-fd03bffb2b39",
+          "sourceType": "local_exam_paper",
+          "title": "2021广州中考-参考答案",
+          "fileName": "2021广州中考-参考答案.pdf",
+          "relativePath": "original/e1/57/e157ab8a16233acd68000299b427f814687035ec1b76384f69f1cf446ed04578.pdf",
+          "roles": [
+            "answer"
+          ],
+          "expectedSha256": "e157ab8a16233acd68000299b427f814687035ec1b76384f69f1cf446ed04578",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "pdf_text_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/e1/57/e157ab8a16233acd68000299b427f814687035ec1b76384f69f1cf446ed04578.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 58,
+              "inputSha256": "e157ab8a16233acd68000299b427f814687035ec1b76384f69f1cf446ed04578",
+              "outputSha256": "c557c449678fe41c0311329c4cc245aa7e79a1605fbf868eaef60730cec34aa8",
+              "warnings": [],
+              "errors": []
+            }
+          ],
+          "issues": []
+        },
+        {
+          "sourceDocumentId": "83e3e461-318b-4293-9fc4-63ddf9c5d0cf",
+          "sourceType": "local_exam_paper",
+          "title": "2021广州中考",
+          "fileName": "2021广州中考.pdf",
+          "relativePath": "original/d4/ab/d4abb8aa48663b772abb1ee5b15935b065b8931af47bd3c62d89bdef1f83989c.pdf",
+          "roles": [
+            "paper"
+          ],
+          "expectedSha256": "d4abb8aa48663b772abb1ee5b15935b065b8931af47bd3c62d89bdef1f83989c",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "pdf_text_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/d4/ab/d4abb8aa48663b772abb1ee5b15935b065b8931af47bd3c62d89bdef1f83989c.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 69,
+              "inputSha256": "d4abb8aa48663b772abb1ee5b15935b065b8931af47bd3c62d89bdef1f83989c",
+              "outputSha256": "97be79920fb5d884f0558054fc5795fa86600c9d4eb719c17f3546f8bb145002",
+              "warnings": [],
+              "errors": []
+            }
+          ],
+          "issues": []
+        }
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2022,
+      "status": "pass",
+      "hasPaperDiagnostic": true,
+      "hasAnswerDiagnostic": true,
+      "documentCount": 2,
+      "documents": [
+        {
+          "sourceDocumentId": "f05ae8ba-3891-4ce0-b265-a1b61a1b76bf",
+          "sourceType": "local_exam_paper",
+          "title": "2022广州中考-参考答案",
+          "fileName": "2022广州中考-参考答案.pdf",
+          "relativePath": "original/51/9a/519a730083d49f576effa9f9d099c0f2731022ff94bc80bbe5e64713d2016120.pdf",
+          "roles": [
+            "answer"
+          ],
+          "expectedSha256": "519a730083d49f576effa9f9d099c0f2731022ff94bc80bbe5e64713d2016120",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "pdf_text_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/51/9a/519a730083d49f576effa9f9d099c0f2731022ff94bc80bbe5e64713d2016120.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 126,
+              "inputSha256": "519a730083d49f576effa9f9d099c0f2731022ff94bc80bbe5e64713d2016120",
+              "outputSha256": "3b24b1af1b2ad5d7a96e69536036a5dcc2690e740aae38fd64f2d36e73041631",
+              "warnings": [],
+              "errors": []
+            }
+          ],
+          "issues": []
+        },
+        {
+          "sourceDocumentId": "dba28439-acdc-44e5-9eac-5325a4aec896",
+          "sourceType": "local_exam_paper",
+          "title": "2022广州中考",
+          "fileName": "2022广州中考.pdf",
+          "relativePath": "original/66/c5/66c5959ae3db3fa2d521b234d371c5fa05ef84763ffc1a5a9ed8bd9adce16101.pdf",
+          "roles": [
+            "paper"
+          ],
+          "expectedSha256": "66c5959ae3db3fa2d521b234d371c5fa05ef84763ffc1a5a9ed8bd9adce16101",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "pdf_text_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/66/c5/66c5959ae3db3fa2d521b234d371c5fa05ef84763ffc1a5a9ed8bd9adce16101.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 93,
+              "inputSha256": "66c5959ae3db3fa2d521b234d371c5fa05ef84763ffc1a5a9ed8bd9adce16101",
+              "outputSha256": "dbd7e6ccd1313bdcf5b6bb83528fa3fb25f57526ac167401684f6f440c855b5e",
+              "warnings": [],
+              "errors": []
+            }
+          ],
+          "issues": []
+        }
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2023,
+      "status": "pass",
+      "hasPaperDiagnostic": true,
+      "hasAnswerDiagnostic": true,
+      "documentCount": 2,
+      "documents": [
+        {
+          "sourceDocumentId": "65468c7b-aec5-42c0-a60e-f59e9ed8e093",
+          "sourceType": "local_exam_paper",
+          "title": "2023广州中考",
+          "fileName": "2023广州中考.pdf",
+          "relativePath": "original/94/22/9422eb3c0542eeea3526717364de15288d74788c4a1348f64ff012233338acdc.pdf",
+          "roles": [
+            "paper"
+          ],
+          "expectedSha256": "9422eb3c0542eeea3526717364de15288d74788c4a1348f64ff012233338acdc",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "pdf_text_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/94/22/9422eb3c0542eeea3526717364de15288d74788c4a1348f64ff012233338acdc.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 83,
+              "inputSha256": "9422eb3c0542eeea3526717364de15288d74788c4a1348f64ff012233338acdc",
+              "outputSha256": "b755be63acfd8e5915671a7d42d085227f4174dff6ba144b6b8555ad62eabd42",
+              "warnings": [],
+              "errors": []
+            }
+          ],
+          "issues": []
+        },
+        {
+          "sourceDocumentId": "8a7a5534-97e7-47ac-8f92-60ad70446ec1",
+          "sourceType": "local_exam_paper",
+          "title": "2023广州中考_参考答案",
+          "fileName": "2023广州中考_参考答案.pdf",
+          "relativePath": "original/f7/c3/f7c33a3e4525912de855f34e1d40e2853aa228da6d5f74be91f0627520c7d36a.pdf",
+          "roles": [
+            "answer"
+          ],
+          "expectedSha256": "f7c33a3e4525912de855f34e1d40e2853aa228da6d5f74be91f0627520c7d36a",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "pdf_text_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/f7/c3/f7c33a3e4525912de855f34e1d40e2853aa228da6d5f74be91f0627520c7d36a.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 52,
+              "inputSha256": "f7c33a3e4525912de855f34e1d40e2853aa228da6d5f74be91f0627520c7d36a",
+              "outputSha256": "19e577fc1dcfbb951a49a60904c693ad2c89c4dd2137e643f9ec7a1780d9007f",
+              "warnings": [],
+              "errors": []
+            }
+          ],
+          "issues": []
+        }
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2024,
+      "status": "pass",
+      "hasPaperDiagnostic": true,
+      "hasAnswerDiagnostic": true,
+      "documentCount": 2,
+      "documents": [
+        {
+          "sourceDocumentId": "90465a2a-9664-4a85-b40b-2bf3e194c8b5",
+          "sourceType": "local_exam_paper",
+          "title": "2024广州中考（解析版）",
+          "fileName": "2024广州中考（解析版）.pdf",
+          "relativePath": "original/5b/58/5b588bd2ed97be333da83a1f50031fe7f3adf66c8532506a481c97ed09adda95.pdf",
+          "roles": [
+            "answer",
+            "paper"
+          ],
+          "expectedSha256": "5b588bd2ed97be333da83a1f50031fe7f3adf66c8532506a481c97ed09adda95",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "pdf_text_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/5b/58/5b588bd2ed97be333da83a1f50031fe7f3adf66c8532506a481c97ed09adda95.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 169,
+              "inputSha256": "5b588bd2ed97be333da83a1f50031fe7f3adf66c8532506a481c97ed09adda95",
+              "outputSha256": "6f626c2d823109177f00509fce7e38006adcdca8c7d58cd5206b1d12ccbbe432",
+              "warnings": [],
+              "errors": []
+            }
+          ],
+          "issues": []
+        },
+        {
+          "sourceDocumentId": "c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389",
+          "sourceType": "local_exam_paper",
+          "title": "2024广州中考",
+          "fileName": "2024广州中考.pdf",
+          "relativePath": "original/f6/a3/f6a3a77585343e30722ef5e09cda58795fa752e2d86c74d0dda3c89e159311ef.pdf",
+          "roles": [
+            "paper"
+          ],
+          "expectedSha256": "f6a3a77585343e30722ef5e09cda58795fa752e2d86c74d0dda3c89e159311ef",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "pdf_text_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/f6/a3/f6a3a77585343e30722ef5e09cda58795fa752e2d86c74d0dda3c89e159311ef.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 75,
+              "inputSha256": "f6a3a77585343e30722ef5e09cda58795fa752e2d86c74d0dda3c89e159311ef",
+              "outputSha256": "c817e583ecb81d7fd6196585384ebb3029048891b9982e54d8d4d42431c1590f",
+              "warnings": [],
+              "errors": []
+            }
+          ],
+          "issues": []
+        }
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2025,
+      "status": "pass",
+      "hasPaperDiagnostic": true,
+      "hasAnswerDiagnostic": true,
+      "documentCount": 2,
+      "documents": [
+        {
+          "sourceDocumentId": "e04bc785-61b5-43d5-af7d-8f794b99549d",
+          "sourceType": "local_exam_paper",
+          "title": "2025广州中考（解析版）",
+          "fileName": "2025广州中考（解析版）.pdf",
+          "relativePath": "original/22/cc/22cc26e89bae766f1c6d9dc4497d9dcfa7a52467cdb48856c831f076805f8202.pdf",
+          "roles": [
+            "answer",
+            "paper"
+          ],
+          "expectedSha256": "22cc26e89bae766f1c6d9dc4497d9dcfa7a52467cdb48856c831f076805f8202",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "pdf_text_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/22/cc/22cc26e89bae766f1c6d9dc4497d9dcfa7a52467cdb48856c831f076805f8202.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 209,
+              "inputSha256": "22cc26e89bae766f1c6d9dc4497d9dcfa7a52467cdb48856c831f076805f8202",
+              "outputSha256": "2a1df2966995fa3eba272ce35f4aa850af3162df5b746e5c086afea301f1df97",
+              "warnings": [],
+              "errors": []
+            }
+          ],
+          "issues": []
+        },
+        {
+          "sourceDocumentId": "e7930641-b925-4f00-96d7-3b900949c083",
+          "sourceType": "local_exam_paper",
+          "title": "2025广州中考",
+          "fileName": "2025广州中考.pdf",
+          "relativePath": "original/26/c8/26c8aabc95cd2ffa67ed2ea873f13c9f2cb15d8e576ca2e4d4281f00f63e0fbe.pdf",
+          "roles": [
+            "paper"
+          ],
+          "expectedSha256": "26c8aabc95cd2ffa67ed2ea873f13c9f2cb15d8e576ca2e4d4281f00f63e0fbe",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "pdf_text_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/26/c8/26c8aabc95cd2ffa67ed2ea873f13c9f2cb15d8e576ca2e4d4281f00f63e0fbe.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 85,
+              "inputSha256": "26c8aabc95cd2ffa67ed2ea873f13c9f2cb15d8e576ca2e4d4281f00f63e0fbe",
+              "outputSha256": "4deb8b84323df9754e108fbd4b45c48595f05af6b003580f05dd1d3ee34e1517",
+              "warnings": [],
+              "errors": []
+            }
+          ],
+          "issues": []
+        }
+      ],
+      "blockers": []
+    }
+  ],
+  "boundary": "read-only worker adapter diagnostic evidence for REAL005A/RG002; no database write, no active switch, no external AI",
+  "rollback": "git clean -f -- docs/evidence/<date>-real005-yearly-adapter-diagnostics.json docs/evidence/<date>-real005-yearly-adapter-diagnostics.md"
+}

@@ -151,6 +151,13 @@
 - save/test 走 typed client + typed contract，不是散落的临时请求
 - 本地保存落点为 `D:\KQG_Data\config\admin\ai-provider-settings.local.json`
 
+2026-06-14 补充口径：
+
+- 推荐模式是“默认单 key，兼容图片专用覆盖”。
+- 也就是默认只配置一组主 `base URL + key`；图片专用 `base URL + key` 都可以留空并自动复用主配置。
+- 只有当你使用的 relay / gateway 把生图单独挂到另一条 URL、另一把 key 时，才需要填写图片专用覆盖。
+- 根目录 `.env` 只作为本地启动脚本 bootstrap，参考 `.env.example`；一旦管理员已在 UI 里保存，运行时真值仍优先取 `D:\KQG_Data\config\admin\ai-provider-settings.local.json`。
+
 真实边界：
 
 - 这个入口只证明本地管理员 AI 路由面可 reach、可 save、可 test

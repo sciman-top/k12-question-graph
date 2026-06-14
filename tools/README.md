@@ -64,6 +64,8 @@ surfaces also declare which official and local reference repos they are
 allowed to borrow from and whether they are `official_semantics_first`,
 `official_semantics_plus_selective_pattern_reuse`,
 `official_semantics_plus_eval_first`, or `reference_only_no_copy`.
+The guarded task/module sets now live in `tasks/reference-basis-policy.json`,
+so coverage expansion no longer requires editing the PowerShell script itself.
 
 Reference-basis CI/local modes:
 
@@ -80,6 +82,19 @@ When the external corpus is unavailable, CI falls back to
 `sources/reference-shelf.manifest.snapshot.json` as the portable reference-shelf
 metadata anchor. Local runs now also compare the external manifest with the
 repo snapshot, so snapshot drift is caught before GitHub Actions sees it.
+
+Reference-basis diff-aware contract:
+
+```powershell
+.\tools\run-reference-basis-diff-aware-contract.ps1
+.\tools\run-reference-basis-guard.ps1 -ValidationMode Ci -ChangedPaths apps/web/src/App.tsx,workers/document/worker.py
+```
+
+This v2 slice proves the guard can project representative changed paths onto
+guarded module/task coverage instead of only checking static registration.
+The current contract uses one web path and one document-worker path to verify
+that impacted module IDs, impacted task IDs, and `changedPathsOutsideGuardedModules`
+are all emitted into the report.
 
 Repo-side truth-maintenance report defaults:
 
@@ -148,6 +163,9 @@ message instead of surfacing a later Windows `EPERM` from `npm ci`. Local
 preflight and full gate now also fail fast on host-local temporary directories
 such as `apps/web/node_modules_broken_*`, so this kind of drift is reported as
 an environment cleanup issue instead of hundreds of misleading ESLint errors.
+Repo preflight now also runs `run-reference-basis-diff-aware-contract.ps1`, so
+reference governance is checked both as static registration and as a minimal
+diff-aware projection contract.
 
 The gate also covers `i001-i008 teacher workflow UI contracts`,
 `b001 duplicate upload smoke`, `b002 adapter contract smoke`,
@@ -308,7 +326,7 @@ This assembles the P001 readiness pack after NS903 and the P001 preflight
 contract. It verifies NS803 installer/host diagnostics, NS804 publish package,
 NS805 capacity/health evidence, NS806 upgrade/restore evidence, NS901 scenario
 coverage, NS906 visual surrogate boundaries, and REAL005 `not_closed`. It
-writes the latest repo evidence at `docs/evidence/20260609-ns904-p001-readiness.json`, keeps
+writes the latest repo evidence at `docs/evidence/20260614-ns904-p001-readiness.json`, keeps
 `p001CanClose=false`, keeps `releaseReady=false`, and lists the remaining
 isolated-machine, onsite-teacher, printer, network, domain-permission, and
 operator-signoff blockers for the P001 checklist.
@@ -324,12 +342,12 @@ evidence already assembled: REAL001-REAL012, host capability diagnostic,
 worker profile diagnostic, technology refresh `report_only`, the
 `docs/templates/p001-live-pilot-release-checklist.md`, and the
 `docs/templates/p001-isolated-machine-evidence-template.md`. It writes
-the latest repo evidence at `docs/evidence/20260609-p001-live-pilot-readiness-preflight-report.json`,
+the latest repo evidence at `docs/evidence/20260614-p001-live-pilot-readiness-preflight-report.json`,
 keeps `readyForIsolatedMachineRun=true`, keeps `p001CanClose=false`, and does
 not execute isolated-machine install, printer/network/domain checks, or
-operator signoff. It now also reads `tasks/live-pilot-closeout-plan.csv` so the
-report keeps `nextOpenP001=P001A` and `nextOpenREAL005=REAL005A` explicit while
-the onsite boundary is still open.
+operator signoff. It also reads `tasks/live-pilot-closeout-plan.csv` so the
+report keeps `nextOpenP001=P001A` and the current `nextOpenREAL005` explicit
+while the onsite boundary is still open.
 
 P005 pilot feedback backlog preflight contract:
 
@@ -374,9 +392,9 @@ backlog tasks, checks NS903/NS904 runtime evidence cannot be overwritten by
 older planned states, and now also reads `tasks/live-pilot-closeout-plan.csv`
 to keep the next open slices for `REAL005/P001/P003/P005/P006` explicit in the
 status audit. It also resolves the latest existing REAL005 closure-standard
-report by default and requires `sliceCoverage.REAL005A` to stay aligned with
-that next-open boundary. The latest repo evidence is
-`docs/evidence/20260609-ns905-status-sync.md`.
+report by default and requires `sliceCoverage.REAL005A` plus the current
+`nextOpenREAL005` boundary to stay aligned. The latest repo evidence is
+`docs/evidence/20260614-ns905-status-sync.md`.
 
 Live pilot closeout plan guard:
 
@@ -391,11 +409,29 @@ in `README.md`, `docs/109_ReleaseGoNoGoCard.md`,
 `docs/111_ProjectNavigationOverview.md`, and
 `docs/112_CurrentClosureStatus_20260609.md`. It requires the REAL005 closure
 report to stay `not_closed`, resolves the latest existing REAL005 report by
-default, and requires `sliceCoverage.REAL005A` to remain the current next-open
-slice. It writes the latest JSON/Markdown summaries to
-`docs/evidence/20260609-live-pilot-closeout-plan-guard.json` and
-`docs/evidence/20260609-live-pilot-closeout-plan-guard.md`, and does not
+default, and now allows `REAL005A` to be completed only when RG001/RG002 pass;
+after that, the guard requires `REAL005B` to be the current next-open slice. It
+writes the latest JSON/Markdown summaries to
+`docs/evidence/20260614-live-pilot-closeout-plan-guard.json` and
+`docs/evidence/20260614-live-pilot-closeout-plan-guard.md`, and does not
 fabricate onsite evidence.
+
+Live pilot closeout repo-side audit:
+
+```powershell
+.\tools\run-live-pilot-closeout-repo-side-audit.ps1
+```
+
+This summarizes the non-onsite repo-side closeout state from existing reports:
+P003/P004 structured templates and import validators, P001-P006 preflight-only
+reports, PQR preflight/orchestration checks, NS905 status sync, REAL005
+`not_closed`, the current REAL005 next-open slice, and CI repo preflight. It
+writes JSON/Markdown evidence under
+`docs/evidence/<yyyyMMdd>-live-pilot-closeout-repo-side-audit.*`. Pass
+`-FullGateAttemptStatus inconclusive -FullGateAttemptNote '<reason>'` when a
+local `run-gates.ps1` attempt timed out or otherwise lacks a final exit code.
+The audit is read-only for project state: it must not close P001-P006, must not
+claim release-ready, and must not advance formal Q/R execution.
 
 REAL005 transient report-lock contract:
 
@@ -418,11 +454,26 @@ REAL005 slice coverage contract:
 
 This checks that the REAL005 report exposes machine-readable
 `sliceCoverage.REAL005A/B/C/D` instead of leaving closeout advancement to prose
-alone. The contract requires `REAL005A` to stay evidence-blocked by current
-source/adapter gaps, keeps later slices blocked behind earlier ones, and is
-run from temp outputs by default and inside both `run-gate-group.ps1 -Group
-pqr` and the full gate so historical evidence is not rewritten during local
-verification.
+alone. The contract now requires `REAL005A` to pass after the RG001/RG002
+source/adapter evidence is complete, keeps `REAL005B` non-pass until
+per-question structure and review coverage is closed, and is run from temp
+outputs by default and inside both `run-gate-group.ps1 -Group pqr` and the full
+gate so historical evidence is not rewritten during local verification.
+
+REAL005B question structure diagnostics:
+
+```powershell
+.\tools\run-real005b-question-structure-diagnostics.ps1
+```
+
+This read-only diagnostic classifies REAL005B criteria RG003-RG009 from existing
+REAL001-REAL004 and REAL007-REAL011 evidence. It currently proves RG003 question
+count coverage, keeps RG004 partial until per-question answer source anchors and
+hash binding are proven, keeps RG005-RG009 blocked on source-region,
+structured-field, tagging, terminal review, and source-review save/detail
+evidence, and must not write database rows, close review items, call external
+AI, or use student data. The `pqr` gate-group and full gate run it against temp
+outputs.
 
 Live pilot closeout import contract:
 
@@ -430,11 +481,36 @@ Live pilot closeout import contract:
 .\tools\run-live-pilot-closeout-import-contract.ps1
 ```
 
-This validates the repo-side return/import path for three closeout artifacts:
-returned `P001/NS1001` isolated-machine evidence, structured `P005` feedback
-triage, and structured `P006` release decision records. It uses smoke fixtures
-and temp outputs only, and it must not change backlog status or release-ready
-state.
+This validates the repo-side return/import path for five closeout artifacts:
+returned `P001/NS1001` isolated-machine evidence, structured `P003` pilot
+admission cards, structured `P004` teacher pilot evidence, structured `P005`
+feedback triage, and structured `P006` release decision records. It uses smoke
+fixtures and temp outputs only, and it must not change backlog status or
+release-ready state.
+
+P003 onsite pilot admission card import:
+
+```powershell
+.\tools\run-p003-onsite-pilot-admission-card-import.ps1 -RecordJsonPath <card.json>
+```
+
+This validates the structure of a returned `P003` admission card: teacher
+boundary, data authorization, support contacts, rollback plan, feedback
+template, and signoff fields. The expected JSON shape is anchored at
+`docs/templates/p003-onsite-pilot-admission-card-template.json`. It does not
+itself close `P003` or move `P004`.
+
+P004 onsite pilot round1 evidence import:
+
+```powershell
+.\tools\run-p004-onsite-pilot-round1-evidence-import.ps1 -RecordJsonPath <evidence.json>
+```
+
+This validates the structure of returned `P004` teacher pilot evidence:
+prefilled route/artifact/log checks, workflow timing, friction items, rollback
+events, summary, and signoff fields. The expected JSON shape is anchored at
+`docs/templates/p004-onsite-pilot-round1-evidence-template.json`. It does not
+itself close `P004` or move `P005`.
 
 PQR gate-group temp outputs:
 
