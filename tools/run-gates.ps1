@@ -1130,6 +1130,11 @@ try {
             -ReportPath (Join-Path $pqrReportRoot 'real005b-question-structure-diagnostics.json') `
             -MarkdownReportPath (Join-Path $pqrReportRoot 'real005b-question-structure-diagnostics.md') | Write-Host
     }
+    Invoke-GateStep 'real005 detailed slice plan guard' {
+        .\tools\run-real005-detailed-slice-plan-guard.ps1 `
+            -JsonReportPath (Join-Path $pqrReportRoot 'real005-detailed-slice-plan-guard.json') `
+            -MarkdownReportPath (Join-Path $pqrReportRoot 'real005-detailed-slice-plan-guard.md') | Write-Host
+    }
     Invoke-GateStep 'pqr full gate path contract' {
         .\tools\run-pqr-full-gate-path-contract.ps1 | Write-Host
     }

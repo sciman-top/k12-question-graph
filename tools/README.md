@@ -504,6 +504,20 @@ evidence, and must not write database rows, close review items, call external
 AI, or use student data. The `pqr` gate-group and full gate run it against temp
 outputs.
 
+REAL005 detailed slice plan guard:
+
+```powershell
+.\tools\run-real005-detailed-slice-plan-guard.ps1
+```
+
+This validates `tasks/real005-detailed-slice-plan.csv` as a machine-readable
+refinement of `REAL005B` and `REAL005C`. It checks row order, criterion linkage,
+dependency order, and linkage to `docs/115_REAL005_DetailedSliceTree.md`, while
+explicitly preserving the top-level `tasks/live-pilot-closeout-plan.csv` truth.
+It must not weaken `REAL005 = not_closed`; it only makes the next execution
+seams smaller and more verifiable. The `pqr` gate-group and full gate run it
+against temp outputs.
+
 Live pilot closeout import contract:
 
 ```powershell

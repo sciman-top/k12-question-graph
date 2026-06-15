@@ -29,17 +29,20 @@
 | 高风险编码任务必须先查哪些参考 | `tasks/reference-basis-requirements.csv` + `tasks/reference-basis-policy.json` + `tools/run-reference-basis-guard.ps1` | 架构、Windows Service、PowerShell 运维、OCR/toolchain、导出、成绩分析、AI routing、搜索、互操作和 live pilot 预演等强制参考入口；policy 负责受管 task/module 集 |
 | 当前 reference-basis 守卫是否真的过了 | `docs/evidence/20260614-reference-basis-guard.md` | 看 20 个受管任务、13 个模块和 external/snapshot parity |
 | 按代码板块看“该参考/复刻/复用哪个仓” | `tasks/reference-basis-module-map.csv` | API、Web、export、score-analysis、AI routing、OCR、Windows Service、release pack、搜索、队列、互操作的 machine-readable 参考映射 |
+| 当前外置参考仓是否要增删、哪些值得常驻本地镜像 | `docs/26_References.md` | 看本地参考仓分组、optional/mandatory-on-use 边界，以及哪些来源只保留在线锚点 |
 | 想知道本轮改动命中了哪些受管板块/任务 | `tools/run-reference-basis-diff-aware-contract.ps1` + `tools/run-reference-basis-guard.ps1 -ChangedPaths ...` | 当前 v2 最小入口；先把 changed paths 投影到 guarded modules/tasks，再决定要补哪些 adoption 证据 |
 | 想知道 `P005/P006` 是否已补参考采纳记录结构 | `tools/run-reference-basis-adoption-record-contract.ps1` | 当前只覆盖反馈分流与发布裁决两类 closeout 文档，检查 `referenceContext / impactedSurfaceIds / referencesReviewed / adoptionDecision` |
 | 想知道 `P001/P003` 现场前置包与现场准入卡是否已补参考采纳记录 | `tools/run-reference-basis-onsite-adoption-contract.ps1` | 当前覆盖隔离机前置包与现场准入卡，防止 onsite-ready 口径只改模板不声明参考依据 |
 | 想把本次 reference/preflight 主线和并行脏改动正式分开 | `tools/run-reference-basis-closeout-report.ps1` | 输出 dedicated/shared/evidence/temp/unrelated 五类清单，便于收口、挑选提交或交接 |
 | `P001 / P003 / P005 / P006 / REAL005` 还差哪几步 | `tasks/live-pilot-closeout-plan.csv` | 现场 closeout 最小执行顺序入口 |
+| `REAL005` 为什么还没闭环、现在最细该做到哪一层 | `tasks/live-pilot-closeout-plan.csv` + `tasks/real-guangzhou-closure-criteria.csv` + `docs/115_REAL005_DetailedSliceTree.md` | 先看顶层 closeout，再看 RG 级 criteria 和更细的人类执行树 |
 | 当前对外完成态该怎么说 | `tasks/completion-state-dashboard.csv` | 不只看 backlog 的 `已完成` |
 | 非现场能力落到了哪一步 | `docs/101_NonSiteCapabilityImplementationRoadmap.md` + `tasks/non-site-implementation-plan.csv` | 看 `planned -> runtime_verified -> blocked_by_onsite` |
 | 产品化闭环当前推进到哪 | `docs/99_ProductizationFullRoadmapAndTaskPlan.md` + `tasks/productization-roadmap.csv` | 看 S0 与 NS13 的产品化推进 |
 | 教师端 UI/术语/字段该怎么收口 | `docs/11_UX_Workflows.md` + `docs/106_TeacherVisibleMetadataBudget.md` | 一个看流程，一个看预算 |
 | AI 在本项目里到底能做什么、不能做什么 | `docs/107_AITrustAndReviewContract.md` + `docs/09_AI_ModelRouting_CostControl.md` | 一个看边界，一个看路由与成本 |
 | 标准互操作到底承诺到哪里 | `docs/108_InteroperabilityProfileBoundary.md` | 只做 profile map，不做完整实现 |
+| 知识点/教材/课标/考点变化到底如何治理 | `docs/05_DomainModel.md` + `docs/116_KnowledgeAssetGovernanceExecutionTree.md` | 一个看稳定模型，一个看版本迁移/影响分析/审核激活的执行树 |
 | 角色审批和高风险动作归谁 | `docs/105_RoleApprovalAndExceptionMatrix.md` | 角色、复核、例外、回滚 |
 | 外部参考资料去哪里看 | `docs/26_References.md` + `D:\CODE\external\k12-question-graph-references\references.manifest.json` + `sources/reference-shelf.manifest.snapshot.json` + `tools/sync-reference-shelf-snapshot.ps1` | 一个看人工摘要，一个看外部机器清单，一个看仓内快照，一个做 snapshot 同步 |
 | 本地 / CI 的正式预检入口是什么 | `tools/run-repo-preflight.ps1` + `.github/workflows/repo-preflight.yml` | 本地 release preflight 与 CI preflight 双入口 |

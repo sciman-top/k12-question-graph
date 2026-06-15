@@ -118,6 +118,11 @@ function Invoke-PqrGroup {
             -ReportPath (Join-Path $reportRoot 'real005b-question-structure-diagnostics.json') `
             -MarkdownReportPath (Join-Path $reportRoot 'real005b-question-structure-diagnostics.md') | Write-Host
     }
+    Invoke-GateCommand 'real005-detailed-slice-plan-guard' {
+        & (Join-Path $PSScriptRoot 'run-real005-detailed-slice-plan-guard.ps1') `
+            -JsonReportPath (Join-Path $reportRoot 'real005-detailed-slice-plan-guard.json') `
+            -MarkdownReportPath (Join-Path $reportRoot 'real005-detailed-slice-plan-guard.md') | Write-Host
+    }
     Invoke-GateCommand 'pqr-preflight-pack-contract' {
         & (Join-Path $PSScriptRoot 'run-pqr-preflight-pack-contract.ps1') `
             -ReportPath (Join-Path $reportRoot 'pqr-preflight-pack-report.json') | Write-Host

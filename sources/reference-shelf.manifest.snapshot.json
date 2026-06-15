@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "capturedAt": "2026-06-11T21:25:35+08:00",
+  "capturedAt": "2026-06-15T21:32:53+08:00",
   "source": "D:\\CODE\\external\\k12-question-graph-references\\references.manifest.json",
   "entries": [
     {
@@ -179,7 +179,7 @@
       "relativePath": "architecture-samples/dotnet-eShop",
       "upstream": "https://github.com/dotnet/eShop",
       "lastVerifiedCommit": "9b4f943",
-      "notes": "Optional. Keep for broad .NET sample reference, but not a default solution path for current architecture.",
+      "notes": "Optional, low-frequency refresh only. Keep as a broad official .NET sample anchor, but do not treat it as a default architecture path or routine update target for the current Windows/LAN-first teacher-workbench line.",
       "mandatoryOnUse": null,
       "mandatoryOnUseTaskIds": null
     },
@@ -213,6 +213,19 @@
     },
     {
       "group": "optional",
+      "category": "education-assessment",
+      "relativePath": "education-assessment/TAO",
+      "upstream": "https://github.com/oat-sa/tao-core",
+      "lastVerifiedCommit": "93df507",
+      "notes": "Optional by default, but mandatory-on-use for reference-basis task R007. Use as a governance and assessment-boundary sample only; do not treat it as a product-route template for the current teacher-workbench scope.",
+      "mandatoryOnUse": true,
+      "mandatoryOnUseTaskIds": [
+        "P003",
+        "R007"
+      ]
+    },
+    {
+      "group": "optional",
       "category": "official-docs",
       "relativePath": "official-docs/react-router",
       "upstream": "https://github.com/remix-run/react-router",
@@ -230,7 +243,7 @@
       "relativePath": "document-workflows/paperless-ngx",
       "upstream": "https://github.com/paperless-ngx/paperless-ngx",
       "lastVerifiedCommit": "82aefe5",
-      "notes": "Optional by default, but mandatory-on-use for reference-basis tasks S004, REAL010, NS1304, NS1306, NS1307, NS1308, O008, P001, and P006 because the repo-side module map also uses it as a local-service and release-pack community anchor.",
+      "notes": "Optional by default, but mandatory-on-use for selected document-ingestion and release-pack tasks. Keep it as a community anchor for local-service ingestion, archive, and operator workflow ideas; do not treat it as the primary semantic source for teacher workflow, Windows-first hosting, or product architecture decisions.",
       "mandatoryOnUse": true,
       "mandatoryOnUseTaskIds": [
         "NS1304",
@@ -251,6 +264,16 @@
       "upstream": "https://github.com/pgvector/pgvector",
       "lastVerifiedCommit": "12368bd",
       "notes": "Optional by default, but mandatory-on-use for reference-basis task R001.",
+      "mandatoryOnUse": true,
+      "mandatoryOnUseTaskIds": "R001"
+    },
+    {
+      "group": "optional",
+      "category": "official-docs",
+      "relativePath": "official-docs/postgresql-docs",
+      "upstream": "https://github.com/postgres/postgres",
+      "lastVerifiedCommit": "e051188",
+      "notes": "Optional by default, but mandatory-on-use for reference-basis task R001. Added to anchor the default PostgreSQL FTS + pg_trgm route in a local official source instead of relying only on provider docs and live web pages.",
       "mandatoryOnUse": true,
       "mandatoryOnUseTaskIds": "R001"
     }

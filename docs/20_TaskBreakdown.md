@@ -16,6 +16,11 @@ Automation-first 任务口径：每个任务在编码前必须先说明哪些部
 
 产品化运行形态口径：2026-06-04 起，新增 `NS13`，把“Windows Service 主进程 + 安装包/初始化向导 + 服务端控制面板 + 硬件 profile 自动配置 + 多 API/模型角色路由 + 自动化代理边界”作为 `P001` 前置。普通教师仍只使用 Web 工作台；服务端控制面板面向安装者/管理员，只做服务状态、配置、诊断、备份恢复、升级演练和打开 Web。不得把当前开发机环境或某个具体 AI 模型名写成产品默认。
 
+细化执行树入口：
+
+- `REAL005` 的顶层关闭顺序仍以 `tasks/live-pilot-closeout-plan.csv` 为准；若需要把 `REAL005B / REAL005C` 再拆到适合单次执行的颗粒度，先看 `docs/115_REAL005_DetailedSliceTree.md`。
+- 知识点 / 教材 / 课标 / 考点 / 标签 / 资产版本的治理顺序，先看 `docs/116_KnowledgeAssetGovernanceExecutionTree.md`；该文档只做人类执行树，不新增新的顶层 CSV 主线。
+
 ## 0 · NS13 产品化运行形态收束
 
 ### NS1301 薄入口、页面拆分与 service 收口

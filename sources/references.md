@@ -34,6 +34,7 @@
 - React Router: https://reactrouter.com/_docs/home
 - React Router GitHub: https://github.com/remix-run/react-router
 - PostgreSQL current documentation: https://www.postgresql.org/docs/current/
+- PostgreSQL source repository: https://github.com/postgres/postgres
 - PostgreSQL pg_dump: https://www.postgresql.org/docs/current/app-pgdump.html
 - PostgreSQL PITR/WAL: https://www.postgresql.org/docs/current/continuous-archiving.html
 - PostgreSQL JSON types: https://www.postgresql.org/docs/current/datatype-json.html
@@ -83,6 +84,7 @@
 - Open edX: https://openedx.org/
 - Open edX platform GitHub: https://github.com/openedx/openedx-platform
 - OpenOLAT GitHub: https://github.com/OpenOLAT/OpenOLAT
+- TAO core GitHub: https://github.com/oat-sa/tao-core
 - TAO Testing: https://www.taotesting.com/
 - Paperless-ngx: https://github.com/paperless-ngx/paperless-ngx
 - .NET eShop reference app: https://github.com/dotnet/eShop
