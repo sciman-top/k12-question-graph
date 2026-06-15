@@ -9,6 +9,7 @@ tools/run-gates.ps1
 tools/run-reference-basis-guard.ps1
 tools/run-repo-preflight.ps1
 tools/run-live-pilot-closeout-plan-guard.ps1
+tools/run-real005b-source-region-screenshots.ps1
 tools/backup.ps1
 tools/verify-backup.ps1
 tools/start-local-web.ps1
@@ -485,9 +486,11 @@ This checks that the REAL005 report exposes machine-readable
 `sliceCoverage.REAL005A/B/C/D` instead of leaving closeout advancement to prose
 alone. The contract now requires `REAL005A` to pass after the RG001/RG002
 source/adapter evidence is complete, keeps `REAL005B` non-pass until
-per-question structure and review coverage is closed, and is run from temp
-outputs by default and inside both `run-gate-group.ps1 -Group pqr` and the full
-gate so historical evidence is not rewritten during local verification.
+per-question structure and review coverage is closed, and now also requires the
+report to expose `REAL005B1-B6` / `REAL005C1-C5` detailed slice coverage plus a
+machine-readable `nextDetailedOpen` seam. It is run from temp outputs by
+default and inside both `run-gate-group.ps1 -Group pqr` and the full gate so
+historical evidence is not rewritten during local verification.
 
 REAL005B question structure diagnostics:
 
@@ -497,12 +500,14 @@ REAL005B question structure diagnostics:
 
 This read-only diagnostic classifies REAL005B criteria RG003-RG009 from existing
 REAL001-REAL004 and REAL007-REAL011 evidence. It currently proves RG003 question
-count coverage, keeps RG004 partial until per-question answer source anchors and
-hash binding are proven, keeps RG005-RG009 blocked on source-region,
-structured-field, tagging, terminal review, and source-review save/detail
-evidence, and must not write database rows, close review items, call external
-AI, or use student data. The `pqr` gate-group and full gate run it against temp
-outputs.
+count coverage, now also proves RG004 answer-source hash binding plus
+`source_material_ids/question_number/evidence_locations` style answer anchors
+from the 2016-2025 candidate CSV package, keeps RG005 partial with only the
+2016-2025 screenshot-level source-region gap remaining, and keeps RG006-RG009
+blocked on structured-field, tagging, terminal review, and source-review
+save/detail evidence. It must not write database rows, close review items, call
+external AI, or use student data. The `pqr` gate-group and full gate run it
+against temp outputs.
 
 REAL005 detailed slice plan guard:
 
@@ -1579,3 +1584,11 @@ deterministic visual surrogate boundary (`NS906`), and the LLM no-active-write
 security gate (`L007`, `C002Q0`, `C002Q`) into one NS13 runtime gate. It does
 not call external AI and does not enable production writes. It writes
 `docs/evidence/20260606-ns1307-golden-visual-llm-security.json`.
+
+REAL005B source-region screenshot evidence:
+
+```powershell
+.\tools\run-real005b-source-region-screenshots.ps1
+```
+
+This renders page-level source screenshots for the admitted Guangzhou 2016-2025 physics candidate package and writes fresh read-only evidence under `docs/evidence/<yyyyMMdd>-real005b-source-region-screenshots.*`.

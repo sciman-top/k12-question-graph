@@ -2,6 +2,7 @@ param(
     [string] $CriteriaPath = 'tasks/real-guangzhou-closure-criteria.csv',
     [string] $BacklogPath = 'tasks/backlog.csv',
     [string] $DashboardPath = 'tasks/completion-state-dashboard.csv',
+    [string] $DetailedSlicePlanPath = 'tasks/real005-detailed-slice-plan.csv',
     [string] $YearlyAdapterDiagnosticsPath = '',
     [string] $QuestionStructureDiagnosticsPath = '',
     [string] $JsonReportPath = '',
@@ -62,9 +63,162 @@ function Write-Utf8FileWithRetry([string] $Path, [object] $Content, [int] $Retry
     }
 }
 
+function Split-Values([string] $Value) {
+    if ([string]::IsNullOrWhiteSpace($Value)) { return @() }
+    return @(
+        $Value.Split(';') |
+            ForEach-Object { $_.Trim() } |
+            Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
+    )
+}
+
+function Get-ObjectPropertyValue([object] $Object, [string] $Name) {
+    if ($null -eq $Object) { return $null }
+    $property = $Object.PSObject.Properties[$Name]
+    if ($null -eq $property) { return $null }
+    return $property.Value
+}
+
+function New-Real005DetailedSliceCoverage {
+    param(
+        [Parameter(Mandatory = $true)]
+        [object[]] $PlanRows,
+        [Parameter(Mandatory = $true)]
+        [string] $ParentSliceId,
+        [Parameter(Mandatory = $true)]
+        [hashtable] $CriterionStatusLookup,
+        [AllowEmptyCollection()]
+        [Parameter(Mandatory = $true)]
+        [string[]] $GlobalCriterionBlockers,
+        [Parameter(Mandatory = $true)]
+        [bool] $ParentReady
+    )
+
+    $parentRows = @($PlanRows | Where-Object { [string] $_.parent_slice -eq $ParentSliceId })
+    $coverage = New-Object System.Collections.Specialized.OrderedDictionary
+    $previousSlicesPassed = $ParentReady
+    $currentActionableNext = $null
+
+    foreach ($row in $parentRows) {
+        $criterionIds = @(Split-Values ([string] $row.criterion_ids))
+        $criterionStatus = [ordered]@{}
+        $reportedStatuses = New-Object System.Collections.Generic.List[string]
+        $criterionBlockers = New-Object System.Collections.Generic.List[string]
+
+        foreach ($criterionId in $criterionIds) {
+            $status = if ($CriterionStatusLookup.ContainsKey($criterionId)) { [string] $CriterionStatusLookup[$criterionId] } else { 'not_evaluated' }
+            $criterionStatus[$criterionId] = $status
+            $reportedStatuses.Add($status)
+            foreach ($blocker in @($GlobalCriterionBlockers | Where-Object { $_ -like "${criterionId}:*" })) {
+                if (-not $criterionBlockers.Contains($blocker)) {
+                    $criterionBlockers.Add($blocker)
+                }
+            }
+        }
+
+        $reportedStatus = 'missing'
+        if ($reportedStatuses.Count -gt 0) {
+            if ($reportedStatuses -contains 'blocked') {
+                $reportedStatus = 'blocked'
+            }
+            elseif ($reportedStatuses -contains 'partial') {
+                $reportedStatus = 'partial'
+            }
+            elseif ($reportedStatuses -contains 'missing') {
+                $reportedStatus = 'missing'
+            }
+            elseif ($reportedStatuses -contains 'not_evaluated') {
+                $reportedStatus = 'not_evaluated'
+            }
+            elseif ((@($reportedStatuses | Select-Object -Unique).Count -eq 1) -and ($reportedStatuses[0] -eq 'pass')) {
+                $reportedStatus = 'pass'
+            }
+            else {
+                $reportedStatus = 'mixed'
+            }
+        }
+
+        $readyToAdvance = $previousSlicesPassed
+        $sliceBlockers = New-Object System.Collections.Generic.List[string]
+        foreach ($blocker in $criterionBlockers) {
+            $sliceBlockers.Add($blocker)
+        }
+
+        if ($reportedStatus -eq 'not_evaluated') {
+            $sliceBlockers.Add("criteria_not_evaluated:$([string]::Join('+', $criterionIds))")
+        }
+        elseif ($reportedStatus -eq 'missing') {
+            $sliceBlockers.Add("criteria_missing:$([string]::Join('+', $criterionIds))")
+        }
+        elseif ($reportedStatus -eq 'mixed') {
+            $sliceBlockers.Add("criteria_mixed_status:$([string]::Join('+', $criterionIds))")
+        }
+
+        if (-not $readyToAdvance) {
+            $dependencyId = [string] $row.depends_on
+            if ([string]::IsNullOrWhiteSpace($dependencyId)) {
+                $dependencyId = $ParentSliceId
+            }
+            $sliceBlockers.Insert(0, "waiting_for_dependency:$dependencyId")
+        }
+
+        $effectiveStatus = if ($readyToAdvance) { $reportedStatus } else { 'blocked_by_previous_slice' }
+        if ($readyToAdvance -and ($effectiveStatus -ne 'pass') -and [string]::IsNullOrWhiteSpace($currentActionableNext)) {
+            $currentActionableNext = [string] $row.id
+        }
+
+        $coverage.Add([string] $row.id, [ordered]@{
+            parentSlice = $ParentSliceId
+            criterionIds = $criterionIds
+            criterionStatus = $criterionStatus
+            reportedCriterionStatus = $reportedStatus
+            status = $effectiveStatus
+            readyToAdvance = $readyToAdvance
+            dependsOn = [string] $row.depends_on
+            blockers = @($sliceBlockers)
+            focus = [string] $row.focus
+            planStatus = [string] $row.status
+            acceptance = [string] $row.acceptance
+            verification = [string] $row.verification
+            evidenceAnchor = [string] $row.evidence_anchor
+            ownerRole = [string] $row.owner_role
+        })
+
+        if (-not ($readyToAdvance -and ($effectiveStatus -eq 'pass'))) {
+            $previousSlicesPassed = $false
+        }
+    }
+
+    $firstNonPass = @(
+        $coverage.GetEnumerator() |
+            Where-Object { [string] $_.Value.status -ne 'pass' } |
+            Select-Object -First 1
+    )
+    $nextDetailedSlice = if (-not [string]::IsNullOrWhiteSpace($currentActionableNext)) {
+        $currentActionableNext
+    }
+    elseif ($firstNonPass.Count -eq 1) {
+        [string] $firstNonPass[0].Key
+    }
+    else {
+        'none'
+    }
+
+    return [ordered]@{
+        detailedSliceCoverage = $coverage
+        nextDetailedSlice = $nextDetailedSlice
+        nextDetailedSliceReady = (-not [string]::IsNullOrWhiteSpace($currentActionableNext))
+        allPass = (@(
+            $coverage.GetEnumerator() |
+                Where-Object { [string] $_.Value.status -ne 'pass' }
+        ).Count -eq 0)
+    }
+}
+
 $criteriaFullPath = Resolve-RepoPath $CriteriaPath
 $backlogFullPath = Resolve-RepoPath $BacklogPath
 $dashboardFullPath = Resolve-RepoPath $DashboardPath
+$detailedSlicePlanFullPath = Resolve-RepoPath $DetailedSlicePlanPath
 
 if ([string]::IsNullOrWhiteSpace($JsonReportPath)) {
     $JsonReportPath = ('docs/evidence/{0}-real005-guangzhou-2015-2025-closure-standard-report.json' -f $runDate)
@@ -77,13 +231,14 @@ if ([string]::IsNullOrWhiteSpace($MarkdownReportPath)) {
 $jsonFullPath = Resolve-RepoPath $JsonReportPath
 $markdownFullPath = Resolve-RepoPath $MarkdownReportPath
 
-foreach ($path in @($criteriaFullPath, $backlogFullPath, $dashboardFullPath)) {
+foreach ($path in @($criteriaFullPath, $backlogFullPath, $dashboardFullPath, $detailedSlicePlanFullPath)) {
     Assert-True (Test-Path -LiteralPath $path) "required REAL005 input missing: $path"
 }
 
 $criteriaRows = @(Import-Csv -LiteralPath $criteriaFullPath -Encoding UTF8)
 $backlogRows = @(Import-Csv -LiteralPath $backlogFullPath -Encoding UTF8)
 $dashboardRows = @(Import-Csv -LiteralPath $dashboardFullPath -Encoding UTF8)
+$detailedSlicePlanRows = @(Import-Csv -LiteralPath $detailedSlicePlanFullPath -Encoding UTF8)
 
 $requiredCriteriaColumns = @(
     'criterion_id',
@@ -462,6 +617,68 @@ $real005DCoverage['evidencePaths'] = @('docs/112_CurrentClosureStatus_20260609.m
 $real005DCoverage['next'] = 'Do not rewrite outward completion wording until REAL005A/B/C are all closed.'
 $sliceCoverage.Add('REAL005D', $real005DCoverage)
 
+$real005BCriterionStatusLookup = @{}
+foreach ($criterionEntry in $real005BCoverage['criteriaStatus'].GetEnumerator()) {
+    $real005BCriterionStatusLookup[[string] $criterionEntry.Key] = [string] $criterionEntry.Value
+}
+
+$real005BDetailedCoverage = New-Real005DetailedSliceCoverage `
+    -PlanRows $detailedSlicePlanRows `
+    -ParentSliceId 'REAL005B' `
+    -CriterionStatusLookup $real005BCriterionStatusLookup `
+    -GlobalCriterionBlockers @($real005BCoverage['blockers']) `
+    -ParentReady ($real005AStatus -eq 'pass')
+$real005BCoverage['detailedSliceCoverage'] = $real005BDetailedCoverage['detailedSliceCoverage']
+$real005BCoverage['nextDetailedSlice'] = $real005BDetailedCoverage['nextDetailedSlice']
+$real005BCoverage['nextDetailedSliceReady'] = $real005BDetailedCoverage['nextDetailedSliceReady']
+
+$real005CGlobalBlockers = [string[]]@()
+$real005CDetailedCoverage = New-Real005DetailedSliceCoverage `
+    -PlanRows $detailedSlicePlanRows `
+    -ParentSliceId 'REAL005C' `
+    -CriterionStatusLookup @{} `
+    -GlobalCriterionBlockers $real005CGlobalBlockers `
+    -ParentReady ($real005BCoverage['status'] -eq 'pass')
+$real005CCoverage['detailedSliceCoverage'] = $real005CDetailedCoverage['detailedSliceCoverage']
+$real005CCoverage['nextDetailedSlice'] = $real005CDetailedCoverage['nextDetailedSlice']
+$real005CCoverage['nextDetailedSliceReady'] = $real005CDetailedCoverage['nextDetailedSliceReady']
+
+$nextDetailedCandidates = @(
+    [ordered]@{
+        parentSlice = 'REAL005B'
+        sliceId = [string] $real005BCoverage['nextDetailedSlice']
+        ready = [bool] $real005BCoverage['nextDetailedSliceReady']
+    },
+    [ordered]@{
+        parentSlice = 'REAL005C'
+        sliceId = [string] $real005CCoverage['nextDetailedSlice']
+        ready = [bool] $real005CCoverage['nextDetailedSliceReady']
+    }
+)
+$readyDetailedCandidate = @(
+    $nextDetailedCandidates |
+        Where-Object { $_.sliceId -ne 'none' -and $_.ready } |
+        Select-Object -First 1
+)
+$fallbackDetailedCandidate = @(
+    $nextDetailedCandidates |
+        Where-Object { $_.sliceId -ne 'none' } |
+        Select-Object -First 1
+)
+$nextDetailedOpen = if ($readyDetailedCandidate.Count -eq 1) {
+    $readyDetailedCandidate[0]
+}
+elseif ($fallbackDetailedCandidate.Count -eq 1) {
+    $fallbackDetailedCandidate[0]
+}
+else {
+    [ordered]@{
+        parentSlice = 'none'
+        sliceId = 'none'
+        ready = $false
+    }
+}
+
 $report = [ordered]@{
     status = 'pass'
     task = 'REAL005'
@@ -474,6 +691,7 @@ $report = [ordered]@{
     currentTruth = 'S012/REAL001/REAL002/REAL003 dry-run/REAL004 review smoke evidence is not enough to claim 2015-2025 full workflow closure'
     criteriaCoverage = $criteriaCoverage
     sliceCoverage = $sliceCoverage
+    nextDetailedOpen = $nextDetailedOpen
     gaps = $gapItems
     requiredCriteria = $criteriaItems
     rollback = 'git restore tracked files; remove generated REAL005 evidence reports if this standard is reverted'
@@ -481,7 +699,7 @@ $report = [ordered]@{
 }
 
 New-Item -ItemType Directory -Path (Split-Path -Parent $jsonFullPath) -Force | Out-Null
-$reportJson = $report | ConvertTo-Json -Depth 8
+$reportJson = $report | ConvertTo-Json -Depth 12
 Write-Utf8FileWithRetry -Path $jsonFullPath -Content $reportJson
 
 $lines = New-Object System.Collections.Generic.List[string]
@@ -504,6 +722,18 @@ foreach ($sliceEntry in $sliceCoverage.GetEnumerator()) {
     $lines.Add(('- {0}: status={1}; criteria={2}; blockers={3}; next={4}' -f $sliceId, $slice.status, $criteriaText, $blockerText, $slice.next))
 }
 $lines.Add('')
+$lines.Add('## REAL005 细化切片')
+foreach ($parentSliceId in @('REAL005B', 'REAL005C')) {
+    $parentSlice = $sliceCoverage[$parentSliceId]
+    $lines.Add("- $($parentSliceId): next_detailed_slice=$($parentSlice.nextDetailedSlice); ready=$($parentSlice.nextDetailedSliceReady)")
+    foreach ($detailedEntry in $parentSlice.detailedSliceCoverage.GetEnumerator()) {
+        $detailedSlice = $detailedEntry.Value
+        $criteriaText = @($detailedSlice.criterionIds) -join ', '
+        $blockerText = if (@($detailedSlice.blockers).Count -eq 0) { '无' } else { @($detailedSlice.blockers) -join ' | ' }
+        $lines.Add("  - $($detailedEntry.Key): status=$($detailedSlice.status); reported=$($detailedSlice.reportedCriterionStatus); ready=$($detailedSlice.readyToAdvance); criteria=$criteriaText; blockers=$blockerText")
+    }
+}
+$lines.Add('')
 $lines.Add('## 阻断缺口')
 if ($gaps.Count -eq 0) {
     $lines.Add('- 无')
@@ -520,4 +750,4 @@ foreach ($criterion in $criteriaRows) {
 }
 Write-Utf8FileWithRetry -Path $markdownFullPath -Content $lines
 
-$report | ConvertTo-Json -Depth 8
+$report | ConvertTo-Json -Depth 12

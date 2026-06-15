@@ -17,6 +17,15 @@ if ([string]::IsNullOrWhiteSpace($MarkdownReportPath)) {
 
 Push-Location $repoRoot
 try {
+    & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005b-source-region-screenshots.ps1 | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        throw "REAL005B source-region screenshot evidence failed with exit code $LASTEXITCODE"
+    }
+    & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005b-structured-question-diagnostics.ps1 | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        throw "REAL005B structured question evidence failed with exit code $LASTEXITCODE"
+    }
+
     $env:PYTHONIOENCODING = 'utf-8'
     [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 
@@ -36,6 +45,9 @@ try {
     }
     if ($report.criteria.RG003.status -ne 'pass') {
         throw "expected RG003 question count coverage to pass, got $($report.criteria.RG003.status)"
+    }
+    if ($report.criteria.RG004.status -ne 'pass') {
+        throw "expected RG004 answer alignment coverage to pass after repo-side anchor/hash proof, got $($report.criteria.RG004.status)"
     }
     if ($report.real005BStatus -eq 'pass') {
         throw 'REAL005B must not pass until RG004-RG009 all have per-question review/source evidence'
