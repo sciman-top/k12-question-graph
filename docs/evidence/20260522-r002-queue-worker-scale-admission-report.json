@@ -2,7 +2,7 @@
   "status": "pass",
   "taskId": "R002",
   "mode": "admission_preflight",
-  "checkedAt": "2026-06-14T20:38:19",
+  "checkedAt": "2026-06-15T00:40:10",
   "p001Status": "待办",
   "p006Status": "待办",
   "r002Status": "待办",
@@ -27,7 +27,7 @@
     "queueFallback": "defer_hangfire_rabbitmq_until_throughput_evidence",
     "workerDefaultProfile": "direct_venv_lite",
     "workerDiagnosticReadOnly": true,
-    "s012bElapsedMs": 286793,
+    "s012bElapsedMs": 592530,
     "s012bWorkflowStepCount": 10,
     "p001CanClose": false,
     "readyForIsolatedMachineRun": true

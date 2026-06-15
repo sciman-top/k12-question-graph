@@ -62,7 +62,7 @@
       "mode": "admin_internal_guard_key",
       "rotateRequiredOnFirstLogin": true,
       "persistedPlaintext": false,
-      "adminKeySha256": "4855b514e25a7ede0d3e850b0d825ea252af5ee4fce4d7ffafc386d7a86e118b"
+      "adminKeySha256": "30266df3f68423ca0fc9dcde5343563e0f3b146be8c5591f80acc0fa59706458"
     }
   },
   "guardrail": {

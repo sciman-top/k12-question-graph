@@ -2,7 +2,7 @@ param(
     [string] $BacklogPath = 'tasks/backlog.csv',
     [string] $LiveCloseoutPlanPath = 'tasks/live-pilot-closeout-plan.csv',
     [string] $ChecklistPath = 'docs/templates/p001-live-pilot-release-checklist.md',
-    [string] $IsolatedMachineEvidenceTemplatePath = 'docs/templates/p001-isolated-machine-evidence-template.md',
+    [string] $IsolatedMachineEvidenceTemplatePath = 'docs/templates/p001-isolated-machine-evidence-template.json',
     [string] $EvidencePath = 'docs/evidence/20260518-p001-live-pilot-readiness-preflight.md',
     [string] $ReportPath = 'docs/evidence/20260518-p001-live-pilot-readiness-preflight-report.json',
     [string] $HostCapabilityReportPath = 'docs/evidence/host-capability-diagnostic-report.json',
@@ -185,13 +185,27 @@ Assert-True ([bool]$technologyReport.boundaries.noDefaultRouteChange) 'technolog
 Assert-True ([bool]$technologyReport.boundaries.noRealMaterialProcessing) 'technology refresh must not process real material'
 Assert-True ([bool]$technologyReport.boundaries.noProductionWrite) 'technology refresh must not write production config'
 
+$isolatedMachineEvidenceTemplate = Get-Content -LiteralPath $isolatedMachineEvidenceTemplateFullPath -Raw | ConvertFrom-Json
+foreach ($requiredField in @('execution', 'anchors', 'referenceContext', 'impactedSurfaceIds', 'referencesReviewed', 'adoptionDecision', 'installInit', 'backupRestore', 'roleAudit', 'teacherEntrySmokes', 'siteSpecific', 'na', 'signoff')) {
+    Assert-True ($isolatedMachineEvidenceTemplate.PSObject.Properties.Name -contains $requiredField) "P001 isolated-machine evidence template missing field: $requiredField"
+}
+Assert-True (@($isolatedMachineEvidenceTemplate.impactedSurfaceIds).Count -ge 1) 'P001 isolated-machine evidence template must include impactedSurfaceIds'
+Assert-True (@($isolatedMachineEvidenceTemplate.referencesReviewed).Count -ge 1) 'P001 isolated-machine evidence template must include referencesReviewed'
+foreach ($requiredReferenceContextField in @('referenceBasisPolicy', 'referenceRequirements', 'referenceModuleMap', 'guardEvidence')) {
+    Assert-True ($isolatedMachineEvidenceTemplate.referenceContext.PSObject.Properties.Name -contains $requiredReferenceContextField) "P001 referenceContext missing field: $requiredReferenceContextField"
+    Assert-True (-not [string]::IsNullOrWhiteSpace([string] $isolatedMachineEvidenceTemplate.referenceContext.$requiredReferenceContextField)) "P001 referenceContext field is blank: $requiredReferenceContextField"
+}
+foreach ($requiredAdoptionField in @('summary', 'adopted', 'rejected', 'followUpEvidence')) {
+    Assert-True ($isolatedMachineEvidenceTemplate.adoptionDecision.PSObject.Properties.Name -contains $requiredAdoptionField) "P001 adoptionDecision missing field: $requiredAdoptionField"
+}
+
 $checklistText = Get-Content -LiteralPath $checklistFullPath -Raw
 foreach ($keyword in @('隔离机器', '安装向导', '备份', '恢复', '权限审计', '教师入口 smoke', 'REAL001-REAL012', 'quality report', 'release checklist', 'evidence', 'p001-isolated-machine-evidence-template.md')) {
     Assert-True ($checklistText.Contains($keyword)) "P001 checklist missing keyword: $keyword"
 }
 
 $isolatedMachineEvidenceTemplateText = Get-Content -LiteralPath $isolatedMachineEvidenceTemplateFullPath -Raw
-foreach ($keyword in @('isolated-machine', 'P001 / NS1001', 'docs/evidence/<date>-p001-isolated-machine.md', '操作者签收', '打印 / 网络 / 权限域', 'platform_na', 'gate_na')) {
+foreach ($keyword in @('p001-isolated-machine-evidence.v1', 'docs/evidence/<date>-p001-live-pilot-readiness-preflight-report.json', 'docs/evidence/attachments/<date>-p001-isolated-machine/', 'operatorSignoff', 'platformNa', 'gateNa', 'referenceContext', 'referencesReviewed')) {
     Assert-True ($isolatedMachineEvidenceTemplateText.Contains($keyword)) "P001 isolated-machine evidence template missing keyword: $keyword"
 }
 

@@ -8,6 +8,34 @@
     "admissionDecision": "continue_p004|keep_blocked",
     "sourceEvidence": "docs/evidence/<date>-p002-teacher-proxy-pilot-admission-report.json"
   },
+  "referenceContext": {
+    "referenceBasisPolicy": "tasks/reference-basis-policy.json",
+    "referenceRequirements": "tasks/reference-basis-requirements.csv",
+    "referenceModuleMap": "tasks/reference-basis-module-map.csv",
+    "guardEvidence": "docs/evidence/<date>-reference-basis-guard.json"
+  },
+  "impactedSurfaceIds": [
+    "INTEROP_PROFILE_AND_EDU_GOVERNANCE",
+    "P003"
+  ],
+  "referencesReviewed": [
+    {
+      "id": "education-assessment/moodle",
+      "kind": "local_community",
+      "why": "education governance / operator responsibility / assessment boundary reference"
+    },
+    {
+      "id": "official-docs/PowerShell-Docs",
+      "kind": "local_official",
+      "why": "onsite support runbook and rollback responsibility reference"
+    }
+  ],
+  "adoptionDecision": {
+    "summary": "",
+    "adopted": [],
+    "rejected": [],
+    "followUpEvidence": ""
+  },
   "teacherBoundary": {
     "participants": [
       ""

@@ -31,6 +31,7 @@
 | 按代码板块看“该参考/复刻/复用哪个仓” | `tasks/reference-basis-module-map.csv` | API、Web、export、score-analysis、AI routing、OCR、Windows Service、release pack、搜索、队列、互操作的 machine-readable 参考映射 |
 | 想知道本轮改动命中了哪些受管板块/任务 | `tools/run-reference-basis-diff-aware-contract.ps1` + `tools/run-reference-basis-guard.ps1 -ChangedPaths ...` | 当前 v2 最小入口；先把 changed paths 投影到 guarded modules/tasks，再决定要补哪些 adoption 证据 |
 | 想知道 `P005/P006` 是否已补参考采纳记录结构 | `tools/run-reference-basis-adoption-record-contract.ps1` | 当前只覆盖反馈分流与发布裁决两类 closeout 文档，检查 `referenceContext / impactedSurfaceIds / referencesReviewed / adoptionDecision` |
+| 想知道 `P001/P003` 现场前置包与现场准入卡是否已补参考采纳记录 | `tools/run-reference-basis-onsite-adoption-contract.ps1` | 当前覆盖隔离机前置包与现场准入卡，防止 onsite-ready 口径只改模板不声明参考依据 |
 | 想把本次 reference/preflight 主线和并行脏改动正式分开 | `tools/run-reference-basis-closeout-report.ps1` | 输出 dedicated/shared/evidence/temp/unrelated 五类清单，便于收口、挑选提交或交接 |
 | `P001 / P003 / P005 / P006 / REAL005` 还差哪几步 | `tasks/live-pilot-closeout-plan.csv` | 现场 closeout 最小执行顺序入口 |
 | 当前对外完成态该怎么说 | `tasks/completion-state-dashboard.csv` | 不只看 backlog 的 `已完成` |

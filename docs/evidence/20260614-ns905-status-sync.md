@@ -1,7 +1,7 @@
 # NS905 status sync audit
 
 - status: pass
-- checked_at: 2026-06-14T20:38:17
+- checked_at: 2026-06-15T00:40:09
 - task_id: NS905
 - mode: csv_status_sync_audit
 - backlog_path: `tasks/backlog.csv`
@@ -57,7 +57,7 @@
 - next_open.P003: P003A
 - next_open.P005: P005A
 - next_open.P006: P006A
-- real005_report_path: docs/evidence/20260614-real005-guangzhou-2015-2025-closure-standard-report.json
+- real005_report_path: docs/evidence/20260615-real005-guangzhou-2015-2025-closure-standard-report.json
 - real005a_slice_status: pass
 - real005a_slice_blockers: 无
 - real005_next_open: REAL005B

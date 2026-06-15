@@ -63,6 +63,9 @@ function Invoke-RoadmapGroup {
     Invoke-GateCommand 'reference-basis adoption record contract' {
         & (Join-Path $PSScriptRoot 'run-reference-basis-adoption-record-contract.ps1') | Write-Host
     }
+    Invoke-GateCommand 'reference-basis onsite adoption contract' {
+        & (Join-Path $PSScriptRoot 'run-reference-basis-onsite-adoption-contract.ps1') | Write-Host
+    }
     Invoke-GateCommand 'non-site implementation plan guard' {
         & (Join-Path $PSScriptRoot 'run-non-site-implementation-plan-guard.ps1') | Write-Host
     }

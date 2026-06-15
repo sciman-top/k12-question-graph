@@ -109,6 +109,17 @@ That means pilot feedback triage and release decision records are no longer
 allowed to drift as pure wording changes without stating which guarded surfaces
 were touched and which references were reviewed.
 
+Reference-basis onsite adoption contract:
+
+```powershell
+.\tools\run-reference-basis-onsite-adoption-contract.ps1
+```
+
+This extends the same adoption-record rule to `P001` and `P003`.
+The isolated-machine evidence pack and onsite admission card must now also
+declare the guarded surfaces they affect, which references were reviewed, and
+what was adopted or rejected before onsite-ready wording can change.
+
 Repo-side truth-maintenance report defaults:
 
 ```powershell
@@ -170,6 +181,10 @@ The GitHub Actions entrypoint is `.github/workflows/repo-preflight.yml`.
 If the default local API is already running on `127.0.0.1:5275`, repo
 preflight now detects both the native `.exe` shape and the
 `dotnet + .dll + --contentRoot` launcher shape before pausing and restoring it.
+It also stops repo-local API processes that still match the repo launcher shape
+but are no longer listening on `127.0.0.1:5275`, so stale background `dotnet`
+hosts do not keep `apps/api/bin/Release/net10.0/K12QuestionGraph.Api.dll`
+locked during `dotnet build`.
 If `-InstallFrontendDependencies` is used while the repo-local Vite dev server
 is still running on `127.0.0.1:5173`, preflight now fails fast with a clear
 message instead of surfacing a later Windows `EPERM` from `npm ci`. Local
@@ -178,8 +193,8 @@ such as `apps/web/node_modules_broken_*`, so this kind of drift is reported as
 an environment cleanup issue instead of hundreds of misleading ESLint errors.
 Repo preflight now also runs `run-reference-basis-diff-aware-contract.ps1` and
 `run-reference-basis-adoption-record-contract.ps1`, so reference governance is
-checked as static registration, minimal diff-aware projection, and early
-closeout-level adoption-record structure.
+checked as static registration, minimal diff-aware projection, closeout-level
+adoption-record structure, and onsite-preflight adoption-record structure.
 
 The gate also covers `i001-i008 teacher workflow UI contracts`,
 `b001 duplicate upload smoke`, `b002 adapter contract smoke`,

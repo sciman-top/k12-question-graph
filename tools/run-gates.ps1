@@ -76,6 +76,44 @@ function Get-ProcessCommandLine([int] $ProcessId) {
     return [string]$process.CommandLine
 }
 
+function Get-RepoApiProcesses {
+    $expectedDllPath = Join-Path $repoRoot 'apps\api\bin\Release\net10.0\K12QuestionGraph.Api.dll'
+    $expectedContentRoot = Join-Path $repoRoot 'apps\api'
+    $dotnetPath = (Get-Command dotnet).Source
+    $processes = @(Get-CimInstance Win32_Process -ErrorAction SilentlyContinue | Where-Object {
+        $_.Name -in @('dotnet.exe', 'K12QuestionGraph.Api.exe')
+    })
+
+    $repoProcesses = New-Object System.Collections.Generic.List[object]
+    foreach ($process in $processes) {
+        $commandLine = [string] $process.CommandLine
+        if ([string]::IsNullOrWhiteSpace($commandLine)) {
+            continue
+        }
+
+        $normalizedCommandLine = $commandLine.ToLowerInvariant()
+        $normalizedExpectedDllPath = $expectedDllPath.ToLowerInvariant()
+        $normalizedExpectedContentRoot = $expectedContentRoot.ToLowerInvariant()
+
+        if ($process.Name -eq 'K12QuestionGraph.Api.exe') {
+            if ($normalizedCommandLine.Contains($normalizedExpectedContentRoot)) {
+                $repoProcesses.Add($process)
+            }
+            continue
+        }
+
+        if (-not [string]::Equals([string] $process.ExecutablePath, $dotnetPath, [System.StringComparison]::OrdinalIgnoreCase)) {
+            continue
+        }
+
+        if ($normalizedCommandLine.Contains($normalizedExpectedDllPath) -and $normalizedCommandLine.Contains($normalizedExpectedContentRoot)) {
+            $repoProcesses.Add($process)
+        }
+    }
+
+    return $repoProcesses.ToArray()
+}
+
 function Get-DefaultLocalApiProcess {
     $expectedPath = Join-Path $repoRoot 'apps\api\bin\Release\net10.0\K12QuestionGraph.Api.exe'
     $expectedDllPath = Join-Path $repoRoot 'apps\api\bin\Release\net10.0\K12QuestionGraph.Api.dll'
@@ -155,6 +193,7 @@ $p0LiveRunDate = Get-Date -Format 'yyyyMMdd'
 $pqrReportRoot = 'tmp/full-gate-pqr'
 $resumeDefaultLocalApi = $false
 $defaultLocalApi = Get-DefaultLocalApiProcess
+$repoApiProcesses = @(Get-RepoApiProcesses)
 if ($null -ne $defaultLocalApi) {
     Stop-Process -Id $defaultLocalApi.Id -Force
     Start-Sleep -Milliseconds 800
@@ -166,6 +205,25 @@ if ($null -ne $defaultLocalApi) {
     $stillRunning = Get-Process -Id $defaultLocalApi.Id -ErrorAction SilentlyContinue
     if ($null -ne $stillRunning) {
         throw "failed to pause default local API process $($defaultLocalApi.Id) before full gate"
+    }
+
+    $resumeDefaultLocalApi = $true
+}
+
+if ($repoApiProcesses.Count -gt 0) {
+    foreach ($repoProcess in $repoApiProcesses) {
+        if ($null -ne $defaultLocalApi -and $repoProcess.ProcessId -eq $defaultLocalApi.Id) {
+            continue
+        }
+
+        Stop-Process -Id $repoProcess.ProcessId -Force -ErrorAction SilentlyContinue
+    }
+
+    Start-Sleep -Milliseconds 500
+
+    foreach ($repoProcess in $repoApiProcesses) {
+        $stillRunning = Get-Process -Id $repoProcess.ProcessId -ErrorAction SilentlyContinue
+        Assert-True ($null -eq $stillRunning) "failed to pause repo-local API process $($repoProcess.ProcessId) before full gate"
     }
 
     $resumeDefaultLocalApi = $true

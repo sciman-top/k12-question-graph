@@ -1,19 +1,19 @@
 {
   "status": "pass",
   "taskId": "S007C",
-  "checkedAt": "2026-06-14T20:16:37",
-  "requestedApiPort": 6617,
-  "resolvedApiPort": 6617,
+  "checkedAt": "2026-06-15T00:15:39",
+  "requestedApiPort": 10603,
+  "resolvedApiPort": 10603,
   "portFallbackApplied": false,
-  "runId": "eb82bc3e7ffe4bdf8bab7b3d8e86efa8",
-  "aiJobId": "17b9e6d6-0d25-4d4f-9608-44dd6f1acf27",
+  "runId": "4e5c1a06bc5545e8ad4691dd1317a697",
+  "aiJobId": "8f40c670-9d91-4ab1-821f-d93081135343",
   "confirm": {
-    "questionItemId": "50bcab48-ad78-47a5-b5a5-7767b8bea6ae",
-    "knowledgeMappingId": "bce57461-ce14-4a0a-b275-991a591b905c",
+    "questionItemId": "93369bd9-1477-4d1e-a8a7-381152d247c5",
+    "knowledgeMappingId": "5eb5234d-0834-4570-809a-c7e93127c033",
     "status": "confirmed"
   },
   "undo": {
-    "removedQuestionItemId": "50bcab48-ad78-47a5-b5a5-7767b8bea6ae",
+    "removedQuestionItemId": "93369bd9-1477-4d1e-a8a7-381152d247c5",
     "removedKnowledgeMappingCount": 1,
     "status": "undone"
   },

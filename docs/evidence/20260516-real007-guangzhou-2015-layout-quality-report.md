@@ -5,7 +5,7 @@
 - missing_screenshots: 0
 - placeholder_like_screenshots: 0
 - noise_overlaps: 0
-- latest_recrop_audit: a8997f79-228a-4046-b09a-b7a467041497
+- latest_recrop_audit: 1d2518cc-2602-4cc5-8d3b-2d1477f3a621
 
 ## 结论
 2015 广州真卷来源区域已排除主要版面噪声，题图题具备 question_assets，重裁回填有 batch audit。

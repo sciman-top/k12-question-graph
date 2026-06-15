@@ -2,7 +2,7 @@
   "status": "pass",
   "taskId": "P005",
   "mode": "preflight_only",
-  "checkedAt": "2026-06-14T20:38:17",
+  "checkedAt": "2026-06-15T00:40:09",
   "liveCloseoutPlanPath": "tasks/live-pilot-closeout-plan.csv",
   "p004Status": "待办",
   "p005Status": "待办",

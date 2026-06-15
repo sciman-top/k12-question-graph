@@ -16,6 +16,35 @@
     "real012QualityReport": "docs/evidence/20260518-real012-production-flow-quality-report.json",
     "checklistVerified": false
   },
+  "referenceContext": {
+    "referenceBasisPolicy": "tasks/reference-basis-policy.json",
+    "referenceRequirements": "tasks/reference-basis-requirements.csv",
+    "referenceModuleMap": "tasks/reference-basis-module-map.csv",
+    "guardEvidence": "docs/evidence/<date>-reference-basis-guard.json"
+  },
+  "impactedSurfaceIds": [
+    "WINDOWS_SERVICE_INSTALLER_OPERATIONS",
+    "BACKUP_RESTORE_RELEASE_EVIDENCE",
+    "P001"
+  ],
+  "referencesReviewed": [
+    {
+      "id": "official-docs/AspNetCore.Docs",
+      "kind": "local_official",
+      "why": "windows service / deployment / local hosting semantics for isolated-machine rehearsal"
+    },
+    {
+      "id": "official-docs/PowerShell-Docs",
+      "kind": "local_official",
+      "why": "operator scripts, backup/restore, and host diagnostics reference"
+    }
+  ],
+  "adoptionDecision": {
+    "summary": "",
+    "adopted": [],
+    "rejected": [],
+    "followUpEvidence": ""
+  },
   "installInit": {
     "status": "not_run",
     "installDir": "",

@@ -73,11 +73,20 @@ foreach ($keyword in @('教师参与边界', '数据授权', '支持人', '回�
 
 $admissionCardTemplate = Get-Content -LiteralPath $admissionCardTemplateFullPath -Raw | ConvertFrom-Json
 Assert-True ($admissionCardTemplate.schemaVersion -eq 'p003-onsite-pilot-admission-card.v1') 'P003 admission card template schema mismatch'
-foreach ($requiredField in @('admissionContext', 'teacherBoundary', 'dataAuthorization', 'supportContacts', 'rollbackPlan', 'feedbackTemplate', 'signoff', 'decisionNotes')) {
+foreach ($requiredField in @('admissionContext', 'referenceContext', 'impactedSurfaceIds', 'referencesReviewed', 'adoptionDecision', 'teacherBoundary', 'dataAuthorization', 'supportContacts', 'rollbackPlan', 'feedbackTemplate', 'signoff', 'decisionNotes')) {
     Assert-True ($admissionCardTemplate.PSObject.Properties.Name -contains $requiredField) "P003 admission card template missing field: $requiredField"
 }
 foreach ($field in @('date', 'site', 'operator', 'teacherOrProxy', 'admissionDecision', 'sourceEvidence')) {
     Assert-True ($admissionCardTemplate.admissionContext.PSObject.Properties.Name -contains $field) "P003 admission card template missing admissionContext.$field"
+}
+Assert-True (@($admissionCardTemplate.impactedSurfaceIds).Count -ge 1) 'P003 admission card template must include impactedSurfaceIds'
+Assert-True (@($admissionCardTemplate.referencesReviewed).Count -ge 1) 'P003 admission card template must include referencesReviewed'
+foreach ($requiredReferenceContextField in @('referenceBasisPolicy', 'referenceRequirements', 'referenceModuleMap', 'guardEvidence')) {
+    Assert-True ($admissionCardTemplate.referenceContext.PSObject.Properties.Name -contains $requiredReferenceContextField) "P003 referenceContext missing field: $requiredReferenceContextField"
+    Assert-True (-not [string]::IsNullOrWhiteSpace([string] $admissionCardTemplate.referenceContext.$requiredReferenceContextField)) "P003 referenceContext field is blank: $requiredReferenceContextField"
+}
+foreach ($requiredAdoptionField in @('summary', 'adopted', 'rejected', 'followUpEvidence')) {
+    Assert-True ($admissionCardTemplate.adoptionDecision.PSObject.Properties.Name -contains $requiredAdoptionField) "P003 adoptionDecision missing field: $requiredAdoptionField"
 }
 Assert-True (@($admissionCardTemplate.teacherBoundary.participants).Count -ge 1) 'P003 admission card template must include participant placeholder'
 Assert-True (@($admissionCardTemplate.dataAuthorization.prohibitedActions).Count -ge 1) 'P003 admission card template must include prohibited action placeholder'

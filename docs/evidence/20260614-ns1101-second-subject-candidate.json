@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS1101",
-  "checkedAt": "2026-06-14T20:38:18",
+  "checkedAt": "2026-06-15T00:40:09",
   "mode": "second_subject_candidate_boundary_preflight",
   "reportPath": "docs/evidence/20260614-ns1101-second-subject-candidate.json",
   "backlogPath": "tasks/backlog.csv",

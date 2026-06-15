@@ -44,6 +44,7 @@ $startLocalApiText = Get-Content -LiteralPath $startLocalApiScriptFullPath -Raw
 
 $requiredDetectionPatterns = @(
     "function Get-ProcessCommandLine",
+    "function Get-RepoApiProcesses",
     "`$expectedDllPath = Join-Path `$repoRoot 'apps\api\bin\Release\net10.0\K12QuestionGraph.Api.dll'",
     "`$expectedContentRoot = Join-Path `$repoRoot 'apps\api'",
     "`$process.ProcessName -notin @('K12QuestionGraph.Api', 'dotnet')",
@@ -51,7 +52,9 @@ $requiredDetectionPatterns = @(
     "`$normalizedExpectedDllPath = `$expectedDllPath.ToLowerInvariant()",
     "`$normalizedExpectedContentRoot = `$expectedContentRoot.ToLowerInvariant()",
     "Contains(`$normalizedExpectedDllPath.ToLowerInvariant())",
-    "Contains(`$normalizedExpectedContentRoot)"
+    "Contains(`$normalizedExpectedContentRoot)",
+    "`$repoApiProcesses = @(Get-RepoApiProcesses)",
+    "Stop-Process -Id `$repoProcess.ProcessId -Force -ErrorAction SilentlyContinue"
 )
 
 Assert-ContainsAll -ScriptPath $FullGateScriptPath -Text $fullGateText -Patterns $requiredDetectionPatterns

@@ -1,0 +1,507 @@
+{
+  "status": "pass",
+  "task": "REAL005",
+  "checkedAt": "2026-06-15T20:09:52",
+  "closureStatus": "not_closed",
+  "criteriaPath": "tasks/real-guangzhou-closure-criteria.csv",
+  "criteriaCount": 16,
+  "requiredYears": [
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "fullClosureAllowed": false,
+  "currentTruth": "S012/REAL001/REAL002/REAL003 dry-run/REAL004 review smoke evidence is not enough to claim 2015-2025 full workflow closure",
+  "criteriaCoverage": {
+    "RG001": {
+      "coveredYears": [
+        2015,
+        2016,
+        2017,
+        2018,
+        2019,
+        2020,
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "details": [
+        {
+          "year": 2015,
+          "localExamSourceCount": 2,
+          "hasDistinctPaperSource": true,
+          "hasDistinctAnswerSource": true,
+          "evidencePath": "docs/evidence/20260512-guangzhou-2015-real-ingest-slice-report.json",
+          "note": "REAL001 sourceDocuments provide distinct paper and answer files for 2015."
+        },
+        {
+          "year": 2016,
+          "localExamSourceCount": 2,
+          "hasDistinctPaperSource": true,
+          "hasDistinctAnswerSource": true,
+          "evidencePath": "docs/evidence/20260514-real003-guangzhou-physics-year-batch-ingest-report.json",
+          "note": "REAL003 sourceHashes include distinct local_exam_paper paper+answer anchors."
+        },
+        {
+          "year": 2017,
+          "localExamSourceCount": 2,
+          "hasDistinctPaperSource": true,
+          "hasDistinctAnswerSource": true,
+          "evidencePath": "docs/evidence/20260514-real003-guangzhou-physics-year-batch-ingest-report.json",
+          "note": "REAL003 sourceHashes include distinct local_exam_paper paper+answer anchors."
+        },
+        {
+          "year": 2018,
+          "localExamSourceCount": 2,
+          "hasDistinctPaperSource": true,
+          "hasDistinctAnswerSource": true,
+          "evidencePath": "docs/evidence/20260514-real003-guangzhou-physics-year-batch-ingest-report.json",
+          "note": "REAL003 sourceHashes include distinct local_exam_paper paper+answer anchors."
+        },
+        {
+          "year": 2019,
+          "localExamSourceCount": 2,
+          "hasDistinctPaperSource": true,
+          "hasDistinctAnswerSource": true,
+          "evidencePath": "docs/evidence/20260514-real003-guangzhou-physics-year-batch-ingest-report.json",
+          "note": "REAL003 sourceHashes include distinct local_exam_paper paper+answer anchors."
+        },
+        {
+          "year": 2020,
+          "localExamSourceCount": 1,
+          "hasDistinctPaperSource": true,
+          "hasDistinctAnswerSource": true,
+          "evidencePath": "docs/evidence/20260514-real003-guangzhou-physics-year-batch-ingest-report.json",
+          "note": "REAL003 sourceHashes include a combined paper+answer local_exam_paper anchor such as 含答案/解析版."
+        },
+        {
+          "year": 2021,
+          "localExamSourceCount": 2,
+          "hasDistinctPaperSource": true,
+          "hasDistinctAnswerSource": true,
+          "evidencePath": "docs/evidence/20260514-real003-guangzhou-physics-year-batch-ingest-report.json",
+          "note": "REAL003 sourceHashes include distinct local_exam_paper paper+answer anchors."
+        },
+        {
+          "year": 2022,
+          "localExamSourceCount": 2,
+          "hasDistinctPaperSource": true,
+          "hasDistinctAnswerSource": true,
+          "evidencePath": "docs/evidence/20260514-real003-guangzhou-physics-year-batch-ingest-report.json",
+          "note": "REAL003 sourceHashes include distinct local_exam_paper paper+answer anchors."
+        },
+        {
+          "year": 2023,
+          "localExamSourceCount": 2,
+          "hasDistinctPaperSource": true,
+          "hasDistinctAnswerSource": true,
+          "evidencePath": "docs/evidence/20260514-real003-guangzhou-physics-year-batch-ingest-report.json",
+          "note": "REAL003 sourceHashes include distinct local_exam_paper paper+answer anchors."
+        },
+        {
+          "year": 2024,
+          "localExamSourceCount": 2,
+          "hasDistinctPaperSource": true,
+          "hasDistinctAnswerSource": true,
+          "evidencePath": "docs/evidence/20260514-real003-guangzhou-physics-year-batch-ingest-report.json",
+          "note": "REAL003 sourceHashes include a combined paper+answer local_exam_paper anchor such as 含答案/解析版."
+        },
+        {
+          "year": 2025,
+          "localExamSourceCount": 2,
+          "hasDistinctPaperSource": true,
+          "hasDistinctAnswerSource": true,
+          "evidencePath": "docs/evidence/20260514-real003-guangzhou-physics-year-batch-ingest-report.json",
+          "note": "REAL003 sourceHashes include a combined paper+answer local_exam_paper anchor such as 含答案/解析版."
+        }
+      ],
+      "status": "pass",
+      "evidencePaths": [
+        "docs/evidence/20260512-guangzhou-2015-real-ingest-slice-report.json",
+        "docs/evidence/20260514-real003-guangzhou-physics-year-batch-ingest-report.json"
+      ],
+      "blockedYears": []
+    },
+    "RG002": {
+      "coveredYears": [
+        2015,
+        2016,
+        2017,
+        2018,
+        2019,
+        2020,
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "details": [
+        {
+          "year": 2015,
+          "hasAdapterNames": true,
+          "hasAdapterVersion": true,
+          "hasInputOutputHashes": true,
+          "hasWarningsErrorsElapsed": true,
+          "hasPaperDiagnostic": true,
+          "hasAnswerDiagnostic": true,
+          "evidencePath": "docs/evidence/20260614-real005-yearly-adapter-diagnostics.json",
+          "note": "REAL005 yearly adapter diagnostics include adapter name/version, input/output hashes, warnings/errors, and durationMs for paper and answer anchors."
+        },
+        {
+          "year": 2016,
+          "hasAdapterNames": true,
+          "hasAdapterVersion": true,
+          "hasInputOutputHashes": true,
+          "hasWarningsErrorsElapsed": true,
+          "hasPaperDiagnostic": true,
+          "hasAnswerDiagnostic": true,
+          "evidencePath": "docs/evidence/20260614-real005-yearly-adapter-diagnostics.json",
+          "note": "REAL005 yearly adapter diagnostics include adapter name/version, input/output hashes, warnings/errors, and durationMs for paper and answer anchors."
+        },
+        {
+          "year": 2017,
+          "hasAdapterNames": true,
+          "hasAdapterVersion": true,
+          "hasInputOutputHashes": true,
+          "hasWarningsErrorsElapsed": true,
+          "hasPaperDiagnostic": true,
+          "hasAnswerDiagnostic": true,
+          "evidencePath": "docs/evidence/20260614-real005-yearly-adapter-diagnostics.json",
+          "note": "REAL005 yearly adapter diagnostics include adapter name/version, input/output hashes, warnings/errors, and durationMs for paper and answer anchors."
+        },
+        {
+          "year": 2018,
+          "hasAdapterNames": true,
+          "hasAdapterVersion": true,
+          "hasInputOutputHashes": true,
+          "hasWarningsErrorsElapsed": true,
+          "hasPaperDiagnostic": true,
+          "hasAnswerDiagnostic": true,
+          "evidencePath": "docs/evidence/20260614-real005-yearly-adapter-diagnostics.json",
+          "note": "REAL005 yearly adapter diagnostics include adapter name/version, input/output hashes, warnings/errors, and durationMs for paper and answer anchors."
+        },
+        {
+          "year": 2019,
+          "hasAdapterNames": true,
+          "hasAdapterVersion": true,
+          "hasInputOutputHashes": true,
+          "hasWarningsErrorsElapsed": true,
+          "hasPaperDiagnostic": true,
+          "hasAnswerDiagnostic": true,
+          "evidencePath": "docs/evidence/20260614-real005-yearly-adapter-diagnostics.json",
+          "note": "REAL005 yearly adapter diagnostics include adapter name/version, input/output hashes, warnings/errors, and durationMs for paper and answer anchors."
+        },
+        {
+          "year": 2020,
+          "hasAdapterNames": true,
+          "hasAdapterVersion": true,
+          "hasInputOutputHashes": true,
+          "hasWarningsErrorsElapsed": true,
+          "hasPaperDiagnostic": true,
+          "hasAnswerDiagnostic": true,
+          "evidencePath": "docs/evidence/20260614-real005-yearly-adapter-diagnostics.json",
+          "note": "REAL005 yearly adapter diagnostics include adapter name/version, input/output hashes, warnings/errors, and durationMs for paper and answer anchors."
+        },
+        {
+          "year": 2021,
+          "hasAdapterNames": true,
+          "hasAdapterVersion": true,
+          "hasInputOutputHashes": true,
+          "hasWarningsErrorsElapsed": true,
+          "hasPaperDiagnostic": true,
+          "hasAnswerDiagnostic": true,
+          "evidencePath": "docs/evidence/20260614-real005-yearly-adapter-diagnostics.json",
+          "note": "REAL005 yearly adapter diagnostics include adapter name/version, input/output hashes, warnings/errors, and durationMs for paper and answer anchors."
+        },
+        {
+          "year": 2022,
+          "hasAdapterNames": true,
+          "hasAdapterVersion": true,
+          "hasInputOutputHashes": true,
+          "hasWarningsErrorsElapsed": true,
+          "hasPaperDiagnostic": true,
+          "hasAnswerDiagnostic": true,
+          "evidencePath": "docs/evidence/20260614-real005-yearly-adapter-diagnostics.json",
+          "note": "REAL005 yearly adapter diagnostics include adapter name/version, input/output hashes, warnings/errors, and durationMs for paper and answer anchors."
+        },
+        {
+          "year": 2023,
+          "hasAdapterNames": true,
+          "hasAdapterVersion": true,
+          "hasInputOutputHashes": true,
+          "hasWarningsErrorsElapsed": true,
+          "hasPaperDiagnostic": true,
+          "hasAnswerDiagnostic": true,
+          "evidencePath": "docs/evidence/20260614-real005-yearly-adapter-diagnostics.json",
+          "note": "REAL005 yearly adapter diagnostics include adapter name/version, input/output hashes, warnings/errors, and durationMs for paper and answer anchors."
+        },
+        {
+          "year": 2024,
+          "hasAdapterNames": true,
+          "hasAdapterVersion": true,
+          "hasInputOutputHashes": true,
+          "hasWarningsErrorsElapsed": true,
+          "hasPaperDiagnostic": true,
+          "hasAnswerDiagnostic": true,
+          "evidencePath": "docs/evidence/20260614-real005-yearly-adapter-diagnostics.json",
+          "note": "REAL005 yearly adapter diagnostics include adapter name/version, input/output hashes, warnings/errors, and durationMs for paper and answer anchors."
+        },
+        {
+          "year": 2025,
+          "hasAdapterNames": true,
+          "hasAdapterVersion": true,
+          "hasInputOutputHashes": true,
+          "hasWarningsErrorsElapsed": true,
+          "hasPaperDiagnostic": true,
+          "hasAnswerDiagnostic": true,
+          "evidencePath": "docs/evidence/20260614-real005-yearly-adapter-diagnostics.json",
+          "note": "REAL005 yearly adapter diagnostics include adapter name/version, input/output hashes, warnings/errors, and durationMs for paper and answer anchors."
+        }
+      ],
+      "status": "pass",
+      "evidencePaths": [
+        "docs/evidence/20260614-real005-yearly-adapter-diagnostics.json"
+      ],
+      "blockedYears": []
+    }
+  },
+  "sliceCoverage": {
+    "REAL005A": {
+      "next": "REAL005A evidence is ready for manual closeout review.",
+      "criteriaIds": [
+        "RG001",
+        "RG002"
+      ],
+      "status": "pass",
+      "blockers": [],
+      "evidencePaths": [
+        "docs/evidence/20260512-guangzhou-2015-real-ingest-slice-report.json",
+        "docs/evidence/20260514-real003-guangzhou-physics-year-batch-ingest-report.json",
+        "docs/evidence/20260614-real005-yearly-adapter-diagnostics.json"
+      ]
+    },
+    "REAL005B": {
+      "criteriaStatus": {
+        "RG003": "pass",
+        "RG004": "partial",
+        "RG005": "blocked",
+        "RG006": "blocked",
+        "RG007": "blocked",
+        "RG008": "blocked",
+        "RG009": "blocked"
+      },
+      "criteriaIds": [
+        "RG003",
+        "RG004",
+        "RG005",
+        "RG006",
+        "RG007",
+        "RG008",
+        "RG009"
+      ],
+      "blockers": [
+        "RG004:per_question_answer_source_anchor_not_proven_for_year_batch",
+        "RG004:per_question_answer_source_hash_binding_not_proven",
+        "RG005:2015_q1_q18_use_text_group_placeholder_coordinates",
+        "RG005:2015_q19_q24_screenshot_manifest_pending_teacher_review",
+        "RG005:2016_2025_screenshot_level_source_regions_not_created_by_REAL003_dry_run",
+        "RG006:2016_2025_per_question_structured_blocks_not_emitted_in_year_batch_report",
+        "RG006:2015_questions_remain_pending_review",
+        "RG006:formula_table_image_fields_are_smoke_coverage_not_every_question_closure",
+        "RG007:2015_tags_remain_pending_review",
+        "RG007:2016_2025_per_question_tagging_suggestions_not_proven",
+        "RG007:teacher_confirmed_tag_terminal_status_not_present",
+        "RG008:no_per_question_terminal_teacher_review_for_2015_2025",
+        "RG008:2015_review_smoke_restores_open_review_items",
+        "RG008:2016_2025_review_queue_terminal_status_not_present",
+        "RG009:2016_2025_reviewed_question_save_and_source_detail_smoke_not_present",
+        "RG009:all_years_reviewed_question_terminal_status_required_before_save_source_review_closure"
+      ],
+      "status": "partial",
+      "evidencePaths": [
+        "docs/evidence/20260512-guangzhou-2015-real-ingest-slice-report.json",
+        "docs/evidence/20260512-guangzhou-2015-visual-region-slice-report.json",
+        "docs/evidence/20260512-real004-guangzhou-2015-review-smoke-report.json",
+        "docs/evidence/20260514-real003-guangzhou-physics-year-batch-ingest-report.json",
+        "docs/evidence/20260516-real007-guangzhou-2015-layout-quality-report.json",
+        "docs/evidence/20260518-real008-question-asset-smoke-report.json",
+        "docs/evidence/20260518-real009-table-structure-smoke-report.json",
+        "docs/evidence/20260518-real010-formula-fidelity-smoke-report.json",
+        "docs/evidence/20260518-real011-question-edit-smoke-report.json",
+        "docs/evidence/20260614-real005b-question-structure-diagnostics.json"
+      ],
+      "next": "REAL005B remains partial until RG004-RG009 have per-question source anchors, structured fields, teacher review terminal status, and source-review save/detail evidence."
+    },
+    "REAL005C": {
+      "next": "Keep REAL005C blocked until source coverage and per-question review closure are both complete.",
+      "criteriaIds": [
+        "RG010",
+        "RG011",
+        "RG012",
+        "RG013",
+        "RG014",
+        "RG015",
+        "RG016"
+      ],
+      "status": "blocked_by_previous_slice",
+      "blockers": [
+        "REAL005A and REAL005B remain open; usage/export/analysis closure cannot be promoted ahead of earlier slices."
+      ],
+      "evidencePaths": [
+        "docs/evidence/20260518-real012-production-flow-quality-report.json",
+        "docs/evidence/20260516-real007-guangzhou-2015-layout-quality-report.json"
+      ]
+    },
+    "REAL005D": {
+      "next": "Do not rewrite outward completion wording until REAL005A/B/C are all closed.",
+      "criteriaIds": [
+        "DOCS",
+        "README",
+        "GO_NO_GO_CARD"
+      ],
+      "status": "blocked",
+      "blockers": [
+        "closureStatus remains not_closed; truthful docs must continue to say not_closed"
+      ],
+      "evidencePaths": [
+        "docs/112_CurrentClosureStatus_20260609.md",
+        "docs/109_ReleaseGoNoGoCard.md",
+        "README.md"
+      ]
+    }
+  },
+  "gaps": [
+    {
+      "id": "real-guangzhou-2015-2025-dashboard",
+      "reason": "dashboard state is contract_done; gap=REAL005 当前只能输出 not_closed 缺逐年逐题闭环证据",
+      "nextAction": "complete yearly question evidence and update dashboard only after every REAL005 criterion is satisfied"
+    }
+  ],
+  "requiredCriteria": [
+    {
+      "criterionId": "RG001",
+      "category": "source_manifest",
+      "requiredScope": "2015-2025 每一年",
+      "evidenceRequired": "source manifest report with 11 years and paper answer hash coverage",
+      "blockingGapPolicy": "missing year source hash or answer file keeps closure not_closed"
+    },
+    {
+      "criterionId": "RG002",
+      "category": "adapter_extraction",
+      "requiredScope": "2015-2025 每一年",
+      "evidenceRequired": "adapter diagnostic report per year",
+      "blockingGapPolicy": "missing adapter diagnostic or unresolved high severity warning keeps closure not_closed"
+    },
+    {
+      "criterionId": "RG003",
+      "category": "question_count",
+      "requiredScope": "2015-2025 每一年",
+      "evidenceRequired": "year batch ingest report with expected_count actual_count missing_question_numbers",
+      "blockingGapPolicy": "missing expected count or any missing question keeps closure not_closed"
+    },
+    {
+      "criterionId": "RG004",
+      "category": "answer_alignment",
+      "requiredScope": "2015-2025 每一题",
+      "evidenceRequired": "answer coverage report with per-question source anchor",
+      "blockingGapPolicy": "missing answer without takeover reason keeps closure not_closed"
+    },
+    {
+      "criterionId": "RG005",
+      "category": "visual_regions",
+      "requiredScope": "2015-2025 每一题",
+      "evidenceRequired": "source region and asset report with no placeholder bbox except time-boxed gate_na",
+      "blockingGapPolicy": "placeholder bbox without gate_na evidence keeps closure not_closed"
+    },
+    {
+      "criterionId": "RG006",
+      "category": "structured_question",
+      "requiredScope": "2015-2025 每一题",
+      "evidenceRequired": "question structure report and review queue reason",
+      "blockingGapPolicy": "raw text only without review reason keeps closure not_closed"
+    },
+    {
+      "criterionId": "RG007",
+      "category": "knowledge_tagging",
+      "requiredScope": "2015-2025 每一题",
+      "evidenceRequired": "tagging suggestion report with confidence source and no_active_write",
+      "blockingGapPolicy": "tag missing or AI direct active write keeps closure not_closed"
+    },
+    {
+      "criterionId": "RG008",
+      "category": "teacher_review",
+      "requiredScope": "2015-2025 每一题",
+      "evidenceRequired": "review audit report with per-question terminal status and edited fields",
+      "blockingGapPolicy": "open queue or no audit keeps closure not_closed"
+    },
+    {
+      "criterionId": "RG009",
+      "category": "question_save_source_review",
+      "requiredScope": "2015-2025 每一题",
+      "evidenceRequired": "API/UI smoke using real reviewed questions",
+      "blockingGapPolicy": "source review failure keeps closure not_closed"
+    },
+    {
+      "criterionId": "RG010",
+      "category": "search_paper_export",
+      "requiredScope": "2015-2025 抽样和异常全覆盖",
+      "evidenceRequired": "search paper export smoke with real question ids",
+      "blockingGapPolicy": "only synthetic fixture proof keeps closure not_closed"
+    },
+    {
+      "criterionId": "RG011",
+      "category": "analysis_reference",
+      "requiredScope": "2015-2025 抽样和异常全覆盖",
+      "evidenceRequired": "analysis smoke with real reviewed question ids and no formal history write",
+      "blockingGapPolicy": "synthetic-only analysis proof keeps closure not_closed"
+    },
+    {
+      "criterionId": "RG012",
+      "category": "rollback_and_privacy",
+      "requiredScope": "2015-2025 全批次",
+      "evidenceRequired": "rollback privacy and AI boundary report",
+      "blockingGapPolicy": "missing rollback or privacy evidence keeps closure not_closed"
+    },
+    {
+      "criterionId": "RG013",
+      "category": "layout_noise_cleanup",
+      "requiredScope": "2015-2025 每一页",
+      "evidenceRequired": "layout noise report with per-page noise region and retained region counts",
+      "blockingGapPolicy": "noise retained in question content without review reason keeps closure not_closed"
+    },
+    {
+      "criterionId": "RG014",
+      "category": "formula_fidelity",
+      "requiredScope": "2015-2025 每个公式",
+      "evidenceRequired": "formula fidelity report with OMML/LaTeX/fallback coverage",
+      "blockingGapPolicy": "formula OCR candidate without fallback image or reviewStatus keeps closure not_closed"
+    },
+    {
+      "criterionId": "RG015",
+      "category": "table_structuring",
+      "requiredScope": "2015-2025 每个表格",
+      "evidenceRequired": "table structure report with rows columns sourceRegion confidence reviewStatus",
+      "blockingGapPolicy": "table only stored as image without pending_review reason keeps closure not_closed"
+    },
+    {
+      "criterionId": "RG016",
+      "category": "edit_recrop_audit",
+      "requiredScope": "2015-2025 每个异常项",
+      "evidenceRequired": "edit and recrop audit report",
+      "blockingGapPolicy": "manual correction path missing or no audit keeps closure not_closed"
+    }
+  ],
+  "rollback": "git restore tracked files; remove generated REAL005 evidence reports if this standard is reverted",
+  "summaryChinese": "REAL005 判定标准已安装并通过自检；当前真实状态是 not_closed，仍需完成 逐年逐题闭环证据。"
+}
