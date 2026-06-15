@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "REAL005B_QUESTION_STRUCTURE_DIAGNOSTICS",
-  "checkedAt": "2026-06-15T16:34:19.794609+00:00",
+  "checkedAt": "2026-06-15T17:29:54.191974+00:00",
   "real005BStatus": "partial",
   "criteriaIds": [
     "RG003",
@@ -1409,21 +1409,27 @@
     },
     "RG008": {
       "criterionId": "RG008",
-      "status": "blocked",
+      "status": "pass",
       "evidencePaths": [
         "docs/evidence/20260512-real004-guangzhou-2015-review-smoke-report.json",
-        "docs/evidence/20260518-real011-question-edit-smoke-report.json"
+        "docs/evidence/20260518-real011-question-edit-smoke-report.json",
+        "docs/evidence/20260512-real004-guangzhou-2015-review-smoke-report.json",
+        "guangzhou-physics-full-research-package-2016-2025/quality-review-complete-csv-package/c003-quality-issue-review-evidence.csv",
+        "guangzhou-physics-full-research-package-2016-2025/quality-review-complete-csv-package/c003-quality-issue-registry.csv"
       ],
-      "coveredScope": "2015 review action smoke only",
-      "blockers": [
-        "no_per_question_terminal_teacher_review_for_2015_2025",
-        "2015_review_smoke_restores_open_review_items",
-        "2016_2025_review_queue_terminal_status_not_present"
-      ],
+      "coveredScope": "2015 review action smoke plus 2016-2025 per-question terminal review evidence",
+      "blockers": [],
       "signals": {
         "canConfirmWithAudit": true,
         "canSubmitTeacherRevisionWithAudit": true,
-        "canReturnWithAudit": true
+        "canReturnWithAudit": true,
+        "real2016_2025QuestionCount": 210,
+        "real2016_2025PerQuestionTerminalCount": 210,
+        "real2016_2025ReviewerCount": 210,
+        "real2016_2025ReviewedAtCount": 210,
+        "real2016_2025DecisionCount": 210,
+        "real2016_2025ResolvedRegistryCount": 210,
+        "real2016_2025ReviewActionsPass": true
       }
     },
     "RG009": {
@@ -1432,31 +1438,36 @@
       "evidencePaths": [
         "docs/evidence/20260512-real004-guangzhou-2015-review-smoke-report.json",
         "docs/evidence/20260518-real008-question-asset-smoke-report.json",
-        "docs/evidence/20260518-real011-question-edit-smoke-report.json"
+        "docs/evidence/20260518-real011-question-edit-smoke-report.json",
+        "docs/evidence/20260512-real004-guangzhou-2015-review-smoke-report.json",
+        "docs/evidence/20260506-s006c-source-review-closure-smoke-report.json",
+        "guangzhou-physics-full-research-package-2016-2025/quality-review-complete-csv-package/c003-quality-issue-review-evidence.csv",
+        "docs/evidence/20260616-real005b-reviewed-question-visibility.json"
       ],
-      "coveredScope": "2015 source review/detail smoke only",
+      "coveredScope": "2015 source review/detail smoke plus 2016-2025 reviewed-question source detail evidence",
       "blockers": [
-        "2016_2025_reviewed_question_save_and_source_detail_smoke_not_present",
-        "all_years_reviewed_question_terminal_status_required_before_save_source_review_closure"
+        "2016_2025_reviewed_questions_not_materialized_for_api_source_review"
       ],
       "signals": {
         "canLoadQuestionSources": true,
-        "allReviewItemsHaveSourceScreenshotUrls": true
+        "allReviewItemsHaveSourceScreenshotUrls": true,
+        "real2016_2025QuestionCount": 210,
+        "real2016_2025PerQuestionSourceDetailCount": 210,
+        "real2016_2025SourceDetailFallbackPass": true,
+        "real2016_2025SourceReviewPass": true,
+        "real2016_2025ReviewedQuestionVisibilityPass": false
       }
     }
   },
   "blockers": [
-    "RG008:no_per_question_terminal_teacher_review_for_2015_2025",
-    "RG008:2015_review_smoke_restores_open_review_items",
-    "RG008:2016_2025_review_queue_terminal_status_not_present",
-    "RG009:2016_2025_reviewed_question_save_and_source_detail_smoke_not_present",
-    "RG009:all_years_reviewed_question_terminal_status_required_before_save_source_review_closure"
+    "RG009:2016_2025_reviewed_questions_not_materialized_for_api_source_review"
   ],
   "activeWrite": false,
   "externalAiCalls": 0,
   "realStudentDataUsed": false,
   "sourceEvidence": [
     "docs/evidence/20260505-l004-knowledge-tagging-suggestion-pilot.md",
+    "docs/evidence/20260506-s006c-source-review-closure-smoke-report.json",
     "docs/evidence/20260506-s007a-ai-suggestion-schema-hardening-report.json",
     "docs/evidence/20260512-guangzhou-2015-real-ingest-slice-report.json",
     "docs/evidence/20260512-guangzhou-2015-visual-region-slice-report.json",
@@ -1471,6 +1482,7 @@
     "docs/evidence/20260530-ns504-ai-suggestion-review-report.json",
     "docs/evidence/20260530-ns504-s007b-source-report.json",
     "docs/evidence/20260530-ns504-s007c-source-report.json",
+    "docs/evidence/20260616-real005b-reviewed-question-visibility.json",
     "docs/evidence/20260616-real005b-source-region-screenshots.json",
     "docs/evidence/20260616-real005b-structured-question-diagnostics.json",
     "guangzhou-physics-full-research-package-2016-2025/csv/c003-answer-scoring-point.csv",
@@ -1479,6 +1491,8 @@
     "guangzhou-physics-full-research-package-2016-2025/csv/c003-question-item-full.csv",
     "guangzhou-physics-full-research-package-2016-2025/csv/c003-source-material.csv",
     "guangzhou-physics-full-research-package-2016-2025/csv/c003-teaching-suggestion.csv",
+    "guangzhou-physics-full-research-package-2016-2025/quality-review-complete-csv-package/c003-quality-issue-registry.csv",
+    "guangzhou-physics-full-research-package-2016-2025/quality-review-complete-csv-package/c003-quality-issue-review-evidence.csv",
     "guangzhou-physics-full-research-package-2016-2025/quality-review-complete-csv-package/c003-question-item-full.csv"
   ],
   "boundary": "read-only REAL005B diagnostics; no database write, no teacher-review closure, no external AI; candidate CSVs are read only to trace answer-source hash bindings",

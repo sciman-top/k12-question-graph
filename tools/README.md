@@ -1591,4 +1591,10 @@ REAL005B source-region screenshot evidence:
 .\tools\run-real005b-source-region-screenshots.ps1
 ```
 
+REAL005B reviewed-question visibility evidence:
+
+```powershell
+.\tools\run-real005b-reviewed-question-visibility.ps1
+```
+
 This renders page-level source screenshots for the admitted Guangzhou 2016-2025 physics candidate package and writes fresh read-only evidence under `docs/evidence/<yyyyMMdd>-real005b-source-region-screenshots.*`.

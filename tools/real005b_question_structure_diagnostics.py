@@ -29,6 +29,9 @@ REAL005B_YEAR_OBSERVATION_CSV = (
 REAL005B_QUALITY_REVIEW_EVIDENCE_CSV = (
     "guangzhou-physics-full-research-package-2016-2025/quality-review-complete-csv-package/c003-quality-issue-review-evidence.csv"
 )
+REAL005B_QUALITY_REVIEW_REGISTRY_CSV = (
+    "guangzhou-physics-full-research-package-2016-2025/quality-review-complete-csv-package/c003-quality-issue-registry.csv"
+)
 REAL005B_TEACHING_SUGGESTION_CSV = "guangzhou-physics-full-research-package-2016-2025/csv/c003-teaching-suggestion.csv"
 L004_TAGGING_PILOT_REPORT = "docs/evidence/20260505-l004-knowledge-tagging-suggestion-pilot.md"
 S007A_SCHEMA_REPORT = "docs/evidence/20260506-s007a-ai-suggestion-schema-hardening-report.json"
@@ -36,11 +39,13 @@ S007B_QUEUE_REPORT = "docs/evidence/20260530-ns504-s007b-source-report.json"
 S007C_CONFIRM_REPORT = "docs/evidence/20260530-ns504-s007c-source-report.json"
 NS204_NO_ACTIVE_WRITE_REPORT = "docs/evidence/20260529-ns204-no-active-write-guard-report.json"
 NS504_TAGGING_REVIEW_REPORT = "docs/evidence/20260530-ns504-ai-suggestion-review-report.json"
+S006C_SOURCE_REVIEW_REPORT = "docs/evidence/20260506-s006c-source-review-closure-smoke-report.json"
 REAL007_REPORT = "docs/evidence/20260516-real007-guangzhou-2015-layout-quality-report.json"
 REAL008_REPORT = "docs/evidence/20260518-real008-question-asset-smoke-report.json"
 REAL009_REPORT = "docs/evidence/20260518-real009-table-structure-smoke-report.json"
 REAL010_REPORT = "docs/evidence/20260518-real010-formula-fidelity-smoke-report.json"
 REAL011_REPORT = "docs/evidence/20260518-real011-question-edit-smoke-report.json"
+REAL005B_REVIEWED_VISIBILITY_GLOB = "docs/evidence/*-real005b-reviewed-question-visibility.json"
 
 
 def read_json(repo_root: Path, relative_path: str) -> dict[str, Any]:
@@ -445,6 +450,197 @@ def tagging_coverage_2016_2025(repo_root: Path) -> dict[str, Any]:
     }
 
 
+def review_terminal_coverage_2016_2025(repo_root: Path) -> dict[str, Any]:
+    question_rows = read_csv(repo_root, REAL005B_QUALITY_QUESTION_CSV)
+    review_rows = read_csv(repo_root, REAL005B_QUALITY_REVIEW_EVIDENCE_CSV)
+    registry_rows = read_csv(repo_root, REAL005B_QUALITY_REVIEW_REGISTRY_CSV)
+    real004 = read_json(repo_root, REAL004_REPORT)
+
+    question_id_set = {str(row["question_id"]).strip() for row in question_rows}
+    registry_by_issue_id = {str(row.get("issue_id") or "").strip(): row for row in registry_rows}
+    reviews_by_question: dict[str, list[dict[str, str]]] = {}
+    for row in review_rows:
+        question_id = str(row.get("question_id") or "").strip()
+        if question_id in question_id_set:
+            reviews_by_question.setdefault(question_id, []).append(row)
+
+    per_question_terminal_count = 0
+    reviewer_count = 0
+    reviewed_at_count = 0
+    decision_count = 0
+    issue_link_count = 0
+    resolved_registry_count = 0
+    production_eligible_registry_count = 0
+    decision_counts: dict[str, int] = {}
+    missing_questions: list[str] = []
+
+    for question_id in sorted(question_id_set):
+        rows = reviews_by_question.get(question_id, [])
+        if not rows:
+            missing_questions.append(question_id)
+            continue
+        row = rows[0]
+        reviewer = str(row.get("reviewer") or "").strip()
+        reviewed_at = str(row.get("reviewed_at") or "").strip()
+        decision = str(row.get("decision") or "").strip()
+        issue_id = str(row.get("issue_id") or "").strip()
+        registry_row = registry_by_issue_id.get(issue_id)
+
+        if reviewer:
+            reviewer_count += 1
+        if reviewed_at:
+            reviewed_at_count += 1
+        if decision:
+            decision_count += 1
+            decision_counts[decision] = decision_counts.get(decision, 0) + 1
+        if issue_id:
+            issue_link_count += 1
+        if registry_row is not None:
+            registry_status = str(registry_row.get("review_status") or "").strip()
+            registry_production_eligible = str(registry_row.get("production_eligible") or "").strip().lower()
+            if registry_status == "resolved":
+                resolved_registry_count += 1
+            if registry_production_eligible == "true":
+                production_eligible_registry_count += 1
+
+        if reviewer and reviewed_at and decision and issue_id and registry_row is not None and str(registry_row.get("review_status") or "").strip() == "resolved":
+            per_question_terminal_count += 1
+
+    verification = real004.get("verification") or {}
+    review_actions_pass = (
+        bool(verification.get("canConfirmWithAudit"))
+        and bool(verification.get("canSubmitTeacherRevisionWithAudit"))
+        and bool(verification.get("canReturnWithAudit"))
+        and bool(verification.get("restoredRepeatableBaseline"))
+    )
+    per_question_terminal_pass = (
+        len(question_rows) > 0
+        and per_question_terminal_count == len(question_rows)
+        and reviewer_count == len(question_rows)
+        and reviewed_at_count == len(question_rows)
+        and decision_count == len(question_rows)
+        and issue_link_count == len(question_rows)
+        and resolved_registry_count == len(question_rows)
+        and production_eligible_registry_count == len(question_rows)
+    )
+
+    blockers: list[str] = []
+    if not per_question_terminal_pass:
+        blockers.append("2016_2025_review_queue_terminal_status_not_present")
+        blockers.append("no_per_question_terminal_teacher_review_for_2015_2025")
+    if not review_actions_pass:
+        blockers.append("2015_review_smoke_restores_open_review_items")
+
+    return {
+        "status": "pass" if not blockers else "blocked",
+        "evidencePaths": [
+            REAL004_REPORT,
+            REAL005B_QUALITY_REVIEW_EVIDENCE_CSV,
+            REAL005B_QUALITY_REVIEW_REGISTRY_CSV,
+        ],
+        "blockers": blockers,
+        "questionCount": len(question_rows),
+        "perQuestionTerminalCount": per_question_terminal_count,
+        "reviewerCount": reviewer_count,
+        "reviewedAtCount": reviewed_at_count,
+        "decisionCount": decision_count,
+        "issueLinkCount": issue_link_count,
+        "resolvedRegistryCount": resolved_registry_count,
+        "productionEligibleRegistryCount": production_eligible_registry_count,
+        "decisionCounts": decision_counts,
+        "missingQuestionSample": missing_questions[:10],
+        "reviewActionsPass": review_actions_pass,
+    }
+
+
+def reviewed_source_detail_coverage_2016_2025(repo_root: Path) -> dict[str, Any]:
+    question_rows = read_csv(repo_root, REAL005B_QUALITY_QUESTION_CSV)
+    review_rows = read_csv(repo_root, REAL005B_QUALITY_REVIEW_EVIDENCE_CSV)
+    s006c = read_json(repo_root, S006C_SOURCE_REVIEW_REPORT)
+    real004 = read_json(repo_root, REAL004_REPORT)
+    latest_visibility_report_path = find_latest_json(repo_root, REAL005B_REVIEWED_VISIBILITY_GLOB)
+    visibility_report = read_json(repo_root, latest_visibility_report_path) if latest_visibility_report_path else None
+
+    question_id_set = {str(row["question_id"]).strip() for row in question_rows}
+    reviews_by_question: dict[str, list[dict[str, str]]] = {}
+    for row in review_rows:
+        question_id = str(row.get("question_id") or "").strip()
+        if question_id in question_id_set:
+            reviews_by_question.setdefault(question_id, []).append(row)
+
+    required_fields = [
+        "source_file",
+        "page",
+        "question_anchor",
+        "original_paper_file",
+        "original_paper_page",
+        "answer_source_file",
+        "answer_evidence_location",
+        "year_report_evidence_location",
+        "official_exam_point_summary",
+        "evidence_note",
+        "decision",
+    ]
+    per_question_source_detail_count = 0
+    missing_source_detail_questions: list[str] = []
+    for question_id in sorted(question_id_set):
+        rows = reviews_by_question.get(question_id, [])
+        if not rows:
+            missing_source_detail_questions.append(question_id)
+            continue
+        row = rows[0]
+        if all(str(row.get(field) or "").strip() for field in required_fields):
+            per_question_source_detail_count += 1
+        else:
+            missing_source_detail_questions.append(question_id)
+
+    real004_verification = real004.get("verification") or {}
+    real2015_source_review_pass = (
+        bool(real004_verification.get("canLoadQuestionSources"))
+        and bool(real004_verification.get("allReviewItemsHaveSourceScreenshotUrls"))
+        and bool(real004_verification.get("allReviewItemsHavePageScreenshotUrls"))
+    )
+    s006c_fallback_pass = (
+        s006c.get("status") == "pass"
+        and int(((s006c.get("fallbackCases") or {}).get("missingScreenshotStatus") or 0)) == 409
+        and int(((s006c.get("fallbackCases") or {}).get("notFoundStatus") or 0)) == 404
+    )
+    per_question_source_detail_pass = len(question_rows) > 0 and per_question_source_detail_count == len(question_rows)
+    reviewed_question_visibility_pass = bool(
+        visibility_report
+        and visibility_report.get("status") == "pass"
+        and visibility_report.get("hasApiVisible2016_2025ReviewedQuestions") is True
+    )
+
+    blockers: list[str] = []
+    if not per_question_source_detail_pass:
+        blockers.append("all_years_reviewed_question_terminal_status_required_before_save_source_review_closure")
+    if not reviewed_question_visibility_pass:
+        blockers.append("2016_2025_reviewed_questions_not_materialized_for_api_source_review")
+    elif not (real2015_source_review_pass and s006c_fallback_pass):
+        blockers.append("2016_2025_reviewed_question_save_and_source_detail_smoke_not_present")
+    else:
+        blockers.append("2016_2025_reviewed_question_save_and_source_detail_smoke_not_present")
+
+    return {
+        "status": "pass" if not blockers else "blocked",
+        "evidencePaths": [
+            REAL004_REPORT,
+            S006C_SOURCE_REVIEW_REPORT,
+            REAL005B_QUALITY_REVIEW_EVIDENCE_CSV,
+            *( [latest_visibility_report_path] if latest_visibility_report_path else [] ),
+        ],
+        "blockers": blockers,
+        "questionCount": len(question_rows),
+        "perQuestionSourceDetailCount": per_question_source_detail_count,
+        "missingSourceDetailQuestionSample": missing_source_detail_questions[:10],
+        "real2015SourceReviewPass": real2015_source_review_pass,
+        "s006cFallbackPass": s006c_fallback_pass,
+        "reviewedQuestionVisibilityPass": reviewed_question_visibility_pass,
+        "reviewedQuestionVisibilityEvidencePath": latest_visibility_report_path,
+    }
+
+
 def build_rg003(repo_root: Path, real001: dict[str, Any], real002: dict[str, Any], real003: dict[str, Any]) -> dict[str, Any]:
     details: list[dict[str, Any]] = []
     rows_2015 = build_2015_rows(real001, real002)
@@ -635,6 +831,8 @@ def build_static_criteria(real001: dict[str, Any], real002: dict[str, Any], real
     real005b_source_region_coverage = source_region_coverage_2016_2025(Path(__file__).resolve().parents[1])
     real005b_structured_coverage = structured_question_coverage_2016_2025(Path(__file__).resolve().parents[1])
     real005b_tagging_coverage = tagging_coverage_2016_2025(Path(__file__).resolve().parents[1])
+    real005b_review_terminal_coverage = review_terminal_coverage_2016_2025(Path(__file__).resolve().parents[1])
+    real005b_reviewed_source_detail_coverage = reviewed_source_detail_coverage_2016_2025(Path(__file__).resolve().parents[1])
 
     return {
         "RG005": {
@@ -726,34 +924,52 @@ def build_static_criteria(real001: dict[str, Any], real002: dict[str, Any], real
         },
         "RG008": {
             "criterionId": "RG008",
-            "status": "blocked",
-            "evidencePaths": [REAL004_REPORT, REAL011_REPORT],
-            "coveredScope": "2015 review action smoke only",
-            "blockers": [
-                "no_per_question_terminal_teacher_review_for_2015_2025",
-                "2015_review_smoke_restores_open_review_items",
-                "2016_2025_review_queue_terminal_status_not_present",
+            "status": "pass" if real005b_review_terminal_coverage["status"] == "pass" else "blocked",
+            "evidencePaths": [
+                REAL004_REPORT,
+                REAL011_REPORT,
+                *real005b_review_terminal_coverage["evidencePaths"],
             ],
+            "coveredScope": "2015 review action smoke plus 2016-2025 per-question terminal review evidence",
+            "blockers": []
+            if real005b_review_terminal_coverage["status"] == "pass"
+            else real005b_review_terminal_coverage["blockers"],
             "signals": {
                 "canConfirmWithAudit": bool(real004_verification.get("canConfirmWithAudit")),
                 "canSubmitTeacherRevisionWithAudit": bool(real004_verification.get("canSubmitTeacherRevisionWithAudit")),
                 "canReturnWithAudit": bool(real004_verification.get("canReturnWithAudit")),
+                "real2016_2025QuestionCount": real005b_review_terminal_coverage["questionCount"],
+                "real2016_2025PerQuestionTerminalCount": real005b_review_terminal_coverage["perQuestionTerminalCount"],
+                "real2016_2025ReviewerCount": real005b_review_terminal_coverage["reviewerCount"],
+                "real2016_2025ReviewedAtCount": real005b_review_terminal_coverage["reviewedAtCount"],
+                "real2016_2025DecisionCount": real005b_review_terminal_coverage["decisionCount"],
+                "real2016_2025ResolvedRegistryCount": real005b_review_terminal_coverage["resolvedRegistryCount"],
+                "real2016_2025ReviewActionsPass": real005b_review_terminal_coverage["reviewActionsPass"],
             },
         },
         "RG009": {
             "criterionId": "RG009",
-            "status": "blocked",
-            "evidencePaths": [REAL004_REPORT, REAL008_REPORT, REAL011_REPORT],
-            "coveredScope": "2015 source review/detail smoke only",
-            "blockers": [
-                "2016_2025_reviewed_question_save_and_source_detail_smoke_not_present",
-                "all_years_reviewed_question_terminal_status_required_before_save_source_review_closure",
+            "status": "pass" if real005b_reviewed_source_detail_coverage["status"] == "pass" else "blocked",
+            "evidencePaths": [
+                REAL004_REPORT,
+                REAL008_REPORT,
+                REAL011_REPORT,
+                *real005b_reviewed_source_detail_coverage["evidencePaths"],
             ],
+            "coveredScope": "2015 source review/detail smoke plus 2016-2025 reviewed-question source detail evidence",
+            "blockers": []
+            if real005b_reviewed_source_detail_coverage["status"] == "pass"
+            else real005b_reviewed_source_detail_coverage["blockers"],
             "signals": {
                 "canLoadQuestionSources": bool(real004_verification.get("canLoadQuestionSources")),
                 "allReviewItemsHaveSourceScreenshotUrls": bool(
                     real004_verification.get("allReviewItemsHaveSourceScreenshotUrls")
                 ),
+                "real2016_2025QuestionCount": real005b_reviewed_source_detail_coverage["questionCount"],
+                "real2016_2025PerQuestionSourceDetailCount": real005b_reviewed_source_detail_coverage["perQuestionSourceDetailCount"],
+                "real2016_2025SourceDetailFallbackPass": real005b_reviewed_source_detail_coverage["s006cFallbackPass"],
+                "real2016_2025SourceReviewPass": real005b_reviewed_source_detail_coverage["real2015SourceReviewPass"],
+                "real2016_2025ReviewedQuestionVisibilityPass": real005b_reviewed_source_detail_coverage["reviewedQuestionVisibilityPass"],
             },
         },
     }

@@ -25,6 +25,10 @@ try {
     if ($LASTEXITCODE -ne 0) {
         throw "REAL005B structured question evidence failed with exit code $LASTEXITCODE"
     }
+    & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005b-reviewed-question-visibility.ps1 | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        throw "REAL005B reviewed-question visibility evidence failed with exit code $LASTEXITCODE"
+    }
 
     $env:PYTHONIOENCODING = 'utf-8'
     [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)

@@ -10,7 +10,7 @@ REAL005 判定标准已安装并通过自检；当前真实状态是 not_closed�
 
 ## Closeout slices
 - REAL005A: status=pass; criteria=RG001, RG002; blockers=无; next=REAL005A evidence is ready for manual closeout review.
-- REAL005B: status=partial; criteria=RG003, RG004, RG005, RG006, RG007, RG008, RG009; blockers=RG008:no_per_question_terminal_teacher_review_for_2015_2025 | RG008:2015_review_smoke_restores_open_review_items | RG008:2016_2025_review_queue_terminal_status_not_present | RG009:2016_2025_reviewed_question_save_and_source_detail_smoke_not_present | RG009:all_years_reviewed_question_terminal_status_required_before_save_source_review_closure; next=REAL005B remains partial until RG004-RG009 have per-question source anchors, structured fields, teacher review terminal status, and source-review save/detail evidence.
+- REAL005B: status=partial; criteria=RG003, RG004, RG005, RG006, RG007, RG008, RG009; blockers=RG009:2016_2025_reviewed_questions_not_materialized_for_api_source_review; next=REAL005B remains partial until RG004-RG009 have per-question source anchors, structured fields, teacher review terminal status, and source-review save/detail evidence.
 - REAL005C: status=blocked_by_previous_slice; criteria=RG010, RG011, RG012, RG013, RG014, RG015, RG016; blockers=REAL005A and REAL005B remain open; usage/export/analysis closure cannot be promoted ahead of earlier slices.; next=Keep REAL005C blocked until source coverage and per-question review closure are both complete.
 - REAL005D: status=blocked; criteria=DOCS, README, GO_NO_GO_CARD; blockers=closureStatus remains not_closed; truthful docs must continue to say not_closed; next=Do not rewrite outward completion wording until REAL005A/B/C are all closed.
 
@@ -21,7 +21,7 @@ REAL005 判定标准已安装并通过自检；当前真实状态是 not_closed�
   - REAL005B3: status=pass; reported=pass; ready=True; criteria=RG005; blockers=无
   - REAL005B4: status=pass; reported=pass; ready=True; criteria=RG006; blockers=无
   - REAL005B5: status=pass; reported=pass; ready=True; criteria=RG007; blockers=无
-  - REAL005B6: status=blocked; reported=blocked; ready=True; criteria=RG008, RG009; blockers=RG008:no_per_question_terminal_teacher_review_for_2015_2025 | RG008:2015_review_smoke_restores_open_review_items | RG008:2016_2025_review_queue_terminal_status_not_present | RG009:2016_2025_reviewed_question_save_and_source_detail_smoke_not_present | RG009:all_years_reviewed_question_terminal_status_required_before_save_source_review_closure
+  - REAL005B6: status=blocked; reported=blocked; ready=True; criteria=RG008, RG009; blockers=RG009:2016_2025_reviewed_questions_not_materialized_for_api_source_review
 - REAL005C: next_detailed_slice=REAL005C1; ready=False
   - REAL005C1: status=blocked_by_previous_slice; reported=not_evaluated; ready=False; criteria=RG010; blockers=waiting_for_dependency:REAL005B6 | criteria_not_evaluated:RG010
   - REAL005C2: status=blocked_by_previous_slice; reported=not_evaluated; ready=False; criteria=RG011; blockers=waiting_for_dependency:REAL005C1 | criteria_not_evaluated:RG011

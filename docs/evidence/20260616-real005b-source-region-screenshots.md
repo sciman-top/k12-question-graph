@@ -1,7 +1,7 @@
 # REAL005B Source Region Screenshots
 
 - status: pass
-- checked_at: 2026-06-15T16:34:18.673886+00:00
+- checked_at: 2026-06-15T17:29:51.218432+00:00
 - file_root: `D:\KQG_Data\file_store`
 - rendered_pages: 79
 - visual_questions: 190

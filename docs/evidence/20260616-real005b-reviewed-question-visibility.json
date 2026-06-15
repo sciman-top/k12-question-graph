@@ -1,0 +1,88 @@
+{
+  "status": "pass",
+  "taskId": "REAL005B_REVIEWED_QUESTION_VISIBILITY",
+  "checkedAt": "2026-06-16T01:29:53",
+  "activeWrite": false,
+  "externalAiCalls": 0,
+  "realStudentDataUsed": false,
+  "sourceEvidence": [
+    "guangzhou-physics-full-research-package-2016-2025/csv/c003-evidence-index.csv",
+    "guangzhou-physics-full-research-package-2016-2025/quality-review-complete-csv-package/c003-quality-issue-review-evidence.csv",
+    "guangzhou-physics-full-research-package-2016-2025/quality-review-complete-csv-package/c003-quality-issue-registry.csv"
+  ],
+  "questionStatusCounts": [
+    {
+      "status": "draft",
+      "count": 8015
+    },
+    {
+      "status": "pending_review",
+      "count": 138
+    },
+    {
+      "status": "usable",
+      "count": 3
+    }
+  ],
+  "workflowStatusCounts": [
+    {
+      "workflowKey": "<null>",
+      "status": "draft",
+      "count": 8015
+    },
+    {
+      "workflowKey": "<null>",
+      "status": "pending_review",
+      "count": 117
+    },
+    {
+      "workflowKey": "guangzhou_2015_real_ingest_v1",
+      "status": "pending_review",
+      "count": 15
+    },
+    {
+      "workflowKey": "guangzhou_2015_real_ingest_v1",
+      "status": "usable",
+      "count": 3
+    },
+    {
+      "workflowKey": "guangzhou_2015_visual_region_v1",
+      "status": "pending_review",
+      "count": 6
+    }
+  ],
+  "usableQuestionSample": [
+    {
+      "id": "027acbf1-4692-49b1-9adb-5ae7f06e31a3",
+      "status": "usable",
+      "questionNo": 4,
+      "workflowKey": "guangzhou_2015_real_ingest_v1",
+      "sourceDocumentId": "650e9218-c910-40b2-8af3-d5690788ddb6"
+    },
+    {
+      "id": "84eac67d-c612-4ba5-bb7d-e871cbde356f",
+      "status": "usable",
+      "questionNo": 3,
+      "workflowKey": "guangzhou_2015_real_ingest_v1",
+      "sourceDocumentId": "650e9218-c910-40b2-8af3-d5690788ddb6"
+    },
+    {
+      "id": "ace44579-b70c-4c64-b36a-2852ba86ef97",
+      "status": "usable",
+      "questionNo": 2,
+      "workflowKey": "guangzhou_2015_real_ingest_v1",
+      "sourceDocumentId": "650e9218-c910-40b2-8af3-d5690788ddb6"
+    }
+  ],
+  "sourceDocumentCount2016_2025": 2,
+  "sourceRegionCount2016_2025": 1,
+  "guangzhouNon2015QuestionCount": 0,
+  "hasOnly2015UsableQuestions": true,
+  "hasApiVisible2016_2025ReviewedQuestions": false,
+  "visibilityClosureReady": false,
+  "blockers": [
+    "no_2016_2025_real_questions_materialized_into_question_items"
+  ],
+  "conclusion": "2016-2025 quality-review CSV evidence exists, but current database/API state does not expose reviewed real questions for RG009 save/detail/source-review smoke.",
+  "rollback": "No rollback required; this diagnostic is read-only."
+}
