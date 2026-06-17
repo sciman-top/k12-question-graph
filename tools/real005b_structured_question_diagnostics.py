@@ -8,6 +8,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from real005b_reviewed_question_materialize import is_formula_candidate, is_table_candidate
+
 
 CSV_ROOT = Path("guangzhou-physics-full-research-package-2016-2025/csv")
 QUALITY_ROOT = Path("guangzhou-physics-full-research-package-2016-2025/quality-review-complete-csv-package")
@@ -33,16 +35,6 @@ def is_image_like(row: dict[str, str]) -> bool:
     return any(token in text for token in ("图", "示意图", "作图", "画出", "实验", "描点", "连线"))
 
 
-def is_table_like(row: dict[str, str]) -> bool:
-    text = f"{row.get('stem_summary','')} {row.get('notes','')}"
-    return "表" in text
-
-
-def is_formula_like(row: dict[str, str]) -> bool:
-    text = f"{row.get('stem_summary','')} {row.get('notes','')}"
-    return any(token in text for token in ("公式", "U-I", "F=", "Q=", "v=", "R=", "I/A", "U/V"))
-
-
 def build_block_summary(row: dict[str, str], sub_rows: list[dict[str, str]], answer_rows: list[dict[str, str]]) -> dict[str, Any]:
     block_types: list[str] = ["stem"]
     if row.get("question_type") == "choice":
@@ -51,9 +43,9 @@ def build_block_summary(row: dict[str, str], sub_rows: list[dict[str, str]], ans
         block_types.append("subquestion")
     if answer_rows:
         block_types.append("answer")
-    if is_table_like(row):
+    if is_table_candidate(row):
         block_types.append("table_candidate")
-    if is_formula_like(row):
+    if is_formula_candidate(row):
         block_types.append("formula_candidate")
     if is_image_like(row):
         block_types.append("image_candidate")
@@ -70,8 +62,8 @@ def build_block_summary(row: dict[str, str], sub_rows: list[dict[str, str]], ans
         "subquestionCount": len(sub_rows),
         "answerCount": len(answer_rows),
         "imageLike": is_image_like(row),
-        "tableLike": is_table_like(row),
-        "formulaLike": is_formula_like(row),
+        "tableLike": is_table_candidate(row),
+        "formulaLike": is_formula_candidate(row),
         "notes": row.get("notes", ""),
     }
 

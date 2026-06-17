@@ -46,6 +46,7 @@ REAL009_REPORT = "docs/evidence/20260518-real009-table-structure-smoke-report.js
 REAL010_REPORT = "docs/evidence/20260518-real010-formula-fidelity-smoke-report.json"
 REAL011_REPORT = "docs/evidence/20260518-real011-question-edit-smoke-report.json"
 REAL005B_REVIEWED_VISIBILITY_GLOB = "docs/evidence/*-real005b-reviewed-question-visibility.json"
+REAL005B_REVIEWED_SOURCE_SMOKE_GLOB = "docs/evidence/*-real005b-reviewed-question-source-smoke.json"
 
 
 def read_json(repo_root: Path, relative_path: str) -> dict[str, Any]:
@@ -560,6 +561,8 @@ def reviewed_source_detail_coverage_2016_2025(repo_root: Path) -> dict[str, Any]
     real004 = read_json(repo_root, REAL004_REPORT)
     latest_visibility_report_path = find_latest_json(repo_root, REAL005B_REVIEWED_VISIBILITY_GLOB)
     visibility_report = read_json(repo_root, latest_visibility_report_path) if latest_visibility_report_path else None
+    latest_source_smoke_report_path = find_latest_json(repo_root, REAL005B_REVIEWED_SOURCE_SMOKE_GLOB)
+    source_smoke_report = read_json(repo_root, latest_source_smoke_report_path) if latest_source_smoke_report_path else None
 
     question_id_set = {str(row["question_id"]).strip() for row in question_rows}
     reviews_by_question: dict[str, list[dict[str, str]]] = {}
@@ -611,15 +614,19 @@ def reviewed_source_detail_coverage_2016_2025(repo_root: Path) -> dict[str, Any]
         and visibility_report.get("status") == "pass"
         and visibility_report.get("hasApiVisible2016_2025ReviewedQuestions") is True
     )
+    reviewed_question_source_smoke_pass = bool(
+        source_smoke_report
+        and source_smoke_report.get("status") == "pass"
+        and int(source_smoke_report.get("questionCount") or 0) == len(question_rows)
+        and bool(source_smoke_report.get("sourceReviewPass"))
+    )
 
     blockers: list[str] = []
     if not per_question_source_detail_pass:
         blockers.append("all_years_reviewed_question_terminal_status_required_before_save_source_review_closure")
     if not reviewed_question_visibility_pass:
         blockers.append("2016_2025_reviewed_questions_not_materialized_for_api_source_review")
-    elif not (real2015_source_review_pass and s006c_fallback_pass):
-        blockers.append("2016_2025_reviewed_question_save_and_source_detail_smoke_not_present")
-    else:
+    if not (real2015_source_review_pass and s006c_fallback_pass and reviewed_question_source_smoke_pass):
         blockers.append("2016_2025_reviewed_question_save_and_source_detail_smoke_not_present")
 
     return {
@@ -628,7 +635,8 @@ def reviewed_source_detail_coverage_2016_2025(repo_root: Path) -> dict[str, Any]
             REAL004_REPORT,
             S006C_SOURCE_REVIEW_REPORT,
             REAL005B_QUALITY_REVIEW_EVIDENCE_CSV,
-            *( [latest_visibility_report_path] if latest_visibility_report_path else [] ),
+            *([latest_visibility_report_path] if latest_visibility_report_path else []),
+            *([latest_source_smoke_report_path] if latest_source_smoke_report_path else []),
         ],
         "blockers": blockers,
         "questionCount": len(question_rows),
@@ -638,6 +646,8 @@ def reviewed_source_detail_coverage_2016_2025(repo_root: Path) -> dict[str, Any]
         "s006cFallbackPass": s006c_fallback_pass,
         "reviewedQuestionVisibilityPass": reviewed_question_visibility_pass,
         "reviewedQuestionVisibilityEvidencePath": latest_visibility_report_path,
+        "reviewedQuestionSourceSmokePass": reviewed_question_source_smoke_pass,
+        "reviewedQuestionSourceSmokeEvidencePath": latest_source_smoke_report_path,
     }
 
 

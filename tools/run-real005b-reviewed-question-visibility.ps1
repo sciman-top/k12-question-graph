@@ -64,6 +64,14 @@ function ConvertTo-RowObjects([string[]] $Rows, [string[]] $Columns) {
     return $result
 }
 
+function ConvertTo-ScalarInt([string[]] $Rows) {
+    if ($Rows.Count -le 0) {
+        return 0
+    }
+
+    return [int]([string]($Rows | Select-Object -First 1)).Trim()
+}
+
 $statusRows = ConvertTo-RowObjects `
     -Rows (Invoke-QueryRows "select status, count(*) from question_items group by status order by status;") `
     -Columns @('status', 'count')
@@ -101,10 +109,10 @@ from question_items
 where coalesce(custom_fields->>'sourceWorkflowKey','') like 'guangzhou_%'
   and coalesce(custom_fields->>'sourceWorkflowKey','') not in ('guangzhou_2015_real_ingest_v1','guangzhou_2015_visual_region_v1');
 "@
-$guangzhouNon2015QuestionCount = if ($guangzhouNon2015Rows.Count -gt 0) { [int]([string]$guangzhouNon2015Rows[0]).Trim() } else { 0 }
+$guangzhouNon2015QuestionCount = ConvertTo-ScalarInt $guangzhouNon2015Rows
 
 $sourceDocumentRows = Invoke-QueryRows "select count(*) from source_documents where year between 2016 and 2025;"
-$sourceDocumentCount2016_2025 = if ($sourceDocumentRows.Count -gt 0) { [int]([string]$sourceDocumentRows[0]).Trim() } else { 0 }
+$sourceDocumentCount2016_2025 = ConvertTo-ScalarInt $sourceDocumentRows
 
 $sourceRegionRows = Invoke-QueryRows @"
 select count(*)
@@ -112,7 +120,7 @@ from source_regions sr
 join source_documents sd on sd.id = sr.source_document_id
 where sd.year between 2016 and 2025;
 "@
-$sourceRegionCount2016_2025 = if ($sourceRegionRows.Count -gt 0) { [int]([string]$sourceRegionRows[0]).Trim() } else { 0 }
+$sourceRegionCount2016_2025 = ConvertTo-ScalarInt $sourceRegionRows
 
 $usableWorkflowSet = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
 foreach ($row in $usableRows) {

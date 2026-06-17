@@ -254,7 +254,22 @@ foreach ($parent in @('REAL005','P001','P003','P005','P006')) {
     $nextOpen = @($planRows | Where-Object { [string] $_.parent_id -eq $parent -and [string] $_.status -ne '已完成' } | Select-Object -First 1)
     $nextOpenByParent[$parent] = if ($nextOpen.Count -gt 0) { [string] $nextOpen[0].id } else { 'none' }
 }
-$expectedReal005NextOpen = if ($real005ASliceStatus -eq 'pass') { 'REAL005B' } else { 'REAL005A' }
+$real005BSliceStatus = [string] $real005SliceCoverage.REAL005B.status
+$real005CSliceStatus = [string] $real005SliceCoverage.REAL005C.status
+$expectedReal005NextOpen = if ($real005ASliceStatus -ne 'pass') {
+    'REAL005A'
+}
+elseif ($real005BSliceStatus -ne 'pass') {
+    'REAL005B'
+}
+else {
+    if ($real005CSliceStatus -eq 'pass') {
+        'REAL005D'
+    }
+    else {
+        'REAL005C'
+    }
+}
 Assert-True ($nextOpenByParent['REAL005'] -eq $expectedReal005NextOpen) "closeout plan REAL005 next open mismatch: expected $expectedReal005NextOpen, actual $($nextOpenByParent['REAL005'])"
 
 $checkedAt = (Get-Date).ToString('s')

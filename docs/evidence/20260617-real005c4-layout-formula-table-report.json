@@ -1,0 +1,146 @@
+{
+  "status": "pass",
+  "taskId": "REAL005C4_LAYOUT_FORMULA_TABLE",
+  "checkedAt": "2026-06-17T21:09:25",
+  "activeWrite": false,
+  "externalAiCalls": 0,
+  "realStudentDataUsed": false,
+  "criterionIds": [
+    "RG013",
+    "RG014",
+    "RG015"
+  ],
+  "criteriaStatus": {
+    "RG013": "pass",
+    "RG014": "pass",
+    "RG015": "pass"
+  },
+  "evidence": {
+    "sourceRegionReport": "docs/evidence/20260617-real005b-source-region-screenshots.json",
+    "materializeReport": "docs/evidence/20260617-real005b-reviewed-question-materialize.json",
+    "real007Report": "docs/evidence/20260516-real007-guangzhou-2015-layout-quality-report.json"
+  },
+  "layoutNoise": {
+    "sourceRegionCoveragePass": true,
+    "renderedPages": 79,
+    "visualQuestions": 190,
+    "retainedQuestionPageCount": 210,
+    "inheritedNoiseRegionKinds": [
+      "binding_line",
+      "exam_instructions",
+      "footer_page_number",
+      "top_margin"
+    ],
+    "blocker": null
+  },
+  "formulaFidelity": {
+    "formulaBlockCount": 56,
+    "reviewQueueCount": 56,
+    "distinctQuestionCount": 11,
+    "scannedFormulaCandidateCount": 56,
+    "fallbackCoverageCount": 56,
+    "sampleBlocks": [
+      {
+        "questionNo": 14,
+        "blockId": "cc20c194-70c8-5f72-832d-e34c9b52854a",
+        "sourceFormat": "scanned_formula_candidate",
+        "confidence": 0.76,
+        "reviewStatus": "pending_review",
+        "fallbackImageUrl": "/source-regions/c80d46f2-7045-4442-b85c-45eacf289621/screenshot"
+      },
+      {
+        "questionNo": 14,
+        "blockId": "a0bb2f31-d418-5cb7-a2e5-f839081322a7",
+        "sourceFormat": "scanned_formula_candidate",
+        "confidence": 0.86,
+        "reviewStatus": "pending_review",
+        "fallbackImageUrl": "/source-regions/e4818f1a-cdea-4674-931a-8b1678491336/screenshot"
+      },
+      {
+        "questionNo": 14,
+        "blockId": "1e27ed5a-6dd6-5a9f-8b29-4cd2b622df68",
+        "sourceFormat": "scanned_formula_candidate",
+        "confidence": 0.76,
+        "reviewStatus": "pending_review",
+        "fallbackImageUrl": "/source-regions/cebebb5e-fc0e-4d4e-a59d-e50edcee78ec/screenshot"
+      },
+      {
+        "questionNo": 14,
+        "blockId": "3b5f9199-3587-56c4-a2a5-60e4aa2f5b26",
+        "sourceFormat": "scanned_formula_candidate",
+        "confidence": 0.86,
+        "reviewStatus": "pending_review",
+        "fallbackImageUrl": "/source-regions/06a31f01-ba76-4a77-8e0f-9d754a2c35c8/screenshot"
+      },
+      {
+        "questionNo": 14,
+        "blockId": "94b4ffad-f3db-5339-8135-938567a593c3",
+        "sourceFormat": "scanned_formula_candidate",
+        "confidence": 0.86,
+        "reviewStatus": "pending_review",
+        "fallbackImageUrl": "/source-regions/5e89ab35-1e84-4825-84d2-dddfbd7493fa/screenshot"
+      }
+    ]
+  },
+  "tableStructuring": {
+    "tableBlockCount": 20,
+    "reviewQueueCount": 20,
+    "distinctQuestionCount": 13,
+    "rowsColumnsCoverageCount": 20,
+    "sampleBlocks": [
+      {
+        "questionNo": 2,
+        "blockId": "3c52358b-b3c2-578c-bd2f-02cde13d74d9",
+        "caption": "表格候选",
+        "columnCount": 1,
+        "rowCount": 1,
+        "confidence": 0.79,
+        "reviewStatus": "pending_review",
+        "sourceRegionId": "617f2a88-957f-47cb-87f9-8e9598bd6db3"
+      },
+      {
+        "questionNo": 4,
+        "blockId": "f1807bf7-b4cd-5f8b-863f-f1e940316408",
+        "caption": "表格候选",
+        "columnCount": 1,
+        "rowCount": 1,
+        "confidence": 0.79,
+        "reviewStatus": "pending_review",
+        "sourceRegionId": "888ba978-d8a4-4e79-b346-41d5f2fae8a8"
+      },
+      {
+        "questionNo": 5,
+        "blockId": "1081eb2b-70d9-5b1a-83a5-a25b92564b96",
+        "caption": "表格候选",
+        "columnCount": 1,
+        "rowCount": 1,
+        "confidence": 0.79,
+        "reviewStatus": "pending_review",
+        "sourceRegionId": "3b83ee5f-baa1-4672-9bf3-b282c744a71f"
+      },
+      {
+        "questionNo": 8,
+        "blockId": "323dc5d9-8f84-599a-b6a6-b746c2560e96",
+        "caption": "表 1",
+        "columnCount": 1,
+        "rowCount": 1,
+        "confidence": 0.79,
+        "reviewStatus": "pending_review",
+        "sourceRegionId": "cf197809-3d01-4186-a193-34d4310a4c3d"
+      },
+      {
+        "questionNo": 10,
+        "blockId": "3146117d-021c-5cfc-99a4-7acddeb27629",
+        "caption": "表格候选",
+        "columnCount": 1,
+        "rowCount": 2,
+        "confidence": 0.76,
+        "reviewStatus": "pending_review",
+        "sourceRegionId": "6477b8bc-5f6a-478c-ad9f-d51947fc87a9"
+      }
+    ]
+  },
+  "blockers": [],
+  "boundary": "Repo-side REAL005C4 report only. It proves source-page based noise exclusion coverage and current DB/API-visible formula/table candidate structure for 2016-2025 reviewed questions. REAL005 remains not_closed until RG016 and REAL005D also pass.",
+  "summaryChinese": "REAL005C4 repo-side 证据已刷新：2016-2025 reviewed 真题现在具备题目页截图覆盖，并在库中暴露 20 个 table block 与 56 个 formula block 候选，二者都保留 reviewStatus，公式候选带 fallbackImageUrl；但 REAL005 仍保持 not_closed。"
+}

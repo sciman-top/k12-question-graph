@@ -1,0 +1,110 @@
+{
+  "status": "pass",
+  "taskId": "REAL005C2_REAL_QUESTION_ANALYSIS_REFERENCE_SMOKE",
+  "criterionId": "RG011",
+  "rg011Status": "pass",
+  "checkedAt": "2026-06-17T20:14:18",
+  "requestedApiPort": 0,
+  "resolvedApiPort": 11444,
+  "portFallbackApplied": true,
+  "apiUrl": "http://127.0.0.1:11444",
+  "workflowKey": "guangzhou_2016_2025_reviewed_question_materialize_v1",
+  "activeWrite": true,
+  "externalAiCalls": 0,
+  "realStudentDataUsed": false,
+  "productionEligible": false,
+  "assessmentId": "c60640a7-1966-4cb2-aa0f-b243212771a6",
+  "sampleStrategy": {
+    "successYears": [
+      2016,
+      2017,
+      2018,
+      2019
+    ],
+    "successSampleCount": 4,
+    "anomalyYear": 2021,
+    "anomalyQuestionNo": 2
+  },
+  "promotedSuccessSamples": [
+    {
+      "year": 2016,
+      "questionNo": 1,
+      "questionItemId": "76b13724-4f88-595e-9e0a-182881032abe",
+      "auditId": "e31e2774-6940-42f8-9f54-247c816733c2",
+      "status": "usable",
+      "primaryKnowledgeId": "8c884814-7be0-4a7d-a442-fe56a4c7f8ef"
+    },
+    {
+      "year": 2017,
+      "questionNo": 1,
+      "questionItemId": "4f2f9375-0fea-5ed2-84ac-47fa4b50457e",
+      "auditId": "b61a30ea-2753-46ea-8883-fa47f0df6443",
+      "status": "usable",
+      "primaryKnowledgeId": "8c884814-7be0-4a7d-a442-fe56a4c7f8ef"
+    },
+    {
+      "year": 2018,
+      "questionNo": 1,
+      "questionItemId": "b5669abe-c2eb-5a8b-ae6b-69f938ab1d5e",
+      "auditId": "47f7a2a3-566a-4df1-b59b-541ddc6a6836",
+      "status": "usable",
+      "primaryKnowledgeId": "8c884814-7be0-4a7d-a442-fe56a4c7f8ef"
+    },
+    {
+      "year": 2019,
+      "questionNo": 1,
+      "questionItemId": "a173c25f-3f61-545c-aff3-73eaac8eb4c4",
+      "auditId": "0cc7271c-4802-49b4-8620-d8e2819e841e",
+      "status": "usable",
+      "primaryKnowledgeId": "8c884814-7be0-4a7d-a442-fe56a4c7f8ef"
+    }
+  ],
+  "anomalySample": {
+    "year": 2021,
+    "questionNo": 2,
+    "questionItemId": "382e3d25-6ecf-5ffb-948c-09df7218bb2d"
+  },
+  "scoreImport": {
+    "status": "imported",
+    "assessmentId": "c60640a7-1966-4cb2-aa0f-b243212771a6",
+    "importedCount": 3,
+    "rowCount": 3,
+    "errorCount": 0,
+    "productionEligible": false,
+    "realStudentDataUsed": false
+  },
+  "mappingPreview": {
+    "mappedCount": 4,
+    "unclearCount": 0,
+    "writesProductionHistory": false
+  },
+  "successExport": {
+    "status": "ready",
+    "writesProductionHistory": false,
+    "allowAiDraftText": false,
+    "weakKnowledgePointCount": 3,
+    "practiceSuggestionCount": 3,
+    "blockingIssueCount": 0,
+    "artifactPath": "draft://commentary-reports/c60640a719664cb2aa0fb243212771a6.md",
+    "manifestSha256": "d2b456da3cd2b3250dfaa343c5894634f7aee057b408838a031aa6ba4acf0f60",
+    "auditTrail": [
+      "deterministic_score_metrics",
+      "draft_commentary_report_export",
+      "no_real_student_data",
+      "no_production_history_write",
+      "no_ai_runtime_dependency"
+    ]
+  },
+  "blockedExport": {
+    "status": "blocked",
+    "writesProductionHistory": false,
+    "allowAiDraftText": false,
+    "blockingIssueCodes": [
+      "knowledge_mapping_missing",
+      "question_mapping_missing"
+    ]
+  },
+  "rollbackSql": "begin;\r\ndelete from item_scores where score_record_id in (select id from score_records where assessment_id = 'c60640a7-1966-4cb2-aa0f-b243212771a6');\r\ndelete from score_records where assessment_id = 'c60640a7-1966-4cb2-aa0f-b243212771a6';\r\ndelete from score_import_batches where assessment_id = 'c60640a7-1966-4cb2-aa0f-b243212771a6';\r\ndelete from students where metadata::text like '%S011A%' and student_key like 's011a-student-%';\r\ndelete from assessments where id = 'c60640a7-1966-4cb2-aa0f-b243212771a6';\r\ndelete from score_import_templates where template_key like 'real005c2-score-template-v1%';\r\ndelete from review_queue_items where payload::text like '%real005c2_analysis_reference_smoke%';\r\ndelete from knowledge_mappings where question_item_id in ('76b13724-4f88-595e-9e0a-182881032abe', '4f2f9375-0fea-5ed2-84ac-47fa4b50457e', 'b5669abe-c2eb-5a8b-ae6b-69f938ab1d5e', 'a173c25f-3f61-545c-aff3-73eaac8eb4c4') and knowledge_node_id = '8c884814-7be0-4a7d-a442-fe56a4c7f8ef';\r\nupdate question_items set status = 'usable', primary_knowledge_id = 'c872758e-5a0f-48df-83f6-af6524a5bf8c', custom_fields = '{\"answer\": {\"value\": \"D\", \"sourceFile\": \"2016广州中考答案.pdf\"}, \"reviewer\": \"chatgpt_web_document_review\", \"solution\": {\"text\": \"RG010 导出预检抽样解析：已审核答案为 D；本解析仅用于 repo-side 检索/题篮/导出链 smoke，不代表全量解析治理完成。\", \"source\": \"real005c1_search_paper_export_smoke\", \"reviewStatus\": \"draft\"}, \"questionNo\": 1, \"reviewedAt\": \"2026-05-03T17:01:55\", \"sourceFile\": \"2016广州中考.pdf\", \"reviewDecision\": \"resolved_with_unavailable_or_unextracted_fields\", \"sourceDocumentId\": \"bced0159-4568-4814-ba9d-82f19fbf0493\", \"sourceWorkflowKey\": \"guangzhou_2016_2025_reviewed_question_materialize_v1\", \"officialExamPointSummary\": \"考查的科学内容：“运动和相互作用”主题\", \"yearReportEvidenceLocation\": \"年报p2;文档核验:2016Q01逐题分析\"}'::jsonb where id = '76b13724-4f88-595e-9e0a-182881032abe';\r\nupdate question_items set status = 'usable', primary_knowledge_id = 'c872758e-5a0f-48df-83f6-af6524a5bf8c', custom_fields = '{\"answer\": {\"value\": \"B\", \"sourceFile\": \"2017广州中考答案.pdf\"}, \"reviewer\": \"chatgpt_web_document_review\", \"solution\": {\"text\": \"RG010 导出预检抽样解析：已审核答案为 B；本解析仅用于 repo-side 检索/题篮/导出链 smoke，不代表全量解析治理完成。\", \"source\": \"real005c1_search_paper_export_smoke\", \"reviewStatus\": \"draft\"}, \"questionNo\": 1, \"reviewedAt\": \"2026-05-03T17:01:55\", \"sourceFile\": \"2017广州中考.pdf\", \"reviewDecision\": \"resolved_with_unavailable_or_unextracted_fields\", \"sourceDocumentId\": \"a2972de8-f2d2-4f96-baff-63038be89150\", \"sourceWorkflowKey\": \"guangzhou_2016_2025_reviewed_question_materialize_v1\", \"officialExamPointSummary\": \"考查的科学内容：“物质”主题\", \"yearReportEvidenceLocation\": \"年报p2;文档核验:2017Q01逐题分析\"}'::jsonb where id = '4f2f9375-0fea-5ed2-84ac-47fa4b50457e';\r\nupdate question_items set status = 'usable', primary_knowledge_id = 'c872758e-5a0f-48df-83f6-af6524a5bf8c', custom_fields = '{\"answer\": {\"value\": \"D\", \"sourceFile\": \"2018广州中考答案.pdf\"}, \"reviewer\": \"chatgpt_web_document_review\", \"solution\": {\"text\": \"RG010 导出预检抽样解析：已审核答案为 D；本解析仅用于 repo-side 检索/题篮/导出链 smoke，不代表全量解析治理完成。\", \"source\": \"real005c1_search_paper_export_smoke\", \"reviewStatus\": \"draft\"}, \"questionNo\": 1, \"reviewedAt\": \"2026-05-03T17:01:55\", \"sourceFile\": \"2018广州中考.pdf\", \"reviewDecision\": \"resolved_with_unavailable_or_unextracted_fields\", \"sourceDocumentId\": \"82b67da3-8ab8-493f-abc3-61428e00d74f\", \"sourceWorkflowKey\": \"guangzhou_2016_2025_reviewed_question_materialize_v1\", \"officialExamPointSummary\": \"考查的科学内容：“运动和相互作用”主题\", \"yearReportEvidenceLocation\": \"年报p9;文档核验:2018Q01逐题分析\"}'::jsonb where id = 'b5669abe-c2eb-5a8b-ae6b-69f938ab1d5e';\r\nupdate question_items set status = 'usable', primary_knowledge_id = 'c872758e-5a0f-48df-83f6-af6524a5bf8c', custom_fields = '{\"answer\": {\"value\": \"D\", \"sourceFile\": \"2019广州中考答案.pdf\"}, \"reviewer\": \"chatgpt_web_document_review\", \"solution\": {\"text\": \"RG010 导出预检抽样解析：已审核答案为 D；本解析仅用于 repo-side 检索/题篮/导出链 smoke，不代表全量解析治理完成。\", \"source\": \"real005c1_search_paper_export_smoke\", \"reviewStatus\": \"draft\"}, \"questionNo\": 1, \"reviewedAt\": \"2026-05-03T17:01:55\", \"sourceFile\": \"2019广州中考.pdf\", \"reviewDecision\": \"resolved_with_unavailable_or_unextracted_fields\", \"sourceDocumentId\": \"e6394de7-0bb3-462f-801a-d762fa3e08ca\", \"sourceWorkflowKey\": \"guangzhou_2016_2025_reviewed_question_materialize_v1\", \"officialExamPointSummary\": \"考查的科学内容：“运动和相互作用”主题\", \"yearReportEvidenceLocation\": \"年报p10;文档核验:2019Q01逐题分析\"}'::jsonb where id = 'a173c25f-3f61-545c-aff3-73eaac8eb4c4';\r\nupdate question_items set status = 'usable', primary_knowledge_id = null, custom_fields = '{\"answer\": {\"value\": \"A\", \"sourceFile\": \"2021广州中考-参考答案.pdf\"}, \"reviewer\": \"chatgpt_web_document_review\", \"questionNo\": 2, \"reviewedAt\": \"2026-05-03T17:01:55\", \"sourceFile\": \"2021广州中考.pdf\", \"reviewDecision\": \"resolved_with_unavailable_or_unextracted_fields\", \"sourceDocumentId\": \"83e3e461-318b-4293-9fc4-63ddf9c5d0cf\", \"sourceWorkflowKey\": \"guangzhou_2016_2025_reviewed_question_materialize_v1\", \"officialExamPointSummary\": \"考查的科学内容：“物质”主题\", \"yearReportEvidenceLocation\": \"年报p5;文档核验:2021Q02逐题分析\"}'::jsonb where id = '382e3d25-6ecf-5ffb-948c-09df7218bb2d';\r\ndelete from knowledge_nodes where id = '8c884814-7be0-4a7d-a442-fe56a4c7f8ef';\r\ncommit;",
+  "boundary": "Repo-side RG011 smoke only: it proves reviewed real questions with active knowledge references can drive commentary export while a reviewed real question without primary knowledge is blocked by knowledge_mapping_missing. REAL005 must remain not_closed until RG012-RG016 also pass.",
+  "summaryChinese": "reviewed real questions now have repo-side RG011 evidence: active 知识版本样本可进入学情分析/讲评导出，缺 primary knowledge 的 reviewed real question 会被 knowledge_mapping_missing 阻断，且全程不写正式历史。"
+}

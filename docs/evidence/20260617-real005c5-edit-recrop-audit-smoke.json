@@ -1,0 +1,47 @@
+{
+  "status": "pass",
+  "taskId": "REAL005C5_EDIT_RECROP_AUDIT_SMOKE",
+  "criterionId": "RG016",
+  "rg016Status": "pass",
+  "checkedAt": "2026-06-17T22:03:38",
+  "requestedApiPort": 0,
+  "resolvedApiPort": 13506,
+  "portFallbackApplied": true,
+  "apiUrl": "http://127.0.0.1:13506",
+  "workflowKey": "guangzhou_2016_2025_reviewed_question_materialize_v1",
+  "activeWrite": true,
+  "externalAiCalls": 0,
+  "realStudentDataUsed": false,
+  "stateRestored": true,
+  "targetQuestion": {
+    "questionItemId": "4c10f6c8-06a0-5033-842a-a41f66ddaaec",
+    "questionNo": 17,
+    "sourceFile": "2019广州中考.pdf"
+  },
+  "auditedEdits": {
+    "questionRevisionAuditId": "03d2623c-c7cd-4cbf-93fc-986558d35633",
+    "sourceRegionRevisionAuditId": "01412df8-3dd7-4856-842d-ee5ea8d201a7",
+    "assetAssociateAuditId": "fccec863-01fa-4e4a-885d-20cc979af3d2",
+    "assetUnlinkAuditId": "8d7722f6-27e4-48e2-9749-e4a2fca1cf95",
+    "editedPrimaryKnowledgeId": "dd1e0d90-4329-4ce8-a6b7-b04e162c9b64",
+    "editedText": "17.(1)通过表 1､2 推断海拔五千多米处水的沸点可能是_________ A.75℃ B.83℃ C.92℃ D.100℃ 表 1:海拔与大气压的关系 表 2:大气压与水的沸点的关系 (2)如图 18 所示,瓶口扎上橡皮膜,把一定质量的气体密封在玻璃 瓶内.小明把此瓶从甲地带到海拔更高的乙地,发现橡皮膜向上凸出 2(如图 19).瓶内气体在甲地的密度为 ρ 甲,在乙地的密度为 ρ 乙,根据 公式 ρ= ,得 ρ 甲 ρ 乙(选填“>”､“=､“<”). [REAL005C5]",
+    "editedAnswer": "RG016 临时答案",
+    "editedSolution": "REAL005C5 原始解析占位 [REAL005C5]",
+    "editedFormulaTextCandidate": "RG016 公式候选已审计修改",
+    "editedTableCaption": "表 1 RG016",
+    "recropRegionType": "question_stem_revised"
+  },
+  "restoreAudits": {
+    "sourceRegionRestoreAuditId": "e2aa5f83-47b7-40a1-8be1-2fbc40faf875",
+    "materializeRestoreReport": "docs/evidence/20260617-real005b-reviewed-question-materialize.json",
+    "questionRestoreAuditId": "84d185c1-7291-4503-a5bd-ec0749ee48d2",
+    "knowledgeCleanup": "clearPrimaryKnowledge=true via PATCH /questions/{id}"
+  },
+  "auditQueryCoverage": {
+    "questionRevisionCount": 6,
+    "sourceRegionRevisionCount": 2,
+    "assetRevisionCount": 7
+  },
+  "boundary": "Repo-side RG016 smoke only. It proves one reviewed 2016-2025 real question can pass through audited text/answer/solution/primary-knowledge/formula/table edits, source-region recrop, and figure asset associate-unlink paths. Business state is restored by audited recrop restore plus repo-side reviewed-question rematerialization and targeted mapping cleanup. REAL005 remains not_closed until REAL005D outward closeout wording is also refreshed truthfully.",
+  "summaryChinese": "REAL005C5 repo-side 证据已生成：一条真实 reviewed 真题已经验证题干、答案、解析、主知识点标签、公式、表格、来源框重裁、题图关联/解除都能产生 audit；脚本结束前已通过来源框恢复、reviewed question 重物化和定向 mapping 清理把业务状态恢复原样。"
+}

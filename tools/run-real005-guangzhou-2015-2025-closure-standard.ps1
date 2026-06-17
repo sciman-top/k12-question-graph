@@ -5,6 +5,11 @@ param(
     [string] $DetailedSlicePlanPath = 'tasks/real005-detailed-slice-plan.csv',
     [string] $YearlyAdapterDiagnosticsPath = '',
     [string] $QuestionStructureDiagnosticsPath = '',
+    [string] $Real005C1SearchPaperExportSmokePath = '',
+    [string] $Real005C2AnalysisReferenceSmokePath = '',
+    [string] $Real005C3RollbackPrivacyReportPath = '',
+    [string] $Real005C4LayoutFormulaTableReportPath = '',
+    [string] $Real005C5EditRecropAuditSmokePath = '',
     [string] $JsonReportPath = '',
     [string] $MarkdownReportPath = ''
 )
@@ -448,6 +453,71 @@ if ([string]::IsNullOrWhiteSpace($QuestionStructureDiagnosticsPath)) {
 
 $questionStructureDiagnostics = if ([string]::IsNullOrWhiteSpace($QuestionStructureDiagnosticsPath)) { $null } else { Try-ReadJson $QuestionStructureDiagnosticsPath }
 
+if ([string]::IsNullOrWhiteSpace($Real005C1SearchPaperExportSmokePath)) {
+    $latestReal005C1Smoke = @(
+        Get-ChildItem -LiteralPath (Resolve-RepoPath 'docs/evidence') -Filter '*-real005c1-real-question-search-paper-export-smoke.json' -File -ErrorAction SilentlyContinue |
+            Sort-Object Name -Descending |
+            Select-Object -First 1
+    )
+    if ($latestReal005C1Smoke.Count -eq 1) {
+        $Real005C1SearchPaperExportSmokePath = [System.IO.Path]::GetRelativePath($repoRoot, $latestReal005C1Smoke[0].FullName).Replace('\', '/')
+    }
+}
+
+$real005C1SearchPaperExportSmoke = if ([string]::IsNullOrWhiteSpace($Real005C1SearchPaperExportSmokePath)) { $null } else { Try-ReadJson $Real005C1SearchPaperExportSmokePath }
+
+if ([string]::IsNullOrWhiteSpace($Real005C2AnalysisReferenceSmokePath)) {
+    $latestReal005C2Smoke = @(
+        Get-ChildItem -LiteralPath (Resolve-RepoPath 'docs/evidence') -Filter '*-real005c2-real-question-analysis-reference-smoke.json' -File -ErrorAction SilentlyContinue |
+            Sort-Object Name -Descending |
+            Select-Object -First 1
+    )
+    if ($latestReal005C2Smoke.Count -eq 1) {
+        $Real005C2AnalysisReferenceSmokePath = [System.IO.Path]::GetRelativePath($repoRoot, $latestReal005C2Smoke[0].FullName).Replace('\', '/')
+    }
+}
+
+$real005C2AnalysisReferenceSmoke = if ([string]::IsNullOrWhiteSpace($Real005C2AnalysisReferenceSmokePath)) { $null } else { Try-ReadJson $Real005C2AnalysisReferenceSmokePath }
+
+if ([string]::IsNullOrWhiteSpace($Real005C3RollbackPrivacyReportPath)) {
+    $latestReal005C3Report = @(
+        Get-ChildItem -LiteralPath (Resolve-RepoPath 'docs/evidence') -Filter '*-real005c3-rollback-privacy-no-active-write-report.json' -File -ErrorAction SilentlyContinue |
+            Sort-Object Name -Descending |
+            Select-Object -First 1
+    )
+    if ($latestReal005C3Report.Count -eq 1) {
+        $Real005C3RollbackPrivacyReportPath = [System.IO.Path]::GetRelativePath($repoRoot, $latestReal005C3Report[0].FullName).Replace('\', '/')
+    }
+}
+
+$real005C3RollbackPrivacyReport = if ([string]::IsNullOrWhiteSpace($Real005C3RollbackPrivacyReportPath)) { $null } else { Try-ReadJson $Real005C3RollbackPrivacyReportPath }
+
+if ([string]::IsNullOrWhiteSpace($Real005C4LayoutFormulaTableReportPath)) {
+    $latestReal005C4Report = @(
+        Get-ChildItem -LiteralPath (Resolve-RepoPath 'docs/evidence') -Filter '*-real005c4-layout-formula-table-report.json' -File -ErrorAction SilentlyContinue |
+            Sort-Object Name -Descending |
+            Select-Object -First 1
+    )
+    if ($latestReal005C4Report.Count -eq 1) {
+        $Real005C4LayoutFormulaTableReportPath = [System.IO.Path]::GetRelativePath($repoRoot, $latestReal005C4Report[0].FullName).Replace('\', '/')
+    }
+}
+
+$real005C4LayoutFormulaTableReport = if ([string]::IsNullOrWhiteSpace($Real005C4LayoutFormulaTableReportPath)) { $null } else { Try-ReadJson $Real005C4LayoutFormulaTableReportPath }
+
+if ([string]::IsNullOrWhiteSpace($Real005C5EditRecropAuditSmokePath)) {
+    $latestReal005C5Report = @(
+        Get-ChildItem -LiteralPath (Resolve-RepoPath 'docs/evidence') -Filter '*-real005c5-edit-recrop-audit-smoke.json' -File -ErrorAction SilentlyContinue |
+            Sort-Object Name -Descending |
+            Select-Object -First 1
+    )
+    if ($latestReal005C5Report.Count -eq 1) {
+        $Real005C5EditRecropAuditSmokePath = [System.IO.Path]::GetRelativePath($repoRoot, $latestReal005C5Report[0].FullName).Replace('\', '/')
+    }
+}
+
+$real005C5EditRecropAuditSmoke = if ([string]::IsNullOrWhiteSpace($Real005C5EditRecropAuditSmokePath)) { $null } else { Try-ReadJson $Real005C5EditRecropAuditSmokePath }
+
 $knownEvidence = [ordered]@{
     REAL001 = @(
         'docs/evidence/20260512-guangzhou-2015-real-ingest-slice-report.json',
@@ -590,7 +660,12 @@ elseif ($null -ne $questionStructureDiagnostics -and [string]$questionStructureD
         $criteriaStatus[$criterionId] = if ($null -eq $criterion) { 'missing' } else { [string]$criterion.status }
     }
     $real005BCoverage['criteriaStatus'] = $criteriaStatus
-    $real005BCoverage['next'] = 'REAL005B remains partial until RG004-RG009 have per-question source anchors, structured fields, teacher review terminal status, and source-review save/detail evidence.'
+    $real005BCoverage['next'] = if ([string]$questionStructureDiagnostics.real005BStatus -eq 'pass') {
+        'REAL005B repo-side evidence is complete; advance REAL005C with real question search/export/analysis and rollback/privacy coverage.'
+    }
+    else {
+        'REAL005B remains partial until RG004-RG009 have per-question source anchors, structured fields, teacher review terminal status, and source-review save/detail evidence.'
+    }
 }
 else {
     $real005BCoverage['status'] = 'blocked'
@@ -603,10 +678,131 @@ $sliceCoverage.Add('REAL005B', $real005BCoverage)
 
 $real005CCoverage = @{}
 $real005CCoverage['criteriaIds'] = @('RG010', 'RG011', 'RG012', 'RG013', 'RG014', 'RG015', 'RG016')
-$real005CCoverage['status'] = 'blocked_by_previous_slice'
-$real005CCoverage['blockers'] = @('REAL005A and REAL005B remain open; usage/export/analysis closure cannot be promoted ahead of earlier slices.')
-$real005CCoverage['evidencePaths'] = @('docs/evidence/20260518-real012-production-flow-quality-report.json', 'docs/evidence/20260516-real007-guangzhou-2015-layout-quality-report.json')
-$real005CCoverage['next'] = 'Keep REAL005C blocked until source coverage and per-question review closure are both complete.'
+$real005CEvidencePaths = @('docs/evidence/20260518-real012-production-flow-quality-report.json', 'docs/evidence/20260516-real007-guangzhou-2015-layout-quality-report.json')
+if (-not [string]::IsNullOrWhiteSpace($Real005C1SearchPaperExportSmokePath)) {
+    $real005CEvidencePaths += $Real005C1SearchPaperExportSmokePath
+}
+if (-not [string]::IsNullOrWhiteSpace($Real005C2AnalysisReferenceSmokePath)) {
+    $real005CEvidencePaths += $Real005C2AnalysisReferenceSmokePath
+}
+if (-not [string]::IsNullOrWhiteSpace($Real005C3RollbackPrivacyReportPath)) {
+    $real005CEvidencePaths += $Real005C3RollbackPrivacyReportPath
+}
+if (-not [string]::IsNullOrWhiteSpace($Real005C4LayoutFormulaTableReportPath)) {
+    $real005CEvidencePaths += $Real005C4LayoutFormulaTableReportPath
+}
+if (-not [string]::IsNullOrWhiteSpace($Real005C5EditRecropAuditSmokePath)) {
+    $real005CEvidencePaths += $Real005C5EditRecropAuditSmokePath
+}
+$real005CCoverage['evidencePaths'] = @($real005CEvidencePaths | Sort-Object -Unique)
+$real005CCriterionStatus = [ordered]@{
+    RG010 = if ($null -ne $real005C1SearchPaperExportSmoke -and [string]$real005C1SearchPaperExportSmoke.status -eq 'pass' -and [string]$real005C1SearchPaperExportSmoke.rg010Status -eq 'pass') { 'pass' } else { 'not_evaluated' }
+    RG011 = if ($null -ne $real005C2AnalysisReferenceSmoke -and [string]$real005C2AnalysisReferenceSmoke.status -eq 'pass' -and [string]$real005C2AnalysisReferenceSmoke.rg011Status -eq 'pass') { 'pass' } else { 'not_evaluated' }
+    RG012 = if ($null -ne $real005C3RollbackPrivacyReport -and [string]$real005C3RollbackPrivacyReport.status -eq 'pass' -and [string]$real005C3RollbackPrivacyReport.rg012Status -eq 'pass') { 'pass' } else { 'not_evaluated' }
+    RG013 = if ($null -ne $real005C4LayoutFormulaTableReport -and [string]$real005C4LayoutFormulaTableReport.status -eq 'pass') { [string]$real005C4LayoutFormulaTableReport.criteriaStatus.RG013 } else { 'not_evaluated' }
+    RG014 = if ($null -ne $real005C4LayoutFormulaTableReport -and [string]$real005C4LayoutFormulaTableReport.status -eq 'pass') { [string]$real005C4LayoutFormulaTableReport.criteriaStatus.RG014 } else { 'not_evaluated' }
+    RG015 = if ($null -ne $real005C4LayoutFormulaTableReport -and [string]$real005C4LayoutFormulaTableReport.status -eq 'pass') { [string]$real005C4LayoutFormulaTableReport.criteriaStatus.RG015 } else { 'not_evaluated' }
+    RG016 = if ($null -ne $real005C5EditRecropAuditSmoke -and [string]$real005C5EditRecropAuditSmoke.status -eq 'pass' -and [string]$real005C5EditRecropAuditSmoke.rg016Status -eq 'pass') { 'pass' } else { 'not_evaluated' }
+}
+$real005CCoverage['criteriaStatus'] = $real005CCriterionStatus
+$real005CCoverage['status'] = if ([string]$real005BCoverage['status'] -ne 'pass') {
+    'blocked_by_previous_slice'
+}
+elseif (
+    [string]$real005CCriterionStatus.RG010 -eq 'pass' -and
+    [string]$real005CCriterionStatus.RG011 -eq 'pass' -and
+    [string]$real005CCriterionStatus.RG012 -eq 'pass' -and
+    [string]$real005CCriterionStatus.RG013 -eq 'pass' -and
+    [string]$real005CCriterionStatus.RG014 -eq 'pass' -and
+    [string]$real005CCriterionStatus.RG015 -eq 'pass' -and
+    [string]$real005CCriterionStatus.RG016 -eq 'pass'
+) {
+    'pass'
+}
+elseif (
+    [string]$real005CCriterionStatus.RG010 -eq 'pass' -or
+    [string]$real005CCriterionStatus.RG011 -eq 'pass' -or
+    [string]$real005CCriterionStatus.RG012 -eq 'pass' -or
+    [string]$real005CCriterionStatus.RG013 -eq 'pass' -or
+    [string]$real005CCriterionStatus.RG014 -eq 'pass' -or
+    [string]$real005CCriterionStatus.RG015 -eq 'pass' -or
+    [string]$real005CCriterionStatus.RG016 -eq 'pass'
+) {
+    'partial'
+}
+else {
+    'not_evaluated'
+}
+$real005CCoverage['blockers'] = if (
+    [string]$real005BCoverage['status'] -eq 'pass' -and
+    [string]$real005CCriterionStatus.RG010 -eq 'pass' -and
+    [string]$real005CCriterionStatus.RG011 -eq 'pass' -and
+    [string]$real005CCriterionStatus.RG012 -eq 'pass' -and
+    [string]$real005CCriterionStatus.RG013 -eq 'pass' -and
+    [string]$real005CCriterionStatus.RG014 -eq 'pass' -and
+    [string]$real005CCriterionStatus.RG015 -eq 'pass' -and
+    [string]$real005CCriterionStatus.RG016 -eq 'pass'
+) {
+    @()
+}
+elseif (
+    [string]$real005BCoverage['status'] -eq 'pass' -and
+    [string]$real005CCriterionStatus.RG013 -eq 'pass' -and
+    [string]$real005CCriterionStatus.RG014 -eq 'pass' -and
+    [string]$real005CCriterionStatus.RG015 -eq 'pass'
+) {
+    @('RG016 still needs fresh edit/recrop/audit evidence before REAL005C can close.')
+}
+elseif ([string]$real005BCoverage['status'] -eq 'pass' -and [string]$real005CCriterionStatus.RG012 -eq 'pass') {
+    @('RG013-RG016 still need fresh real-question evidence before REAL005C can close.')
+}
+elseif ([string]$real005BCoverage['status'] -eq 'pass' -and [string]$real005CCriterionStatus.RG011 -eq 'pass') {
+    @('RG012-RG016 still need fresh real-question evidence before REAL005C can close.')
+}
+elseif ([string]$real005BCoverage['status'] -eq 'pass' -and [string]$real005CCriterionStatus.RG010 -eq 'pass') {
+    @('RG011-RG016 still need fresh real-question evidence before REAL005C can close.')
+}
+elseif ([string]$real005BCoverage['status'] -eq 'pass') {
+    @('REAL005C repo-side entry is now open; RG010-RG016 still need fresh real-question evidence.')
+}
+else {
+    @('REAL005A and REAL005B remain open; usage/export/analysis closure cannot be promoted ahead of earlier slices.')
+}
+$real005CCoverage['next'] = if (
+    [string]$real005BCoverage['status'] -eq 'pass' -and
+    [string]$real005CCriterionStatus.RG010 -eq 'pass' -and
+    [string]$real005CCriterionStatus.RG011 -eq 'pass' -and
+    [string]$real005CCriterionStatus.RG012 -eq 'pass' -and
+    [string]$real005CCriterionStatus.RG013 -eq 'pass' -and
+    [string]$real005CCriterionStatus.RG014 -eq 'pass' -and
+    [string]$real005CCriterionStatus.RG015 -eq 'pass' -and
+    [string]$real005CCriterionStatus.RG016 -eq 'pass'
+) {
+    'REAL005C repo-side evidence is complete; advance to REAL005D outward closeout wording while keeping REAL005 not_closed until D is truthfully refreshed.'
+}
+elseif (
+    [string]$real005BCoverage['status'] -eq 'pass' -and
+    [string]$real005CCriterionStatus.RG013 -eq 'pass' -and
+    [string]$real005CCriterionStatus.RG014 -eq 'pass' -and
+    [string]$real005CCriterionStatus.RG015 -eq 'pass'
+) {
+    'REAL005C4 repo-side evidence is complete; advance to REAL005C5 RG016 while keeping REAL005 not_closed until C and D are complete.'
+}
+elseif ([string]$real005BCoverage['status'] -eq 'pass' -and [string]$real005CCriterionStatus.RG012 -eq 'pass') {
+    'REAL005C3 repo-side evidence is complete; advance to REAL005C4 RG013-RG015 while keeping REAL005 not_closed until C and D are complete.'
+}
+elseif ([string]$real005BCoverage['status'] -eq 'pass' -and [string]$real005CCriterionStatus.RG011 -eq 'pass') {
+    'REAL005C2 repo-side evidence is complete; advance to REAL005C3 RG012 while keeping REAL005 not_closed until C and D are complete.'
+}
+elseif ([string]$real005BCoverage['status'] -eq 'pass' -and [string]$real005CCriterionStatus.RG010 -eq 'pass') {
+    'REAL005C1 repo-side evidence is complete; advance to REAL005C2 RG011 while keeping REAL005 not_closed until C and D are complete.'
+}
+elseif ([string]$real005BCoverage['status'] -eq 'pass') {
+    'Advance REAL005C from RG010 with real question search/basket/export coverage while keeping REAL005 not_closed until C and D are complete.'
+}
+else {
+    'Keep REAL005C blocked until source coverage and per-question review closure are both complete.'
+}
 $sliceCoverage.Add('REAL005C', $real005CCoverage)
 
 $real005DCoverage = @{}
@@ -636,7 +832,7 @@ $real005CGlobalBlockers = [string[]]@()
 $real005CDetailedCoverage = New-Real005DetailedSliceCoverage `
     -PlanRows $detailedSlicePlanRows `
     -ParentSliceId 'REAL005C' `
-    -CriterionStatusLookup @{} `
+    -CriterionStatusLookup $real005CCriterionStatus `
     -GlobalCriterionBlockers $real005CGlobalBlockers `
     -ParentReady ($real005BCoverage['status'] -eq 'pass')
 $real005CCoverage['detailedSliceCoverage'] = $real005CDetailedCoverage['detailedSliceCoverage']

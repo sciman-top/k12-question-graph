@@ -1,0 +1,56 @@
+{
+  "status": "pass",
+  "taskId": "REAL005C3_ROLLBACK_PRIVACY_NO_ACTIVE_WRITE",
+  "criterionId": "RG012",
+  "rg012Status": "pass",
+  "checkedAt": "2026-06-17T20:20:21",
+  "evidence": {
+    "real005c1Report": "docs/evidence/20260617-real005c1-real-question-search-paper-export-smoke.json",
+    "real005c2Report": "docs/evidence/20260617-real005c2-real-question-analysis-reference-smoke.json",
+    "ns204Report": "docs/evidence/20260529-ns204-no-active-write-guard-report.json"
+  },
+  "batchBoundaries": {
+    "real005c1": {
+      "activeWrite": true,
+      "externalAiCalls": 0,
+      "realStudentDataUsed": false,
+      "productionEligible": false,
+      "anomalyStatus": "blocked",
+      "anomalySolutionMissing": 1
+    },
+    "real005c2": {
+      "activeWrite": true,
+      "externalAiCalls": 0,
+      "realStudentDataUsed": false,
+      "productionEligible": false,
+      "writesProductionHistory": false,
+      "blockedKnowledgeMappingMissing": true
+    }
+  },
+  "rollbackTargets": {
+    "real005c1": {
+      "questionRollback": 10,
+      "basketRollback": 2,
+      "rollbackContainsKnowledgeNodeDelete": true,
+      "rollbackContainsReviewQueueDelete": true
+    },
+    "real005c2": {
+      "questionRollback": 5,
+      "scoreImportRollback": true,
+      "assessmentRollback": true,
+      "rollbackContainsKnowledgeNodeDelete": true,
+      "rollbackContainsReviewQueueDelete": true
+    }
+  },
+  "noActiveWriteGuard": {
+    "reportPath": "docs/evidence/20260529-ns204-no-active-write-guard-report.json",
+    "aiCandidatesStayPendingReview": true,
+    "dynamicAssetActiveSwitchBlocked": true,
+    "scoreAnalysisDraftOnly": true,
+    "productionHistoryWriteBlocked": true,
+    "liveClosureNotClaimed": true,
+    "real005ClosureStatus": "not_closed"
+  },
+  "boundary": "Repo-side RG012 report only: it proves REAL005C1 and REAL005C2 both leave explicit rollbackSql, stay synthetic/privacy-safe, keep external AI disabled, and remain under the no-active-write boundary. REAL005 still stays not_closed until RG013-RG016 also pass.",
+  "summaryChinese": "REAL005C1 与 REAL005C2 的写库批次现在都有 repo-side RG012 证据：rollbackSql 明确、realStudentDataUsed=false、externalAiCalls=0、productionEligible=false，并继续受 NS204 no-active-write 守卫约束。"
+}

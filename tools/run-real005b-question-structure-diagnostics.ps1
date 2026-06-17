@@ -53,8 +53,8 @@ try {
     if ($report.criteria.RG004.status -ne 'pass') {
         throw "expected RG004 answer alignment coverage to pass after repo-side anchor/hash proof, got $($report.criteria.RG004.status)"
     }
-    if ($report.real005BStatus -eq 'pass') {
-        throw 'REAL005B must not pass until RG004-RG009 all have per-question review/source evidence'
+    if ($report.real005BStatus -eq 'pass' -and $report.criteria.RG009.status -ne 'pass') {
+        throw 'REAL005B cannot pass unless RG009 reviewed-question source review evidence also passes'
     }
     if ($report.activeWrite -ne $false -or $report.externalAiCalls -ne 0 -or $report.realStudentDataUsed -ne $false) {
         throw 'REAL005B diagnostics must stay read-only with no external AI or real student data'

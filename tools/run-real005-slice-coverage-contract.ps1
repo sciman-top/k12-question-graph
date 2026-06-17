@@ -62,10 +62,10 @@ Assert-True (@($sliceA.blockers).Count -eq 0) 'REAL005A must not list blockers a
 $sliceB = $sliceCoverage.REAL005B
 Assert-True ((@($sliceB.criteriaIds)) -contains 'RG003') 'REAL005B must include RG003'
 Assert-True ((@($sliceB.criteriaIds)) -contains 'RG009') 'REAL005B must include RG009'
-Assert-True ([string]$sliceB.status -ne 'pass') 'REAL005B must not pass before per-question structure and review coverage is closed'
+Assert-True ([string]$sliceB.status -eq 'pass') 'REAL005B should now pass after reviewed-question source review closure is proven'
 Assert-True ($null -ne $sliceB.detailedSliceCoverage) 'REAL005B must expose detailedSliceCoverage'
-Assert-True ([string]$sliceB.nextDetailedSlice -eq 'REAL005B6') 'REAL005B next detailed slice must currently be REAL005B6'
-Assert-True ([bool]$sliceB.nextDetailedSliceReady) 'REAL005B next detailed slice must be ready to advance repo-side'
+Assert-True ([string]$sliceB.nextDetailedSlice -eq 'none') 'REAL005B next detailed slice should be exhausted once B1-B6 all pass'
+Assert-True (-not [bool]$sliceB.nextDetailedSliceReady) 'REAL005B should not keep a ready detailed slice after B1-B6 all pass'
 foreach ($sliceId in @('REAL005B1','REAL005B2','REAL005B3','REAL005B4','REAL005B5','REAL005B6')) {
     Assert-True ($null -ne $sliceB.detailedSliceCoverage.$sliceId) "REAL005B detailed slice missing: $sliceId"
 }
@@ -74,15 +74,21 @@ Assert-True ([string]$sliceB.detailedSliceCoverage.REAL005B2.status -eq 'pass') 
 Assert-True ([string]$sliceB.detailedSliceCoverage.REAL005B3.status -eq 'pass') 'REAL005B3 should pass after 2016-2025 source-region screenshot evidence is generated'
 Assert-True ([string]$sliceB.detailedSliceCoverage.REAL005B4.status -eq 'pass') 'REAL005B4 should currently pass after structured-question coverage closes RG006'
 Assert-True ([string]$sliceB.detailedSliceCoverage.REAL005B5.status -eq 'pass') 'REAL005B5 should currently pass after tagging/no-active-write coverage closes RG007'
-Assert-True ([string]$sliceB.detailedSliceCoverage.REAL005B6.status -eq 'blocked') 'REAL005B6 should remain blocked until teacher-review and source-review closure is proven'
+Assert-True ([string]$sliceB.detailedSliceCoverage.REAL005B6.status -eq 'pass') 'REAL005B6 should pass once RG008 and RG009 are both proven'
 
 $sliceC = $sliceCoverage.REAL005C
 Assert-True ((@($sliceC.criteriaIds)) -contains 'RG010') 'REAL005C must include RG010'
 Assert-True ((@($sliceC.criteriaIds)) -contains 'RG016') 'REAL005C must include RG016'
-Assert-True ([string]$sliceC.status -ne 'pass') 'REAL005C must not pass before usage/export/analysis coverage is closed'
+Assert-True ([string]$sliceC.status -eq 'partial') 'REAL005C should now be partial after RG010 passes while RG011-RG016 remain open'
 Assert-True ($null -ne $sliceC.detailedSliceCoverage) 'REAL005C must expose detailedSliceCoverage'
-Assert-True ([string]$sliceC.nextDetailedSlice -eq 'REAL005C1') 'REAL005C next detailed slice must stay anchored to REAL005C1'
-Assert-True (-not [bool]$sliceC.nextDetailedSliceReady) 'REAL005C next detailed slice must not be ready while REAL005B is still open'
+Assert-True ([string]$sliceC.criteriaStatus.RG010 -eq 'pass') 'REAL005C must expose RG010 pass after the reviewed real question search/export smoke'
+Assert-True ([string]$sliceC.criteriaStatus.RG011 -eq 'pass') 'REAL005C must expose RG011 pass after the reviewed real question analysis smoke'
+Assert-True ([string]$sliceC.criteriaStatus.RG012 -eq 'pass') 'REAL005C must expose RG012 pass after the rollback/privacy/no-active-write report'
+Assert-True ([string]$sliceC.criteriaStatus.RG013 -eq 'pass') 'REAL005C must expose RG013 pass after the layout/noise report'
+Assert-True ([string]$sliceC.criteriaStatus.RG014 -eq 'pass') 'REAL005C must expose RG014 pass after the formula fidelity report'
+Assert-True ([string]$sliceC.criteriaStatus.RG015 -eq 'pass') 'REAL005C must expose RG015 pass after the table structuring report'
+Assert-True ([string]$sliceC.nextDetailedSlice -eq 'REAL005C5') 'REAL005C next detailed slice must now advance to REAL005C5'
+Assert-True ([bool]$sliceC.nextDetailedSliceReady) 'REAL005C next detailed slice should become ready once REAL005B passes'
 
 $sliceD = $sliceCoverage.REAL005D
 Assert-True ((@($sliceD.criteriaIds)) -contains 'DOCS') 'REAL005D must include docs closeout marker'
@@ -90,8 +96,8 @@ Assert-True (@($sliceD.blockers).Count -ge 1) 'REAL005D must remain blocked whil
 
 $nextDetailedOpen = $report.nextDetailedOpen
 Assert-True ($null -ne $nextDetailedOpen) 'REAL005 report must expose nextDetailedOpen'
-Assert-True ([string]$nextDetailedOpen.parentSlice -eq 'REAL005B') 'REAL005 nextDetailedOpen parent must currently be REAL005B'
-Assert-True ([string]$nextDetailedOpen.sliceId -eq 'REAL005B6') 'REAL005 nextDetailedOpen slice must currently be REAL005B6'
+Assert-True ([string]$nextDetailedOpen.parentSlice -eq 'REAL005C') 'REAL005 nextDetailedOpen parent must currently be REAL005C'
+Assert-True ([string]$nextDetailedOpen.sliceId -eq 'REAL005C5') 'REAL005 nextDetailedOpen slice must currently be REAL005C5'
 Assert-True ([bool]$nextDetailedOpen.ready) 'REAL005 nextDetailedOpen must currently be actionable repo-side'
 
 [ordered]@{

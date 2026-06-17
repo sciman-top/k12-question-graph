@@ -2245,6 +2245,11 @@ app.MapPatch("/questions/{id:guid}", async (
         return Results.BadRequest(new { error = "invalid_difficulty_estimated" });
     }
 
+    if (request.PrimaryKnowledgeId.HasValue && request.ClearPrimaryKnowledge is true)
+    {
+        return Results.BadRequest(new { error = "primary_knowledge_update_conflict" });
+    }
+
     if (request.PrimaryKnowledgeId.HasValue)
     {
         var knowledgeExists = await dbContext.KnowledgeNodes
@@ -2256,6 +2261,7 @@ app.MapPatch("/questions/{id:guid}", async (
         }
     }
 
+    var currentPrimaryKnowledgeId = item.PrimaryKnowledgeId;
     var requestedBlocks = request.Blocks ?? [];
     foreach (var block in requestedBlocks)
     {
@@ -2357,6 +2363,30 @@ app.MapPatch("/questions/{id:guid}", async (
                 reviewedBy = request.ReviewedBy.Trim(),
                 reason = request.Reason.Trim()
             });
+        }
+    }
+    else if (request.ClearPrimaryKnowledge is true)
+    {
+        item.PrimaryKnowledgeId = null;
+
+        var primaryMappings = await dbContext.KnowledgeMappings
+            .Where(x => x.QuestionItemId == id && x.IsPrimary)
+            .ToListAsync(cancellationToken);
+        foreach (var mapping in primaryMappings)
+        {
+            mapping.IsPrimary = false;
+        }
+
+        if (currentPrimaryKnowledgeId.HasValue)
+        {
+            var targetMapping = await dbContext.KnowledgeMappings
+                .FirstOrDefaultAsync(
+                    x => x.QuestionItemId == id && x.KnowledgeNodeId == currentPrimaryKnowledgeId.Value,
+                    cancellationToken);
+            if (targetMapping is not null)
+            {
+                dbContext.KnowledgeMappings.Remove(targetMapping);
+            }
         }
     }
 
@@ -5234,6 +5264,7 @@ public sealed record QuestionUpdateRequest(
     double? DifficultyEstimated,
     string? Status,
     Guid? PrimaryKnowledgeId,
+    bool? ClearPrimaryKnowledge,
     IReadOnlyList<QuestionBlockUpdateRequest>? Blocks,
     JsonElement? Answer,
     JsonElement? Solution,
