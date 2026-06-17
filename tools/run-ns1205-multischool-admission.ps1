@@ -1,17 +1,22 @@
 param(
-    [string] $ReportPath = 'docs/evidence/20260531-ns1205-multischool-admission.json',
+    [string] $ReportPath = '',
     [string] $NonSitePlanPath = 'tasks/non-site-implementation-plan.csv',
     [string] $BacklogPath = 'tasks/backlog.csv',
     [string] $R005ReportPath = 'docs/evidence/20260521-r005-public-multischool-deploy-admission-report.json',
     [string] $R005DecisionPath = 'docs/decisions/ADR-007-public-multischool-deploy-admission.md',
     [string] $R005ChecklistPath = 'docs/templates/r005-public-multischool-deploy-eval-checklist.md',
     [string] $R005PreflightEvidencePath = 'docs/evidence/20260505-r005-public-multischool-deploy-eval-preflight.md',
-    [string] $NS904ReportPath = 'docs/evidence/20260530-ns904-p001-readiness.json',
+    [string] $NS904ReportPath = '',
     [string] $CompletionDashboardPath = 'tasks/completion-state-dashboard.csv'
 )
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+$runDate = Get-Date -Format 'yyyyMMdd'
+
+if ([string]::IsNullOrWhiteSpace($ReportPath)) {
+    $ReportPath = ('docs/evidence/{0}-ns1205-multischool-admission.json' -f $runDate)
+}
 
 function Assert-Condition([bool] $Condition, [string] $Message) {
     if (-not $Condition) { throw $Message }
@@ -26,6 +31,18 @@ function Read-Json([string] $Path) {
     Assert-Condition (Test-Path -LiteralPath $fullPath) "missing json report: $Path"
     return Get-Content -LiteralPath $fullPath -Raw | ConvertFrom-Json
 }
+function Resolve-LatestEvidencePath([string] $Filter) {
+    $evidenceRoot = Resolve-InRepoPath 'docs/evidence'
+    Assert-Condition (Test-Path -LiteralPath $evidenceRoot) 'missing docs/evidence directory'
+    $latest = @(Get-ChildItem -LiteralPath $evidenceRoot -Filter $Filter -File | Sort-Object Name -Descending | Select-Object -First 1)
+    Assert-Condition ($latest.Count -eq 1) "missing evidence matching filter: $Filter"
+    return [System.IO.Path]::GetRelativePath($repoRoot, $latest[0].FullName).Replace('\', '/')
+}
+
+if ([string]::IsNullOrWhiteSpace($NS904ReportPath)) {
+    $NS904ReportPath = Resolve-LatestEvidencePath '*-ns904-p001-readiness.json'
+}
+
 
 function Get-RequiredRow([object[]] $Rows, [string] $Id, [string] $Column = 'id') {
     $matches = @($Rows | Where-Object { [string]$_.$Column -eq $Id })

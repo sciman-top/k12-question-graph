@@ -2,11 +2,16 @@ param(
     [string] $BacklogPath = 'tasks/backlog.csv',
     [string] $ChecklistPath = 'docs/templates/p002-teacher-proxy-pilot-checklist.md',
     [string] $EvidencePath = 'docs/evidence/20260505-p002-teacher-proxy-pilot-preflight.md',
-    [string] $ReportPath = 'docs/evidence/20260523-p002-teacher-proxy-pilot-admission-report.json'
+    [string] $ReportPath = ''
 )
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+$runDate = Get-Date -Format 'yyyyMMdd'
+
+if ([string]::IsNullOrWhiteSpace($ReportPath)) {
+    $ReportPath = ('docs/evidence/{0}-p002-teacher-proxy-pilot-admission-report.json' -f $runDate)
+}
 
 function Assert-True([bool]$Condition, [string]$Message) {
     if (-not $Condition) { throw $Message }

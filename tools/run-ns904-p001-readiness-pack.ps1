@@ -1,16 +1,16 @@
 param(
-    [string] $ReportPath = 'docs/evidence/20260530-ns904-p001-readiness.json',
-    [string] $NS903ReportPath = 'docs/evidence/20260530-ns903-completion-dashboard.json',
-    [string] $P001ReportPath = 'docs/evidence/20260530-p001-live-pilot-readiness-preflight-report.json',
+    [string] $ReportPath = '',
+    [string] $NS903ReportPath = '',
+    [string] $P001ReportPath = '',
     [string] $ChecklistPath = 'docs/templates/p001-live-pilot-release-checklist.md',
     [string] $IsolatedMachineEvidenceTemplatePath = 'docs/templates/p001-isolated-machine-evidence-template.md',
     [string] $P001EvidenceMarkdownPath = 'docs/evidence/20260518-p001-live-pilot-readiness-preflight.md',
-    [string] $NS803ReportPath = 'docs/evidence/20260530-ns803-installer-host.json',
-    [string] $NS804ReportPath = 'docs/evidence/20260530-ns804-windows-service.json',
-    [string] $NS805ReportPath = 'docs/evidence/20260530-ns805-health-dashboard.json',
-    [string] $NS806ReportPath = 'docs/evidence/20260530-ns806-upgrade-bundle.json',
-    [string] $NS901ReportPath = 'docs/evidence/20260530-ns901-non-site-scenario-pack.json',
-    [string] $NS906ReportPath = 'docs/evidence/20260528-ns906-visual-surrogate-review-report.json',
+    [string] $NS803ReportPath = '',
+    [string] $NS804ReportPath = '',
+    [string] $NS805ReportPath = '',
+    [string] $NS806ReportPath = '',
+    [string] $NS901ReportPath = '',
+    [string] $NS906ReportPath = '',
     [string] $REAL005ReportPath = ''
 )
 
@@ -45,6 +45,46 @@ function Resolve-LatestReal005ReportPath([string] $PreferredPath) {
     )
     Assert-Condition ($latest.Count -eq 1) 'missing REAL005 closure standard report under docs/evidence'
     return [System.IO.Path]::GetRelativePath($repoRoot, $latest[0].FullName).Replace('\', '/')
+}
+
+function Resolve-LatestEvidencePath([string] $Filter) {
+    $evidenceRoot = Resolve-InRepoPath 'docs/evidence'
+    Assert-Condition (Test-Path -LiteralPath $evidenceRoot) 'missing docs/evidence directory'
+    $latest = @(
+        Get-ChildItem -LiteralPath $evidenceRoot -Filter $Filter -File |
+            Sort-Object Name -Descending |
+            Select-Object -First 1
+    )
+    Assert-Condition ($latest.Count -eq 1) "missing evidence matching filter: $Filter"
+    return [System.IO.Path]::GetRelativePath($repoRoot, $latest[0].FullName).Replace('\', '/')
+}
+
+if ([string]::IsNullOrWhiteSpace($ReportPath)) {
+    $ReportPath = ('docs/evidence/{0}-ns904-p001-readiness.json' -f (Get-Date -Format 'yyyyMMdd'))
+}
+if ([string]::IsNullOrWhiteSpace($NS903ReportPath)) {
+    $NS903ReportPath = Resolve-LatestEvidencePath '*-ns903-completion-dashboard.json'
+}
+if ([string]::IsNullOrWhiteSpace($P001ReportPath)) {
+    $P001ReportPath = Resolve-LatestEvidencePath '*-p001-live-pilot-readiness-preflight-report.json'
+}
+if ([string]::IsNullOrWhiteSpace($NS803ReportPath)) {
+    $NS803ReportPath = Resolve-LatestEvidencePath '*-ns803-installer-host.json'
+}
+if ([string]::IsNullOrWhiteSpace($NS804ReportPath)) {
+    $NS804ReportPath = Resolve-LatestEvidencePath '*-ns804-windows-service.json'
+}
+if ([string]::IsNullOrWhiteSpace($NS805ReportPath)) {
+    $NS805ReportPath = Resolve-LatestEvidencePath '*-ns805-health-dashboard.json'
+}
+if ([string]::IsNullOrWhiteSpace($NS806ReportPath)) {
+    $NS806ReportPath = Resolve-LatestEvidencePath '*-ns806-upgrade-bundle.json'
+}
+if ([string]::IsNullOrWhiteSpace($NS901ReportPath)) {
+    $NS901ReportPath = Resolve-LatestEvidencePath '*-ns901-non-site-scenario-pack.json'
+}
+if ([string]::IsNullOrWhiteSpace($NS906ReportPath)) {
+    $NS906ReportPath = Resolve-LatestEvidencePath '*-ns906-visual-surrogate-review-report.json'
 }
 
 function Assert-TextContains([string] $Text, [string[]] $Needles, [string] $Label) {
@@ -144,9 +184,29 @@ try {
     Assert-Condition ($null -ne $real005.sliceCoverage) 'NS904 requires REAL005 sliceCoverage'
     Assert-Condition ($null -ne $real005.sliceCoverage.REAL005A) 'NS904 requires REAL005A slice coverage'
     Assert-Condition ($null -ne $real005.sliceCoverage.REAL005B) 'NS904 requires REAL005B slice coverage'
-    Assert-Condition ([string]$real005.sliceCoverage.REAL005A.status -eq 'pass') 'NS904 requires REAL005A to pass after RG001/RG002 source and adapter evidence is complete'
-    Assert-Condition ([string]$real005.sliceCoverage.REAL005B.status -ne 'pass') 'NS904 requires REAL005B to remain open while per-question structure and review evidence is incomplete'
-    Assert-Condition (@($real005.sliceCoverage.REAL005B.blockers).Count -ge 1) 'NS904 requires REAL005B blockers while P001 is still preflight-only'
+    Assert-Condition ($null -ne $real005.sliceCoverage.REAL005C) 'NS904 requires REAL005C slice coverage'
+    Assert-Condition ($null -ne $real005.sliceCoverage.REAL005D) 'NS904 requires REAL005D slice coverage'
+    $real005AStatus = [string]$real005.sliceCoverage.REAL005A.status
+    $real005BStatus = [string]$real005.sliceCoverage.REAL005B.status
+    $real005CStatus = [string]$real005.sliceCoverage.REAL005C.status
+    $real005DStatus = [string]$real005.sliceCoverage.REAL005D.status
+    $expectedReal005NextOpen = if ($real005AStatus -ne 'pass') {
+        'REAL005A'
+    }
+    elseif ($real005BStatus -ne 'pass') {
+        'REAL005B'
+    }
+    elseif ($real005CStatus -ne 'pass') {
+        'REAL005C'
+    }
+    else {
+        'REAL005D'
+    }
+    $real005CurrentBoundarySlice = $real005.sliceCoverage.PSObject.Properties[$expectedReal005NextOpen].Value
+    Assert-Condition ($null -ne $real005CurrentBoundarySlice) "NS904 requires REAL005 current boundary slice: $expectedReal005NextOpen"
+    Assert-Condition ($real005AStatus -eq 'pass') 'NS904 requires REAL005A to pass after RG001/RG002 source and adapter evidence is complete'
+    Assert-Condition ([string]$real005CurrentBoundarySlice.status -ne 'pass') "NS904 requires current REAL005 boundary slice to remain open while P001 is still preflight-only: $expectedReal005NextOpen"
+    Assert-Condition (@($real005CurrentBoundarySlice.blockers).Count -ge 1) "NS904 requires current REAL005 boundary blockers while P001 is still preflight-only: $expectedReal005NextOpen"
 
     $checklistFullPath = Resolve-InRepoPath $ChecklistPath
     $isolatedMachineEvidenceTemplateFullPath = Resolve-InRepoPath $IsolatedMachineEvidenceTemplatePath
@@ -298,9 +358,12 @@ try {
             releaseReadyCount = [int]$ns903.dashboard.releaseReadyCount
             nonSiteValidatedCount = [int]$ns903.nonSitePlan.nonSiteValidatedCount
             real005ClosureStatus = [string]$real005.closureStatus
-            real005ASliceStatus = [string]$real005.sliceCoverage.REAL005A.status
-            real005BStatus = [string]$real005.sliceCoverage.REAL005B.status
-            real005NextOpenSlice = 'REAL005B'
+            real005ASliceStatus = $real005AStatus
+            real005BStatus = $real005BStatus
+            real005CStatus = $real005CStatus
+            real005DStatus = $real005DStatus
+            real005NextOpenSlice = $expectedReal005NextOpen
+            real005NextOpenBlockers = @($real005CurrentBoundarySlice.blockers)
         }
         remainingSiteBlockers = $remainingSiteBlockers
         originalP001Blockers = @($p001.blockers)

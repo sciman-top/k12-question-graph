@@ -1,8 +1,8 @@
 param(
-    [string] $ReportPath = 'docs/evidence/20260531-ns1206-techdebt-cadence.json',
+    [string] $ReportPath = '',
     [string] $NonSitePlanPath = 'tasks/non-site-implementation-plan.csv',
     [string] $BacklogPath = 'tasks/backlog.csv',
-    [string] $R006ReportPath = 'docs/evidence/20260522-r006-techdebt-cadence-admission-report.json',
+    [string] $R006ReportPath = '',
     [string] $R006DecisionPath = 'docs/decisions/ADR-008-techdebt-cadence-admission.md',
     [string] $R006ChecklistPath = 'docs/templates/r006-techdebt-cadence-checklist.md',
     [string] $R006PreflightEvidencePath = 'docs/evidence/20260505-r006-techdebt-cadence-preflight.md',
@@ -13,6 +13,11 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+$runDate = Get-Date -Format 'yyyyMMdd'
+
+if ([string]::IsNullOrWhiteSpace($ReportPath)) {
+    $ReportPath = ('docs/evidence/{0}-ns1206-techdebt-cadence.json' -f $runDate)
+}
 
 function Assert-Condition([bool] $Condition, [string] $Message) {
     if (-not $Condition) { throw $Message }
@@ -26,6 +31,17 @@ function Read-Json([string] $Path) {
     $fullPath = Resolve-InRepoPath $Path
     Assert-Condition (Test-Path -LiteralPath $fullPath) "missing json report: $Path"
     return Get-Content -LiteralPath $fullPath -Raw | ConvertFrom-Json
+}
+function Resolve-LatestEvidencePath([string] $Filter) {
+    $evidenceRoot = Resolve-InRepoPath 'docs/evidence'
+    Assert-Condition (Test-Path -LiteralPath $evidenceRoot) 'missing docs/evidence directory'
+    $latest = @(Get-ChildItem -LiteralPath $evidenceRoot -Filter $Filter -File | Sort-Object Name -Descending | Select-Object -First 1)
+    Assert-Condition ($latest.Count -eq 1) "missing evidence matching filter: $Filter"
+    return [System.IO.Path]::GetRelativePath($repoRoot, $latest[0].FullName).Replace('\', '/')
+}
+
+if ([string]::IsNullOrWhiteSpace($R006ReportPath)) {
+    $R006ReportPath = Resolve-LatestEvidencePath '*-r006-techdebt-cadence-admission-report.json'
 }
 
 function Get-RequiredRow([object[]] $Rows, [string] $Id, [string] $Column = 'id') {

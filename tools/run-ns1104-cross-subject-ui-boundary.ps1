@@ -1,5 +1,5 @@
 param(
-    [string] $ReportPath = 'docs/evidence/20260531-ns1104-cross-subject-ui.json',
+    [string] $ReportPath = '',
     [string] $BacklogPath = 'tasks/backlog.csv',
     [string] $NonSitePlanPath = 'tasks/non-site-implementation-plan.csv',
     [string] $Q004ReportPath = 'docs/evidence/20260523-q004-cross-subject-diff-report.json',
@@ -8,11 +8,16 @@ param(
     [string] $Q005ReportPath = 'docs/evidence/20260523-q005-multi-subject-ui-simplification-report.json',
     [string] $Q005ChecklistPath = 'docs/templates/q005-multi-subject-ui-simplification-checklist.md',
     [string] $Q005PreflightEvidencePath = 'docs/evidence/20260505-q005-multi-subject-ui-simplification-preflight.md',
-    [string] $NS1103ReportPath = 'docs/evidence/20260531-ns1103-second-subject-active-dry-run.json'
+    [string] $NS1103ReportPath = ''
 )
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+$runDate = Get-Date -Format 'yyyyMMdd'
+
+if ([string]::IsNullOrWhiteSpace($ReportPath)) {
+    $ReportPath = ('docs/evidence/{0}-ns1104-cross-subject-ui.json' -f $runDate)
+}
 
 function Assert-Condition([bool] $Condition, [string] $Message) {
     if (-not $Condition) { throw $Message }
@@ -26,6 +31,17 @@ function Read-Json([string] $Path) {
     $fullPath = Resolve-InRepoPath $Path
     Assert-Condition (Test-Path -LiteralPath $fullPath) "missing json report: $Path"
     return Get-Content -LiteralPath $fullPath -Raw | ConvertFrom-Json
+}
+function Resolve-LatestEvidencePath([string] $Filter) {
+    $evidenceRoot = Resolve-InRepoPath 'docs/evidence'
+    Assert-Condition (Test-Path -LiteralPath $evidenceRoot) 'missing docs/evidence directory'
+    $latest = @(Get-ChildItem -LiteralPath $evidenceRoot -Filter $Filter -File | Sort-Object Name -Descending | Select-Object -First 1)
+    Assert-Condition ($latest.Count -eq 1) "missing evidence matching filter: $Filter"
+    return [System.IO.Path]::GetRelativePath($repoRoot, $latest[0].FullName).Replace('\', '/')
+}
+
+if ([string]::IsNullOrWhiteSpace($NS1103ReportPath)) {
+    $NS1103ReportPath = Resolve-LatestEvidencePath '*-ns1103-second-subject-active-dry-run.json'
 }
 
 function Get-RequiredRow([object[]] $Rows, [string] $Id, [string] $Column = 'id') {
@@ -213,7 +229,7 @@ try {
         teacherEfficiencyBoundary = 'ordinary teacher flow is not changed; NS1104 only verifies that Q004/Q005 remain blocked until diff and UI evidence exist'
         boundary = 'NS1104 verifies the cross-subject diff and multi-subject UI simplification boundary only. It does not execute the diff report, does not update dynamic element mappings, does not change teacher-facing UI, and does not close Q004 or Q005.'
         riskLevel = 'medium'
-        rollback = 'git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1 tools/README.md; git clean -f -- tools/run-ns1104-cross-subject-ui-boundary.ps1 docs/evidence/20260531-ns1104-cross-subject-ui.json'
+        rollback = 'git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1 tools/README.md; git clean -f -- tools/run-ns1104-cross-subject-ui-boundary.ps1 docs/evidence/20260617-ns1104-cross-subject-ui.json'
     }
 
     $reportFullPath = Resolve-InRepoPath $ReportPath

@@ -9,7 +9,7 @@ param(
     [string] $DomainModelPath = 'docs/05_DomainModel.md',
     [string] $DomainEntitiesPath = 'apps/api/Domain/P0Entities.cs',
     [string] $DbContextPath = 'apps/api/Data/KqgDbContext.cs',
-    [string] $P001ReportPath = 'docs/evidence/20260518-p001-live-pilot-readiness-preflight-report.json',
+    [string] $P001ReportPath = '',
     [string] $DecisionPath = 'docs/decisions/ADR-009-interoperability-profile-map-admission.md',
     [string] $ReportPath = 'docs/evidence/20260522-r007-interoperability-profile-map-admission-report.json'
 )
@@ -30,6 +30,18 @@ function Read-JsonFile([string] $Path) {
     Assert-True (Test-Path -LiteralPath $fullPath) "R007 required JSON evidence missing: $Path"
     return Get-Content -LiteralPath $fullPath -Raw | ConvertFrom-Json
 }
+function Resolve-LatestEvidencePath([string] $Filter) {
+    $evidenceRoot = Resolve-RepoPath 'docs/evidence'
+    Assert-True (Test-Path -LiteralPath $evidenceRoot) 'R007 missing docs/evidence directory'
+    $latest = @(Get-ChildItem -LiteralPath $evidenceRoot -Filter $Filter -File | Sort-Object Name -Descending | Select-Object -First 1)
+    Assert-True ($latest.Count -eq 1) "R007 missing evidence matching filter: $Filter"
+    return [System.IO.Path]::GetRelativePath($repoRoot, $latest[0].FullName).Replace('\', '/')
+}
+
+if ([string]::IsNullOrWhiteSpace($P001ReportPath)) {
+    $P001ReportPath = Resolve-LatestEvidencePath '*-p001-live-pilot-readiness-preflight-report.json'
+}
+
 
 function Write-ContentIfChanged([string] $Path, [string] $Content) {
     $fullPath = Resolve-RepoPath $Path

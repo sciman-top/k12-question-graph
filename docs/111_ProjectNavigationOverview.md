@@ -1,6 +1,6 @@
 # 111 · 项目导航总览
 
-日期：2026-06-14。状态证据核对到 2026-06-14。
+日期：2026-06-18。状态证据核对到 2026-06-18。
 
 ## 1. 用途
 
@@ -22,12 +22,12 @@
 | 还有哪些关键边界没拍板 | `docs/104_OpenQuestionsAndAssumptions.md` | 看 OQ 和是否需要回写任务 CSV |
 | 现在能不能发布 / 试点 | `docs/109_ReleaseGoNoGoCard.md` | 当前正式 `Go / No-Go` 裁决入口 |
 | 我只想知道“当前到底闭环到哪了” | `docs/112_CurrentClosureStatus_20260609.md` | 当前仓库级 / 非现场 / 现场阻断的短总览 |
-| 当前 repo-side 状态口径有没有漂移 | `docs/evidence/20260614-ns905-status-sync.md` | 看 backlog、dashboard、non-site plan 和 live closeout 是否仍保持 truthful No-Go |
+| 当前 repo-side 状态口径有没有漂移 | `docs/evidence/20260618-ns905-status-sync.md` | 看 backlog、dashboard、non-site plan 和 live closeout 是否仍保持 truthful No-Go |
 | 本地 Web/API 怎么启动、重启、判断是否真的活着 | `docs/113_LocalRuntimeOperations_20260609.md` | 本地联调运行模型、状态语义和排查入口 |
 | 本地管理员 AI 设置在哪里、怎么做 save/test smoke | `docs/113_LocalRuntimeOperations_20260609.md` | 看 `?admin=1`、`打开设置`、`管理员 AI 设置` 和本地 save/test 边界 |
 | 任务链和机器顺序到底以什么为准 | `tasks/backlog.csv` | 主线顺序权威入口 |
 | 高风险编码任务必须先查哪些参考 | `tasks/reference-basis-requirements.csv` + `tasks/reference-basis-policy.json` + `tools/run-reference-basis-guard.ps1` | 架构、Windows Service、PowerShell 运维、OCR/toolchain、导出、成绩分析、AI routing、搜索、互操作和 live pilot 预演等强制参考入口；policy 负责受管 task/module 集 |
-| 当前 reference-basis 守卫是否真的过了 | `docs/evidence/20260614-reference-basis-guard.md` | 看 20 个受管任务、13 个模块和 external/snapshot parity |
+| 当前 reference-basis 守卫是否真的过了 | `docs/evidence/20260615-reference-basis-guard.md` | 看 20 个受管任务、13 个模块和 external/snapshot parity |
 | 按代码板块看“该参考/复刻/复用哪个仓” | `tasks/reference-basis-module-map.csv` | API、Web、export、score-analysis、AI routing、OCR、Windows Service、release pack、搜索、队列、互操作的 machine-readable 参考映射 |
 | 当前外置参考仓是否要增删、哪些值得常驻本地镜像 | `docs/26_References.md` | 看本地参考仓分组、optional/mandatory-on-use 边界，以及哪些来源只保留在线锚点 |
 | 想知道本轮改动命中了哪些受管板块/任务 | `tools/run-reference-basis-diff-aware-contract.ps1` + `tools/run-reference-basis-guard.ps1 -ChangedPaths ...` | 当前 v2 最小入口；先把 changed paths 投影到 guarded modules/tasks，再决定要补哪些 adoption 证据 |
@@ -108,7 +108,7 @@
 2. 本文件
 3. `docs/103_ExecutionControlBoard.md`
 4. `docs/109_ReleaseGoNoGoCard.md`
-5. `docs/evidence/20260614-ns905-status-sync.md`
+5. `docs/evidence/20260618-ns905-status-sync.md`
 6. `docs/113_LocalRuntimeOperations_20260609.md`
 7. `docs/decisions/ADR-014-recommended-engineering-endstate-and-stack-boundary.md`
 

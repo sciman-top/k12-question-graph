@@ -1,0 +1,75 @@
+{
+  "status": "pass",
+  "taskId": "NS1104",
+  "checkedAt": "2026-06-17T23:01:17",
+  "mode": "cross_subject_diff_and_ui_simplification_boundary",
+  "reportPath": "docs/evidence/20260617-ns1104-cross-subject-ui.json",
+  "backlogPath": "tasks/backlog.csv",
+  "nonSitePlanPath": "tasks/non-site-implementation-plan.csv",
+  "sourceReports": {
+    "ns1103BoundaryReport": "docs/evidence/20260617-ns1103-second-subject-active-dry-run.json",
+    "q004PreflightReport": "docs/evidence/20260523-q004-cross-subject-diff-report.json",
+    "q004Checklist": "docs/templates/q004-cross-subject-diff-report-checklist.md",
+    "q004PreflightEvidence": "docs/evidence/20260505-q004-cross-subject-diff-report-preflight.md",
+    "q005PreflightReport": "docs/evidence/20260523-q005-multi-subject-ui-simplification-report.json",
+    "q005Checklist": "docs/templates/q005-multi-subject-ui-simplification-checklist.md",
+    "q005PreflightEvidence": "docs/evidence/20260505-q005-multi-subject-ui-simplification-preflight.md"
+  },
+  "backlog": {
+    "q003Status": "待办",
+    "q004Status": "待办",
+    "q005Status": "待办",
+    "q004DependsOn": "Q003",
+    "q005DependsOn": "Q004",
+    "q004CanClose": false,
+    "q005CanClose": false
+  },
+  "nonSitePlan": {
+    "ns1103Status": "runtime_verified",
+    "ns1104StatusAtCheck": "runtime_verified",
+    "ns1104DependsOn": "NS1103"
+  },
+  "q004Preflight": {
+    "status": "pass",
+    "mode": "preflight_only",
+    "closeTaskAllowed": false,
+    "currentDecision": "keep_Q004_todo_until_Q003_and_cross_subject_diff_evidence_close",
+    "blockers": [
+      "Q003 second-subject active drill evidence is not closed.",
+      "Cross-subject differences for question types, tags, scoring, export, and analysis are not recorded.",
+      "Dynamic-element updates are not mapped back to docs/58 and rollback evidence."
+    ]
+  },
+  "q005Preflight": {
+    "status": "pass",
+    "mode": "preflight_only",
+    "closeTaskAllowed": false,
+    "currentDecision": "keep_Q005_todo_until_Q004_and_multi_subject_ui_simplification_evidence_close",
+    "blockers": [
+      "Q004 cross-subject diff report is not closed.",
+      "Four teacher entry points with multi-subject defaults/templates are not smoke-tested.",
+      "Teacher-efficiency evidence is not recorded for any subject switch UI."
+    ]
+  },
+  "acceptance": {
+    "q003RemainsTodo": true,
+    "q004RemainsTodo": true,
+    "q005RemainsTodo": true,
+    "crossSubjectDiffReportExecuted": false,
+    "dynamicElementMappingUpdated": false,
+    "multiSubjectUiChanged": false,
+    "fourEntryUiSmokeExecuted": false,
+    "teacherEfficiencyEvidenceRecorded": false,
+    "hardCodedSubjectDifferences": false,
+    "teacherFacingComplexityIncreased": false,
+    "ordinaryTeacherEntryCountPreserved": true,
+    "productionEligible": false,
+    "activeAssetMutation": false,
+    "q004CanClose": false,
+    "q005CanClose": false
+  },
+  "teacherEfficiencyBoundary": "ordinary teacher flow is not changed; NS1104 only verifies that Q004/Q005 remain blocked until diff and UI evidence exist",
+  "boundary": "NS1104 verifies the cross-subject diff and multi-subject UI simplification boundary only. It does not execute the diff report, does not update dynamic element mappings, does not change teacher-facing UI, and does not close Q004 or Q005.",
+  "riskLevel": "medium",
+  "rollback": "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1 tools/README.md; git clean -f -- tools/run-ns1104-cross-subject-ui-boundary.ps1 docs/evidence/20260531-ns1104-cross-subject-ui.json"
+}

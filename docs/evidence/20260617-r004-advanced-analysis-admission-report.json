@@ -1,0 +1,111 @@
+{
+  "status": "pass",
+  "taskId": "R004",
+  "mode": "admission_preflight",
+  "checkedAt": "2026-06-17T23:23:14",
+  "n004Status": "已完成",
+  "r004Status": "待办",
+  "closeTaskAllowed": false,
+  "currentDecision": "keep_R004_todo_fail_closed_for_advanced_methods",
+  "checklistPath": "docs/templates/r004-advanced-analysis-eval-checklist.md",
+  "evidencePath": "docs/evidence/20260505-r004-advanced-analysis-eval-preflight.md",
+  "referencedEvidence": {
+    "f003Report": "docs/evidence/f003-knowledge-mastery-analysis-report.json",
+    "n004Evidence": "docs/evidence/20260505-n004-class-commentary-report-mvp.md",
+    "real012Report": "docs/evidence/20260518-real012-production-flow-quality-report.json",
+    "completionDashboard": "tasks/completion-state-dashboard.csv",
+    "automationFirstContract": "tasks/automation-first-contract.csv",
+    "decision": "docs/decisions/ADR-006-advanced-analysis-admission.md"
+  },
+  "currentSample": {
+    "f003StudentCount": 2,
+    "f003MinimumKnowledgeSampleSize": 2,
+    "f003ProductionEligible": false,
+    "f003RealStudentDataUsed": false,
+    "f003NoProductionHistoryWrite": true,
+    "real012AnalysisReady": true,
+    "real012WritesProductionHistory": false,
+    "real005ClosureStatus": "not_closed"
+  },
+  "samplePolicy": {
+    "policyNature": "project admission thresholds; revise only through R004 ADR after evidence review",
+    "descriptiveCttMinimum": 2,
+    "descriptiveCttWarningBelow": 30,
+    "irtPilotMinimum": 500,
+    "operationalEquatingMinimum": 1000,
+    "longitudinalMinimumCohorts": 3,
+    "mandatoryEvidence": [
+      "authorized_or_anonymized_score_records",
+      "stable_item_to_question_mapping",
+      "active_knowledge_version_reference",
+      "missing_data_policy",
+      "psychometric_owner",
+      "teacher_explanation_boundary",
+      "rollback_or_disable_switch"
+    ]
+  },
+  "admissionMatrix": [
+    {
+      "analysisKind": "basic_ctt_commentary",
+      "currentDecision": "allowed_in_draft_test",
+      "currentEvidence": "N004/F003 available with synthetic studentCount=2 and minKnowledgeSampleSize=2; REAL012 real-question analysis smoke is ready without production history writes.",
+      "allowedOutput": "得分率、区分度、薄弱知识点和讲评建议；必须标注 draft/test 或非正式口径。",
+      "teacherExplanationDuty": "解释为描述性班级讲评信号，不解释为能力量尺、成长分或跨卷可比分。",
+      "failClosedRule": "只要使用真实学生数据、写正式历史口径、隐藏小样本提示或绕过 N001/P001 授权，即阻断。"
+    },
+    {
+      "analysisKind": "irt_calibration",
+      "currentDecision": "blocked",
+      "currentEvidence": "current F003 sample is synthetic studentCount=2; no reviewed large response sample, fit/DIF diagnostics, or psychometric owner evidence.",
+      "requiredBeforeAdmission": [
+        "large_authorized_response_sample",
+        "stable_item_bank",
+        "missing_data_policy",
+        "fit_dif_diagnostics",
+        "psychometric_owner",
+        "rollback_plan"
+      ],
+      "failClosedRule": "不得新增 IRT endpoint、UI 文案、导出字段或数据库正式指标；AI 只能生成待审解释草稿。"
+    },
+    {
+      "analysisKind": "form_equating",
+      "currentDecision": "blocked",
+      "currentEvidence": "no anchor-item design, cross-form common-student/common-item evidence, or operational equating owner.",
+      "requiredBeforeAdmission": [
+        "anchor_design",
+        "cross_form_sample",
+        "score_scale_owner",
+        "teacher_explainability_card",
+        "historical_report_freeze_policy"
+      ],
+      "failClosedRule": "不得宣称不同试卷分数可直接等值；只能保留单卷内描述性分析。"
+    },
+    {
+      "analysisKind": "longitudinal_growth",
+      "currentDecision": "blocked",
+      "currentEvidence": "no authorized longitudinal identifiers, cohort continuity evidence, or privacy retention approval.",
+      "requiredBeforeAdmission": [
+        "N001_real_privacy_authorization",
+        "longitudinal_id_policy",
+        "minimum_three_cohorts",
+        "measurement_invariance_review",
+        "retention_and_deletion_plan"
+      ],
+      "failClosedRule": "不得生成学生长期成长轨迹、排名趋势或正式历史学情；只允许当前班级 draft/test 汇总。"
+    }
+  ],
+  "blockers": [
+    "R004 remains todo; ADR-006 exists, but no post-ADR feature admission for advanced methods exists yet.",
+    "Current F003 sample is synthetic and small (studentCount=2, minKnowledgeSampleSize=2).",
+    "REAL012 only proves sampled real-question commentary reference; full 2015-2025 closure is still not_closed.",
+    "No real authorized student score sample, psychometric owner, anchor design, or explanation responsibility card exists."
+  ],
+  "nextRequiredEvidence": [
+    "post-ADR feature admission with explicit owner, rollback, sample plan, and teacher explanation card",
+    "authorized/anonymized multi-class score sample after P001/P006 boundary is clear",
+    "CTT baseline benchmark showing why current descriptive reports are insufficient",
+    "independent review of IRT/equating/growth interpretation risk before any production UI"
+  ],
+  "boundary": "R004 only refreshes advanced-analysis admission evidence and ADR-006; it performs no production write, no real student data processing, no IRT/equating computation, and no completion-state transition.",
+  "rollback": "revert tools/run-r004-advanced-analysis-eval-preflight-contract.ps1, docs/templates/r004-advanced-analysis-eval-checklist.md, docs/decisions/ADR-006-advanced-analysis-admission.md, tasks/backlog.csv, and remove the generated R004 admission report."
+}

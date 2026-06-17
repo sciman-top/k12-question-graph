@@ -4,9 +4,9 @@ param(
     [string] $DashboardPath = 'tasks/completion-state-dashboard.csv',
     [string] $NonSitePlanPath = 'tasks/non-site-implementation-plan.csv',
     [string] $LiveCloseoutPlanPath = 'tasks/live-pilot-closeout-plan.csv',
-    [string] $NS904ReportPath = 'docs/evidence/20260530-ns904-p001-readiness.json',
-    [string] $NS903ReportPath = 'docs/evidence/20260530-ns903-completion-dashboard.json',
-    [string] $P001ReportPath = 'docs/evidence/20260530-p001-live-pilot-readiness-preflight-report.json',
+    [string] $NS904ReportPath = '',
+    [string] $NS903ReportPath = '',
+    [string] $P001ReportPath = '',
     [string] $REAL005ReportPath = ''
 )
 
@@ -24,6 +24,28 @@ function Assert-Condition([bool] $Condition, [string] $Message) {
 
 function Resolve-InRepoPath([string] $RelativePath) {
     return Join-Path $repoRoot $RelativePath
+}
+
+function Resolve-LatestEvidencePath([string] $Filter) {
+    $evidenceRoot = Resolve-InRepoPath 'docs/evidence'
+    Assert-Condition (Test-Path -LiteralPath $evidenceRoot) 'missing docs/evidence directory'
+    $latest = @(
+        Get-ChildItem -LiteralPath $evidenceRoot -Filter $Filter -File |
+            Sort-Object Name -Descending |
+            Select-Object -First 1
+    )
+    Assert-Condition ($latest.Count -eq 1) "missing evidence matching filter: $Filter"
+    return [System.IO.Path]::GetRelativePath($repoRoot, $latest[0].FullName).Replace('\', '/')
+}
+
+if ([string]::IsNullOrWhiteSpace($NS904ReportPath)) {
+    $NS904ReportPath = Resolve-LatestEvidencePath '*-ns904-p001-readiness.json'
+}
+if ([string]::IsNullOrWhiteSpace($NS903ReportPath)) {
+    $NS903ReportPath = Resolve-LatestEvidencePath '*-ns903-completion-dashboard.json'
+}
+if ([string]::IsNullOrWhiteSpace($P001ReportPath)) {
+    $P001ReportPath = Resolve-LatestEvidencePath '*-p001-live-pilot-readiness-preflight-report.json'
 }
 
 function Read-Json([string] $Path) {
@@ -99,9 +121,14 @@ try {
     Assert-Condition (-not [bool]$real005.fullClosureAllowed) 'NS905 must not allow REAL005 full closure'
     Assert-Condition ($null -ne $real005.sliceCoverage) 'NS905 requires REAL005 sliceCoverage'
     Assert-Condition ($null -ne $real005.sliceCoverage.REAL005A) 'NS905 requires REAL005A slice coverage'
+    Assert-Condition ($null -ne $real005.sliceCoverage.REAL005B) 'NS905 requires REAL005B slice coverage'
+    Assert-Condition ($null -ne $real005.sliceCoverage.REAL005C) 'NS905 requires REAL005C slice coverage'
+    Assert-Condition ($null -ne $real005.sliceCoverage.REAL005D) 'NS905 requires REAL005D slice coverage'
     Assert-Condition ((@($real005.sliceCoverage.REAL005A.criteriaIds)) -contains 'RG001') 'NS905 requires REAL005A to keep RG001 coverage'
     Assert-Condition ((@($real005.sliceCoverage.REAL005A.criteriaIds)) -contains 'RG002') 'NS905 requires REAL005A to keep RG002 coverage'
     $real005ASliceStatus = [string]$real005.sliceCoverage.REAL005A.status
+    $real005BSliceStatus = [string]$real005.sliceCoverage.REAL005B.status
+    $real005CSliceStatus = [string]$real005.sliceCoverage.REAL005C.status
     $real005APlanRow = Get-RequiredRow $closeoutRows 'REAL005A'
     if ($real005ASliceStatus -eq 'pass') {
         Assert-Condition ([string]$real005APlanRow.status -eq '已完成') 'NS905 requires REAL005A plan row to be completed when RG001/RG002 pass'
@@ -141,7 +168,18 @@ try {
         Assert-Condition ($row.status -eq '待办') "P-live backlog task must remain todo: $($row.id)"
     }
     Assert-Condition ($real005Backlog.status -eq '已完成') 'REAL005 criteria task must remain completed as a guard definition'
-    $expectedReal005NextOpen = if ($real005ASliceStatus -eq 'pass') { 'REAL005B' } else { 'REAL005A' }
+    $expectedReal005NextOpen = if ($real005ASliceStatus -ne 'pass') {
+        'REAL005A'
+    }
+    elseif ($real005BSliceStatus -ne 'pass') {
+        'REAL005B'
+    }
+    elseif ($real005CSliceStatus -ne 'pass') {
+        'REAL005C'
+    }
+    else {
+        'REAL005D'
+    }
     Assert-Condition ($closeoutNextOpen['REAL005'] -eq $expectedReal005NextOpen) "next REAL005 closeout slice mismatch: expected $expectedReal005NextOpen actual $($closeoutNextOpen['REAL005'])"
     Assert-Condition ($closeoutNextOpen['P001'] -eq 'P001A') 'next P001 closeout slice must start at P001A while todo'
     Assert-Condition ($closeoutNextOpen['P003'] -eq 'P003A') 'next P003 closeout slice must start at P003A while todo'

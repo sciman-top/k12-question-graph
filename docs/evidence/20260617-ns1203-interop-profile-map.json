@@ -1,0 +1,103 @@
+{
+  "status": "pass",
+  "taskId": "NS1203",
+  "checkedAt": "2026-06-17T23:22:18",
+  "mode": "interoperability_profile_map_boundary",
+  "productionEligible": false,
+  "nonSiteValidated": false,
+  "releaseReady": false,
+  "externalAiCalls": 0,
+  "realStudentDataUsed": false,
+  "containsStudentPii": false,
+  "writesProductionHistory": false,
+  "activeAssetMutation": false,
+  "dependency": {
+    "ns1005": "tasks/non-site-implementation-plan.csv",
+    "r007Report": "docs/evidence/20260522-r007-interoperability-profile-map-admission-report.json",
+    "r007Decision": "docs/decisions/ADR-009-interoperability-profile-map-admission.md",
+    "r007Checklist": "docs/templates/r007-interoperability-profile-map-checklist.md",
+    "r007PreflightEvidence": "docs/evidence/20260505-r007-interoperability-profile-map-preflight.md",
+    "completionDashboard": "tasks/completion-state-dashboard.csv"
+  },
+  "backlog": {
+    "p006Status": "待办",
+    "r003Status": "待办",
+    "r007Status": "待办",
+    "r007CloseTaskAllowed": false,
+    "ns1005Status": "blocked_by_onsite",
+    "ns1203StatusAtCheck": "runtime_verified",
+    "ns1203DependsOn": "NS1005"
+  },
+  "profileMapCoverage": {
+    "questionItemToQtiItem": true,
+    "paperToQtiTest": true,
+    "knowledgeNodeToCase": true,
+    "scoreRecordToOneRoster": true,
+    "analysisEventToCaliperConceptual": true,
+    "profileCount": 5
+  },
+  "admissionDecision": {
+    "qti": "profile_map_only",
+    "case": "profile_map_only",
+    "oneRoster": "blocked_until_authorized_need",
+    "caliper": "conceptual_only",
+    "currentDecision": "keep_R007_todo_profile_map_only_fail_closed"
+  },
+  "codeScan": {
+    "searchedRoots": [
+      "apps/api",
+      "apps/web/src",
+      "schemas",
+      "workers"
+    ],
+    "blockedPatterns": [
+      "QTI",
+      "OneRoster",
+      "Caliper",
+      "IMS Global",
+      "CASE framework",
+      "LTI",
+      "SIS sync"
+    ],
+    "hitCount": 0,
+    "noQtiImportExport": true,
+    "noOneRosterSisSync": true,
+    "noCaliperEventStream": true,
+    "noExternalStandardSchemaMutation": true
+  },
+  "acceptance": {
+    "r007AdmissionReportPassed": true,
+    "adr009FailClosedAccepted": true,
+    "profileMapCoversRequiredModels": true,
+    "qtiProfileOnly": true,
+    "caseProfileOnly": true,
+    "oneRosterBlockedUntilAuthorizedNeed": true,
+    "caliperConceptualOnly": true,
+    "p006RemainsTodo": true,
+    "ns1005RemainsBlockedByOnsite": true,
+    "r003RemainsTodo": true,
+    "r007RemainsTodo": true,
+    "noImportExportAdapterEnabled": true,
+    "noSisSync": true,
+    "noEventStreamWrite": true,
+    "noSchemaMutation": true
+  },
+  "nextRequiredEvidence": [
+    "P006 release decision record",
+    "real third-party integration demand source",
+    "authorized sample package for target standard/system",
+    "field difference and lossy-field report",
+    "privacy review for student/score/analytics data",
+    "adapter owner, dry-run preview, review UI, rollback/disable switch"
+  ],
+  "verification": {
+    "build": "gate_na: admission boundary script only; no product code build required",
+    "test": "tools/run-r007-interoperability-profile-map-preflight-contract.ps1 + tools/run-ns1203-interop-profile-map.ps1",
+    "contractInvariant": "NS1203 keeps profile-map-only admission, leaves R003/R007/P006/NS1005 blocked, and verifies no standards import/export, SIS sync, or Caliper event stream was enabled",
+    "hotspot": "gate_na: real interoperability spike requires post-NS1005 release evidence, authorized sample package, adapter owner, privacy review, and rollback plan"
+  },
+  "teacherEfficiencyBoundary": "ordinary teacher workflows are unchanged; NS1203 only maps future interoperability risk so external standards do not leak into the core teacher model prematurely",
+  "boundary": "NS1203 verifies the interoperability profile-map boundary only. It does not implement QTI/CASE/OneRoster/Caliper import/export, does not sync SIS data, does not write an analytics event stream, and does not mutate schemas.",
+  "rollback": "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1 tools/README.md; git clean -f -- tools/run-ns1203-interop-profile-map.ps1 docs/evidence/20260617-ns1203-interop-profile-map.json",
+  "next": "NS1204 can continue advanced-analysis admission boundary; real interoperability remains blocked until P006/NS1005 and authorized integration evidence exist."
+}

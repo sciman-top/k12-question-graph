@@ -1,0 +1,99 @@
+{
+  "status": "pass",
+  "taskId": "NS1202",
+  "checkedAt": "2026-06-17T23:20:50",
+  "mode": "queue_worker_scale_admission_boundary",
+  "productionEligible": false,
+  "nonSiteValidated": false,
+  "releaseReady": false,
+  "externalAiCalls": 0,
+  "realStudentDataUsed": false,
+  "containsStudentPii": false,
+  "writesProductionHistory": false,
+  "activeAssetMutation": false,
+  "dependency": {
+    "ns1005": "tasks/non-site-implementation-plan.csv",
+    "r002Report": "docs/evidence/20260522-r002-queue-worker-scale-admission-report.json",
+    "r002Decision": "docs/decisions/ADR-011-queue-worker-scale-admission.md",
+    "r002Checklist": "docs/templates/r002-queue-worker-scale-eval-checklist.md",
+    "r002PreflightEvidence": "docs/evidence/20260505-r002-queue-worker-scale-eval-preflight.md",
+    "completionDashboard": "tasks/completion-state-dashboard.csv",
+    "hostCapability": "docs/evidence/o002-host-capability-diagnostic-report.json",
+    "workerProfile": "docs/evidence/worker-profile-diagnostic-report.json"
+  },
+  "backlog": {
+    "p006Status": "待办",
+    "r002Status": "待办",
+    "r002CloseTaskAllowed": false,
+    "ns1005Status": "blocked_by_onsite",
+    "ns1202StatusAtCheck": "runtime_verified",
+    "ns1202DependsOn": "NS1005"
+  },
+  "currentBaseline": {
+    "queueProfile": "postgresql_job_store_backgroundservice_first",
+    "queueProfileStatus": "backgroundservice_ok",
+    "queueFallback": "defer_hangfire_rabbitmq_until_throughput_evidence",
+    "workerDefaultProfile": "direct_venv_lite",
+    "workerDiagnosticReadOnly": true,
+    "s012bElapsedMs": 592530,
+    "p001CanClose": false
+  },
+  "admissionDecision": {
+    "postgresqlJobStoreBackgroundService": "current_default",
+    "hangfire": "blocked_until_operational_need",
+    "rabbitmqOrDistributedQueue": "blocked",
+    "currentDecision": "keep_R002_todo_backgroundservice_first_fail_closed"
+  },
+  "codeScan": {
+    "searchedRoots": [
+      "apps/api",
+      "apps/web/src",
+      "workers"
+    ],
+    "blockedPatterns": [
+      "Hangfire",
+      "RabbitMQ",
+      "MassTransit",
+      "Confluent.Kafka",
+      "Kafka",
+      "IBackgroundJobClient",
+      "UseHangfire",
+      "QueueDeclare"
+    ],
+    "hitCount": 0,
+    "noHangfirePackageOrRoute": true,
+    "noRabbitMqOrBrokerRoute": true,
+    "noDistributedQueueDefault": true
+  },
+  "acceptance": {
+    "r002AdmissionReportPassed": true,
+    "adr011FailClosedAccepted": true,
+    "backgroundServiceKeptAsDefault": true,
+    "hangfireBlockedUntilOperationalNeed": true,
+    "rabbitMqBlocked": true,
+    "p006RemainsTodo": true,
+    "ns1005RemainsBlockedByOnsite": true,
+    "r002RemainsTodo": true,
+    "noHangfirePackageOrSchema": true,
+    "noRabbitMqOrBrokerSetup": true,
+    "noDistributedWorkerRouteChange": true,
+    "noProductionWrite": true
+  },
+  "nextRequiredEvidence": [
+    "P006 release decision record",
+    "P001 isolated-machine run with queue depth and retry evidence",
+    "BackgroundService throughput p50/p95 and failure recovery baseline",
+    "teacher workflow impact when queue is saturated",
+    "Hangfire/RabbitMQ migration owner and rollback/disable-switch plan only if baseline proves need"
+  ],
+  "verification": {
+    "build": "gate_na: admission boundary script only; no product code build required",
+    "test": "tools/run-r002-queue-worker-scale-eval-preflight-contract.ps1 + tools/run-ns1202-queue-eval.ps1",
+    "contractInvariant": "NS1202 keeps PostgreSQL job store + BackgroundService first, leaves R002/P006/NS1005 blocked, and verifies no Hangfire/RabbitMQ/distributed-queue product route was enabled",
+    "hotspot": "gate_na: real queue scale benchmark requires post-NS1005 release/field evidence and queue metrics"
+  },
+  "teacherEfficiencyBoundary": "ordinary teacher workflows are unchanged; NS1202 only prevents premature queue infrastructure until real BackgroundService insufficiency evidence exists",
+  "boundary": "NS1202 verifies the queue/worker scale admission boundary only. It does not run a field throughput benchmark, does not close R002, does not install Hangfire, does not configure RabbitMQ or a broker, and does not change default worker routes.",
+  "rollback": "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1 tools/README.md; git clean -f -- tools/run-ns1202-queue-eval.ps1 docs/evidence/20260617-ns1202-queue-eval.json",
+  "next": "NS1203 can continue interoperability profile-map boundary; real queue technology upgrade remains blocked until P006/NS1005 and metrics evidence exist."
+}

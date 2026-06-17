@@ -269,7 +269,7 @@ NS803 installer host diagnostic:
 This reuses the installer initialization config for the non-site NS8 track. It
 checks writable data/backup/file-store/log/cache/model-cache roots, runs the
 pgpass dry-run, worker profile diagnostic, and host capability diagnostic, then
-writes `docs/evidence/20260530-ns803-installer-host.json`. It stays read-only
+writes `docs/evidence/<run-date>-ns803-installer-host.json`. It stays read-only
 for host capabilities: no dependency install, network requirement, model weight
 download, production default switch, or plaintext password evidence.
 
@@ -283,7 +283,7 @@ This reuses the O001 publish package contract for the non-site NS8 track. It
 requires NS803 evidence, publishes API/Web plus the document worker package,
 boots the published API from a temporary working directory with explicit
 `--contentRoot`, checks health/readiness, and writes
-`docs/evidence/20260530-ns804-windows-service.json`. It does not install a
+`docs/evidence/<run-date>-ns804-windows-service.json`. It does not install a
 Windows Service, change firewall rules, or switch production defaults.
 
 NS805 capacity/cost/health dashboard:
@@ -297,7 +297,7 @@ This aggregates the non-site NS8 dashboard readiness evidence: NS801/NS802
 backup and restore signals, NS803 host diagnostic, NS804 package health,
 NS503 AI cost evidence, G002 cache cleanup boundaries, K006 knowledge health,
 and O005 admin UI/API contracts. It writes
-`docs/evidence/20260530-ns805-health-dashboard.json` and stays draft/test:
+`docs/evidence/<run-date>-ns805-health-dashboard.json` and stays draft/test:
 no production data delete, external AI call, active asset write, or service
 installation.
 
@@ -312,7 +312,7 @@ This wraps the O007 EF migration bundle rehearsal for the non-site NS8 track.
 It requires NS804 package health and NS805 dashboard evidence, builds/runs the
 EF migration bundle through O007, then checks post-bundle backup verification
 and isolated restore drill evidence. It writes
-`docs/evidence/20260530-ns806-upgrade-bundle.json` and remains draft/test: no
+`docs/evidence/<run-date>-ns806-upgrade-bundle.json` and remains draft/test: no
 Windows Service install, production default switch, production data cleanup,
 external AI call, active asset write, or live deployment closure.
 
@@ -326,7 +326,7 @@ $env:PGPASSWORD='<local-password>'
 This verifies the NS9 synthetic/proxy scenario pack from runtime evidence. It
 requires NS607 export artifacts, NS704 commentary report export, NS806 upgrade
 restore evidence, S012A fixture admission, and S012B non-site E2E rehearsal.
-It writes `docs/evidence/20260530-ns901-non-site-scenario-pack.json`. It can
+It writes `docs/evidence/<run-date>-ns901-non-site-scenario-pack.json`. It can
 run with `-SkipS012Refresh` after S012A/S012B have just run in the full gate.
 The report marks `nonSiteValidated=false`: authorized/anonymized school
 materials, isolated-machine deployment, teacher observation, printer/network,
@@ -342,7 +342,7 @@ NS903 completion dashboard refresh:
 This refreshes the completion-state evidence after NS901/NS902/NS906 runtime
 checks. It verifies the S001 dashboard, keeps `release_ready=0`, keeps
 `nonSiteValidated=false`, and preserves explicit P001/REAL005 blockers. It
-writes `docs/evidence/20260530-ns903-completion-dashboard.json`. It is
+writes `docs/evidence/<run-date>-ns903-completion-dashboard.json`. It is
 evidence-only: no external AI call, real student data, production history
 write, active asset mutation, or live pilot closure.
 
@@ -356,7 +356,7 @@ This assembles the P001 readiness pack after NS903 and the P001 preflight
 contract. It verifies NS803 installer/host diagnostics, NS804 publish package,
 NS805 capacity/health evidence, NS806 upgrade/restore evidence, NS901 scenario
 coverage, NS906 visual surrogate boundaries, and REAL005 `not_closed`. It
-writes the latest repo evidence at `docs/evidence/20260614-ns904-p001-readiness.json`, keeps
+writes the latest repo evidence at `docs/evidence/<run-date>-ns904-p001-readiness.json`, keeps
 `p001CanClose=false`, keeps `releaseReady=false`, and lists the remaining
 isolated-machine, onsite-teacher, printer, network, domain-permission, and
 operator-signoff blockers for the P001 checklist.
@@ -372,7 +372,7 @@ evidence already assembled: REAL001-REAL012, host capability diagnostic,
 worker profile diagnostic, technology refresh `report_only`, the
 `docs/templates/p001-live-pilot-release-checklist.md`, and the
 `docs/templates/p001-isolated-machine-evidence-template.md`. It writes
-the latest repo evidence at `docs/evidence/20260614-p001-live-pilot-readiness-preflight-report.json`,
+the latest repo evidence at `docs/evidence/<run-date>-p001-live-pilot-readiness-preflight-report.json`,
 keeps `readyForIsolatedMachineRun=true`, keeps `p001CanClose=false`, and does
 not execute isolated-machine install, printer/network/domain checks, or
 operator signoff. It also reads `tasks/live-pilot-closeout-plan.csv` so the
@@ -424,7 +424,7 @@ to keep the next open slices for `REAL005/P001/P003/P005/P006` explicit in the
 status audit. It also resolves the latest existing REAL005 closure-standard
 report by default and requires `sliceCoverage.REAL005A` plus the current
 `nextOpenREAL005` boundary to stay aligned. The latest repo evidence is
-`docs/evidence/20260614-ns905-status-sync.md`.
+`docs/evidence/<run-date>-ns905-status-sync.md`.
 
 Live pilot closeout plan guard:
 
@@ -440,10 +440,11 @@ in `README.md`, `docs/109_ReleaseGoNoGoCard.md`,
 `docs/112_CurrentClosureStatus_20260609.md`. It requires the REAL005 closure
 report to stay `not_closed`, resolves the latest existing REAL005 report by
 default, and now allows `REAL005A` to be completed only when RG001/RG002 pass;
-after that, the guard requires `REAL005B` to be the current next-open slice. It
+after that, the guard requires the current REAL005 next-open slice to match the
+latest closure evidence. It
 writes the latest JSON/Markdown summaries to
-`docs/evidence/20260614-live-pilot-closeout-plan-guard.json` and
-`docs/evidence/20260614-live-pilot-closeout-plan-guard.md`, and does not
+`docs/evidence/<run-date>-live-pilot-closeout-plan-guard.json` and
+`docs/evidence/<run-date>-live-pilot-closeout-plan-guard.md`, and does not
 fabricate onsite evidence.
 
 Live pilot closeout repo-side audit:
@@ -484,13 +485,15 @@ REAL005 slice coverage contract:
 
 This checks that the REAL005 report exposes machine-readable
 `sliceCoverage.REAL005A/B/C/D` instead of leaving closeout advancement to prose
-alone. The contract now requires `REAL005A` to pass after the RG001/RG002
-source/adapter evidence is complete, keeps `REAL005B` non-pass until
-per-question structure and review coverage is closed, and now also requires the
-report to expose `REAL005B1-B6` / `REAL005C1-C5` detailed slice coverage plus a
-machine-readable `nextDetailedOpen` seam. It is run from temp outputs by
-default and inside both `run-gate-group.ps1 -Group pqr` and the full gate so
-historical evidence is not rewritten during local verification.
+alone. The contract requires `REAL005A` to pass after the RG001/RG002
+source/adapter evidence is complete, allows `REAL005B` and `REAL005C` to move
+to `pass` only when their repo-side evidence is really closed, and then
+requires `REAL005D` to remain the current blocked outward wording slice while
+`closureStatus` still stays `not_closed`. It also requires the report to expose
+`REAL005B1-B6` / `REAL005C1-C5` detailed slice coverage plus a machine-readable
+`nextDetailedOpen` seam. It is run from temp outputs by default and inside both
+`run-gate-group.ps1 -Group pqr` and the full gate so historical evidence is not
+rewritten during local verification.
 
 REAL005B question structure diagnostics:
 
@@ -593,7 +596,7 @@ NS1101 second-subject candidate boundary pack:
 This verifies the Q001 second-subject candidate admission boundary after the
 NS905 status sync. It keeps `P006` and `Q001` as `待办`, keeps NS1001-NS1005
 as `blocked_by_onsite`, requires `closeTaskAllowed=false`, and writes
-`docs/evidence/20260530-ns1101-second-subject-candidate.json` with
+`docs/evidence/<run-date>-ns1101-second-subject-candidate.json` with
 `productionEligible=false`, `activeAssetMutation=false`, and
 `secondSubjectAdmissionExecuted=false`. It is a boundary/preflight pack only:
 no source package import, candidate manifest creation, or active asset switch.
@@ -606,7 +609,7 @@ NS1102 second-subject teacher review template boundary pack:
 
 This verifies the Q002 teacher review template boundary after NS1101. It keeps
 `Q001`, `Q002`, and `Q003` as `待办`, requires `closeTaskAllowed=false`, and
-writes `docs/evidence/20260530-ns1102-second-subject-review-template.json`
+writes `docs/evidence/<run-date>-ns1102-second-subject-review-template.json`
 with `teacherReviewExecuted=false`, `realCandidateAssetsReviewed=false`,
 `productionEligible=false`, and `q003CanAdvance=false`. It is a template
 boundary/preflight pack only: no real teacher review execution, no real
@@ -620,7 +623,7 @@ NS1103 second-subject active dry-run boundary pack:
 
 This verifies the Q003 second-subject active dry-run boundary after NS1102. It
 keeps `Q002`, `Q003`, and `Q004` as `待办`, requires `closeTaskAllowed=false`,
-and writes `docs/evidence/20260531-ns1103-second-subject-active-dry-run.json`
+and writes `docs/evidence/<run-date>-ns1103-second-subject-active-dry-run.json`
 with `activeDryRunExecuted=false`, `activeSwitchPerformed=false`,
 `rollbackSnapshotRecorded=false`, `productionEligible=false`, and
 `q004CanAdvance=false`. It is an activation boundary/preflight pack only: no
@@ -636,7 +639,7 @@ NS1104 cross-subject UI boundary pack:
 This verifies the Q004/Q005 cross-subject diff and multi-subject UI
 simplification boundary after NS1103. It keeps `Q003`, `Q004`, and `Q005` as
 `待办`, requires both Q004 and Q005 reports to remain `preflight_only`, and
-writes `docs/evidence/20260531-ns1104-cross-subject-ui.json` with the ordinary
+writes `docs/evidence/<run-date>-ns1104-cross-subject-ui.json` with the ordinary
 teacher surface still limited to four high-frequency entries. It is a
 boundary/preflight pack only: no real cross-subject diff report, no subject
 switching UI, no UI smoke execution, and no Q004/Q005 closure.
@@ -665,7 +668,7 @@ NS1201 search and semantic retrieval admission boundary pack:
 This verifies the R001 search/semantic retrieval upgrade boundary after the
 NS1005 release decision remains blocked by onsite evidence. It keeps `P006`
 and `R001` as `待办`, keeps PostgreSQL FTS/`pg_trgm` as the default route, and
-writes `docs/evidence/20260531-ns1201-search-eval.json` with pgvector,
+writes `docs/evidence/<run-date>-ns1201-search-eval.json` with pgvector,
 embedding generation, and external search still blocked until real FTS
 insufficiency evidence exists. It is an admission boundary pack only: no field
 benchmark, no pgvector migration, no embedding route, no external search setup,
@@ -680,7 +683,7 @@ NS1202 queue and worker scale admission boundary pack:
 This verifies the R002 queue/worker scale boundary after the NS1005 release
 decision remains blocked by onsite evidence. It keeps `P006` and `R002` as
 `待办`, keeps PostgreSQL job store + `BackgroundService` as the default route,
-and writes `docs/evidence/20260531-ns1202-queue-eval.json` with Hangfire,
+and writes `docs/evidence/<run-date>-ns1202-queue-eval.json` with Hangfire,
 RabbitMQ, broker setup, and distributed worker routing still blocked until real
 throughput or reliability evidence exists. It is an admission boundary pack
 only: no field throughput benchmark, no package install, no broker setup, and
@@ -696,7 +699,7 @@ This verifies the R007 profile-map boundary after the NS1005 release decision
 remains blocked by onsite evidence. It keeps `P006`, `R003`, and `R007` as
 `待办`, verifies the QuestionItem/Paper/KnowledgeNode/ScoreRecord/AnalysisEvent
 profile map to QTI/CASE/OneRoster/Caliper, and writes
-`docs/evidence/20260531-ns1203-interop-profile-map.json`. It is an admission
+`docs/evidence/<run-date>-ns1203-interop-profile-map.json`. It is an admission
 boundary pack only: no QTI/CASE/OneRoster/Caliper import/export, no SIS sync,
 no Caliper event stream, and no schema mutation.
 
@@ -708,7 +711,7 @@ NS1204 advanced analysis admission boundary pack:
 
 This verifies the R004 advanced-analysis boundary after NS704 commentary report
 evidence. It keeps `R004` as `待办`, keeps basic CTT/commentary as draft/test,
-and writes `docs/evidence/20260531-ns1204-advanced-analysis-admission.json`
+and writes `docs/evidence/<run-date>-ns1204-advanced-analysis-admission.json`
 with IRT, form equating, and longitudinal growth still blocked until sample,
 owner, explanation, and rollback evidence exists. It is an admission boundary
 pack only: no real student data, no IRT/equating/growth computation, no
@@ -723,7 +726,7 @@ NS1205 public/multischool deployment admission boundary pack:
 This verifies the R005 public/multischool deployment boundary after the NS1005
 release decision remains blocked by onsite evidence. It keeps `P001`, `P006`,
 and `R005` as `待办`, keeps single-school LAN as the only preferred future
-route, and writes `docs/evidence/20260531-ns1205-multischool-admission.json`
+route, and writes `docs/evidence/<run-date>-ns1205-multischool-admission.json`
 with public internet exposure, multi-school shared deployment, and multi-tenant
 SaaS still blocked. It is an admission boundary pack only: no network exposure,
 no tenant schema/config, no reverse proxy/Kubernetes default, and no release
@@ -739,7 +742,7 @@ This verifies the R006 long-term maintenance cadence boundary after the NS1005
 release decision remains blocked by onsite evidence. It keeps `P001`, `P006`,
 and `R006` as `待办`, keeps dependency refresh as report-only, blocks
 performance work until a baseline exists, and writes
-`docs/evidence/20260531-ns1206-techdebt-cadence.json`. It is an admission
+`docs/evidence/<run-date>-ns1206-techdebt-cadence.json`. It is an admission
 boundary pack only: no dependency upgrade, no model download, no performance
 mutation, no experiment deletion, and no production cleanup.
 

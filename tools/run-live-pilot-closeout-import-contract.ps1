@@ -13,6 +13,19 @@ function Assert-Condition([bool] $Condition, [string] $Message) {
     if (-not $Condition) { throw $Message }
 }
 
+function Resolve-LatestEvidencePath([string] $Filter, [string] $PreferredPath) {
+    $evidenceRoot = Resolve-InRepoPath 'docs/evidence'
+    $matches = @(Get-ChildItem -LiteralPath $evidenceRoot -Filter $Filter -File | Sort-Object Name)
+    if ($matches.Count -gt 0) {
+        return ('docs/evidence/' + $matches[-1].Name)
+    }
+
+    Assert-Condition (-not [string]::IsNullOrWhiteSpace($PreferredPath)) "missing evidence for filter: $Filter"
+    $preferredFullPath = Resolve-InRepoPath $PreferredPath
+    Assert-Condition (Test-Path -LiteralPath $preferredFullPath -PathType Leaf) "missing preferred evidence path: $PreferredPath"
+    return ($PreferredPath -replace '\\', '/')
+}
+
 function Write-JsonFile([string] $Path, [object] $Value) {
     New-Item -ItemType Directory -Path (Split-Path -Parent $Path) -Force | Out-Null
     $Value | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $Path -Encoding UTF8
@@ -22,6 +35,12 @@ Push-Location $repoRoot
 try {
     $workRootFullPath = Resolve-InRepoPath $WorkRoot
     New-Item -ItemType Directory -Path $workRootFullPath -Force | Out-Null
+    $currentDate = Get-Date -Format 'yyyy-MM-dd'
+    $latestP002ReportPath = Resolve-LatestEvidencePath '*-p002-teacher-proxy-pilot-admission-report.json' 'docs/evidence/20260614-p002-teacher-proxy-pilot-admission-report.json'
+    $latestP003ReportPath = Resolve-LatestEvidencePath '*-p003-onsite-pilot-admission-report.json' 'docs/evidence/20260614-p003-onsite-pilot-admission-report.json'
+    $latestP004ReportPath = Resolve-LatestEvidencePath '*-p004-onsite-pilot-round1-report.json' 'docs/evidence/20260614-p004-onsite-pilot-round1-report.json'
+    $latestNs904ReportPath = Resolve-LatestEvidencePath '*-ns904-p001-readiness.json' 'docs/evidence/20260617-ns904-p001-readiness.json'
+    $latestCloseoutGuardPath = Resolve-LatestEvidencePath '*-live-pilot-closeout-plan-guard.md' 'docs/evidence/20260617-live-pilot-closeout-plan-guard.md'
 
     $p001ReturnedPackRoot = Resolve-InRepoPath 'tmp/ns1001-import-smoke'
     Assert-Condition (Test-Path -LiteralPath $p001ReturnedPackRoot -PathType Container) 'missing NS1001 smoke fixture under tmp/ns1001-import-smoke'
@@ -52,12 +71,12 @@ try {
     $p003Record = [ordered]@{
         schemaVersion = 'p003-onsite-pilot-admission-card.v1'
         admissionContext = [ordered]@{
-            date = '2026-06-13'
+            date = $currentDate
             site = 'school-lab'
             operator = 'pilot-coordinator'
             teacherOrProxy = 'proxy-teacher'
             admissionDecision = 'keep_blocked'
-            sourceEvidence = 'docs/evidence/20260613-p002-teacher-proxy-pilot-admission-report.json'
+            sourceEvidence = $latestP002ReportPath
         }
         teacherBoundary = [ordered]@{
             participants = @('teacher-a')
@@ -122,11 +141,11 @@ try {
     $p004Record = [ordered]@{
         schemaVersion = 'p004-onsite-pilot-round1-evidence.v1'
         pilotContext = [ordered]@{
-            date = '2026-06-13'
+            date = $currentDate
             site = 'school-lab'
             operator = 'pilot-coordinator'
             teacher = 'teacher-a'
-            sourceEvidence = 'docs/evidence/20260613-p003-onsite-pilot-admission-report.json'
+            sourceEvidence = $latestP003ReportPath
             decision = 'keep_blocked'
         }
         prefilledChecks = [ordered]@{
@@ -170,7 +189,7 @@ try {
     Assert-Condition ([string]$p004Report.taskId -eq 'P004') 'P004 import contract expected taskId=P004'
     Assert-Condition ([string]$p004Report.decision.requested -eq 'keep_blocked') 'P004 import contract expected keep_blocked decision'
 
-    $p005Date = '2026-06-13'
+    $p005Date = $currentDate
     $p005RecordJsonPath = Join-Path $workRootFullPath 'p005/p005-triage-record.json'
     $p005RecordMarkdownPath = Join-Path $workRootFullPath 'p005/p005-triage-record.md'
     $p005ReportPath = Join-Path $WorkRoot 'p005/p005-validation.json'
@@ -178,7 +197,7 @@ try {
         schemaVersion = 'p005-pilot-feedback-triage.v1'
         pilotContext = [ordered]@{
             date = $p005Date
-            sourceEvidence = 'docs/evidence/20260609-p004-onsite-pilot-round1-report.json'
+            sourceEvidence = $latestP004ReportPath
             operator = 'triage-operator'
             teacherOrProxy = 'proxy-teacher'
             site = 'school-lab'
@@ -251,7 +270,7 @@ try {
     Assert-Condition ([int]$p005Report.summary.keepCount -eq 1) 'P005 import contract expected keepCount=1'
     Assert-Condition ([int]$p005Report.summary.modifyCount -eq 1) 'P005 import contract expected modifyCount=1'
 
-    $p006Date = '2026-06-13'
+    $p006Date = $currentDate
     $p006RecordJsonPath = Join-Path $workRootFullPath 'p006/p006-release-decision-record.json'
     $p006RecordMarkdownPath = Join-Path $workRootFullPath 'p006/p006-release-decision-record.md'
     $p006ReportPath = Join-Path $WorkRoot 'p006/p006-validation.json'
@@ -266,11 +285,11 @@ try {
             siteScope = 'school-lab'
         }
         evidenceAnchors = [ordered]@{
-            p001ReadinessPack = 'docs/evidence/20260611-ns904-p001-readiness.json'
-            p005Triage = 'docs/evidence/20260613-p005-feedback-triage-validation.json'
+            p001ReadinessPack = $latestNs904ReportPath
+            p005Triage = $p005ReportPath.Replace('\', '/')
             goNoGoCard = 'docs/109_ReleaseGoNoGoCard.md'
             fullGateEvidence = 'docs/evidence/20260504-h0-full-gate-evidence.md'
-            roadmapGuardEvidence = 'docs/evidence/20260613-live-pilot-closeout-plan-guard.md'
+            roadmapGuardEvidence = $latestCloseoutGuardPath
             backupEvidence = 'docs/evidence/20260505-o003-recovery-drill-upgrade.md'
             restoreEvidence = 'docs/evidence/20260505-o003-recovery-drill-upgrade.md'
             privacyEvidence = 'docs/evidence/20260505-n001-real-privacy-boundary-admission.md'

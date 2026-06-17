@@ -1,7 +1,7 @@
 # Live Pilot Closeout Plan Guard
 
 - status: pass
-- checked_at: 2026-06-17T22:08:56
+- checked_at: 2026-06-17T22:34:36
 - plan_path: tasks/live-pilot-closeout-plan.csv
 - row_count: 26
 - real005_report_path: docs/evidence/20260617-real005-guangzhou-2015-2025-closure-standard-report.json

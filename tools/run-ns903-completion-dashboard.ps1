@@ -1,5 +1,5 @@
 param(
-    [string] $ReportPath = 'docs/evidence/20260530-ns903-completion-dashboard.json',
+    [string] $ReportPath = '',
     [string] $S001JsonReportPath = 'docs/evidence/20260506-s001-completion-state-dashboard.json',
     [string] $S001MarkdownReportPath = 'docs/evidence/20260506-s001-completion-state-dashboard.md',
     [string] $REAL005ReportPath = '',
@@ -35,6 +35,22 @@ function Resolve-LatestReal005ReportPath([string] $PreferredPath) {
     return [System.IO.Path]::GetRelativePath($repoRoot, $latest[0].FullName).Replace('\', '/')
 }
 
+function Resolve-LatestEvidencePath([string] $Filter) {
+    $evidenceRoot = Join-Path $repoRoot 'docs/evidence'
+    Assert-Condition (Test-Path -LiteralPath $evidenceRoot) 'missing docs/evidence directory'
+    $latest = @(
+        Get-ChildItem -LiteralPath $evidenceRoot -Filter $Filter -File |
+            Sort-Object Name -Descending |
+            Select-Object -First 1
+    )
+    Assert-Condition ($latest.Count -eq 1) "missing evidence matching filter: $Filter"
+    return [System.IO.Path]::GetRelativePath($repoRoot, $latest[0].FullName).Replace('\', '/')
+}
+
+if ([string]::IsNullOrWhiteSpace($ReportPath)) {
+    $ReportPath = ('docs/evidence/{0}-ns903-completion-dashboard.json' -f (Get-Date -Format 'yyyyMMdd'))
+}
+
 function Convert-OutputToJson([object[]] $Output, [string] $Label) {
     $lines = @($Output | ForEach-Object { [string]$_ })
     $start = -1
@@ -68,10 +84,12 @@ try {
         $s001 = Read-Json $S001JsonReportPath
     }
 
-    $ns901 = Read-Json 'docs/evidence/20260530-ns901-non-site-scenario-pack.json'
+    $ns901ReportPath = Resolve-LatestEvidencePath '*-ns901-non-site-scenario-pack.json'
+    $ns901 = Read-Json $ns901ReportPath
     $ns902 = Read-Json 'docs/evidence/20260528-non-site-e2e-rehearsal-report.json'
-    $ns906 = Read-Json 'docs/evidence/20260528-ns906-visual-surrogate-review-report.json'
-    $p001 = Read-Json 'docs/evidence/20260530-p001-live-pilot-readiness-preflight-report.json'
+    $ns906ReportPath = Resolve-LatestEvidencePath '*-ns906-visual-surrogate-review-report.json'
+    $ns906 = Read-Json $ns906ReportPath
+    $p001 = Read-Json (Resolve-LatestEvidencePath '*-p001-live-pilot-readiness-preflight-report.json')
     $REAL005ReportPath = Resolve-LatestReal005ReportPath $REAL005ReportPath
     $real005 = Read-Json $REAL005ReportPath
 
@@ -93,9 +111,29 @@ try {
     Assert-Condition ($null -ne $real005.sliceCoverage) 'NS903 requires REAL005 sliceCoverage'
     Assert-Condition ($null -ne $real005.sliceCoverage.REAL005A) 'NS903 requires REAL005A slice coverage'
     Assert-Condition ($null -ne $real005.sliceCoverage.REAL005B) 'NS903 requires REAL005B slice coverage'
+    Assert-Condition ($null -ne $real005.sliceCoverage.REAL005C) 'NS903 requires REAL005C slice coverage'
+    Assert-Condition ($null -ne $real005.sliceCoverage.REAL005D) 'NS903 requires REAL005D slice coverage'
+    $real005AStatus = [string]$real005.sliceCoverage.REAL005A.status
+    $real005BStatus = [string]$real005.sliceCoverage.REAL005B.status
+    $real005CStatus = [string]$real005.sliceCoverage.REAL005C.status
+    $real005DStatus = [string]$real005.sliceCoverage.REAL005D.status
+    $expectedReal005NextOpen = if ($real005AStatus -ne 'pass') {
+        'REAL005A'
+    }
+    elseif ($real005BStatus -ne 'pass') {
+        'REAL005B'
+    }
+    elseif ($real005CStatus -ne 'pass') {
+        'REAL005C'
+    }
+    else {
+        'REAL005D'
+    }
+    $real005CurrentBoundarySlice = $real005.sliceCoverage.PSObject.Properties[$expectedReal005NextOpen].Value
+    Assert-Condition ($null -ne $real005CurrentBoundarySlice) "NS903 requires REAL005 current boundary slice: $expectedReal005NextOpen"
     Assert-Condition ([string]$real005.sliceCoverage.REAL005A.status -eq 'pass') 'NS903 requires REAL005A to pass after RG001/RG002 source and adapter evidence is complete'
-    Assert-Condition ([string]$real005.sliceCoverage.REAL005B.status -ne 'pass') 'NS903 requires REAL005B to remain open while per-question structure and review evidence is incomplete'
-    Assert-Condition (@($real005.sliceCoverage.REAL005B.blockers).Count -ge 1) 'NS903 requires REAL005B blockers while REAL005 full closure is open'
+    Assert-Condition ([string]$real005CurrentBoundarySlice.status -ne 'pass') "NS903 requires current REAL005 boundary slice to remain open while full closure is not_closed: $expectedReal005NextOpen"
+    Assert-Condition (@($real005CurrentBoundarySlice.blockers).Count -ge 1) "NS903 requires current REAL005 boundary blockers while full closure is not_closed: $expectedReal005NextOpen"
     Assert-Condition (-not [bool]$p001.p001CanClose) 'NS903 must keep P001 open until isolated-machine evidence exists'
     Assert-Condition (@($p001.blockers).Count -gt 0) 'NS903 requires P001 blockers to stay explicit'
 
@@ -169,10 +207,10 @@ try {
         activeAssetMutation = $false
         dependency = [ordered]@{
             s001 = $S001JsonReportPath
-            ns901 = 'docs/evidence/20260530-ns901-non-site-scenario-pack.json'
+            ns901 = $ns901ReportPath
             ns902 = 'docs/evidence/20260528-non-site-e2e-rehearsal-report.json'
-            ns906 = 'docs/evidence/20260528-ns906-visual-surrogate-review-report.json'
-            p001 = 'docs/evidence/20260530-p001-live-pilot-readiness-preflight-report.json'
+            ns906 = $ns906ReportPath
+            p001 = Resolve-LatestEvidencePath '*-p001-live-pilot-readiness-preflight-report.json'
             real005 = $REAL005ReportPath
         }
         dashboard = [ordered]@{
@@ -199,10 +237,12 @@ try {
             p001Blockers = @($p001.blockers)
             real005ClosureStatus = [string]$real005.closureStatus
             real005FullClosureAllowed = [bool]$real005.fullClosureAllowed
-            real005ASliceStatus = [string]$real005.sliceCoverage.REAL005A.status
-            real005BStatus = [string]$real005.sliceCoverage.REAL005B.status
-            real005BBlockers = @($real005.sliceCoverage.REAL005B.blockers)
-            real005NextOpenSlice = 'REAL005B'
+            real005ASliceStatus = $real005AStatus
+            real005BStatus = $real005BStatus
+            real005CStatus = $real005CStatus
+            real005DStatus = $real005DStatus
+            real005NextOpenSlice = $expectedReal005NextOpen
+            real005NextOpenBlockers = @($real005CurrentBoundarySlice.blockers)
             ns901NonSiteValidated = [bool]$ns901.nonSiteValidated
         }
         acceptance = [ordered]@{

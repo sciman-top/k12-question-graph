@@ -1,8 +1,8 @@
 param(
-    [string] $ReportPath = 'docs/evidence/20260531-ns1201-search-eval.json',
+    [string] $ReportPath = '',
     [string] $NonSitePlanPath = 'tasks/non-site-implementation-plan.csv',
     [string] $BacklogPath = 'tasks/backlog.csv',
-    [string] $R001ReportPath = 'docs/evidence/20260522-r001-search-semantic-retrieval-admission-report.json',
+    [string] $R001ReportPath = '',
     [string] $R001DecisionPath = 'docs/decisions/ADR-010-search-semantic-retrieval-admission.md',
     [string] $R001ChecklistPath = 'docs/templates/r001-search-semantic-retrieval-eval-checklist.md',
     [string] $R001PreflightEvidencePath = 'docs/evidence/20260505-r001-search-semantic-retrieval-eval-preflight.md',
@@ -12,6 +12,11 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+$runDate = Get-Date -Format 'yyyyMMdd'
+
+if ([string]::IsNullOrWhiteSpace($ReportPath)) {
+    $ReportPath = ('docs/evidence/{0}-ns1201-search-eval.json' -f $runDate)
+}
 
 function Assert-Condition([bool] $Condition, [string] $Message) {
     if (-not $Condition) { throw $Message }
@@ -25,6 +30,17 @@ function Read-Json([string] $Path) {
     $fullPath = Resolve-InRepoPath $Path
     Assert-Condition (Test-Path -LiteralPath $fullPath) "missing json report: $Path"
     return Get-Content -LiteralPath $fullPath -Raw | ConvertFrom-Json
+}
+function Resolve-LatestEvidencePath([string] $Filter) {
+    $evidenceRoot = Resolve-InRepoPath 'docs/evidence'
+    Assert-Condition (Test-Path -LiteralPath $evidenceRoot) 'missing docs/evidence directory'
+    $latest = @(Get-ChildItem -LiteralPath $evidenceRoot -Filter $Filter -File | Sort-Object Name -Descending | Select-Object -First 1)
+    Assert-Condition ($latest.Count -eq 1) "missing evidence matching filter: $Filter"
+    return [System.IO.Path]::GetRelativePath($repoRoot, $latest[0].FullName).Replace('\', '/')
+}
+
+if ([string]::IsNullOrWhiteSpace($R001ReportPath)) {
+    $R001ReportPath = Resolve-LatestEvidencePath '*-r001-search-semantic-retrieval-admission-report.json'
 }
 
 function Get-RequiredRow([object[]] $Rows, [string] $Id, [string] $Column = 'id') {

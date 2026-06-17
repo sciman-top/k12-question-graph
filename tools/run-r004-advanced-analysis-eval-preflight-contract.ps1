@@ -8,7 +8,7 @@ param(
     [string] $N004EvidencePath = 'docs/evidence/20260505-n004-class-commentary-report-mvp.md',
     [string] $Real012ReportPath = 'docs/evidence/20260518-real012-production-flow-quality-report.json',
     [string] $DecisionPath = 'docs/decisions/ADR-006-advanced-analysis-admission.md',
-    [string] $ReportPath = 'docs/evidence/20260519-r004-advanced-analysis-admission-report.json'
+    [string] $ReportPath = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -41,6 +41,10 @@ function Write-ContentIfChanged([string] $Path, [string] $Content) {
     }
 
     Set-Content -LiteralPath $fullPath -Value $Content -Encoding UTF8
+}
+
+if ([string]::IsNullOrWhiteSpace($ReportPath)) {
+    $ReportPath = ('docs/evidence/{0}-r004-advanced-analysis-admission-report.json' -f (Get-Date -Format 'yyyyMMdd'))
 }
 
 $rows = Import-Csv -LiteralPath (Resolve-RepoPath $BacklogPath) -Encoding UTF8

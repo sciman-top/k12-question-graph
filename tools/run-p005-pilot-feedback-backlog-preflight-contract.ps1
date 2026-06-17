@@ -4,11 +4,16 @@ param(
     [string] $ChecklistPath = 'docs/templates/p005-pilot-feedback-backlog-checklist.md',
     [string] $TriageTemplatePath = 'docs/templates/p005-pilot-feedback-triage-template.json',
     [string] $EvidencePath = 'docs/evidence/20260505-p005-pilot-feedback-backlog-preflight.md',
-    [string] $ReportPath = 'docs/evidence/20260523-p005-pilot-feedback-backlog-admission-report.json'
+    [string] $ReportPath = ''
 )
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+$runDate = Get-Date -Format 'yyyyMMdd'
+
+if ([string]::IsNullOrWhiteSpace($ReportPath)) {
+    $ReportPath = ('docs/evidence/{0}-p005-pilot-feedback-backlog-admission-report.json' -f $runDate)
+}
 
 function Assert-True([bool]$Condition, [string]$Message) {
     if (-not $Condition) { throw $Message }

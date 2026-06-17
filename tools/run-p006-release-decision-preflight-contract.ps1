@@ -5,11 +5,16 @@ param(
     [string] $DecisionRecordTemplatePath = 'docs/templates/p006-release-decision-record-template.json',
     [string] $GoNoGoCardPath = 'docs/109_ReleaseGoNoGoCard.md',
     [string] $EvidencePath = 'docs/evidence/20260505-p006-release-decision-preflight.md',
-    [string] $ReportPath = 'docs/evidence/20260523-p006-release-decision-admission-report.json'
+    [string] $ReportPath = ''
 )
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+$runDate = Get-Date -Format 'yyyyMMdd'
+
+if ([string]::IsNullOrWhiteSpace($ReportPath)) {
+    $ReportPath = ('docs/evidence/{0}-p006-release-decision-admission-report.json' -f $runDate)
+}
 
 function Assert-True([bool]$Condition, [string]$Message) {
     if (-not $Condition) { throw $Message }

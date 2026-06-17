@@ -1,15 +1,20 @@
 param(
-    [string] $ReportPath = 'docs/evidence/20260530-ns1102-second-subject-review-template.json',
+    [string] $ReportPath = '',
     [string] $BacklogPath = 'tasks/backlog.csv',
     [string] $NonSitePlanPath = 'tasks/non-site-implementation-plan.csv',
     [string] $Q002ReportPath = 'docs/evidence/20260523-q002-second-subject-teacher-review-template-report.json',
     [string] $Q002ChecklistPath = 'docs/templates/q002-second-subject-teacher-review-template-checklist.md',
     [string] $Q002PreflightEvidencePath = 'docs/evidence/20260505-q002-second-subject-teacher-review-template-preflight.md',
-    [string] $NS1101ReportPath = 'docs/evidence/20260530-ns1101-second-subject-candidate.json'
+    [string] $NS1101ReportPath = ''
 )
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+$runDate = Get-Date -Format 'yyyyMMdd'
+
+if ([string]::IsNullOrWhiteSpace($ReportPath)) {
+    $ReportPath = ('docs/evidence/{0}-ns1102-second-subject-review-template.json' -f $runDate)
+}
 
 function Assert-Condition([bool] $Condition, [string] $Message) {
     if (-not $Condition) { throw $Message }
@@ -23,6 +28,17 @@ function Read-Json([string] $Path) {
     $fullPath = Resolve-InRepoPath $Path
     Assert-Condition (Test-Path -LiteralPath $fullPath) "missing json report: $Path"
     return Get-Content -LiteralPath $fullPath -Raw | ConvertFrom-Json
+}
+function Resolve-LatestEvidencePath([string] $Filter) {
+    $evidenceRoot = Resolve-InRepoPath 'docs/evidence'
+    Assert-Condition (Test-Path -LiteralPath $evidenceRoot) 'missing docs/evidence directory'
+    $latest = @(Get-ChildItem -LiteralPath $evidenceRoot -Filter $Filter -File | Sort-Object Name -Descending | Select-Object -First 1)
+    Assert-Condition ($latest.Count -eq 1) "missing evidence matching filter: $Filter"
+    return [System.IO.Path]::GetRelativePath($repoRoot, $latest[0].FullName).Replace('\', '/')
+}
+
+if ([string]::IsNullOrWhiteSpace($NS1101ReportPath)) {
+    $NS1101ReportPath = Resolve-LatestEvidencePath '*-ns1101-second-subject-candidate.json'
 }
 
 function Get-RequiredRow([object[]] $Rows, [string] $Id, [string] $Column = 'id') {
@@ -163,7 +179,7 @@ try {
         teacherEfficiencyBoundary = 'ordinary teacher flow is not changed; NS1102 only verifies the review template and keeps real teacher review evidence as a future prerequisite'
         boundary = 'NS1102 verifies the second-subject teacher review template boundary only. It does not execute teacher review, does not review real candidate assets, does not advance Q003, and does not close Q002 or Q001.'
         riskLevel = 'medium'
-        rollback = 'git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1 tools/README.md; git clean -f -- tools/run-ns1102-second-subject-review-template-boundary.ps1 docs/evidence/20260530-ns1102-second-subject-review-template.json'
+        rollback = 'git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1 tools/README.md; git clean -f -- tools/run-ns1102-second-subject-review-template-boundary.ps1 docs/evidence/20260617-ns1102-second-subject-review-template.json'
     }
 
     $reportFullPath = Resolve-InRepoPath $ReportPath

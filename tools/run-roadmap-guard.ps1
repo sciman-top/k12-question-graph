@@ -7,6 +7,22 @@ foreach ($row in $rows) {
     $byId[$row.id] = $row
 }
 
+function Resolve-LatestEvidencePath([string] $Filter, [string] $Label) {
+    $evidenceRoot = Join-Path $repoRoot 'docs\evidence'
+    if (-not (Test-Path -LiteralPath $evidenceRoot)) {
+        throw 'missing docs/evidence directory'
+    }
+    $latest = @(
+        Get-ChildItem -LiteralPath $evidenceRoot -Filter $Filter -File |
+            Sort-Object Name -Descending |
+            Select-Object -First 1
+    )
+    if ($latest.Count -ne 1) {
+        throw "missing $Label matching filter: $Filter"
+    }
+    return $latest[0].FullName
+}
+
 foreach ($requiredId in @(
     'C002', 'C002N', 'C002O', 'C002P', 'C002Q0', 'C002Q', 'C002S', 'C002T',
     'L001', 'L002', 'L003', 'L004', 'L005', 'L006', 'L007', 'M001', 'M002', 'M003', 'M004', 'M005', 'M006', 'N001', 'N002', 'N003', 'N004', 'N005', 'N006',
@@ -494,9 +510,9 @@ foreach ($entry in $expectedRealDependencies.GetEnumerator()) {
 }
 
 if ($real001.status -eq '已完成') {
-    $real001Report = Join-Path $repoRoot 'docs\evidence\20260512-guangzhou-2015-real-ingest-slice-report.json'
+    $real001Report = Resolve-LatestEvidencePath '*-guangzhou-2015-real-ingest-slice-report.json' 'REAL001 report'
     if (-not (Test-Path -LiteralPath $real001Report)) {
-        throw "REAL001 is completed but evidence is missing: docs/evidence/20260512-guangzhou-2015-real-ingest-slice-report.json"
+        throw "REAL001 is completed but evidence is missing under docs/evidence/*-guangzhou-2015-real-ingest-slice-report.json"
     }
     $report = Get-Content -LiteralPath $real001Report -Raw | ConvertFrom-Json
     if ($report.status -ne 'pass' -or $report.mode -ne 'apply') {

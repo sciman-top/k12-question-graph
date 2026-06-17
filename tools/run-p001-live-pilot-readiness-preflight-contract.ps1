@@ -4,7 +4,7 @@ param(
     [string] $ChecklistPath = 'docs/templates/p001-live-pilot-release-checklist.md',
     [string] $IsolatedMachineEvidenceTemplatePath = 'docs/templates/p001-isolated-machine-evidence-template.json',
     [string] $EvidencePath = 'docs/evidence/20260518-p001-live-pilot-readiness-preflight.md',
-    [string] $ReportPath = 'docs/evidence/20260518-p001-live-pilot-readiness-preflight-report.json',
+    [string] $ReportPath = '',
     [string] $HostCapabilityReportPath = 'docs/evidence/host-capability-diagnostic-report.json',
     [string] $WorkerProfileReportPath = 'docs/evidence/worker-profile-diagnostic-report.json',
     [string] $TechnologyRefreshReportPath = 'docs/evidence/technology-refresh-report.json',
@@ -44,12 +44,28 @@ function Resolve-LatestReal005ReportPath([string]$PreferredPath) {
     return [System.IO.Path]::GetRelativePath($repoRoot, $latest[0].FullName).Replace('\', '/')
 }
 
+function Resolve-LatestEvidencePath([string]$Filter, [string]$Label) {
+    $evidenceRoot = Resolve-InRepoPath 'docs/evidence'
+    Assert-True (Test-Path -LiteralPath $evidenceRoot) 'missing docs/evidence directory'
+    $latest = @(
+        Get-ChildItem -LiteralPath $evidenceRoot -Filter $Filter -File |
+            Sort-Object Name -Descending |
+            Select-Object -First 1
+    )
+    Assert-True ($latest.Count -eq 1) "missing $Label under docs/evidence"
+    return [System.IO.Path]::GetRelativePath($repoRoot, $latest[0].FullName).Replace('\', '/')
+}
+
 function Write-ContentIfChanged([string]$Path, [string]$Content) {
     if (Test-Path -LiteralPath $Path) {
         $existing = Get-Content -LiteralPath $Path -Raw
         if ($existing -eq $Content) { return }
     }
     Set-Content -LiteralPath $Path -Value $Content -Encoding UTF8
+}
+
+if ([string]::IsNullOrWhiteSpace($ReportPath)) {
+    $ReportPath = ('docs/evidence/{0}-p001-live-pilot-readiness-preflight-report.json' -f (Get-Date -Format 'yyyyMMdd'))
 }
 
 $backlogFullPath = Resolve-InRepoPath $BacklogPath
@@ -101,7 +117,7 @@ foreach ($required in $requiredCompleted) {
 }
 
 $realEvidencePaths = [ordered]@{
-    REAL001 = 'docs/evidence/20260512-guangzhou-2015-real-ingest-slice-report.json'
+    REAL001 = Resolve-LatestEvidencePath '*-guangzhou-2015-real-ingest-slice-report.json' 'REAL001 report'
     REAL002 = 'docs/evidence/20260512-guangzhou-2015-visual-region-slice-report.json'
     REAL003 = 'docs/evidence/20260514-real003-guangzhou-physics-year-batch-ingest-report.json'
     REAL004 = 'docs/evidence/20260512-real004-guangzhou-2015-review-smoke-report.json'
@@ -132,20 +148,33 @@ Assert-True (-not [bool]$real005Report.fullClosureAllowed) 'REAL005 full closure
 Assert-True ($null -ne $real005Report.sliceCoverage) 'P001 preflight requires REAL005 sliceCoverage'
 Assert-True ($null -ne $real005Report.sliceCoverage.REAL005A) 'P001 preflight requires REAL005A slice coverage'
 Assert-True ($null -ne $real005Report.sliceCoverage.REAL005B) 'P001 preflight requires REAL005B slice coverage'
+Assert-True ($null -ne $real005Report.sliceCoverage.REAL005C) 'P001 preflight requires REAL005C slice coverage'
+Assert-True ($null -ne $real005Report.sliceCoverage.REAL005D) 'P001 preflight requires REAL005D slice coverage'
 $real005AStatus = [string]$real005Report.sliceCoverage.REAL005A.status
 $real005BStatus = [string]$real005Report.sliceCoverage.REAL005B.status
+$real005CStatus = [string]$real005Report.sliceCoverage.REAL005C.status
 $real005NextOpenId = [string] $real005NextCloseout[0].id
-if ($real005AStatus -eq 'pass') {
-    Assert-True ($real005NextOpenId -eq 'REAL005B') 'P001 preflight requires REAL005B to be the next REAL005 closeout slice after REAL005A passes'
-    Assert-True ($real005BStatus -ne 'pass') 'P001 preflight requires REAL005B to remain open while per-question structure and review evidence is incomplete'
-    Assert-True (@($real005Report.sliceCoverage.REAL005B.blockers).Count -ge 1) 'P001 preflight requires REAL005B blockers while live pilot is preflight-only'
-}
-else {
+if ($real005AStatus -ne 'pass') {
     Assert-True ($real005AStatus -in @('blocked', 'partial')) 'P001 preflight requires REAL005A to be pass, blocked, or partial while full closure is open'
     Assert-True ($real005NextOpenId -eq 'REAL005A') 'P001 preflight requires REAL005A to remain next open until RG001/RG002 pass'
 }
+$expectedReal005NextOpen = if ($real005AStatus -ne 'pass') {
+    'REAL005A'
+}
+elseif ($real005BStatus -ne 'pass') {
+    'REAL005B'
+}
+elseif ($real005CStatus -ne 'pass') {
+    'REAL005C'
+}
+else {
+    'REAL005D'
+}
+Assert-True ($real005NextOpenId -eq $expectedReal005NextOpen) "P001 preflight requires REAL005 next open slice to match current closure evidence: expected $expectedReal005NextOpen actual $real005NextOpenId"
 $real005NextSliceCoverage = $real005Report.sliceCoverage.PSObject.Properties[$real005NextOpenId].Value
 Assert-True ($null -ne $real005NextSliceCoverage) "P001 preflight requires REAL005 slice coverage for next open slice: $real005NextOpenId"
+Assert-True ([string]$real005NextSliceCoverage.status -ne 'pass') "P001 preflight requires current REAL005 boundary slice to remain open while live pilot is preflight-only: $real005NextOpenId"
+Assert-True (@($real005NextSliceCoverage.blockers).Count -ge 1) "P001 preflight requires current REAL005 boundary blockers while live pilot is preflight-only: $real005NextOpenId"
 Assert-True ($real012Report.status -eq 'pass') 'REAL012 report must pass before P001 preflight'
 Assert-True (@($real012Report.searchProbe.selectedQuestionNos).Count -ge 3) 'REAL012 must prove ordered real-question search sample'
 Assert-True ([int]$real012Report.searchProbe.hasImageCount -ge 3) 'REAL012 must prove image-backed real question cards'

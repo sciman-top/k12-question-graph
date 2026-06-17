@@ -489,7 +489,7 @@ try {
     }
 
     Invoke-GateStep 'ns303 worker profile diagnostic guard' {
-        .\tools\run-worker-profile-diagnostic-contract.ps1 -Report 'docs/evidence/20260530-ns303-worker-profile.json' | Write-Host
+        .\tools\run-worker-profile-diagnostic-contract.ps1 -Report ('docs/evidence/{0}-ns303-worker-profile.json' -f $p0LiveRunDate) | Write-Host
     }
 
     Invoke-GateStep 'ns304 docx adapter guard' {
@@ -805,7 +805,7 @@ try {
     }
 
     Invoke-GateStep 'real guangzhou 2015 ingest slice dry-run' {
-        .\tools\run-guangzhou-2015-real-ingest-slice.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -FileStoreRoot $FileStoreRoot -Output 'docs\evidence\20260512-guangzhou-2015-real-ingest-slice-dry-run-report.json' | Write-Host
+        .\tools\run-guangzhou-2015-real-ingest-slice.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -FileStoreRoot $FileStoreRoot -Output ('docs\evidence\{0}-guangzhou-2015-real-ingest-slice-dry-run-report.json' -f $p0LiveRunDate) | Write-Host
     }
 
     Invoke-GateStep 'real guangzhou 2016-2025 batch ingest dry-run' {

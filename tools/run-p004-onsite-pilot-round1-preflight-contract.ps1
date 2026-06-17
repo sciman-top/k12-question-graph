@@ -3,11 +3,16 @@ param(
     [string] $ChecklistPath = 'docs/templates/p004-onsite-pilot-round1-checklist.md',
     [string] $EvidenceTemplatePath = 'docs/templates/p004-onsite-pilot-round1-evidence-template.json',
     [string] $EvidencePath = 'docs/evidence/20260505-p004-onsite-pilot-round1-preflight.md',
-    [string] $ReportPath = 'docs/evidence/20260523-p004-onsite-pilot-round1-report.json'
+    [string] $ReportPath = ''
 )
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+$runDate = Get-Date -Format 'yyyyMMdd'
+
+if ([string]::IsNullOrWhiteSpace($ReportPath)) {
+    $ReportPath = ('docs/evidence/{0}-p004-onsite-pilot-round1-report.json' -f $runDate)
+}
 
 function Assert-True([bool]$Condition, [string]$Message) {
     if (-not $Condition) { throw $Message }

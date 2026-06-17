@@ -5,7 +5,7 @@ param(
     [int] $DatabasePort = 5432,
     [string] $DatabasePassword = $env:PGPASSWORD,
     [string] $FileStoreRoot = 'D:\KQG_Data\file_store',
-    [string] $Output = 'docs\evidence\20260512-guangzhou-2015-real-ingest-slice-report.json',
+    [string] $Output = '',
     [switch] $Apply
 )
 
@@ -18,6 +18,10 @@ $DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword
 
 if ([string]::IsNullOrWhiteSpace($DatabasePassword)) {
     throw 'DatabasePassword or PGPASSWORD is required for Guangzhou 2015 real ingest slice'
+}
+
+if ([string]::IsNullOrWhiteSpace($Output)) {
+    $Output = ('docs\evidence\{0}-guangzhou-2015-real-ingest-slice-report.json' -f (Get-Date -Format 'yyyyMMdd'))
 }
 
 Push-Location $repoRoot

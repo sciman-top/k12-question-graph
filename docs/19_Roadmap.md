@@ -6,7 +6,7 @@
 
 本文件负责阶段顺序、收口原则和长期方向，不承担每日闭环状态。当前仓库级 / 非现场 / 现场的真实阻断与闭环进度，请看 `docs/112_CurrentClosureStatus_20260609.md`、`docs/103_ExecutionControlBoard.md`、`docs/109_ReleaseGoNoGoCard.md` 和 `tasks/completion-state-dashboard.csv`。
 
-2026-06-14 状态刷新补充：最新完整 `full gate` 仍是 2026-06-09 通过；2026-06-14 又刷新了 `reference-basis guard`、`live-pilot closeout plan guard`、`NS905 status sync audit`、`PQR gate group` 和 `repo preflight -Mode Ci`。因此路线图的最新真实边界不是“继续扩大功能面”，而是保持 `REAL005 = not_closed`、当前 next open 为 `REAL005B`、`P001/P003/P005/P006 = 待办`，并继续把高风险改动放在 `reference-basis` 约束下推进。
+2026-06-18 状态刷新补充：最新完整 `full gate` 仍是 2026-06-09 通过；2026-06-18 又刷新了 `live-pilot closeout plan guard`、`REAL005` closure standard 以及相关 PQR 守卫。`REAL005B` 与 `REAL005C` 的 repo-side evidence 已完成，但 `REAL005` 仍保持 `not_closed`、`fullClosureAllowed = false`，当前 next open 已推进到 `REAL005D`，`P001/P003/P005/P006 = 待办`。因此路线图的最新真实边界仍不是“继续扩大功能面”，而是继续把高风险改动放在 `reference-basis` 与 truthful closeout 约束下推进。
 
 ## 总体判断
 
@@ -81,7 +81,7 @@ C002 active 前必须先完成 C002S 正式化前审查闭环：抽样核对 201
 
 真卷入库同样按中风险处理。`REAL001` 的可复跑入口是 `tools/run-guangzhou-2015-real-ingest-slice.ps1`：默认 dry-run 在事务内验证后回滚，`-Apply` 才写入本机数据库；报告必须记录 `question_items/cut_candidates/source_regions/review_queue_items` 数量、外部 AI 调用数、真实学生数据使用情况、剩余缺口和 targeted rollback SQL。任何乱码、缺题、缺答案、缺来源或跳过 `pending_review` 的结果都不得标成闭环。
 
-2015-2025 真卷全流程闭环不得用局部 smoke 代替。`tools/run-real005-guangzhou-2015-2025-closure-standard.ps1` 是当前判定入口：它读取 `tasks/real-guangzhou-closure-criteria.csv`、`tasks/backlog.csv` 和 `tasks/completion-state-dashboard.csv`，输出最新日期化 evidence，例如 `docs/evidence/20260614-real005-guangzhou-2015-2025-closure-standard-report.json`。截至 2026-06-14，`REAL005A` 已按 RG001/RG002 逐年来源与 adapter 覆盖完成，`REAL005B` 仍因逐题答案来源锚点、截图级 source regions、结构化字段、教师审核终态和来源回看保存证据不足而保持 `partial`。只要逐年/逐题证据缺来源 hash、答案覆盖、截图级 SourceRegion、题图资产、教师 audit、检索组卷导出和学情引用，报告必须保持 `closureStatus=not_closed`。
+2015-2025 真卷全流程闭环不得用局部 smoke 代替。`tools/run-real005-guangzhou-2015-2025-closure-standard.ps1` 是当前判定入口：它读取 `tasks/real-guangzhou-closure-criteria.csv`、`tasks/backlog.csv` 和 `tasks/completion-state-dashboard.csv`，输出最新日期化 evidence，例如 `docs/evidence/20260618-real005-guangzhou-2015-2025-closure-standard-report.json`。截至 2026-06-18，`REAL005A/B/C` 已按 repo-side evidence 完成，但报告仍保持 `closureStatus=not_closed`、`fullClosureAllowed=false`；当前 next open 已推进到 `REAL005D`，它只负责继续把 README / 当前闭环状态 / 发布卡等对外口径保持为 truthful `not_closed`。只要逐年/逐题证据缺来源 hash、答案覆盖、截图级 SourceRegion、题图资产、教师 audit、检索组卷导出和学情引用，或者现场 / 隔离机 / 签收边界未关闭，报告就必须继续保持 `closureStatus=not_closed`。
 
 P5 已在 draft/test 模式完成 F001-F003：学生/班级/考试模型、synthetic Excel 字段映射导入、得分率、区分度和知识点掌握摘要均已通过合同门禁。当前 F003 只写 `docs/evidence/f003-knowledge-mastery-analysis-report.json` 和临时 summary，不写正式历史学情，不使用真实学生数据。
 

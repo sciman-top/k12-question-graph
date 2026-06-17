@@ -1,7 +1,7 @@
 param(
-    [string] $Ns803ReportPath = 'docs/evidence/20260530-ns803-installer-host.json',
+    [string] $Ns803ReportPath = '',
     [string] $OutputRoot = 'tmp/ns804/windows-service-package',
-    [string] $ReportPath = 'docs/evidence/20260530-ns804-windows-service.json',
+    [string] $ReportPath = '',
     [string] $Runtime = 'win-x64',
     [switch] $SelfContained,
     [switch] $SkipWebBuild
@@ -9,6 +9,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+$runDate = Get-Date -Format 'yyyyMMdd'
 
 function Assert-Condition([bool] $Condition, [string] $Message) {
     if (-not $Condition) {
@@ -20,6 +21,18 @@ function Read-Json([string] $Path) {
     $fullPath = Join-Path $repoRoot $Path
     Assert-Condition (Test-Path -LiteralPath $fullPath) "missing report: $Path"
     return Get-Content -LiteralPath $fullPath -Raw | ConvertFrom-Json
+}
+
+function Resolve-LatestEvidencePath([string] $Filter, [string] $Label) {
+    $evidenceRoot = Join-Path $repoRoot 'docs\evidence'
+    Assert-Condition (Test-Path -LiteralPath $evidenceRoot) 'missing docs/evidence directory'
+    $latest = @(
+        Get-ChildItem -LiteralPath $evidenceRoot -Filter $Filter -File |
+            Sort-Object Name -Descending |
+            Select-Object -First 1
+    )
+    Assert-Condition ($latest.Count -eq 1) "missing $Label matching filter: $Filter"
+    return [System.IO.Path]::GetRelativePath($repoRoot, $latest[0].FullName).Replace('\', '/')
 }
 
 function Convert-OutputToJson([object[]] $Output, [string] $Label) {
@@ -35,6 +48,13 @@ function Convert-OutputToJson([object[]] $Output, [string] $Label) {
     Assert-Condition ($start -ge 0) "$Label did not emit a JSON object"
     $jsonText = ($lines[$start..($lines.Count - 1)] -join [Environment]::NewLine)
     return $jsonText | ConvertFrom-Json
+}
+
+if ([string]::IsNullOrWhiteSpace($Ns803ReportPath)) {
+    $Ns803ReportPath = Resolve-LatestEvidencePath '*-ns803-installer-host.json' 'NS803 report'
+}
+if ([string]::IsNullOrWhiteSpace($ReportPath)) {
+    $ReportPath = ('docs/evidence/{0}-ns804-windows-service.json' -f $runDate)
 }
 
 Push-Location $repoRoot

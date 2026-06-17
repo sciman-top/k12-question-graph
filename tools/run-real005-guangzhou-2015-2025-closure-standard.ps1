@@ -35,6 +35,31 @@ function Assert-True([bool] $Condition, [string] $Message) {
     if (-not $Condition) { throw $Message }
 }
 
+function Resolve-LatestEvidencePath([string] $Filter, [string] $Label) {
+    $evidenceRoot = Resolve-RepoPath 'docs/evidence'
+    Assert-True (Test-Path -LiteralPath $evidenceRoot) 'missing docs/evidence directory'
+    $latest = @(
+        Get-ChildItem -LiteralPath $evidenceRoot -Filter $Filter -File -ErrorAction SilentlyContinue |
+            Sort-Object Name -Descending |
+            Select-Object -First 1
+    )
+    Assert-True ($latest.Count -eq 1) "missing $Label matching filter: $Filter"
+    return [System.IO.Path]::GetRelativePath($repoRoot, $latest[0].FullName).Replace('\', '/')
+}
+
+function Resolve-LatestEvidencePathFromNames([string[]] $Names, [string] $Label) {
+    $evidenceRoot = Resolve-RepoPath 'docs/evidence'
+    Assert-True (Test-Path -LiteralPath $evidenceRoot) 'missing docs/evidence directory'
+    $latest = @(
+        Get-ChildItem -LiteralPath $evidenceRoot -File -ErrorAction SilentlyContinue |
+            Where-Object { $Names -contains $_.Name } |
+            Sort-Object Name -Descending |
+            Select-Object -First 1
+    )
+    Assert-True ($latest.Count -eq 1) "missing $Label matching explicit names"
+    return [System.IO.Path]::GetRelativePath($repoRoot, $latest[0].FullName).Replace('\', '/')
+}
+
 function Test-FileLockException([System.Exception] $Exception) {
     $current = $Exception
     while ($null -ne $current) {
@@ -284,7 +309,7 @@ Assert-True ($null -ne $dashboardRow) 'completion dashboard missing real-guangzh
 Assert-True ($dashboardRow.next_task -eq 'REAL005') 'real-guangzhou-2015-2025 dashboard row must point to REAL005'
 Assert-True ($dashboardRow.current_state -ne 'teacher_validated' -and $dashboardRow.current_state -ne 'release_ready') '2015-2025 closure cannot be marked teacher_validated/release_ready before all REAL criteria pass'
 
-$real001ReportPath = 'docs/evidence/20260512-guangzhou-2015-real-ingest-slice-report.json'
+$real001ReportPath = Resolve-LatestEvidencePath '*-guangzhou-2015-real-ingest-slice-report.json' 'REAL001 report'
 $real002ReportPath = 'docs/evidence/20260512-guangzhou-2015-visual-region-slice-report.json'
 $real003ReportPath = 'docs/evidence/20260514-real003-guangzhou-physics-year-batch-ingest-report.json'
 
@@ -441,8 +466,13 @@ $rg002BlockedYears = @(
 )
 
 if ([string]::IsNullOrWhiteSpace($QuestionStructureDiagnosticsPath)) {
+    $evidenceRoot = Resolve-RepoPath 'docs/evidence'
     $latestQuestionStructureDiagnostics = @(
-        Get-ChildItem -LiteralPath (Resolve-RepoPath 'docs/evidence') -Filter '*-real005b-question-structure-diagnostics.json' -File -ErrorAction SilentlyContinue |
+        Get-ChildItem -LiteralPath $evidenceRoot -File -ErrorAction SilentlyContinue |
+            Where-Object {
+                $_.Name -like '*-real005b-structured-question-diagnostics.json' -or
+                $_.Name -like '*-real005b-question-structure-diagnostics.json'
+            } |
             Sort-Object Name -Descending |
             Select-Object -First 1
     )
@@ -452,6 +482,19 @@ if ([string]::IsNullOrWhiteSpace($QuestionStructureDiagnosticsPath)) {
 }
 
 $questionStructureDiagnostics = if ([string]::IsNullOrWhiteSpace($QuestionStructureDiagnosticsPath)) { $null } else { Try-ReadJson $QuestionStructureDiagnosticsPath }
+$questionStructureAggregatePath = $QuestionStructureDiagnosticsPath
+$questionStructureAggregateDiagnostics = $questionStructureDiagnostics
+
+if (
+    $null -ne $questionStructureAggregateDiagnostics -and
+    ($questionStructureAggregateDiagnostics.PSObject.Properties.Name -notcontains 'real005BStatus')
+) {
+    $legacyQuestionStructureDiagnosticsPath = Resolve-LatestEvidencePath `
+        -Filter '*-real005b-question-structure-diagnostics.json' `
+        -Label 'legacy REAL005B aggregate diagnostics report'
+    $questionStructureAggregatePath = $legacyQuestionStructureDiagnosticsPath
+    $questionStructureAggregateDiagnostics = Try-ReadJson $legacyQuestionStructureDiagnosticsPath
+}
 
 if ([string]::IsNullOrWhiteSpace($Real005C1SearchPaperExportSmokePath)) {
     $latestReal005C1Smoke = @(
@@ -520,8 +563,8 @@ $real005C5EditRecropAuditSmoke = if ([string]::IsNullOrWhiteSpace($Real005C5Edit
 
 $knownEvidence = [ordered]@{
     REAL001 = @(
-        'docs/evidence/20260512-guangzhou-2015-real-ingest-slice-report.json',
-        'docs/evidence/20260512-guangzhou-2015-real-ingest-slice-dry-run-report.json'
+        $real001ReportPath,
+        (Resolve-LatestEvidencePath '*-guangzhou-2015-real-ingest-slice-dry-run-report.json' 'REAL001 dry-run report')
     )
     REAL002 = @(
         'docs/evidence/20260512-guangzhou-2015-visual-region-slice-report.json'
@@ -650,17 +693,22 @@ if ($real005AStatus -ne 'pass') {
     $real005BCoverage['criteriaStatus'] = @{}
     $real005BCoverage['next'] = 'Only evaluate per-question structure/review closure after REAL005A source+adapter coverage is complete.'
 }
-elseif ($null -ne $questionStructureDiagnostics -and [string]$questionStructureDiagnostics.status -eq 'pass') {
-    $real005BCoverage['status'] = [string]$questionStructureDiagnostics.real005BStatus
-    $real005BCoverage['blockers'] = @($questionStructureDiagnostics.blockers)
-    $real005BCoverage['evidencePaths'] = @($questionStructureDiagnostics.sourceEvidence + @($QuestionStructureDiagnosticsPath) | Sort-Object -Unique)
+elseif ($null -ne $questionStructureAggregateDiagnostics -and [string]$questionStructureAggregateDiagnostics.status -eq 'pass') {
+    $real005BCoverage['status'] = [string]$questionStructureAggregateDiagnostics.real005BStatus
+    $real005BCoverage['blockers'] = @(@($questionStructureAggregateDiagnostics.blockers) | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) })
+    $real005BCoverage['evidencePaths'] = @(
+        @($questionStructureAggregateDiagnostics.sourceEvidence) +
+        @($QuestionStructureDiagnosticsPath, $questionStructureAggregatePath) |
+            Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) } |
+            Sort-Object -Unique
+    )
     $criteriaStatus = [ordered]@{}
     foreach ($criterionId in @('RG003', 'RG004', 'RG005', 'RG006', 'RG007', 'RG008', 'RG009')) {
-        $criterion = $questionStructureDiagnostics.criteria.$criterionId
+        $criterion = $questionStructureAggregateDiagnostics.criteria.$criterionId
         $criteriaStatus[$criterionId] = if ($null -eq $criterion) { 'missing' } else { [string]$criterion.status }
     }
     $real005BCoverage['criteriaStatus'] = $criteriaStatus
-    $real005BCoverage['next'] = if ([string]$questionStructureDiagnostics.real005BStatus -eq 'pass') {
+    $real005BCoverage['next'] = if ([string]$questionStructureAggregateDiagnostics.real005BStatus -eq 'pass') {
         'REAL005B repo-side evidence is complete; advance REAL005C with real question search/export/analysis and rollback/privacy coverage.'
     }
     else {

@@ -11,7 +11,7 @@ param(
     [string] $Real012ReportPath = 'docs/evidence/20260518-real012-production-flow-quality-report.json',
     [string] $HostCapabilityPath = 'docs/evidence/o002-host-capability-diagnostic-report.json',
     [string] $DecisionPath = 'docs/decisions/ADR-010-search-semantic-retrieval-admission.md',
-    [string] $ReportPath = 'docs/evidence/20260522-r001-search-semantic-retrieval-admission-report.json'
+    [string] $ReportPath = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -44,6 +44,10 @@ function Write-ContentIfChanged([string] $Path, [string] $Content) {
     }
 
     Set-Content -LiteralPath $fullPath -Value $Content -Encoding UTF8
+}
+
+if ([string]::IsNullOrWhiteSpace($ReportPath)) {
+    $ReportPath = ('docs/evidence/{0}-r001-search-semantic-retrieval-admission-report.json' -f (Get-Date -Format 'yyyyMMdd'))
 }
 
 $rows = Import-Csv -LiteralPath (Resolve-RepoPath $BacklogPath) -Encoding UTF8

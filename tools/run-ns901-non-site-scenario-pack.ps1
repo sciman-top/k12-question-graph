@@ -6,7 +6,7 @@ param(
     [string] $DatabasePassword = $env:PGPASSWORD,
     [string] $PgBin = 'C:\Program Files\PostgreSQL\17\bin',
     [string] $FileStoreRoot = 'D:\KQG_Data\file_store',
-    [string] $ReportPath = 'docs/evidence/20260530-ns901-non-site-scenario-pack.json',
+    [string] $ReportPath = '',
     [string] $S012AReportPath = 'docs/evidence/20260508-s012a-e2e-proxy-fixture-pack-report.json',
     [string] $S012BReportPath = 'docs/evidence/20260509-s012b-non-site-e2e-rehearsal-report.json',
     [switch] $SkipS012Refresh
@@ -14,6 +14,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+$runDate = Get-Date -Format 'yyyyMMdd'
 . (Join-Path $PSScriptRoot 'database-env.ps1')
 $DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword
 
@@ -25,6 +26,18 @@ function Read-Json([string] $Path) {
     $fullPath = Join-Path $repoRoot $Path
     Assert-Condition (Test-Path -LiteralPath $fullPath) "missing report: $Path"
     return Get-Content -LiteralPath $fullPath -Raw | ConvertFrom-Json
+}
+
+function Resolve-LatestEvidencePath([string] $Filter, [string] $Label) {
+    $evidenceRoot = Join-Path $repoRoot 'docs\evidence'
+    Assert-Condition (Test-Path -LiteralPath $evidenceRoot) 'missing docs/evidence directory'
+    $latest = @(
+        Get-ChildItem -LiteralPath $evidenceRoot -Filter $Filter -File |
+            Sort-Object Name -Descending |
+            Select-Object -First 1
+    )
+    Assert-Condition ($latest.Count -eq 1) "missing $Label matching filter: $Filter"
+    return [System.IO.Path]::GetRelativePath($repoRoot, $latest[0].FullName).Replace('\', '/')
 }
 
 function Convert-OutputToJson([object[]] $Output, [string] $Label) {
@@ -54,13 +67,20 @@ function Assert-WorkflowCoverage([object[]] $WorkflowSteps, [string[]] $Required
     }
 }
 
+if ([string]::IsNullOrWhiteSpace($ReportPath)) {
+    $ReportPath = ('docs/evidence/{0}-ns901-non-site-scenario-pack.json' -f $runDate)
+}
+
 Push-Location $repoRoot
 try {
     Assert-Condition (-not [string]::IsNullOrWhiteSpace($DatabasePassword)) 'DatabasePassword or PGPASSWORD is required for NS901 non-site scenario pack.'
 
-    $ns607 = Read-Json 'docs/evidence/20260530-ns607-export-artifacts-report.json'
-    $ns704 = Read-Json 'docs/evidence/20260530-ns704-commentary-report.json'
-    $ns806 = Read-Json 'docs/evidence/20260530-ns806-upgrade-bundle.json'
+    $ns607ReportPath = Resolve-LatestEvidencePath '*-ns607-export-artifacts-report.json' 'NS607 report'
+    $ns704ReportPath = Resolve-LatestEvidencePath '*-ns704-commentary-report.json' 'NS704 report'
+    $ns806ReportPath = Resolve-LatestEvidencePath '*-ns806-upgrade-bundle.json' 'NS806 report'
+    $ns607 = Read-Json $ns607ReportPath
+    $ns704 = Read-Json $ns704ReportPath
+    $ns806 = Read-Json $ns806ReportPath
 
     Assert-Condition ($ns607.status -eq 'pass') 'NS901 dependency NS607 report did not pass'
     Assert-Condition ($ns704.status -eq 'pass') 'NS901 dependency NS704 report did not pass'
@@ -121,9 +141,9 @@ try {
         writesProductionHistory = $false
         activeAssetMutation = $false
         dependency = [ordered]@{
-            ns607 = 'docs/evidence/20260530-ns607-export-artifacts-report.json'
-            ns704 = 'docs/evidence/20260530-ns704-commentary-report.json'
-            ns806 = 'docs/evidence/20260530-ns806-upgrade-bundle.json'
+            ns607 = $ns607ReportPath
+            ns704 = $ns704ReportPath
+            ns806 = $ns806ReportPath
             s012a = $S012AReportPath
             s012b = $S012BReportPath
             s012bPreRunBackup = [string]$s012b.preRunBackup.manifest

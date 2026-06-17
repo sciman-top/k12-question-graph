@@ -6,16 +6,30 @@ param(
     [int] $DatabasePort = 5432,
     [string] $DatabasePassword = $env:PGPASSWORD,
     [string] $PgBin = 'C:\Program Files\PostgreSQL\17\bin',
-    [string] $ReportPath = 'docs/evidence/20260530-ns803-installer-host.json',
-    [string] $PgpassReportPath = 'docs/evidence/20260530-ns803-pgpass-dry-run-report.json',
-    [string] $WorkerProfileReportPath = 'docs/evidence/20260530-ns803-worker-profile-diagnostic-report.json',
-    [string] $HostCapabilityReportPath = 'docs/evidence/20260530-ns803-host-capability-diagnostic-report.json'
+    [string] $ReportPath = '',
+    [string] $PgpassReportPath = '',
+    [string] $WorkerProfileReportPath = '',
+    [string] $HostCapabilityReportPath = ''
 )
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+$runDate = Get-Date -Format 'yyyyMMdd'
 . (Join-Path $PSScriptRoot 'database-env.ps1')
 $DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword
+
+if ([string]::IsNullOrWhiteSpace($ReportPath)) {
+    $ReportPath = ('docs/evidence/{0}-ns803-installer-host.json' -f $runDate)
+}
+if ([string]::IsNullOrWhiteSpace($PgpassReportPath)) {
+    $PgpassReportPath = ('docs/evidence/{0}-ns803-pgpass-dry-run-report.json' -f $runDate)
+}
+if ([string]::IsNullOrWhiteSpace($WorkerProfileReportPath)) {
+    $WorkerProfileReportPath = ('docs/evidence/{0}-ns803-worker-profile-diagnostic-report.json' -f $runDate)
+}
+if ([string]::IsNullOrWhiteSpace($HostCapabilityReportPath)) {
+    $HostCapabilityReportPath = ('docs/evidence/{0}-ns803-host-capability-diagnostic-report.json' -f $runDate)
+}
 
 function Assert-Condition([bool] $Condition, [string] $Message) {
     if (-not $Condition) {

@@ -1,0 +1,82 @@
+{
+  "status": "pass",
+  "taskId": "R003",
+  "mode": "admission_preflight",
+  "checkedAt": "2026-06-17T23:22:17",
+  "p006Status": "待办",
+  "r003Status": "待办",
+  "r007Status": "待办",
+  "closeTaskAllowed": false,
+  "currentDecision": "keep_R003_todo_use_R007_profile_map_only_fail_closed",
+  "checklistPath": "docs/templates/r003-interop-eval-checklist.md",
+  "evidencePath": "docs/evidence/20260505-r003-interop-eval-preflight.md",
+  "referencedEvidence": {
+    "scope": "docs/02_MVP_Scope_and_ScopeControl.md",
+    "technology": "docs/04_TechnologyStack.md",
+    "domainModel": "docs/05_DomainModel.md",
+    "r007ProfileMapReport": "docs/evidence/20260522-r007-interoperability-profile-map-admission-report.json",
+    "completionDashboard": "tasks/completion-state-dashboard.csv",
+    "automationFirstContract": "tasks/automation-first-contract.csv",
+    "decision": "docs/decisions/ADR-012-interoperability-eval-admission.md"
+  },
+  "currentBaseline": {
+    "r007ProfileMapCount": 5,
+    "r007CloseTaskAllowed": false,
+    "advancedPlatformUsableToday": "不可使用",
+    "scoreImportCurrentState": "teacher_validated",
+    "analysisReportCurrentState": "teacher_validated",
+    "standardsCovered": [
+      "QTI",
+      "CASE",
+      "OneRoster",
+      "Caliper"
+    ]
+  },
+  "admissionMatrix": [
+    {
+      "standard": "QTI",
+      "currentDecision": "profile_map_only",
+      "currentEvidence": "R007 maps QuestionItem/Paper surfaces to QTI item/test profiles, but no authorized package, conformance target, field-difference report, or round-trip proof exists.",
+      "allowedAction": "profile map, lossy-field notes, adapter/view-model sketch, and dry-run preview design.",
+      "blockedAction": "QTI import/export implementation, certification claim, or direct mutation of internal QuestionItem/Paper models."
+    },
+    {
+      "standard": "CASE",
+      "currentDecision": "profile_map_only",
+      "currentEvidence": "R007 maps KnowledgeNode/KnowledgeMapping to CASE profile, while C002 active remains the internal ontology fact source.",
+      "allowedAction": "read-only external framework mapping and loss/risk notes.",
+      "blockedAction": "CASE sync, treating external standards as ontology trunk, or bypassing C002R version/mapping review."
+    },
+    {
+      "standard": "OneRoster",
+      "currentDecision": "blocked_until_authorized_need",
+      "currentEvidence": "ScoreRecord/ItemScore mapping is high privacy risk; no SIS, authorized sample, roster owner, or P001/P006 release evidence exists.",
+      "allowedAction": "field-risk mapping and privacy checklist only.",
+      "blockedAction": "SIS sync, real roster import/export, student identifier export, or formal score exchange."
+    },
+    {
+      "standard": "Caliper",
+      "currentDecision": "conceptual_only",
+      "currentEvidence": "AnalysisReport exists as report output, but no persisted AnalysisEvent stream or privacy admission exists.",
+      "allowedAction": "conceptual event profile and privacy-risk notes.",
+      "blockedAction": "real-time event stream, student behavior export, or analytics event schema migration."
+    }
+  ],
+  "blockers": [
+    "R003 remains todo because P006 release decision is not closed.",
+    "R007 profile map exists but is explicitly profile-only and not closeable.",
+    "No real third-party integration demand source, authorized sample package, conformance target, or adapter owner exists.",
+    "No field-difference, lossy round-trip, privacy, dry-run preview, or rollback/disable-switch evidence exists.",
+    "OneRoster and Caliper remain high privacy risk because P001/P006 and real data authorization are not complete."
+  ],
+  "nextRequiredEvidence": [
+    "P006 release decision record",
+    "real third-party integration demand source",
+    "authorized sample package and conformance target",
+    "field-difference and lossy round-trip report",
+    "privacy review for student/score/analytics data",
+    "adapter owner, import/export dry-run preview, review UI, rollback/disable switch"
+  ],
+  "boundary": "R003 only refreshes interoperability evaluation admission evidence and ADR-012; it performs no QTI/CASE/OneRoster/Caliper import/export, no SIS sync, no event-stream write, no schema mutation, no production write, and no release-state transition.",
+  "rollback": "revert tools/run-r003-interop-eval-preflight-contract.ps1, docs/templates/r003-interop-eval-checklist.md, docs/decisions/ADR-012-interoperability-eval-admission.md, tasks/backlog.csv, and remove the generated R003 admission report."
+}

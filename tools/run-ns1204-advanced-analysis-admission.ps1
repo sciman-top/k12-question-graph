@@ -1,8 +1,8 @@
 param(
-    [string] $ReportPath = 'docs/evidence/20260531-ns1204-advanced-analysis-admission.json',
+    [string] $ReportPath = '',
     [string] $NonSitePlanPath = 'tasks/non-site-implementation-plan.csv',
     [string] $BacklogPath = 'tasks/backlog.csv',
-    [string] $R004ReportPath = 'docs/evidence/20260519-r004-advanced-analysis-admission-report.json',
+    [string] $R004ReportPath = '',
     [string] $R004DecisionPath = 'docs/decisions/ADR-006-advanced-analysis-admission.md',
     [string] $R004ChecklistPath = 'docs/templates/r004-advanced-analysis-eval-checklist.md',
     [string] $R004PreflightEvidencePath = 'docs/evidence/20260505-r004-advanced-analysis-eval-preflight.md',
@@ -12,6 +12,11 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+$runDate = Get-Date -Format 'yyyyMMdd'
+
+if ([string]::IsNullOrWhiteSpace($ReportPath)) {
+    $ReportPath = ('docs/evidence/{0}-ns1204-advanced-analysis-admission.json' -f $runDate)
+}
 
 function Assert-Condition([bool] $Condition, [string] $Message) {
     if (-not $Condition) { throw $Message }
@@ -25,6 +30,17 @@ function Read-Json([string] $Path) {
     $fullPath = Resolve-InRepoPath $Path
     Assert-Condition (Test-Path -LiteralPath $fullPath) "missing json report: $Path"
     return Get-Content -LiteralPath $fullPath -Raw | ConvertFrom-Json
+}
+function Resolve-LatestEvidencePath([string] $Filter) {
+    $evidenceRoot = Resolve-InRepoPath 'docs/evidence'
+    Assert-Condition (Test-Path -LiteralPath $evidenceRoot) 'missing docs/evidence directory'
+    $latest = @(Get-ChildItem -LiteralPath $evidenceRoot -Filter $Filter -File | Sort-Object Name -Descending | Select-Object -First 1)
+    Assert-Condition ($latest.Count -eq 1) "missing evidence matching filter: $Filter"
+    return [System.IO.Path]::GetRelativePath($repoRoot, $latest[0].FullName).Replace('\', '/')
+}
+
+if ([string]::IsNullOrWhiteSpace($R004ReportPath)) {
+    $R004ReportPath = Resolve-LatestEvidencePath '*-r004-advanced-analysis-admission-report.json'
 }
 
 function Get-RequiredRow([object[]] $Rows, [string] $Id, [string] $Column = 'id') {

@@ -5,13 +5,14 @@ param(
     [int] $DatabasePort = 5432,
     [string] $DatabasePassword = $env:PGPASSWORD,
     [string] $PgBin = 'C:\Program Files\PostgreSQL\17\bin',
-    [string] $ReportPath = 'docs/evidence/20260530-ns806-upgrade-bundle.json',
-    [string] $O007ReportPath = 'docs/evidence/20260530-ns806-o007-source-report.json',
+    [string] $ReportPath = '',
+    [string] $O007ReportPath = '',
     [switch] $SkipO007Refresh
 )
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+$runDate = Get-Date -Format 'yyyyMMdd'
 . (Join-Path $PSScriptRoot 'database-env.ps1')
 $DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword
 
@@ -23,6 +24,18 @@ function Read-Json([string] $Path) {
     $fullPath = Join-Path $repoRoot $Path
     Assert-Condition (Test-Path -LiteralPath $fullPath) "missing report: $Path"
     return Get-Content -LiteralPath $fullPath -Raw | ConvertFrom-Json
+}
+
+function Resolve-LatestEvidencePath([string] $Filter, [string] $Label) {
+    $evidenceRoot = Join-Path $repoRoot 'docs\evidence'
+    Assert-Condition (Test-Path -LiteralPath $evidenceRoot) 'missing docs/evidence directory'
+    $latest = @(
+        Get-ChildItem -LiteralPath $evidenceRoot -Filter $Filter -File |
+            Sort-Object Name -Descending |
+            Select-Object -First 1
+    )
+    Assert-Condition ($latest.Count -eq 1) "missing $Label matching filter: $Filter"
+    return [System.IO.Path]::GetRelativePath($repoRoot, $latest[0].FullName).Replace('\', '/')
 }
 
 function Convert-OutputToJson([object[]] $Output, [string] $Label) {
@@ -50,12 +63,21 @@ function Resolve-RepoPath([string] $Path) {
     return (Join-Path $repoRoot $Path)
 }
 
+if ([string]::IsNullOrWhiteSpace($ReportPath)) {
+    $ReportPath = ('docs/evidence/{0}-ns806-upgrade-bundle.json' -f $runDate)
+}
+if ([string]::IsNullOrWhiteSpace($O007ReportPath)) {
+    $O007ReportPath = ('docs/evidence/{0}-ns806-o007-source-report.json' -f $runDate)
+}
+
 Push-Location $repoRoot
 try {
     Assert-Condition (-not [string]::IsNullOrWhiteSpace($DatabasePassword)) 'DatabasePassword or PGPASSWORD is required for NS806 upgrade bundle rehearsal.'
 
-    $ns804 = Read-Json 'docs/evidence/20260530-ns804-windows-service.json'
-    $ns805 = Read-Json 'docs/evidence/20260530-ns805-health-dashboard.json'
+    $ns804ReportPath = Resolve-LatestEvidencePath '*-ns804-windows-service.json' 'NS804 report'
+    $ns805ReportPath = Resolve-LatestEvidencePath '*-ns805-health-dashboard.json' 'NS805 report'
+    $ns804 = Read-Json $ns804ReportPath
+    $ns805 = Read-Json $ns805ReportPath
 
     Assert-Condition ($ns804.status -eq 'pass') 'NS806 dependency NS804 report did not pass'
     Assert-Condition ($ns805.status -eq 'pass') 'NS806 dependency NS805 report did not pass'
@@ -124,8 +146,8 @@ try {
         writesProductionHistory = $false
         activeAssetMutation = $false
         dependency = [ordered]@{
-            ns804 = 'docs/evidence/20260530-ns804-windows-service.json'
-            ns805 = 'docs/evidence/20260530-ns805-health-dashboard.json'
+            ns804 = $ns804ReportPath
+            ns805 = $ns805ReportPath
             o007 = $O007ReportPath
             restoreDrill = [string]$o007.upgradeDrill.restoreDrillReport
         }

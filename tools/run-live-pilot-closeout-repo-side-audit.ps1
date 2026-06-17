@@ -153,8 +153,6 @@ try {
         $closeoutStatusCounts[$group.Name] = $group.Count
     }
     $real005APlanRow = Get-RequiredRow $closeoutRows 'REAL005A'
-    Assert-Condition ($closeoutStatusCounts.Contains('待办') -and [int] $closeoutStatusCounts['待办'] -eq 25) 'live closeout plan must keep 25 rows todo after REAL005A repo-side completion'
-    Assert-Condition ($closeoutStatusCounts.Contains('已完成') -and [int] $closeoutStatusCounts['已完成'] -eq 1) 'live closeout plan must contain exactly one completed repo-side slice before onsite closure'
     Assert-Condition ([string] $real005APlanRow.status -eq '已完成') 'REAL005A must be the only completed live closeout plan row'
 
     $nextOpenByParent = [ordered]@{}
@@ -162,7 +160,6 @@ try {
         $nextOpen = @($closeoutRows | Where-Object { [string] $_.parent_id -eq $parent -and [string] $_.status -ne '已完成' } | Select-Object -First 1)
         $nextOpenByParent[$parent] = if ($nextOpen.Count -gt 0) { [string] $nextOpen[0].id } else { 'none' }
     }
-    Assert-Condition ($nextOpenByParent.REAL005 -eq 'REAL005B') 'REAL005 next open slice must be REAL005B after REAL005A repo-side completion'
     Assert-Condition ($nextOpenByParent.P001 -eq 'P001A') 'P001 next open slice must remain P001A'
     Assert-Condition ($nextOpenByParent.P003 -eq 'P003A') 'P003 next open slice must remain P003A'
     Assert-Condition ($nextOpenByParent.P005 -eq 'P005A') 'P005 next open slice must remain P005A'
@@ -186,9 +183,49 @@ try {
     Assert-Condition ([string] $real005.closureStatus -eq 'not_closed') 'REAL005 closure status must remain not_closed'
     Assert-Condition (-not [bool] $real005.fullClosureAllowed) 'REAL005 fullClosureAllowed must remain false'
     Assert-Condition ($null -ne $real005.sliceCoverage.REAL005A) 'REAL005 report must expose sliceCoverage.REAL005A'
+    Assert-Condition ($null -ne $real005.sliceCoverage.REAL005B) 'REAL005 report must expose sliceCoverage.REAL005B'
+    Assert-Condition ($null -ne $real005.sliceCoverage.REAL005C) 'REAL005 report must expose sliceCoverage.REAL005C'
+    Assert-Condition ($null -ne $real005.sliceCoverage.REAL005D) 'REAL005 report must expose sliceCoverage.REAL005D'
     $real005ASliceStatus = [string] $real005.sliceCoverage.REAL005A.status
+    $real005BSliceStatus = [string] $real005.sliceCoverage.REAL005B.status
+    $real005CSliceStatus = [string] $real005.sliceCoverage.REAL005C.status
+    $real005DSliceStatus = [string] $real005.sliceCoverage.REAL005D.status
     Assert-Condition ($real005ASliceStatus -eq 'pass') 'REAL005A must pass before this repo-side audit accepts the completed plan row'
     Assert-Condition (@($real005.sliceCoverage.REAL005A.blockers).Count -eq 0) 'REAL005A blockers must be empty after RG001/RG002 pass'
+    $expectedReal005CompletedCount = if ($real005ASliceStatus -ne 'pass') {
+        0
+    }
+    elseif ($real005BSliceStatus -ne 'pass') {
+        1
+    }
+    elseif ($real005CSliceStatus -ne 'pass') {
+        2
+    }
+    else {
+        3
+    }
+    $expectedReal005NextOpen = if ($real005ASliceStatus -ne 'pass') {
+        'REAL005A'
+    }
+    elseif ($real005BSliceStatus -ne 'pass') {
+        'REAL005B'
+    }
+    elseif ($real005CSliceStatus -ne 'pass') {
+        'REAL005C'
+    }
+    else {
+        'REAL005D'
+    }
+    Assert-Condition ($closeoutStatusCounts.Contains('待办') -and [int] $closeoutStatusCounts['待办'] -eq (26 - $expectedReal005CompletedCount)) "live closeout plan todo row count drift: expected $(26 - $expectedReal005CompletedCount) actual $($closeoutStatusCounts['待办'])"
+    Assert-Condition ($closeoutStatusCounts.Contains('已完成') -and [int] $closeoutStatusCounts['已完成'] -eq $expectedReal005CompletedCount) "live closeout plan completed row count drift: expected $expectedReal005CompletedCount actual $($closeoutStatusCounts['已完成'])"
+    Assert-Condition ($nextOpenByParent.REAL005 -eq $expectedReal005NextOpen) "REAL005 next open slice mismatch: expected $expectedReal005NextOpen actual $($nextOpenByParent.REAL005)"
+    $real005CurrentBoundarySlice = $real005.sliceCoverage.PSObject.Properties[$expectedReal005NextOpen].Value
+    Assert-Condition ($null -ne $real005CurrentBoundarySlice) "REAL005 current boundary slice missing from coverage: $expectedReal005NextOpen"
+    Assert-Condition ([string] $real005CurrentBoundarySlice.status -ne 'pass') "REAL005 current boundary slice must remain open while closureStatus is not_closed: $expectedReal005NextOpen"
+    Assert-Condition (@($real005CurrentBoundarySlice.blockers).Count -ge 1) "REAL005 current boundary slice must keep explicit blockers while closureStatus is not_closed: $expectedReal005NextOpen"
+    if ($expectedReal005NextOpen -eq 'REAL005D') {
+        Assert-Condition ($real005DSliceStatus -eq 'blocked') 'REAL005D must remain blocked while outward wording still needs to preserve not_closed'
+    }
 
     Assert-Condition ([string] $repoPreflight.status -eq 'pass') 'repo preflight CI summary must pass'
     Assert-Condition ([string] $repoPreflight.mode -eq 'Ci') 'repo preflight summary must be Mode=Ci for this audit'
@@ -252,7 +289,7 @@ try {
 
     $observedFullGateOutputs = Get-ObservedFiles $FullGateObservedOutputRoot
     $remainingBlockers = [ordered]@{
-        REAL005B = @($real005.sliceCoverage.REAL005B.blockers)
+        REAL005 = @($real005CurrentBoundarySlice.blockers)
         P001 = @($p001.blockers)
         P002 = @($p002.blockers)
         P003 = @($p003.blockers)
@@ -350,6 +387,7 @@ try {
     $lines.Add('## Truth Boundary')
     $lines.Add("- REAL005 closure_status: $($real005.closureStatus)")
     $lines.Add("- full_closure_allowed: $([bool] $real005.fullClosureAllowed)")
+    $lines.Add("- REAL005 current_boundary_slice: $expectedReal005NextOpen")
     $lines.Add("- P001 ready_for_isolated_machine_run: $([bool] $p001.readyForIsolatedMachineRun)")
     $lines.Add("- P001 can_close: $([bool] $p001.p001CanClose)")
     foreach ($id in @('P001','P002','P003','P004','P005','P006')) {

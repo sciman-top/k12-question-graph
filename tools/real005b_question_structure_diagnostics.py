@@ -9,7 +9,7 @@ from typing import Any
 
 
 REQUIRED_YEARS = list(range(2015, 2026))
-REAL001_REPORT = "docs/evidence/20260512-guangzhou-2015-real-ingest-slice-report.json"
+REAL001_REPORT_GLOB = "docs/evidence/*-guangzhou-2015-real-ingest-slice-report.json"
 REAL002_REPORT = "docs/evidence/20260512-guangzhou-2015-visual-region-slice-report.json"
 REAL003_REPORT = "docs/evidence/20260514-real003-guangzhou-physics-year-batch-ingest-report.json"
 REAL004_REPORT = "docs/evidence/20260512-real004-guangzhou-2015-review-smoke-report.json"
@@ -62,6 +62,13 @@ def find_latest_json(repo_root: Path, glob_pattern: str) -> str | None:
     if not matches:
         return None
     return str(matches[0].relative_to(repo_root)).replace("\\", "/")
+
+
+def require_latest_json(repo_root: Path, glob_pattern: str, label: str) -> str:
+    latest = find_latest_json(repo_root, glob_pattern)
+    if latest is None:
+        raise FileNotFoundError(f"missing {label} matching {glob_pattern}")
+    return latest
 
 
 def read_csv(repo_root: Path, relative_path: str) -> list[dict[str, str]]:
@@ -651,7 +658,13 @@ def reviewed_source_detail_coverage_2016_2025(repo_root: Path) -> dict[str, Any]
     }
 
 
-def build_rg003(repo_root: Path, real001: dict[str, Any], real002: dict[str, Any], real003: dict[str, Any]) -> dict[str, Any]:
+def build_rg003(
+    repo_root: Path,
+    real001_report_path: str,
+    real001: dict[str, Any],
+    real002: dict[str, Any],
+    real003: dict[str, Any],
+) -> dict[str, Any]:
     details: list[dict[str, Any]] = []
     rows_2015 = build_2015_rows(real001, real002)
     numbers_2015 = question_numbers(rows_2015)
@@ -663,7 +676,7 @@ def build_rg003(repo_root: Path, real001: dict[str, Any], real002: dict[str, Any
             "actualQuestionCount": len(numbers_2015),
             "questionNumbers": numbers_2015,
             "missingQuestionNumbers": missing_2015,
-            "evidencePaths": [REAL001_REPORT, REAL002_REPORT],
+            "evidencePaths": [real001_report_path, REAL002_REPORT],
             "status": "pass" if len(numbers_2015) == 24 and not missing_2015 else "blocked",
         }
     )
@@ -700,6 +713,7 @@ def build_rg003(repo_root: Path, real001: dict[str, Any], real002: dict[str, Any
 
 def build_rg004(
     repo_root: Path,
+    real001_report_path: str,
     real001: dict[str, Any],
     real002: dict[str, Any],
     real003: dict[str, Any],
@@ -735,7 +749,7 @@ def build_rg004(
             "answerQuestionNumbers": answer_numbers_2015,
             "hasPerQuestionAnswerRegionAnchors": len(answer_anchor_numbers_2015) == 24,
             "hasPerQuestionAnswerSourceHashBinding": has_2015_answer_source_hash,
-            "evidencePaths": [REAL001_REPORT, REAL002_REPORT],
+            "evidencePaths": [real001_report_path, REAL002_REPORT],
             "status": details_2015_status,
             "blockers": details_2015_blockers,
         }
@@ -825,7 +839,13 @@ def build_rg004(
     }
 
 
-def build_static_criteria(real001: dict[str, Any], real002: dict[str, Any], real003: dict[str, Any], real004: dict[str, Any]) -> dict[str, dict[str, Any]]:
+def build_static_criteria(
+    real001_report_path: str,
+    real001: dict[str, Any],
+    real002: dict[str, Any],
+    real003: dict[str, Any],
+    real004: dict[str, Any],
+) -> dict[str, dict[str, Any]]:
     real001_verification = real001.get("verification") or {}
     real002_verification = real002.get("verification") or {}
     real003_manual_takeovers = sorted(
@@ -851,7 +871,7 @@ def build_static_criteria(real001: dict[str, Any], real002: dict[str, Any], real
             if real005b_coverage["layoutQualityPass"] and real005b_source_region_coverage["sourceRegionCoveragePass"]
             else ("partial" if real005b_coverage["layoutQualityPass"] else "blocked"),
             "evidencePaths": [
-                REAL001_REPORT,
+                real001_report_path,
                 REAL002_REPORT,
                 REAL003_REPORT,
                 REAL004_REPORT,
@@ -882,7 +902,7 @@ def build_static_criteria(real001: dict[str, Any], real002: dict[str, Any], real
             "criterionId": "RG006",
             "status": "pass" if real005b_structured_coverage["structuredQuestionCoveragePass"] else "blocked",
             "evidencePaths": [
-                REAL001_REPORT,
+                real001_report_path,
                 REAL002_REPORT,
                 REAL003_REPORT,
                 REAL009_REPORT,
@@ -908,7 +928,7 @@ def build_static_criteria(real001: dict[str, Any], real002: dict[str, Any], real
             "criterionId": "RG007",
             "status": "pass" if real005b_tagging_coverage["status"] == "pass" else "blocked",
             "evidencePaths": [
-                REAL001_REPORT,
+                real001_report_path,
                 REAL002_REPORT,
                 REAL003_REPORT,
                 *real005b_tagging_coverage["evidencePaths"],
@@ -1019,7 +1039,8 @@ def main() -> int:
     args = parser.parse_args()
 
     repo_root = Path(__file__).resolve().parents[1]
-    real001 = read_json(repo_root, REAL001_REPORT)
+    real001_report_path = require_latest_json(repo_root, REAL001_REPORT_GLOB, "REAL001 report")
+    real001 = read_json(repo_root, real001_report_path)
     real002 = read_json(repo_root, REAL002_REPORT)
     real003 = read_json(repo_root, REAL003_REPORT)
     real004 = read_json(repo_root, REAL004_REPORT)
@@ -1027,10 +1048,10 @@ def main() -> int:
     real005b_structured_coverage = structured_question_coverage_2016_2025(repo_root)
 
     criteria: dict[str, dict[str, Any]] = {
-        "RG003": build_rg003(repo_root, real001, real002, real003),
-        "RG004": build_rg004(repo_root, real001, real002, real003),
+        "RG003": build_rg003(repo_root, real001_report_path, real001, real002, real003),
+        "RG004": build_rg004(repo_root, real001_report_path, real001, real002, real003),
     }
-    criteria.update(build_static_criteria(real001, real002, real003, real004))
+    criteria.update(build_static_criteria(real001_report_path, real001, real002, real003, real004))
     source_evidence = sorted(
         {
             REAL003_SOURCE_MATERIAL_CSV,

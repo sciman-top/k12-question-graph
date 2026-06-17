@@ -9,7 +9,7 @@ param(
     [string] $DomainModelPath = 'docs/05_DomainModel.md',
     [string] $R007ReportPath = 'docs/evidence/20260522-r007-interoperability-profile-map-admission-report.json',
     [string] $DecisionPath = 'docs/decisions/ADR-012-interoperability-eval-admission.md',
-    [string] $ReportPath = 'docs/evidence/20260522-r003-interoperability-eval-admission-report.json'
+    [string] $ReportPath = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -42,6 +42,10 @@ function Write-ContentIfChanged([string] $Path, [string] $Content) {
     }
 
     Set-Content -LiteralPath $fullPath -Value $Content -Encoding UTF8
+}
+
+if ([string]::IsNullOrWhiteSpace($ReportPath)) {
+    $ReportPath = ('docs/evidence/{0}-r003-interoperability-eval-admission-report.json' -f (Get-Date -Format 'yyyyMMdd'))
 }
 
 $rows = Import-Csv -LiteralPath (Resolve-RepoPath $BacklogPath) -Encoding UTF8

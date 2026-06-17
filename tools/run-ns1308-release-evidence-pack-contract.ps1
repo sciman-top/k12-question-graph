@@ -23,14 +23,32 @@ function Read-Text([string] $Path) {
     return Get-Content -LiteralPath $fullPath -Raw
 }
 
+function Resolve-LatestEvidencePath([string] $Filter, [string] $Label) {
+    $evidenceRoot = Join-Path $repoRoot 'docs\evidence'
+    Assert-Condition (Test-Path -LiteralPath $evidenceRoot) 'missing docs/evidence directory'
+    $latest = @(
+        Get-ChildItem -LiteralPath $evidenceRoot -Filter $Filter -File |
+            Sort-Object Name -Descending |
+            Select-Object -First 1
+    )
+    Assert-Condition ($latest.Count -eq 1) "missing $Label matching filter: $Filter"
+    return [System.IO.Path]::GetRelativePath($repoRoot, $latest[0].FullName).Replace('\', '/')
+}
+
 Push-Location $repoRoot
 try {
-    $ns803 = Read-Json 'docs/evidence/20260530-ns803-installer-host.json'
-    $ns804 = Read-Json 'docs/evidence/20260530-ns804-windows-service.json'
-    $ns805 = Read-Json 'docs/evidence/20260530-ns805-health-dashboard.json'
-    $ns806 = Read-Json 'docs/evidence/20260530-ns806-upgrade-bundle.json'
-    $ns904 = Read-Json 'docs/evidence/20260607-ns904-p001-readiness.json'
-    $p001 = Read-Json 'docs/evidence/20260607-p001-live-pilot-readiness-preflight-report.json'
+    $ns803ReportPath = Resolve-LatestEvidencePath '*-ns803-installer-host.json' 'NS803 report'
+    $ns804ReportPath = Resolve-LatestEvidencePath '*-ns804-windows-service.json' 'NS804 report'
+    $ns805ReportPath = Resolve-LatestEvidencePath '*-ns805-health-dashboard.json' 'NS805 report'
+    $ns806ReportPath = Resolve-LatestEvidencePath '*-ns806-upgrade-bundle.json' 'NS806 report'
+    $ns904ReportPath = Resolve-LatestEvidencePath '*-ns904-p001-readiness.json' 'NS904 report'
+    $p001ReportPath = Resolve-LatestEvidencePath '*-p001-live-pilot-readiness-preflight-report.json' 'P001 report'
+    $ns803 = Read-Json $ns803ReportPath
+    $ns804 = Read-Json $ns804ReportPath
+    $ns805 = Read-Json $ns805ReportPath
+    $ns806 = Read-Json $ns806ReportPath
+    $ns904 = Read-Json $ns904ReportPath
+    $p001 = Read-Json $p001ReportPath
 
     foreach ($report in @($ns803, $ns804, $ns805, $ns806, $ns904, $p001)) {
         Assert-Condition ($report.status -eq 'pass') 'NS1308 dependency report must pass'
@@ -84,12 +102,12 @@ try {
         mode = 'release_evidence_pack_aggregation'
         productionEligible = $false
         dependency = [ordered]@{
-            ns803 = 'docs/evidence/20260530-ns803-installer-host.json'
-            ns804 = 'docs/evidence/20260530-ns804-windows-service.json'
-            ns805 = 'docs/evidence/20260530-ns805-health-dashboard.json'
-            ns806 = 'docs/evidence/20260530-ns806-upgrade-bundle.json'
-            ns904 = 'docs/evidence/20260607-ns904-p001-readiness.json'
-            p001 = 'docs/evidence/20260607-p001-live-pilot-readiness-preflight-report.json'
+            ns803 = $ns803ReportPath
+            ns804 = $ns804ReportPath
+            ns805 = $ns805ReportPath
+            ns806 = $ns806ReportPath
+            ns904 = $ns904ReportPath
+            p001 = $p001ReportPath
             o004b = 'docs/evidence/20260505-o004b-role-audit-closure.md'
             checklist = 'docs/templates/p001-live-pilot-release-checklist.md'
         }

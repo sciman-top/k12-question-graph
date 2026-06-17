@@ -5,13 +5,14 @@ param(
     [int] $DatabasePort = 5432,
     [string] $DatabasePassword = $env:PGPASSWORD,
     [string] $PgBin = 'C:\Program Files\PostgreSQL\17\bin',
-    [string] $ReportPath = 'docs/evidence/20260530-ns805-health-dashboard.json',
+    [string] $ReportPath = '',
     [string] $O005ReportPath = 'docs/evidence/o005-capacity-cost-health-dashboard-report.json',
     [switch] $SkipO005Refresh
 )
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+$runDate = Get-Date -Format 'yyyyMMdd'
 . (Join-Path $PSScriptRoot 'database-env.ps1')
 $DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword
 
@@ -25,6 +26,18 @@ function Read-Json([string] $Path) {
     $fullPath = Join-Path $repoRoot $Path
     Assert-Condition (Test-Path -LiteralPath $fullPath) "missing report: $Path"
     return Get-Content -LiteralPath $fullPath -Raw | ConvertFrom-Json
+}
+
+function Resolve-LatestEvidencePath([string] $Filter, [string] $Label) {
+    $evidenceRoot = Join-Path $repoRoot 'docs\evidence'
+    Assert-Condition (Test-Path -LiteralPath $evidenceRoot) 'missing docs/evidence directory'
+    $latest = @(
+        Get-ChildItem -LiteralPath $evidenceRoot -Filter $Filter -File |
+            Sort-Object Name -Descending |
+            Select-Object -First 1
+    )
+    Assert-Condition ($latest.Count -eq 1) "missing $Label matching filter: $Filter"
+    return [System.IO.Path]::GetRelativePath($repoRoot, $latest[0].FullName).Replace('\', '/')
 }
 
 function Convert-OutputToJson([object[]] $Output, [string] $Label) {
@@ -50,15 +63,24 @@ function Assert-NoSecretInText([string] $Text, [string] $Secret, [string] $Label
     Assert-Condition (-not $Text.Contains($Secret)) "$Label leaked the database password"
 }
 
+if ([string]::IsNullOrWhiteSpace($ReportPath)) {
+    $ReportPath = ('docs/evidence/{0}-ns805-health-dashboard.json' -f $runDate)
+}
+
 Push-Location $repoRoot
 try {
     Assert-Condition (-not [string]::IsNullOrWhiteSpace($DatabasePassword)) 'DatabasePassword or PGPASSWORD is required for NS805 health dashboard.'
 
-    $ns801 = Read-Json 'docs/evidence/20260530-ns801-backup-manifest-report.json'
-    $ns802 = Read-Json 'docs/evidence/20260530-ns802-restore-drill-report.json'
-    $ns803 = Read-Json 'docs/evidence/20260530-ns803-installer-host.json'
-    $ns804 = Read-Json 'docs/evidence/20260530-ns804-windows-service.json'
-    $ns503 = Read-Json 'docs/evidence/20260530-ns503-model-router-budget-report.json'
+    $ns801ReportPath = Resolve-LatestEvidencePath '*-ns801-backup-manifest-report.json' 'NS801 report'
+    $ns802ReportPath = Resolve-LatestEvidencePath '*-ns802-restore-drill-report.json' 'NS802 report'
+    $ns803ReportPath = Resolve-LatestEvidencePath '*-ns803-installer-host.json' 'NS803 report'
+    $ns804ReportPath = Resolve-LatestEvidencePath '*-ns804-windows-service.json' 'NS804 report'
+    $ns503ReportPath = Resolve-LatestEvidencePath '*-ns503-model-router-budget-report.json' 'NS503 report'
+    $ns801 = Read-Json $ns801ReportPath
+    $ns802 = Read-Json $ns802ReportPath
+    $ns803 = Read-Json $ns803ReportPath
+    $ns804 = Read-Json $ns804ReportPath
+    $ns503 = Read-Json $ns503ReportPath
     $k006 = Read-Json 'docs/evidence/k006-knowledge-asset-health-dashboard-report.json'
 
     Assert-Condition ($ns801.status -eq 'pass') 'NS805 dependency NS801 report did not pass'
@@ -128,11 +150,11 @@ try {
         writesProductionHistory = $false
         activeAssetMutation = $false
         dependency = [ordered]@{
-            ns801 = 'docs/evidence/20260530-ns801-backup-manifest-report.json'
-            ns802 = 'docs/evidence/20260530-ns802-restore-drill-report.json'
-            ns803 = 'docs/evidence/20260530-ns803-installer-host.json'
-            ns804 = 'docs/evidence/20260530-ns804-windows-service.json'
-            ns503 = 'docs/evidence/20260530-ns503-model-router-budget-report.json'
+            ns801 = $ns801ReportPath
+            ns802 = $ns802ReportPath
+            ns803 = $ns803ReportPath
+            ns804 = $ns804ReportPath
+            ns503 = $ns503ReportPath
             g002 = 'docs/evidence/g002-storage-cleanup-report.json'
             k006 = 'docs/evidence/k006-knowledge-asset-health-dashboard-report.json'
             o005 = $O005ReportPath

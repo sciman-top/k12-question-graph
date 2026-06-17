@@ -1,8 +1,8 @@
 param(
-    [string] $ReportPath = 'docs/evidence/20260531-ns1203-interop-profile-map.json',
+    [string] $ReportPath = '',
     [string] $NonSitePlanPath = 'tasks/non-site-implementation-plan.csv',
     [string] $BacklogPath = 'tasks/backlog.csv',
-    [string] $R007ReportPath = 'docs/evidence/20260522-r007-interoperability-profile-map-admission-report.json',
+    [string] $R007ReportPath = '',
     [string] $R007DecisionPath = 'docs/decisions/ADR-009-interoperability-profile-map-admission.md',
     [string] $R007ChecklistPath = 'docs/templates/r007-interoperability-profile-map-checklist.md',
     [string] $R007PreflightEvidencePath = 'docs/evidence/20260505-r007-interoperability-profile-map-preflight.md',
@@ -11,6 +11,11 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+$runDate = Get-Date -Format 'yyyyMMdd'
+
+if ([string]::IsNullOrWhiteSpace($ReportPath)) {
+    $ReportPath = ('docs/evidence/{0}-ns1203-interop-profile-map.json' -f $runDate)
+}
 
 function Assert-Condition([bool] $Condition, [string] $Message) {
     if (-not $Condition) { throw $Message }
@@ -24,6 +29,17 @@ function Read-Json([string] $Path) {
     $fullPath = Resolve-InRepoPath $Path
     Assert-Condition (Test-Path -LiteralPath $fullPath) "missing json report: $Path"
     return Get-Content -LiteralPath $fullPath -Raw | ConvertFrom-Json
+}
+function Resolve-LatestEvidencePath([string] $Filter) {
+    $evidenceRoot = Resolve-InRepoPath 'docs/evidence'
+    Assert-Condition (Test-Path -LiteralPath $evidenceRoot) 'missing docs/evidence directory'
+    $latest = @(Get-ChildItem -LiteralPath $evidenceRoot -Filter $Filter -File | Sort-Object Name -Descending | Select-Object -First 1)
+    Assert-Condition ($latest.Count -eq 1) "missing evidence matching filter: $Filter"
+    return [System.IO.Path]::GetRelativePath($repoRoot, $latest[0].FullName).Replace('\', '/')
+}
+
+if ([string]::IsNullOrWhiteSpace($R007ReportPath)) {
+    $R007ReportPath = Resolve-LatestEvidencePath '*-r007-interoperability-profile-map-admission-report.json'
 }
 
 function Get-RequiredRow([object[]] $Rows, [string] $Id, [string] $Column = 'id') {

@@ -1,7 +1,7 @@
 param(
-    [string] $Ns804ReportPath = 'docs/evidence/20260530-ns804-windows-service.json',
-    [string] $Ns805ReportPath = 'docs/evidence/20260530-ns805-health-dashboard.json',
-    [string] $Ns806ReportPath = 'docs/evidence/20260530-ns806-upgrade-bundle.json',
+    [string] $Ns804ReportPath = '',
+    [string] $Ns805ReportPath = '',
+    [string] $Ns806ReportPath = '',
     [string] $ReportPath = 'docs/evidence/20260607-ns1302-service-control-panel.json',
     [string] $WebRoot = 'apps/web'
 )
@@ -25,6 +25,28 @@ function Read-Text([string] $Path) {
     $fullPath = Join-Path $repoRoot $Path
     Assert-Condition (Test-Path -LiteralPath $fullPath) "missing file: $Path"
     return Get-Content -LiteralPath $fullPath -Raw
+}
+
+function Resolve-LatestEvidencePath([string] $Filter, [string] $Label) {
+    $evidenceRoot = Join-Path $repoRoot 'docs\evidence'
+    Assert-Condition (Test-Path -LiteralPath $evidenceRoot) 'missing docs/evidence directory'
+    $latest = @(
+        Get-ChildItem -LiteralPath $evidenceRoot -Filter $Filter -File |
+            Sort-Object Name -Descending |
+            Select-Object -First 1
+    )
+    Assert-Condition ($latest.Count -eq 1) "missing $Label matching filter: $Filter"
+    return [System.IO.Path]::GetRelativePath($repoRoot, $latest[0].FullName).Replace('\', '/')
+}
+
+if ([string]::IsNullOrWhiteSpace($Ns804ReportPath)) {
+    $Ns804ReportPath = Resolve-LatestEvidencePath '*-ns804-windows-service.json' 'NS804 report'
+}
+if ([string]::IsNullOrWhiteSpace($Ns805ReportPath)) {
+    $Ns805ReportPath = Resolve-LatestEvidencePath '*-ns805-health-dashboard.json' 'NS805 report'
+}
+if ([string]::IsNullOrWhiteSpace($Ns806ReportPath)) {
+    $Ns806ReportPath = Resolve-LatestEvidencePath '*-ns806-upgrade-bundle.json' 'NS806 report'
 }
 
 Push-Location $repoRoot

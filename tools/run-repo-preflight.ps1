@@ -12,6 +12,16 @@ $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 $reportRootFullPath = Join-Path $repoRoot $ReportRoot
 New-Item -ItemType Directory -Path $reportRootFullPath -Force | Out-Null
 $referenceValidationMode = if ($Mode -eq 'Ci') { 'Ci' } else { 'Local' }
+$runDate = Get-Date -Format 'yyyyMMdd'
+
+if ([string]::IsNullOrWhiteSpace($JsonReportPath)) {
+    $JsonReportPath = if ($Mode -eq 'Ci') {
+        ('docs/evidence/{0}-repo-preflight-ci-summary.json' -f $runDate)
+    }
+    else {
+        ('docs/evidence/{0}-repo-preflight-release-summary.json' -f $runDate)
+    }
+}
 
 function Get-ProcessCommandLine([int] $ProcessId) {
     $process = Get-CimInstance Win32_Process -Filter "ProcessId = $ProcessId" -ErrorAction SilentlyContinue

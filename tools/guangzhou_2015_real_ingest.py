@@ -674,7 +674,10 @@ def main() -> int:
     parser.add_argument("--password", default="")
     parser.add_argument("--file-root", default=r"D:\KQG_Data\file_store")
     parser.add_argument("--python", default=sys.executable)
-    parser.add_argument("--output", default="docs/evidence/20260512-guangzhou-2015-real-ingest-slice-report.json")
+    parser.add_argument(
+        "--output",
+        default=f"docs/evidence/{datetime.now(timezone.utc).strftime('%Y%m%d')}-guangzhou-2015-real-ingest-slice-report.json",
+    )
     parser.add_argument("--apply", action="store_true")
     args = parser.parse_args()
 

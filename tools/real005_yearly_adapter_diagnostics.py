@@ -10,12 +10,23 @@ from typing import Any
 
 
 REQUIRED_YEARS = list(range(2015, 2026))
-REAL001_REPORT = "docs/evidence/20260512-guangzhou-2015-real-ingest-slice-report.json"
+REAL001_REPORT_GLOB = "docs/evidence/*-guangzhou-2015-real-ingest-slice-report.json"
 REAL003_REPORT = "docs/evidence/20260514-real003-guangzhou-physics-year-batch-ingest-report.json"
 
 
 def read_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def find_latest_json(repo_root: Path, glob_pattern: str) -> str:
+    matches = sorted(
+        (repo_root / "docs/evidence").glob(Path(glob_pattern).name),
+        key=lambda path: path.name,
+        reverse=True,
+    )
+    if not matches:
+        raise FileNotFoundError(f"missing evidence matching {glob_pattern}")
+    return str(matches[0].relative_to(repo_root)).replace("\\", "/")
 
 
 def label_for(source: dict[str, Any]) -> str:
@@ -58,7 +69,8 @@ def add_role(target: dict[str, dict[str, Any]], source: dict[str, Any], role: st
 
 
 def build_sources(repo_root: Path) -> dict[int, list[dict[str, Any]]]:
-    real001 = read_json(repo_root / REAL001_REPORT)
+    real001_report = find_latest_json(repo_root, REAL001_REPORT_GLOB)
+    real001 = read_json(repo_root / real001_report)
     real003 = read_json(repo_root / REAL003_REPORT)
 
     by_year: dict[int, dict[str, dict[str, Any]]] = {year: {} for year in REQUIRED_YEARS}
@@ -203,6 +215,7 @@ def main() -> int:
 
     repo_root = Path(__file__).resolve().parents[1]
     file_root = Path(args.file_root)
+    real001_report = find_latest_json(repo_root, REAL001_REPORT_GLOB)
     sources_by_year = build_sources(repo_root)
 
     years: list[dict[str, Any]] = []
@@ -236,7 +249,7 @@ def main() -> int:
         "taskId": "REAL005_YEARLY_ADAPTER_DIAGNOSTICS",
         "checkedAt": datetime.now(timezone.utc).isoformat(),
         "fileRoot": str(file_root),
-        "sourceEvidence": [REAL001_REPORT, REAL003_REPORT],
+        "sourceEvidence": [real001_report, REAL003_REPORT],
         "requiredYears": REQUIRED_YEARS,
         "blockedYears": blocked_years,
         "activeWrite": False,
