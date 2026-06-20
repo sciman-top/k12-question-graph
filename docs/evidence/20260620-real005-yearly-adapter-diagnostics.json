@@ -1,0 +1,880 @@
+{
+  "status": "pass",
+  "taskId": "REAL005_YEARLY_ADAPTER_DIAGNOSTICS",
+  "checkedAt": "2026-06-20T13:27:47.441146+00:00",
+  "preferredFileRoot": "D:\\KQG_Data\\file_store",
+  "fileRoot": "D:\\CODE\\k12-question-graph\\tmp\\ns802-restore\\file_store",
+  "sourceEvidence": [
+    "docs/evidence/20260512-guangzhou-2015-real-ingest-slice-report.json",
+    "docs/evidence/20260514-real003-guangzhou-physics-year-batch-ingest-report.json"
+  ],
+  "requiredYears": [
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "blockedYears": [],
+  "activeWrite": false,
+  "externalAiCalls": 0,
+  "realStudentDataUsed": false,
+  "years": [
+    {
+      "year": 2015,
+      "status": "pass",
+      "hasPaperDiagnostic": true,
+      "hasAnswerDiagnostic": true,
+      "documentCount": 2,
+      "documents": [
+        {
+          "sourceDocumentId": "650e9218-c910-40b2-8af3-d5690788ddb6",
+          "sourceType": "local_exam_paper",
+          "title": "2015广州中考",
+          "fileName": "2015广州中考.pdf",
+          "relativePath": "original/53/4d/534d8eee3b99446d514af736aaf4cd8e36f2803154f7778c0f656f1832b7510c.pdf",
+          "roles": [
+            "paper"
+          ],
+          "expectedSha256": "534d8eee3b99446d514af736aaf4cd8e36f2803154f7778c0f656f1832b7510c",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "scanned_ocr_review_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/53/4d/534d8eee3b99446d514af736aaf4cd8e36f2803154f7778c0f656f1832b7510c.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 2200,
+              "inputSha256": "534d8eee3b99446d514af736aaf4cd8e36f2803154f7778c0f656f1832b7510c",
+              "outputSha256": "896cf430ef26905bec33d84adf2f530db4ae8b3344e2dcad48eba78e5199f6f7",
+              "warnings": [
+                "pdftoppm failed: log4cxx: setFile(C:\\Users\\sciman\\AppData\\Local\\MiKTeX\\miktex\\log/pdftoppm.log,true) call failed.\nlog4cxx: IO Exception : status code = 720005(�ܾ����ʡ�  )\nCould not write image to C:\\Users\\sciman\\AppData\\Local\\Temp\\kqg-pdf-ocr-uov3ljwc\\page-1.png; exiting",
+                "OCR engine unavailable; scanned PDF page requires manual review takeover"
+              ],
+              "errors": []
+            }
+          ],
+          "issues": []
+        },
+        {
+          "sourceDocumentId": "c6259aa6-23a0-4af8-9aa7-fa2f16e26659",
+          "sourceType": "local_exam_paper",
+          "title": "2015广州中考答案",
+          "fileName": "2015广州中考答案.pdf",
+          "relativePath": "original/06/5a/065a6293b5c1019ed2da199736df44c6d0304797d0a986a750449197ca9ba88d.pdf",
+          "roles": [
+            "answer"
+          ],
+          "expectedSha256": "065a6293b5c1019ed2da199736df44c6d0304797d0a986a750449197ca9ba88d",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "scanned_ocr_review_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/06/5a/065a6293b5c1019ed2da199736df44c6d0304797d0a986a750449197ca9ba88d.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 1809,
+              "inputSha256": "065a6293b5c1019ed2da199736df44c6d0304797d0a986a750449197ca9ba88d",
+              "outputSha256": "b3b50faed8b8156dbc45bcd0baf048eae5ee0600310af65a141764e1e80370f6",
+              "warnings": [
+                "pdftoppm failed: log4cxx: setFile(C:\\Users\\sciman\\AppData\\Local\\MiKTeX\\miktex\\log/pdftoppm.log,true) call failed.\nlog4cxx: IO Exception : status code = 720005(�ܾ����ʡ�  )\nCould not write image to C:\\Users\\sciman\\AppData\\Local\\Temp\\kqg-pdf-ocr-f9ssz8i0\\page-1.png; exiting",
+                "OCR engine unavailable; scanned PDF page requires manual review takeover"
+              ],
+              "errors": []
+            }
+          ],
+          "issues": []
+        }
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2016,
+      "status": "pass",
+      "hasPaperDiagnostic": true,
+      "hasAnswerDiagnostic": true,
+      "documentCount": 2,
+      "documents": [
+        {
+          "sourceDocumentId": "bced0159-4568-4814-ba9d-82f19fbf0493",
+          "sourceType": "local_exam_paper",
+          "title": "2016广州中考",
+          "fileName": "2016广州中考.pdf",
+          "relativePath": "original/37/7d/377de2f0a5c7c8a35bff908ac5a4527b671702ac4265bf9d9728e531ae541cee.pdf",
+          "roles": [
+            "paper"
+          ],
+          "expectedSha256": "377de2f0a5c7c8a35bff908ac5a4527b671702ac4265bf9d9728e531ae541cee",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "scanned_ocr_review_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/37/7d/377de2f0a5c7c8a35bff908ac5a4527b671702ac4265bf9d9728e531ae541cee.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 1968,
+              "inputSha256": "377de2f0a5c7c8a35bff908ac5a4527b671702ac4265bf9d9728e531ae541cee",
+              "outputSha256": "76c79a12fef578d994f870091f1726546f909024e017bcf8f6d575aee2e3627d",
+              "warnings": [
+                "pdftoppm failed: log4cxx: setFile(C:\\Users\\sciman\\AppData\\Local\\MiKTeX\\miktex\\log/pdftoppm.log,true) call failed.\nlog4cxx: IO Exception : status code = 720005(�ܾ����ʡ�  )\nCould not write image to C:\\Users\\sciman\\AppData\\Local\\Temp\\kqg-pdf-ocr-hx7thxns\\page-1.png; exiting",
+                "OCR engine unavailable; scanned PDF page requires manual review takeover"
+              ],
+              "errors": []
+            }
+          ],
+          "issues": []
+        },
+        {
+          "sourceDocumentId": "12db801b-1d62-4693-a311-d0ea60f18425",
+          "sourceType": "local_exam_paper",
+          "title": "2016广州中考答案",
+          "fileName": "2016广州中考答案.pdf",
+          "relativePath": "original/fa/dc/fadc6107c2acaaf95de050f4693864a9fffcac71e456bf30a1f4593047ab408b.pdf",
+          "roles": [
+            "answer"
+          ],
+          "expectedSha256": "fadc6107c2acaaf95de050f4693864a9fffcac71e456bf30a1f4593047ab408b",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "scanned_ocr_review_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/fa/dc/fadc6107c2acaaf95de050f4693864a9fffcac71e456bf30a1f4593047ab408b.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 1903,
+              "inputSha256": "fadc6107c2acaaf95de050f4693864a9fffcac71e456bf30a1f4593047ab408b",
+              "outputSha256": "675eab882cd18eb41a6a25f6092bb88191a3593802070091a29d6b511bf5ff03",
+              "warnings": [
+                "pdftoppm failed: log4cxx: setFile(C:\\Users\\sciman\\AppData\\Local\\MiKTeX\\miktex\\log/pdftoppm.log,true) call failed.\nlog4cxx: IO Exception : status code = 720005(�ܾ����ʡ�  )\nCould not write image to C:\\Users\\sciman\\AppData\\Local\\Temp\\kqg-pdf-ocr-4zmoo006\\page-1.png; exiting",
+                "OCR engine unavailable; scanned PDF page requires manual review takeover"
+              ],
+              "errors": []
+            }
+          ],
+          "issues": []
+        }
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2017,
+      "status": "pass",
+      "hasPaperDiagnostic": true,
+      "hasAnswerDiagnostic": true,
+      "documentCount": 2,
+      "documents": [
+        {
+          "sourceDocumentId": "a2972de8-f2d2-4f96-baff-63038be89150",
+          "sourceType": "local_exam_paper",
+          "title": "2017广州中考",
+          "fileName": "2017广州中考.pdf",
+          "relativePath": "original/3f/41/3f419b1779ebec02f74c694966924a2931611f3525d3d17701946bb63abfc4fa.pdf",
+          "roles": [
+            "paper"
+          ],
+          "expectedSha256": "3f419b1779ebec02f74c694966924a2931611f3525d3d17701946bb63abfc4fa",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "scanned_ocr_review_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/3f/41/3f419b1779ebec02f74c694966924a2931611f3525d3d17701946bb63abfc4fa.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 1779,
+              "inputSha256": "3f419b1779ebec02f74c694966924a2931611f3525d3d17701946bb63abfc4fa",
+              "outputSha256": "1bed29544b52ee92ffa0c5fa0dd0fb454bd758c0ff4d6311028ab395b7d6e2ab",
+              "warnings": [
+                "pdftoppm failed: log4cxx: setFile(C:\\Users\\sciman\\AppData\\Local\\MiKTeX\\miktex\\log/pdftoppm.log,true) call failed.\nlog4cxx: IO Exception : status code = 720005(�ܾ����ʡ�  )\nCould not write image to C:\\Users\\sciman\\AppData\\Local\\Temp\\kqg-pdf-ocr-3ala7rz5\\page-1.png; exiting",
+                "OCR engine unavailable; scanned PDF page requires manual review takeover"
+              ],
+              "errors": []
+            }
+          ],
+          "issues": []
+        },
+        {
+          "sourceDocumentId": "abb7abf4-623a-4338-b04e-ce5fe07c47f0",
+          "sourceType": "local_exam_paper",
+          "title": "2017广州中考答案",
+          "fileName": "2017广州中考答案.pdf",
+          "relativePath": "original/f8/7c/f87c3cb8ed02969137ba916184045052ec3efecbd6331dd1d192fe52de67d207.pdf",
+          "roles": [
+            "answer"
+          ],
+          "expectedSha256": "f87c3cb8ed02969137ba916184045052ec3efecbd6331dd1d192fe52de67d207",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "scanned_ocr_review_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/f8/7c/f87c3cb8ed02969137ba916184045052ec3efecbd6331dd1d192fe52de67d207.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 1710,
+              "inputSha256": "f87c3cb8ed02969137ba916184045052ec3efecbd6331dd1d192fe52de67d207",
+              "outputSha256": "56e3d5be68391d049aa3dfca0397c9d8a2644ab5e94483968709cd51d9a176f4",
+              "warnings": [
+                "pdftoppm failed: log4cxx: setFile(C:\\Users\\sciman\\AppData\\Local\\MiKTeX\\miktex\\log/pdftoppm.log,true) call failed.\nlog4cxx: IO Exception : status code = 720005(�ܾ����ʡ�  )\nCould not write image to C:\\Users\\sciman\\AppData\\Local\\Temp\\kqg-pdf-ocr-qnvpfwc3\\page-1.png; exiting",
+                "OCR engine unavailable; scanned PDF page requires manual review takeover"
+              ],
+              "errors": []
+            }
+          ],
+          "issues": []
+        }
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2018,
+      "status": "pass",
+      "hasPaperDiagnostic": true,
+      "hasAnswerDiagnostic": true,
+      "documentCount": 2,
+      "documents": [
+        {
+          "sourceDocumentId": "82b67da3-8ab8-493f-abc3-61428e00d74f",
+          "sourceType": "local_exam_paper",
+          "title": "2018广州中考",
+          "fileName": "2018广州中考.pdf",
+          "relativePath": "original/c4/fe/c4feff77379271fbea32404b1ab3952800ff305639c8af446fa1c8c68a2fc794.pdf",
+          "roles": [
+            "paper"
+          ],
+          "expectedSha256": "c4feff77379271fbea32404b1ab3952800ff305639c8af446fa1c8c68a2fc794",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "scanned_ocr_review_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/c4/fe/c4feff77379271fbea32404b1ab3952800ff305639c8af446fa1c8c68a2fc794.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 1976,
+              "inputSha256": "c4feff77379271fbea32404b1ab3952800ff305639c8af446fa1c8c68a2fc794",
+              "outputSha256": "54c2b5e77cceec2ebf67aca7fdf3d2884b1739373ef43f5504712a43e2dd47e6",
+              "warnings": [
+                "pdftoppm failed: log4cxx: setFile(C:\\Users\\sciman\\AppData\\Local\\MiKTeX\\miktex\\log/pdftoppm.log,true) call failed.\nlog4cxx: IO Exception : status code = 720005(�ܾ����ʡ�  )\nCould not write image to C:\\Users\\sciman\\AppData\\Local\\Temp\\kqg-pdf-ocr-2f49zvo2\\page-01.png; exiting",
+                "OCR engine unavailable; scanned PDF page requires manual review takeover"
+              ],
+              "errors": []
+            }
+          ],
+          "issues": []
+        },
+        {
+          "sourceDocumentId": "c7c2b85f-9139-475d-8431-1e1cfdd9e981",
+          "sourceType": "local_exam_paper",
+          "title": "2018广州中考答案",
+          "fileName": "2018广州中考答案.pdf",
+          "relativePath": "original/40/b1/40b1a15e8b70c44e862eabf265cbe4d63062151742a126133388d31a4b666ed6.pdf",
+          "roles": [
+            "answer"
+          ],
+          "expectedSha256": "40b1a15e8b70c44e862eabf265cbe4d63062151742a126133388d31a4b666ed6",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "scanned_ocr_review_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/40/b1/40b1a15e8b70c44e862eabf265cbe4d63062151742a126133388d31a4b666ed6.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 1763,
+              "inputSha256": "40b1a15e8b70c44e862eabf265cbe4d63062151742a126133388d31a4b666ed6",
+              "outputSha256": "039f944b1ea662979484842d4f8a5057973e82875a3610230e9e2dfa38b691da",
+              "warnings": [
+                "pdftoppm failed: log4cxx: setFile(C:\\Users\\sciman\\AppData\\Local\\MiKTeX\\miktex\\log/pdftoppm.log,true) call failed.\nlog4cxx: IO Exception : status code = 720005(�ܾ����ʡ�  )\nCould not write image to C:\\Users\\sciman\\AppData\\Local\\Temp\\kqg-pdf-ocr-0tfsbt1_\\page-1.png; exiting",
+                "OCR engine unavailable; scanned PDF page requires manual review takeover"
+              ],
+              "errors": []
+            }
+          ],
+          "issues": []
+        }
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2019,
+      "status": "pass",
+      "hasPaperDiagnostic": true,
+      "hasAnswerDiagnostic": true,
+      "documentCount": 2,
+      "documents": [
+        {
+          "sourceDocumentId": "e6394de7-0bb3-462f-801a-d762fa3e08ca",
+          "sourceType": "local_exam_paper",
+          "title": "2019广州中考",
+          "fileName": "2019广州中考.pdf",
+          "relativePath": "original/85/dd/85dd476db8eacd837f7a4590bac7c795ef5cf53f68a1c68a08f279e7d1731dba.pdf",
+          "roles": [
+            "paper"
+          ],
+          "expectedSha256": "85dd476db8eacd837f7a4590bac7c795ef5cf53f68a1c68a08f279e7d1731dba",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "scanned_ocr_review_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/85/dd/85dd476db8eacd837f7a4590bac7c795ef5cf53f68a1c68a08f279e7d1731dba.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 1844,
+              "inputSha256": "85dd476db8eacd837f7a4590bac7c795ef5cf53f68a1c68a08f279e7d1731dba",
+              "outputSha256": "71575c56bc1f282918ccfd2e38ed50625dee32dd255f03d4af411162d297e44a",
+              "warnings": [
+                "pdftoppm failed: log4cxx: setFile(C:\\Users\\sciman\\AppData\\Local\\MiKTeX\\miktex\\log/pdftoppm.log,true) call failed.\nlog4cxx: IO Exception : status code = 720005(�ܾ����ʡ�  )\nCould not write image to C:\\Users\\sciman\\AppData\\Local\\Temp\\kqg-pdf-ocr-lug2wvd2\\page-1.png; exiting",
+                "OCR engine unavailable; scanned PDF page requires manual review takeover"
+              ],
+              "errors": []
+            }
+          ],
+          "issues": []
+        },
+        {
+          "sourceDocumentId": "d81871d7-f631-4d77-aac4-b54d01473026",
+          "sourceType": "local_exam_paper",
+          "title": "2019广州中考答案",
+          "fileName": "2019广州中考答案.pdf",
+          "relativePath": "original/b4/df/b4dfdef844f45be070eaf3db88961ede314eca829493b70e0ddbe17631c1d116.pdf",
+          "roles": [
+            "answer"
+          ],
+          "expectedSha256": "b4dfdef844f45be070eaf3db88961ede314eca829493b70e0ddbe17631c1d116",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "scanned_ocr_review_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/b4/df/b4dfdef844f45be070eaf3db88961ede314eca829493b70e0ddbe17631c1d116.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 1828,
+              "inputSha256": "b4dfdef844f45be070eaf3db88961ede314eca829493b70e0ddbe17631c1d116",
+              "outputSha256": "fb74b91caac69067558afd96ee9e19aa9f7e701baa4d3c40ec63ee93424cdfa2",
+              "warnings": [
+                "pdftoppm failed: log4cxx: setFile(C:\\Users\\sciman\\AppData\\Local\\MiKTeX\\miktex\\log/pdftoppm.log,true) call failed.\nlog4cxx: IO Exception : status code = 720005(�ܾ����ʡ�  )\nCould not write image to C:\\Users\\sciman\\AppData\\Local\\Temp\\kqg-pdf-ocr-y1bgp4p_\\page-01.png; exiting",
+                "OCR engine unavailable; scanned PDF page requires manual review takeover"
+              ],
+              "errors": []
+            }
+          ],
+          "issues": []
+        }
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2020,
+      "status": "pass",
+      "hasPaperDiagnostic": true,
+      "hasAnswerDiagnostic": true,
+      "documentCount": 1,
+      "documents": [
+        {
+          "sourceDocumentId": "fe71fada-ea61-4b68-a6f5-79efeccb78a1",
+          "sourceType": "local_exam_paper",
+          "title": "2020广州中考（含答案）",
+          "fileName": "2020广州中考（含答案）.pdf",
+          "relativePath": "original/03/b6/03b67dc46d0e37377d0ac076638e6d34b42305c8f2824489da3f664fe53875db.pdf",
+          "roles": [
+            "answer",
+            "paper"
+          ],
+          "expectedSha256": "03b67dc46d0e37377d0ac076638e6d34b42305c8f2824489da3f664fe53875db",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "scanned_ocr_review_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/03/b6/03b67dc46d0e37377d0ac076638e6d34b42305c8f2824489da3f664fe53875db.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 1927,
+              "inputSha256": "03b67dc46d0e37377d0ac076638e6d34b42305c8f2824489da3f664fe53875db",
+              "outputSha256": "079446d49f79d0d1b82305a81fc297b4abbacd2ee0060651715f70bc630894ab",
+              "warnings": [
+                "pdftoppm failed: log4cxx: setFile(C:\\Users\\sciman\\AppData\\Local\\MiKTeX\\miktex\\log/pdftoppm.log,true) call failed.\nlog4cxx: IO Exception : status code = 720005(�ܾ����ʡ�  )\nCould not write image to C:\\Users\\sciman\\AppData\\Local\\Temp\\kqg-pdf-ocr-4w8kpko3\\page-01.png; exiting",
+                "OCR engine unavailable; scanned PDF page requires manual review takeover"
+              ],
+              "errors": []
+            }
+          ],
+          "issues": []
+        }
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2021,
+      "status": "pass",
+      "hasPaperDiagnostic": true,
+      "hasAnswerDiagnostic": true,
+      "documentCount": 2,
+      "documents": [
+        {
+          "sourceDocumentId": "389ac111-52c5-4a10-a340-fd03bffb2b39",
+          "sourceType": "local_exam_paper",
+          "title": "2021广州中考-参考答案",
+          "fileName": "2021广州中考-参考答案.pdf",
+          "relativePath": "original/e1/57/e157ab8a16233acd68000299b427f814687035ec1b76384f69f1cf446ed04578.pdf",
+          "roles": [
+            "answer"
+          ],
+          "expectedSha256": "e157ab8a16233acd68000299b427f814687035ec1b76384f69f1cf446ed04578",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "scanned_ocr_review_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/e1/57/e157ab8a16233acd68000299b427f814687035ec1b76384f69f1cf446ed04578.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 1732,
+              "inputSha256": "e157ab8a16233acd68000299b427f814687035ec1b76384f69f1cf446ed04578",
+              "outputSha256": "c047ce4122cd5b0e96c37e4c280d9c5d8343cf1430a6f73949ed6ca29cde8f86",
+              "warnings": [
+                "pdftoppm failed: log4cxx: setFile(C:\\Users\\sciman\\AppData\\Local\\MiKTeX\\miktex\\log/pdftoppm.log,true) call failed.\nlog4cxx: IO Exception : status code = 720005(�ܾ����ʡ�  )\nCould not write image to C:\\Users\\sciman\\AppData\\Local\\Temp\\kqg-pdf-ocr-8htnem7y\\page-1.png; exiting",
+                "OCR engine unavailable; scanned PDF page requires manual review takeover"
+              ],
+              "errors": []
+            }
+          ],
+          "issues": []
+        },
+        {
+          "sourceDocumentId": "83e3e461-318b-4293-9fc4-63ddf9c5d0cf",
+          "sourceType": "local_exam_paper",
+          "title": "2021广州中考",
+          "fileName": "2021广州中考.pdf",
+          "relativePath": "original/d4/ab/d4abb8aa48663b772abb1ee5b15935b065b8931af47bd3c62d89bdef1f83989c.pdf",
+          "roles": [
+            "paper"
+          ],
+          "expectedSha256": "d4abb8aa48663b772abb1ee5b15935b065b8931af47bd3c62d89bdef1f83989c",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "scanned_ocr_review_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/d4/ab/d4abb8aa48663b772abb1ee5b15935b065b8931af47bd3c62d89bdef1f83989c.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 1881,
+              "inputSha256": "d4abb8aa48663b772abb1ee5b15935b065b8931af47bd3c62d89bdef1f83989c",
+              "outputSha256": "514f96d8eeb0b5217dc41d86cd6b566e752664991c214c70f987e36c46db432b",
+              "warnings": [
+                "pdftoppm failed: log4cxx: setFile(C:\\Users\\sciman\\AppData\\Local\\MiKTeX\\miktex\\log/pdftoppm.log,true) call failed.\nlog4cxx: IO Exception : status code = 720005(�ܾ����ʡ�  )\nCould not write image to C:\\Users\\sciman\\AppData\\Local\\Temp\\kqg-pdf-ocr-jbtxlav8\\page-1.png; exiting",
+                "OCR engine unavailable; scanned PDF page requires manual review takeover"
+              ],
+              "errors": []
+            }
+          ],
+          "issues": []
+        }
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2022,
+      "status": "pass",
+      "hasPaperDiagnostic": true,
+      "hasAnswerDiagnostic": true,
+      "documentCount": 2,
+      "documents": [
+        {
+          "sourceDocumentId": "f05ae8ba-3891-4ce0-b265-a1b61a1b76bf",
+          "sourceType": "local_exam_paper",
+          "title": "2022广州中考-参考答案",
+          "fileName": "2022广州中考-参考答案.pdf",
+          "relativePath": "original/51/9a/519a730083d49f576effa9f9d099c0f2731022ff94bc80bbe5e64713d2016120.pdf",
+          "roles": [
+            "answer"
+          ],
+          "expectedSha256": "519a730083d49f576effa9f9d099c0f2731022ff94bc80bbe5e64713d2016120",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "scanned_ocr_review_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/51/9a/519a730083d49f576effa9f9d099c0f2731022ff94bc80bbe5e64713d2016120.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 2163,
+              "inputSha256": "519a730083d49f576effa9f9d099c0f2731022ff94bc80bbe5e64713d2016120",
+              "outputSha256": "58b3c0d2d48b89e72708c937b93eabfbdc266a34acd57f98f41dcdaf3c31e084",
+              "warnings": [
+                "pdftoppm failed: log4cxx: setFile(C:\\Users\\sciman\\AppData\\Local\\MiKTeX\\miktex\\log/pdftoppm.log,true) call failed.\nlog4cxx: IO Exception : status code = 720005(�ܾ����ʡ�  )\nCould not write image to C:\\Users\\sciman\\AppData\\Local\\Temp\\kqg-pdf-ocr-7egmf84z\\page-01.png; exiting",
+                "OCR engine unavailable; scanned PDF page requires manual review takeover"
+              ],
+              "errors": []
+            }
+          ],
+          "issues": []
+        },
+        {
+          "sourceDocumentId": "dba28439-acdc-44e5-9eac-5325a4aec896",
+          "sourceType": "local_exam_paper",
+          "title": "2022广州中考",
+          "fileName": "2022广州中考.pdf",
+          "relativePath": "original/66/c5/66c5959ae3db3fa2d521b234d371c5fa05ef84763ffc1a5a9ed8bd9adce16101.pdf",
+          "roles": [
+            "paper"
+          ],
+          "expectedSha256": "66c5959ae3db3fa2d521b234d371c5fa05ef84763ffc1a5a9ed8bd9adce16101",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "scanned_ocr_review_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/66/c5/66c5959ae3db3fa2d521b234d371c5fa05ef84763ffc1a5a9ed8bd9adce16101.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 2079,
+              "inputSha256": "66c5959ae3db3fa2d521b234d371c5fa05ef84763ffc1a5a9ed8bd9adce16101",
+              "outputSha256": "dfaec196a3dbd9e1768c70a2aeb8962722e0236ce229573816f7bda921121e7f",
+              "warnings": [
+                "pdftoppm failed: log4cxx: setFile(C:\\Users\\sciman\\AppData\\Local\\MiKTeX\\miktex\\log/pdftoppm.log,true) call failed.\nlog4cxx: IO Exception : status code = 720005(�ܾ����ʡ�  )\nCould not write image to C:\\Users\\sciman\\AppData\\Local\\Temp\\kqg-pdf-ocr-gfwfityi\\page-1.png; exiting",
+                "OCR engine unavailable; scanned PDF page requires manual review takeover"
+              ],
+              "errors": []
+            }
+          ],
+          "issues": []
+        }
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2023,
+      "status": "pass",
+      "hasPaperDiagnostic": true,
+      "hasAnswerDiagnostic": true,
+      "documentCount": 2,
+      "documents": [
+        {
+          "sourceDocumentId": "65468c7b-aec5-42c0-a60e-f59e9ed8e093",
+          "sourceType": "local_exam_paper",
+          "title": "2023广州中考",
+          "fileName": "2023广州中考.pdf",
+          "relativePath": "original/94/22/9422eb3c0542eeea3526717364de15288d74788c4a1348f64ff012233338acdc.pdf",
+          "roles": [
+            "paper"
+          ],
+          "expectedSha256": "9422eb3c0542eeea3526717364de15288d74788c4a1348f64ff012233338acdc",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "scanned_ocr_review_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/94/22/9422eb3c0542eeea3526717364de15288d74788c4a1348f64ff012233338acdc.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 1810,
+              "inputSha256": "9422eb3c0542eeea3526717364de15288d74788c4a1348f64ff012233338acdc",
+              "outputSha256": "5c1be09d8b8929b02a06d6df71b9336a03e2410593c4748489b61c0c7fce98be",
+              "warnings": [
+                "pdftoppm failed: log4cxx: setFile(C:\\Users\\sciman\\AppData\\Local\\MiKTeX\\miktex\\log/pdftoppm.log,true) call failed.\nlog4cxx: IO Exception : status code = 720005(�ܾ����ʡ�  )\nCould not write image to C:\\Users\\sciman\\AppData\\Local\\Temp\\kqg-pdf-ocr-sdwa6yr2\\page-1.png; exiting",
+                "OCR engine unavailable; scanned PDF page requires manual review takeover"
+              ],
+              "errors": []
+            }
+          ],
+          "issues": []
+        },
+        {
+          "sourceDocumentId": "8a7a5534-97e7-47ac-8f92-60ad70446ec1",
+          "sourceType": "local_exam_paper",
+          "title": "2023广州中考_参考答案",
+          "fileName": "2023广州中考_参考答案.pdf",
+          "relativePath": "original/f7/c3/f7c33a3e4525912de855f34e1d40e2853aa228da6d5f74be91f0627520c7d36a.pdf",
+          "roles": [
+            "answer"
+          ],
+          "expectedSha256": "f7c33a3e4525912de855f34e1d40e2853aa228da6d5f74be91f0627520c7d36a",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "scanned_ocr_review_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/f7/c3/f7c33a3e4525912de855f34e1d40e2853aa228da6d5f74be91f0627520c7d36a.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 1722,
+              "inputSha256": "f7c33a3e4525912de855f34e1d40e2853aa228da6d5f74be91f0627520c7d36a",
+              "outputSha256": "9cbc908e09124f0aa1e291d8dd9847ac60157a5b333972eb0fcf00f0e76386c2",
+              "warnings": [
+                "pdftoppm failed: log4cxx: setFile(C:\\Users\\sciman\\AppData\\Local\\MiKTeX\\miktex\\log/pdftoppm.log,true) call failed.\nlog4cxx: IO Exception : status code = 720005(�ܾ����ʡ�  )\nCould not write image to C:\\Users\\sciman\\AppData\\Local\\Temp\\kqg-pdf-ocr-lo0b7awd\\page-1.png; exiting",
+                "OCR engine unavailable; scanned PDF page requires manual review takeover"
+              ],
+              "errors": []
+            }
+          ],
+          "issues": []
+        }
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2024,
+      "status": "pass",
+      "hasPaperDiagnostic": true,
+      "hasAnswerDiagnostic": true,
+      "documentCount": 2,
+      "documents": [
+        {
+          "sourceDocumentId": "90465a2a-9664-4a85-b40b-2bf3e194c8b5",
+          "sourceType": "local_exam_paper",
+          "title": "2024广州中考（解析版）",
+          "fileName": "2024广州中考（解析版）.pdf",
+          "relativePath": "original/5b/58/5b588bd2ed97be333da83a1f50031fe7f3adf66c8532506a481c97ed09adda95.pdf",
+          "roles": [
+            "answer",
+            "paper"
+          ],
+          "expectedSha256": "5b588bd2ed97be333da83a1f50031fe7f3adf66c8532506a481c97ed09adda95",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "scanned_ocr_review_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/5b/58/5b588bd2ed97be333da83a1f50031fe7f3adf66c8532506a481c97ed09adda95.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 2052,
+              "inputSha256": "5b588bd2ed97be333da83a1f50031fe7f3adf66c8532506a481c97ed09adda95",
+              "outputSha256": "e010f70c61cb22fa6a2bec2a49d72f3b90f54fd5b744f45f1cb25363a16b32c3",
+              "warnings": [
+                "pdftoppm failed: log4cxx: setFile(C:\\Users\\sciman\\AppData\\Local\\MiKTeX\\miktex\\log/pdftoppm.log,true) call failed.\nlog4cxx: IO Exception : status code = 720005(�ܾ����ʡ�  )\nCould not write image to C:\\Users\\sciman\\AppData\\Local\\Temp\\kqg-pdf-ocr-lftv_tm4\\page-01.png; exiting",
+                "OCR engine unavailable; scanned PDF page requires manual review takeover"
+              ],
+              "errors": []
+            }
+          ],
+          "issues": []
+        },
+        {
+          "sourceDocumentId": "c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389",
+          "sourceType": "local_exam_paper",
+          "title": "2024广州中考",
+          "fileName": "2024广州中考.pdf",
+          "relativePath": "original/f6/a3/f6a3a77585343e30722ef5e09cda58795fa752e2d86c74d0dda3c89e159311ef.pdf",
+          "roles": [
+            "paper"
+          ],
+          "expectedSha256": "f6a3a77585343e30722ef5e09cda58795fa752e2d86c74d0dda3c89e159311ef",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "scanned_ocr_review_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/f6/a3/f6a3a77585343e30722ef5e09cda58795fa752e2d86c74d0dda3c89e159311ef.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 2255,
+              "inputSha256": "f6a3a77585343e30722ef5e09cda58795fa752e2d86c74d0dda3c89e159311ef",
+              "outputSha256": "a84566f0bdc051cd112656f68021d95630e09bb2025a1f4d5253d994c4989a90",
+              "warnings": [
+                "pdftoppm failed: log4cxx: setFile(C:\\Users\\sciman\\AppData\\Local\\MiKTeX\\miktex\\log/pdftoppm.log,true) call failed.\nlog4cxx: IO Exception : status code = 720005(�ܾ����ʡ�  )\nCould not write image to C:\\Users\\sciman\\AppData\\Local\\Temp\\kqg-pdf-ocr-9amxqfu4\\page-1.png; exiting",
+                "OCR engine unavailable; scanned PDF page requires manual review takeover"
+              ],
+              "errors": []
+            }
+          ],
+          "issues": []
+        }
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2025,
+      "status": "pass",
+      "hasPaperDiagnostic": true,
+      "hasAnswerDiagnostic": true,
+      "documentCount": 2,
+      "documents": [
+        {
+          "sourceDocumentId": "e04bc785-61b5-43d5-af7d-8f794b99549d",
+          "sourceType": "local_exam_paper",
+          "title": "2025广州中考（解析版）",
+          "fileName": "2025广州中考（解析版）.pdf",
+          "relativePath": "original/22/cc/22cc26e89bae766f1c6d9dc4497d9dcfa7a52467cdb48856c831f076805f8202.pdf",
+          "roles": [
+            "answer",
+            "paper"
+          ],
+          "expectedSha256": "22cc26e89bae766f1c6d9dc4497d9dcfa7a52467cdb48856c831f076805f8202",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "scanned_ocr_review_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/22/cc/22cc26e89bae766f1c6d9dc4497d9dcfa7a52467cdb48856c831f076805f8202.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 2256,
+              "inputSha256": "22cc26e89bae766f1c6d9dc4497d9dcfa7a52467cdb48856c831f076805f8202",
+              "outputSha256": "d53ba70663ab442d46699a1d6e0056de89f8604ac787262d5c7621fd48e70b7e",
+              "warnings": [
+                "pdftoppm failed: log4cxx: setFile(C:\\Users\\sciman\\AppData\\Local\\MiKTeX\\miktex\\log/pdftoppm.log,true) call failed.\nlog4cxx: IO Exception : status code = 720005(�ܾ����ʡ�  )\nCould not write image to C:\\Users\\sciman\\AppData\\Local\\Temp\\kqg-pdf-ocr-sz1he5zk\\page-01.png; exiting",
+                "OCR engine unavailable; scanned PDF page requires manual review takeover"
+              ],
+              "errors": []
+            }
+          ],
+          "issues": []
+        },
+        {
+          "sourceDocumentId": "e7930641-b925-4f00-96d7-3b900949c083",
+          "sourceType": "local_exam_paper",
+          "title": "2025广州中考",
+          "fileName": "2025广州中考.pdf",
+          "relativePath": "original/26/c8/26c8aabc95cd2ffa67ed2ea873f13c9f2cb15d8e576ca2e4d4281f00f63e0fbe.pdf",
+          "roles": [
+            "paper"
+          ],
+          "expectedSha256": "26c8aabc95cd2ffa67ed2ea873f13c9f2cb15d8e576ca2e4d4281f00f63e0fbe",
+          "fileExists": true,
+          "workerExitCode": 0,
+          "diagnosticStatus": "pass",
+          "adapterDiagnostics": [
+            {
+              "adapterName": "scanned_ocr_review_adapter",
+              "adapterVersion": "0.1",
+              "toolName": "python",
+              "toolVersion": "3.13.7",
+              "commandArgs": {
+                "relativePath": "original/26/c8/26c8aabc95cd2ffa67ed2ea873f13c9f2cb15d8e576ca2e4d4281f00f63e0fbe.pdf",
+                "simulateFailure": false
+              },
+              "durationMs": 2227,
+              "inputSha256": "26c8aabc95cd2ffa67ed2ea873f13c9f2cb15d8e576ca2e4d4281f00f63e0fbe",
+              "outputSha256": "4ee294db9f0029259d689f81ff1f9e1c4a4d12ec8af3bbeac29ca681543e71ba",
+              "warnings": [
+                "pdftoppm failed: log4cxx: setFile(C:\\Users\\sciman\\AppData\\Local\\MiKTeX\\miktex\\log/pdftoppm.log,true) call failed.\nlog4cxx: IO Exception : status code = 720005(�ܾ����ʡ�  )\nCould not write image to C:\\Users\\sciman\\AppData\\Local\\Temp\\kqg-pdf-ocr-ug32qs2e\\page-1.png; exiting",
+                "OCR engine unavailable; scanned PDF page requires manual review takeover"
+              ],
+              "errors": []
+            }
+          ],
+          "issues": []
+        }
+      ],
+      "blockers": []
+    }
+  ],
+  "boundary": "read-only worker adapter diagnostic evidence for REAL005A/RG002; no database write, no active switch, no external AI",
+  "rollback": "git clean -f -- docs/evidence/<date>-real005-yearly-adapter-diagnostics.json docs/evidence/<date>-real005-yearly-adapter-diagnostics.md"
+}

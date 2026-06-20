@@ -8,7 +8,8 @@ param(
     [string] $PdfToPpm = '',
     [string] $PdfInfo = '',
     [string] $ReportPath = '',
-    [string] $MarkdownReportPath = ''
+    [string] $MarkdownReportPath = '',
+    [switch] $AllowPartialReport
 )
 
 $ErrorActionPreference = 'Stop'
@@ -58,11 +59,27 @@ try {
         --output $ReportPath `
         --markdown-output $MarkdownReportPath
     if ($LASTEXITCODE -ne 0) {
-        throw "REAL005B source-region screenshots failed with exit code $LASTEXITCODE"
+        if (-not $AllowPartialReport) {
+            throw "REAL005B source-region screenshots failed with exit code $LASTEXITCODE"
+        }
+
+        $partialReportPath = Join-Path $repoRoot $ReportPath
+        if (-not (Test-Path -LiteralPath $partialReportPath)) {
+            throw "REAL005B source-region screenshots failed with exit code $LASTEXITCODE and no report file was written"
+        }
+
+        $partialReport = Get-Content -LiteralPath $partialReportPath -Raw | ConvertFrom-Json
+        if ($partialReport.status -ne 'partial') {
+            throw "REAL005B source-region screenshots failed with exit code $LASTEXITCODE and status $($partialReport.status)"
+        }
     }
 
     $report = Get-Content -LiteralPath (Join-Path $repoRoot $ReportPath) -Raw | ConvertFrom-Json
     if ($report.status -ne 'pass') {
+        if ($AllowPartialReport -and $report.status -eq 'partial') {
+            $report | ConvertTo-Json -Depth 12
+            return
+        }
         throw "expected REAL005B source-region screenshot status=pass, got $($report.status)"
     }
     if (@($report.years).Count -ne 10) {

@@ -1,0 +1,4633 @@
+{
+  "status": "pass",
+  "taskId": "REAL005B_SOURCE_REGION_SCREENSHOTS",
+  "checkedAt": "2026-06-20T12:55:18.749995+00:00",
+  "fileRoot": "D:\\CODE\\k12-question-graph\\tmp\\real005b-runtime\\data\\file_store",
+  "csvRoot": "D:\\CODE\\k12-question-graph\\guangzhou-physics-full-research-package-2016-2025\\csv",
+  "sourceEvidence": [
+    "guangzhou-physics-full-research-package-2016-2025/csv/c003-source-material.csv",
+    "guangzhou-physics-full-research-package-2016-2025/csv/c003-question-item-full.csv",
+    "guangzhou-physics-full-research-package-2016-2025/csv/c003-subquestion-item-full.csv"
+  ],
+  "requiredYears": [
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "blockedYears": [],
+  "activeWrite": false,
+  "externalAiCalls": 0,
+  "realStudentDataUsed": false,
+  "totals": {
+    "questions": 210,
+    "visualQuestions": 190,
+    "renderedPages": 79
+  },
+  "years": [
+    {
+      "year": 2016,
+      "status": "pass",
+      "sourceFiles": [
+        "2016广州中考.pdf"
+      ],
+      "sourceDocuments": [
+        {
+          "sourceFile": "2016广州中考.pdf",
+          "sourceDocumentId": "bced0159-4568-4814-ba9d-82f19fbf0493",
+          "relativePath": "original/37/7d/377de2f0a5c7c8a35bff908ac5a4527b671702ac4265bf9d9728e531ae541cee.pdf",
+          "sourceType": "local_exam_paper"
+        }
+      ],
+      "questionCount": 24,
+      "visualQuestionCount": 20,
+      "questionsWithSourcePages": 24,
+      "visualQuestionsWithAssets": 20,
+      "renderedPageCount": 8,
+      "renderedPages": [
+        {
+          "sourceFile": "2016广州中考.pdf",
+          "pageNumber": 1,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-001.png"
+        },
+        {
+          "sourceFile": "2016广州中考.pdf",
+          "pageNumber": 2,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-002.png"
+        },
+        {
+          "sourceFile": "2016广州中考.pdf",
+          "pageNumber": 3,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-003.png"
+        },
+        {
+          "sourceFile": "2016广州中考.pdf",
+          "pageNumber": 4,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-004.png"
+        },
+        {
+          "sourceFile": "2016广州中考.pdf",
+          "pageNumber": 5,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-005.png"
+        },
+        {
+          "sourceFile": "2016广州中考.pdf",
+          "pageNumber": 6,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-006.png"
+        },
+        {
+          "sourceFile": "2016广州中考.pdf",
+          "pageNumber": 7,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-007.png"
+        },
+        {
+          "sourceFile": "2016广州中考.pdf",
+          "pageNumber": 8,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-008.png"
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "QPHY-C003-2016-01",
+          "questionNumber": 1,
+          "questionType": "choice",
+          "sourceFile": "2016广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-001.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-001.png"
+          ],
+          "answerSourceId": "SRC-C003-006",
+          "yearReportSourceId": "SRC-C003-007"
+        },
+        {
+          "questionId": "QPHY-C003-2016-02",
+          "questionNumber": 2,
+          "questionType": "choice",
+          "sourceFile": "2016广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-001.png"
+          ],
+          "hasVisualAsset": false,
+          "assetScreenshotRelativePaths": [],
+          "answerSourceId": "SRC-C003-006",
+          "yearReportSourceId": "SRC-C003-007"
+        },
+        {
+          "questionId": "QPHY-C003-2016-03",
+          "questionNumber": 3,
+          "questionType": "choice",
+          "sourceFile": "2016广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-001.png"
+          ],
+          "hasVisualAsset": false,
+          "assetScreenshotRelativePaths": [],
+          "answerSourceId": "SRC-C003-006",
+          "yearReportSourceId": "SRC-C003-007"
+        },
+        {
+          "questionId": "QPHY-C003-2016-04",
+          "questionNumber": 4,
+          "questionType": "choice",
+          "sourceFile": "2016广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-001.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-001.png"
+          ],
+          "answerSourceId": "SRC-C003-006",
+          "yearReportSourceId": "SRC-C003-007"
+        },
+        {
+          "questionId": "QPHY-C003-2016-05",
+          "questionNumber": 5,
+          "questionType": "choice",
+          "sourceFile": "2016广州中考.pdf",
+          "pageOrLocation": "真题p2",
+          "sourcePageNumbers": [
+            2
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-002.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-002.png"
+          ],
+          "answerSourceId": "SRC-C003-006",
+          "yearReportSourceId": "SRC-C003-007"
+        },
+        {
+          "questionId": "QPHY-C003-2016-06",
+          "questionNumber": 6,
+          "questionType": "choice",
+          "sourceFile": "2016广州中考.pdf",
+          "pageOrLocation": "真题p2",
+          "sourcePageNumbers": [
+            2
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-002.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-002.png"
+          ],
+          "answerSourceId": "SRC-C003-006",
+          "yearReportSourceId": "SRC-C003-007"
+        },
+        {
+          "questionId": "QPHY-C003-2016-07",
+          "questionNumber": 7,
+          "questionType": "choice",
+          "sourceFile": "2016广州中考.pdf",
+          "pageOrLocation": "真题p2",
+          "sourcePageNumbers": [
+            2
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-002.png"
+          ],
+          "hasVisualAsset": false,
+          "assetScreenshotRelativePaths": [],
+          "answerSourceId": "SRC-C003-006",
+          "yearReportSourceId": "SRC-C003-007"
+        },
+        {
+          "questionId": "QPHY-C003-2016-08",
+          "questionNumber": 8,
+          "questionType": "choice",
+          "sourceFile": "2016广州中考.pdf",
+          "pageOrLocation": "真题p2",
+          "sourcePageNumbers": [
+            2
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-002.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-002.png"
+          ],
+          "answerSourceId": "SRC-C003-006",
+          "yearReportSourceId": "SRC-C003-007"
+        },
+        {
+          "questionId": "QPHY-C003-2016-09",
+          "questionNumber": 9,
+          "questionType": "choice",
+          "sourceFile": "2016广州中考.pdf",
+          "pageOrLocation": "真题p2",
+          "sourcePageNumbers": [
+            2
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-002.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-002.png"
+          ],
+          "answerSourceId": "SRC-C003-006",
+          "yearReportSourceId": "SRC-C003-007"
+        },
+        {
+          "questionId": "QPHY-C003-2016-10",
+          "questionNumber": 10,
+          "questionType": "choice",
+          "sourceFile": "2016广州中考.pdf",
+          "pageOrLocation": "真题p3",
+          "sourcePageNumbers": [
+            3
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-003.png"
+          ],
+          "hasVisualAsset": false,
+          "assetScreenshotRelativePaths": [],
+          "answerSourceId": "SRC-C003-006",
+          "yearReportSourceId": "SRC-C003-007"
+        },
+        {
+          "questionId": "QPHY-C003-2016-11",
+          "questionNumber": 11,
+          "questionType": "choice",
+          "sourceFile": "2016广州中考.pdf",
+          "pageOrLocation": "真题p3",
+          "sourcePageNumbers": [
+            3
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-003.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-003.png"
+          ],
+          "answerSourceId": "SRC-C003-006",
+          "yearReportSourceId": "SRC-C003-007"
+        },
+        {
+          "questionId": "QPHY-C003-2016-12",
+          "questionNumber": 12,
+          "questionType": "choice",
+          "sourceFile": "2016广州中考.pdf",
+          "pageOrLocation": "真题p3",
+          "sourcePageNumbers": [
+            3
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-003.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-003.png"
+          ],
+          "answerSourceId": "SRC-C003-006",
+          "yearReportSourceId": "SRC-C003-007"
+        },
+        {
+          "questionId": "QPHY-C003-2016-13",
+          "questionNumber": 13,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2016广州中考.pdf",
+          "pageOrLocation": "真题p3",
+          "sourcePageNumbers": [
+            3
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-003.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-003.png"
+          ],
+          "answerSourceId": "SRC-C003-006",
+          "yearReportSourceId": "SRC-C003-007"
+        },
+        {
+          "questionId": "QPHY-C003-2016-14",
+          "questionNumber": 14,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2016广州中考.pdf",
+          "pageOrLocation": "真题p4",
+          "sourcePageNumbers": [
+            4
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-004.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-004.png"
+          ],
+          "answerSourceId": "SRC-C003-006",
+          "yearReportSourceId": "SRC-C003-007"
+        },
+        {
+          "questionId": "QPHY-C003-2016-15",
+          "questionNumber": 15,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2016广州中考.pdf",
+          "pageOrLocation": "真题p4",
+          "sourcePageNumbers": [
+            4
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-004.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-004.png"
+          ],
+          "answerSourceId": "SRC-C003-006",
+          "yearReportSourceId": "SRC-C003-007"
+        },
+        {
+          "questionId": "QPHY-C003-2016-16",
+          "questionNumber": 16,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2016广州中考.pdf",
+          "pageOrLocation": "真题p4",
+          "sourcePageNumbers": [
+            4
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-004.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-004.png"
+          ],
+          "answerSourceId": "SRC-C003-006",
+          "yearReportSourceId": "SRC-C003-007"
+        },
+        {
+          "questionId": "QPHY-C003-2016-17",
+          "questionNumber": 17,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2016广州中考.pdf",
+          "pageOrLocation": "真题p4",
+          "sourcePageNumbers": [
+            4
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-004.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-004.png"
+          ],
+          "answerSourceId": "SRC-C003-006",
+          "yearReportSourceId": "SRC-C003-007"
+        },
+        {
+          "questionId": "QPHY-C003-2016-18",
+          "questionNumber": 18,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2016广州中考.pdf",
+          "pageOrLocation": "真题p5",
+          "sourcePageNumbers": [
+            5
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-005.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-005.png"
+          ],
+          "answerSourceId": "SRC-C003-006",
+          "yearReportSourceId": "SRC-C003-007"
+        },
+        {
+          "questionId": "QPHY-C003-2016-19",
+          "questionNumber": 19,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2016广州中考.pdf",
+          "pageOrLocation": "真题p5",
+          "sourcePageNumbers": [
+            5
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-005.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-005.png"
+          ],
+          "answerSourceId": "SRC-C003-006",
+          "yearReportSourceId": "SRC-C003-007"
+        },
+        {
+          "questionId": "QPHY-C003-2016-20",
+          "questionNumber": 20,
+          "questionType": "analysis_calculation",
+          "sourceFile": "2016广州中考.pdf",
+          "pageOrLocation": "真题p3",
+          "sourcePageNumbers": [
+            3
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-003.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-003.png"
+          ],
+          "answerSourceId": "SRC-C003-006",
+          "yearReportSourceId": "SRC-C003-007"
+        },
+        {
+          "questionId": "QPHY-C003-2016-21",
+          "questionNumber": 21,
+          "questionType": "analysis_calculation",
+          "sourceFile": "2016广州中考.pdf",
+          "pageOrLocation": "真题p6",
+          "sourcePageNumbers": [
+            6
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-006.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-006.png"
+          ],
+          "answerSourceId": "SRC-C003-006",
+          "yearReportSourceId": "SRC-C003-007"
+        },
+        {
+          "questionId": "QPHY-C003-2016-22",
+          "questionNumber": 22,
+          "questionType": "experiment_inquiry",
+          "sourceFile": "2016广州中考.pdf",
+          "pageOrLocation": "真题p6",
+          "sourcePageNumbers": [
+            6
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-006.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-006.png"
+          ],
+          "answerSourceId": "SRC-C003-006",
+          "yearReportSourceId": "SRC-C003-007"
+        },
+        {
+          "questionId": "QPHY-C003-2016-23",
+          "questionNumber": 23,
+          "questionType": "experiment_inquiry",
+          "sourceFile": "2016广州中考.pdf",
+          "pageOrLocation": "真题p7",
+          "sourcePageNumbers": [
+            7
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-007.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-007.png"
+          ],
+          "answerSourceId": "SRC-C003-006",
+          "yearReportSourceId": "SRC-C003-007"
+        },
+        {
+          "questionId": "QPHY-C003-2016-24",
+          "questionNumber": 24,
+          "questionType": "experiment_inquiry",
+          "sourceFile": "2016广州中考.pdf",
+          "pageOrLocation": "真题p8",
+          "sourcePageNumbers": [
+            8
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-008.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2016/bced0159-4568-4814-ba9d-82f19fbf0493/page-008.png"
+          ],
+          "answerSourceId": "SRC-C003-006",
+          "yearReportSourceId": "SRC-C003-007"
+        }
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2017,
+      "status": "pass",
+      "sourceFiles": [
+        "2017广州中考.pdf"
+      ],
+      "sourceDocuments": [
+        {
+          "sourceFile": "2017广州中考.pdf",
+          "sourceDocumentId": "a2972de8-f2d2-4f96-baff-63038be89150",
+          "relativePath": "original/3f/41/3f419b1779ebec02f74c694966924a2931611f3525d3d17701946bb63abfc4fa.pdf",
+          "sourceType": "local_exam_paper"
+        }
+      ],
+      "questionCount": 24,
+      "visualQuestionCount": 20,
+      "questionsWithSourcePages": 24,
+      "visualQuestionsWithAssets": 20,
+      "renderedPageCount": 8,
+      "renderedPages": [
+        {
+          "sourceFile": "2017广州中考.pdf",
+          "pageNumber": 1,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-001.png"
+        },
+        {
+          "sourceFile": "2017广州中考.pdf",
+          "pageNumber": 2,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-002.png"
+        },
+        {
+          "sourceFile": "2017广州中考.pdf",
+          "pageNumber": 3,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-003.png"
+        },
+        {
+          "sourceFile": "2017广州中考.pdf",
+          "pageNumber": 4,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-004.png"
+        },
+        {
+          "sourceFile": "2017广州中考.pdf",
+          "pageNumber": 5,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-005.png"
+        },
+        {
+          "sourceFile": "2017广州中考.pdf",
+          "pageNumber": 6,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-006.png"
+        },
+        {
+          "sourceFile": "2017广州中考.pdf",
+          "pageNumber": 7,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-007.png"
+        },
+        {
+          "sourceFile": "2017广州中考.pdf",
+          "pageNumber": 8,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-008.png"
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "QPHY-C003-2017-01",
+          "questionNumber": 1,
+          "questionType": "choice",
+          "sourceFile": "2017广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-001.png"
+          ],
+          "hasVisualAsset": false,
+          "assetScreenshotRelativePaths": [],
+          "answerSourceId": "SRC-C003-009",
+          "yearReportSourceId": "SRC-C003-010"
+        },
+        {
+          "questionId": "QPHY-C003-2017-02",
+          "questionNumber": 2,
+          "questionType": "choice",
+          "sourceFile": "2017广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-001.png"
+          ],
+          "hasVisualAsset": false,
+          "assetScreenshotRelativePaths": [],
+          "answerSourceId": "SRC-C003-009",
+          "yearReportSourceId": "SRC-C003-010"
+        },
+        {
+          "questionId": "QPHY-C003-2017-03",
+          "questionNumber": 3,
+          "questionType": "choice",
+          "sourceFile": "2017广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-001.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-001.png"
+          ],
+          "answerSourceId": "SRC-C003-009",
+          "yearReportSourceId": "SRC-C003-010"
+        },
+        {
+          "questionId": "QPHY-C003-2017-04",
+          "questionNumber": 4,
+          "questionType": "choice",
+          "sourceFile": "2017广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-001.png"
+          ],
+          "hasVisualAsset": false,
+          "assetScreenshotRelativePaths": [],
+          "answerSourceId": "SRC-C003-009",
+          "yearReportSourceId": "SRC-C003-010"
+        },
+        {
+          "questionId": "QPHY-C003-2017-05",
+          "questionNumber": 5,
+          "questionType": "choice",
+          "sourceFile": "2017广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-001.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-001.png"
+          ],
+          "answerSourceId": "SRC-C003-009",
+          "yearReportSourceId": "SRC-C003-010"
+        },
+        {
+          "questionId": "QPHY-C003-2017-06",
+          "questionNumber": 6,
+          "questionType": "choice",
+          "sourceFile": "2017广州中考.pdf",
+          "pageOrLocation": "真题p2",
+          "sourcePageNumbers": [
+            2
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-002.png"
+          ],
+          "hasVisualAsset": false,
+          "assetScreenshotRelativePaths": [],
+          "answerSourceId": "SRC-C003-009",
+          "yearReportSourceId": "SRC-C003-010"
+        },
+        {
+          "questionId": "QPHY-C003-2017-07",
+          "questionNumber": 7,
+          "questionType": "choice",
+          "sourceFile": "2017广州中考.pdf",
+          "pageOrLocation": "真题p2",
+          "sourcePageNumbers": [
+            2
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-002.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-002.png"
+          ],
+          "answerSourceId": "SRC-C003-009",
+          "yearReportSourceId": "SRC-C003-010"
+        },
+        {
+          "questionId": "QPHY-C003-2017-08",
+          "questionNumber": 8,
+          "questionType": "choice",
+          "sourceFile": "2017广州中考.pdf",
+          "pageOrLocation": "真题p2",
+          "sourcePageNumbers": [
+            2
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-002.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-002.png"
+          ],
+          "answerSourceId": "SRC-C003-009",
+          "yearReportSourceId": "SRC-C003-010"
+        },
+        {
+          "questionId": "QPHY-C003-2017-09",
+          "questionNumber": 9,
+          "questionType": "choice",
+          "sourceFile": "2017广州中考.pdf",
+          "pageOrLocation": "真题p3",
+          "sourcePageNumbers": [
+            3
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-003.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-003.png"
+          ],
+          "answerSourceId": "SRC-C003-009",
+          "yearReportSourceId": "SRC-C003-010"
+        },
+        {
+          "questionId": "QPHY-C003-2017-10",
+          "questionNumber": 10,
+          "questionType": "choice",
+          "sourceFile": "2017广州中考.pdf",
+          "pageOrLocation": "真题p2",
+          "sourcePageNumbers": [
+            2
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-002.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-002.png"
+          ],
+          "answerSourceId": "SRC-C003-009",
+          "yearReportSourceId": "SRC-C003-010"
+        },
+        {
+          "questionId": "QPHY-C003-2017-11",
+          "questionNumber": 11,
+          "questionType": "choice",
+          "sourceFile": "2017广州中考.pdf",
+          "pageOrLocation": "真题p3",
+          "sourcePageNumbers": [
+            3
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-003.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-003.png"
+          ],
+          "answerSourceId": "SRC-C003-009",
+          "yearReportSourceId": "SRC-C003-010"
+        },
+        {
+          "questionId": "QPHY-C003-2017-12",
+          "questionNumber": 12,
+          "questionType": "choice",
+          "sourceFile": "2017广州中考.pdf",
+          "pageOrLocation": "真题p3",
+          "sourcePageNumbers": [
+            3
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-003.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-003.png"
+          ],
+          "answerSourceId": "SRC-C003-009",
+          "yearReportSourceId": "SRC-C003-010"
+        },
+        {
+          "questionId": "QPHY-C003-2017-13",
+          "questionNumber": 13,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2017广州中考.pdf",
+          "pageOrLocation": "真题p4",
+          "sourcePageNumbers": [
+            4
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-004.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-004.png"
+          ],
+          "answerSourceId": "SRC-C003-009",
+          "yearReportSourceId": "SRC-C003-010"
+        },
+        {
+          "questionId": "QPHY-C003-2017-14",
+          "questionNumber": 14,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2017广州中考.pdf",
+          "pageOrLocation": "真题p4",
+          "sourcePageNumbers": [
+            4
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-004.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-004.png"
+          ],
+          "answerSourceId": "SRC-C003-009",
+          "yearReportSourceId": "SRC-C003-010"
+        },
+        {
+          "questionId": "QPHY-C003-2017-15",
+          "questionNumber": 15,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2017广州中考.pdf",
+          "pageOrLocation": "真题p5",
+          "sourcePageNumbers": [
+            5
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-005.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-005.png"
+          ],
+          "answerSourceId": "SRC-C003-009",
+          "yearReportSourceId": "SRC-C003-010"
+        },
+        {
+          "questionId": "QPHY-C003-2017-16",
+          "questionNumber": 16,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2017广州中考.pdf",
+          "pageOrLocation": "真题p4",
+          "sourcePageNumbers": [
+            4
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-004.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-004.png"
+          ],
+          "answerSourceId": "SRC-C003-009",
+          "yearReportSourceId": "SRC-C003-010"
+        },
+        {
+          "questionId": "QPHY-C003-2017-17",
+          "questionNumber": 17,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2017广州中考.pdf",
+          "pageOrLocation": "真题p5",
+          "sourcePageNumbers": [
+            5
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-005.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-005.png"
+          ],
+          "answerSourceId": "SRC-C003-009",
+          "yearReportSourceId": "SRC-C003-010"
+        },
+        {
+          "questionId": "QPHY-C003-2017-18",
+          "questionNumber": 18,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2017广州中考.pdf",
+          "pageOrLocation": "真题p4",
+          "sourcePageNumbers": [
+            4
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-004.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-004.png"
+          ],
+          "answerSourceId": "SRC-C003-009",
+          "yearReportSourceId": "SRC-C003-010"
+        },
+        {
+          "questionId": "QPHY-C003-2017-19",
+          "questionNumber": 19,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2017广州中考.pdf",
+          "pageOrLocation": "真题p5",
+          "sourcePageNumbers": [
+            5
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-005.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-005.png"
+          ],
+          "answerSourceId": "SRC-C003-009",
+          "yearReportSourceId": "SRC-C003-010"
+        },
+        {
+          "questionId": "QPHY-C003-2017-20",
+          "questionNumber": 20,
+          "questionType": "analysis_calculation",
+          "sourceFile": "2017广州中考.pdf",
+          "pageOrLocation": "真题p3",
+          "sourcePageNumbers": [
+            3
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-003.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-003.png"
+          ],
+          "answerSourceId": "SRC-C003-009",
+          "yearReportSourceId": "SRC-C003-010"
+        },
+        {
+          "questionId": "QPHY-C003-2017-21",
+          "questionNumber": 21,
+          "questionType": "analysis_calculation",
+          "sourceFile": "2017广州中考.pdf",
+          "pageOrLocation": "真题p6",
+          "sourcePageNumbers": [
+            6
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-006.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-006.png"
+          ],
+          "answerSourceId": "SRC-C003-009",
+          "yearReportSourceId": "SRC-C003-010"
+        },
+        {
+          "questionId": "QPHY-C003-2017-22",
+          "questionNumber": 22,
+          "questionType": "experiment_inquiry",
+          "sourceFile": "2017广州中考.pdf",
+          "pageOrLocation": "真题p6",
+          "sourcePageNumbers": [
+            6
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-006.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-006.png"
+          ],
+          "answerSourceId": "SRC-C003-009",
+          "yearReportSourceId": "SRC-C003-010"
+        },
+        {
+          "questionId": "QPHY-C003-2017-23",
+          "questionNumber": 23,
+          "questionType": "experiment_inquiry",
+          "sourceFile": "2017广州中考.pdf",
+          "pageOrLocation": "真题p7",
+          "sourcePageNumbers": [
+            7
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-007.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-007.png"
+          ],
+          "answerSourceId": "SRC-C003-009",
+          "yearReportSourceId": "SRC-C003-010"
+        },
+        {
+          "questionId": "QPHY-C003-2017-24",
+          "questionNumber": 24,
+          "questionType": "experiment_inquiry",
+          "sourceFile": "2017广州中考.pdf",
+          "pageOrLocation": "真题p8",
+          "sourcePageNumbers": [
+            8
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-008.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2017/a2972de8-f2d2-4f96-baff-63038be89150/page-008.png"
+          ],
+          "answerSourceId": "SRC-C003-009",
+          "yearReportSourceId": "SRC-C003-010"
+        }
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2018,
+      "status": "pass",
+      "sourceFiles": [
+        "2018广州中考.pdf"
+      ],
+      "sourceDocuments": [
+        {
+          "sourceFile": "2018广州中考.pdf",
+          "sourceDocumentId": "82b67da3-8ab8-493f-abc3-61428e00d74f",
+          "relativePath": "original/c4/fe/c4feff77379271fbea32404b1ab3952800ff305639c8af446fa1c8c68a2fc794.pdf",
+          "sourceType": "local_exam_paper"
+        }
+      ],
+      "questionCount": 24,
+      "visualQuestionCount": 22,
+      "questionsWithSourcePages": 24,
+      "visualQuestionsWithAssets": 22,
+      "renderedPageCount": 10,
+      "renderedPages": [
+        {
+          "sourceFile": "2018广州中考.pdf",
+          "pageNumber": 1,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-001.png"
+        },
+        {
+          "sourceFile": "2018广州中考.pdf",
+          "pageNumber": 3,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-003.png"
+        },
+        {
+          "sourceFile": "2018广州中考.pdf",
+          "pageNumber": 4,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-004.png"
+        },
+        {
+          "sourceFile": "2018广州中考.pdf",
+          "pageNumber": 5,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-005.png"
+        },
+        {
+          "sourceFile": "2018广州中考.pdf",
+          "pageNumber": 6,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-006.png"
+        },
+        {
+          "sourceFile": "2018广州中考.pdf",
+          "pageNumber": 7,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-007.png"
+        },
+        {
+          "sourceFile": "2018广州中考.pdf",
+          "pageNumber": 8,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-008.png"
+        },
+        {
+          "sourceFile": "2018广州中考.pdf",
+          "pageNumber": 9,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-009.png"
+        },
+        {
+          "sourceFile": "2018广州中考.pdf",
+          "pageNumber": 10,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-010.png"
+        },
+        {
+          "sourceFile": "2018广州中考.pdf",
+          "pageNumber": 11,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-011.png"
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "QPHY-C003-2018-01",
+          "questionNumber": 1,
+          "questionType": "choice",
+          "sourceFile": "2018广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-001.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-001.png"
+          ],
+          "answerSourceId": "SRC-C003-012",
+          "yearReportSourceId": "SRC-C003-013"
+        },
+        {
+          "questionId": "QPHY-C003-2018-02",
+          "questionNumber": 2,
+          "questionType": "choice",
+          "sourceFile": "2018广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-001.png"
+          ],
+          "hasVisualAsset": false,
+          "assetScreenshotRelativePaths": [],
+          "answerSourceId": "SRC-C003-012",
+          "yearReportSourceId": "SRC-C003-013"
+        },
+        {
+          "questionId": "QPHY-C003-2018-03",
+          "questionNumber": 3,
+          "questionType": "choice",
+          "sourceFile": "2018广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-001.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-001.png"
+          ],
+          "answerSourceId": "SRC-C003-012",
+          "yearReportSourceId": "SRC-C003-013"
+        },
+        {
+          "questionId": "QPHY-C003-2018-04",
+          "questionNumber": 4,
+          "questionType": "choice",
+          "sourceFile": "2018广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-001.png"
+          ],
+          "hasVisualAsset": false,
+          "assetScreenshotRelativePaths": [],
+          "answerSourceId": "SRC-C003-012",
+          "yearReportSourceId": "SRC-C003-013"
+        },
+        {
+          "questionId": "QPHY-C003-2018-05",
+          "questionNumber": 5,
+          "questionType": "choice",
+          "sourceFile": "2018广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-001.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-001.png"
+          ],
+          "answerSourceId": "SRC-C003-012",
+          "yearReportSourceId": "SRC-C003-013"
+        },
+        {
+          "questionId": "QPHY-C003-2018-06",
+          "questionNumber": 6,
+          "questionType": "choice",
+          "sourceFile": "2018广州中考.pdf",
+          "pageOrLocation": "真题p3",
+          "sourcePageNumbers": [
+            3
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-003.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-003.png"
+          ],
+          "answerSourceId": "SRC-C003-012",
+          "yearReportSourceId": "SRC-C003-013"
+        },
+        {
+          "questionId": "QPHY-C003-2018-07",
+          "questionNumber": 7,
+          "questionType": "choice",
+          "sourceFile": "2018广州中考.pdf",
+          "pageOrLocation": "真题p3",
+          "sourcePageNumbers": [
+            3
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-003.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-003.png"
+          ],
+          "answerSourceId": "SRC-C003-012",
+          "yearReportSourceId": "SRC-C003-013"
+        },
+        {
+          "questionId": "QPHY-C003-2018-08",
+          "questionNumber": 8,
+          "questionType": "choice",
+          "sourceFile": "2018广州中考.pdf",
+          "pageOrLocation": "真题p3",
+          "sourcePageNumbers": [
+            3
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-003.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-003.png"
+          ],
+          "answerSourceId": "SRC-C003-012",
+          "yearReportSourceId": "SRC-C003-013"
+        },
+        {
+          "questionId": "QPHY-C003-2018-09",
+          "questionNumber": 9,
+          "questionType": "choice",
+          "sourceFile": "2018广州中考.pdf",
+          "pageOrLocation": "真题p4",
+          "sourcePageNumbers": [
+            4
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-004.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-004.png"
+          ],
+          "answerSourceId": "SRC-C003-012",
+          "yearReportSourceId": "SRC-C003-013"
+        },
+        {
+          "questionId": "QPHY-C003-2018-10",
+          "questionNumber": 10,
+          "questionType": "choice",
+          "sourceFile": "2018广州中考.pdf",
+          "pageOrLocation": "真题p4",
+          "sourcePageNumbers": [
+            4
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-004.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-004.png"
+          ],
+          "answerSourceId": "SRC-C003-012",
+          "yearReportSourceId": "SRC-C003-013"
+        },
+        {
+          "questionId": "QPHY-C003-2018-11",
+          "questionNumber": 11,
+          "questionType": "choice",
+          "sourceFile": "2018广州中考.pdf",
+          "pageOrLocation": "真题p4",
+          "sourcePageNumbers": [
+            4
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-004.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-004.png"
+          ],
+          "answerSourceId": "SRC-C003-012",
+          "yearReportSourceId": "SRC-C003-013"
+        },
+        {
+          "questionId": "QPHY-C003-2018-12",
+          "questionNumber": 12,
+          "questionType": "choice",
+          "sourceFile": "2018广州中考.pdf",
+          "pageOrLocation": "真题p4",
+          "sourcePageNumbers": [
+            4
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-004.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-004.png"
+          ],
+          "answerSourceId": "SRC-C003-012",
+          "yearReportSourceId": "SRC-C003-013"
+        },
+        {
+          "questionId": "QPHY-C003-2018-13",
+          "questionNumber": 13,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2018广州中考.pdf",
+          "pageOrLocation": "真题p5",
+          "sourcePageNumbers": [
+            5
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-005.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-005.png"
+          ],
+          "answerSourceId": "SRC-C003-012",
+          "yearReportSourceId": "SRC-C003-013"
+        },
+        {
+          "questionId": "QPHY-C003-2018-14",
+          "questionNumber": 14,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2018广州中考.pdf",
+          "pageOrLocation": "真题p5",
+          "sourcePageNumbers": [
+            5
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-005.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-005.png"
+          ],
+          "answerSourceId": "SRC-C003-012",
+          "yearReportSourceId": "SRC-C003-013"
+        },
+        {
+          "questionId": "QPHY-C003-2018-15",
+          "questionNumber": 15,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2018广州中考.pdf",
+          "pageOrLocation": "真题p5",
+          "sourcePageNumbers": [
+            5
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-005.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-005.png"
+          ],
+          "answerSourceId": "SRC-C003-012",
+          "yearReportSourceId": "SRC-C003-013"
+        },
+        {
+          "questionId": "QPHY-C003-2018-16",
+          "questionNumber": 16,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2018广州中考.pdf",
+          "pageOrLocation": "真题p6",
+          "sourcePageNumbers": [
+            6
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-006.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-006.png"
+          ],
+          "answerSourceId": "SRC-C003-012",
+          "yearReportSourceId": "SRC-C003-013"
+        },
+        {
+          "questionId": "QPHY-C003-2018-17",
+          "questionNumber": 17,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2018广州中考.pdf",
+          "pageOrLocation": "真题p6",
+          "sourcePageNumbers": [
+            6
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-006.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-006.png"
+          ],
+          "answerSourceId": "SRC-C003-012",
+          "yearReportSourceId": "SRC-C003-013"
+        },
+        {
+          "questionId": "QPHY-C003-2018-18",
+          "questionNumber": 18,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2018广州中考.pdf",
+          "pageOrLocation": "真题p6",
+          "sourcePageNumbers": [
+            6
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-006.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-006.png"
+          ],
+          "answerSourceId": "SRC-C003-012",
+          "yearReportSourceId": "SRC-C003-013"
+        },
+        {
+          "questionId": "QPHY-C003-2018-19",
+          "questionNumber": 19,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2018广州中考.pdf",
+          "pageOrLocation": "真题p7",
+          "sourcePageNumbers": [
+            7
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-007.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-007.png"
+          ],
+          "answerSourceId": "SRC-C003-012",
+          "yearReportSourceId": "SRC-C003-013"
+        },
+        {
+          "questionId": "QPHY-C003-2018-20",
+          "questionNumber": 20,
+          "questionType": "analysis_calculation",
+          "sourceFile": "2018广州中考.pdf",
+          "pageOrLocation": "真题p4",
+          "sourcePageNumbers": [
+            4
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-004.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-004.png"
+          ],
+          "answerSourceId": "SRC-C003-012",
+          "yearReportSourceId": "SRC-C003-013"
+        },
+        {
+          "questionId": "QPHY-C003-2018-21",
+          "questionNumber": 21,
+          "questionType": "analysis_calculation",
+          "sourceFile": "2018广州中考.pdf",
+          "pageOrLocation": "真题p8",
+          "sourcePageNumbers": [
+            8
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-008.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-008.png"
+          ],
+          "answerSourceId": "SRC-C003-012",
+          "yearReportSourceId": "SRC-C003-013"
+        },
+        {
+          "questionId": "QPHY-C003-2018-22",
+          "questionNumber": 22,
+          "questionType": "experiment_inquiry",
+          "sourceFile": "2018广州中考.pdf",
+          "pageOrLocation": "真题p9",
+          "sourcePageNumbers": [
+            9
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-009.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-009.png"
+          ],
+          "answerSourceId": "SRC-C003-012",
+          "yearReportSourceId": "SRC-C003-013"
+        },
+        {
+          "questionId": "QPHY-C003-2018-23",
+          "questionNumber": 23,
+          "questionType": "experiment_inquiry",
+          "sourceFile": "2018广州中考.pdf",
+          "pageOrLocation": "真题p10",
+          "sourcePageNumbers": [
+            10
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-010.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-010.png"
+          ],
+          "answerSourceId": "SRC-C003-012",
+          "yearReportSourceId": "SRC-C003-013"
+        },
+        {
+          "questionId": "QPHY-C003-2018-24",
+          "questionNumber": 24,
+          "questionType": "experiment_inquiry",
+          "sourceFile": "2018广州中考.pdf",
+          "pageOrLocation": "真题p11",
+          "sourcePageNumbers": [
+            11
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-011.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2018/82b67da3-8ab8-493f-abc3-61428e00d74f/page-011.png"
+          ],
+          "answerSourceId": "SRC-C003-012",
+          "yearReportSourceId": "SRC-C003-013"
+        }
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2019,
+      "status": "pass",
+      "sourceFiles": [
+        "2019广州中考.pdf"
+      ],
+      "sourceDocuments": [
+        {
+          "sourceFile": "2019广州中考.pdf",
+          "sourceDocumentId": "e6394de7-0bb3-462f-801a-d762fa3e08ca",
+          "relativePath": "original/85/dd/85dd476db8eacd837f7a4590bac7c795ef5cf53f68a1c68a08f279e7d1731dba.pdf",
+          "sourceType": "local_exam_paper"
+        }
+      ],
+      "questionCount": 24,
+      "visualQuestionCount": 22,
+      "questionsWithSourcePages": 24,
+      "visualQuestionsWithAssets": 22,
+      "renderedPageCount": 8,
+      "renderedPages": [
+        {
+          "sourceFile": "2019广州中考.pdf",
+          "pageNumber": 1,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-001.png"
+        },
+        {
+          "sourceFile": "2019广州中考.pdf",
+          "pageNumber": 2,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-002.png"
+        },
+        {
+          "sourceFile": "2019广州中考.pdf",
+          "pageNumber": 3,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-003.png"
+        },
+        {
+          "sourceFile": "2019广州中考.pdf",
+          "pageNumber": 4,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-004.png"
+        },
+        {
+          "sourceFile": "2019广州中考.pdf",
+          "pageNumber": 5,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-005.png"
+        },
+        {
+          "sourceFile": "2019广州中考.pdf",
+          "pageNumber": 6,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-006.png"
+        },
+        {
+          "sourceFile": "2019广州中考.pdf",
+          "pageNumber": 7,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-007.png"
+        },
+        {
+          "sourceFile": "2019广州中考.pdf",
+          "pageNumber": 8,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-008.png"
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "QPHY-C003-2019-01",
+          "questionNumber": 1,
+          "questionType": "choice",
+          "sourceFile": "2019广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-001.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-001.png"
+          ],
+          "answerSourceId": "SRC-C003-015",
+          "yearReportSourceId": "SRC-C003-016"
+        },
+        {
+          "questionId": "QPHY-C003-2019-02",
+          "questionNumber": 2,
+          "questionType": "choice",
+          "sourceFile": "2019广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-001.png"
+          ],
+          "hasVisualAsset": false,
+          "assetScreenshotRelativePaths": [],
+          "answerSourceId": "SRC-C003-015",
+          "yearReportSourceId": "SRC-C003-016"
+        },
+        {
+          "questionId": "QPHY-C003-2019-03",
+          "questionNumber": 3,
+          "questionType": "choice",
+          "sourceFile": "2019广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-001.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-001.png"
+          ],
+          "answerSourceId": "SRC-C003-015",
+          "yearReportSourceId": "SRC-C003-016"
+        },
+        {
+          "questionId": "QPHY-C003-2019-04",
+          "questionNumber": 4,
+          "questionType": "choice",
+          "sourceFile": "2019广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-001.png"
+          ],
+          "hasVisualAsset": false,
+          "assetScreenshotRelativePaths": [],
+          "answerSourceId": "SRC-C003-015",
+          "yearReportSourceId": "SRC-C003-016"
+        },
+        {
+          "questionId": "QPHY-C003-2019-05",
+          "questionNumber": 5,
+          "questionType": "choice",
+          "sourceFile": "2019广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-001.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-001.png"
+          ],
+          "answerSourceId": "SRC-C003-015",
+          "yearReportSourceId": "SRC-C003-016"
+        },
+        {
+          "questionId": "QPHY-C003-2019-06",
+          "questionNumber": 6,
+          "questionType": "choice",
+          "sourceFile": "2019广州中考.pdf",
+          "pageOrLocation": "真题p2",
+          "sourcePageNumbers": [
+            2
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-002.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-002.png"
+          ],
+          "answerSourceId": "SRC-C003-015",
+          "yearReportSourceId": "SRC-C003-016"
+        },
+        {
+          "questionId": "QPHY-C003-2019-07",
+          "questionNumber": 7,
+          "questionType": "choice",
+          "sourceFile": "2019广州中考.pdf",
+          "pageOrLocation": "真题p2",
+          "sourcePageNumbers": [
+            2
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-002.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-002.png"
+          ],
+          "answerSourceId": "SRC-C003-015",
+          "yearReportSourceId": "SRC-C003-016"
+        },
+        {
+          "questionId": "QPHY-C003-2019-08",
+          "questionNumber": 8,
+          "questionType": "choice",
+          "sourceFile": "2019广州中考.pdf",
+          "pageOrLocation": "真题p3",
+          "sourcePageNumbers": [
+            3
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-003.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-003.png"
+          ],
+          "answerSourceId": "SRC-C003-015",
+          "yearReportSourceId": "SRC-C003-016"
+        },
+        {
+          "questionId": "QPHY-C003-2019-09",
+          "questionNumber": 9,
+          "questionType": "choice",
+          "sourceFile": "2019广州中考.pdf",
+          "pageOrLocation": "真题p3",
+          "sourcePageNumbers": [
+            3
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-003.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-003.png"
+          ],
+          "answerSourceId": "SRC-C003-015",
+          "yearReportSourceId": "SRC-C003-016"
+        },
+        {
+          "questionId": "QPHY-C003-2019-10",
+          "questionNumber": 10,
+          "questionType": "choice",
+          "sourceFile": "2019广州中考.pdf",
+          "pageOrLocation": "真题p3",
+          "sourcePageNumbers": [
+            3
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-003.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-003.png"
+          ],
+          "answerSourceId": "SRC-C003-015",
+          "yearReportSourceId": "SRC-C003-016"
+        },
+        {
+          "questionId": "QPHY-C003-2019-11",
+          "questionNumber": 11,
+          "questionType": "choice",
+          "sourceFile": "2019广州中考.pdf",
+          "pageOrLocation": "真题p4",
+          "sourcePageNumbers": [
+            4
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-004.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-004.png"
+          ],
+          "answerSourceId": "SRC-C003-015",
+          "yearReportSourceId": "SRC-C003-016"
+        },
+        {
+          "questionId": "QPHY-C003-2019-12",
+          "questionNumber": 12,
+          "questionType": "choice",
+          "sourceFile": "2019广州中考.pdf",
+          "pageOrLocation": "真题p4",
+          "sourcePageNumbers": [
+            4
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-004.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-004.png"
+          ],
+          "answerSourceId": "SRC-C003-015",
+          "yearReportSourceId": "SRC-C003-016"
+        },
+        {
+          "questionId": "QPHY-C003-2019-13",
+          "questionNumber": 13,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2019广州中考.pdf",
+          "pageOrLocation": "真题p4",
+          "sourcePageNumbers": [
+            4
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-004.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-004.png"
+          ],
+          "answerSourceId": "SRC-C003-015",
+          "yearReportSourceId": "SRC-C003-016"
+        },
+        {
+          "questionId": "QPHY-C003-2019-14",
+          "questionNumber": 14,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2019广州中考.pdf",
+          "pageOrLocation": "真题p5",
+          "sourcePageNumbers": [
+            5
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-005.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-005.png"
+          ],
+          "answerSourceId": "SRC-C003-015",
+          "yearReportSourceId": "SRC-C003-016"
+        },
+        {
+          "questionId": "QPHY-C003-2019-15",
+          "questionNumber": 15,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2019广州中考.pdf",
+          "pageOrLocation": "真题p5",
+          "sourcePageNumbers": [
+            5
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-005.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-005.png"
+          ],
+          "answerSourceId": "SRC-C003-015",
+          "yearReportSourceId": "SRC-C003-016"
+        },
+        {
+          "questionId": "QPHY-C003-2019-16",
+          "questionNumber": 16,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2019广州中考.pdf",
+          "pageOrLocation": "真题p5",
+          "sourcePageNumbers": [
+            5
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-005.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-005.png"
+          ],
+          "answerSourceId": "SRC-C003-015",
+          "yearReportSourceId": "SRC-C003-016"
+        },
+        {
+          "questionId": "QPHY-C003-2019-17",
+          "questionNumber": 17,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2019广州中考.pdf",
+          "pageOrLocation": "真题p6",
+          "sourcePageNumbers": [
+            6
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-006.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-006.png"
+          ],
+          "answerSourceId": "SRC-C003-015",
+          "yearReportSourceId": "SRC-C003-016"
+        },
+        {
+          "questionId": "QPHY-C003-2019-18",
+          "questionNumber": 18,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2019广州中考.pdf",
+          "pageOrLocation": "真题p6",
+          "sourcePageNumbers": [
+            6
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-006.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-006.png"
+          ],
+          "answerSourceId": "SRC-C003-015",
+          "yearReportSourceId": "SRC-C003-016"
+        },
+        {
+          "questionId": "QPHY-C003-2019-19",
+          "questionNumber": 19,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2019广州中考.pdf",
+          "pageOrLocation": "真题p6",
+          "sourcePageNumbers": [
+            6
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-006.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-006.png"
+          ],
+          "answerSourceId": "SRC-C003-015",
+          "yearReportSourceId": "SRC-C003-016"
+        },
+        {
+          "questionId": "QPHY-C003-2019-20",
+          "questionNumber": 20,
+          "questionType": "analysis_calculation",
+          "sourceFile": "2019广州中考.pdf",
+          "pageOrLocation": "真题p7",
+          "sourcePageNumbers": [
+            7
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-007.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-007.png"
+          ],
+          "answerSourceId": "SRC-C003-015",
+          "yearReportSourceId": "SRC-C003-016"
+        },
+        {
+          "questionId": "QPHY-C003-2019-21",
+          "questionNumber": 21,
+          "questionType": "analysis_calculation",
+          "sourceFile": "2019广州中考.pdf",
+          "pageOrLocation": "真题p7",
+          "sourcePageNumbers": [
+            7
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-007.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-007.png"
+          ],
+          "answerSourceId": "SRC-C003-015",
+          "yearReportSourceId": "SRC-C003-016"
+        },
+        {
+          "questionId": "QPHY-C003-2019-22",
+          "questionNumber": 22,
+          "questionType": "experiment_inquiry",
+          "sourceFile": "2019广州中考.pdf",
+          "pageOrLocation": "真题p8",
+          "sourcePageNumbers": [
+            8
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-008.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-008.png"
+          ],
+          "answerSourceId": "SRC-C003-015",
+          "yearReportSourceId": "SRC-C003-016"
+        },
+        {
+          "questionId": "QPHY-C003-2019-23",
+          "questionNumber": 23,
+          "questionType": "experiment_inquiry",
+          "sourceFile": "2019广州中考.pdf",
+          "pageOrLocation": "真题p8",
+          "sourcePageNumbers": [
+            8
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-008.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-008.png"
+          ],
+          "answerSourceId": "SRC-C003-015",
+          "yearReportSourceId": "SRC-C003-016"
+        },
+        {
+          "questionId": "QPHY-C003-2019-24",
+          "questionNumber": 24,
+          "questionType": "experiment_inquiry",
+          "sourceFile": "2019广州中考.pdf",
+          "pageOrLocation": "真题p8",
+          "sourcePageNumbers": [
+            8
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-008.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2019/e6394de7-0bb3-462f-801a-d762fa3e08ca/page-008.png"
+          ],
+          "answerSourceId": "SRC-C003-015",
+          "yearReportSourceId": "SRC-C003-016"
+        }
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2020,
+      "status": "pass",
+      "sourceFiles": [
+        "2020广州中考（含答案）.pdf"
+      ],
+      "sourceDocuments": [
+        {
+          "sourceFile": "2020广州中考（含答案）.pdf",
+          "sourceDocumentId": "fe71fada-ea61-4b68-a6f5-79efeccb78a1",
+          "relativePath": "original/03/b6/03b67dc46d0e37377d0ac076638e6d34b42305c8f2824489da3f664fe53875db.pdf",
+          "sourceType": "local_exam_paper"
+        }
+      ],
+      "questionCount": 24,
+      "visualQuestionCount": 22,
+      "questionsWithSourcePages": 24,
+      "visualQuestionsWithAssets": 22,
+      "renderedPageCount": 8,
+      "renderedPages": [
+        {
+          "sourceFile": "2020广州中考（含答案）.pdf",
+          "pageNumber": 1,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-001.png"
+        },
+        {
+          "sourceFile": "2020广州中考（含答案）.pdf",
+          "pageNumber": 2,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-002.png"
+        },
+        {
+          "sourceFile": "2020广州中考（含答案）.pdf",
+          "pageNumber": 3,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-003.png"
+        },
+        {
+          "sourceFile": "2020广州中考（含答案）.pdf",
+          "pageNumber": 4,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-004.png"
+        },
+        {
+          "sourceFile": "2020广州中考（含答案）.pdf",
+          "pageNumber": 5,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-005.png"
+        },
+        {
+          "sourceFile": "2020广州中考（含答案）.pdf",
+          "pageNumber": 6,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-006.png"
+        },
+        {
+          "sourceFile": "2020广州中考（含答案）.pdf",
+          "pageNumber": 7,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-007.png"
+        },
+        {
+          "sourceFile": "2020广州中考（含答案）.pdf",
+          "pageNumber": 8,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-008.png"
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "QPHY-C003-2020-01",
+          "questionNumber": 1,
+          "questionType": "choice",
+          "sourceFile": "2020广州中考（含答案）.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-001.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-001.png"
+          ],
+          "answerSourceId": "SRC-C003-017",
+          "yearReportSourceId": "SRC-C003-018"
+        },
+        {
+          "questionId": "QPHY-C003-2020-02",
+          "questionNumber": 2,
+          "questionType": "choice",
+          "sourceFile": "2020广州中考（含答案）.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-001.png"
+          ],
+          "hasVisualAsset": false,
+          "assetScreenshotRelativePaths": [],
+          "answerSourceId": "SRC-C003-017",
+          "yearReportSourceId": "SRC-C003-018"
+        },
+        {
+          "questionId": "QPHY-C003-2020-03",
+          "questionNumber": 3,
+          "questionType": "choice",
+          "sourceFile": "2020广州中考（含答案）.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-001.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-001.png"
+          ],
+          "answerSourceId": "SRC-C003-017",
+          "yearReportSourceId": "SRC-C003-018"
+        },
+        {
+          "questionId": "QPHY-C003-2020-04",
+          "questionNumber": 4,
+          "questionType": "choice",
+          "sourceFile": "2020广州中考（含答案）.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-001.png"
+          ],
+          "hasVisualAsset": false,
+          "assetScreenshotRelativePaths": [],
+          "answerSourceId": "SRC-C003-017",
+          "yearReportSourceId": "SRC-C003-018"
+        },
+        {
+          "questionId": "QPHY-C003-2020-05",
+          "questionNumber": 5,
+          "questionType": "choice",
+          "sourceFile": "2020广州中考（含答案）.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-001.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-001.png"
+          ],
+          "answerSourceId": "SRC-C003-017",
+          "yearReportSourceId": "SRC-C003-018"
+        },
+        {
+          "questionId": "QPHY-C003-2020-06",
+          "questionNumber": 6,
+          "questionType": "choice",
+          "sourceFile": "2020广州中考（含答案）.pdf",
+          "pageOrLocation": "真题p2",
+          "sourcePageNumbers": [
+            2
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-002.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-002.png"
+          ],
+          "answerSourceId": "SRC-C003-017",
+          "yearReportSourceId": "SRC-C003-018"
+        },
+        {
+          "questionId": "QPHY-C003-2020-07",
+          "questionNumber": 7,
+          "questionType": "choice",
+          "sourceFile": "2020广州中考（含答案）.pdf",
+          "pageOrLocation": "真题p2",
+          "sourcePageNumbers": [
+            2
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-002.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-002.png"
+          ],
+          "answerSourceId": "SRC-C003-017",
+          "yearReportSourceId": "SRC-C003-018"
+        },
+        {
+          "questionId": "QPHY-C003-2020-08",
+          "questionNumber": 8,
+          "questionType": "choice",
+          "sourceFile": "2020广州中考（含答案）.pdf",
+          "pageOrLocation": "真题p2",
+          "sourcePageNumbers": [
+            2
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-002.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-002.png"
+          ],
+          "answerSourceId": "SRC-C003-017",
+          "yearReportSourceId": "SRC-C003-018"
+        },
+        {
+          "questionId": "QPHY-C003-2020-09",
+          "questionNumber": 9,
+          "questionType": "choice",
+          "sourceFile": "2020广州中考（含答案）.pdf",
+          "pageOrLocation": "真题p3",
+          "sourcePageNumbers": [
+            3
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-003.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-003.png"
+          ],
+          "answerSourceId": "SRC-C003-017",
+          "yearReportSourceId": "SRC-C003-018"
+        },
+        {
+          "questionId": "QPHY-C003-2020-10",
+          "questionNumber": 10,
+          "questionType": "choice",
+          "sourceFile": "2020广州中考（含答案）.pdf",
+          "pageOrLocation": "真题p3",
+          "sourcePageNumbers": [
+            3
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-003.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-003.png"
+          ],
+          "answerSourceId": "SRC-C003-017",
+          "yearReportSourceId": "SRC-C003-018"
+        },
+        {
+          "questionId": "QPHY-C003-2020-11",
+          "questionNumber": 11,
+          "questionType": "choice",
+          "sourceFile": "2020广州中考（含答案）.pdf",
+          "pageOrLocation": "真题p3",
+          "sourcePageNumbers": [
+            3
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-003.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-003.png"
+          ],
+          "answerSourceId": "SRC-C003-017",
+          "yearReportSourceId": "SRC-C003-018"
+        },
+        {
+          "questionId": "QPHY-C003-2020-12",
+          "questionNumber": 12,
+          "questionType": "choice",
+          "sourceFile": "2020广州中考（含答案）.pdf",
+          "pageOrLocation": "真题p4",
+          "sourcePageNumbers": [
+            4
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-004.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-004.png"
+          ],
+          "answerSourceId": "SRC-C003-017",
+          "yearReportSourceId": "SRC-C003-018"
+        },
+        {
+          "questionId": "QPHY-C003-2020-13",
+          "questionNumber": 13,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2020广州中考（含答案）.pdf",
+          "pageOrLocation": "真题p4",
+          "sourcePageNumbers": [
+            4
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-004.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-004.png"
+          ],
+          "answerSourceId": "SRC-C003-017",
+          "yearReportSourceId": "SRC-C003-018"
+        },
+        {
+          "questionId": "QPHY-C003-2020-14",
+          "questionNumber": 14,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2020广州中考（含答案）.pdf",
+          "pageOrLocation": "真题p5",
+          "sourcePageNumbers": [
+            5
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-005.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-005.png"
+          ],
+          "answerSourceId": "SRC-C003-017",
+          "yearReportSourceId": "SRC-C003-018"
+        },
+        {
+          "questionId": "QPHY-C003-2020-15",
+          "questionNumber": 15,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2020广州中考（含答案）.pdf",
+          "pageOrLocation": "真题p3",
+          "sourcePageNumbers": [
+            3
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-003.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-003.png"
+          ],
+          "answerSourceId": "SRC-C003-017",
+          "yearReportSourceId": "SRC-C003-018"
+        },
+        {
+          "questionId": "QPHY-C003-2020-16",
+          "questionNumber": 16,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2020广州中考（含答案）.pdf",
+          "pageOrLocation": "真题p5",
+          "sourcePageNumbers": [
+            5
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-005.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-005.png"
+          ],
+          "answerSourceId": "SRC-C003-017",
+          "yearReportSourceId": "SRC-C003-018"
+        },
+        {
+          "questionId": "QPHY-C003-2020-17",
+          "questionNumber": 17,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2020广州中考（含答案）.pdf",
+          "pageOrLocation": "真题p5",
+          "sourcePageNumbers": [
+            5
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-005.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-005.png"
+          ],
+          "answerSourceId": "SRC-C003-017",
+          "yearReportSourceId": "SRC-C003-018"
+        },
+        {
+          "questionId": "QPHY-C003-2020-18",
+          "questionNumber": 18,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2020广州中考（含答案）.pdf",
+          "pageOrLocation": "真题p6",
+          "sourcePageNumbers": [
+            6
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-006.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-006.png"
+          ],
+          "answerSourceId": "SRC-C003-017",
+          "yearReportSourceId": "SRC-C003-018"
+        },
+        {
+          "questionId": "QPHY-C003-2020-19",
+          "questionNumber": 19,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2020广州中考（含答案）.pdf",
+          "pageOrLocation": "真题p6",
+          "sourcePageNumbers": [
+            6
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-006.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-006.png"
+          ],
+          "answerSourceId": "SRC-C003-017",
+          "yearReportSourceId": "SRC-C003-018"
+        },
+        {
+          "questionId": "QPHY-C003-2020-20",
+          "questionNumber": 20,
+          "questionType": "analysis_calculation",
+          "sourceFile": "2020广州中考（含答案）.pdf",
+          "pageOrLocation": "真题p6",
+          "sourcePageNumbers": [
+            6
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-006.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-006.png"
+          ],
+          "answerSourceId": "SRC-C003-017",
+          "yearReportSourceId": "SRC-C003-018"
+        },
+        {
+          "questionId": "QPHY-C003-2020-21",
+          "questionNumber": 21,
+          "questionType": "analysis_calculation",
+          "sourceFile": "2020广州中考（含答案）.pdf",
+          "pageOrLocation": "真题p7",
+          "sourcePageNumbers": [
+            7
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-007.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-007.png"
+          ],
+          "answerSourceId": "SRC-C003-017",
+          "yearReportSourceId": "SRC-C003-018"
+        },
+        {
+          "questionId": "QPHY-C003-2020-22",
+          "questionNumber": 22,
+          "questionType": "experiment_inquiry",
+          "sourceFile": "2020广州中考（含答案）.pdf",
+          "pageOrLocation": "真题p7",
+          "sourcePageNumbers": [
+            7
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-007.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-007.png"
+          ],
+          "answerSourceId": "SRC-C003-017",
+          "yearReportSourceId": "SRC-C003-018"
+        },
+        {
+          "questionId": "QPHY-C003-2020-23",
+          "questionNumber": 23,
+          "questionType": "experiment_inquiry",
+          "sourceFile": "2020广州中考（含答案）.pdf",
+          "pageOrLocation": "真题p7",
+          "sourcePageNumbers": [
+            7
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-007.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-007.png"
+          ],
+          "answerSourceId": "SRC-C003-017",
+          "yearReportSourceId": "SRC-C003-018"
+        },
+        {
+          "questionId": "QPHY-C003-2020-24",
+          "questionNumber": 24,
+          "questionType": "experiment_inquiry",
+          "sourceFile": "2020广州中考（含答案）.pdf",
+          "pageOrLocation": "真题p8",
+          "sourcePageNumbers": [
+            8
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-008.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2020/fe71fada-ea61-4b68-a6f5-79efeccb78a1/page-008.png"
+          ],
+          "answerSourceId": "SRC-C003-017",
+          "yearReportSourceId": "SRC-C003-018"
+        }
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2021,
+      "status": "pass",
+      "sourceFiles": [
+        "2021广州中考.pdf"
+      ],
+      "sourceDocuments": [
+        {
+          "sourceFile": "2021广州中考.pdf",
+          "sourceDocumentId": "83e3e461-318b-4293-9fc4-63ddf9c5d0cf",
+          "relativePath": "original/d4/ab/d4abb8aa48663b772abb1ee5b15935b065b8931af47bd3c62d89bdef1f83989c.pdf",
+          "sourceType": "local_exam_paper"
+        }
+      ],
+      "questionCount": 18,
+      "visualQuestionCount": 17,
+      "questionsWithSourcePages": 18,
+      "visualQuestionsWithAssets": 17,
+      "renderedPageCount": 8,
+      "renderedPages": [
+        {
+          "sourceFile": "2021广州中考.pdf",
+          "pageNumber": 1,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-001.png"
+        },
+        {
+          "sourceFile": "2021广州中考.pdf",
+          "pageNumber": 2,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-002.png"
+        },
+        {
+          "sourceFile": "2021广州中考.pdf",
+          "pageNumber": 3,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-003.png"
+        },
+        {
+          "sourceFile": "2021广州中考.pdf",
+          "pageNumber": 4,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-004.png"
+        },
+        {
+          "sourceFile": "2021广州中考.pdf",
+          "pageNumber": 5,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-005.png"
+        },
+        {
+          "sourceFile": "2021广州中考.pdf",
+          "pageNumber": 6,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-006.png"
+        },
+        {
+          "sourceFile": "2021广州中考.pdf",
+          "pageNumber": 7,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-007.png"
+        },
+        {
+          "sourceFile": "2021广州中考.pdf",
+          "pageNumber": 8,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-008.png"
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "QPHY-C003-2021-01",
+          "questionNumber": 1,
+          "questionType": "choice",
+          "sourceFile": "2021广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-001.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-001.png"
+          ],
+          "answerSourceId": "SRC-C003-020",
+          "yearReportSourceId": "SRC-C003-021"
+        },
+        {
+          "questionId": "QPHY-C003-2021-02",
+          "questionNumber": 2,
+          "questionType": "choice",
+          "sourceFile": "2021广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-001.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-001.png"
+          ],
+          "answerSourceId": "SRC-C003-020",
+          "yearReportSourceId": "SRC-C003-021"
+        },
+        {
+          "questionId": "QPHY-C003-2021-03",
+          "questionNumber": 3,
+          "questionType": "choice",
+          "sourceFile": "2021广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-001.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-001.png"
+          ],
+          "answerSourceId": "SRC-C003-020",
+          "yearReportSourceId": "SRC-C003-021"
+        },
+        {
+          "questionId": "QPHY-C003-2021-04",
+          "questionNumber": 4,
+          "questionType": "choice",
+          "sourceFile": "2021广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-001.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-001.png"
+          ],
+          "answerSourceId": "SRC-C003-020",
+          "yearReportSourceId": "SRC-C003-021"
+        },
+        {
+          "questionId": "QPHY-C003-2021-05",
+          "questionNumber": 5,
+          "questionType": "choice",
+          "sourceFile": "2021广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-001.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-001.png"
+          ],
+          "answerSourceId": "SRC-C003-020",
+          "yearReportSourceId": "SRC-C003-021"
+        },
+        {
+          "questionId": "QPHY-C003-2021-06",
+          "questionNumber": 6,
+          "questionType": "choice",
+          "sourceFile": "2021广州中考.pdf",
+          "pageOrLocation": "真题p2",
+          "sourcePageNumbers": [
+            2
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-002.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-002.png"
+          ],
+          "answerSourceId": "SRC-C003-020",
+          "yearReportSourceId": "SRC-C003-021"
+        },
+        {
+          "questionId": "QPHY-C003-2021-07",
+          "questionNumber": 7,
+          "questionType": "choice",
+          "sourceFile": "2021广州中考.pdf",
+          "pageOrLocation": "真题p2",
+          "sourcePageNumbers": [
+            2
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-002.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-002.png"
+          ],
+          "answerSourceId": "SRC-C003-020",
+          "yearReportSourceId": "SRC-C003-021"
+        },
+        {
+          "questionId": "QPHY-C003-2021-08",
+          "questionNumber": 8,
+          "questionType": "choice",
+          "sourceFile": "2021广州中考.pdf",
+          "pageOrLocation": "真题p2",
+          "sourcePageNumbers": [
+            2
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-002.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-002.png"
+          ],
+          "answerSourceId": "SRC-C003-020",
+          "yearReportSourceId": "SRC-C003-021"
+        },
+        {
+          "questionId": "QPHY-C003-2021-09",
+          "questionNumber": 9,
+          "questionType": "choice",
+          "sourceFile": "2021广州中考.pdf",
+          "pageOrLocation": "真题p3",
+          "sourcePageNumbers": [
+            3
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-003.png"
+          ],
+          "hasVisualAsset": false,
+          "assetScreenshotRelativePaths": [],
+          "answerSourceId": "SRC-C003-020",
+          "yearReportSourceId": "SRC-C003-021"
+        },
+        {
+          "questionId": "QPHY-C003-2021-10",
+          "questionNumber": 10,
+          "questionType": "choice",
+          "sourceFile": "2021广州中考.pdf",
+          "pageOrLocation": "真题p3",
+          "sourcePageNumbers": [
+            3
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-003.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-003.png"
+          ],
+          "answerSourceId": "SRC-C003-020",
+          "yearReportSourceId": "SRC-C003-021"
+        },
+        {
+          "questionId": "QPHY-C003-2021-11",
+          "questionNumber": 11,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2021广州中考.pdf",
+          "pageOrLocation": "真题p3",
+          "sourcePageNumbers": [
+            3
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-003.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-003.png"
+          ],
+          "answerSourceId": "SRC-C003-020",
+          "yearReportSourceId": "SRC-C003-021"
+        },
+        {
+          "questionId": "QPHY-C003-2021-12",
+          "questionNumber": 12,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2021广州中考.pdf",
+          "pageOrLocation": "真题p4",
+          "sourcePageNumbers": [
+            4
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-004.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-004.png"
+          ],
+          "answerSourceId": "SRC-C003-020",
+          "yearReportSourceId": "SRC-C003-021"
+        },
+        {
+          "questionId": "QPHY-C003-2021-13",
+          "questionNumber": 13,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2021广州中考.pdf",
+          "pageOrLocation": "真题p4",
+          "sourcePageNumbers": [
+            4
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-004.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-004.png"
+          ],
+          "answerSourceId": "SRC-C003-020",
+          "yearReportSourceId": "SRC-C003-021"
+        },
+        {
+          "questionId": "QPHY-C003-2021-14",
+          "questionNumber": 14,
+          "questionType": "comprehensive_calculation",
+          "sourceFile": "2021广州中考.pdf",
+          "pageOrLocation": "真题p5",
+          "sourcePageNumbers": [
+            5
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-005.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-005.png"
+          ],
+          "answerSourceId": "SRC-C003-020",
+          "yearReportSourceId": "SRC-C003-021"
+        },
+        {
+          "questionId": "QPHY-C003-2021-15",
+          "questionNumber": 15,
+          "questionType": "comprehensive_calculation",
+          "sourceFile": "2021广州中考.pdf",
+          "pageOrLocation": "真题p5",
+          "sourcePageNumbers": [
+            5
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-005.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-005.png"
+          ],
+          "answerSourceId": "SRC-C003-020",
+          "yearReportSourceId": "SRC-C003-021"
+        },
+        {
+          "questionId": "QPHY-C003-2021-16",
+          "questionNumber": 16,
+          "questionType": "comprehensive_calculation",
+          "sourceFile": "2021广州中考.pdf",
+          "pageOrLocation": "真题p6",
+          "sourcePageNumbers": [
+            6
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-006.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-006.png"
+          ],
+          "answerSourceId": "SRC-C003-020",
+          "yearReportSourceId": "SRC-C003-021"
+        },
+        {
+          "questionId": "QPHY-C003-2021-17",
+          "questionNumber": 17,
+          "questionType": "experiment_inquiry",
+          "sourceFile": "2021广州中考.pdf",
+          "pageOrLocation": "真题p7",
+          "sourcePageNumbers": [
+            7
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-007.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-007.png"
+          ],
+          "answerSourceId": "SRC-C003-020",
+          "yearReportSourceId": "SRC-C003-021"
+        },
+        {
+          "questionId": "QPHY-C003-2021-18",
+          "questionNumber": 18,
+          "questionType": "experiment_inquiry",
+          "sourceFile": "2021广州中考.pdf",
+          "pageOrLocation": "真题p8",
+          "sourcePageNumbers": [
+            8
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-008.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2021/83e3e461-318b-4293-9fc4-63ddf9c5d0cf/page-008.png"
+          ],
+          "answerSourceId": "SRC-C003-020",
+          "yearReportSourceId": "SRC-C003-021"
+        }
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2022,
+      "status": "pass",
+      "sourceFiles": [
+        "2022广州中考.pdf"
+      ],
+      "sourceDocuments": [
+        {
+          "sourceFile": "2022广州中考.pdf",
+          "sourceDocumentId": "dba28439-acdc-44e5-9eac-5325a4aec896",
+          "relativePath": "original/66/c5/66c5959ae3db3fa2d521b234d371c5fa05ef84763ffc1a5a9ed8bd9adce16101.pdf",
+          "sourceType": "local_exam_paper"
+        }
+      ],
+      "questionCount": 18,
+      "visualQuestionCount": 16,
+      "questionsWithSourcePages": 18,
+      "visualQuestionsWithAssets": 16,
+      "renderedPageCount": 7,
+      "renderedPages": [
+        {
+          "sourceFile": "2022广州中考.pdf",
+          "pageNumber": 1,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-001.png"
+        },
+        {
+          "sourceFile": "2022广州中考.pdf",
+          "pageNumber": 2,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-002.png"
+        },
+        {
+          "sourceFile": "2022广州中考.pdf",
+          "pageNumber": 3,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-003.png"
+        },
+        {
+          "sourceFile": "2022广州中考.pdf",
+          "pageNumber": 4,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-004.png"
+        },
+        {
+          "sourceFile": "2022广州中考.pdf",
+          "pageNumber": 5,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-005.png"
+        },
+        {
+          "sourceFile": "2022广州中考.pdf",
+          "pageNumber": 6,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-006.png"
+        },
+        {
+          "sourceFile": "2022广州中考.pdf",
+          "pageNumber": 7,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-007.png"
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "QPHY-C003-2022-01",
+          "questionNumber": 1,
+          "questionType": "choice",
+          "sourceFile": "2022广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-001.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-001.png"
+          ],
+          "answerSourceId": "SRC-C003-023",
+          "yearReportSourceId": "SRC-C003-024"
+        },
+        {
+          "questionId": "QPHY-C003-2022-02",
+          "questionNumber": 2,
+          "questionType": "choice",
+          "sourceFile": "2022广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-001.png"
+          ],
+          "hasVisualAsset": false,
+          "assetScreenshotRelativePaths": [],
+          "answerSourceId": "SRC-C003-023",
+          "yearReportSourceId": "SRC-C003-024"
+        },
+        {
+          "questionId": "QPHY-C003-2022-03",
+          "questionNumber": 3,
+          "questionType": "choice",
+          "sourceFile": "2022广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-001.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-001.png"
+          ],
+          "answerSourceId": "SRC-C003-023",
+          "yearReportSourceId": "SRC-C003-024"
+        },
+        {
+          "questionId": "QPHY-C003-2022-04",
+          "questionNumber": 4,
+          "questionType": "choice",
+          "sourceFile": "2022广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-001.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-001.png"
+          ],
+          "answerSourceId": "SRC-C003-023",
+          "yearReportSourceId": "SRC-C003-024"
+        },
+        {
+          "questionId": "QPHY-C003-2022-05",
+          "questionNumber": 5,
+          "questionType": "choice",
+          "sourceFile": "2022广州中考.pdf",
+          "pageOrLocation": "真题p2",
+          "sourcePageNumbers": [
+            2
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-002.png"
+          ],
+          "hasVisualAsset": false,
+          "assetScreenshotRelativePaths": [],
+          "answerSourceId": "SRC-C003-023",
+          "yearReportSourceId": "SRC-C003-024"
+        },
+        {
+          "questionId": "QPHY-C003-2022-06",
+          "questionNumber": 6,
+          "questionType": "choice",
+          "sourceFile": "2022广州中考.pdf",
+          "pageOrLocation": "真题p2",
+          "sourcePageNumbers": [
+            2
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-002.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-002.png"
+          ],
+          "answerSourceId": "SRC-C003-023",
+          "yearReportSourceId": "SRC-C003-024"
+        },
+        {
+          "questionId": "QPHY-C003-2022-07",
+          "questionNumber": 7,
+          "questionType": "choice",
+          "sourceFile": "2022广州中考.pdf",
+          "pageOrLocation": "真题p2",
+          "sourcePageNumbers": [
+            2
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-002.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-002.png"
+          ],
+          "answerSourceId": "SRC-C003-023",
+          "yearReportSourceId": "SRC-C003-024"
+        },
+        {
+          "questionId": "QPHY-C003-2022-08",
+          "questionNumber": 8,
+          "questionType": "choice",
+          "sourceFile": "2022广州中考.pdf",
+          "pageOrLocation": "真题p3",
+          "sourcePageNumbers": [
+            3
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-003.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-003.png"
+          ],
+          "answerSourceId": "SRC-C003-023",
+          "yearReportSourceId": "SRC-C003-024"
+        },
+        {
+          "questionId": "QPHY-C003-2022-09",
+          "questionNumber": 9,
+          "questionType": "choice",
+          "sourceFile": "2022广州中考.pdf",
+          "pageOrLocation": "真题p3",
+          "sourcePageNumbers": [
+            3
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-003.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-003.png"
+          ],
+          "answerSourceId": "SRC-C003-023",
+          "yearReportSourceId": "SRC-C003-024"
+        },
+        {
+          "questionId": "QPHY-C003-2022-10",
+          "questionNumber": 10,
+          "questionType": "choice",
+          "sourceFile": "2022广州中考.pdf",
+          "pageOrLocation": "真题p3",
+          "sourcePageNumbers": [
+            3
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-003.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-003.png"
+          ],
+          "answerSourceId": "SRC-C003-023",
+          "yearReportSourceId": "SRC-C003-024"
+        },
+        {
+          "questionId": "QPHY-C003-2022-11",
+          "questionNumber": 11,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2022广州中考.pdf",
+          "pageOrLocation": "真题p3",
+          "sourcePageNumbers": [
+            3
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-003.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-003.png"
+          ],
+          "answerSourceId": "SRC-C003-023",
+          "yearReportSourceId": "SRC-C003-024"
+        },
+        {
+          "questionId": "QPHY-C003-2022-12",
+          "questionNumber": 12,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2022广州中考.pdf",
+          "pageOrLocation": "真题p4",
+          "sourcePageNumbers": [
+            4
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-004.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-004.png"
+          ],
+          "answerSourceId": "SRC-C003-023",
+          "yearReportSourceId": "SRC-C003-024"
+        },
+        {
+          "questionId": "QPHY-C003-2022-13",
+          "questionNumber": 13,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2022广州中考.pdf",
+          "pageOrLocation": "真题p4",
+          "sourcePageNumbers": [
+            4
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-004.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-004.png"
+          ],
+          "answerSourceId": "SRC-C003-023",
+          "yearReportSourceId": "SRC-C003-024"
+        },
+        {
+          "questionId": "QPHY-C003-2022-14",
+          "questionNumber": 14,
+          "questionType": "comprehensive_calculation",
+          "sourceFile": "2022广州中考.pdf",
+          "pageOrLocation": "真题p4",
+          "sourcePageNumbers": [
+            4
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-004.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-004.png"
+          ],
+          "answerSourceId": "SRC-C003-023",
+          "yearReportSourceId": "SRC-C003-024"
+        },
+        {
+          "questionId": "QPHY-C003-2022-15",
+          "questionNumber": 15,
+          "questionType": "comprehensive_calculation",
+          "sourceFile": "2022广州中考.pdf",
+          "pageOrLocation": "真题p5",
+          "sourcePageNumbers": [
+            5
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-005.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-005.png"
+          ],
+          "answerSourceId": "SRC-C003-023",
+          "yearReportSourceId": "SRC-C003-024"
+        },
+        {
+          "questionId": "QPHY-C003-2022-16",
+          "questionNumber": 16,
+          "questionType": "comprehensive_calculation",
+          "sourceFile": "2022广州中考.pdf",
+          "pageOrLocation": "真题p5",
+          "sourcePageNumbers": [
+            5
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-005.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-005.png"
+          ],
+          "answerSourceId": "SRC-C003-023",
+          "yearReportSourceId": "SRC-C003-024"
+        },
+        {
+          "questionId": "QPHY-C003-2022-17",
+          "questionNumber": 17,
+          "questionType": "experiment_inquiry",
+          "sourceFile": "2022广州中考.pdf",
+          "pageOrLocation": "真题p6",
+          "sourcePageNumbers": [
+            6
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-006.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-006.png"
+          ],
+          "answerSourceId": "SRC-C003-023",
+          "yearReportSourceId": "SRC-C003-024"
+        },
+        {
+          "questionId": "QPHY-C003-2022-18",
+          "questionNumber": 18,
+          "questionType": "experiment_inquiry",
+          "sourceFile": "2022广州中考.pdf",
+          "pageOrLocation": "真题p7",
+          "sourcePageNumbers": [
+            7
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-007.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2022/dba28439-acdc-44e5-9eac-5325a4aec896/page-007.png"
+          ],
+          "answerSourceId": "SRC-C003-023",
+          "yearReportSourceId": "SRC-C003-024"
+        }
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2023,
+      "status": "pass",
+      "sourceFiles": [
+        "2023广州中考.pdf"
+      ],
+      "sourceDocuments": [
+        {
+          "sourceFile": "2023广州中考.pdf",
+          "sourceDocumentId": "65468c7b-aec5-42c0-a60e-f59e9ed8e093",
+          "relativePath": "original/94/22/9422eb3c0542eeea3526717364de15288d74788c4a1348f64ff012233338acdc.pdf",
+          "sourceType": "local_exam_paper"
+        }
+      ],
+      "questionCount": 18,
+      "visualQuestionCount": 16,
+      "questionsWithSourcePages": 18,
+      "visualQuestionsWithAssets": 16,
+      "renderedPageCount": 8,
+      "renderedPages": [
+        {
+          "sourceFile": "2023广州中考.pdf",
+          "pageNumber": 1,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-001.png"
+        },
+        {
+          "sourceFile": "2023广州中考.pdf",
+          "pageNumber": 2,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-002.png"
+        },
+        {
+          "sourceFile": "2023广州中考.pdf",
+          "pageNumber": 3,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-003.png"
+        },
+        {
+          "sourceFile": "2023广州中考.pdf",
+          "pageNumber": 4,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-004.png"
+        },
+        {
+          "sourceFile": "2023广州中考.pdf",
+          "pageNumber": 5,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-005.png"
+        },
+        {
+          "sourceFile": "2023广州中考.pdf",
+          "pageNumber": 6,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-006.png"
+        },
+        {
+          "sourceFile": "2023广州中考.pdf",
+          "pageNumber": 7,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-007.png"
+        },
+        {
+          "sourceFile": "2023广州中考.pdf",
+          "pageNumber": 8,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-008.png"
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "QPHY-C003-2023-01",
+          "questionNumber": 1,
+          "questionType": "choice",
+          "sourceFile": "2023广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-001.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-001.png"
+          ],
+          "answerSourceId": "SRC-C003-026",
+          "yearReportSourceId": "SRC-C003-027"
+        },
+        {
+          "questionId": "QPHY-C003-2023-02",
+          "questionNumber": 2,
+          "questionType": "choice",
+          "sourceFile": "2023广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-001.png"
+          ],
+          "hasVisualAsset": false,
+          "assetScreenshotRelativePaths": [],
+          "answerSourceId": "SRC-C003-026",
+          "yearReportSourceId": "SRC-C003-027"
+        },
+        {
+          "questionId": "QPHY-C003-2023-03",
+          "questionNumber": 3,
+          "questionType": "choice",
+          "sourceFile": "2023广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-001.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-001.png"
+          ],
+          "answerSourceId": "SRC-C003-026",
+          "yearReportSourceId": "SRC-C003-027"
+        },
+        {
+          "questionId": "QPHY-C003-2023-04",
+          "questionNumber": 4,
+          "questionType": "choice",
+          "sourceFile": "2023广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-001.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-001.png"
+          ],
+          "answerSourceId": "SRC-C003-026",
+          "yearReportSourceId": "SRC-C003-027"
+        },
+        {
+          "questionId": "QPHY-C003-2023-05",
+          "questionNumber": 5,
+          "questionType": "choice",
+          "sourceFile": "2023广州中考.pdf",
+          "pageOrLocation": "真题p2",
+          "sourcePageNumbers": [
+            2
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-002.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-002.png"
+          ],
+          "answerSourceId": "SRC-C003-026",
+          "yearReportSourceId": "SRC-C003-027"
+        },
+        {
+          "questionId": "QPHY-C003-2023-06",
+          "questionNumber": 6,
+          "questionType": "choice",
+          "sourceFile": "2023广州中考.pdf",
+          "pageOrLocation": "真题p2",
+          "sourcePageNumbers": [
+            2
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-002.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-002.png"
+          ],
+          "answerSourceId": "SRC-C003-026",
+          "yearReportSourceId": "SRC-C003-027"
+        },
+        {
+          "questionId": "QPHY-C003-2023-07",
+          "questionNumber": 7,
+          "questionType": "choice",
+          "sourceFile": "2023广州中考.pdf",
+          "pageOrLocation": "真题p3",
+          "sourcePageNumbers": [
+            3
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-003.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-003.png"
+          ],
+          "answerSourceId": "SRC-C003-026",
+          "yearReportSourceId": "SRC-C003-027"
+        },
+        {
+          "questionId": "QPHY-C003-2023-08",
+          "questionNumber": 8,
+          "questionType": "choice",
+          "sourceFile": "2023广州中考.pdf",
+          "pageOrLocation": "真题p3",
+          "sourcePageNumbers": [
+            3
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-003.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-003.png"
+          ],
+          "answerSourceId": "SRC-C003-026",
+          "yearReportSourceId": "SRC-C003-027"
+        },
+        {
+          "questionId": "QPHY-C003-2023-09",
+          "questionNumber": 9,
+          "questionType": "choice",
+          "sourceFile": "2023广州中考.pdf",
+          "pageOrLocation": "真题p3",
+          "sourcePageNumbers": [
+            3
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-003.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-003.png"
+          ],
+          "answerSourceId": "SRC-C003-026",
+          "yearReportSourceId": "SRC-C003-027"
+        },
+        {
+          "questionId": "QPHY-C003-2023-10",
+          "questionNumber": 10,
+          "questionType": "choice",
+          "sourceFile": "2023广州中考.pdf",
+          "pageOrLocation": "真题p4",
+          "sourcePageNumbers": [
+            4
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-004.png"
+          ],
+          "hasVisualAsset": false,
+          "assetScreenshotRelativePaths": [],
+          "answerSourceId": "SRC-C003-026",
+          "yearReportSourceId": "SRC-C003-027"
+        },
+        {
+          "questionId": "QPHY-C003-2023-11",
+          "questionNumber": 11,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2023广州中考.pdf",
+          "pageOrLocation": "真题p4",
+          "sourcePageNumbers": [
+            4
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-004.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-004.png"
+          ],
+          "answerSourceId": "SRC-C003-026",
+          "yearReportSourceId": "SRC-C003-027"
+        },
+        {
+          "questionId": "QPHY-C003-2023-12",
+          "questionNumber": 12,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2023广州中考.pdf",
+          "pageOrLocation": "真题p4",
+          "sourcePageNumbers": [
+            4
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-004.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-004.png"
+          ],
+          "answerSourceId": "SRC-C003-026",
+          "yearReportSourceId": "SRC-C003-027"
+        },
+        {
+          "questionId": "QPHY-C003-2023-13",
+          "questionNumber": 13,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2023广州中考.pdf",
+          "pageOrLocation": "真题p5",
+          "sourcePageNumbers": [
+            5
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-005.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-005.png"
+          ],
+          "answerSourceId": "SRC-C003-026",
+          "yearReportSourceId": "SRC-C003-027"
+        },
+        {
+          "questionId": "QPHY-C003-2023-14",
+          "questionNumber": 14,
+          "questionType": "comprehensive_calculation",
+          "sourceFile": "2023广州中考.pdf",
+          "pageOrLocation": "真题p5",
+          "sourcePageNumbers": [
+            5
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-005.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-005.png"
+          ],
+          "answerSourceId": "SRC-C003-026",
+          "yearReportSourceId": "SRC-C003-027"
+        },
+        {
+          "questionId": "QPHY-C003-2023-15",
+          "questionNumber": 15,
+          "questionType": "comprehensive_calculation",
+          "sourceFile": "2023广州中考.pdf",
+          "pageOrLocation": "真题p6",
+          "sourcePageNumbers": [
+            6
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-006.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-006.png"
+          ],
+          "answerSourceId": "SRC-C003-026",
+          "yearReportSourceId": "SRC-C003-027"
+        },
+        {
+          "questionId": "QPHY-C003-2023-16",
+          "questionNumber": 16,
+          "questionType": "comprehensive_calculation",
+          "sourceFile": "2023广州中考.pdf",
+          "pageOrLocation": "真题p6",
+          "sourcePageNumbers": [
+            6
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-006.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-006.png"
+          ],
+          "answerSourceId": "SRC-C003-026",
+          "yearReportSourceId": "SRC-C003-027"
+        },
+        {
+          "questionId": "QPHY-C003-2023-17",
+          "questionNumber": 17,
+          "questionType": "experiment_inquiry",
+          "sourceFile": "2023广州中考.pdf",
+          "pageOrLocation": "真题p7",
+          "sourcePageNumbers": [
+            7
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-007.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-007.png"
+          ],
+          "answerSourceId": "SRC-C003-026",
+          "yearReportSourceId": "SRC-C003-027"
+        },
+        {
+          "questionId": "QPHY-C003-2023-18",
+          "questionNumber": 18,
+          "questionType": "experiment_inquiry",
+          "sourceFile": "2023广州中考.pdf",
+          "pageOrLocation": "真题p8",
+          "sourcePageNumbers": [
+            8
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-008.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2023/65468c7b-aec5-42c0-a60e-f59e9ed8e093/page-008.png"
+          ],
+          "answerSourceId": "SRC-C003-026",
+          "yearReportSourceId": "SRC-C003-027"
+        }
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2024,
+      "status": "pass",
+      "sourceFiles": [
+        "2024广州中考.pdf"
+      ],
+      "sourceDocuments": [
+        {
+          "sourceFile": "2024广州中考.pdf",
+          "sourceDocumentId": "c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389",
+          "relativePath": "original/f6/a3/f6a3a77585343e30722ef5e09cda58795fa752e2d86c74d0dda3c89e159311ef.pdf",
+          "sourceType": "local_exam_paper"
+        }
+      ],
+      "questionCount": 18,
+      "visualQuestionCount": 18,
+      "questionsWithSourcePages": 18,
+      "visualQuestionsWithAssets": 18,
+      "renderedPageCount": 7,
+      "renderedPages": [
+        {
+          "sourceFile": "2024广州中考.pdf",
+          "pageNumber": 1,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-001.png"
+        },
+        {
+          "sourceFile": "2024广州中考.pdf",
+          "pageNumber": 2,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-002.png"
+        },
+        {
+          "sourceFile": "2024广州中考.pdf",
+          "pageNumber": 3,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-003.png"
+        },
+        {
+          "sourceFile": "2024广州中考.pdf",
+          "pageNumber": 4,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-004.png"
+        },
+        {
+          "sourceFile": "2024广州中考.pdf",
+          "pageNumber": 5,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-005.png"
+        },
+        {
+          "sourceFile": "2024广州中考.pdf",
+          "pageNumber": 6,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-006.png"
+        },
+        {
+          "sourceFile": "2024广州中考.pdf",
+          "pageNumber": 7,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-007.png"
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "QPHY-C003-2024-01",
+          "questionNumber": 1,
+          "questionType": "choice",
+          "sourceFile": "2024广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-001.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-001.png"
+          ],
+          "answerSourceId": "SRC-C003-029",
+          "yearReportSourceId": "SRC-C003-030"
+        },
+        {
+          "questionId": "QPHY-C003-2024-02",
+          "questionNumber": 2,
+          "questionType": "choice",
+          "sourceFile": "2024广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-001.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-001.png"
+          ],
+          "answerSourceId": "SRC-C003-029",
+          "yearReportSourceId": "SRC-C003-030"
+        },
+        {
+          "questionId": "QPHY-C003-2024-03",
+          "questionNumber": 3,
+          "questionType": "choice",
+          "sourceFile": "2024广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-001.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-001.png"
+          ],
+          "answerSourceId": "SRC-C003-029",
+          "yearReportSourceId": "SRC-C003-030"
+        },
+        {
+          "questionId": "QPHY-C003-2024-04",
+          "questionNumber": 4,
+          "questionType": "choice",
+          "sourceFile": "2024广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-001.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-001.png"
+          ],
+          "answerSourceId": "SRC-C003-029",
+          "yearReportSourceId": "SRC-C003-030"
+        },
+        {
+          "questionId": "QPHY-C003-2024-05",
+          "questionNumber": 5,
+          "questionType": "choice",
+          "sourceFile": "2024广州中考.pdf",
+          "pageOrLocation": "真题p2",
+          "sourcePageNumbers": [
+            2
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-002.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-002.png"
+          ],
+          "answerSourceId": "SRC-C003-029",
+          "yearReportSourceId": "SRC-C003-030"
+        },
+        {
+          "questionId": "QPHY-C003-2024-06",
+          "questionNumber": 6,
+          "questionType": "choice",
+          "sourceFile": "2024广州中考.pdf",
+          "pageOrLocation": "真题p2",
+          "sourcePageNumbers": [
+            2
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-002.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-002.png"
+          ],
+          "answerSourceId": "SRC-C003-029",
+          "yearReportSourceId": "SRC-C003-030"
+        },
+        {
+          "questionId": "QPHY-C003-2024-07",
+          "questionNumber": 7,
+          "questionType": "choice",
+          "sourceFile": "2024广州中考.pdf",
+          "pageOrLocation": "真题p3",
+          "sourcePageNumbers": [
+            3
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-003.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-003.png"
+          ],
+          "answerSourceId": "SRC-C003-029",
+          "yearReportSourceId": "SRC-C003-030"
+        },
+        {
+          "questionId": "QPHY-C003-2024-08",
+          "questionNumber": 8,
+          "questionType": "choice",
+          "sourceFile": "2024广州中考.pdf",
+          "pageOrLocation": "真题p3",
+          "sourcePageNumbers": [
+            3
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-003.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-003.png"
+          ],
+          "answerSourceId": "SRC-C003-029",
+          "yearReportSourceId": "SRC-C003-030"
+        },
+        {
+          "questionId": "QPHY-C003-2024-09",
+          "questionNumber": 9,
+          "questionType": "choice",
+          "sourceFile": "2024广州中考.pdf",
+          "pageOrLocation": "真题p3",
+          "sourcePageNumbers": [
+            3
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-003.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-003.png"
+          ],
+          "answerSourceId": "SRC-C003-029",
+          "yearReportSourceId": "SRC-C003-030"
+        },
+        {
+          "questionId": "QPHY-C003-2024-10",
+          "questionNumber": 10,
+          "questionType": "choice",
+          "sourceFile": "2024广州中考.pdf",
+          "pageOrLocation": "真题p3",
+          "sourcePageNumbers": [
+            3
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-003.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-003.png"
+          ],
+          "answerSourceId": "SRC-C003-029",
+          "yearReportSourceId": "SRC-C003-030"
+        },
+        {
+          "questionId": "QPHY-C003-2024-11",
+          "questionNumber": 11,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2024广州中考.pdf",
+          "pageOrLocation": "真题p4",
+          "sourcePageNumbers": [
+            4
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-004.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-004.png"
+          ],
+          "answerSourceId": "SRC-C003-029",
+          "yearReportSourceId": "SRC-C003-030"
+        },
+        {
+          "questionId": "QPHY-C003-2024-12",
+          "questionNumber": 12,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2024广州中考.pdf",
+          "pageOrLocation": "真题p4",
+          "sourcePageNumbers": [
+            4
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-004.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-004.png"
+          ],
+          "answerSourceId": "SRC-C003-029",
+          "yearReportSourceId": "SRC-C003-030"
+        },
+        {
+          "questionId": "QPHY-C003-2024-13",
+          "questionNumber": 13,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2024广州中考.pdf",
+          "pageOrLocation": "真题p4",
+          "sourcePageNumbers": [
+            4
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-004.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-004.png"
+          ],
+          "answerSourceId": "SRC-C003-029",
+          "yearReportSourceId": "SRC-C003-030"
+        },
+        {
+          "questionId": "QPHY-C003-2024-14",
+          "questionNumber": 14,
+          "questionType": "comprehensive_calculation",
+          "sourceFile": "2024广州中考.pdf",
+          "pageOrLocation": "真题p5",
+          "sourcePageNumbers": [
+            5
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-005.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-005.png"
+          ],
+          "answerSourceId": "SRC-C003-029",
+          "yearReportSourceId": "SRC-C003-030"
+        },
+        {
+          "questionId": "QPHY-C003-2024-15",
+          "questionNumber": 15,
+          "questionType": "comprehensive_calculation",
+          "sourceFile": "2024广州中考.pdf",
+          "pageOrLocation": "真题p6",
+          "sourcePageNumbers": [
+            6
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-006.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-006.png"
+          ],
+          "answerSourceId": "SRC-C003-029",
+          "yearReportSourceId": "SRC-C003-030"
+        },
+        {
+          "questionId": "QPHY-C003-2024-16",
+          "questionNumber": 16,
+          "questionType": "comprehensive_calculation",
+          "sourceFile": "2024广州中考.pdf",
+          "pageOrLocation": "真题p6",
+          "sourcePageNumbers": [
+            6
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-006.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-006.png"
+          ],
+          "answerSourceId": "SRC-C003-029",
+          "yearReportSourceId": "SRC-C003-030"
+        },
+        {
+          "questionId": "QPHY-C003-2024-17",
+          "questionNumber": 17,
+          "questionType": "experiment_inquiry",
+          "sourceFile": "2024广州中考.pdf",
+          "pageOrLocation": "真题p6",
+          "sourcePageNumbers": [
+            6
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-006.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-006.png"
+          ],
+          "answerSourceId": "SRC-C003-029",
+          "yearReportSourceId": "SRC-C003-030"
+        },
+        {
+          "questionId": "QPHY-C003-2024-18",
+          "questionNumber": 18,
+          "questionType": "experiment_inquiry",
+          "sourceFile": "2024广州中考.pdf",
+          "pageOrLocation": "真题p7",
+          "sourcePageNumbers": [
+            7
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-007.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2024/c7a4d0bd-ef5f-4b6d-82d9-6e8e15394389/page-007.png"
+          ],
+          "answerSourceId": "SRC-C003-029",
+          "yearReportSourceId": "SRC-C003-030"
+        }
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2025,
+      "status": "pass",
+      "sourceFiles": [
+        "2025广州中考.pdf"
+      ],
+      "sourceDocuments": [
+        {
+          "sourceFile": "2025广州中考.pdf",
+          "sourceDocumentId": "e7930641-b925-4f00-96d7-3b900949c083",
+          "relativePath": "original/26/c8/26c8aabc95cd2ffa67ed2ea873f13c9f2cb15d8e576ca2e4d4281f00f63e0fbe.pdf",
+          "sourceType": "local_exam_paper"
+        }
+      ],
+      "questionCount": 18,
+      "visualQuestionCount": 17,
+      "questionsWithSourcePages": 18,
+      "visualQuestionsWithAssets": 17,
+      "renderedPageCount": 7,
+      "renderedPages": [
+        {
+          "sourceFile": "2025广州中考.pdf",
+          "pageNumber": 1,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-001.png"
+        },
+        {
+          "sourceFile": "2025广州中考.pdf",
+          "pageNumber": 2,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-002.png"
+        },
+        {
+          "sourceFile": "2025广州中考.pdf",
+          "pageNumber": 3,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-003.png"
+        },
+        {
+          "sourceFile": "2025广州中考.pdf",
+          "pageNumber": 4,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-004.png"
+        },
+        {
+          "sourceFile": "2025广州中考.pdf",
+          "pageNumber": 5,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-005.png"
+        },
+        {
+          "sourceFile": "2025广州中考.pdf",
+          "pageNumber": 6,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-006.png"
+        },
+        {
+          "sourceFile": "2025广州中考.pdf",
+          "pageNumber": 7,
+          "relativePath": "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-007.png"
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "QPHY-C003-2025-01",
+          "questionNumber": 1,
+          "questionType": "choice",
+          "sourceFile": "2025广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-001.png"
+          ],
+          "hasVisualAsset": false,
+          "assetScreenshotRelativePaths": [],
+          "answerSourceId": "SRC-C003-032",
+          "yearReportSourceId": "SRC-C003-033"
+        },
+        {
+          "questionId": "QPHY-C003-2025-02",
+          "questionNumber": 2,
+          "questionType": "choice",
+          "sourceFile": "2025广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-001.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-001.png"
+          ],
+          "answerSourceId": "SRC-C003-032",
+          "yearReportSourceId": "SRC-C003-033"
+        },
+        {
+          "questionId": "QPHY-C003-2025-03",
+          "questionNumber": 3,
+          "questionType": "choice",
+          "sourceFile": "2025广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-001.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-001.png"
+          ],
+          "answerSourceId": "SRC-C003-032",
+          "yearReportSourceId": "SRC-C003-033"
+        },
+        {
+          "questionId": "QPHY-C003-2025-04",
+          "questionNumber": 4,
+          "questionType": "choice",
+          "sourceFile": "2025广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-001.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-001.png"
+          ],
+          "answerSourceId": "SRC-C003-032",
+          "yearReportSourceId": "SRC-C003-033"
+        },
+        {
+          "questionId": "QPHY-C003-2025-05",
+          "questionNumber": 5,
+          "questionType": "choice",
+          "sourceFile": "2025广州中考.pdf",
+          "pageOrLocation": "真题p2",
+          "sourcePageNumbers": [
+            2
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-002.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-002.png"
+          ],
+          "answerSourceId": "SRC-C003-032",
+          "yearReportSourceId": "SRC-C003-033"
+        },
+        {
+          "questionId": "QPHY-C003-2025-06",
+          "questionNumber": 6,
+          "questionType": "choice",
+          "sourceFile": "2025广州中考.pdf",
+          "pageOrLocation": "真题p2",
+          "sourcePageNumbers": [
+            2
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-002.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-002.png"
+          ],
+          "answerSourceId": "SRC-C003-032",
+          "yearReportSourceId": "SRC-C003-033"
+        },
+        {
+          "questionId": "QPHY-C003-2025-07",
+          "questionNumber": 7,
+          "questionType": "choice",
+          "sourceFile": "2025广州中考.pdf",
+          "pageOrLocation": "真题p2",
+          "sourcePageNumbers": [
+            2
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-002.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-002.png"
+          ],
+          "answerSourceId": "SRC-C003-032",
+          "yearReportSourceId": "SRC-C003-033"
+        },
+        {
+          "questionId": "QPHY-C003-2025-08",
+          "questionNumber": 8,
+          "questionType": "choice",
+          "sourceFile": "2025广州中考.pdf",
+          "pageOrLocation": "真题p1",
+          "sourcePageNumbers": [
+            1
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-001.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-001.png"
+          ],
+          "answerSourceId": "SRC-C003-032",
+          "yearReportSourceId": "SRC-C003-033"
+        },
+        {
+          "questionId": "QPHY-C003-2025-09",
+          "questionNumber": 9,
+          "questionType": "choice",
+          "sourceFile": "2025广州中考.pdf",
+          "pageOrLocation": "真题p3",
+          "sourcePageNumbers": [
+            3
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-003.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-003.png"
+          ],
+          "answerSourceId": "SRC-C003-032",
+          "yearReportSourceId": "SRC-C003-033"
+        },
+        {
+          "questionId": "QPHY-C003-2025-10",
+          "questionNumber": 10,
+          "questionType": "choice",
+          "sourceFile": "2025广州中考.pdf",
+          "pageOrLocation": "真题p3",
+          "sourcePageNumbers": [
+            3
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-003.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-003.png"
+          ],
+          "answerSourceId": "SRC-C003-032",
+          "yearReportSourceId": "SRC-C003-033"
+        },
+        {
+          "questionId": "QPHY-C003-2025-11",
+          "questionNumber": 11,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2025广州中考.pdf",
+          "pageOrLocation": "真题p4",
+          "sourcePageNumbers": [
+            4
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-004.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-004.png"
+          ],
+          "answerSourceId": "SRC-C003-032",
+          "yearReportSourceId": "SRC-C003-033"
+        },
+        {
+          "questionId": "QPHY-C003-2025-12",
+          "questionNumber": 12,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2025广州中考.pdf",
+          "pageOrLocation": "真题p4",
+          "sourcePageNumbers": [
+            4
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-004.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-004.png"
+          ],
+          "answerSourceId": "SRC-C003-032",
+          "yearReportSourceId": "SRC-C003-033"
+        },
+        {
+          "questionId": "QPHY-C003-2025-13",
+          "questionNumber": 13,
+          "questionType": "fill_or_drawing",
+          "sourceFile": "2025广州中考.pdf",
+          "pageOrLocation": "真题p5",
+          "sourcePageNumbers": [
+            5
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-005.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-005.png"
+          ],
+          "answerSourceId": "SRC-C003-032",
+          "yearReportSourceId": "SRC-C003-033"
+        },
+        {
+          "questionId": "QPHY-C003-2025-14",
+          "questionNumber": 14,
+          "questionType": "comprehensive_calculation",
+          "sourceFile": "2025广州中考.pdf",
+          "pageOrLocation": "真题p5",
+          "sourcePageNumbers": [
+            5
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-005.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-005.png"
+          ],
+          "answerSourceId": "SRC-C003-032",
+          "yearReportSourceId": "SRC-C003-033"
+        },
+        {
+          "questionId": "QPHY-C003-2025-15",
+          "questionNumber": 15,
+          "questionType": "comprehensive_calculation",
+          "sourceFile": "2025广州中考.pdf",
+          "pageOrLocation": "真题p5",
+          "sourcePageNumbers": [
+            5
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-005.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-005.png"
+          ],
+          "answerSourceId": "SRC-C003-032",
+          "yearReportSourceId": "SRC-C003-033"
+        },
+        {
+          "questionId": "QPHY-C003-2025-16",
+          "questionNumber": 16,
+          "questionType": "comprehensive_calculation",
+          "sourceFile": "2025广州中考.pdf",
+          "pageOrLocation": "真题p6",
+          "sourcePageNumbers": [
+            6
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-006.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-006.png"
+          ],
+          "answerSourceId": "SRC-C003-032",
+          "yearReportSourceId": "SRC-C003-033"
+        },
+        {
+          "questionId": "QPHY-C003-2025-17",
+          "questionNumber": 17,
+          "questionType": "experiment_inquiry",
+          "sourceFile": "2025广州中考.pdf",
+          "pageOrLocation": "真题p6",
+          "sourcePageNumbers": [
+            6
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-006.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-006.png"
+          ],
+          "answerSourceId": "SRC-C003-032",
+          "yearReportSourceId": "SRC-C003-033"
+        },
+        {
+          "questionId": "QPHY-C003-2025-18",
+          "questionNumber": 18,
+          "questionType": "experiment_inquiry",
+          "sourceFile": "2025广州中考.pdf",
+          "pageOrLocation": "真题p7",
+          "sourcePageNumbers": [
+            7
+          ],
+          "sourcePageScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-007.png"
+          ],
+          "hasVisualAsset": true,
+          "assetScreenshotRelativePaths": [
+            "generated/guangzhou-physics-2016-2025/source-pages/2025/e7930641-b925-4f00-96d7-3b900949c083/page-007.png"
+          ],
+          "answerSourceId": "SRC-C003-032",
+          "yearReportSourceId": "SRC-C003-033"
+        }
+      ],
+      "blockers": []
+    }
+  ],
+  "sourceRegionCoveragePass": true,
+  "boundary": "read-only REAL005B source-region screenshot evidence; no database write, no teacher-review closure, no external AI",
+  "rollback": "git clean -f -- docs/evidence/<date>-real005b-source-region-screenshots.json docs/evidence/<date>-real005b-source-region-screenshots.md"
+}

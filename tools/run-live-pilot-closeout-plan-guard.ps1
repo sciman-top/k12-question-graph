@@ -3,6 +3,8 @@ param(
     [string] $BacklogPath = 'tasks/backlog.csv',
     [string] $ReleaseCardPath = 'docs/109_ReleaseGoNoGoCard.md',
     [string] $ClosureSummaryPath = 'docs/112_CurrentClosureStatus_20260609.md',
+    [string] $DetailedTreePath = 'docs/115_REAL005_DetailedSliceTree.md',
+    [string] $ExecutionBoardPath = 'docs/103_ExecutionControlBoard.md',
     [string] $NavigationPath = 'docs/111_ProjectNavigationOverview.md',
     [string] $ReadmePath = 'README.md',
     [string] $Real005ReportPath = '',
@@ -117,6 +119,8 @@ $expectedRows = @(
 $docReferences = @(
     @{ path = $ReleaseCardPath; keywords = @('No-Go', 'tasks/live-pilot-closeout-plan.csv', 'REAL005', 'P001', 'P003', 'P005', 'P006') },
     @{ path = $ClosureSummaryPath; keywords = @('REAL005', 'not_closed', 'P001', '现场') },
+    @{ path = $DetailedTreePath; keywords = @('REAL005B1', 'REAL005C5', 'REAL005D', 'not_closed') },
+    @{ path = $ExecutionBoardPath; keywords = @('REAL005', 'P001', 'P005/P006', 'No-Go') },
     @{ path = $NavigationPath; keywords = @('tasks/live-pilot-closeout-plan.csv', 'P001 / P003 / P005 / P006 / REAL005') },
     @{ path = $ReadmePath; keywords = @('tasks/live-pilot-closeout-plan.csv', 'REAL005', 'P001/P003/P005/P006') }
 )

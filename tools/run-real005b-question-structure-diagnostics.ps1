@@ -1,4 +1,5 @@
 param(
+    [string] $FileStoreRoot = 'tmp\real005b-runtime\data\file_store',
     [string] $ReportPath = '',
     [string] $MarkdownReportPath = ''
 )
@@ -6,6 +7,8 @@ param(
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 $runDate = Get-Date -Format 'yyyyMMdd'
+$sourceRegionReportPath = ('docs/evidence/{0}-real005b-source-region-screenshots.json' -f $runDate)
+$sourceRegionMarkdownReportPath = ('docs/evidence/{0}-real005b-source-region-screenshots.md' -f $runDate)
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = ('docs/evidence/{0}-real005b-question-structure-diagnostics.json' -f $runDate)
@@ -17,9 +20,21 @@ if ([string]::IsNullOrWhiteSpace($MarkdownReportPath)) {
 
 Push-Location $repoRoot
 try {
-    & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005b-source-region-screenshots.ps1 | Out-Null
+    & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005b-source-region-screenshots.ps1 `
+        -FileStoreRoot $FileStoreRoot `
+        -ReportPath $sourceRegionReportPath `
+        -MarkdownReportPath $sourceRegionMarkdownReportPath `
+        -AllowPartialReport | Out-Null
     if ($LASTEXITCODE -ne 0) {
-        throw "REAL005B source-region screenshot evidence failed with exit code $LASTEXITCODE"
+        $sourceRegionReportFullPath = Join-Path $repoRoot ($sourceRegionReportPath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+        if (-not (Test-Path -LiteralPath $sourceRegionReportFullPath)) {
+            throw "REAL005B source-region screenshot evidence failed with exit code $LASTEXITCODE and no report file was written"
+        }
+
+        $sourceRegionReport = Get-Content -LiteralPath $sourceRegionReportFullPath -Raw | ConvertFrom-Json
+        if ($sourceRegionReport.status -ne 'partial') {
+            throw "REAL005B source-region screenshot evidence failed with exit code $LASTEXITCODE and status $($sourceRegionReport.status)"
+        }
     }
     & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005b-structured-question-diagnostics.ps1 | Out-Null
     if ($LASTEXITCODE -ne 0) {
@@ -28,6 +43,10 @@ try {
     & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005b-reviewed-question-visibility.ps1 | Out-Null
     if ($LASTEXITCODE -ne 0) {
         throw "REAL005B reviewed-question visibility evidence failed with exit code $LASTEXITCODE"
+    }
+    & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005b-reviewed-question-source-smoke.ps1 -FileStoreRoot $FileStoreRoot -AllowPartialReport | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        throw "REAL005B reviewed-question source smoke failed with exit code $LASTEXITCODE"
     }
 
     $env:PYTHONIOENCODING = 'utf-8'

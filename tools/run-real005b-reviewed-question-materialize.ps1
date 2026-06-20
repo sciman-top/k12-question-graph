@@ -4,10 +4,11 @@ param(
     [string] $DatabaseHost = '127.0.0.1',
     [int] $DatabasePort = 5432,
     [string] $DatabasePassword = $env:PGPASSWORD,
-    [string] $FileStoreRoot = 'D:\KQG_Data\file_store',
+    [string] $FileStoreRoot = 'tmp\real005b-runtime\data\file_store',
     [string] $CsvRoot = 'guangzhou-physics-full-research-package-2016-2025\csv',
     [string] $QualityReviewCsvRoot = 'guangzhou-physics-full-research-package-2016-2025\quality-review-complete-csv-package',
     [switch] $Apply,
+    [switch] $AllowPartialReport,
     [string] $ReportPath = '',
     [string] $MarkdownReportPath = ''
 )
@@ -46,8 +47,20 @@ try {
         '--output', $ReportPath,
         '--markdown-output', $MarkdownReportPath
     )
+    $screenshotArgs = @(
+        '-ReportPath', ('docs/evidence/{0}-real005b-source-region-screenshots.json' -f (Get-Date -Format 'yyyyMMdd')),
+        '-MarkdownReportPath', ('docs/evidence/{0}-real005b-source-region-screenshots.md' -f (Get-Date -Format 'yyyyMMdd'))
+    )
+    if ($AllowPartialReport) {
+        $screenshotArgs += '-AllowPartialReport'
+    }
     if ($Apply) {
         $args += '--apply'
+    }
+
+    & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005b-source-region-screenshots.ps1 -FileStoreRoot $FileStoreRoot @screenshotArgs | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        throw "REAL005B source-region screenshot evidence prerequisite failed with exit code $LASTEXITCODE"
     }
 
     & python @args

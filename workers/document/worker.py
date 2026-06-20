@@ -322,8 +322,9 @@ def parse_pdf_with_pdftotext(target: pathlib.Path) -> tuple[list[dict], list[str
     if not pdftotext:
         return [], ["pdftotext unavailable; falling back to internal PDF parser"]
 
-    with tempfile.TemporaryDirectory() as tmp:
-        output_path = pathlib.Path(tmp) / "document.txt"
+    tmp_dir = pathlib.Path(tempfile.mkdtemp(prefix="kqg-pdftotext-"))
+    try:
+        output_path = tmp_dir / "document.txt"
         completed = subprocess.run(
             [pdftotext, "-layout", "-enc", "UTF-8", str(target), str(output_path)],
             text=True,
@@ -334,6 +335,8 @@ def parse_pdf_with_pdftotext(target: pathlib.Path) -> tuple[list[dict], list[str
             return [], [warning]
 
         text = output_path.read_text(encoding="utf-8", errors="replace")
+    finally:
+        shutil.rmtree(tmp_dir, ignore_errors=True)
 
     pages = []
     body_started = False
@@ -542,8 +545,9 @@ def parse_scanned_pdf_with_rapidocr(target: pathlib.Path) -> tuple[list[dict], l
     if engine is None:
         return [], [error]
 
-    with tempfile.TemporaryDirectory(prefix="kqg-pdf-ocr-") as temp_dir:
-        page_images, warnings = render_pdf_pages_with_pdftoppm(target, pathlib.Path(temp_dir))
+    temp_dir = pathlib.Path(tempfile.mkdtemp(prefix="kqg-pdf-ocr-"))
+    try:
+        page_images, warnings = render_pdf_pages_with_pdftoppm(target, temp_dir)
         if not page_images:
             return [], warnings
 
@@ -563,10 +567,12 @@ def parse_scanned_pdf_with_rapidocr(target: pathlib.Path) -> tuple[list[dict], l
                 warnings.append(f"RapidOCR {page_image.name} elapsed={elapsed}")
             page_lines.append(lines)
 
-    pages = ocr_lines_to_pages(page_lines, "rapidocr_pdf_ocr")
-    if not any(page["layoutBlocks"] for page in pages):
-        return [], warnings + ["RapidOCR produced no usable scanned PDF text blocks"]
-    return pages, warnings
+        pages = ocr_lines_to_pages(page_lines, "rapidocr_pdf_ocr")
+        if not any(page["layoutBlocks"] for page in pages):
+            return [], warnings + ["RapidOCR produced no usable scanned PDF text blocks"]
+        return pages, warnings
+    finally:
+        shutil.rmtree(temp_dir, ignore_errors=True)
 
 
 def parse_scanned_pdf_ocr_review(target: pathlib.Path) -> tuple[list[dict], list[str]]:

@@ -1,6 +1,6 @@
 # 109 · 发布 Go / No-Go 卡
 
-日期：2026-06-18。状态证据核对到 2026-06-18。
+日期：2026-06-20。状态证据核对到 2026-06-20。
 
 ## 1. 当前默认结论
 
@@ -12,7 +12,7 @@
 - `P005` 反馈分流未闭合。
 - `P006` 正式发布裁决未留痕。
 
-2026-06-18 最新 repo-side 刷新后，这个结论仍然不变：reference-basis、closeout plan、status sync、PQR gate group 和 CI preflight 的最新证据都只证明仓库侧口径更一致了，没有把现场事实阻断自动消掉。`REAL005B` 与 `REAL005C` 的 repo-side 证据虽然都已完成，但 `REAL005` 仍然保持 `not_closed`，当前只进入 `REAL005D` 的对外口径复核阶段。
+2026-06-20 最新 repo-side 刷新后，这个结论仍然不变：reference-basis、closeout plan、status sync、PQR gate group 和 CI preflight 的最新证据都只证明仓库侧口径更一致了，没有把现场事实阻断自动消掉。`REAL005B` 与 `REAL005C` 的 repo-side 证据虽然都已完成，但 `REAL005` 仍然保持 `not_closed`，当前只进入 `REAL005D` 的对外口径复核阶段。
 
 ## 2. 用途
 
@@ -38,7 +38,7 @@
 
 | 项目 | 通过标准 | 当前状态 |
 |---|---|---|
-| build / test / contract / hotspot | 全通过或有效 N/A | `开发机通过，但不足以构成发布结论`。2026-06-18 `repo preflight -Mode Ci` 已通过 16 步，`PQR gate group` 已通过 12 步；但 2026-06-14 full gate 重跑未取得最终退出码，不能作为新的完整通过证据，且仍缺现场链路证据。 |
+| build / test / contract / hotspot | 全通过或有效 N/A | `开发机通过，但不足以构成发布结论`。2026-06-20 `repo preflight -Mode Ci` 已通过 16 步，`PQR gate group` 已通过 12 步；但 2026-06-14 full gate 重跑未取得最终退出码，不能作为新的完整通过证据，且仍缺现场链路证据。 |
 | reference basis | `P005/P006` 高风险变更已登记官方与本地参考锚点 | `repo-side 通过`。2026-06-15 最新 `reference-basis guard` 已覆盖 20 个受管任务、13 个模块，且 external/snapshot `parity = match`；缺少参考依据时不得改发布口径。 |
 | automation / visual surrogate preflight | 非现场客观检查尽量闭合 | `非现场通过`。`NS906`、`NS904`、`NS801-NS806` 已覆盖 route smoke、artifact、source screenshot、backup/restore、visual surrogate；但它们不能替代隔离机、打印、权限域、真实网络和签字。 |
 | backup | manifest 可验证 | `非现场通过`。`G001-G004`、`O003` 和 `NS801-NS806` 证据存在，但隔离机实跑未完成。 |
@@ -46,7 +46,7 @@
 | teacher efficiency | 达标或有已批准例外 | `未通过发布口径`。已有 `M006` 十分钟组卷与 `S012B` 非现场链路证据，但缺现场教师观察和已批准例外。 |
 | privacy / authorization | 已锁定边界且证据完备 | `部分通过 / 仍阻断`。`N001` 已锁定默认边界，但 `P003` 明确缺数据授权记录、支持负责人和反馈模板。 |
 | auth / audit | 高风险动作 fail-closed | `非现场通过 / 现场未验证`。`O004B` 已完成 fail-closed 与结构化审计，隔离机角色审计和现场高风险动作记录未完成。 |
-| closeout / status sync | backlog、dashboard、closeout plan、release card 保持一致且不夸大闭环 | `repo-side 通过`。`docs/evidence/20260618-live-pilot-closeout-plan-guard.md` 与最新 `NS905` status sync 证据已确认 26 行 closeout 计划、`REAL005 = not_closed`、`REAL005A/B/C = 已完成/pass`、`REAL005D = next open/blocked`、`P001/P003/P005/P006` 仍待办、`release_ready_count = 0`。 |
+| closeout / status sync | backlog、dashboard、closeout plan、release card 保持一致且不夸大闭环 | `repo-side 通过`。`docs/evidence/20260620-live-pilot-closeout-plan-guard.md`、`docs/evidence/20260620-live-pilot-closeout-repo-side-audit.md` 与最新 `NS905` status sync 证据已确认 26 行 closeout 计划、`REAL005 = not_closed`、`REAL005A/B/C = 已完成/pass`、`REAL005D = next open/blocked`、`P001/P003/P005/P006` 仍待办、`release_ready_count = 0`。 |
 | onsite blockers | 仅剩现场事实阻断 | `未通过`。`P001`、`P003`、`P005`、`P006` 仍为 `待办`，且 `REAL005` 仍为 `not_closed`。 |
 
 当前发布判断应尽量把剩余阻断收口为“真实现场事实和责任签字”，而不是把本可由自动化闭合的客观检查继续留给人工现场。
@@ -62,8 +62,9 @@
 | NS1308 release evidence pack | `docs/evidence/20260607-ns1308-release-evidence-pack.json` |
 | reference basis guard | `docs/evidence/20260615-reference-basis-guard.json` |
 | reference/preflight closeout | `docs/evidence/20260611-reference-basis-preflight-closeout.md` |
-| closeout plan guard | `docs/evidence/20260618-live-pilot-closeout-plan-guard.json` |
-| status sync audit | `docs/evidence/20260618-ns905-status-sync.md` |
+| closeout plan guard | `docs/evidence/20260620-live-pilot-closeout-plan-guard.json` |
+| closeout repo-side audit | `docs/evidence/20260620-live-pilot-closeout-repo-side-audit.json` |
+| status sync audit | `docs/evidence/20260620-ns905-status-sync.md` |
 | P003 admission preflight | `docs/evidence/20260614-p003-onsite-pilot-admission-report.json` |
 | P005 feedback triage preflight | `docs/evidence/20260614-p005-pilot-feedback-backlog-admission-report.json` |
 | P005 feedback triage template | `docs/templates/p005-pilot-feedback-triage-template.json` |
@@ -71,8 +72,8 @@
 | P006 release decision preflight | `docs/evidence/20260614-p006-release-decision-admission-report.json` |
 | P006 release decision template | `docs/templates/p006-release-decision-record-template.json` |
 | P006 release decision record | `docs/templates/p006-release-decision-record.md` |
-| REAL005 closure standard | `docs/evidence/20260618-real005-guangzhou-2015-2025-closure-standard-report.json` |
-| REAL005B question structure diagnostics | `docs/evidence/20260618-real005b-structured-question-diagnostics.json` |
+| REAL005 closure standard | `docs/evidence/20260620-real005-guangzhou-2015-2025-closure-standard-report.json` |
+| REAL005B question structure diagnostics | `docs/evidence/20260620-real005b-question-structure-diagnostics.json` |
 | 角色与审计 | `docs/evidence/20260505-o004b-role-audit-closure.md` |
 | 隐私边界 | `docs/evidence/20260505-n001-real-privacy-boundary-admission.md` |
 | 恢复演练 | `docs/evidence/20260505-o003-recovery-drill-upgrade.md` |
@@ -93,7 +94,7 @@
 | 字段 | 说明 |
 |---|---|
 | decision | `No-Go` |
-| rationale | 当前证据只证明“非现场能力和 preflight 包已较完整”，不能证明“现场可发布”。`NS13` 已完成并把仓内前置包收口到可执行状态；2026-06-18 的 repo-side 守卫刷新又证明文档、closeout 计划、PQR preflight 和状态看板没有继续漂移，但 `P001/P003/P005/P006` 均未关闭，且 `REAL005` 明确保持 `not_closed`。当前 repo-side 阻断已推进到 `REAL005D`，它只负责继续把对外文案收口为 truthful `not_closed`，不代表真卷全流程已闭环。 |
+| rationale | 当前证据只证明“非现场能力和 preflight 包已较完整”，不能证明“现场可发布”。`NS13` 已完成并把仓内前置包收口到可执行状态；2026-06-20 的 repo-side 守卫刷新又证明文档、closeout 计划、PQR preflight 和状态看板没有继续漂移，但 `P001/P003/P005/P006` 均未关闭，且 `REAL005` 明确保持 `not_closed`。当前 repo-side 阻断已推进到 `REAL005D`，它只负责继续把对外文案收口为 truthful `not_closed`，不代表真卷全流程已闭环。 |
 | rollback window | 当前不进入发布执行，因此不进入现场回滚窗口；继续沿用既有 backup manifest、restore drill 和 disable-switch 证据作为预案。 |
 | tag candidate plan | `不创建`。只有在 `P005` 反馈分流完成、`P006` 裁决记录签字、并满足 release-ready 证据后才创建。 |
 | disable switch | 若现场前置演练中出现异常，优先禁用云 API/profile 切换、高风险 admin 写入、active switch 与真实数据链路，回退到离线优先和人工接管路径。 |
@@ -119,7 +120,7 @@
 - 证据来源仍来自 `docs/evidence/`、`tasks/completion-state-dashboard.csv` 和 `P001-P006`。
 - `P005/P006` 的强制参考依据入口由 `tasks/reference-basis-requirements.csv` 承接。
 - 现场 closeout 的更细执行顺序由 `tasks/live-pilot-closeout-plan.csv` 承接。
-- repo-side closeout 计划与入口文档的一致性由 `tools/run-live-pilot-closeout-plan-guard.ps1` 与其 2026-06-18 evidence 承接。
+- repo-side closeout 计划与入口文档的一致性由 `tools/run-live-pilot-closeout-plan-guard.ps1` 与其 2026-06-20 evidence 承接。
 - `docs/templates/p006-release-decision-checklist.md` 负责逐项核对。
 - 本卡负责最终一页式裁决，不再只靠分散 preflight 结论。
 

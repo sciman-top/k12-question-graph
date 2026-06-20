@@ -64,6 +64,23 @@ def find_latest_json(repo_root: Path, glob_pattern: str) -> str | None:
     return str(matches[0].relative_to(repo_root)).replace("\\", "/")
 
 
+def find_latest_json_with_status(repo_root: Path, glob_pattern: str, desired_status: str) -> str | None:
+    matches = sorted(
+        (repo_root / "docs/evidence").glob(Path(glob_pattern).name),
+        key=lambda path: path.name,
+        reverse=True,
+    )
+    for path in matches:
+        relative_path = str(path.relative_to(repo_root)).replace("\\", "/")
+        try:
+            report = read_json(repo_root, relative_path)
+        except Exception:
+            continue
+        if str(report.get("status") or "").strip() == desired_status:
+            return relative_path
+    return None
+
+
 def require_latest_json(repo_root: Path, glob_pattern: str, label: str) -> str:
     latest = find_latest_json(repo_root, glob_pattern)
     if latest is None:
@@ -568,7 +585,7 @@ def reviewed_source_detail_coverage_2016_2025(repo_root: Path) -> dict[str, Any]
     real004 = read_json(repo_root, REAL004_REPORT)
     latest_visibility_report_path = find_latest_json(repo_root, REAL005B_REVIEWED_VISIBILITY_GLOB)
     visibility_report = read_json(repo_root, latest_visibility_report_path) if latest_visibility_report_path else None
-    latest_source_smoke_report_path = find_latest_json(repo_root, REAL005B_REVIEWED_SOURCE_SMOKE_GLOB)
+    latest_source_smoke_report_path = find_latest_json_with_status(repo_root, REAL005B_REVIEWED_SOURCE_SMOKE_GLOB, "pass")
     source_smoke_report = read_json(repo_root, latest_source_smoke_report_path) if latest_source_smoke_report_path else None
 
     question_id_set = {str(row["question_id"]).strip() for row in question_rows}

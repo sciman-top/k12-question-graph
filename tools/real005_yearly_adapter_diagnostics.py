@@ -99,6 +99,38 @@ def build_sources(repo_root: Path) -> dict[int, list[dict[str, Any]]]:
     return {year: list(sources.values()) for year, sources in by_year.items()}
 
 
+def iter_candidate_file_roots(repo_root: Path, preferred_root: Path) -> list[Path]:
+    candidates: list[Path] = []
+
+    def add_candidate(path: Path) -> None:
+        if path.is_dir() and path not in candidates:
+            candidates.append(path)
+
+    add_candidate(preferred_root)
+
+    tmp_root = repo_root / "tmp"
+    if tmp_root.exists():
+        for file_store_root in tmp_root.rglob("file_store"):
+            add_candidate(file_store_root)
+
+    return candidates
+
+
+def resolve_file_root(repo_root: Path, preferred_root: Path, sources_by_year: dict[int, list[dict[str, Any]]]) -> Path:
+    required_relative_paths = []
+    for year in REQUIRED_YEARS:
+        for source in sources_by_year.get(year, []):
+            relative_path = str(source.get("relativePath") or "").strip()
+            if relative_path and relative_path not in required_relative_paths:
+                required_relative_paths.append(relative_path)
+
+    for candidate_root in iter_candidate_file_roots(repo_root, preferred_root):
+        if all((candidate_root / Path(relative_path)).exists() for relative_path in required_relative_paths):
+            return candidate_root
+
+    return preferred_root
+
+
 def has_required_diagnostic_fields(diagnostic: dict[str, Any]) -> bool:
     required_string_fields = ("adapterName", "adapterVersion", "inputSha256", "outputSha256")
     if any(not str(diagnostic.get(field) or "").strip() for field in required_string_fields):
@@ -214,9 +246,10 @@ def main() -> int:
     args = parser.parse_args()
 
     repo_root = Path(__file__).resolve().parents[1]
-    file_root = Path(args.file_root)
     real001_report = find_latest_json(repo_root, REAL001_REPORT_GLOB)
     sources_by_year = build_sources(repo_root)
+    preferred_file_root = Path(args.file_root)
+    file_root = resolve_file_root(repo_root, preferred_file_root, sources_by_year)
 
     years: list[dict[str, Any]] = []
     for year in REQUIRED_YEARS:
@@ -248,6 +281,7 @@ def main() -> int:
         "status": "pass" if not blocked_years else "blocked",
         "taskId": "REAL005_YEARLY_ADAPTER_DIAGNOSTICS",
         "checkedAt": datetime.now(timezone.utc).isoformat(),
+        "preferredFileRoot": str(preferred_file_root),
         "fileRoot": str(file_root),
         "sourceEvidence": [real001_report, REAL003_REPORT],
         "requiredYears": REQUIRED_YEARS,

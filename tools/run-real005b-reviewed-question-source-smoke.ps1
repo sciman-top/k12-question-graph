@@ -4,8 +4,9 @@ param(
     [string] $DatabaseHost = '127.0.0.1',
     [int] $DatabasePort = 5432,
     [string] $DatabasePassword = $env:PGPASSWORD,
-    [string] $FileStoreRoot = 'D:\KQG_Data\file_store',
+    [string] $FileStoreRoot = 'tmp\real005b-runtime\data\file_store',
     [int] $ApiPort = 0,
+    [switch] $AllowPartialReport,
     [string] $ReportPath = '',
     [string] $MarkdownReportPath = ''
 )
@@ -32,6 +33,79 @@ function Get-FreeTcpPort {
     $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, 0)
     $listener.Start()
     try { return $listener.LocalEndpoint.Port } finally { $listener.Stop() }
+}
+
+function Resolve-Real005bSourceFileStoreRoot {
+    param([string] $RepoRoot)
+
+    $candidates = @(
+        'D:\KQG_Data\file_store'
+    )
+
+    $debugBackupRoot = Join-Path $RepoRoot 'tmp\debug-backup'
+    if (Test-Path -LiteralPath $debugBackupRoot) {
+        $backupRoots = Get-ChildItem -LiteralPath $debugBackupRoot -Directory -ErrorAction SilentlyContinue |
+            Sort-Object LastWriteTime -Descending
+        foreach ($backupRoot in $backupRoots) {
+            $candidates += (Join-Path $backupRoot.FullName 'file_store')
+        }
+    }
+
+    foreach ($candidate in $candidates) {
+        $originalRoot = Join-Path $candidate 'original'
+        if (Test-Path -LiteralPath $originalRoot) {
+            return (Resolve-Path -LiteralPath $candidate).Path
+        }
+    }
+
+    throw 'No REAL005B source file store root with original PDFs was found'
+}
+
+function Initialize-Real005bRuntimeRoots {
+    param(
+        [string] $RepoRoot,
+        [string] $RuntimeFileStoreRoot
+    )
+
+    $resolvedFileStoreRoot = if ([System.IO.Path]::IsPathRooted($RuntimeFileStoreRoot)) {
+        [System.IO.Path]::GetFullPath($RuntimeFileStoreRoot)
+    }
+    else {
+        [System.IO.Path]::GetFullPath((Join-Path $RepoRoot $RuntimeFileStoreRoot))
+    }
+
+    $runtimeDataRoot = Split-Path -Parent $resolvedFileStoreRoot
+    $runtimeRoot = Split-Path -Parent $runtimeDataRoot
+    $runtimeBackupRoot = Join-Path $runtimeRoot 'backups'
+    $runtimeLogsRoot = Join-Path $runtimeDataRoot 'logs'
+    $runtimeCacheRoot = Join-Path $runtimeDataRoot 'cache'
+    $sourceFileStoreRoot = Resolve-Real005bSourceFileStoreRoot -RepoRoot $RepoRoot
+    $sourceOriginalRoot = Join-Path $sourceFileStoreRoot 'original'
+    $runtimeOriginalRoot = Join-Path $resolvedFileStoreRoot 'original'
+
+    foreach ($path in @($runtimeDataRoot, $resolvedFileStoreRoot, $runtimeBackupRoot, $runtimeLogsRoot, $runtimeCacheRoot)) {
+        New-Item -ItemType Directory -Path $path -Force | Out-Null
+    }
+
+    if (-not (Test-Path -LiteralPath $sourceOriginalRoot)) {
+        throw "REAL005B source file store original root missing: $sourceOriginalRoot"
+    }
+
+    if (Test-Path -LiteralPath $runtimeOriginalRoot) {
+        Remove-Item -LiteralPath $runtimeOriginalRoot -Recurse -Force -ErrorAction SilentlyContinue
+    }
+
+    New-Item -ItemType Junction -Path $runtimeOriginalRoot -Target $sourceOriginalRoot | Out-Null
+
+    return [pscustomobject]@{
+        RuntimeRoot = $runtimeRoot
+        DataRoot = $runtimeDataRoot
+        FileStoreRoot = $resolvedFileStoreRoot
+        BackupRoot = $runtimeBackupRoot
+        LogsRoot = $runtimeLogsRoot
+        CacheRoot = $runtimeCacheRoot
+        SourceFileStoreRoot = $sourceFileStoreRoot
+    }
 }
 
 function Wait-ApiReady {
@@ -79,19 +153,61 @@ if ($ApiPort -le 0) {
 $apiUrl = "http://127.0.0.1:$ApiPort"
 $logOut = Join-Path $repoRoot 'docs/evidence/real005b-reviewed-source-smoke-api.out.log'
 $logErr = Join-Path $repoRoot 'docs/evidence/real005b-reviewed-source-smoke-api.err.log'
+$runtime = Initialize-Real005bRuntimeRoots -RepoRoot $repoRoot -RuntimeFileStoreRoot $FileStoreRoot
+$runtimeFileStoreRoot = $runtime.FileStoreRoot
+$runtimeDataRoot = $runtime.DataRoot
+$runtimeBackupRoot = $runtime.BackupRoot
+$runtimeLogsRoot = $runtime.LogsRoot
+$runtimeCacheRoot = $runtime.CacheRoot
 $previousConnectionString = $env:KQG_CONNECTION_STRING
+$previousDataRoot = $env:KqgPaths__DataRoot
+$previousFileStoreRoot = $env:KqgPaths__FileStoreRoot
+$previousBackupRoot = $env:KqgPaths__BackupRoot
+$previousLogsRoot = $env:KqgPaths__LogsRoot
+$previousCacheRoot = $env:KqgPaths__CacheRoot
+$previousEnvironment = $env:ASPNETCORE_ENVIRONMENT
+$previousDocumentWorkerScript = $env:PythonWorker__DocumentWorkerScript
 $env:KQG_CONNECTION_STRING = "Host=$DatabaseHost;Port=$DatabasePort;Database=$DatabaseName;Username=$DatabaseUser;Password=$DatabasePassword"
+$env:KqgPaths__DataRoot = $runtimeDataRoot
+$env:KqgPaths__FileStoreRoot = $runtimeFileStoreRoot
+$env:KqgPaths__BackupRoot = $runtimeBackupRoot
+$env:KqgPaths__LogsRoot = $runtimeLogsRoot
+$env:KqgPaths__CacheRoot = $runtimeCacheRoot
+$env:ASPNETCORE_ENVIRONMENT = 'Development'
+$env:PythonWorker__DocumentWorkerScript = '..\..\workers\document\worker.py'
 $process = $null
 
 try {
     Push-Location $repoRoot
 
-    & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005b-source-region-screenshots.ps1 | Out-Null
+    if ($AllowPartialReport) {
+        & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005b-source-region-screenshots.ps1 -FileStoreRoot $runtimeFileStoreRoot -AllowPartialReport | Out-Null
+    }
+    else {
+        & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005b-source-region-screenshots.ps1 -FileStoreRoot $runtimeFileStoreRoot | Out-Null
+    }
     if ($LASTEXITCODE -ne 0) {
-        throw 'REAL005B screenshot evidence prerequisite failed'
+        if (-not $AllowPartialReport) {
+            throw 'REAL005B screenshot evidence prerequisite failed'
+        }
+
+        $screenshotReportPath = Join-Path $repoRoot ('docs/evidence/{0}-real005b-source-region-screenshots.json' -f (Get-Date -Format 'yyyyMMdd'))
+        if (-not (Test-Path -LiteralPath $screenshotReportPath)) {
+            throw 'REAL005B screenshot evidence prerequisite failed and no report file was written'
+        }
+
+        $screenshotReport = Get-Content -LiteralPath $screenshotReportPath -Raw | ConvertFrom-Json
+        if ($screenshotReport.status -ne 'partial') {
+            throw "REAL005B screenshot evidence prerequisite failed and status $($screenshotReport.status)"
+        }
     }
 
-    & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005b-reviewed-question-materialize.ps1 -Apply | Out-Null
+    if ($AllowPartialReport) {
+        & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005b-reviewed-question-materialize.ps1 -FileStoreRoot $runtimeFileStoreRoot -Apply -AllowPartialReport | Out-Null
+    }
+    else {
+        & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005b-reviewed-question-materialize.ps1 -FileStoreRoot $runtimeFileStoreRoot -Apply | Out-Null
+    }
     if ($LASTEXITCODE -ne 0) {
         throw 'REAL005B reviewed question materialize apply failed'
     }
@@ -103,6 +219,7 @@ try {
         '-c',
         'Release',
         '--no-build',
+        '--no-launch-profile',
         '--urls',
         $apiUrl
     ) -PassThru -WindowStyle Hidden -RedirectStandardOutput $logOut -RedirectStandardError $logErr
@@ -127,12 +244,35 @@ order by (custom_fields->>'questionNo')::int, id::text;
         $questionNo = [int]$parts[1]
         $sourceFile = $parts[2]
 
-        $question = Invoke-RestMethod -Method Get -Uri "$apiUrl/questions/$questionId" -TimeoutSec 10
-        $sources = Invoke-RestMethod -Method Get -Uri "$apiUrl/questions/$questionId/sources" -TimeoutSec 10
-        $regions = @($sources.sourceRegions)
-        $screenshotCount = @($regions | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_.screenshotUrl) }).Count
-        $pageScreenshotCount = @($regions | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_.pageScreenshotUrl) }).Count
-        $status = [string]$question.status
+        try {
+            $question = Invoke-RestMethod -Method Get -Uri "$apiUrl/questions/$questionId" -TimeoutSec 10
+            $sources = Invoke-RestMethod -Method Get -Uri "$apiUrl/questions/$questionId/sources" -TimeoutSec 10
+            $regions = @($sources.sourceRegions)
+            $screenshotCount = @($regions | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_.screenshotUrl) }).Count
+            $pageScreenshotCount = @($regions | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_.pageScreenshotUrl) }).Count
+            $status = [string]$question.status
+        }
+        catch {
+            if (-not $AllowPartialReport) {
+                throw
+            }
+
+            $regions = @()
+            $screenshotCount = 0
+            $pageScreenshotCount = 0
+            $status = 'error'
+            $missing += [pscustomobject]@{
+                questionId = $questionId
+                questionNo = $questionNo
+                sourceFile = $sourceFile
+                status = $status
+                regionCount = 0
+                screenshotCount = 0
+                pageScreenshotCount = 0
+                error = $_.Exception.Message
+            }
+            continue
+        }
 
         if ($status -ne 'usable' -or $regions.Count -lt 2 -or $screenshotCount -lt 2 -or $pageScreenshotCount -lt 2) {
             $missing += [pscustomobject]@{
@@ -159,7 +299,7 @@ order by (custom_fields->>'questionNo')::int, id::text;
         }
     }
 
-    if ($missing.Count -gt 0) {
+    if ($missing.Count -gt 0 -and -not $AllowPartialReport) {
         throw "REAL005B reviewed source smoke found missing question source coverage: $($missing | ConvertTo-Json -Compress)"
     }
 
@@ -176,7 +316,7 @@ order by (custom_fields->>'questionNo')::int, id::text;
         usableQuestionCount = [int](Invoke-ScalarSql "select count(*) from question_items where coalesce(custom_fields->>'sourceWorkflowKey','') = 'guangzhou_2016_2025_reviewed_question_materialize_v1' and status = 'usable';")
         sourceRegionCount = [int](Invoke-ScalarSql "select count(*) from source_regions where region_type in ('real005b_review_question','real005b_review_answer');")
         reviewQueueCount = [int](Invoke-ScalarSql "select count(*) from review_queue_items where review_type = 'real005b_question_materialize';")
-        sourceReviewPass = $true
+        sourceReviewPass = ($missing.Count -eq 0)
         samples = $samples
         rollback = @(
             "delete from review_queue_items where review_type = 'real005b_question_materialize';",
@@ -186,6 +326,11 @@ order by (custom_fields->>'questionNo')::int, id::text;
             "delete from question_items where custom_fields->>'sourceWorkflowKey' = 'guangzhou_2016_2025_reviewed_question_materialize_v1';"
         )
         boundary = 'Repo-side API smoke only; this proves reviewed real questions are API-visible with source review payload, not onsite/manual closeout.'
+    }
+
+    if ($missing.Count -gt 0) {
+        $report.status = 'partial'
+        $report.sourceReviewPass = $false
     }
 
     $reportFullPath = Join-Path $repoRoot ($ReportPath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
@@ -213,5 +358,12 @@ finally {
         Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
     }
     $env:KQG_CONNECTION_STRING = $previousConnectionString
+    $env:KqgPaths__DataRoot = $previousDataRoot
+    $env:KqgPaths__FileStoreRoot = $previousFileStoreRoot
+    $env:KqgPaths__BackupRoot = $previousBackupRoot
+    $env:KqgPaths__LogsRoot = $previousLogsRoot
+    $env:KqgPaths__CacheRoot = $previousCacheRoot
+    $env:ASPNETCORE_ENVIRONMENT = $previousEnvironment
+    $env:PythonWorker__DocumentWorkerScript = $previousDocumentWorkerScript
     Pop-Location
 }

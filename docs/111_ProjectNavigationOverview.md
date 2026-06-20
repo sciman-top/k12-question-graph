@@ -1,6 +1,6 @@
 # 111 · 项目导航总览
 
-日期：2026-06-18。状态证据核对到 2026-06-18。
+日期：2026-06-20。状态证据核对到 2026-06-20。
 
 ## 1. 用途
 
@@ -22,7 +22,7 @@
 | 还有哪些关键边界没拍板 | `docs/104_OpenQuestionsAndAssumptions.md` | 看 OQ 和是否需要回写任务 CSV |
 | 现在能不能发布 / 试点 | `docs/109_ReleaseGoNoGoCard.md` | 当前正式 `Go / No-Go` 裁决入口 |
 | 我只想知道“当前到底闭环到哪了” | `docs/112_CurrentClosureStatus_20260609.md` | 当前仓库级 / 非现场 / 现场阻断的短总览 |
-| 当前 repo-side 状态口径有没有漂移 | `docs/evidence/20260618-ns905-status-sync.md` | 看 backlog、dashboard、non-site plan 和 live closeout 是否仍保持 truthful No-Go |
+| 当前 repo-side 状态口径有没有漂移 | `docs/evidence/20260620-ns905-status-sync.md` + `docs/evidence/20260620-live-pilot-closeout-repo-side-audit.md` | 看 backlog、dashboard、non-site plan 和 live closeout 是否仍保持 truthful No-Go，以及 truth boundary 是否继续对齐 |
 | 本地 Web/API 怎么启动、重启、判断是否真的活着 | `docs/113_LocalRuntimeOperations_20260609.md` | 本地联调运行模型、状态语义和排查入口 |
 | 本地管理员 AI 设置在哪里、怎么做 save/test smoke | `docs/113_LocalRuntimeOperations_20260609.md` | 看 `?admin=1`、`打开设置`、`管理员 AI 设置` 和本地 save/test 边界 |
 | 任务链和机器顺序到底以什么为准 | `tasks/backlog.csv` | 主线顺序权威入口 |
@@ -108,7 +108,7 @@
 2. 本文件
 3. `docs/103_ExecutionControlBoard.md`
 4. `docs/109_ReleaseGoNoGoCard.md`
-5. `docs/evidence/20260618-ns905-status-sync.md`
+5. `docs/evidence/20260620-ns905-status-sync.md`
 6. `docs/113_LocalRuntimeOperations_20260609.md`
 7. `docs/decisions/ADR-014-recommended-engineering-endstate-and-stack-boundary.md`
 

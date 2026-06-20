@@ -1,0 +1,275 @@
+{
+  "status": "pass",
+  "taskId": "REAL005B_STRUCTURED_QUESTION_DIAGNOSTICS",
+  "checkedAt": "2026-06-20T12:55:05.415880+00:00",
+  "blockedYears": [],
+  "activeWrite": false,
+  "externalAiCalls": 0,
+  "realStudentDataUsed": false,
+  "sourceEvidence": [
+    "guangzhou-physics-full-research-package-2016-2025/quality-review-complete-csv-package/c003-question-item-full.csv",
+    "guangzhou-physics-full-research-package-2016-2025/csv/c003-subquestion-item-full.csv",
+    "guangzhou-physics-full-research-package-2016-2025/quality-review-complete-csv-package/c003-answer-scoring-point.csv",
+    "guangzhou-physics-full-research-package-2016-2025/quality-review-complete-csv-package/c003-quality-issue-review-evidence.csv",
+    "guangzhou-physics-full-research-package-2016-2025/quality-review-complete-csv-package/c003-formalization-precheck-result.csv"
+  ],
+  "totals": {
+    "questions": 210,
+    "subquestions": 349,
+    "answers": 210,
+    "qualityReviewRows": 210
+  },
+  "years": [
+    {
+      "year": 2016,
+      "status": "pass",
+      "questionCount": 24,
+      "blockTypeCounts": {
+        "stem": 24,
+        "option": 12,
+        "subquestion": 24,
+        "answer": 24,
+        "image_candidate": 19,
+        "formula_candidate": 8,
+        "table_candidate": 2
+      },
+      "tableCandidateCount": 2,
+      "formulaCandidateCount": 8,
+      "imageCandidateCount": 19,
+      "pendingReviewCount": 24,
+      "qualityReviewEvidenceCount": 24,
+      "blockers": [],
+      "samples": {
+        "missingStem": [],
+        "missingAnswers": [],
+        "missingSubquestions": []
+      }
+    },
+    {
+      "year": 2017,
+      "status": "pass",
+      "questionCount": 24,
+      "blockTypeCounts": {
+        "stem": 24,
+        "option": 12,
+        "subquestion": 24,
+        "answer": 24,
+        "image_candidate": 19,
+        "table_candidate": 3,
+        "formula_candidate": 5
+      },
+      "tableCandidateCount": 3,
+      "formulaCandidateCount": 5,
+      "imageCandidateCount": 19,
+      "pendingReviewCount": 24,
+      "qualityReviewEvidenceCount": 24,
+      "blockers": [],
+      "samples": {
+        "missingStem": [],
+        "missingAnswers": [],
+        "missingSubquestions": []
+      }
+    },
+    {
+      "year": 2018,
+      "status": "pass",
+      "questionCount": 24,
+      "blockTypeCounts": {
+        "stem": 24,
+        "option": 12,
+        "subquestion": 24,
+        "answer": 24,
+        "image_candidate": 20,
+        "formula_candidate": 6,
+        "table_candidate": 3
+      },
+      "tableCandidateCount": 3,
+      "formulaCandidateCount": 6,
+      "imageCandidateCount": 20,
+      "pendingReviewCount": 24,
+      "qualityReviewEvidenceCount": 24,
+      "blockers": [],
+      "samples": {
+        "missingStem": [],
+        "missingAnswers": [],
+        "missingSubquestions": []
+      }
+    },
+    {
+      "year": 2019,
+      "status": "pass",
+      "questionCount": 24,
+      "blockTypeCounts": {
+        "stem": 24,
+        "option": 12,
+        "subquestion": 24,
+        "answer": 24,
+        "image_candidate": 20,
+        "table_candidate": 3,
+        "formula_candidate": 6
+      },
+      "tableCandidateCount": 3,
+      "formulaCandidateCount": 6,
+      "imageCandidateCount": 20,
+      "pendingReviewCount": 24,
+      "qualityReviewEvidenceCount": 24,
+      "blockers": [],
+      "samples": {
+        "missingStem": [],
+        "missingAnswers": [],
+        "missingSubquestions": []
+      }
+    },
+    {
+      "year": 2020,
+      "status": "pass",
+      "questionCount": 24,
+      "blockTypeCounts": {
+        "stem": 24,
+        "option": 12,
+        "subquestion": 24,
+        "answer": 24,
+        "image_candidate": 20,
+        "table_candidate": 3,
+        "formula_candidate": 6
+      },
+      "tableCandidateCount": 3,
+      "formulaCandidateCount": 6,
+      "imageCandidateCount": 20,
+      "pendingReviewCount": 24,
+      "qualityReviewEvidenceCount": 24,
+      "blockers": [],
+      "samples": {
+        "missingStem": [],
+        "missingAnswers": [],
+        "missingSubquestions": []
+      }
+    },
+    {
+      "year": 2021,
+      "status": "pass",
+      "questionCount": 18,
+      "blockTypeCounts": {
+        "stem": 18,
+        "option": 10,
+        "subquestion": 18,
+        "answer": 18,
+        "image_candidate": 14,
+        "table_candidate": 4,
+        "formula_candidate": 5
+      },
+      "tableCandidateCount": 4,
+      "formulaCandidateCount": 5,
+      "imageCandidateCount": 14,
+      "pendingReviewCount": 18,
+      "qualityReviewEvidenceCount": 18,
+      "blockers": [],
+      "samples": {
+        "missingStem": [],
+        "missingAnswers": [],
+        "missingSubquestions": []
+      }
+    },
+    {
+      "year": 2022,
+      "status": "pass",
+      "questionCount": 18,
+      "blockTypeCounts": {
+        "stem": 18,
+        "option": 10,
+        "subquestion": 18,
+        "answer": 18,
+        "image_candidate": 15,
+        "formula_candidate": 5
+      },
+      "tableCandidateCount": 0,
+      "formulaCandidateCount": 5,
+      "imageCandidateCount": 15,
+      "pendingReviewCount": 18,
+      "qualityReviewEvidenceCount": 18,
+      "blockers": [],
+      "samples": {
+        "missingStem": [],
+        "missingAnswers": [],
+        "missingSubquestions": []
+      }
+    },
+    {
+      "year": 2023,
+      "status": "pass",
+      "questionCount": 18,
+      "blockTypeCounts": {
+        "stem": 18,
+        "option": 10,
+        "subquestion": 18,
+        "answer": 18,
+        "image_candidate": 15,
+        "formula_candidate": 5,
+        "table_candidate": 1
+      },
+      "tableCandidateCount": 1,
+      "formulaCandidateCount": 5,
+      "imageCandidateCount": 15,
+      "pendingReviewCount": 18,
+      "qualityReviewEvidenceCount": 18,
+      "blockers": [],
+      "samples": {
+        "missingStem": [],
+        "missingAnswers": [],
+        "missingSubquestions": []
+      }
+    },
+    {
+      "year": 2024,
+      "status": "pass",
+      "questionCount": 18,
+      "blockTypeCounts": {
+        "stem": 18,
+        "option": 10,
+        "subquestion": 18,
+        "answer": 18,
+        "image_candidate": 15,
+        "table_candidate": 1,
+        "formula_candidate": 5
+      },
+      "tableCandidateCount": 1,
+      "formulaCandidateCount": 5,
+      "imageCandidateCount": 15,
+      "pendingReviewCount": 18,
+      "qualityReviewEvidenceCount": 18,
+      "blockers": [],
+      "samples": {
+        "missingStem": [],
+        "missingAnswers": [],
+        "missingSubquestions": []
+      }
+    },
+    {
+      "year": 2025,
+      "status": "pass",
+      "questionCount": 18,
+      "blockTypeCounts": {
+        "stem": 18,
+        "option": 10,
+        "subquestion": 18,
+        "answer": 18,
+        "image_candidate": 16,
+        "formula_candidate": 5
+      },
+      "tableCandidateCount": 0,
+      "formulaCandidateCount": 5,
+      "imageCandidateCount": 16,
+      "pendingReviewCount": 18,
+      "qualityReviewEvidenceCount": 18,
+      "blockers": [],
+      "samples": {
+        "missingStem": [],
+        "missingAnswers": [],
+        "missingSubquestions": []
+      }
+    }
+  ],
+  "structuredQuestionCoveragePass": true,
+  "boundary": "read-only REAL005B structured question diagnostics; no database write, no teacher-review closure, no external AI",
+  "rollback": "git clean -f -- docs/evidence/<date>-real005b-structured-question-diagnostics.json docs/evidence/<date>-real005b-structured-question-diagnostics.md"
+}

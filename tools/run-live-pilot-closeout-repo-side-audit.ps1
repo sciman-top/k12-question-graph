@@ -126,6 +126,7 @@ try {
     $Real005ReportPath = Resolve-LatestEvidencePath '*-real005-guangzhou-2015-2025-closure-standard-report.json' $Real005ReportPath
     $StatusSyncReportPath = Resolve-LatestEvidencePath '*-ns905-status-sync.md' $StatusSyncReportPath
     $RepoPreflightCiSummaryPath = Resolve-LatestEvidencePath '*-repo-preflight-ci-summary.json' $RepoPreflightCiSummaryPath
+    $ExecutionBoardText = Read-Text 'docs/103_ExecutionControlBoard.md'
     $P001ReportPath = Resolve-LatestEvidencePath '*-p001-live-pilot-readiness-preflight-report.json' $P001ReportPath
     $P002ReportPath = Resolve-LatestEvidencePath '*-p002-teacher-proxy-pilot-admission-report.json' $P002ReportPath
     $P003ReportPath = Resolve-LatestEvidencePath '*-p003-onsite-pilot-admission-report.json' $P003ReportPath
@@ -179,6 +180,8 @@ try {
     Assert-Condition ([string] $liveGuard.status -eq 'pass') 'live closeout guard must pass'
     Assert-Condition ([string] $liveGuard.real005ClosureStatus -eq 'not_closed') 'live closeout guard must keep REAL005 not_closed'
     Assert-Condition (-not [bool] $liveGuard.fullClosureAllowed) 'live closeout guard must keep fullClosureAllowed=false'
+    Assert-Condition ($ExecutionBoardText.Contains('REAL005') -and $ExecutionBoardText.Contains('P001') -and $ExecutionBoardText.Contains('P005/P006')) 'execution board must continue to expose the current closeout truth boundary'
+    Assert-Condition ($ExecutionBoardText.Contains('No-Go')) 'execution board must keep truthful No-Go wording until P006 closes'
     Assert-Condition ([string] $real005.status -eq 'pass') 'REAL005 closure standard report must pass as a guard definition'
     Assert-Condition ([string] $real005.closureStatus -eq 'not_closed') 'REAL005 closure status must remain not_closed'
     Assert-Condition (-not [bool] $real005.fullClosureAllowed) 'REAL005 fullClosureAllowed must remain false'

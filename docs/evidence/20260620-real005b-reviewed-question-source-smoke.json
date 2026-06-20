@@ -1,0 +1,205 @@
+{
+  "status": "pass",
+  "taskId": "REAL005B_REVIEWED_QUESTION_SOURCE_SMOKE",
+  "checkedAt": "2026-06-20T20:55:26",
+  "requestedApiPort": 0,
+  "resolvedApiPort": 4109,
+  "portFallbackApplied": true,
+  "apiUrl": "http://127.0.0.1:4109",
+  "workflowKey": "guangzhou_2016_2025_reviewed_question_materialize_v1",
+  "questionCount": 210,
+  "usableQuestionCount": 210,
+  "sourceRegionCount": 158,
+  "reviewQueueCount": 210,
+  "sourceReviewPass": true,
+  "samples": [
+    {
+      "questionId": "1b871984-825a-59b2-af16-c036766f6795",
+      "questionNo": 1,
+      "sourceFile": "2021广州中考.pdf",
+      "status": "usable",
+      "regionCount": 2,
+      "screenshotCount": 2,
+      "pageScreenshotCount": 2
+    },
+    {
+      "questionId": "3027013d-1557-5501-974a-e6a110ae0265",
+      "questionNo": 1,
+      "sourceFile": "2020广州中考（含答案）.pdf",
+      "status": "usable",
+      "regionCount": 2,
+      "screenshotCount": 2,
+      "pageScreenshotCount": 2
+    },
+    {
+      "questionId": "4f2f9375-0fea-5ed2-84ac-47fa4b50457e",
+      "questionNo": 1,
+      "sourceFile": "2017广州中考.pdf",
+      "status": "usable",
+      "regionCount": 2,
+      "screenshotCount": 2,
+      "pageScreenshotCount": 2
+    },
+    {
+      "questionId": "5bfa6a0e-324c-5737-90bd-beb20bceb8ae",
+      "questionNo": 1,
+      "sourceFile": "2022广州中考.pdf",
+      "status": "usable",
+      "regionCount": 2,
+      "screenshotCount": 2,
+      "pageScreenshotCount": 2
+    },
+    {
+      "questionId": "5bff53ee-a62f-50b0-b616-e485a92cee26",
+      "questionNo": 1,
+      "sourceFile": "2023广州中考.pdf",
+      "status": "usable",
+      "regionCount": 2,
+      "screenshotCount": 2,
+      "pageScreenshotCount": 2
+    },
+    {
+      "questionId": "6b94e5f3-4412-57be-a63e-992eed6fd272",
+      "questionNo": 1,
+      "sourceFile": "2024广州中考.pdf",
+      "status": "usable",
+      "regionCount": 2,
+      "screenshotCount": 2,
+      "pageScreenshotCount": 2
+    },
+    {
+      "questionId": "76b13724-4f88-595e-9e0a-182881032abe",
+      "questionNo": 1,
+      "sourceFile": "2016广州中考.pdf",
+      "status": "usable",
+      "regionCount": 2,
+      "screenshotCount": 2,
+      "pageScreenshotCount": 2
+    },
+    {
+      "questionId": "a173c25f-3f61-545c-aff3-73eaac8eb4c4",
+      "questionNo": 1,
+      "sourceFile": "2019广州中考.pdf",
+      "status": "usable",
+      "regionCount": 2,
+      "screenshotCount": 2,
+      "pageScreenshotCount": 2
+    },
+    {
+      "questionId": "b5669abe-c2eb-5a8b-ae6b-69f938ab1d5e",
+      "questionNo": 1,
+      "sourceFile": "2018广州中考.pdf",
+      "status": "usable",
+      "regionCount": 2,
+      "screenshotCount": 2,
+      "pageScreenshotCount": 2
+    },
+    {
+      "questionId": "bde3c780-7b76-56a0-b648-92089a1d1208",
+      "questionNo": 1,
+      "sourceFile": "2025广州中考.pdf",
+      "status": "usable",
+      "regionCount": 2,
+      "screenshotCount": 2,
+      "pageScreenshotCount": 2
+    },
+    {
+      "questionId": "17b76091-c8b0-5889-ba51-6a954ebaaf10",
+      "questionNo": 2,
+      "sourceFile": "2018广州中考.pdf",
+      "status": "usable",
+      "regionCount": 2,
+      "screenshotCount": 2,
+      "pageScreenshotCount": 2
+    },
+    {
+      "questionId": "1d29d45c-3399-5cc5-a02b-9c5e8161e7c7",
+      "questionNo": 2,
+      "sourceFile": "2023广州中考.pdf",
+      "status": "usable",
+      "regionCount": 2,
+      "screenshotCount": 2,
+      "pageScreenshotCount": 2
+    },
+    {
+      "questionId": "382e3d25-6ecf-5ffb-948c-09df7218bb2d",
+      "questionNo": 2,
+      "sourceFile": "2021广州中考.pdf",
+      "status": "usable",
+      "regionCount": 2,
+      "screenshotCount": 2,
+      "pageScreenshotCount": 2
+    },
+    {
+      "questionId": "50b8514e-1957-5d82-84ce-670e44414d8a",
+      "questionNo": 2,
+      "sourceFile": "2020广州中考（含答案）.pdf",
+      "status": "usable",
+      "regionCount": 2,
+      "screenshotCount": 2,
+      "pageScreenshotCount": 2
+    },
+    {
+      "questionId": "8cd43389-2e51-5883-99f1-948cefadb88a",
+      "questionNo": 2,
+      "sourceFile": "2025广州中考.pdf",
+      "status": "usable",
+      "regionCount": 2,
+      "screenshotCount": 2,
+      "pageScreenshotCount": 2
+    },
+    {
+      "questionId": "b1e975d1-923f-5266-b939-209a4f6d1c52",
+      "questionNo": 2,
+      "sourceFile": "2017广州中考.pdf",
+      "status": "usable",
+      "regionCount": 2,
+      "screenshotCount": 2,
+      "pageScreenshotCount": 2
+    },
+    {
+      "questionId": "b6d931d0-a0d5-538b-b1da-e99e89db7e6c",
+      "questionNo": 2,
+      "sourceFile": "2019广州中考.pdf",
+      "status": "usable",
+      "regionCount": 2,
+      "screenshotCount": 2,
+      "pageScreenshotCount": 2
+    },
+    {
+      "questionId": "b72f45d0-1df9-55bc-8e94-fe20cd79603e",
+      "questionNo": 2,
+      "sourceFile": "2024广州中考.pdf",
+      "status": "usable",
+      "regionCount": 2,
+      "screenshotCount": 2,
+      "pageScreenshotCount": 2
+    },
+    {
+      "questionId": "b85529dd-da75-52ce-a7cc-61d10ddefaa8",
+      "questionNo": 2,
+      "sourceFile": "2016广州中考.pdf",
+      "status": "usable",
+      "regionCount": 2,
+      "screenshotCount": 2,
+      "pageScreenshotCount": 2
+    },
+    {
+      "questionId": "caa241ce-57ac-5317-b10d-b7b3958909b8",
+      "questionNo": 2,
+      "sourceFile": "2022广州中考.pdf",
+      "status": "usable",
+      "regionCount": 2,
+      "screenshotCount": 2,
+      "pageScreenshotCount": 2
+    }
+  ],
+  "rollback": [
+    "delete from review_queue_items where review_type = 'real005b_question_materialize';",
+    "delete from question_assets where question_item_id in (select id from question_items where custom_fields->>'sourceWorkflowKey' = 'guangzhou_2016_2025_reviewed_question_materialize_v1');",
+    "delete from question_blocks where question_item_id in (select id from question_items where custom_fields->>'sourceWorkflowKey' = 'guangzhou_2016_2025_reviewed_question_materialize_v1');",
+    "delete from source_regions where region_type in ('real005b_review_question','real005b_review_answer');",
+    "delete from question_items where custom_fields->>'sourceWorkflowKey' = 'guangzhou_2016_2025_reviewed_question_materialize_v1';"
+  ],
+  "boundary": "Repo-side API smoke only; this proves reviewed real questions are API-visible with source review payload, not onsite/manual closeout."
+}

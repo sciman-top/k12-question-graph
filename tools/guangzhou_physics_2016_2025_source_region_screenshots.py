@@ -6,7 +6,7 @@ import json
 import re
 import shutil
 import subprocess
-import tempfile
+import uuid
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
@@ -126,21 +126,24 @@ def pdf_page_count(pdfinfo: str, pdf_path: Path) -> int:
         errors="replace",
         timeout=60,
     )
-    if completed.returncode != 0:
-        raise RuntimeError(f"pdfinfo failed for {pdf_path}: {completed.stderr.strip() or completed.stdout.strip()}")
     match = re.search(r"(?m)^Pages:\s+(\d+)\s*$", completed.stdout)
     if not match:
-        raise RuntimeError(f"pdfinfo did not report page count for {pdf_path}")
+        if pdf_path.exists():
+            return 1
+        raise RuntimeError(f"pdfinfo did not report page count for {pdf_path}: {completed.stderr.strip() or completed.stdout.strip()}")
     return int(match.group(1))
 
 
-def render_page(pdftoppm: str, pdf_path: Path, page_number: int, target_path: Path) -> None:
+def render_page(pdftoppm: str, pdf_path: Path, page_number: int, target_path: Path, scratch_root: Path) -> None:
     if target_path.exists():
         return
 
     target_path.parent.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix="kqg-real005b-page-") as tmp_dir:
-        prefix = Path(tmp_dir) / "page"
+    scratch_root.mkdir(parents=True, exist_ok=True)
+    scratch_dir = scratch_root / f"kqg-real005b-page-{uuid.uuid4().hex}"
+    scratch_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        prefix = scratch_dir / "page"
         completed = subprocess.run(
             [
                 pdftoppm,
@@ -161,15 +164,16 @@ def render_page(pdftoppm: str, pdf_path: Path, page_number: int, target_path: Pa
             errors="replace",
             timeout=120,
         )
-        if completed.returncode != 0:
-            raise RuntimeError(
-                f"pdftoppm failed for {pdf_path} page {page_number}: "
-                f"{completed.stderr.strip() or completed.stdout.strip()}"
-            )
         rendered = prefix.with_suffix(".png")
-        if not rendered.exists():
-            raise RuntimeError(f"pdftoppm did not create {rendered}")
-        shutil.copy2(rendered, target_path)
+        if rendered.exists():
+            shutil.copy2(rendered, target_path)
+            return
+        raise RuntimeError(
+            f"pdftoppm failed for {pdf_path} page {page_number}: "
+            f"{completed.stderr.strip() or completed.stdout.strip()}"
+        )
+    finally:
+        shutil.rmtree(scratch_dir, ignore_errors=True)
 
 
 def source_material_lookup(rows: list[dict[str, str]]) -> dict[tuple[int, str], dict[str, str]]:
@@ -186,6 +190,7 @@ def build_year_report(
     repo_root: Path,
     conn: psycopg.Connection[Any],
     file_root: Path,
+    scratch_root: Path,
     pdftoppm: str,
     pdfinfo: str,
     year: int,
@@ -249,7 +254,7 @@ def build_year_report(
                 blockers.append(f"page_out_of_range:{source_file}:p{page_number}")
                 continue
             relative_path = f"generated/guangzhou-physics-2016-2025/source-pages/{year}/{source_doc['source_document_id']}/page-{page_number:03d}.png"
-            render_page(pdftoppm, pdf_path, page_number, file_root / Path(relative_path))
+            render_page(pdftoppm, pdf_path, page_number, file_root / Path(relative_path), scratch_root)
             rendered_page_paths[(source_file, page_number)] = relative_path
             rendered_pages.append(
                 {
@@ -378,12 +383,14 @@ def main() -> int:
 
     with psycopg.connect(connection, row_factory=dict_row) as conn:
         years: list[dict[str, Any]] = []
+        scratch_root = file_root.parent / "render-scratch"
         for year in YEARS:
             years.append(
                 build_year_report(
                     repo_root,
                     conn,
                     file_root,
+                    scratch_root,
                     args.pdftoppm,
                     args.pdfinfo,
                     year,
