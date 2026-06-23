@@ -2,7 +2,7 @@
   "status": "pass",
   "taskId": "R007",
   "mode": "profile_map_admission_preflight",
-  "checkedAt": "2026-06-21T01:05:09",
+  "checkedAt": "2026-06-23T21:39:30",
   "p001Status": "待办",
   "p006Status": "待办",
   "r003Status": "待办",
@@ -17,7 +17,7 @@
     "domainModel": "docs/05_DomainModel.md",
     "domainEntities": "apps/api/Domain/P0Entities.cs",
     "dbContext": "apps/api/Data/KqgDbContext.cs",
-    "p001Report": "docs/evidence/20260621-p001-live-pilot-readiness-preflight-report.json",
+    "p001Report": "docs/evidence/20260623-p001-live-pilot-readiness-preflight-report.json",
     "completionDashboard": "tasks/completion-state-dashboard.csv",
     "automationFirstContract": "tasks/automation-first-contract.csv",
     "decision": "docs/decisions/ADR-009-interoperability-profile-map-admission.md"

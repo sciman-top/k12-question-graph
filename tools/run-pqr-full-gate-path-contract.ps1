@@ -12,7 +12,7 @@ Assert-True (Test-Path -LiteralPath $gateScriptPath) 'run-gates.ps1 is missing'
 
 $scriptText = Get-Content -LiteralPath $gateScriptPath -Raw
 
-Assert-True ($scriptText.Contains("$pqrReportRoot = 'tmp/full-gate-pqr'")) 'full gate must use tmp/full-gate-pqr as PQR report root'
+Assert-True ($scriptText.Contains("`$pqrReportRoot = 'tmp/full-gate-pqr'")) 'full gate must use tmp/full-gate-pqr as PQR report root'
 Assert-True ($scriptText.Contains("New-Item -ItemType Directory -Path (Join-Path `$repoRoot `$pqrReportRoot) -Force | Out-Null")) 'full gate must create tmp/full-gate-pqr before PQR writes'
 Assert-True ($scriptText.Contains("Join-Path `$pqrReportRoot 'pqr-preflight-pack-report.json'")) 'full gate PQR pack must write to tmp/full-gate-pqr'
 Assert-True ($scriptText.Contains("Join-Path `$pqrReportRoot 'pqr-preflight-freshness-report.json'")) 'full gate PQR freshness must write to tmp/full-gate-pqr'

@@ -1,11 +1,11 @@
 {
   "status": "pass",
   "taskId": "S009A",
-  "checkedAt": "2026-06-21T00:49:45",
-  "requestedApiPort": 14554,
-  "resolvedApiPort": 14554,
+  "checkedAt": "2026-06-23T21:21:13",
+  "requestedApiPort": 1977,
+  "resolvedApiPort": 1977,
   "portFallbackApplied": false,
-  "basketId": "ed7e294d-acf8-4c89-8cea-33f5a2473f76",
+  "basketId": "f02e8955-08e8-4b30-930a-2d27da2aa23e",
   "itemCount": 2,
   "questionNumbers": [
     1,

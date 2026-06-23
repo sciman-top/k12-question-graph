@@ -1,0 +1,134 @@
+{
+  "status": "pass",
+  "taskId": "NS901",
+  "checkedAt": "2026-06-23T21:28:43",
+  "mode": "non_site_scenario_pack_runtime_verification",
+  "productionEligible": false,
+  "nonSiteValidated": false,
+  "externalAiCalls": 0,
+  "realStudentDataUsed": false,
+  "containsStudentPii": false,
+  "writesProductionHistory": false,
+  "activeAssetMutation": false,
+  "dependency": {
+    "ns607": "docs/evidence/20260530-ns607-export-artifacts-report.json",
+    "ns704": "docs/evidence/20260530-ns704-commentary-report.json",
+    "ns806": "docs/evidence/20260623-ns806-upgrade-bundle.json",
+    "s012a": "docs/evidence/20260508-s012a-e2e-proxy-fixture-pack-report.json",
+    "s012b": "docs/evidence/20260509-s012b-non-site-e2e-rehearsal-report.json",
+    "s012bPreRunBackup": "tmp\\s012b\\pre-run-backup\\20260623-212732\\manifest.json"
+  },
+  "scenarioPack": {
+    "manifestPath": "tests/e2e/s012a-proxy-fixture-pack.json",
+    "materialCount": 9,
+    "coveredFixtureSteps": [
+      "import",
+      "cut",
+      "review",
+      "tagging",
+      "save",
+      "paper",
+      "export",
+      "score",
+      "analysis"
+    ],
+    "coveredRuntimeSteps": [
+      "admission",
+      "import_cut_review_save",
+      "tagging",
+      "review_save",
+      "paper",
+      "export",
+      "score",
+      "score_mapping",
+      "analysis",
+      "backup_restore"
+    ],
+    "elapsedMinutes": 1.18,
+    "takeoverPoints": [
+      "keep original upload and adapter diagnostics",
+      "manual box source region",
+      "merge or split affected question segments",
+      "skip bad page and rerun adapter after source fix",
+      "block commentary export until item score mappings are clear",
+      "restore from pre-run backup manifest if rehearsal data must be removed"
+    ],
+    "rollbackCommand": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/restore-backup.ps1 -ManifestPath 'tmp\\s012b\\pre-run-backup\\20260623-212732\\manifest.json'",
+    "databaseChanges": [
+      {
+        "table": "assessments",
+        "before": 1087,
+        "after": 1090,
+        "delta": 3
+      },
+      {
+        "table": "item_scores",
+        "before": 4622,
+        "after": 4634,
+        "delta": 12
+      },
+      {
+        "table": "paper_baskets",
+        "before": 1034,
+        "after": 1036,
+        "delta": 2
+      },
+      {
+        "table": "score_records",
+        "before": 2176,
+        "after": 2182,
+        "delta": 6
+      },
+      {
+        "table": "question_items",
+        "before": 8682,
+        "after": 8700,
+        "delta": 18
+      },
+      {
+        "table": "source_documents",
+        "before": 2259,
+        "after": 2260,
+        "delta": 1
+      },
+      {
+        "table": "knowledge_mappings",
+        "before": 1057,
+        "after": 1060,
+        "delta": 3
+      },
+      {
+        "table": "paper_basket_items",
+        "before": 3867,
+        "after": 3876,
+        "delta": 9
+      }
+    ]
+  },
+  "acceptance": {
+    "dependenciesPassed": true,
+    "syntheticOrAnonymizedOnly": true,
+    "importCutReviewTaggingSaveCovered": true,
+    "paperExportScoreAnalysisCovered": true,
+    "backupRestoreCovered": true,
+    "preRunBackupVerified": true,
+    "artifactManifestVerified": true,
+    "commentaryReportExportCovered": true,
+    "upgradeRestoreDrillCovered": true,
+    "rollbackCommandRecorded": true,
+    "noExternalAiCall": true,
+    "noRealStudentData": true,
+    "noStudentPii": true,
+    "noProductionHistoryWrite": true,
+    "noActiveWrite": true
+  },
+  "verification": {
+    "build": "outer gate: dotnet build apps/api/K12QuestionGraph.Api.csproj before NS901",
+    "test": "S012A fixture pack admission plus S012B non-site E2E rehearsal evidence",
+    "contractInvariant": "NS901 requires NS607 export artifact regression, NS704 commentary export, NS806 upgrade restore drill, verified pre-run backup, rollback command, no real student data, no production history write, and no active write",
+    "hotspot": "gate_na: this is still a synthetic/proxy non-site runtime pack; authorized school materials, isolated-machine install, teacher observation, printer/network/domain checks, and live operator signoff remain NS904/NS1001/P001 boundaries"
+  },
+  "boundary": "NS901 proves the non-site scenario pack can be verified from synthetic/proxy fixtures through runtime rehearsal, export, analysis, upgrade, backup, and restore evidence. It does not claim non_site_validated or live pilot closure until authorized/anonymized school materials and isolated-machine/operator validation exist.",
+  "rollback": "restore from S012B pre-run backup if synthetic rehearsal rows must be removed; git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1 tools/README.md; git clean -f -- tools/run-ns901-non-site-scenario-pack.ps1 docs/evidence/20260623-ns901-non-site-scenario-pack.json",
+  "next": "NS903 can refresh completion-state dashboards, then NS904 should assemble P001 readiness evidence without closing onsite/live blockers."
+}

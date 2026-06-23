@@ -1,0 +1,104 @@
+{
+  "status": "pass",
+  "taskId": "NS1205",
+  "checkedAt": "2026-06-23T21:39:30",
+  "mode": "public_multischool_deploy_admission_boundary",
+  "productionEligible": false,
+  "nonSiteValidated": false,
+  "releaseReady": false,
+  "externalAiCalls": 0,
+  "realStudentDataUsed": false,
+  "containsStudentPii": false,
+  "writesProductionHistory": false,
+  "activeAssetMutation": false,
+  "dependency": {
+    "ns1005": "tasks/non-site-implementation-plan.csv",
+    "ns904": "docs/evidence/20260623-ns904-p001-readiness.json",
+    "r005Report": "docs/evidence/20260521-r005-public-multischool-deploy-admission-report.json",
+    "r005Decision": "docs/decisions/ADR-007-public-multischool-deploy-admission.md",
+    "r005Checklist": "docs/templates/r005-public-multischool-deploy-eval-checklist.md",
+    "r005PreflightEvidence": "docs/evidence/20260505-r005-public-multischool-deploy-eval-preflight.md",
+    "completionDashboard": "tasks/completion-state-dashboard.csv"
+  },
+  "backlog": {
+    "p001Status": "待办",
+    "p006Status": "待办",
+    "r005Status": "待办",
+    "r005CloseTaskAllowed": false,
+    "ns1005Status": "blocked_by_onsite",
+    "ns1205StatusAtCheck": "runtime_verified",
+    "ns1205DependsOn": "NS1005"
+  },
+  "admissionDecision": {
+    "singleSchoolLan": "preferred_default_after_p001_p006",
+    "publicInternetExposure": "blocked",
+    "multiSchoolSharedDeployment": "blocked",
+    "multiTenantSaas": "blocked",
+    "currentDecision": "keep_R005_todo_fail_closed_for_public_multischool"
+  },
+  "blockerSummary": {
+    "p001CanClose": false,
+    "releaseReady": false,
+    "nonSiteValidated": false,
+    "remainingSiteBlockerCount": 9
+  },
+  "codeScan": {
+    "searchedRoots": [
+      "apps/api",
+      "apps/web/src",
+      "configs",
+      "schemas",
+      "workers"
+    ],
+    "blockedPatterns": [
+      "Tenant",
+      "MultiTenant",
+      "tenant isolation",
+      "public internet",
+      "ReverseProxy",
+      "YARP",
+      "Kubernetes",
+      "Ingress",
+      "LetsEncrypt",
+      "certbot"
+    ],
+    "hitCount": 0,
+    "noPublicExposureRoute": true,
+    "noTenantSchemaOrConfig": true,
+    "noReverseProxyOrKubernetesDefault": true,
+    "noCrossSchoolSharedStore": true
+  },
+  "acceptance": {
+    "r005AdmissionReportPassed": true,
+    "adr007FailClosedAccepted": true,
+    "singleSchoolLanKeptAsOnlyPreferredPath": true,
+    "publicInternetBlocked": true,
+    "multiSchoolBlocked": true,
+    "multiTenantSaasBlocked": true,
+    "p001RemainsTodo": true,
+    "p006RemainsTodo": true,
+    "ns1005RemainsBlockedByOnsite": true,
+    "r005RemainsTodo": true,
+    "noNetworkExposure": true,
+    "noTenantSchemaChange": true,
+    "noDeploymentConfigMutation": true,
+    "noProductionWrite": true
+  },
+  "nextRequiredEvidence": [
+    "P001 isolated-machine evidence for install wizard, backup/restore, role audit, and four teacher-entry smokes",
+    "P006 release decision record with rollback and privacy evidence",
+    "security privacy ADR feature admission for public/multischool deployment",
+    "procurement/DPA/SLA/operator responsibility evidence",
+    "tenant/network/backup/audit isolation design with rollback and exit plan"
+  ],
+  "verification": {
+    "build": "gate_na: admission boundary script only; no product code build required",
+    "test": "tools/run-r005-public-multischool-deploy-eval-preflight-contract.ps1 + tools/run-ns1205-multischool-admission.ps1",
+    "contractInvariant": "NS1205 keeps only single-school LAN as the future preferred route, leaves public/multischool/SaaS blocked, and verifies no tenant/network exposure config was enabled",
+    "hotspot": "gate_na: public/multischool deployment admission requires P001/P006, data responsibility, procurement, network, ops, tenant isolation, and rollback evidence"
+  },
+  "teacherEfficiencyBoundary": "ordinary teacher workflows remain single-school/LAN first; NS1205 prevents deployment complexity from becoming teacher/admin burden before real responsibility boundaries exist",
+  "boundary": "NS1205 verifies the public/multischool deployment admission boundary only. It does not expose the app to public networks, does not add tenant schema or config, does not configure reverse proxy/Kubernetes, and does not change release state.",
+  "rollback": "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1 tools/README.md; git clean -f -- tools/run-ns1205-multischool-admission.ps1 docs/evidence/20260623-ns1205-multischool-admission.json",
+  "next": "NS1206 can continue technical-debt cadence boundary; public/multischool deployment remains blocked until responsibility and onsite evidence exist."
+}

@@ -1,15 +1,16 @@
 # 112 · 当前闭环状态总览
 
-日期：2026-06-20。状态证据核对到 2026-06-20。文件名保留 `20260609` 作为稳定入口。
+日期：2026-06-23。状态证据核对到 2026-06-23。文件名保留 `20260609` 作为稳定入口。
 
 ## 1. 当前结论
 
 截至最新已验证证据，本仓的真实状态是：
 
-- 最新一次完整 `full gate` 仍是 2026-06-09，通过；2026-06-14 full gate 重跑未取得最终退出码，不能作为新的完整通过证据。
-- 2026-06-20 又刷新了 repo-side 真值守卫与预检：
+- 最新一次完整 `full gate` 已在 2026-06-23 通过，且退出码为 `0`。
+- 2026-06-23 又刷新了 repo-side 真值守卫与预检：
   - `tools/run-reference-basis-guard.ps1`：pass
   - `tools/run-live-pilot-closeout-plan-guard.ps1`：pass
+  - `tools/run-live-pilot-closeout-repo-side-audit.ps1`：pass
   - `tools/run-ns905-status-sync-audit.ps1`：pass
   - `tools/run-gate-group.ps1 -Group pqr`：pass
   - `tools/run-repo-preflight.ps1 -Mode Ci`：pass
@@ -18,36 +19,36 @@
 
 当前最准确的对外口径是：
 
-> 仓库内代码、脚本、非现场工作流、参考基线和发布前置口径已经进一步收口；2026-06-20 的 closeout/status 守卫与 REAL005 repo-side 切片证据均通过，但最新完整 full gate 仍不能更新为 2026-06-14 之后的新日期。现场 / 隔离机 / 签收级闭环仍被 `REAL005 = not_closed`、当前 next open `REAL005D` 与 `P001/P003/P005/P006` 阻断。
+> 仓库内代码、脚本、非现场工作流、参考基线和发布前置口径已经进一步收口；2026-06-23 的完整 `full gate`、closeout/status 守卫与 REAL005 repo-side 切片证据均通过。现场 / 隔离机 / 签收级闭环仍被 `REAL005 = not_closed`、当前 next open `REAL005D` 与 `P001/P003/P005/P006` 阻断。
 
 ## 2. 最新已验证层级
 
 ### 2.1 仓库级 full gate
 
 - `tools/run-gates.ps1`
-  - 最近一次完整通过：2026-06-09。
-  - 结果日志：`docs/evidence/20260609-run-gates-detached-2.out.log`
-  - 错误日志：`docs/evidence/20260609-run-gates-detached-2.err.log`
+  - 最近一次完整通过：2026-06-23。
+  - 结果证据：`docs/evidence/20260623-live-pilot-closeout-repo-side-audit.json`
+  - 观测产物：`tmp/full-gate-pqr/`
 
-这仍是当前可引用的最新完整 full gate，不应被 2026-06-14 的 repo-side 子守卫、CI 预检或超时 full gate 重跑误写成“又完整跑过一遍 full gate”。
+这已经取代 2026-06-09 成为当前可引用的最新完整 full gate；2026-06-14 那次未取得最终退出码的重跑仍不能作为独立通过证据。
 
-### 2.2 2026-06-20 repo-side 守卫刷新
+### 2.2 2026-06-23 repo-side 守卫刷新
 
 - `tools/run-reference-basis-guard.ps1`
   - 状态：pass
-  - 报告：`docs/evidence/20260615-reference-basis-guard.json` / `.md`
+  - 报告：`docs/evidence/20260623-reference-basis-guard.json` / `.md`
   - 关键信息：20 个受管任务、13 个模块、`snapshot_parity = match`、本机 external corpus 存在。
-  - `tools/run-live-pilot-closeout-plan-guard.ps1`
+- `tools/run-live-pilot-closeout-plan-guard.ps1`
   - 状态：pass
-  - 报告：`docs/evidence/20260620-live-pilot-closeout-plan-guard.json` / `.md`
+  - 报告：`docs/evidence/20260623-live-pilot-closeout-plan-guard.json` / `.md`
   - 关键信息：26 行 closeout 计划中 `REAL005A/B/C` 已完成、`REAL005D` 仍待办，`REAL005 = not_closed`，`REAL005D/P001A/P003A/P005A/P006A` 仍是 next open slice。
-  - `tools/run-live-pilot-closeout-repo-side-audit.ps1`
+- `tools/run-live-pilot-closeout-repo-side-audit.ps1`
   - 状态：pass
-  - 报告：`docs/evidence/20260620-live-pilot-closeout-repo-side-audit.json` / `.md`
-  - 关键信息：repo-side validated 仍只证明 backlog、dashboard、closeout plan、release card 与 truth boundary 对齐，没有把现场事实阻断自动消掉。
+  - 报告：`docs/evidence/20260623-live-pilot-closeout-repo-side-audit.json` / `.md`
+  - 关键信息：repo-side validated 仍只证明 backlog、dashboard、closeout plan、release card 与 truth boundary 对齐；本次额外记录了 2026-06-23 完整 `full gate` 已通过、`exit_code = 0`，但没有把现场事实阻断自动消掉。
 - `tools/run-ns905-status-sync-audit.ps1`
   - 状态：pass
-  - 报告：`docs/evidence/20260620-ns905-status-sync.md`
+  - 报告：`docs/evidence/20260623-ns905-status-sync.md`
   - 关键信息：`release_ready_count = 0`、`next_task = P001` 的 area 仍有 16 个、`teacher_validated` area 为 14 个，且 `non_site_validated` 没有被误写成已完成。
 - `tools/run-gate-group.ps1 -Group pqr`
   - 状态：pass
@@ -59,7 +60,7 @@
 
 - `tools/run-real005-guangzhou-2015-2025-closure-standard.ps1`
   - 状态：pass
-  - 报告：`docs/evidence/20260620-real005-guangzhou-2015-2025-closure-standard-report.json` / `.md`
+  - 报告：`docs/evidence/20260623-real005-guangzhou-2015-2025-closure-standard-report.json` / `.md`
   - 关键信息：`REAL005B` 与 `REAL005C` 的 repo-side evidence 已完成，当前 `fullClosureAllowed = false`、`closureStatus = not_closed`，因此 `REAL005D` 只允许继续保持 truthful `not_closed` 的对外文案，不允许改成已闭环。
 
 ### 2.3 非现场教师主链路
@@ -127,7 +128,7 @@
 ### 4.3 `release_ready`
 
 - 当前不是 `release_ready`。
-- `docs/evidence/20260620-ns905-status-sync.md` 已明确 `release_ready_count = 0`。
+- `docs/evidence/20260623-ns905-status-sync.md` 已明确 `release_ready_count = 0`。
 
 ### 4.4 repo-side 守卫通过的真实含义
 
@@ -140,7 +141,7 @@
 
 ### 5.1 reference-basis / snapshot parity
 
-- 2026-06-15 已再次证明外部 reference shelf、仓内 snapshot 和 guard 规则在 repo-side 口径上同构。
+- 2026-06-23 已再次证明外部 reference shelf、仓内 snapshot 和 guard 规则在 repo-side 口径上同构。
 - 当前高风险编码任务不再只“建议查参考”，而是缺锚点直接 fail。
 
 ### 5.2 live closeout truthful boundary
@@ -163,5 +164,5 @@
 若继续自动自主推进，优先级建议如下：
 
 1. 按 `tasks/live-pilot-closeout-plan.csv` 收口 `REAL005` 与 `P001/P003/P005/P006`，不再从长文档里手工提炼剩余阻断。
-2. 若需要改写对外发布口径，先区分“最新完整 full gate 仍是 2026-06-09”与“最新 repo-side 守卫/CI/PQR 刷新到 2026-06-20”，不要混写。
+2. 若需要改写对外发布口径，先区分“2026-06-23 完整 full gate 已通过”与“现场 / 签字 / 发布裁决仍未关闭”，不要把仓库侧通过误写成发布完成。
 3. 对任何新的高风险架构 / 运维 / 发布任务，先补 `reference-basis` 锚点，再进入编码或文档裁决。

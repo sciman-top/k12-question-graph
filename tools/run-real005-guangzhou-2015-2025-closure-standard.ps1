@@ -109,6 +109,20 @@ function Get-ObjectPropertyValue([object] $Object, [string] $Name) {
     return $property.Value
 }
 
+function Test-TextContainsAll([string] $Text, [string[]] $Keywords) {
+    foreach ($keyword in $Keywords) {
+        if ([string]::IsNullOrWhiteSpace($keyword)) {
+            continue
+        }
+
+        if (-not $Text.Contains($keyword)) {
+            return $false
+        }
+    }
+
+    return $true
+}
+
 function New-Real005DetailedSliceCoverage {
     param(
         [Parameter(Mandatory = $true)]
@@ -637,6 +651,9 @@ $unfinishedText = if ($unfinishedRealTasks.Count -gt 0) { $unfinishedRealTasks -
 $summaryChinese = if ($closureStatus -eq 'closed') {
     'REAL005 判定标准全部满足，才允许宣称 2015-2025 真卷全流程闭环。'
 }
+elseif ($unfinishedRealTasks.Count -eq 0) {
+    'REAL005 的 repo-side 证据与对外口径已收口；当前真实状态仍是 not_closed，且 completion dashboard 仍保持 contract_done，不可宣称 2015-2025 真卷全流程完成。'
+}
 else {
     "REAL005 判定标准已安装并通过自检；当前真实状态是 not_closed，仍需完成 $unfinishedText。"
 }
@@ -853,12 +870,74 @@ else {
 }
 $sliceCoverage.Add('REAL005C', $real005CCoverage)
 
+$closureSummaryPath = 'docs/112_CurrentClosureStatus_20260609.md'
+$releaseCardPath = 'docs/109_ReleaseGoNoGoCard.md'
+$readmePath = 'README.md'
+$closureSummaryText = if (Test-Path -LiteralPath (Resolve-RepoPath $closureSummaryPath)) { Get-Content -LiteralPath (Resolve-RepoPath $closureSummaryPath) -Raw } else { '' }
+$releaseCardText = if (Test-Path -LiteralPath (Resolve-RepoPath $releaseCardPath)) { Get-Content -LiteralPath (Resolve-RepoPath $releaseCardPath) -Raw } else { '' }
+$readmeText = if (Test-Path -LiteralPath (Resolve-RepoPath $readmePath)) { Get-Content -LiteralPath (Resolve-RepoPath $readmePath) -Raw } else { '' }
+$dashboardBlockingGap = [string]$dashboardRow.blocking_gap
+$real005DChecks = [ordered]@{
+    closureSummary = [ordered]@{
+        path = $closureSummaryPath
+        ok = (Test-TextContainsAll $closureSummaryText @(
+            '2026-06-23',
+            'full gate',
+            'REAL005 = not_closed',
+            'REAL005A/B/C/D 的 repo-side closeout 已完成',
+            'P001/P003/P005/P006'
+        ))
+    }
+    releaseCard = [ordered]@{
+        path = $releaseCardPath
+        ok = (Test-TextContainsAll $releaseCardText @(
+            '2026-06-23',
+            'No-Go',
+            'REAL005',
+            'not_closed',
+            'REAL005A/B/C/D 的 repo-side closeout 已完成',
+            'P001/P003/P005/P006'
+        ))
+    }
+    readme = [ordered]@{
+        path = $readmePath
+        ok = (Test-TextContainsAll $readmeText @(
+            '2026-06-23 文档刷新口径',
+            'full gate',
+            'REAL005A/B/C/D 的 repo-side closeout 已完成',
+            'REAL005',
+            'not_closed',
+            'P001/P003/P005/P006'
+        ))
+    }
+    dashboard = [ordered]@{
+        path = $DashboardPath
+        ok = (
+            [string]$dashboardRow.current_state -eq 'contract_done' -and
+            [string]$dashboardRow.next_task -eq 'REAL005' -and
+            $dashboardBlockingGap.Contains('REAL005 当前仍为 not_closed') -and
+            $dashboardBlockingGap.Contains('REAL005A/B/C/D 的 repo-side closeout 已完成')
+        )
+    }
+}
+$real005DBlockers = New-Object System.Collections.Generic.List[string]
+foreach ($entry in $real005DChecks.GetEnumerator()) {
+    if (-not [bool]$entry.Value.ok) {
+        $real005DBlockers.Add("$($entry.Key) truth surface is not refreshed to the latest repo-side not_closed wording.")
+    }
+}
 $real005DCoverage = @{}
-$real005DCoverage['criteriaIds'] = @('DOCS', 'README', 'GO_NO_GO_CARD')
-$real005DCoverage['status'] = 'blocked'
-$real005DCoverage['blockers'] = @("closureStatus remains $closureStatus; truthful docs must continue to say not_closed")
-$real005DCoverage['evidencePaths'] = @('docs/112_CurrentClosureStatus_20260609.md', 'docs/109_ReleaseGoNoGoCard.md', 'README.md')
-$real005DCoverage['next'] = 'Do not rewrite outward completion wording until REAL005A/B/C are all closed.'
+$real005DCoverage['criteriaIds'] = @('DOCS', 'README', 'GO_NO_GO_CARD', 'DASHBOARD')
+$real005DCoverage['status'] = if ($real005DBlockers.Count -eq 0) { 'pass' } else { 'blocked' }
+$real005DCoverage['blockers'] = @($real005DBlockers)
+$real005DCoverage['evidencePaths'] = @($closureSummaryPath, $releaseCardPath, $readmePath, $DashboardPath)
+$real005DCoverage['checks'] = $real005DChecks
+$real005DCoverage['next'] = if ($real005DBlockers.Count -eq 0) {
+    'REAL005D repo-side truthful wording is refreshed. Keep REAL005 not_closed until the dashboard area state and onsite/live evidence truly change.'
+}
+else {
+    'Refresh closure summary, release card, README, and completion dashboard wording so they preserve truthful not_closed / No-Go wording while reflecting the latest repo-side evidence.'
+}
 $sliceCoverage.Add('REAL005D', $real005DCoverage)
 
 $real005BCriterionStatusLookup = @{}

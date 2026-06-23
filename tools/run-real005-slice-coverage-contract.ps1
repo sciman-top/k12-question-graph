@@ -93,8 +93,8 @@ Assert-True (-not [bool]$sliceC.nextDetailedSliceReady) 'REAL005C should not kee
 
 $sliceD = $sliceCoverage.REAL005D
 Assert-True ((@($sliceD.criteriaIds)) -contains 'DOCS') 'REAL005D must include docs closeout marker'
-Assert-True ([string]$sliceD.status -eq 'blocked') 'REAL005D must remain blocked while closureStatus is not_closed'
-Assert-True (@($sliceD.blockers).Count -ge 1) 'REAL005D must remain blocked while closureStatus is not_closed'
+Assert-True ([string]$sliceD.status -eq 'pass') 'REAL005D should pass once repo-side truthful wording is refreshed'
+Assert-True (@($sliceD.blockers).Count -eq 0) 'REAL005D blockers must be empty after truthful wording is refreshed'
 
 $nextDetailedOpen = $report.nextDetailedOpen
 Assert-True ($null -ne $nextDetailedOpen) 'REAL005 report must expose nextDetailedOpen'

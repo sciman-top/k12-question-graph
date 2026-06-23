@@ -1,0 +1,138 @@
+{
+  "status": "pass",
+  "taskId": "NS805",
+  "checkedAt": "2026-06-23T21:37:38",
+  "mode": "capacity_cost_health_dashboard",
+  "productionEligible": false,
+  "externalAiCalls": 0,
+  "realStudentDataUsed": false,
+  "writesProductionHistory": false,
+  "activeAssetMutation": false,
+  "dependency": {
+    "ns801": "docs/evidence/20260530-ns801-backup-manifest-report.json",
+    "ns802": "docs/evidence/20260530-ns802-restore-drill-report.json",
+    "ns803": "docs/evidence/20260623-ns803-installer-host.json",
+    "ns804": "docs/evidence/20260623-ns804-windows-service.json",
+    "ns503": "docs/evidence/20260530-ns503-model-router-budget-report.json",
+    "g002": "docs/evidence/g002-storage-cleanup-report.json",
+    "k006": "docs/evidence/k006-knowledge-asset-health-dashboard-report.json",
+    "o005": "docs/evidence/o005-capacity-cost-health-dashboard-report.json"
+  },
+  "dashboard": {
+    "storageAreas": [
+      {
+        "name": "data_root",
+        "bytes": 240897,
+        "fileCount": 4,
+        "cleanupAllowed": false
+      },
+      {
+        "name": "file_store",
+        "bytes": 39,
+        "fileCount": 1,
+        "cleanupAllowed": false
+      },
+      {
+        "name": "backup",
+        "bytes": 0,
+        "fileCount": 0,
+        "cleanupAllowed": false
+      },
+      {
+        "name": "logs",
+        "bytes": 240812,
+        "fileCount": 1,
+        "cleanupAllowed": false
+      },
+      {
+        "name": "cache",
+        "bytes": 46,
+        "fileCount": 2,
+        "cleanupAllowed": true
+      }
+    ],
+    "backup": {
+      "manifest": "tmp/ns801-backups/20260623-212257/manifest.json",
+      "fileCount": 18559,
+      "databaseDumpInManifest": true,
+      "sha256Verified": true
+    },
+    "restore": {
+      "isolatedRoot": "tmp/ns802-restore",
+      "fileStoreRestoredCount": 18559,
+      "productionDatabaseUntouched": true,
+      "productionFileStoreUntouched": true
+    },
+    "cache": {
+      "cleanupRoot": "D:\\CODE\\k12-question-graph\\tmp\\g002-storage\\data\\cache",
+      "dryRunSupported": true,
+      "configuredCacheRootOnly": true,
+      "previewMatchedFileCount": 1,
+      "cleanupDeletedFileCount": 1,
+      "protectedFileStoreUntouched": true
+    },
+    "aiCost": {
+      "source": "NS503 model router budget + O005 D002 dependency",
+      "jobId": "b54c8c62-1374-47c0-9546-319e6ab9060f",
+      "provider": "stub_llm",
+      "model": "stub",
+      "inputTokens": 22,
+      "outputTokens": 38,
+      "cachedTokens": 0,
+      "actualCost": 0.0,
+      "reviewStatus": "pending_review",
+      "realModelCallsDefault": false
+    },
+    "failureAndKnowledgeHealth": {
+      "failedTaskSignal": "failed-task-state-signal",
+      "knowledgeDashboard": "knowledge-asset-health-dashboard",
+      "coveredStatusFields": [
+        "active",
+        "candidate",
+        "pending_mappings",
+        "migrations",
+        "blockers"
+      ],
+      "readonlyActions": [
+        "open-knowledge-health-evidence",
+        "open-pending-mapping-review",
+        "open-migration-history",
+        "open-blocker-report"
+      ]
+    },
+    "uiContracts": [
+      "admin-storage-dashboard",
+      "storage-summary",
+      "cache-cleanup-configured-root",
+      "no-production-data-delete",
+      "knowledge-asset-health-dashboard",
+      "failed-task-state-signal"
+    ]
+  },
+  "acceptance": {
+    "ns803InstallerHostEvidencePassed": true,
+    "ns804PackageHealthEvidencePassed": true,
+    "fileStoreCapacityVisible": true,
+    "backupManifestVisible": true,
+    "restoreHealthVisible": true,
+    "cacheCapacityVisible": true,
+    "aiTokenAndCostVisible": true,
+    "failedTaskSignalVisible": true,
+    "cleanupSuggestionCacheOnly": true,
+    "knowledgeAssetHealthVisible": true,
+    "noProductionDataDelete": true,
+    "noExternalAiCall": true,
+    "noRealStudentData": true,
+    "noActiveWrite": true,
+    "noWindowsServiceInstalled": true
+  },
+  "verification": {
+    "build": "outer gate: dotnet build apps/api/K12QuestionGraph.Api.csproj before run-gates",
+    "test": "O005 API/UI smoke via storage summary, cache cleanup, D002 AI cost dependency, L006 evidence, and UI contract markers",
+    "contractInvariant": "NS805 aggregates file-store/backup/cache/AI-cost/failed-task/cleanup/knowledge-health signals without production delete, active write, external AI, or real student data",
+    "hotspot": "gate_na: no live operator dashboard session or isolated teacher-machine install; NS1001/P001 own live install and pilot validation"
+  },
+  "boundary": "NS805 proves a non-site administrator capacity/cost/health dashboard contract using draft/test API smoke and existing UI markers. It is not a live production monitoring rollout, and it does not install services, delete production data, call external AI, or change active assets.",
+  "rollback": "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1 tools/README.md; git clean -f -- tools/run-ns805-health-dashboard.ps1 docs/evidence/20260623-ns805-health-dashboard.json",
+  "next": "NS806 can continue EF migration bundle and upgrade rehearsal."
+}

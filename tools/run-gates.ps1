@@ -1173,7 +1173,9 @@ try {
         $logOut = Join-Path $repoRoot 'docs\evidence\b001-gate-api.out.log'
         $logErr = Join-Path $repoRoot 'docs\evidence\b001-gate-api.err.log'
         $previousConnectionString = $env:KQG_CONNECTION_STRING
+        $previousFileStoreRoot = $env:KqgPaths__FileStoreRoot
         $env:KQG_CONNECTION_STRING = "Host=$DatabaseHost;Port=$DatabasePort;Database=$DatabaseName;Username=$DatabaseUser;Password=$DatabasePassword"
+        $env:KqgPaths__FileStoreRoot = $FileStoreRoot
         $process = Start-Process -FilePath dotnet -ArgumentList @('run','--project','apps\api\K12QuestionGraph.Api.csproj','-c','Release','--no-build','--urls',$apiUrl) -PassThru -WindowStyle Hidden -RedirectStandardOutput $logOut -RedirectStandardError $logErr
         try {
             Wait-ApiReady -Process $process -ApiUrl $apiUrl -LogErr $logErr
@@ -1209,6 +1211,7 @@ try {
         finally {
             Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
             $env:KQG_CONNECTION_STRING = $previousConnectionString
+            $env:KqgPaths__FileStoreRoot = $previousFileStoreRoot
         }
     }
 
@@ -1222,7 +1225,9 @@ try {
         $logOut = Join-Path $repoRoot 'docs\evidence\b003-gate-api.out.log'
         $logErr = Join-Path $repoRoot 'docs\evidence\b003-gate-api.err.log'
         $previousConnectionString = $env:KQG_CONNECTION_STRING
+        $previousFileStoreRoot = $env:KqgPaths__FileStoreRoot
         $env:KQG_CONNECTION_STRING = "Host=$DatabaseHost;Port=$DatabasePort;Database=$DatabaseName;Username=$DatabaseUser;Password=$DatabasePassword"
+        $env:KqgPaths__FileStoreRoot = $FileStoreRoot
         $process = Start-Process -FilePath dotnet -ArgumentList @('run','--project','apps\api\K12QuestionGraph.Api.csproj','-c','Release','--no-build','--urls',$apiUrl) -PassThru -WindowStyle Hidden -RedirectStandardOutput $logOut -RedirectStandardError $logErr
         try {
             Wait-ApiReady -Process $process -ApiUrl $apiUrl -LogErr $logErr
@@ -1278,6 +1283,7 @@ try {
         finally {
             Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
             $env:KQG_CONNECTION_STRING = $previousConnectionString
+            $env:KqgPaths__FileStoreRoot = $previousFileStoreRoot
         }
     }
 
@@ -1291,7 +1297,9 @@ try {
         $logOut = Join-Path $repoRoot 'docs\evidence\b005-gate-api.out.log'
         $logErr = Join-Path $repoRoot 'docs\evidence\b005-gate-api.err.log'
         $previousConnectionString = $env:KQG_CONNECTION_STRING
+        $previousFileStoreRoot = $env:KqgPaths__FileStoreRoot
         $env:KQG_CONNECTION_STRING = "Host=$DatabaseHost;Port=$DatabasePort;Database=$DatabaseName;Username=$DatabaseUser;Password=$DatabasePassword"
+        $env:KqgPaths__FileStoreRoot = $FileStoreRoot
         $process = Start-Process -FilePath dotnet -ArgumentList @('run','--project','apps\api\K12QuestionGraph.Api.csproj','-c','Release','--no-build','--urls',$apiUrl) -PassThru -WindowStyle Hidden -RedirectStandardOutput $logOut -RedirectStandardError $logErr
         try {
             Wait-ApiReady -Process $process -ApiUrl $apiUrl -LogErr $logErr
@@ -1347,6 +1355,7 @@ try {
         finally {
             Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
             $env:KQG_CONNECTION_STRING = $previousConnectionString
+            $env:KqgPaths__FileStoreRoot = $previousFileStoreRoot
         }
     }
 
@@ -1360,7 +1369,9 @@ try {
         $logOut = Join-Path $repoRoot 'docs\evidence\b006-gate-api.out.log'
         $logErr = Join-Path $repoRoot 'docs\evidence\b006-gate-api.err.log'
         $previousConnectionString = $env:KQG_CONNECTION_STRING
+        $previousFileStoreRoot = $env:KqgPaths__FileStoreRoot
         $env:KQG_CONNECTION_STRING = "Host=$DatabaseHost;Port=$DatabasePort;Database=$DatabaseName;Username=$DatabaseUser;Password=$DatabasePassword"
+        $env:KqgPaths__FileStoreRoot = $FileStoreRoot
         $process = Start-Process -FilePath dotnet -ArgumentList @('run','--project','apps\api\K12QuestionGraph.Api.csproj','-c','Release','--no-build','--urls',$apiUrl) -PassThru -WindowStyle Hidden -RedirectStandardOutput $logOut -RedirectStandardError $logErr
         try {
             Wait-ApiReady -Process $process -ApiUrl $apiUrl -LogErr $logErr
@@ -1419,6 +1430,7 @@ try {
         finally {
             Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
             $env:KQG_CONNECTION_STRING = $previousConnectionString
+            $env:KqgPaths__FileStoreRoot = $previousFileStoreRoot
         }
     }
 

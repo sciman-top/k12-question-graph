@@ -1,6 +1,6 @@
 # 103 · 执行总控板
 
-日期：2026-06-20。状态证据核对到 2026-06-20。
+日期：2026-06-23。状态证据核对到 2026-06-23。
 
 ## 1. 判断
 
@@ -15,11 +15,11 @@ AI 推荐：当前唯一主目标不是继续扩能力面，而是把 `P001 -> P
 | 用途 | 单一入口 | 说明 |
 |---|---|---|
 | 当前对外完成态 | `tasks/completion-state-dashboard.csv` | 对外只引用这里，不只引用 backlog 的 `已完成` |
-| 当前 repo-side 口径有没有被旧状态覆盖 | `docs/evidence/20260620-ns905-status-sync.md` | 看 backlog、dashboard、non-site plan 和 live closeout 是否仍保持 truthful No-Go |
+| 当前 repo-side 口径有没有被旧状态覆盖 | `docs/evidence/20260623-ns905-status-sync.md` | 看 backlog、dashboard、non-site plan 和 live closeout 是否仍保持 truthful No-Go |
 | 本地联调运行模型 | `docs/113_LocalRuntimeOperations_20260609.md` | 决定 Web/API 怎么启动、重启、判断 ready 和排查 |
 | 主线顺序与依赖 | `tasks/backlog.csv` | 决定先做什么、后做什么 |
 | 高风险任务参考依据 | `tasks/reference-basis-requirements.csv` | 决定哪些架构/运维/OCR/AI/搜索/互操作/发布任务必须先补官方与本地参考锚点 |
-| 当前 reference-basis 守卫是否收口 | `docs/evidence/20260615-reference-basis-guard.md` | 看受管任务、模块覆盖和 external/snapshot parity 是否仍成立 |
+| 当前 reference-basis 守卫是否收口 | `docs/evidence/20260623-reference-basis-guard.md` | 看受管任务、模块覆盖和 external/snapshot parity 是否仍成立 |
 | 非现场产品化与运行形态 | `tasks/non-site-implementation-plan.csv` | 决定 NS0-NS13 的实现顺序和证据 |
 | 产品化闭环拆解 | `tasks/productization-roadmap.csv` / `tasks/productization-s0-execution-plan.csv` | 决定 S0 子任务归宿 |
 | 现场 closeout 拆解 | `tasks/live-pilot-closeout-plan.csv` | 决定 `REAL005` 与 `P001/P003/P005/P006` 的最小关闭步骤 |
@@ -36,7 +36,7 @@ AI 推荐：当前唯一主目标不是继续扩能力面，而是把 `P001 -> P
 | `P001` readiness | 把非现场闭环变成现场前置包，而不是聊天判断 | 只剩隔离机、现场教师、打印、权限域、真实网络阻断项 | 发布负责人 + 试点支持负责人 |
 | `P005/P006` 发布裁决 | 形成可签字的 go / no-go 卡，而不是只有 preflight | `P005` 反馈分流完成，`P006` 发布卡留痕，回滚和 tag candidate 策略明确 | 产品负责人 + 发布负责人 + 数据责任方代表 |
 
-2026-06-20 最新 repo-side 刷新结果：`reference-basis guard`、`live pilot closeout plan guard`、`live pilot closeout repo-side audit`、`NS905 status sync audit`、`PQR gate group` 和 `repo preflight -Mode Ci` 继续保持 `pass`。它们共同证明高风险任务参考基线、closeout 计划、completion dashboard、P/Q/R preflight 和 release No-Go 口径没有继续漂移；同时也明确 `release_ready_count = 0`，`REAL005 = not_closed`，`REAL005A/B/C` 已按 repo-side 证据完成，当前 next open slice 已推进到 `REAL005D`，`P001/P003/P005/P006` 仍都没有被现场证据关闭。`live-pilot closeout plan guard` 与 `live-pilot closeout repo-side audit` 最新证据为 `docs/evidence/20260620-live-pilot-closeout-plan-guard.json` / `.md` 与 `docs/evidence/20260620-live-pilot-closeout-repo-side-audit.json` / `.md`，它们只能证明 closeout 计划、backlog、入口文档和 truth boundary 同步，不替代任何现场事实。2026-06-14 full gate 重跑未取得最终退出码，不能作为新的完整通过证据。
+2026-06-23 最新 repo-side 刷新结果：`full gate`、`reference-basis guard`、`live pilot closeout plan guard`、`live pilot closeout repo-side audit`、`NS905 status sync audit`、`PQR gate group` 和 `repo preflight -Mode Ci` 继续保持 `pass`。它们共同证明高风险任务参考基线、closeout 计划、completion dashboard、P/Q/R preflight 和 release No-Go 口径没有继续漂移；同时也明确 `release_ready_count = 0`，`REAL005 = not_closed`，`REAL005A/B/C` 已按 repo-side 证据完成，当前 next open slice 已推进到 `REAL005D`，`P001/P003/P005/P006` 仍都没有被现场证据关闭。`live-pilot closeout plan guard` 与 `live-pilot closeout repo-side audit` 最新证据为 `docs/evidence/20260623-live-pilot-closeout-plan-guard.json` / `.md` 与 `docs/evidence/20260623-live-pilot-closeout-repo-side-audit.json` / `.md`；后者已记录 2026-06-23 完整 `full gate` 通过与 `tmp/full-gate-pqr/` 刷新产物。它们只能证明 closeout 计划、backlog、入口文档和 truth boundary 同步，不替代任何现场事实。
 
 ### Next
 

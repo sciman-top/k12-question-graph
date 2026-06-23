@@ -1,10 +1,10 @@
 {
   "status": "pass",
   "taskId": "NS402",
-  "checkedAt": "2026-06-21T00:47:45",
+  "checkedAt": "2026-06-23T21:18:04",
   "mode": "api_review_queue_filter_resolve_batch_audit_smoke",
   "productionEligible": false,
-  "runId": "fdf697727725473888c2cdeb6890311c",
+  "runId": "a20cf79252244b699391a9a6cf9d0d97",
   "filtering": {
     "openFilteredCount": 4,
     "sortByQuestionNo": true,
@@ -12,13 +12,13 @@
     "requiredActionDerived": true
   },
   "decisions": {
-    "confirmedId": "fd3133bc-d066-46a8-8e64-aceb351bf79a",
-    "dismissedId": "9cb0e062-4962-42b3-896c-7436192e3d19",
+    "confirmedId": "252c317e-5340-426b-90c9-f256062aeead",
+    "dismissedId": "278af4cd-8e7b-4355-afb0-7d68c9e55ec5",
     "batchResolvedIds": [
-      "3f71c1dc-befe-4532-8a4d-2ab2710009bf"
+      "d9a84e9f-1e08-4a4e-b664-e60a50c6c235"
     ],
     "batchSkippedHighRiskIds": [
-      "013ee103-9895-4c52-8efb-243084966d54"
+      "c20df2ce-4303-4089-9880-068aa3d9b46f"
     ]
   },
   "audit": {

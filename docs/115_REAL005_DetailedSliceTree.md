@@ -1,6 +1,6 @@
 # 115 · REAL005 细化执行树
 
-日期：2026-06-20。
+日期：2026-06-23。
 
 ## 1. 用途
 
@@ -21,7 +21,7 @@
 ## 2. 当前边界
 
 - `REAL005A` 已完成，但不代表真卷闭环已完成。
-- `REAL005B` 已在 2026-06-17 的 repo-side evidence 中闭环，`REAL005C` 也已在同日完成 repo-side evidence，当前 next open slice 改为 `REAL005D`。
+- `REAL005B` 已在 2026-06-23 的 repo-side evidence 中继续保持闭环，`REAL005C` 也继续保持 repo-side 完成，当前 next open slice 仍为 `REAL005D`。
 - 只有 `REAL005A/B/C` 全部通过后，`REAL005D` 才允许收口对外文案；但在 `fullClosureAllowed = false` 前，它只能把外部口径继续保持为 `not_closed`，不能改写成“已闭环”。
 - 任一细切片未通过时，`docs/112_CurrentClosureStatus_20260609.md`、`docs/109_ReleaseGoNoGoCard.md`、`tasks/completion-state-dashboard.csv` 都必须继续保持 `not_closed`。
 
@@ -97,8 +97,8 @@
 - 验证：
   - `tools/run-real005-guangzhou-2015-2025-review-smoke.ps1` 或等价真实题审核 smoke
   - 复用 `tools/run-real005-guangzhou-2015-2025-closure-standard.ps1`
-- 当前 repo-side 状态（2026-06-20 核对）：
-  - 已通过。关键证据为 `docs/evidence/20260620-real005b-question-structure-diagnostics.json`、`docs/evidence/20260620-real005b-reviewed-question-materialize.json`、`docs/evidence/20260620-real005b-reviewed-question-visibility.json`、`docs/evidence/20260620-real005b-reviewed-question-source-smoke.json`。
+- 当前 repo-side 状态（2026-06-23 核对）：
+  - 已通过。关键证据为 `docs/evidence/20260623-real005b-question-structure-diagnostics.json`、`docs/evidence/20260623-real005b-reviewed-question-materialize.json`、`docs/evidence/20260623-real005b-reviewed-question-visibility.json`、`docs/evidence/20260623-real005b-reviewed-question-source-smoke.json`。
 
 ## 4. REAL005C 细化
 
@@ -116,7 +116,7 @@
 - 未通过时保持的 gap：
   - `only synthetic fixture proof keeps closure not_closed`
 
-- 当前 repo-side 状态（2026-06-20 核对）：
+- 当前 repo-side 状态（2026-06-23 核对）：
   - 已通过。关键证据为 `docs/evidence/20260617-real005c1-real-question-search-paper-export-smoke.json` 和 `docs/evidence/20260617-real005c1-word-pdf-artifact-report.json`。
   - 边界仍然保留：该证据只把 `RG010` 推进到 pass，`REAL005` 依然是 `not_closed`，下一 open slice 为 `REAL005C2`。
 
@@ -133,7 +133,7 @@
 - 未通过时保持的 gap：
   - `synthetic-only analysis proof keeps closure not_closed`
 
-- 当前 repo-side 状态（2026-06-20 核对）：
+- 当前 repo-side 状态（2026-06-23 核对）：
   - 已通过。关键证据为 `docs/evidence/20260617-real005c2-real-question-analysis-reference-smoke.json`。
   - 边界仍然保留：该证据只把 `RG011` 推进到 pass，`REAL005` 依然是 `not_closed`，下一 open slice 为 `REAL005C3`。
 
@@ -150,7 +150,7 @@
 - 未通过时保持的 gap：
   - `missing rollback or privacy evidence keeps closure not_closed`
 
-- 当前 repo-side 状态（2026-06-20 核对）：
+- 当前 repo-side 状态（2026-06-23 核对）：
   - 已通过。关键证据为 `docs/evidence/20260617-real005c3-rollback-privacy-no-active-write-report.json`。
   - 边界仍然保留：该证据只把 `RG012` 推进到 pass，`REAL005` 依然是 `not_closed`，下一 open slice 为 `REAL005C4`。
 
@@ -170,7 +170,7 @@
   - `noise retained in question content without review reason keeps closure not_closed`
   - `formula OCR candidate without fallback image or reviewStatus keeps closure not_closed`
   - `table only stored as image without pending_review reason keeps closure not_closed`
-- 当前 repo-side 状态（2026-06-20 核对）：
+- 当前 repo-side 状态（2026-06-23 核对）：
   - 已通过。关键证据为 `docs/evidence/20260617-real005c4-layout-formula-table-report.json`。
   - 当前库中 `guangzhou_2016_2025_reviewed_question_materialize_v1` 已暴露 `20` 个 `table block` 和 `56` 个 `formula block` 候选；表格均带 `rows/columns/sourceRegionId/confidence/reviewStatus`，公式候选均带 `sourceFormat=scanned_formula_candidate`、`fallbackImageUrl` 与 `reviewStatus`。
   - 边界仍然保留：该证据只把 `RG013-RG015` 推进到 pass，`REAL005` 依然是 `not_closed`，下一 open slice 为 `REAL005C5`。
@@ -186,7 +186,7 @@
   - `tools/run-real005c5-edit-recrop-audit-smoke.ps1`
 - 未通过时保持的 gap：
   - `manual correction path missing or no audit keeps closure not_closed`
-- 当前 repo-side 状态（2026-06-20 核对）：
+- 当前 repo-side 状态（2026-06-23 核对）：
   - 已通过。关键证据为 `docs/evidence/20260617-real005c5-edit-recrop-audit-smoke.json`。
   - 该证据证明一条真实 reviewed 真题已经通过可审计入口完成题干、答案、解析、主知识点、公式、表格、来源框重裁和题图关联/解除修改，并在脚本结束前恢复到初始业务状态。
   - 边界仍然保留：`REAL005C` 虽已 repo-side 完成，但 `REAL005` 仍然是 `not_closed`；下一 open slice 改为 `REAL005D` 的对外口径复核与文案收口。

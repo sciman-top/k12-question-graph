@@ -1,0 +1,90 @@
+{
+  "status": "pass",
+  "taskId": "R001",
+  "mode": "admission_preflight",
+  "checkedAt": "2026-06-23T21:39:28",
+  "p001Status": "待办",
+  "p006Status": "待办",
+  "r001Status": "待办",
+  "closeTaskAllowed": false,
+  "currentDecision": "keep_R001_todo_postgresql_first_fail_closed",
+  "checklistPath": "docs/templates/r001-search-semantic-retrieval-eval-checklist.md",
+  "evidencePath": "docs/evidence/20260505-r001-search-semantic-retrieval-eval-preflight.md",
+  "referencedEvidence": {
+    "architecture": "docs/03_Architecture.md",
+    "technology": "docs/04_TechnologyStack.md",
+    "s008Report": "docs/evidence/20260506-s008a-question-search-productization-smoke-report.json",
+    "k001Report": "docs/evidence/k001-active-c002-production-query-report.json",
+    "real012Report": "docs/evidence/20260518-real012-production-flow-quality-report.json",
+    "hostCapability": "docs/evidence/o002-host-capability-diagnostic-report.json",
+    "completionDashboard": "tasks/completion-state-dashboard.csv",
+    "automationFirstContract": "tasks/automation-first-contract.csv",
+    "decision": "docs/decisions/ADR-010-search-semantic-retrieval-admission.md"
+  },
+  "currentBaseline": {
+    "searchProfile": "postgresql_fts_pg_trgm_first_pgvector_only_after_eval",
+    "activeKnowledgeStatus": "active",
+    "activeKnowledgeVersion": 1,
+    "filtersUseActiveAssetsByDefault": true,
+    "candidateAssetsExcludedByDefault": true,
+    "real012SearchTotal": 3,
+    "real012SortBy": "question_no",
+    "real012HasImageCount": 3,
+    "real005ClosureStatus": "not_closed"
+  },
+  "admissionMatrix": [
+    {
+      "searchKind": "postgresql_fts_pg_trgm",
+      "currentDecision": "current_default",
+      "currentEvidence": "S008A/K001/REAL012 prove active C002 question search and sampled real-question ordered search; P001 still needs field performance/access review.",
+      "allowedAction": "maintain current search API, collect query logs, and design benchmark.",
+      "failClosedRule": "不得把非现场 smoke 当现场性能验收。"
+    },
+    {
+      "searchKind": "pgvector_semantic_search",
+      "currentDecision": "blocked_until_benchmark",
+      "currentEvidence": "no FTS miss-case corpus, latency p95 breach, extension evidence, embedding model/cost/cache/privacy plan, or index rebuild script.",
+      "requiredBeforeAdmission": [
+        "FTS miss-case corpus",
+        "latency p50/p95 baseline",
+        "pgvector extension evidence",
+        "embedding model card",
+        "privacy/cache/delete policy",
+        "index rebuild plan",
+        "disable switch"
+      ],
+      "failClosedRule": "不得新增 pgvector migration、embedding table、default semantic route 或教师可见语义检索承诺。"
+    },
+    {
+      "searchKind": "external_search_engine",
+      "currentDecision": "blocked",
+      "currentEvidence": "no operational search bottleneck, external index rebuild plan, permission filter proof, backup/restore plan, or ops owner.",
+      "requiredBeforeAdmission": [
+        "real bottleneck evidence",
+        "fact-source rebuild strategy",
+        "permission filter contract",
+        "backup/restore drill",
+        "ops owner",
+        "rollback plan"
+      ],
+      "failClosedRule": "不得引入独立搜索服务或外部搜索依赖作为 v0.1 默认路径。"
+    }
+  ],
+  "blockers": [
+    "R001 remains todo because P006 release decision is not closed.",
+    "P001 field performance and access review is still pending.",
+    "No FTS miss-case corpus, latency p50/p95 benchmark, or teacher search-time baseline exists.",
+    "No pgvector extension evidence, embedding model/cost/cache/privacy plan, index rebuild plan, or disable switch exists.",
+    "No external search operations owner, permission-filter contract, or rebuild/backup evidence exists."
+  ],
+  "nextRequiredEvidence": [
+    "P006 release decision record",
+    "field search benchmark with real teacher query set",
+    "FTS miss-case corpus and latency p50/p95 report",
+    "teacher search-time baseline and improvement target",
+    "pgvector extension and embedding privacy/cost/cache/delete plan",
+    "index rebuild and rollback/disable switch evidence"
+  ],
+  "boundary": "R001 only refreshes search/semantic retrieval admission evidence and ADR-010; it performs no pgvector migration, no embedding generation, no external search setup, no query route mutation, no production write, and no release-state transition.",
+  "rollback": "revert tools/run-r001-search-semantic-retrieval-eval-preflight-contract.ps1, docs/templates/r001-search-semantic-retrieval-eval-checklist.md, docs/decisions/ADR-010-search-semantic-retrieval-admission.md, tasks/backlog.csv, and remove the generated R001 admission report."
+}

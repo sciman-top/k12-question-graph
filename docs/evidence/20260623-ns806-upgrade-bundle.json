@@ -1,0 +1,63 @@
+{
+  "status": "pass",
+  "taskId": "NS806",
+  "checkedAt": "2026-06-23T21:39:17",
+  "mode": "ef_migration_bundle_upgrade_rehearsal",
+  "productionEligible": false,
+  "externalAiCalls": 0,
+  "realStudentDataUsed": false,
+  "writesProductionHistory": false,
+  "activeAssetMutation": false,
+  "dependency": {
+    "ns804": "docs/evidence/20260623-ns804-windows-service.json",
+    "ns805": "docs/evidence/20260623-ns805-health-dashboard.json",
+    "o007": "docs/evidence/o007-ef-migration-bundle-upgrade-drill-report.json",
+    "restoreDrill": "docs/evidence/o007-o003-recovery-drill-report.json"
+  },
+  "migrationBundle": {
+    "bundleExe": "tmp\\o007\\bundle\\efbundle.exe",
+    "releasePackageRoot": "tmp\\o007\\release-package",
+    "packageFiles": [
+      "migrations/efbundle.exe",
+      "migrations/appsettings.json"
+    ],
+    "executionLog": "tmp\\o007\\efbundle-run.log",
+    "noSourceOrSdkRequiredAtExecution": true,
+    "noPendingMigrationAppliedInThisDrill": true
+  },
+  "upgradeDrill": {
+    "bundleRunExitCode": 0,
+    "backupManifest": "tmp\\o007\\backup-root\\20260623-213907\\manifest.json",
+    "backupVerify": "pass",
+    "restoreDrillReport": "docs/evidence/o007-o003-recovery-drill-report.json",
+    "restoreFileStoreCount": 226,
+    "schemaOnlyExtracted": true
+  },
+  "acceptance": {
+    "ns804PackageHealthEvidencePassed": true,
+    "ns805HealthDashboardEvidencePassed": true,
+    "efBundleExists": true,
+    "releasePackageContainsBundle": true,
+    "releasePackageContainsAppSettings": true,
+    "noSourceOrSdkRequiredAtExecution": true,
+    "bundleRunExitCodeZero": true,
+    "backupManifestAfterBundle": true,
+    "backupVerifyAfterBundle": true,
+    "restoreDrillAfterBundle": true,
+    "restoreHashesAndSchemaChecked": true,
+    "noWindowsServiceInstalled": true,
+    "noProductionDataDelete": true,
+    "noExternalAiCall": true,
+    "noRealStudentData": true,
+    "noActiveWrite": true
+  },
+  "verification": {
+    "build": "O007 dotnet build Release before efbundle generation",
+    "test": "O007 efbundle execution + backup.ps1 + verify-backup.ps1 + embedded O003 isolated restore drill",
+    "contractInvariant": "NS806 requires package-local efbundle, no source/SDK at execution, post-bundle backup verify, isolated restore drill, no service install, and no production cleanup/delete",
+    "hotspot": "gate_na: this is a local draft/test rehearsal, not an isolated target-machine migration apply with operator signoff; NS1001/P001 own live deployment validation"
+  },
+  "boundary": "NS806 proves the non-site EF migration bundle and upgrade rehearsal chain using draft/test evidence. It does not install a Windows Service, switch production defaults, delete production data, process real student data, or close the live deployment boundary.",
+  "rollback": "Remove-Item -LiteralPath 'tmp/ns806' -Recurse -Force -ErrorAction SilentlyContinue; Remove-Item -LiteralPath 'tmp/o007' -Recurse -Force -ErrorAction SilentlyContinue; git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1 tools/README.md; git clean -f -- tools/run-ns806-upgrade-bundle.ps1 docs/evidence/20260623-ns806-upgrade-bundle.json",
+  "next": "NS901 can consume NS806 as the non-site E2E package prerequisite; NS1001/P001 remain blocked by isolated-machine and live operator validation."
+}
