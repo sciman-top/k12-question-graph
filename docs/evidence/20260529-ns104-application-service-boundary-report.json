@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS104",
-  "checkedAt": "2026-06-14T23:52:32",
+  "checkedAt": "2026-06-21T00:44:52",
   "mode": "static_architecture_guard_plus_build",
   "productionEligible": false,
   "build": {
@@ -31,7 +31,7 @@
     },
     {
       "route": "/score-imports",
-      "line": 2773,
+      "line": 2803,
       "requiredService": "IScoreAnalysisWorkflowService",
       "serviceInjected": true,
       "directDbContext": false,
@@ -45,7 +45,7 @@
     },
     {
       "route": "/assessments/{assessmentId:guid}/item-score-mappings/preview",
-      "line": 2813,
+      "line": 2843,
       "requiredService": "IScoreAnalysisWorkflowService",
       "serviceInjected": true,
       "directDbContext": false,
@@ -59,7 +59,7 @@
     },
     {
       "route": "/assessments/{assessmentId:guid}/commentary-report/export",
-      "line": 2835,
+      "line": 2865,
       "requiredService": "IScoreAnalysisWorkflowService",
       "serviceInjected": true,
       "directDbContext": false,
@@ -73,7 +73,7 @@
     },
     {
       "route": "/paper-baskets/{id:guid}/export-preflight",
-      "line": 2862,
+      "line": 2892,
       "requiredService": "IPaperWorkflowService",
       "serviceInjected": true,
       "directDbContext": false,
@@ -87,7 +87,7 @@
     },
     {
       "route": "/paper-requests/parse",
-      "line": 2881,
+      "line": 2911,
       "requiredService": "IPaperWorkflowService",
       "serviceInjected": true,
       "directDbContext": false,
@@ -101,7 +101,7 @@
     },
     {
       "route": "/paper-blueprints",
-      "line": 2910,
+      "line": 2940,
       "requiredService": "IPaperWorkflowService",
       "serviceInjected": true,
       "directDbContext": false,
@@ -115,7 +115,7 @@
     },
     {
       "route": "/paper-blueprints/{id:guid}/confirm",
-      "line": 2929,
+      "line": 2959,
       "requiredService": "IPaperWorkflowService",
       "serviceInjected": true,
       "directDbContext": false,
@@ -129,7 +129,7 @@
     },
     {
       "route": "/paper-requests/replace-question",
-      "line": 2965,
+      "line": 2995,
       "requiredService": "IPaperWorkflowService",
       "serviceInjected": true,
       "directDbContext": false,
@@ -143,7 +143,7 @@
     },
     {
       "route": "/knowledge-version-explanations/resolve",
-      "line": 3027,
+      "line": 3057,
       "requiredService": "IPaperWorkflowService",
       "serviceInjected": true,
       "directDbContext": false,
@@ -208,7 +208,7 @@
     },
     {
       "route": "/paper-baskets",
-      "line": 2660,
+      "line": 2690,
       "directDbContext": true,
       "saveChangesInEndpoint": true,
       "owner": "NS603 paper basket legacy compatibility",
@@ -216,7 +216,7 @@
     },
     {
       "route": "/paper-baskets/{id:guid}",
-      "line": 2752,
+      "line": 2782,
       "directDbContext": true,
       "saveChangesInEndpoint": false,
       "owner": "NS603 paper basket legacy compatibility",

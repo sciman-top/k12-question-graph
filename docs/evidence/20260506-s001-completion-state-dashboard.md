@@ -1,7 +1,7 @@
 # S001 完成态看板证据
 
 - status: pass
-- checked_at: 2026-06-15T00:09:47
+- checked_at: 2026-06-21T00:44:46
 - area_count: 24
 - not_normally_usable_count: 6
 - teacher_visible_validated_or_release_ready_count: 13
@@ -23,7 +23,7 @@
 - human-review: teacher_validated -> P001; 现场多人并发审核与角色边界需在 P001 preflight 复核
 - question-save: teacher_validated -> P001; 现场异常回放与来源授权策略需在 P001 preflight 复核
 - real-guangzhou-2015: ui_productized -> REAL005; 2015 已完成 1-24 题 DB 写入、pending_review 队列和教师编辑式修订 smoke 但人工课堂验收仍未完成
-- real-guangzhou-2015-2025: contract_done -> REAL005; REAL005 当前只能输出 not_closed 缺逐年逐题闭环证据
+- real-guangzhou-2015-2025: contract_done -> REAL005; REAL005 当前仍为 not_closed；REAL005B 与 REAL005C 已完成，下一 open slice 为 REAL005D（闭环口径复核与对外文案收口）
 - ai-extraction: synthetic_done -> S007; 真实模型只允许候选和审核 没有教师生产工作流
 - ai-tagging: teacher_validated -> P001; 现场模型预算与异常处置仍需 P001 preflight 守卫
 - review-queue: teacher_validated -> P001; 现场并发与审计抽检规则需在 P001 preflight 复核

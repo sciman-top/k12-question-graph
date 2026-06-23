@@ -147,20 +147,20 @@
     },
     "pdftotext": {
       "present": true,
-      "path": "D:\\texlive\\2023\\bin\\windows\\pdftotext.EXE",
+      "path": "C:\\Users\\sciman\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\pdftotext.EXE",
       "probe": {
         "available": true,
         "exitCode": 0,
-        "versionLine": "pdftotext version 23.02.0"
+        "versionLine": "pdftotext version 24.04.0"
       }
     },
     "pdftoppm": {
       "present": true,
-      "path": "D:\\texlive\\2023\\bin\\windows\\pdftoppm.EXE",
+      "path": "C:\\Users\\sciman\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\pdftoppm.EXE",
       "probe": {
         "available": true,
         "exitCode": 0,
-        "versionLine": "pdftoppm version 23.02.0"
+        "versionLine": "pdftoppm version 24.04.0"
       }
     },
     "tesseract": {
@@ -221,9 +221,9 @@
       "present": true,
       "path": "C:\\Program Files\\LibreOffice\\program\\soffice.COM",
       "probe": {
-        "available": false,
-        "exitCode": null,
-        "versionLine": "Command '['soffice', '--version']' timed out after 20 seconds"
+        "available": true,
+        "exitCode": 0,
+        "versionLine": ""
       }
     },
     "robocopy": {
@@ -307,14 +307,14 @@
       "anchor": "D:\\",
       "available": true,
       "totalGb": 930.0,
-      "freeGb": 258.18
+      "freeGb": 246.62
     },
     "backupRoot": {
       "path": "D:\\KQG_Backups",
       "anchor": "D:\\",
       "available": true,
       "totalGb": 930.0,
-      "freeGb": 258.18
+      "freeGb": 246.62
     }
   },
   "workerOcrProfile": {

@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "task": "non-site implementation plan guard",
-  "checkedAt": "2026-06-15T00:09:50",
+  "checkedAt": "2026-06-21T00:45:59",
   "planPath": "tasks/non-site-implementation-plan.csv",
   "roadmapPath": "docs/101_NonSiteCapabilityImplementationRoadmap.md",
   "rowCount": 81,

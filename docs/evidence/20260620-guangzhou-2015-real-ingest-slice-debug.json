@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "guangzhou-2015-real-ingest-slice.v1",
+  "workflowKey": "guangzhou_2015_real_ingest_v1",
+  "generatedAt": "2026-06-20T14:46:15.650835+00:00",
+  "mode": "dry_run",
+  "status": "failed",
+  "scope": {
+    "paperSha256": "534d8eee3b99446d514af736aaf4cd8e36f2803154f7778c0f656f1832b7510c",
+    "answerSha256": "065a6293b5c1019ed2da199736df44c6d0304797d0a986a750449197ca9ba88d",
+    "expectedQuestionCount": 18,
+    "questionRange": "1-18",
+    "externalAiCalls": 0,
+    "realStudentDataUsed": false
+  },
+  "sourceDocuments": {
+    "paper": {
+      "source_document_id": "650e9218-c910-40b2-8af3-d5690788ddb6",
+      "source_title": "2015广州中考",
+      "source_type": "local_exam_paper",
+      "region": "guangzhou",
+      "year": 2015,
+      "material_batch_key": "guangzhou_physics_zhongkao",
+      "file_asset_id": "5fd283c7-3a40-4c16-9a65-04522655c89f",
+      "original_file_name": "2015广州中考.pdf",
+      "relative_path": "original/53/4d/534d8eee3b99446d514af736aaf4cd8e36f2803154f7778c0f656f1832b7510c.pdf",
+      "sha256": "534d8eee3b99446d514af736aaf4cd8e36f2803154f7778c0f656f1832b7510c",
+      "size_bytes": 700514
+    },
+    "answer": {
+      "source_document_id": "c6259aa6-23a0-4af8-9aa7-fa2f16e26659",
+      "source_title": "2015广州中考答案",
+      "source_type": "local_exam_paper",
+      "region": "guangzhou",
+      "year": 2015,
+      "material_batch_key": "guangzhou_physics_zhongkao",
+      "file_asset_id": "558ca1fd-78e2-4f1b-80de-99caf9014ef2",
+      "original_file_name": "2015广州中考答案.pdf",
+      "relative_path": "original/06/5a/065a6293b5c1019ed2da199736df44c6d0304797d0a986a750449197ca9ba88d.pdf",
+      "sha256": "065a6293b5c1019ed2da199736df44c6d0304797d0a986a750449197ca9ba88d",
+      "size_bytes": 400792
+    }
+  },
+  "before": {
+    "sourceRegions2015": 241,
+    "cutCandidates2015": 198,
+    "workflowQuestions": 18,
+    "workflowReviewItems": 22
+  },
+  "error": "document worker failed for original/53/4d/534d8eee3b99446d514af736aaf4cd8e36f2803154f7778c0f656f1832b7510c.pdf: exit=3 stderr=input file missing: D:\\KQG_Data\\file_store\\original\\53\\4d\\534d8eee3b99446d514af736aaf4cd8e36f2803154f7778c0f656f1832b7510c.pdf"
+}

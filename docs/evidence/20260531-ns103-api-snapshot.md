@@ -8,7 +8,7 @@
 - API endpoint count: `53`。
 - typed client function count: `21`。
 - typed contract count: `30`。
-- error code count: `64`。
+- error code count: `65`。
 - 本快照是静态 typed API snapshot，不宣称 OpenAPI runtime 已验证；后续若拉起 API 服务并抓取 `/openapi/v1.json`，可把 NS103 升级为 `runtime_verified`。
 
 ## API Endpoints
@@ -25,22 +25,22 @@
 | GET | `/questions` |  | `apps/api/Program.cs:1895` |
 | GET | `/questions/{id:guid}` |  | `apps/api/Program.cs:2198` |
 | PATCH | `/questions/{id:guid}` |  | `apps/api/Program.cs:2221` |
-| POST | `/questions/{id:guid}/assets` |  | `apps/api/Program.cs:2456` |
-| DELETE | `/questions/{id:guid}/assets/{assetId:guid}` |  | `apps/api/Program.cs:2541` |
-| GET | `/questions/{id:guid}/sources` |  | `apps/api/Program.cs:2603` |
-| POST | `/paper-baskets` |  | `apps/api/Program.cs:2660` |
-| GET | `/paper-baskets/{id:guid}` |  | `apps/api/Program.cs:2752` |
-| POST | `/score-imports` |  | `apps/api/Program.cs:2773` |
-| POST | `/assessments/{assessmentId:guid}/item-score-mappings/preview` |  | `apps/api/Program.cs:2813` |
-| POST | `/assessments/{assessmentId:guid}/commentary-report/export` |  | `apps/api/Program.cs:2835` |
-| POST | `/paper-baskets/{id:guid}/export-preflight` |  | `apps/api/Program.cs:2862` |
-| POST | `/paper-requests/parse` |  | `apps/api/Program.cs:2881` |
-| POST | `/paper-blueprints` |  | `apps/api/Program.cs:2910` |
-| POST | `/paper-blueprints/{id:guid}/confirm` |  | `apps/api/Program.cs:2929` |
-| POST | `/paper-requests/replace-question` |  | `apps/api/Program.cs:2965` |
-| POST | `/knowledge-version-explanations/resolve` |  | `apps/api/Program.cs:3027` |
+| POST | `/questions/{id:guid}/assets` |  | `apps/api/Program.cs:2486` |
+| DELETE | `/questions/{id:guid}/assets/{assetId:guid}` |  | `apps/api/Program.cs:2571` |
+| GET | `/questions/{id:guid}/sources` |  | `apps/api/Program.cs:2633` |
+| POST | `/paper-baskets` |  | `apps/api/Program.cs:2690` |
+| GET | `/paper-baskets/{id:guid}` |  | `apps/api/Program.cs:2782` |
+| POST | `/score-imports` |  | `apps/api/Program.cs:2803` |
+| POST | `/assessments/{assessmentId:guid}/item-score-mappings/preview` |  | `apps/api/Program.cs:2843` |
+| POST | `/assessments/{assessmentId:guid}/commentary-report/export` |  | `apps/api/Program.cs:2865` |
+| POST | `/paper-baskets/{id:guid}/export-preflight` |  | `apps/api/Program.cs:2892` |
+| POST | `/paper-requests/parse` |  | `apps/api/Program.cs:2911` |
+| POST | `/paper-blueprints` |  | `apps/api/Program.cs:2940` |
+| POST | `/paper-blueprints/{id:guid}/confirm` |  | `apps/api/Program.cs:2959` |
+| POST | `/paper-requests/replace-question` |  | `apps/api/Program.cs:2995` |
+| POST | `/knowledge-version-explanations/resolve` |  | `apps/api/Program.cs:3057` |
 | POST | `/source-documents/{id:guid}/cut-candidates/generate` |  | `apps/api/Program.cs:1319` |
-| POST | `/imports/{id:guid}/status` |  | `apps/api/Program.cs:3093` |
+| POST | `/imports/{id:guid}/status` |  | `apps/api/Program.cs:3123` |
 | GET | `/source-regions/{id:guid}/page-screenshot` |  | `apps/api/Program.cs:1283` |
 | GET | `/source-documents/{id:guid}/quality-report` |  | `apps/api/Program.cs:1088` |
 | GET | `/health/db` | `DatabaseHealth` | `apps/api/Program.cs:72` |
@@ -67,7 +67,7 @@
 | PATCH | `/source-regions/{id:guid}` |  | `apps/api/Program.cs:955` |
 | GET | `/source-documents/{id:guid}/preview` |  | `apps/api/Program.cs:1049` |
 | GET | `/source-regions/{id:guid}/screenshot` |  | `apps/api/Program.cs:1249` |
-| POST | `/imports/{id:guid}/worker-smoke` |  | `apps/api/Program.cs:3140` |
+| POST | `/imports/{id:guid}/worker-smoke` |  | `apps/api/Program.cs:3170` |
 
 ## Typed Client Functions
 
@@ -172,6 +172,7 @@
 - `paper_basket_items_required`
 - `paper_basket_question_missing`
 - `primary_knowledge_missing`
+- `primary_knowledge_update_conflict`
 - `question_asset_not_found`
 - `question_block_missing`
 - `question_not_found`

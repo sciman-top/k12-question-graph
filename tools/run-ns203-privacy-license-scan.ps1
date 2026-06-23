@@ -42,6 +42,7 @@ function New-Hit([string] $Kind, [string] $Path, [int] $Line, [string] $Excerpt,
 
 function Test-AllowlistedCredentialLine([string] $Line) {
     return $Line -match '(?i)(redacted|placeholder|sample|example|contract-secret|ns202-contract-secret|o004-contract-secret|o004b-contract-secret|test-secret|your-|your_|dummy|fake|stub|changeme)' -or
+        $Line -match '(?i)\$reasonToken\s*=\s*["''][a-z0-9_]+_(smoke|audit|report)["'']' -or
         $Line -match '(?i)(Use-KqgDatabasePassword|Resolve-KqgDatabasePassword|args\.password|\$DatabasePassword\s*=)' -or
         $Line -match '(?i)(request\.ApiKey|request\.ImageApiKey|values\.apiKey|values\.imageApiKey|ProtectSecret\(|UnprotectSecret\(|ResolveEffectiveImageSecret\(|maskedSecret\s*:|maskedImageSecret\s*:|readStringField\(value,\s*''maskedSecret''\)|readStringField\(value,\s*''maskedImageSecret''\)|imageUsesPrimarySecret|ReadFirstEnvironmentValue\(|primarySecret\s*:\s*explicitImageSecret)' -or
         $Line -match '(?i)(ApiKey|Password|Token|Secret)["'']?\s*[:=]\s*["'']?\s*["'']?\s*(,|$)' -or

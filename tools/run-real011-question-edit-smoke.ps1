@@ -50,7 +50,9 @@ $apiUrl = "http://127.0.0.1:$ApiPort"
 $logOut = Join-Path $repoRoot 'docs/evidence/real011-question-edit-api.out.log'
 $logErr = Join-Path $repoRoot 'docs/evidence/real011-question-edit-api.err.log'
 $previousConnectionString = $env:KQG_CONNECTION_STRING
+$previousFileStoreRoot = $env:KqgPaths__FileStoreRoot
 $env:KQG_CONNECTION_STRING = "Host=$DatabaseHost;Port=$DatabasePort;Database=$DatabaseName;Username=$DatabaseUser;Password=$DatabasePassword"
+$env:KqgPaths__FileStoreRoot = $FileStoreRoot
 $process = $null
 
 try {
@@ -242,5 +244,6 @@ finally {
         Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
     }
     $env:KQG_CONNECTION_STRING = $previousConnectionString
+    $env:KqgPaths__FileStoreRoot = $previousFileStoreRoot
     Pop-Location
 }

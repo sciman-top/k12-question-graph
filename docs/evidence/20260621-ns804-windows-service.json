@@ -1,0 +1,62 @@
+{
+  "status": "pass",
+  "taskId": "NS804",
+  "checkedAt": "2026-06-21T00:55:06",
+  "mode": "windows_service_publish_package",
+  "productionEligible": false,
+  "externalAiCalls": 0,
+  "realStudentDataUsed": false,
+  "writesProductionHistory": false,
+  "activeAssetMutation": false,
+  "dependency": {
+    "ns803": "docs/evidence/20260621-ns803-installer-host.json",
+    "o001": "tools/run-o001-windows-service-publish-contract.ps1"
+  },
+  "package": {
+    "packageRoot": "D:\\CODE\\k12-question-graph\\tmp\\ns804\\windows-service-package",
+    "apiPublishRoot": "D:\\CODE\\k12-question-graph\\tmp\\ns804\\windows-service-package\\api",
+    "webPublishRoot": "D:\\CODE\\k12-question-graph\\tmp\\ns804\\windows-service-package\\web",
+    "workerScript": "D:\\CODE\\k12-question-graph\\tmp\\ns804\\windows-service-package\\api\\worker\\document\\worker.py",
+    "runtime": "win-x64",
+    "selfContained": false,
+    "apiExecutable": "D:\\CODE\\k12-question-graph\\tmp\\ns804\\windows-service-package\\api\\K12QuestionGraph.Api.exe",
+    "webIndex": "D:\\CODE\\k12-question-graph\\tmp\\ns804\\windows-service-package\\web\\index.html"
+  },
+  "smoke": {
+    "runWorkingDirectory": "C:\\Users\\sciman\\AppData\\Local\\Temp\\kqg-o001-run-fd8f02f372174dab8c6e8eabc2e07fb2",
+    "contentRoot": "D:\\CODE\\k12-question-graph\\tmp\\ns804\\windows-service-package\\api",
+    "dataRoot": "D:\\KQG_Data",
+    "workerScriptCheck": {
+      "name": "document_worker_script",
+      "ok": true,
+      "detail": "D:\\CODE\\k12-question-graph\\tmp\\ns804\\windows-service-package\\api\\worker\\document\\worker.py"
+    },
+    "stdoutLog": "D:\\CODE\\k12-question-graph\\tmp\\ns804\\windows-service-package\\published-api.out.log",
+    "stderrLog": "D:\\CODE\\k12-question-graph\\tmp\\ns804\\windows-service-package\\published-api.err.log"
+  },
+  "acceptance": {
+    "ns803EvidencePassed": true,
+    "o001PublishContractPassed": true,
+    "apiPublishArtifactExists": true,
+    "webPublishArtifactExists": true,
+    "workerPackaged": true,
+    "explicitContentRootSmokePassed": true,
+    "runWorkingDirectoryOutsideRepo": true,
+    "dataRootSeparatedFromProgramRoot": true,
+    "healthReadinessPassed": true,
+    "noWindowsServiceInstalled": true,
+    "noFirewallChanged": true,
+    "noDependencyInstall": true,
+    "noProductionDefaultChanged": true,
+    "noActiveWrite": true
+  },
+  "verification": {
+    "build": "dotnet publish apps/api/K12QuestionGraph.Api.csproj via O001; npm run build unless -SkipWebBuild is set",
+    "test": "published API boot smoke from a temp working directory with explicit --contentRoot",
+    "contractInvariant": "package must contain API/Web/worker, use package-local worker path, keep KqgPaths absolute, separate data root from content root, and pass health/readiness",
+    "hotspot": "gate_na: this non-site slice does not install a Windows Service, change firewall, or rehearse isolated target-machine service startup; NS1001/P001 own live install validation"
+  },
+  "boundary": "NS804 proves a Windows Service-ready publish package and contentRoot smoke without installing a service or changing host firewall/system configuration.",
+  "rollback": "Remove-Item -LiteralPath 'D:\\CODE\\k12-question-graph\\tmp\\ns804\\windows-service-package' -Recurse -Force; git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1 tools/README.md; git clean -f -- tools/run-ns804-windows-service-package.ps1 docs/evidence/20260621-ns804-windows-service.json",
+  "next": "NS805 can continue capacity/cost/health dashboard; NS806 can continue EF migration bundle after NS804."
+}

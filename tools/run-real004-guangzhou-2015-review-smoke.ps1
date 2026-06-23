@@ -37,7 +37,9 @@ $apiUrl = "http://127.0.0.1:$ApiPort"
 $logOut = Join-Path $repoRoot 'docs/evidence/real004-review-smoke-api.out.log'
 $logErr = Join-Path $repoRoot 'docs/evidence/real004-review-smoke-api.err.log'
 $previousConnectionString = $env:KQG_CONNECTION_STRING
+$previousFileStoreRoot = $env:KqgPaths__FileStoreRoot
 $env:KQG_CONNECTION_STRING = "Host=$DatabaseHost;Port=$DatabasePort;Database=$DatabaseName;Username=$DatabaseUser;Password=$DatabasePassword"
+$env:KqgPaths__FileStoreRoot = $FileStoreRoot
 
 function Invoke-Guangzhou2015ScreenshotBackfill {
     & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-guangzhou-2015-source-region-screenshots.ps1 `
@@ -359,5 +361,6 @@ finally {
         Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
     }
     $env:KQG_CONNECTION_STRING = $previousConnectionString
+    $env:KqgPaths__FileStoreRoot = $previousFileStoreRoot
     Pop-Location
 }

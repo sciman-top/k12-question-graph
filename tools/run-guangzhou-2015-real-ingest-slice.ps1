@@ -24,8 +24,62 @@ if ([string]::IsNullOrWhiteSpace($Output)) {
     $Output = ('docs\evidence\{0}-guangzhou-2015-real-ingest-slice-report.json' -f (Get-Date -Format 'yyyyMMdd'))
 }
 
+function Restore-KnownGuangzhou2015FileStoreInputs {
+    param(
+        [string] $FileStoreRoot
+    )
+
+    $knownFiles = @(
+        @{
+            Sha256 = '534d8eee3b99446d514af736aaf4cd8e36f2803154f7778c0f656f1832b7510c'
+            RelativePath = 'original\53\4d\534d8eee3b99446d514af736aaf4cd8e36f2803154f7778c0f656f1832b7510c.pdf'
+            Candidates = @(
+                'D:\2015广州中考.pdf',
+                'D:\CODE\k12-question-graph\tmp\p001-p006-onsite-agent\广州中考真题\2015广州中考.pdf'
+            )
+        },
+        @{
+            Sha256 = '065a6293b5c1019ed2da199736df44c6d0304797d0a986a750449197ca9ba88d'
+            RelativePath = 'original\06\5a\065a6293b5c1019ed2da199736df44c6d0304797d0a986a750449197ca9ba88d.pdf'
+            Candidates = @(
+                'D:\2015广州中考答案.pdf',
+                'D:\CODE\k12-question-graph\tmp\p001-p006-onsite-agent\广州中考真题\2015广州中考答案.pdf'
+            )
+        }
+    )
+
+    foreach ($file in $knownFiles) {
+        $targetPath = Join-Path $FileStoreRoot $file.RelativePath
+        if (Test-Path -LiteralPath $targetPath) {
+            continue
+        }
+
+        $restoreSource = $null
+        foreach ($candidate in $file.Candidates) {
+            if (-not (Test-Path -LiteralPath $candidate)) {
+                continue
+            }
+
+            $hash = (Get-FileHash -LiteralPath $candidate -Algorithm SHA256).Hash.ToLowerInvariant()
+            if ($hash -eq $file.Sha256) {
+                $restoreSource = $candidate
+                break
+            }
+        }
+
+        if ($null -eq $restoreSource) {
+            throw "missing Guangzhou 2015 source file copy for $($file.RelativePath)"
+        }
+
+        New-Item -ItemType Directory -Path (Split-Path -Parent $targetPath) -Force | Out-Null
+        Copy-Item -LiteralPath $restoreSource -Destination $targetPath -Force
+    }
+}
+
 Push-Location $repoRoot
 try {
+    Restore-KnownGuangzhou2015FileStoreInputs -FileStoreRoot $FileStoreRoot
+
     $args = @(
         'tools\guangzhou_2015_real_ingest.py',
         '--host', $DatabaseHost,

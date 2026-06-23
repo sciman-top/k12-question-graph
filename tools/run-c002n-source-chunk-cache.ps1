@@ -1,6 +1,7 @@
 param(
     [string] $SourceReport = 'docs\evidence\c002-source-material-import-report.json',
     [string] $SourceRoot = 'D:\KQG_Data\source_materials\imported\guangzhou_physics_2016_2025',
+    [string] $FileStoreFallbackRoot = 'tmp\debug-backup\20260607-212913\file_store',
     [string] $CacheRoot = 'tmp\c002n-source-chunk-cache',
     [string] $Output = 'docs\evidence\c002n-source-chunk-cache-report.json',
     [int] $RequireCount = 33
@@ -10,12 +11,12 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 Push-Location $repoRoot
 try {
-    python tools\c002n_source_chunk_cache.py --source-report $SourceReport --source-root $SourceRoot --cache-root $CacheRoot --output $Output --require-count $RequireCount | Write-Host
+    python tools\c002n_source_chunk_cache.py --source-report $SourceReport --source-root $SourceRoot --filestore-fallback-root $FileStoreFallbackRoot --cache-root $CacheRoot --output $Output --require-count $RequireCount | Write-Host
     if ($LASTEXITCODE -ne 0) {
         throw "C002N source chunk cache extraction failed"
     }
 
-    python tools\c002n_source_chunk_cache.py --source-report $SourceReport --source-root $SourceRoot --cache-root $CacheRoot --output $Output --require-count $RequireCount | Write-Host
+    python tools\c002n_source_chunk_cache.py --source-report $SourceReport --source-root $SourceRoot --filestore-fallback-root $FileStoreFallbackRoot --cache-root $CacheRoot --output $Output --require-count $RequireCount | Write-Host
     if ($LASTEXITCODE -ne 0) {
         throw "C002N source chunk cache idempotency rerun failed"
     }

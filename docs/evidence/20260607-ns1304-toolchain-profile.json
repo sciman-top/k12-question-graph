@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS1304",
-  "checkedAt": "2026-06-14T23:53:22",
+  "checkedAt": "2026-06-21T00:45:26",
   "mode": "toolchain_catalog_and_profile_admission",
   "productionEligible": false,
   "dependency": {
@@ -194,17 +194,17 @@
     "cli": {
       "pdftotext": {
         "present": true,
-        "path": "D:\\texlive\\2023\\bin\\windows\\pdftotext.exe",
+        "path": "C:\\\\Users\\sciman\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\pdftotext.exe",
         "source": "PATH",
         "exitCode": 0,
-        "versionLine": "pdftotext version 23.02.0"
+        "versionLine": "pdftotext version 24.04.0"
       },
       "pdftoppm": {
         "present": true,
-        "path": "D:\\texlive\\2023\\bin\\windows\\pdftoppm.exe",
+        "path": "C:\\\\Users\\sciman\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\pdftoppm.exe",
         "source": "PATH",
         "exitCode": 0,
-        "versionLine": "pdftoppm version 23.02.0"
+        "versionLine": "pdftoppm version 24.04.0"
       },
       "ocrmypdf": {
         "present": false,

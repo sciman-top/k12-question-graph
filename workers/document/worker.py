@@ -21,6 +21,10 @@ WORD_NS = {
 }
 
 
+REPO_ROOT = pathlib.Path(__file__).resolve().parents[2]
+WORKER_TEMP_ROOT = REPO_ROOT / "tmp" / "worker-temp"
+
+
 def sha256_file(path: pathlib.Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as source:
@@ -39,6 +43,11 @@ def read_text_preview(path: pathlib.Path) -> str:
         return path.read_text(encoding="utf-8")[:500]
     except UnicodeDecodeError:
         return ""
+
+
+def create_worker_temp_dir(prefix: str) -> pathlib.Path:
+    WORKER_TEMP_ROOT.mkdir(parents=True, exist_ok=True)
+    return pathlib.Path(tempfile.mkdtemp(prefix=prefix, dir=str(WORKER_TEMP_ROOT)))
 
 
 def element_text(element: ET.Element) -> str:
@@ -322,7 +331,7 @@ def parse_pdf_with_pdftotext(target: pathlib.Path) -> tuple[list[dict], list[str
     if not pdftotext:
         return [], ["pdftotext unavailable; falling back to internal PDF parser"]
 
-    tmp_dir = pathlib.Path(tempfile.mkdtemp(prefix="kqg-pdftotext-"))
+    tmp_dir = create_worker_temp_dir("kqg-pdftotext-")
     try:
         output_path = tmp_dir / "document.txt"
         completed = subprocess.run(
@@ -545,7 +554,7 @@ def parse_scanned_pdf_with_rapidocr(target: pathlib.Path) -> tuple[list[dict], l
     if engine is None:
         return [], [error]
 
-    temp_dir = pathlib.Path(tempfile.mkdtemp(prefix="kqg-pdf-ocr-"))
+    temp_dir = create_worker_temp_dir("kqg-pdf-ocr-")
     try:
         page_images, warnings = render_pdf_pages_with_pdftoppm(target, temp_dir)
         if not page_images:

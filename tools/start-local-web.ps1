@@ -135,6 +135,8 @@ $arguments = @(
     'run',
     'dev',
     '--',
+    '--configLoader',
+    'native',
     '--host',
     $HostName,
     '--port',

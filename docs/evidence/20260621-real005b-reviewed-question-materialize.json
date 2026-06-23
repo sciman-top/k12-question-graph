@@ -1,0 +1,137 @@
+{
+  "status": "pass",
+  "taskId": "REAL005B_REVIEWED_QUESTION_MATERIALIZE",
+  "checkedAt": "2026-06-20T17:05:19.194264+00:00",
+  "apply": true,
+  "activeWrite": true,
+  "externalAiCalls": 0,
+  "realStudentDataUsed": false,
+  "createdQuestionCount": 210,
+  "createdRegionCount": 420,
+  "yearReports": [
+    {
+      "year": 2016,
+      "status": "pass",
+      "questionCount": 24,
+      "questionIds": [
+        "76b13724-4f88-595e-9e0a-182881032abe",
+        "b85529dd-da75-52ce-a7cc-61d10ddefaa8",
+        "9ee23b53-2ff7-5d50-a72b-d9672fe29be1"
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2017,
+      "status": "pass",
+      "questionCount": 24,
+      "questionIds": [
+        "4f2f9375-0fea-5ed2-84ac-47fa4b50457e",
+        "b1e975d1-923f-5266-b939-209a4f6d1c52",
+        "9d0d40c5-5f78-543d-809d-813ead5e3332"
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2018,
+      "status": "pass",
+      "questionCount": 24,
+      "questionIds": [
+        "b5669abe-c2eb-5a8b-ae6b-69f938ab1d5e",
+        "17b76091-c8b0-5889-ba51-6a954ebaaf10",
+        "08b4cb27-01dc-55bf-821b-ee958f3d00f0"
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2019,
+      "status": "pass",
+      "questionCount": 24,
+      "questionIds": [
+        "a173c25f-3f61-545c-aff3-73eaac8eb4c4",
+        "b6d931d0-a0d5-538b-b1da-e99e89db7e6c",
+        "565f5031-3204-5fd9-886e-3bce68ef5b30"
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2020,
+      "status": "pass",
+      "questionCount": 24,
+      "questionIds": [
+        "3027013d-1557-5501-974a-e6a110ae0265",
+        "50b8514e-1957-5d82-84ce-670e44414d8a",
+        "cb61de89-138c-54fe-898f-f83db560b75a"
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2021,
+      "status": "pass",
+      "questionCount": 18,
+      "questionIds": [
+        "1b871984-825a-59b2-af16-c036766f6795",
+        "382e3d25-6ecf-5ffb-948c-09df7218bb2d",
+        "2e0952f9-f46c-50f5-8963-bd19d84c2223"
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2022,
+      "status": "pass",
+      "questionCount": 18,
+      "questionIds": [
+        "5bfa6a0e-324c-5737-90bd-beb20bceb8ae",
+        "caa241ce-57ac-5317-b10d-b7b3958909b8",
+        "715cb64c-8506-52eb-ae53-d6e916a32818"
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2023,
+      "status": "pass",
+      "questionCount": 18,
+      "questionIds": [
+        "5bff53ee-a62f-50b0-b616-e485a92cee26",
+        "1d29d45c-3399-5cc5-a02b-9c5e8161e7c7",
+        "71cad62c-c87a-54ef-93a0-3e9bbaad0cde"
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2024,
+      "status": "pass",
+      "questionCount": 18,
+      "questionIds": [
+        "6b94e5f3-4412-57be-a63e-992eed6fd272",
+        "b72f45d0-1df9-55bc-8e94-fe20cd79603e",
+        "18e15abc-6fcd-5846-8d96-a59e161e534a"
+      ],
+      "blockers": []
+    },
+    {
+      "year": 2025,
+      "status": "pass",
+      "questionCount": 18,
+      "questionIds": [
+        "bde3c780-7b76-56a0-b648-92089a1d1208",
+        "8cd43389-2e51-5883-99f1-948cefadb88a",
+        "ee812673-fe90-5486-8e5b-1a2290bf45ae"
+      ],
+      "blockers": []
+    }
+  ],
+  "questionCountAfter": 210,
+  "reviewQueueCountAfter": 210,
+  "tableReviewQueueCountAfter": 20,
+  "formulaReviewQueueCountAfter": 56,
+  "tableBlockCountAfter": 20,
+  "formulaBlockCountAfter": 56,
+  "rollback": [
+    "delete from review_queue_items where review_type in ('question_table_block_review', 'question_formula_block_review') and coalesce(payload->>'sourceWorkflowKey','') = 'guangzhou_2016_2025_reviewed_question_materialize_v1';",
+    "delete from review_queue_items where review_type = 'real005b_question_materialize';",
+    "delete from question_assets where question_item_id in (select id from question_items where custom_fields->>'sourceWorkflowKey' = 'guangzhou_2016_2025_reviewed_question_materialize_v1');",
+    "delete from question_blocks where question_item_id in (select id from question_items where custom_fields->>'sourceWorkflowKey' = 'guangzhou_2016_2025_reviewed_question_materialize_v1');",
+    "delete from source_regions where region_type in ('real005b_review_question','real005b_review_answer');",
+    "delete from question_items where custom_fields->>'sourceWorkflowKey' = 'guangzhou_2016_2025_reviewed_question_materialize_v1';"
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "status": "pass",
+  "taskId": "NS903",
+  "checkedAt": "2026-06-21T00:57:28",
+  "mode": "completion_dashboard_refresh",
+  "productionEligible": false,
+  "nonSiteValidated": false,
+  "externalAiCalls": 0,
+  "realStudentDataUsed": false,
+  "writesProductionHistory": false,
+  "activeAssetMutation": false,
+  "dependency": {
+    "s001": "docs/evidence/20260506-s001-completion-state-dashboard.json",
+    "ns901": "docs/evidence/20260621-ns901-non-site-scenario-pack.json",
+    "ns902": "docs/evidence/20260528-non-site-e2e-rehearsal-report.json",
+    "ns906": "docs/evidence/20260528-ns906-visual-surrogate-review-report.json",
+    "p001": "docs/evidence/20260621-p001-live-pilot-readiness-preflight-report.json",
+    "real005": "docs/evidence/20260621-real005-guangzhou-2015-2025-closure-standard-report.json"
+  },
+  "dashboard": {
+    "areaCount": 24,
+    "stateCounts": {
+      "contract_done": 6,
+      "synthetic_done": 1,
+      "db_backed_done": 2,
+      "ui_productized": 1,
+      "teacher_validated": 14,
+      "release_ready": 0
+    },
+    "riskCounts": {
+      "low": 1,
+      "medium": 5,
+      "high": 18
+    },
+    "teacherVisibleValidatedOrReleaseReadyCount": 13,
+    "releaseReadyCount": 0,
+    "p001BlockedAreaCount": 16,
+    "coreTeacherValidatedCount": 13,
+    "livePilotState": "contract_done",
+    "deploymentInstallState": "contract_done",
+    "realFullClosureState": "contract_done"
+  },
+  "nonSitePlan": {
+    "rowCount": 81,
+    "statusCounts": {
+      "blocked_by_onsite": 5,
+      "runtime_verified": 76
+    },
+    "runtimeVerifiedCount": 76,
+    "nonSiteValidatedCount": 0,
+    "nextAfterNs903": "NS904"
+  },
+  "blockers": {
+    "p001CanClose": false,
+    "p001Blockers": [
+      "isolated_machine_install_wizard_not_executed",
+      "isolated_machine_backup_restore_not_executed",
+      "isolated_machine_role_audit_not_executed",
+      "isolated_machine_four_teacher_entry_smoke_not_executed"
+    ],
+    "real005ClosureStatus": "not_closed",
+    "real005FullClosureAllowed": false,
+    "real005ASliceStatus": "pass",
+    "real005BStatus": "pass",
+    "real005CStatus": "pass",
+    "real005DStatus": "blocked",
+    "real005NextOpenSlice": "REAL005D",
+    "real005NextOpenBlockers": [
+      "closureStatus remains not_closed; truthful docs must continue to say not_closed"
+    ],
+    "ns901NonSiteValidated": false
+  },
+  "acceptance": {
+    "s001DashboardPassed": true,
+    "ns901RuntimeEvidencePassed": true,
+    "ns902E2eEvidencePassed": true,
+    "ns906VisualSurrogateEvidencePassed": true,
+    "coreTeacherAreasTeacherValidated": true,
+    "releaseReadyNotClaimed": true,
+    "nonSiteValidatedNotClaimed": true,
+    "p001LiveBoundaryBlocked": true,
+    "real005NotClosed": true,
+    "noExternalAiCall": true,
+    "noRealStudentData": true,
+    "noProductionHistoryWrite": true,
+    "noActiveWrite": true
+  },
+  "verification": {
+    "build": "outer gate: dotnet build apps/api/K12QuestionGraph.Api.csproj before run-gates",
+    "test": "S001 completion-state dashboard refresh plus NS901/NS902/NS906 runtime evidence checks",
+    "contractInvariant": "NS903 only refreshes dashboard/status evidence; it requires runtime/E2E prerequisites and keeps non_site_validated, release_ready, P001, and REAL005 closure blocked",
+    "hotspot": "gate_na: completion dashboard is evidence-only and does not include isolated-machine teacher observation, printer/network/domain checks, or live operator signoff"
+  },
+  "boundary": "NS903 refreshes the completion dashboard using runtime/E2E evidence and keeps live deployment and real full-closure claims blocked. It does not claim non_site_validated, release_ready, P001 closure, or REAL005 closure.",
+  "rollback": "git restore tasks/completion-state-dashboard.csv tasks/non-site-implementation-plan.csv tools/run-gates.ps1 tools/README.md; git clean -f -- tools/run-ns903-completion-dashboard.ps1 docs/evidence/20260621-ns903-completion-dashboard.json",
+  "next": "NS904 should assemble the P001 readiness evidence pack while keeping isolated-machine and onsite blockers explicit."
+}

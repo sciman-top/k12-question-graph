@@ -1,0 +1,58 @@
+{
+  "status": "pass",
+  "taskId": "NS1103",
+  "checkedAt": "2026-06-21T01:05:08",
+  "mode": "second_subject_active_dry_run_boundary",
+  "reportPath": "docs/evidence/20260621-ns1103-second-subject-active-dry-run.json",
+  "backlogPath": "tasks/backlog.csv",
+  "nonSitePlanPath": "tasks/non-site-implementation-plan.csv",
+  "sourceReports": {
+    "ns1102BoundaryReport": "docs/evidence/20260621-ns1102-second-subject-review-template.json",
+    "q003PreflightReport": "docs/evidence/20260523-q003-second-subject-active-drill-report.json",
+    "q003Checklist": "docs/templates/q003-second-subject-active-drill-checklist.md",
+    "q003PreflightEvidence": "docs/evidence/20260505-q003-second-subject-active-drill-preflight.md"
+  },
+  "backlog": {
+    "q002Status": "待办",
+    "q003Status": "待办",
+    "q004Status": "待办",
+    "q003DependsOn": "Q002",
+    "q004DependsOn": "Q003",
+    "q003CanClose": false
+  },
+  "nonSitePlan": {
+    "ns1102Status": "runtime_verified",
+    "ns1103StatusAtCheck": "runtime_verified",
+    "ns1103DependsOn": "NS1102",
+    "ns1104DependsOn": "NS1103"
+  },
+  "q003Preflight": {
+    "status": "pass",
+    "mode": "preflight_only",
+    "closeTaskAllowed": false,
+    "currentDecision": "keep_Q003_todo_until_Q002_and_second_subject_active_drill_evidence_close",
+    "blockers": [
+      "Q002 teacher review evidence is not closed.",
+      "Second-subject backup readiness, reviewed state, active switch dry-run, and rollback snapshot are not recorded.",
+      "No active write is allowed from this preflight contract."
+    ]
+  },
+  "acceptance": {
+    "q002RemainsTodo": true,
+    "q003RemainsTodo": true,
+    "q004RemainsTodo": true,
+    "backupReadinessRecorded": false,
+    "reviewedStateRecorded": false,
+    "activeDryRunExecuted": false,
+    "activeSwitchPerformed": false,
+    "rollbackSnapshotRecorded": false,
+    "productionEligible": false,
+    "activeAssetMutation": false,
+    "q003CanClose": false,
+    "q004CanAdvance": false
+  },
+  "teacherEfficiencyBoundary": "ordinary teacher flow is not changed; NS1103 only verifies active dry-run prerequisites and keeps real activation evidence as a future prerequisite",
+  "boundary": "NS1103 verifies the second-subject active dry-run boundary only. It does not execute an active dry-run, does not switch active assets, does not record rollback snapshots, does not advance Q004, and does not close Q003 or Q002.",
+  "riskLevel": "medium",
+  "rollback": "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1 tools/README.md; git clean -f -- tools/run-ns1103-second-subject-active-dry-run-boundary.ps1 docs/evidence/20260617-ns1103-second-subject-active-dry-run.json"
+}

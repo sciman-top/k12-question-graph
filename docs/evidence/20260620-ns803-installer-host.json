@@ -1,0 +1,128 @@
+{
+  "status": "pass",
+  "taskId": "NS803",
+  "checkedAt": "2026-06-20T23:00:35",
+  "mode": "installer_host_diagnostic",
+  "productionEligible": false,
+  "externalAiCalls": 0,
+  "realStudentDataUsed": false,
+  "writesProductionHistory": false,
+  "activeAssetMutation": false,
+  "dependency": {
+    "ns802": "docs/evidence/20260530-ns802-restore-drill-report.json"
+  },
+  "installer": {
+    "config": "configs\\installer_init.defaults.yaml",
+    "configVersion": "o002.installer-init.v1",
+    "configMode": "draft_test",
+    "postgresql": {
+      "host": "127.0.0.1",
+      "port": 5432,
+      "database": "k12_question_graph",
+      "username": "postgres",
+      "passwordProvided": true,
+      "pgpassReport": "docs/evidence/20260620-ns803-pgpass-dry-run-report.json"
+    },
+    "directories": [
+      {
+        "name": "dataRoot",
+        "path": "D:\\KQG_Data",
+        "existedBefore": true,
+        "writableProbePassed": true
+      },
+      {
+        "name": "backupRoot",
+        "path": "D:\\KQG_Backups",
+        "existedBefore": false,
+        "writableProbePassed": true
+      },
+      {
+        "name": "fileStoreRoot",
+        "path": "D:\\KQG_Data\\file_store",
+        "existedBefore": true,
+        "writableProbePassed": true
+      },
+      {
+        "name": "logsRoot",
+        "path": "D:\\KQG_Data\\logs",
+        "existedBefore": true,
+        "writableProbePassed": true
+      },
+      {
+        "name": "cacheRoot",
+        "path": "D:\\KQG_Data\\cache",
+        "existedBefore": false,
+        "writableProbePassed": true
+      },
+      {
+        "name": "modelCacheRoot",
+        "path": "D:\\KQG_Data\\cache\\ocr-models",
+        "existedBefore": false,
+        "writableProbePassed": true
+      }
+    ],
+    "workerProfile": {
+      "report": "docs/evidence/20260620-ns803-worker-profile-diagnostic-report.json",
+      "recommendedDefaultProfile": "direct_venv_lite",
+      "availableProfileCandidates": [
+        "direct_venv_lite",
+        "wsl_or_docker_heavy"
+      ],
+      "noInstallPerformed": true,
+      "productionDefaultChanged": false
+    },
+    "hostCapability": {
+      "report": "docs/evidence/20260620-ns803-host-capability-diagnostic-report.json",
+      "profileSet": "local_system_profile.v1",
+      "runtimeProfile": "windows_service_with_explicit_content_root",
+      "databaseProfile": "local_postgresql_with_pg_dump_restore",
+      "storageBackupProfile": "local_ntfs_file_store_plus_manifest_backup",
+      "workerOcrProfile": "direct_venv_lite",
+      "exportPrintProfile": "docx_pdf_artifact_chain_with_preflight_manifest",
+      "aiNetworkProfile": "offline_first_no_cloud_token_by_default",
+      "aiLocalModelProfile": "optional_local_llm_3b_7b_quantized_eval_only",
+      "searchProfile": "postgresql_fts_pg_trgm_first_pgvector_only_after_eval",
+      "queueProfile": "postgresql_job_store_backgroundservice_first",
+      "securityProfile": "admin_key_bootstrap_then_rbac_audit_before_live",
+      "noInstallPerformed": true,
+      "noNetworkRequired": true,
+      "modelWeightsDownloaded": false,
+      "localAiDefaultChanged": false,
+      "productionDefaultChanged": false
+    },
+    "bootstrapAdmin": {
+      "mode": "admin_internal_guard_key",
+      "rotateRequiredOnFirstLogin": true,
+      "persistedPlaintext": false,
+      "adminKeySha256": "a79599623338744af9b76df83a8ede9e83fafb21c4cc444d4be2ee5d62e56959"
+    }
+  },
+  "acceptance": {
+    "ns802RestoreEvidencePassed": true,
+    "postgresqlConnectionConfigChecked": true,
+    "dataAndBackupRootsWritable": true,
+    "fileStoreLogCacheAndModelCacheWritable": true,
+    "pgpassDryRunPassed": true,
+    "realUserPgpassUntouched": true,
+    "temporaryPgpassRemoved": true,
+    "processPgpasswordClearedBeforePsql": true,
+    "workerProfileDiagnosticReadOnly": true,
+    "hostCapabilityDiagnosticReadOnly": true,
+    "noPlaintextPasswordInEvidence": true,
+    "noDependencyInstall": true,
+    "noNetworkRequired": true,
+    "noModelWeightsDownloaded": true,
+    "noProductionDefaultChanged": true,
+    "noLocalAiDefaultChanged": true,
+    "noActiveWrite": true
+  },
+  "verification": {
+    "build": "gate_na: installer/host diagnostic orchestration only; no product code build required for this slice",
+    "test": "tools/run-g004-pgpass-installer-dry-run.ps1 + tools/run-worker-profile-diagnostic-contract.ps1 + tools/run-host-capability-diagnostic-contract.ps1",
+    "contractInvariant": "NS803 requires NS802 restore evidence, writable installer roots, pgpass temp cleanup, read-only worker/host diagnostics, no secret leakage, no install/network/model/default mutation",
+    "hotspot": "gate_na: no isolated-machine GUI installer or service install in this non-site slice; NS804/NS1001 own publish/service and live install rehearsals"
+  },
+  "boundary": "NS803 proves draft/test installer initialization and host diagnostic readiness on this host. It does not install a Windows Service, change firewall or drivers, download model weights, process real materials, or switch production defaults.",
+  "rollback": "Remove only empty directories created by this dry-run under D:\\KQG_Data or D:\\KQG_Backups if they did not exist before; git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1 tools/README.md; git clean -f -- tools/run-ns803-installer-host.ps1 docs/evidence/20260620-ns803-installer-host.json docs/evidence/20260620-ns803-pgpass-dry-run-report.json docs/evidence/20260620-ns803-worker-profile-diagnostic-report.json docs/evidence/20260620-ns803-host-capability-diagnostic-report.json",
+  "next": "NS804 can continue Windows Service publish package."
+}

@@ -733,7 +733,7 @@ try {
         .\tools\run-ns901-non-site-scenario-pack.ps1 -SkipS012Refresh | Write-Host
     }
     Invoke-GateStep 'ns906 visual surrogate review' {
-        .\tools\run-ns906-visual-surrogate-review.ps1 | Write-Host
+        .\tools\run-ns906-visual-surrogate-review.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin -FileStoreRoot $FileStoreRoot | Write-Host
     }
     Invoke-GateStep 'ns1307 golden visual llm security gate' {
         .\tools\run-ns1307-golden-visual-llm-security-gate.ps1 -ReportPath ('docs/evidence/{0}-ns1307-golden-visual-llm-security.json' -f $p0LiveRunDate) | Write-Host

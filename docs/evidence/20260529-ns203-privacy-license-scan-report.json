@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS203",
-  "checkedAt": "2026-06-14T23:54:21",
+  "checkedAt": "2026-06-21T00:46:29",
   "mode": "tracked_text_privacy_license_scan",
   "productionEligible": false,
   "scanScope": {
@@ -18,13 +18,13 @@
       "README.md",
       "ALL_IN_ONE_EXECUTIVE_SPEC.md"
     ],
-    "trackedFileCount": 1150,
+    "trackedFileCount": 1277,
     "policyPath": "docs/102_NonSiteFixturePrivacyPolicy.md",
     "fixturePolicyPath": "tests/golden-import/privacy_and_license.md",
     "rawIgnorePath": "sources/raw/.gitignore"
   },
   "counts": {
-    "secretLikeHits": 94,
+    "secretLikeHits": 105,
     "blockingSecretHits": 0,
     "piiValueHits": 0,
     "blockingPiiHits": 0,
@@ -32,7 +32,7 @@
     "blockingTrackedBinaryFiles": 0,
     "trackedRawSourceBlockers": 0,
     "localRawSourceFiles": 0,
-    "policyMentionCount": 537,
+    "policyMentionCount": 596,
     "copyrightRawPathMarkers": 0,
     "excludedGeneratedScanReports": 1
   },
@@ -41,7 +41,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Program.cs",
-        "line": 4368,
+        "line": 4398,
         "excerpt": "var normalizedSecret = request.ApiKey?.Trim();",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -49,7 +49,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Program.cs",
-        "line": 4369,
+        "line": 4399,
         "excerpt": "var normalizedImageSecret = request.ImageApiKey?.Trim();",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -57,7 +57,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Program.cs",
-        "line": 4404,
+        "line": 4434,
         "excerpt": "var plaintextPrimarySecret = UnprotectSecret(stored.SecretCiphertext);",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -65,7 +65,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Program.cs",
-        "line": 4405,
+        "line": 4435,
         "excerpt": "var plaintextImageSecret = ResolveEffectiveImageSecret(plaintextPrimarySecret, stored.ImageSecretCiphertext);",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -73,7 +73,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Program.cs",
-        "line": 4415,
+        "line": 4445,
         "excerpt": "ImageUsesPrimarySecret: string.IsNullOrWhiteSpace(UnprotectSecret(stored.ImageSecretCiphertext)),",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -81,7 +81,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Program.cs",
-        "line": 4437,
+        "line": 4467,
         "excerpt": "var plaintextPrimarySecret = UnprotectSecret(stored.SecretCiphertext);",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -89,7 +89,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Program.cs",
-        "line": 4464,
+        "line": 4494,
         "excerpt": "var plaintextSecret = UnprotectSecret(settings.SecretCiphertext);",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -97,7 +97,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Program.cs",
-        "line": 4465,
+        "line": 4495,
         "excerpt": "var plaintextImageSecret = ResolveEffectiveImageSecret(plaintextSecret, settings.ImageSecretCiphertext);",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -105,7 +105,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Program.cs",
-        "line": 4466,
+        "line": 4496,
         "excerpt": "var explicitImageSecret = UnprotectSecret(settings.ImageSecretCiphertext);",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -113,7 +113,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Program.cs",
-        "line": 4480,
+        "line": 4510,
         "excerpt": "ImageUsesPrimarySecret: string.IsNullOrWhiteSpace(explicitImageSecret),",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -121,7 +121,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Program.cs",
-        "line": 4502,
+        "line": 4532,
         "excerpt": "var envPrimarySecret = ReadFirstEnvironmentValue(PrimaryEnvSecretName, LegacyPrimaryEnvSecretName);",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -129,7 +129,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Program.cs",
-        "line": 4503,
+        "line": 4533,
         "excerpt": "var envImageSecret = ReadFirstEnvironmentValue(ImageEnvSecretName, LegacyImageEnvSecretName);",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -137,7 +137,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Program.cs",
-        "line": 4644,
+        "line": 4674,
         "excerpt": "var explicitImageSecret = UnprotectSecret(imageSecretCiphertext);",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -145,7 +145,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Program.cs",
-        "line": 4645,
+        "line": 4675,
         "excerpt": "return string.IsNullOrWhiteSpace(explicitImageSecret) ? primarySecret : explicitImageSecret;",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -243,6 +243,14 @@
         "path": "tools/import-c002-source-materials.ps1",
         "line": 19,
         "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/real005b_reviewed_question_materialize.py",
+        "line": 307,
+        "excerpt": "password=args.password,",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
       },
@@ -521,7 +529,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "tools/run-ns803-installer-host.ps1",
-        "line": 18,
+        "line": 19,
         "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -529,7 +537,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "tools/run-ns805-health-dashboard.ps1",
-        "line": 16,
+        "line": 17,
         "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -537,7 +545,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "tools/run-ns806-upgrade-bundle.ps1",
-        "line": 16,
+        "line": 17,
         "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -545,7 +553,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "tools/run-ns901-non-site-scenario-pack.ps1",
-        "line": 18,
+        "line": 19,
         "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -608,7 +616,55 @@
       },
       {
         "kind": "credential_assignment_like",
-        "path": "tools/run-real007-guangzhou-2015-layout-quality.ps1",
+        "path": "tools/run-real005b-reviewed-question-materialize.ps1",
+        "line": 21,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-real005b-reviewed-question-source-smoke.ps1",
+        "line": 18,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-real005b-reviewed-question-visibility.ps1",
+        "line": 16,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-real005b-source-region-screenshots.ps1",
+        "line": 19,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-real005c1-real-question-search-paper-export-smoke.ps1",
+        "line": 18,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-real005c1-real-question-search-paper-export-smoke.ps1",
+        "line": 34,
+        "excerpt": "$reasonToken = 'real005c1_search_paper_export_smoke'",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-real005c2-real-question-analysis-reference-smoke.ps1",
         "line": 17,
         "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
         "allowed": true,
@@ -616,70 +672,14 @@
       },
       {
         "kind": "credential_assignment_like",
-        "path": "tools/run-real008-question-asset-smoke.ps1",
-        "line": 16,
-        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "tools/run-real009-table-structure-smoke.ps1",
-        "line": 16,
-        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "tools/run-real010-formula-fidelity-smoke.ps1",
-        "line": 16,
-        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "tools/run-real011-question-edit-smoke.ps1",
-        "line": 16,
-        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "tools/run-real012-production-flow-quality-smoke.ps1",
-        "line": 17,
-        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "tools/run-s004c-authorized-anonymized-proxy.ps1",
-        "line": 15,
-        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "tools/run-s006b-manual-takeover-smoke.ps1",
-        "line": 14,
-        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "tools/run-s006c-source-review-closure-smoke.ps1",
-        "line": 15,
-        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "path": "tools/run-real005c2-real-question-analysis-reference-smoke.ps1",
+        "line": 32,
+        "excerpt": "$reasonToken = 'real005c2_analysis_reference_smoke'",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
       }
     ],
-    "allowedCredentialLikeHitCount": 94,
+    "allowedCredentialLikeHitCount": 105,
     "allowedCredentialLikeHitSampleLimit": 80,
     "allowedTrackedBinaryFiles": [
       {

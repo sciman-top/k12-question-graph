@@ -1,15 +1,15 @@
 {
   "status": "pass",
   "taskId": "S007B",
-  "checkedAt": "2026-06-14T23:56:32",
-  "requestedApiPort": 7907,
-  "resolvedApiPort": 7907,
+  "checkedAt": "2026-06-21T00:48:43",
+  "requestedApiPort": 6156,
+  "resolvedApiPort": 6156,
   "portFallbackApplied": false,
-  "runId": "ns504-e813c112a8b74c42a6663008391f1010-b",
-  "sourceDocumentId": "2e22b1bb-4f2a-4c55-b135-ee68486728ea",
+  "runId": "ns504-3de37951dce54f93af031b1f8665c86d-b",
+  "sourceDocumentId": "21593797-6513-4804-b8f6-3d91a60bde1b",
   "enqueue": {
-    "aiJobId": "860f58c6-c13c-4136-a21b-39edbc2ee7b7",
-    "reviewQueueItemId": "df650a4c-b3df-41db-a00b-859c03ee9911",
+    "aiJobId": "c7c0b3d7-b370-40de-b43e-76f02ba35650",
+    "reviewQueueItemId": "8fa26800-5fbc-4238-92f3-531b03c3973d",
     "reviewStatus": "open"
   },
   "feedback": {
@@ -19,8 +19,8 @@
     "resolvedQueueItemIds": []
   },
   "noActiveWriteGuard": {
-    "questionTotalBefore": 4459,
-    "questionTotalAfter": 4459,
+    "questionTotalBefore": 4631,
+    "questionTotalAfter": 4631,
     "changed": false
   },
   "conclusion": "ai suggestions are persisted in db-backed review queue as pending review and teacher feedback resolves queue without direct question write"

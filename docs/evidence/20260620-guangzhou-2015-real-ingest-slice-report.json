@@ -1,0 +1,765 @@
+{
+  "schemaVersion": "guangzhou-2015-real-ingest-slice.v1",
+  "workflowKey": "guangzhou_2015_real_ingest_v1",
+  "generatedAt": "2026-06-20T15:55:52.792742+00:00",
+  "mode": "apply",
+  "status": "pass",
+  "scope": {
+    "paperSha256": "534d8eee3b99446d514af736aaf4cd8e36f2803154f7778c0f656f1832b7510c",
+    "answerSha256": "065a6293b5c1019ed2da199736df44c6d0304797d0a986a750449197ca9ba88d",
+    "expectedQuestionCount": 18,
+    "questionRange": "1-18",
+    "externalAiCalls": 0,
+    "realStudentDataUsed": false
+  },
+  "sourceDocuments": {
+    "paper": {
+      "source_document_id": "650e9218-c910-40b2-8af3-d5690788ddb6",
+      "source_title": "2015广州中考",
+      "source_type": "local_exam_paper",
+      "region": "guangzhou",
+      "year": 2015,
+      "material_batch_key": "guangzhou_physics_zhongkao",
+      "file_asset_id": "5fd283c7-3a40-4c16-9a65-04522655c89f",
+      "original_file_name": "2015广州中考.pdf",
+      "relative_path": "original/53/4d/534d8eee3b99446d514af736aaf4cd8e36f2803154f7778c0f656f1832b7510c.pdf",
+      "sha256": "534d8eee3b99446d514af736aaf4cd8e36f2803154f7778c0f656f1832b7510c",
+      "size_bytes": 700514
+    },
+    "answer": {
+      "source_document_id": "c6259aa6-23a0-4af8-9aa7-fa2f16e26659",
+      "source_title": "2015广州中考答案",
+      "source_type": "local_exam_paper",
+      "region": "guangzhou",
+      "year": 2015,
+      "material_batch_key": "guangzhou_physics_zhongkao",
+      "file_asset_id": "558ca1fd-78e2-4f1b-80de-99caf9014ef2",
+      "original_file_name": "2015广州中考答案.pdf",
+      "relative_path": "original/06/5a/065a6293b5c1019ed2da199736df44c6d0304797d0a986a750449197ca9ba88d.pdf",
+      "sha256": "065a6293b5c1019ed2da199736df44c6d0304797d0a986a750449197ca9ba88d",
+      "size_bytes": 400792
+    }
+  },
+  "before": {
+    "sourceRegions2015": 255,
+    "cutCandidates2015": 198,
+    "workflowQuestions": 18,
+    "workflowReviewItems": 26
+  },
+  "worker": {
+    "paperAdapter": "pdf_text_adapter",
+    "paperPages": 8,
+    "answerAdapter": "pdf_text_adapter",
+    "answerPages": 4,
+    "recognizedQuestionCount": 18,
+    "recognizedAnswerCount": 18
+  },
+  "questionPreview": [
+    {
+      "questionNo": 1,
+      "pageNumber": 1,
+      "answer": "B",
+      "primaryKnowledgeLabel": "分子热运动",
+      "textPreview": "1. 咸鱼放在冰箱冷冻室里一晚，冷冻室内有咸鱼味. 这表明 订 A. 分子间存在引力 B. 分子不停地运动 C. 分子间存在斥力 D. 温度越低，分子运动越慢"
+    },
+    {
+      "questionNo": 2,
+      "pageNumber": 1,
+      "answer": "A",
+      "primaryKnowledgeLabel": "串并联电路电压电流",
+      "textPreview": "2. 图 1 所示电路，L1 的电阻比 L2 的大. 开关闭合，灯均发光，则 考生号： A. V 示数等于 V1 示数 B. V1 示数大于 V2 示数 C. A 示数大于 A1 示数 D. A2 示数大于 A1 示数 V1 线 L1 A1 A2 L2 L1 L2 V2 V A 图1 物理试卷 第 1 页 共 8 页"
+    },
+    {
+      "questionNo": 3,
+      "pageNumber": 2,
+      "answer": "C",
+      "primaryKnowledgeLabel": "摩擦起电与电荷相互作用",
+      "textPreview": "3. 把餐巾纸摩擦过的塑料吸管放在支架上，吸管能在水平面自由转动. 如图 2 所示，手 持带负电的橡胶棒，靠近吸管 A 端，A 端会远离橡胶棒. 实验中 A A. 吸管不带电 B B. 吸管带正电 橡胶棒 C. 摩擦时，吸管得到电子 吸管 D. 与吸管摩擦的餐巾纸一直不带电 图2"
+    },
+    {
+      "questionNo": 4,
+      "pageNumber": 2,
+      "answer": "B",
+      "primaryKnowledgeLabel": "电磁波谱",
+      "textPreview": "4. 图 3 是电磁波家族，真空中各种电磁波的传播速度相同. 某类恒星温度较低，呈暗红 色；另一类恒星温度极高，呈蓝色. 根据所给信息可推测 106 108 1010 1012 1014 1016 1018 频率/Hz 紫外线 γ 射线 无 线 电 波 红外线 可 X 射线 见 光 红橙黄绿蓝靛紫 图 3 电磁波家族 A. 红外线波长比蓝光波长短 B. 红光"
+    },
+    {
+      "questionNo": 5,
+      "pageNumber": 2,
+      "answer": "A",
+      "primaryKnowledgeLabel": "声音传播与频率",
+      "textPreview": "5. 如图 4 所示，相同的水下录音装置 A、B 录下在海里同一位置的鲸发出的同一段声音. A 录到的有高、低音，B 录到的只有低音. 由此可以推测：在海洋中能传播较远距离的声音是 A. 频率较低的 B. 音调较高的 Ｂ Ａ 鲸 C. 能量较小的 D. 响度较小的 图４"
+    },
+    {
+      "questionNo": 6,
+      "pageNumber": 2,
+      "answer": "D",
+      "primaryKnowledgeLabel": "做功改变内能",
+      "textPreview": "6. 如图 5 所示，在一个配有活塞的厚玻璃筒内放一小团硝化棉. 迅速下压活塞，硝化棉 燃烧. 下列说法正确的是 A. 迅速向上抽活塞，硝化棉也能燃烧 B. 此实验只通过热传递改变筒内空气的内能 C. 下压活塞的过程，空气的内能转化为活塞的机械能 D. 硝化棉燃烧，是因为玻璃筒内空气的温度升高，内能增大 图5 物理试卷 第 2 页 共 8 页"
+    },
+    {
+      "questionNo": 7,
+      "pageNumber": 3,
+      "answer": "A",
+      "primaryKnowledgeLabel": "磁场对通电导体的作用",
+      "textPreview": "7. 如图 6 所示，线圈 abcd 位于磁场中. K 与 1 接通时，ab 段导线受磁场力 F 的方向向 上；当 K 改为与 2 接通时，ab 段导线受磁场力 F A. 方向向下 B. 方向向上 C. 为零，因为电源反接 D. 为零，因为电路一定是断路 1 K 2 图6"
+    },
+    {
+      "questionNo": 8,
+      "pageNumber": 3,
+      "answer": "D",
+      "primaryKnowledgeLabel": "晶体熔化图像",
+      "textPreview": "8. 通过热传递，某物体从固态变为液态. 图 7 是该过程物体的温度随时间变化图象. 下 列说法正确的是 温度 A. 这是非晶体 B. 此过程是液化过程 固、液共存 C. t = 0 时刻物体内能为零 液态 D. 0 t1 这段时间，物体要吸热 固态 0 t1 时间 图7"
+    },
+    {
+      "questionNo": 9,
+      "pageNumber": 3,
+      "answer": "B",
+      "primaryKnowledgeLabel": "液体压强",
+      "textPreview": "9. 图 8 所示玻璃管两端开口处蒙的橡皮膜绷紧程度相同. 将此装置置于水中，图 9 中的 哪幅图能反映橡皮膜受到水的压强后的凹凸情况 空气 空气 空气 空气 胶管 水 水 水 水 橡皮膜 玻璃管 橡皮膜 A B C D 图8 图9"
+    },
+    {
+      "questionNo": 10,
+      "pageNumber": 3,
+      "answer": "C",
+      "primaryKnowledgeLabel": "质量与密度",
+      "textPreview": "10. 规格相同的瓶装了不同的液体，放在横梁已平衡 的天平上，如图 10 所示. 则 A. 甲瓶液体质量较大 B. 乙瓶液体质量较大 C. 乙瓶液体密度较大 D. 两瓶液体密度相等 图 10 物理试卷 第 3 页 共 8 页"
+    },
+    {
+      "questionNo": 11,
+      "pageNumber": 4,
+      "answer": "C",
+      "primaryKnowledgeLabel": "杠杆平衡与力臂",
+      "textPreview": "11. AC 硬棒质量忽略不计，在棒的 B、C 两点施加力 F1、F2，F2 的方向沿 OO＇线，棒 在图 11 所示位置处于静止状态. 则 A. F1<F2 s B. F1 = 2 F2 s1 C. F1 力臂小于 s1 D. F2 方向沿 OO＇线向下"
+    },
+    {
+      "questionNo": 12,
+      "pageNumber": 4,
+      "answer": "D",
+      "primaryKnowledgeLabel": "电磁铁与巨磁电阻",
+      "textPreview": "12. 巨磁电阻（GMR）在磁场中，电阻会随着磁场的增大而急剧减小. 用 GMR 组成的 电路图如图 12 所示，S 断开，A2 有示数，电源电压恒定. 则 A. S 闭合时，A2 示数减小 GMR B. S 闭合时，A2 示数不变 电磁铁 A2 C. A1 示数减小时，A2 示数不变 A1 D. A1 示数增大时，A2 示数增大 S 图 12 第二部分（共"
+    },
+    {
+      "questionNo": 13,
+      "pageNumber": 4,
+      "answer": "（1） A＇ A 平面镜 （2）0.5； 向左移；不变",
+      "primaryKnowledgeLabel": "平面镜成像",
+      "textPreview": "13. 如图 13 所示，墙壁上的平面镜前立有一硬杆. A 硬杆 杆移动方向 平面镜 (1)画出杆顶 A 点在平面镜中的像. 图 13 水平地面 (2)若杆在 2s 内右移 1m， 杆移动的速度是_____m/s，杆的像相对镜向右还是向左移?_____. 移动时，杆的像大小会变大、变小还是不变?_____. 手指投影灯玩具内部的结构示意图如图 14 所示. "
+    },
+    {
+      "questionNo": 14,
+      "pageNumber": 4,
+      "answer": "（1）（2）如图示 印有喜羊羊 凸透镜 图案的胶片 物距 F F 光源",
+      "primaryKnowledgeLabel": "凸透镜成像作图",
+      "textPreview": "14.(1)在图 14 中标示出物距. . . (2)画出图 14 中所示的两条光线经凸透镜之后的光线. 凸透镜 印有喜羊羊 墙壁 手指投影灯玩具 图案的胶片 F F 光源 图 14 图 15"
+    },
+    {
+      "questionNo": 15,
+      "pageNumber": 4,
+      "answer": "实像，倒立 速度",
+      "primaryKnowledgeLabel": "凸透镜成像性质",
+      "textPreview": "15. 墙上的喜羊羊是实像还是虚像？________. 该像相对于物是“正立”还是“倒立” 的？________. 物理试卷 第 4 页 共 8 页"
+    },
+    {
+      "questionNo": 16,
+      "pageNumber": 5,
+      "answer": "（1）为零； （2） 等于；图象如右图所示",
+      "primaryKnowledgeLabel": "机械能守恒与速度图像",
+      "textPreview": "16. 小球在没有空气阻力的情况下，沿无摩擦轨 道运动. A C （1）如图 16 所示，小球从 A 点静止释放，小球 h h 到达 C 点时速度是否为零？____. B 图 16 （2）将轨道 BC 段改为水平，如图 17 所示. 小球仍从 A 点静止释放，小球经过 M 点时 的机械能大于、小于还是等于其在 A 点的机械能？________. 以小球经过 "
+    },
+    {
+      "questionNo": 17,
+      "pageNumber": 5,
+      "answer": "小于； 不变； 变小 0 时间",
+      "primaryKnowledgeLabel": "气体压强变化",
+      "textPreview": "17. 如图 18 所示，往装满 CO2 的软矿泉水瓶加水，迅速拧紧瓶盖， 水 震荡后 CO2 溶于水中，生成碳酸，矿泉水瓶变瘪. 瓶变瘪表明瓶内气体压 二氧化碳 、 强____瓶外气体压强（选填“大于” 、 “等于”“小于”），而瓶外的气体压 士 强_____，因此推测瓶内气体压强与反应前相比____(后两空选填“变大”、 图 18 “不变”、“变小”)."
+    },
+    {
+      "questionNo": 18,
+      "pageNumber": 5,
+      "answer": "100 ； 500",
+      "primaryKnowledgeLabel": "重力与固体压强",
+      "textPreview": "18. 图 19 中质量为 10kg 的物体 A 静止在水平地面，与地面接触面积为 0.2m2， A 所受重力为 N，A 对地面的压强是 Pa（g=10N/kg）. F1 B F2 F1 h A B B 图 19 图 20"
+    }
+  ],
+  "cleanup": {
+    "deletedQuestionBlocks": 36,
+    "deletedQuestionAssets": 28,
+    "deletedReviewItems": 26,
+    "deletedCutCandidates": 18,
+    "deletedSourceRegions": 36,
+    "existingQuestionItemsRetainedForUpdate": 18
+  },
+  "appliedRows": [
+    {
+      "questionNo": 1,
+      "questionItemId": "06e4bedf-a2be-4665-844f-8c0c02e0b1d6",
+      "cutCandidateId": "d148bdfd-1704-4202-9844-d0986bd3053b",
+      "questionRegionId": "ec306250-1a84-4c13-ad8e-d8e5fba7bd67",
+      "answerRegionId": "8228fb4e-5573-48c8-835e-8a2d59de5b3f",
+      "answer": "B",
+      "primaryKnowledgeLabel": "分子热运动",
+      "knowledgeTags": [
+        "分子运动",
+        "扩散现象"
+      ],
+      "textPreview": "1. 咸鱼放在冰箱冷冻室里一晚，冷冻室内有咸鱼味. 这表明 订 A. 分子间存在引力 B. 分子不停地运动 C. 分子间存在斥力 D. 温度越低，分子运动越慢"
+    },
+    {
+      "questionNo": 2,
+      "questionItemId": "ace44579-b70c-4c64-b36a-2852ba86ef97",
+      "cutCandidateId": "f5d003b9-08c8-4981-9fa8-6975e0020fc4",
+      "questionRegionId": "8412039d-7953-4964-987a-52baf898c070",
+      "answerRegionId": "8bab5089-87c4-479b-913f-1eab0371c858",
+      "answer": "A",
+      "primaryKnowledgeLabel": "串并联电路电压电流",
+      "knowledgeTags": [
+        "电路识图",
+        "电压表",
+        "电流表"
+      ],
+      "textPreview": "2. 图 1 所示电路，L1 的电阻比 L2 的大. 开关闭合，灯均发光，则 考生号： A. V 示数等于 V1 示数 B. V1 示数大于 V2 示数 C. A 示数大于 A1 示数 D. A2 示数大于 A1 示数 V1 线 L1 A1 A2 L2 L1 L2 V2 V A 图1 物理试卷 第 1 页 共 8 页"
+    },
+    {
+      "questionNo": 3,
+      "questionItemId": "84eac67d-c612-4ba5-bb7d-e871cbde356f",
+      "cutCandidateId": "55f00825-2d62-47be-a607-8cb0fe141317",
+      "questionRegionId": "2bc2951e-37fc-47ee-b4e6-810afba1a8f9",
+      "answerRegionId": "2ce97a39-f540-441b-ad0e-3d554fb8c5d5",
+      "answer": "C",
+      "primaryKnowledgeLabel": "摩擦起电与电荷相互作用",
+      "knowledgeTags": [
+        "静电",
+        "电子转移"
+      ],
+      "textPreview": "3. 把餐巾纸摩擦过的塑料吸管放在支架上，吸管能在水平面自由转动. 如图 2 所示，手 持带负电的橡胶棒，靠近吸管 A 端，A 端会远离橡胶棒. 实验中 A A. 吸管不带电 B B. 吸管带正电 橡胶棒 C. 摩擦时，吸管得到电子 吸管 D. 与吸管摩擦的餐巾纸一直不带电 图2"
+    },
+    {
+      "questionNo": 4,
+      "questionItemId": "027acbf1-4692-49b1-9adb-5ae7f06e31a3",
+      "cutCandidateId": "72f4e6ea-c241-4f24-b8db-c76cc80ca076",
+      "questionRegionId": "c6ae48db-12a9-47c3-a087-ad4450b94ca3",
+      "answerRegionId": "83da9cb5-d642-4597-8e6e-62634e3d8c05",
+      "answer": "B",
+      "primaryKnowledgeLabel": "电磁波谱",
+      "knowledgeTags": [
+        "电磁波",
+        "频率",
+        "波长"
+      ],
+      "textPreview": "4. 图 3 是电磁波家族，真空中各种电磁波的传播速度相同. 某类恒星温度较低，呈暗红 色；另一类恒星温度极高，呈蓝色. 根据所给信息可推测 106 108 1010 1012 1014 1016 1018 频率/Hz 紫外线 γ 射线 无 线 电 波 红外线 可 X 射线 见 光 红橙黄绿蓝靛紫 图 3 电磁波家族 "
+    },
+    {
+      "questionNo": 5,
+      "questionItemId": "2cde8893-1e5d-4a55-b187-68682908c886",
+      "cutCandidateId": "64a91089-f853-4ddf-a779-193a3fc68c9f",
+      "questionRegionId": "fa74e932-4a30-42a3-840d-d9a74d274e83",
+      "answerRegionId": "3adac8de-bd0e-4d7d-b567-6d9019130c67",
+      "answer": "A",
+      "primaryKnowledgeLabel": "声音传播与频率",
+      "knowledgeTags": [
+        "音调",
+        "频率",
+        "海洋声传播"
+      ],
+      "textPreview": "5. 如图 4 所示，相同的水下录音装置 A、B 录下在海里同一位置的鲸发出的同一段声音. A 录到的有高、低音，B 录到的只有低音. 由此可以推测：在海洋中能传播较远距离的声音是 A. 频率较低的 B. 音调较高的 Ｂ Ａ 鲸 C. 能量较小的 D. 响度较小的 图４"
+    },
+    {
+      "questionNo": 6,
+      "questionItemId": "f6dcaef7-37c5-439a-a7e7-3019de4be6cf",
+      "cutCandidateId": "7d4ba80b-8764-4cc0-b440-51fe9d5af11b",
+      "questionRegionId": "ddebafae-6a36-4f0a-9b50-22ee9990e2e2",
+      "answerRegionId": "e9b05b31-5c7f-46ae-bd47-e129ac561325",
+      "answer": "D",
+      "primaryKnowledgeLabel": "做功改变内能",
+      "knowledgeTags": [
+        "内能",
+        "压缩空气",
+        "温度升高"
+      ],
+      "textPreview": "6. 如图 5 所示，在一个配有活塞的厚玻璃筒内放一小团硝化棉. 迅速下压活塞，硝化棉 燃烧. 下列说法正确的是 A. 迅速向上抽活塞，硝化棉也能燃烧 B. 此实验只通过热传递改变筒内空气的内能 C. 下压活塞的过程，空气的内能转化为活塞的机械能 D. 硝化棉燃烧，是因为玻璃筒内空气的温度升高，内能增大 图5 物理试卷"
+    },
+    {
+      "questionNo": 7,
+      "questionItemId": "c198df5e-85b8-4ae9-9177-94bbba4387b9",
+      "cutCandidateId": "25e5b8e2-a1d9-43d3-a036-0ddc530d8b3b",
+      "questionRegionId": "50842618-3374-42f2-b781-0e6914f111d4",
+      "answerRegionId": "2210c2a5-deb2-4f56-8669-86f9853f8b25",
+      "answer": "A",
+      "primaryKnowledgeLabel": "磁场对通电导体的作用",
+      "knowledgeTags": [
+        "电动机原理",
+        "电流方向",
+        "受力方向"
+      ],
+      "textPreview": "7. 如图 6 所示，线圈 abcd 位于磁场中. K 与 1 接通时，ab 段导线受磁场力 F 的方向向 上；当 K 改为与 2 接通时，ab 段导线受磁场力 F A. 方向向下 B. 方向向上 C. 为零，因为电源反接 D. 为零，因为电路一定是断路 1 K 2 图6"
+    },
+    {
+      "questionNo": 8,
+      "questionItemId": "ba388ca8-f00f-488c-8c22-3d00b5cfd191",
+      "cutCandidateId": "72e7c0f6-bdce-45b4-a372-0a92237d1515",
+      "questionRegionId": "e9e5aec3-354e-45fa-b4a1-595ba3b5040c",
+      "answerRegionId": "ce782fb9-7329-4478-afd4-389f3aab0549",
+      "answer": "D",
+      "primaryKnowledgeLabel": "晶体熔化图像",
+      "knowledgeTags": [
+        "熔化",
+        "吸热",
+        "温度时间图像"
+      ],
+      "textPreview": "8. 通过热传递，某物体从固态变为液态. 图 7 是该过程物体的温度随时间变化图象. 下 列说法正确的是 温度 A. 这是非晶体 B. 此过程是液化过程 固、液共存 C. t = 0 时刻物体内能为零 液态 D. 0 t1 这段时间，物体要吸热 固态 0 t1 时间 图7"
+    },
+    {
+      "questionNo": 9,
+      "questionItemId": "5afd17a6-6045-4e45-95ff-218691ea3281",
+      "cutCandidateId": "a8b1b744-f6b1-4212-b313-03802bb13997",
+      "questionRegionId": "e9c835dd-056c-4d38-948c-ff98544ed81e",
+      "answerRegionId": "eff07371-dce9-4cc5-9217-775afdde41b3",
+      "answer": "B",
+      "primaryKnowledgeLabel": "液体压强",
+      "knowledgeTags": [
+        "深度",
+        "橡皮膜",
+        "压强方向"
+      ],
+      "textPreview": "9. 图 8 所示玻璃管两端开口处蒙的橡皮膜绷紧程度相同. 将此装置置于水中，图 9 中的 哪幅图能反映橡皮膜受到水的压强后的凹凸情况 空气 空气 空气 空气 胶管 水 水 水 水 橡皮膜 玻璃管 橡皮膜 A B C D 图8 图9"
+    },
+    {
+      "questionNo": 10,
+      "questionItemId": "69e15ae2-db34-46a1-9c82-847c8fa6e0dd",
+      "cutCandidateId": "bd9f74b2-7267-4d06-b0dd-f4b35851a81e",
+      "questionRegionId": "e828a878-8dc2-4735-8f58-c2e44876311c",
+      "answerRegionId": "f4ec76e1-ba94-48aa-9433-3107e5dace37",
+      "answer": "C",
+      "primaryKnowledgeLabel": "质量与密度",
+      "knowledgeTags": [
+        "天平",
+        "体积",
+        "密度比较"
+      ],
+      "textPreview": "10. 规格相同的瓶装了不同的液体，放在横梁已平衡 的天平上，如图 10 所示. 则 A. 甲瓶液体质量较大 B. 乙瓶液体质量较大 C. 乙瓶液体密度较大 D. 两瓶液体密度相等 图 10 物理试卷 第 3 页 共 8 页"
+    },
+    {
+      "questionNo": 11,
+      "questionItemId": "bd618220-d434-42d2-acae-b27d5a22e10d",
+      "cutCandidateId": "8342fc29-5c04-4b3d-bc41-4cc2367a1768",
+      "questionRegionId": "a331e2c7-c34c-4198-b14c-c51f2e2f3413",
+      "answerRegionId": "8effc815-22c6-48c4-9635-379bdd4c67b5",
+      "answer": "C",
+      "primaryKnowledgeLabel": "杠杆平衡与力臂",
+      "knowledgeTags": [
+        "杠杆",
+        "力臂",
+        "静止平衡"
+      ],
+      "textPreview": "11. AC 硬棒质量忽略不计，在棒的 B、C 两点施加力 F1、F2，F2 的方向沿 OO＇线，棒 在图 11 所示位置处于静止状态. 则 A. F1<F2 s B. F1 = 2 F2 s1 C. F1 力臂小于 s1 D. F2 方向沿 OO＇线向下"
+    },
+    {
+      "questionNo": 12,
+      "questionItemId": "fea40f2f-7969-40b9-a8d2-dbdfc595fd7c",
+      "cutCandidateId": "22884bac-d964-4df0-ab15-e66ac82076f6",
+      "questionRegionId": "8ba002b4-6129-4c3e-b071-130c7e0ed75e",
+      "answerRegionId": "ba27cf04-f39e-4e69-8e3b-7bc86befa3ad",
+      "answer": "D",
+      "primaryKnowledgeLabel": "电磁铁与巨磁电阻",
+      "knowledgeTags": [
+        "GMR",
+        "磁场强弱",
+        "电路动态分析"
+      ],
+      "textPreview": "12. 巨磁电阻（GMR）在磁场中，电阻会随着磁场的增大而急剧减小. 用 GMR 组成的 电路图如图 12 所示，S 断开，A2 有示数，电源电压恒定. 则 A. S 闭合时，A2 示数减小 GMR B. S 闭合时，A2 示数不变 电磁铁 A2 C. A1 示数减小时，A2 示数不变 A1 D. A1 示数增大时，A"
+    },
+    {
+      "questionNo": 13,
+      "questionItemId": "49afadea-b212-4cfb-ba89-a68a80d5e0fd",
+      "cutCandidateId": "31d8d86b-369e-4dae-ace9-dc51d5546dad",
+      "questionRegionId": "1aeb4346-cee7-408c-9955-76f3fbb86cd6",
+      "answerRegionId": "3a56efec-19bc-4d8d-8214-e0086c8df59a",
+      "answer": "（1） A＇ A 平面镜 （2）0.5； 向左移；不变",
+      "primaryKnowledgeLabel": "平面镜成像",
+      "knowledgeTags": [
+        "作图",
+        "像的运动",
+        "速度"
+      ],
+      "textPreview": "13. 如图 13 所示，墙壁上的平面镜前立有一硬杆. A 硬杆 杆移动方向 平面镜 (1)画出杆顶 A 点在平面镜中的像. 图 13 水平地面 (2)若杆在 2s 内右移 1m， 杆移动的速度是_____m/s，杆的像相对镜向右还是向左移?_____. 移动时，杆的像大小会变大、变小还是不变?_____. 手指投影灯"
+    },
+    {
+      "questionNo": 14,
+      "questionItemId": "47bf791e-fedd-4cc0-b958-23ce01690c48",
+      "cutCandidateId": "980ce3f7-c83c-4302-b8cd-4d1a7e698b36",
+      "questionRegionId": "f6af27f6-445e-4aa1-af60-bac46314b619",
+      "answerRegionId": "eef744c0-48c3-4001-94db-7290e4f407d4",
+      "answer": "（1）（2）如图示 印有喜羊羊 凸透镜 图案的胶片 物距 F F 光源",
+      "primaryKnowledgeLabel": "凸透镜成像作图",
+      "knowledgeTags": [
+        "物距",
+        "光路作图",
+        "实像"
+      ],
+      "textPreview": "14.(1)在图 14 中标示出物距. . . (2)画出图 14 中所示的两条光线经凸透镜之后的光线. 凸透镜 印有喜羊羊 墙壁 手指投影灯玩具 图案的胶片 F F 光源 图 14 图 15"
+    },
+    {
+      "questionNo": 15,
+      "questionItemId": "3ae21bf5-65a1-42e4-b467-380ef025bc59",
+      "cutCandidateId": "7e1ed23f-f83c-4738-98b6-df227aeb5ac0",
+      "questionRegionId": "9a6da2c7-ffa5-4085-b412-faa1b7914cea",
+      "answerRegionId": "14c3bdc8-cc79-49aa-bf6f-98d2b793fe09",
+      "answer": "实像，倒立 速度",
+      "primaryKnowledgeLabel": "凸透镜成像性质",
+      "knowledgeTags": [
+        "实像",
+        "倒立"
+      ],
+      "textPreview": "15. 墙上的喜羊羊是实像还是虚像？________. 该像相对于物是“正立”还是“倒立” 的？________. 物理试卷 第 4 页 共 8 页"
+    },
+    {
+      "questionNo": 16,
+      "questionItemId": "2e9fa385-5a24-40dd-9693-e94b2542299d",
+      "cutCandidateId": "42725804-29a4-48cc-803b-3f3a8ffb9ed4",
+      "questionRegionId": "f1c9b50e-a84f-487c-a8dd-ba32c9639ffe",
+      "answerRegionId": "01084af7-5af5-4d3d-b414-a64e8276cf81",
+      "answer": "（1）为零； （2） 等于；图象如右图所示",
+      "primaryKnowledgeLabel": "机械能守恒与速度图像",
+      "knowledgeTags": [
+        "机械能",
+        "无摩擦轨道",
+        "v-t图像"
+      ],
+      "textPreview": "16. 小球在没有空气阻力的情况下，沿无摩擦轨 道运动. A C （1）如图 16 所示，小球从 A 点静止释放，小球 h h 到达 C 点时速度是否为零？____. B 图 16 （2）将轨道 BC 段改为水平，如图 17 所示. 小球仍从 A 点静止释放，小球经过 M 点时 的机械能大于、小于还是等于其在 A 点的"
+    },
+    {
+      "questionNo": 17,
+      "questionItemId": "8a800849-59cf-4f8c-96fa-8184ea11c86f",
+      "cutCandidateId": "3fb329cb-497b-4dac-bd88-42e4ae550e8e",
+      "questionRegionId": "76afb893-178b-4cdc-ae48-70e3334f85f6",
+      "answerRegionId": "7dc1caf6-c3c2-4c05-85c5-0c46c4b30eb1",
+      "answer": "小于； 不变； 变小 0 时间",
+      "primaryKnowledgeLabel": "气体压强变化",
+      "knowledgeTags": [
+        "二氧化碳溶解",
+        "瓶内压强",
+        "大气压"
+      ],
+      "textPreview": "17. 如图 18 所示，往装满 CO2 的软矿泉水瓶加水，迅速拧紧瓶盖， 水 震荡后 CO2 溶于水中，生成碳酸，矿泉水瓶变瘪. 瓶变瘪表明瓶内气体压 二氧化碳 、 强____瓶外气体压强（选填“大于” 、 “等于”“小于”），而瓶外的气体压 士 强_____，因此推测瓶内气体压强与反应前相比____(后两空选填“变"
+    },
+    {
+      "questionNo": 18,
+      "questionItemId": "b3fe890c-4522-4be5-878e-c88cdb1a5db4",
+      "cutCandidateId": "74040905-39cc-4b0b-927e-a4378046773c",
+      "questionRegionId": "5d6a42d9-32c6-41e8-b64d-d71293a299d1",
+      "answerRegionId": "eafa6df6-8a5f-4449-996c-310c4b5a989b",
+      "answer": "100 ； 500",
+      "primaryKnowledgeLabel": "重力与固体压强",
+      "knowledgeTags": [
+        "重力计算",
+        "压强公式"
+      ],
+      "textPreview": "18. 图 19 中质量为 10kg 的物体 A 静止在水平地面，与地面接触面积为 0.2m2， A 所受重力为 N，A 对地面的压强是 Pa（g=10N/kg）. F1 B F2 F1 h A B B 图 19 图 20"
+    }
+  ],
+  "after": {
+    "questionCount": 18,
+    "questionNumbers": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18
+    ],
+    "allHaveAnswers": true,
+    "allHaveKnowledgeTags": true,
+    "cutCandidateCount": 18,
+    "sourceRegionCount": 36,
+    "openReviewQueueCount": 18,
+    "questions": [
+      {
+        "question_no": 1,
+        "id": "06e4bedf-a2be-4665-844f-8c0c02e0b1d6",
+        "question_type": "single_choice",
+        "status": "pending_review",
+        "primary_knowledge_label": "分子热运动",
+        "knowledge_tags": [
+          "分子运动",
+          "扩散现象"
+        ],
+        "answer": "B",
+        "blocks_preview": "[{\"type\": \"stem\", \"order\": 0, \"content\": {\"text\": \"1. 咸鱼放在冰箱冷冻室里一晚，冷冻室内有咸鱼味. 这表明 订 A. 分子间存在引力 B. 分子不停地运动 C. 分子间存在斥力 D. 温度越低，分子运动越慢\", \"options\": [{\"text\": \"分子间存在引力\", \"label\": \"A\"}, {\"text\": \"分子不停地运动\", \"label\": \"B\"}, {\"tex"
+      },
+      {
+        "question_no": 2,
+        "id": "ace44579-b70c-4c64-b36a-2852ba86ef97",
+        "question_type": "single_choice",
+        "status": "pending_review",
+        "primary_knowledge_label": "串并联电路电压电流",
+        "knowledge_tags": [
+          "电路识图",
+          "电压表",
+          "电流表"
+        ],
+        "answer": "A",
+        "blocks_preview": "[{\"type\": \"stem\", \"order\": 0, \"content\": {\"text\": \"2. 图 1 所示电路，L1 的电阻比 L2 的大. 开关闭合，灯均发光，则 考生号： A. V 示数等于 V1 示数 B. V1 示数大于 V2 示数 C. A 示数大于 A1 示数 D. A2 示数大于 A1 示数 V1 线 L1 A1 A2 L2 L1 L2 V2 V A 图1 物理试卷 第 1 页 共 8 页\", \"option"
+      },
+      {
+        "question_no": 3,
+        "id": "84eac67d-c612-4ba5-bb7d-e871cbde356f",
+        "question_type": "single_choice",
+        "status": "pending_review",
+        "primary_knowledge_label": "摩擦起电与电荷相互作用",
+        "knowledge_tags": [
+          "静电",
+          "电子转移"
+        ],
+        "answer": "C",
+        "blocks_preview": "[{\"type\": \"stem\", \"order\": 0, \"content\": {\"text\": \"3. 把餐巾纸摩擦过的塑料吸管放在支架上，吸管能在水平面自由转动. 如图 2 所示，手 持带负电的橡胶棒，靠近吸管 A 端，A 端会远离橡胶棒. 实验中 A A. 吸管不带电 B B. 吸管带正电 橡胶棒 C. 摩擦时，吸管得到电子 吸管 D. 与吸管摩擦的餐巾纸一直不带电 图2\", \"options\": [{\"text\": \"吸管不带"
+      },
+      {
+        "question_no": 4,
+        "id": "027acbf1-4692-49b1-9adb-5ae7f06e31a3",
+        "question_type": "single_choice",
+        "status": "pending_review",
+        "primary_knowledge_label": "电磁波谱",
+        "knowledge_tags": [
+          "电磁波",
+          "频率",
+          "波长"
+        ],
+        "answer": "B",
+        "blocks_preview": "[{\"type\": \"stem\", \"order\": 0, \"content\": {\"text\": \"4. 图 3 是电磁波家族，真空中各种电磁波的传播速度相同. 某类恒星温度较低，呈暗红 色；另一类恒星温度极高，呈蓝色. 根据所给信息可推测 106 108 1010 1012 1014 1016 1018 频率/Hz 紫外线 γ 射线 无 线 电 波 红外线 可 X 射线 见 光 红橙黄绿蓝靛紫 图 3 电磁波家族 A. 红外线波长比"
+      },
+      {
+        "question_no": 5,
+        "id": "2cde8893-1e5d-4a55-b187-68682908c886",
+        "question_type": "single_choice",
+        "status": "pending_review",
+        "primary_knowledge_label": "声音传播与频率",
+        "knowledge_tags": [
+          "音调",
+          "频率",
+          "海洋声传播"
+        ],
+        "answer": "A",
+        "blocks_preview": "[{\"type\": \"stem\", \"order\": 0, \"content\": {\"text\": \"5. 如图 4 所示，相同的水下录音装置 A、B 录下在海里同一位置的鲸发出的同一段声音. A 录到的有高、低音，B 录到的只有低音. 由此可以推测：在海洋中能传播较远距离的声音是 A. 频率较低的 B. 音调较高的 Ｂ Ａ 鲸 C. 能量较小的 D. 响度较小的 图４\", \"options\": [{\"text\": \"频率较低的\", \""
+      },
+      {
+        "question_no": 6,
+        "id": "f6dcaef7-37c5-439a-a7e7-3019de4be6cf",
+        "question_type": "single_choice",
+        "status": "pending_review",
+        "primary_knowledge_label": "做功改变内能",
+        "knowledge_tags": [
+          "内能",
+          "压缩空气",
+          "温度升高"
+        ],
+        "answer": "D",
+        "blocks_preview": "[{\"type\": \"stem\", \"order\": 0, \"content\": {\"text\": \"6. 如图 5 所示，在一个配有活塞的厚玻璃筒内放一小团硝化棉. 迅速下压活塞，硝化棉 燃烧. 下列说法正确的是 A. 迅速向上抽活塞，硝化棉也能燃烧 B. 此实验只通过热传递改变筒内空气的内能 C. 下压活塞的过程，空气的内能转化为活塞的机械能 D. 硝化棉燃烧，是因为玻璃筒内空气的温度升高，内能增大 图5 物理试卷 第 2 页 共 "
+      },
+      {
+        "question_no": 7,
+        "id": "c198df5e-85b8-4ae9-9177-94bbba4387b9",
+        "question_type": "single_choice",
+        "status": "pending_review",
+        "primary_knowledge_label": "磁场对通电导体的作用",
+        "knowledge_tags": [
+          "电动机原理",
+          "电流方向",
+          "受力方向"
+        ],
+        "answer": "A",
+        "blocks_preview": "[{\"type\": \"stem\", \"order\": 0, \"content\": {\"text\": \"7. 如图 6 所示，线圈 abcd 位于磁场中. K 与 1 接通时，ab 段导线受磁场力 F 的方向向 上；当 K 改为与 2 接通时，ab 段导线受磁场力 F A. 方向向下 B. 方向向上 C. 为零，因为电源反接 D. 为零，因为电路一定是断路 1 K 2 图6\", \"options\": [{\"text\": \"方向向下\", \""
+      },
+      {
+        "question_no": 8,
+        "id": "ba388ca8-f00f-488c-8c22-3d00b5cfd191",
+        "question_type": "single_choice",
+        "status": "pending_review",
+        "primary_knowledge_label": "晶体熔化图像",
+        "knowledge_tags": [
+          "熔化",
+          "吸热",
+          "温度时间图像"
+        ],
+        "answer": "D",
+        "blocks_preview": "[{\"type\": \"stem\", \"order\": 0, \"content\": {\"text\": \"8. 通过热传递，某物体从固态变为液态. 图 7 是该过程物体的温度随时间变化图象. 下 列说法正确的是 温度 A. 这是非晶体 B. 此过程是液化过程 固、液共存 C. t = 0 时刻物体内能为零 液态 D. 0 t1 这段时间，物体要吸热 固态 0 t1 时间 图7\", \"options\": [{\"text\": \"这是非晶体\", "
+      },
+      {
+        "question_no": 9,
+        "id": "5afd17a6-6045-4e45-95ff-218691ea3281",
+        "question_type": "single_choice",
+        "status": "pending_review",
+        "primary_knowledge_label": "液体压强",
+        "knowledge_tags": [
+          "深度",
+          "橡皮膜",
+          "压强方向"
+        ],
+        "answer": "B",
+        "blocks_preview": "[{\"type\": \"stem\", \"order\": 0, \"content\": {\"text\": \"9. 图 8 所示玻璃管两端开口处蒙的橡皮膜绷紧程度相同. 将此装置置于水中，图 9 中的 哪幅图能反映橡皮膜受到水的压强后的凹凸情况 空气 空气 空气 空气 胶管 水 水 水 水 橡皮膜 玻璃管 橡皮膜 A B C D 图8 图9\", \"options\": [], \"questionNo\": 9, \"extractionStatus\""
+      },
+      {
+        "question_no": 10,
+        "id": "69e15ae2-db34-46a1-9c82-847c8fa6e0dd",
+        "question_type": "single_choice",
+        "status": "pending_review",
+        "primary_knowledge_label": "质量与密度",
+        "knowledge_tags": [
+          "天平",
+          "体积",
+          "密度比较"
+        ],
+        "answer": "C",
+        "blocks_preview": "[{\"type\": \"stem\", \"order\": 0, \"content\": {\"text\": \"10. 规格相同的瓶装了不同的液体，放在横梁已平衡 的天平上，如图 10 所示. 则 A. 甲瓶液体质量较大 B. 乙瓶液体质量较大 C. 乙瓶液体密度较大 D. 两瓶液体密度相等 图 10 物理试卷 第 3 页 共 8 页\", \"options\": [{\"text\": \"甲瓶液体质量较大\", \"label\": \"A\"}, {\"text"
+      },
+      {
+        "question_no": 11,
+        "id": "bd618220-d434-42d2-acae-b27d5a22e10d",
+        "question_type": "single_choice",
+        "status": "pending_review",
+        "primary_knowledge_label": "杠杆平衡与力臂",
+        "knowledge_tags": [
+          "杠杆",
+          "力臂",
+          "静止平衡"
+        ],
+        "answer": "C",
+        "blocks_preview": "[{\"type\": \"stem\", \"order\": 0, \"content\": {\"text\": \"11. AC 硬棒质量忽略不计，在棒的 B、C 两点施加力 F1、F2，F2 的方向沿 OO＇线，棒 在图 11 所示位置处于静止状态. 则 A. F1<F2 s B. F1 = 2 F2 s1 C. F1 力臂小于 s1 D. F2 方向沿 OO＇线向下\", \"options\": [{\"text\": \"F1<F2 s\", \"label"
+      },
+      {
+        "question_no": 12,
+        "id": "fea40f2f-7969-40b9-a8d2-dbdfc595fd7c",
+        "question_type": "single_choice",
+        "status": "pending_review",
+        "primary_knowledge_label": "电磁铁与巨磁电阻",
+        "knowledge_tags": [
+          "GMR",
+          "磁场强弱",
+          "电路动态分析"
+        ],
+        "answer": "D",
+        "blocks_preview": "[{\"type\": \"stem\", \"order\": 0, \"content\": {\"text\": \"12. 巨磁电阻（GMR）在磁场中，电阻会随着磁场的增大而急剧减小. 用 GMR 组成的 电路图如图 12 所示，S 断开，A2 有示数，电源电压恒定. 则 A. S 闭合时，A2 示数减小 GMR B. S 闭合时，A2 示数不变 电磁铁 A2 C. A1 示数减小时，A2 示数不变 A1 D. A1 示数增大时，A2 示数增大 S "
+      },
+      {
+        "question_no": 13,
+        "id": "49afadea-b212-4cfb-ba89-a68a80d5e0fd",
+        "question_type": "fill_blank_or_drawing",
+        "status": "pending_review",
+        "primary_knowledge_label": "平面镜成像",
+        "knowledge_tags": [
+          "作图",
+          "像的运动",
+          "速度"
+        ],
+        "answer": "（1） A＇ A 平面镜 （2）0.5； 向左移；不变",
+        "blocks_preview": "[{\"type\": \"stem\", \"order\": 0, \"content\": {\"text\": \"13. 如图 13 所示，墙壁上的平面镜前立有一硬杆. A 硬杆 杆移动方向 平面镜 (1)画出杆顶 A 点在平面镜中的像. 图 13 水平地面 (2)若杆在 2s 内右移 1m， 杆移动的速度是_____m/s，杆的像相对镜向右还是向左移?_____. 移动时，杆的像大小会变大、变小还是不变?_____. 手指投影灯玩具内部的结构示意"
+      },
+      {
+        "question_no": 14,
+        "id": "47bf791e-fedd-4cc0-b958-23ce01690c48",
+        "question_type": "fill_blank_or_drawing",
+        "status": "pending_review",
+        "primary_knowledge_label": "凸透镜成像作图",
+        "knowledge_tags": [
+          "物距",
+          "光路作图",
+          "实像"
+        ],
+        "answer": "（1）（2）如图示 印有喜羊羊 凸透镜 图案的胶片 物距 F F 光源",
+        "blocks_preview": "[{\"type\": \"stem\", \"order\": 0, \"content\": {\"text\": \"14.(1)在图 14 中标示出物距. . . (2)画出图 14 中所示的两条光线经凸透镜之后的光线. 凸透镜 印有喜羊羊 墙壁 手指投影灯玩具 图案的胶片 F F 光源 图 14 图 15\", \"options\": [], \"questionNo\": 14, \"extractionStatus\": \"rule_cut_pending"
+      },
+      {
+        "question_no": 15,
+        "id": "3ae21bf5-65a1-42e4-b467-380ef025bc59",
+        "question_type": "fill_blank_or_drawing",
+        "status": "pending_review",
+        "primary_knowledge_label": "凸透镜成像性质",
+        "knowledge_tags": [
+          "实像",
+          "倒立"
+        ],
+        "answer": "实像，倒立 速度",
+        "blocks_preview": "[{\"type\": \"stem\", \"order\": 0, \"content\": {\"text\": \"15. 墙上的喜羊羊是实像还是虚像？________. 该像相对于物是“正立”还是“倒立” 的？________. 物理试卷 第 4 页 共 8 页\", \"options\": [], \"questionNo\": 15, \"extractionStatus\": \"rule_cut_pending_teacher_review\"}, \"so"
+      },
+      {
+        "question_no": 16,
+        "id": "2e9fa385-5a24-40dd-9693-e94b2542299d",
+        "question_type": "fill_blank_or_drawing",
+        "status": "pending_review",
+        "primary_knowledge_label": "机械能守恒与速度图像",
+        "knowledge_tags": [
+          "机械能",
+          "无摩擦轨道",
+          "v-t图像"
+        ],
+        "answer": "（1）为零； （2） 等于；图象如右图所示",
+        "blocks_preview": "[{\"type\": \"stem\", \"order\": 0, \"content\": {\"text\": \"16. 小球在没有空气阻力的情况下，沿无摩擦轨 道运动. A C （1）如图 16 所示，小球从 A 点静止释放，小球 h h 到达 C 点时速度是否为零？____. B 图 16 （2）将轨道 BC 段改为水平，如图 17 所示. 小球仍从 A 点静止释放，小球经过 M 点时 的机械能大于、小于还是等于其在 A 点的机械能？_____"
+      },
+      {
+        "question_no": 17,
+        "id": "8a800849-59cf-4f8c-96fa-8184ea11c86f",
+        "question_type": "fill_blank_or_drawing",
+        "status": "pending_review",
+        "primary_knowledge_label": "气体压强变化",
+        "knowledge_tags": [
+          "二氧化碳溶解",
+          "瓶内压强",
+          "大气压"
+        ],
+        "answer": "小于； 不变； 变小 0 时间",
+        "blocks_preview": "[{\"type\": \"stem\", \"order\": 0, \"content\": {\"text\": \"17. 如图 18 所示，往装满 CO2 的软矿泉水瓶加水，迅速拧紧瓶盖， 水 震荡后 CO2 溶于水中，生成碳酸，矿泉水瓶变瘪. 瓶变瘪表明瓶内气体压 二氧化碳 、 强____瓶外气体压强（选填“大于” 、 “等于”“小于”），而瓶外的气体压 士 强_____，因此推测瓶内气体压强与反应前相比____(后两空选填“变大”、 图 18 "
+      },
+      {
+        "question_no": 18,
+        "id": "b3fe890c-4522-4be5-878e-c88cdb1a5db4",
+        "question_type": "fill_blank_or_drawing",
+        "status": "pending_review",
+        "primary_knowledge_label": "重力与固体压强",
+        "knowledge_tags": [
+          "重力计算",
+          "压强公式"
+        ],
+        "answer": "100 ； 500",
+        "blocks_preview": "[{\"type\": \"stem\", \"order\": 0, \"content\": {\"text\": \"18. 图 19 中质量为 10kg 的物体 A 静止在水平地面，与地面接触面积为 0.2m2， A 所受重力为 N，A 对地面的压强是 Pa（g=10N/kg）. F1 B F2 F1 h A B B 图 19 图 20\", \"options\": [], \"questionNo\": 18, \"extractionStatus\": \"r"
+      }
+    ]
+  },
+  "verification": {
+    "exactly18Questions": true,
+    "exactly18CutCandidates": true,
+    "hasQuestionAndAnswerRegions": true,
+    "allHaveAnswers": true,
+    "allHaveKnowledgeTags": true,
+    "allRequireTeacherReview": true,
+    "noExternalAiCalls": true,
+    "noRealStudentDataUsed": true
+  },
+  "remainingGaps": [
+    "本 slice 只覆盖 2015 广州中考第 1-18 题；第 19-24 题由 REAL002 visual-region slice 补齐。",
+    "第 1-18 题 SourceRegion 仍使用 text group placeholder 坐标；第 19-24 题已有 REAL002 screenshot manifest，但全卷仍需教师逐题复核。",
+    "知识点标签为 deterministic rule seed，状态保持 pending_review，仍需教师或教研审核确认。",
+    "没有调用外部 AI，没有处理真实学生成绩，因此不能宣称成绩分析或现场教师验收已完成。"
+  ],
+  "rollback": {
+    "preferred": "restore the pre-run database backup if this was part of a release rehearsal",
+    "targetedSql": [
+      "delete from review_queue_items where payload::text like '%guangzhou_2015_real_ingest_v1%';",
+      "delete from question_blocks where question_item_id in (select id from question_items where custom_fields->>'sourceWorkflowKey' = 'guangzhou_2015_real_ingest_v1');",
+      "delete from cut_candidates where metadata::text like '%guangzhou_2015_real_ingest_v1%' or candidate_payload::text like '%guangzhou_2015_real_ingest_v1%';",
+      "delete from question_items where custom_fields->>'sourceWorkflowKey' = 'guangzhou_2015_real_ingest_v1';",
+      "delete from source_regions where region_type in ('guangzhou_2015_question','guangzhou_2015_answer');"
+    ]
+  }
+}

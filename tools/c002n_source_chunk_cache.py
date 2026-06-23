@@ -16,6 +16,7 @@ EXTRACTOR_VERSION = "c002n-source-chunk-cache.v1"
 DEFAULT_SOURCE_REPORT = Path("docs/evidence/c002-source-material-import-report.json")
 DEFAULT_CACHE_ROOT = Path("tmp/c002n-source-chunk-cache")
 DEFAULT_OUTPUT = Path("docs/evidence/c002n-source-chunk-cache-report.json")
+DEFAULT_FILESTORE_FALLBACK_ROOT = Path("tmp/debug-backup/20260607-212913/file_store")
 SOURCE_HASH_CHUNK_SIZE = 1024 * 1024
 
 
@@ -138,10 +139,45 @@ def cache_path_for(cache_root: Path, source_hash: str) -> Path:
     return cache_root / source_hash[:2] / source_hash / "chunk-index.json"
 
 
-def extract_source(material: dict[str, Any], cache_root: Path, pdftotext: str, pdfinfo: str, source_root: Path | None) -> dict[str, Any]:
-    source_path = source_root / material["relativePath"] if source_root else Path(material["path"])
-    if not source_path.is_file():
-        raise RuntimeError(f"missing source PDF: {source_path}")
+def resolve_source_path(
+    material: dict[str, Any],
+    source_root: Path | None,
+    filestore_fallback_root: Path | None,
+) -> tuple[Path, str]:
+    candidates: list[tuple[Path, str]] = []
+
+    if source_root:
+        candidates.append((source_root / material["relativePath"], "source_root_relative"))
+
+    recorded_path = Path(material["path"])
+    candidates.append((recorded_path, "recorded_path"))
+
+    source_hash = str(material.get("sha256") or "").strip().lower()
+    if source_hash and filestore_fallback_root:
+        candidates.append(
+            (
+                filestore_fallback_root / "original" / source_hash[:2] / source_hash[2:4] / f"{source_hash}.pdf",
+                "filestore_fallback_sha256",
+            )
+        )
+
+    for path, reason in candidates:
+        if path.is_file():
+            return path, reason
+
+    attempted = [str(path) for path, _reason in candidates]
+    raise RuntimeError(f"missing source PDF: attempted={attempted}")
+
+
+def extract_source(
+    material: dict[str, Any],
+    cache_root: Path,
+    pdftotext: str,
+    pdfinfo: str,
+    source_root: Path | None,
+    filestore_fallback_root: Path | None,
+) -> dict[str, Any]:
+    source_path, source_path_mode = resolve_source_path(material, source_root, filestore_fallback_root)
 
     source_hash = sha256_file(source_path)
     cache_path = cache_path_for(cache_root, source_hash)
@@ -149,6 +185,8 @@ def extract_source(material: dict[str, Any], cache_root: Path, pdftotext: str, p
         cached = read_json(cache_path)
         if cached.get("extractorVersion") == EXTRACTOR_VERSION and cached.get("sourceHash") == source_hash:
             cached["cacheHit"] = True
+            cached["sourcePathMode"] = source_path_mode
+            cached["resolvedSourcePath"] = str(source_path)
             return cached
 
     pdfinfo_output = run_text_command([pdfinfo, str(source_path)])
@@ -187,6 +225,8 @@ def extract_source(material: dict[str, Any], cache_root: Path, pdftotext: str, p
         "sourceType": material["sourceType"],
         "sourceTitle": material["sourceTitle"],
         "relativePath": material["relativePath"],
+        "resolvedSourcePath": str(source_path),
+        "sourcePathMode": source_path_mode,
         "materialBatchKey": material["materialBatchKey"],
         "pageCount": page_count,
         "chunkCount": total_chunks,
@@ -226,6 +266,7 @@ def summarize_source(source: dict[str, Any]) -> dict[str, Any]:
         "sourceType": source["sourceType"],
         "sourceTitle": source["sourceTitle"],
         "sourceHash": source["sourceHash"],
+        "sourcePathMode": source.get("sourcePathMode", "unknown"),
         "pageCount": source["pageCount"],
         "nonEmptyPageCount": source["nonEmptyPageCount"],
         "chunkCount": source["chunkCount"],
@@ -236,17 +277,37 @@ def summarize_source(source: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def build_report(source_report: Path, cache_root: Path, output: Path, require_count: int, source_root: Path | None) -> dict[str, Any]:
+def build_report(
+    source_report: Path,
+    cache_root: Path,
+    output: Path,
+    require_count: int,
+    source_root: Path | None,
+    filestore_fallback_root: Path | None,
+) -> dict[str, Any]:
     source_payload = read_json(source_report)
     materials = source_payload.get("plan", [])
     if len(materials) < require_count:
         raise RuntimeError(f"expected at least {require_count} source materials, found {len(materials)}")
 
+    uploaded_by_path: dict[str, dict[str, Any]] = {}
+    for uploaded in source_payload.get("uploaded", []):
+        path = str(uploaded.get("path") or "").strip()
+        if path:
+            uploaded_by_path[path] = uploaded
+
     pdftotext = require_tool("pdftotext")
     pdfinfo = require_tool("pdfinfo")
     sources: list[dict[str, Any]] = []
     for material in materials:
-        sources.append(extract_source(material, cache_root, pdftotext, pdfinfo, source_root))
+        enriched_material = dict(material)
+        if not str(enriched_material.get("sha256") or "").strip():
+            uploaded = uploaded_by_path.get(str(enriched_material.get("path") or "").strip())
+            if uploaded:
+                enriched_material["sha256"] = uploaded.get("sha256", "")
+                enriched_material["fileAssetId"] = uploaded.get("fileAssetId", "")
+                enriched_material["sourceDocumentId"] = uploaded.get("sourceDocumentId", "")
+        sources.append(extract_source(enriched_material, cache_root, pdftotext, pdfinfo, source_root, filestore_fallback_root))
 
     source_hashes = {source["sourceHash"] for source in sources}
     chunk_hashes = {
@@ -265,8 +326,11 @@ def build_report(source_report: Path, cache_root: Path, output: Path, require_co
         if source["nonEmptyPageCount"] == 0
     ]
     source_types: dict[str, int] = {}
+    source_path_modes: dict[str, int] = {}
     for source in sources:
         source_types[source["sourceType"]] = source_types.get(source["sourceType"], 0) + 1
+        source_path_mode = str(source.get("sourcePathMode") or "unknown")
+        source_path_modes[source_path_mode] = source_path_modes.get(source_path_mode, 0) + 1
 
     report = {
         "status": "pass" if not failed_sources else "fail",
@@ -275,6 +339,7 @@ def build_report(source_report: Path, cache_root: Path, output: Path, require_co
         "generatedAt": datetime.now(timezone.utc).isoformat(),
         "sourceReport": str(source_report),
         "sourceRootOverride": str(source_root) if source_root else "",
+        "filestoreFallbackRoot": str(filestore_fallback_root) if filestore_fallback_root else "",
         "cacheRoot": str(cache_root),
         "externalAiCalls": 0,
         "sourceCount": len(sources),
@@ -296,6 +361,7 @@ def build_report(source_report: Path, cache_root: Path, output: Path, require_co
             "estimatedInputTokens": sum(source["estimatedTokens"] for source in sources),
         },
         "bySourceType": dict(sorted(source_types.items())),
+        "bySourcePathMode": dict(sorted(source_path_modes.items())),
         "failedSources": failed_sources,
         "summaryChinese": {
             "title": "C002N 来源 chunk 缓存报告",
@@ -320,9 +386,17 @@ def main() -> int:
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--require-count", type=int, default=33)
     parser.add_argument("--source-root", type=Path, default=None)
+    parser.add_argument("--filestore-fallback-root", type=Path, default=DEFAULT_FILESTORE_FALLBACK_ROOT)
     args = parser.parse_args()
 
-    report = build_report(args.source_report, args.cache_root, args.output, args.require_count, args.source_root)
+    report = build_report(
+        args.source_report,
+        args.cache_root,
+        args.output,
+        args.require_count,
+        args.source_root,
+        args.filestore_fallback_root,
+    )
     print(json.dumps({
         "status": report["status"],
         "task": report["task"],
