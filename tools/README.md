@@ -377,7 +377,8 @@ keeps `readyForIsolatedMachineRun=true`, keeps `p001CanClose=false`, and does
 not execute isolated-machine install, printer/network/domain checks, or
 operator signoff. It also reads `tasks/live-pilot-closeout-plan.csv` so the
 report keeps `nextOpenP001=P001A` and the current `nextOpenREAL005` explicit
-while the onsite boundary is still open.
+(including `none` once `REAL005` repo-side closeout is complete) while the
+onsite boundary is still open.
 
 P005 pilot feedback backlog preflight contract:
 
@@ -423,7 +424,8 @@ older planned states, and now also reads `tasks/live-pilot-closeout-plan.csv`
 to keep the next open slices for `REAL005/P001/P003/P005/P006` explicit in the
 status audit. It also resolves the latest existing REAL005 closure-standard
 report by default and requires `sliceCoverage.REAL005A` plus the current
-`nextOpenREAL005` boundary to stay aligned. The latest repo evidence is
+`nextOpenREAL005` boundary to stay aligned, including the `none` state after
+`REAL005A/B/C/D` repo-side closeout is complete. The latest repo evidence is
 `docs/evidence/<run-date>-ns905-status-sync.md`.
 
 Live pilot closeout plan guard:
@@ -488,7 +490,7 @@ This checks that the REAL005 report exposes machine-readable
 alone. The contract requires `REAL005A` to pass after the RG001/RG002
 source/adapter evidence is complete, allows `REAL005B` and `REAL005C` to move
 to `pass` only when their repo-side evidence is really closed, and then
-requires `REAL005D` to remain the current blocked outward wording slice while
+requires `REAL005D` to pass once repo-side truthful wording is refreshed, while
 `closureStatus` still stays `not_closed`. It also requires the report to expose
 `REAL005B1-B6` / `REAL005C1-C5` detailed slice coverage plus a machine-readable
 `nextDetailedOpen` seam. It is run from temp outputs by default and inside both

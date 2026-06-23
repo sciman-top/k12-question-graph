@@ -2,7 +2,7 @@
   "status": "pass",
   "taskId": "R004",
   "mode": "admission_preflight",
-  "checkedAt": "2026-06-23T21:39:29",
+  "checkedAt": "2026-06-23T23:57:40",
   "n004Status": "已完成",
   "r004Status": "待办",
   "closeTaskAllowed": false,

@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS405",
-  "checkedAt": "2026-06-23T21:18:48",
+  "checkedAt": "2026-06-23T23:43:40",
   "mode": "real009_real010_table_formula_wrapper_plus_api_worker_markers",
   "productionEligible": false,
   "dependency": {
@@ -10,9 +10,9 @@
     "real010": "docs/evidence/20260530-ns405-real010-formula-source-report.json"
   },
   "tableBlock": {
-    "questionId": "84892ca1-b3a5-4dc1-9b6f-cda0a903721d",
-    "tableBlockId": "13c0d24a-32ae-4b27-b569-a6cb742c6e7b",
-    "sourceRegionId": "536d04d0-8acb-4e78-bd98-6bc9305b02bf",
+    "questionId": "363c1ec8-b740-4ea6-8979-99beb660dd7e",
+    "tableBlockId": "d5bd3553-1eeb-4dab-b8c3-869c87a9ebc7",
+    "sourceRegionId": "110ef059-c50c-4759-bc72-b13f870b9a91",
     "caption": "REAL009 实验数据表",
     "columnCount": 3,
     "rowCount": 2,
@@ -24,14 +24,14 @@
     "requiredAction": "review_table_structure"
   },
   "formulaBlock": {
-    "questionId": "f2f1e7c6-67fe-463f-9c3e-ceccb54aac1f",
-    "officeBlockId": "680f0310-e7e5-4558-aa7e-9fe44f5d081f",
+    "questionId": "b0187aff-61a9-4987-8bc1-08a6fdb7815f",
+    "officeBlockId": "fa56e576-b956-482b-80f8-84eb8c05a454",
     "officeSourceFormat": "omml",
     "ommlPreserved": true,
     "latex": "F=ma",
     "mathmlPresent": true,
     "exportPreference": "omml",
-    "scannedBlockId": "26c313c8-bbc7-487b-8905-e3f320fe2bcb",
+    "scannedBlockId": "a779ff59-fc15-4059-ba73-bb30bc6fd3b8",
     "scannedSourceFormat": "scanned_formula_candidate",
     "scannedConfidence": 0.56,
     "scannedReviewStatus": "pending_review",

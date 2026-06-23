@@ -260,21 +260,27 @@ foreach ($parent in @('REAL005','P001','P003','P005','P006')) {
 }
 $real005BSliceStatus = [string] $real005SliceCoverage.REAL005B.status
 $real005CSliceStatus = [string] $real005SliceCoverage.REAL005C.status
+$real005DSliceStatus = [string] $real005SliceCoverage.REAL005D.status
 $expectedReal005NextOpen = if ($real005ASliceStatus -ne 'pass') {
     'REAL005A'
 }
 elseif ($real005BSliceStatus -ne 'pass') {
     'REAL005B'
 }
+elseif ($real005CSliceStatus -ne 'pass') {
+    'REAL005C'
+}
+elseif ($real005DSliceStatus -ne 'pass') {
+    'REAL005D'
+}
 else {
-    if ($real005CSliceStatus -eq 'pass') {
-        'REAL005D'
-    }
-    else {
-        'REAL005C'
-    }
+    'none'
 }
 Assert-True ($nextOpenByParent['REAL005'] -eq $expectedReal005NextOpen) "closeout plan REAL005 next open mismatch: expected $expectedReal005NextOpen, actual $($nextOpenByParent['REAL005'])"
+if ($expectedReal005NextOpen -eq 'none') {
+    Assert-True ($real005DSliceStatus -eq 'pass') 'REAL005D must pass once repo-side truthful wording is refreshed'
+    Assert-True (@($real005SliceCoverage.REAL005D.blockers).Count -eq 0) 'REAL005D blockers must be empty once repo-side closeout is complete'
+}
 
 $checkedAt = (Get-Date).ToString('s')
 $report = [ordered]@{

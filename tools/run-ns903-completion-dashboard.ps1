@@ -126,14 +126,24 @@ try {
     elseif ($real005CStatus -ne 'pass') {
         'REAL005C'
     }
-    else {
+    elseif ($real005DStatus -ne 'pass') {
         'REAL005D'
     }
-    $real005CurrentBoundarySlice = $real005.sliceCoverage.PSObject.Properties[$expectedReal005NextOpen].Value
-    Assert-Condition ($null -ne $real005CurrentBoundarySlice) "NS903 requires REAL005 current boundary slice: $expectedReal005NextOpen"
+    else {
+        'none'
+    }
     Assert-Condition ([string]$real005.sliceCoverage.REAL005A.status -eq 'pass') 'NS903 requires REAL005A to pass after RG001/RG002 source and adapter evidence is complete'
-    Assert-Condition ([string]$real005CurrentBoundarySlice.status -ne 'pass') "NS903 requires current REAL005 boundary slice to remain open while full closure is not_closed: $expectedReal005NextOpen"
-    Assert-Condition (@($real005CurrentBoundarySlice.blockers).Count -ge 1) "NS903 requires current REAL005 boundary blockers while full closure is not_closed: $expectedReal005NextOpen"
+    $real005CurrentBoundarySlice = $null
+    if ($expectedReal005NextOpen -eq 'none') {
+        Assert-Condition ($real005DStatus -eq 'pass') 'NS903 requires REAL005D to pass once repo-side truthful wording is refreshed'
+        Assert-Condition (@($real005.sliceCoverage.REAL005D.blockers).Count -eq 0) 'NS903 requires REAL005D blockers to be empty once repo-side closeout is complete'
+    }
+    else {
+        $real005CurrentBoundarySlice = $real005.sliceCoverage.PSObject.Properties[$expectedReal005NextOpen].Value
+        Assert-Condition ($null -ne $real005CurrentBoundarySlice) "NS903 requires REAL005 current boundary slice: $expectedReal005NextOpen"
+        Assert-Condition ([string]$real005CurrentBoundarySlice.status -ne 'pass') "NS903 requires current REAL005 boundary slice to remain open while full closure is not_closed: $expectedReal005NextOpen"
+        Assert-Condition (@($real005CurrentBoundarySlice.blockers).Count -ge 1) "NS903 requires current REAL005 boundary blockers while full closure is not_closed: $expectedReal005NextOpen"
+    }
     Assert-Condition (-not [bool]$p001.p001CanClose) 'NS903 must keep P001 open until isolated-machine evidence exists'
     Assert-Condition (@($p001.blockers).Count -gt 0) 'NS903 requires P001 blockers to stay explicit'
 
@@ -242,7 +252,7 @@ try {
             real005CStatus = $real005CStatus
             real005DStatus = $real005DStatus
             real005NextOpenSlice = $expectedReal005NextOpen
-            real005NextOpenBlockers = @($real005CurrentBoundarySlice.blockers)
+            real005NextOpenBlockers = if ($null -eq $real005CurrentBoundarySlice) { [string[]]@() } else { [string[]]@($real005CurrentBoundarySlice.blockers) }
             ns901NonSiteValidated = [bool]$ns901.nonSiteValidated
         }
         acceptance = [ordered]@{

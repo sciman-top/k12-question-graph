@@ -1,7 +1,7 @@
 # REAL005B Source Region Screenshots
 
 - status: partial
-- checked_at: 2026-06-23T13:39:40.782327+00:00
+- checked_at: 2026-06-23T15:57:50.162821+00:00
 - file_root: `D:\CODE\k12-question-graph\tmp\real005b-runtime\data\file_store`
 - rendered_pages: 0
 - visual_questions: 190

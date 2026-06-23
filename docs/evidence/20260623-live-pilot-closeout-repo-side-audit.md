@@ -1,13 +1,13 @@
 # Live Pilot Closeout Repo-Side Audit
 
 - status: pass
-- checked_at: 2026-06-23T21:52:01
+- checked_at: 2026-06-23T23:59:50
 - repo_preflight_ci: pass
 - p0_live_preflight_refresh: pass
 - pqr_preflight_pack: pass
 - pqr_orchestration: pass
 - full_gate_attempt: pass
-- full_gate_note: 2026-06-23 full gate passed with exit_code=0 using tmp/debug-backup/20260607-212913/file_store as FileStoreRoot; docs truth surfaces were refreshed afterward and observed PQR outputs remain under tmp/full-gate-pqr.
+- full_gate_note: 2026-06-23 fresh rerun run-gates.ps1 exit_code=0 after final REAL005 repo-side closeout alignment
 
 ## Repo-Side Validated
 - P003 structured admission-card template and import validator are present and passing.
@@ -19,7 +19,7 @@
 ## Truth Boundary
 - REAL005 closure_status: not_closed
 - full_closure_allowed: False
-- REAL005 current_boundary_slice: REAL005D
+- REAL005 current_boundary_slice: none
 - P001 ready_for_isolated_machine_run: True
 - P001 can_close: False
 - P001: 待办
@@ -33,14 +33,14 @@
 - release_ready_claimed: false
 
 ## Next Open Slices
-- REAL005: REAL005D
+- REAL005: none
 - P001: P001A
 - P003: P003A
 - P005: P005A
 - P006: P006A
 
 ## Remaining Blockers
-- REAL005: closureStatus remains not_closed; truthful docs must continue to say not_closed
+- REAL005: none
 - P001: isolated_machine_install_wizard_not_executed | isolated_machine_backup_restore_not_executed | isolated_machine_role_audit_not_executed | isolated_machine_four_teacher_entry_smoke_not_executed
 - P002: P001 isolated-machine rehearsal evidence is not closed. | Authorized or de-identified teacher proxy material path is not recorded. | Teacher proxy timing, rollback, import, paper export, and score import evidence is not recorded.
 - P003: P002 teacher proxy pilot evidence is not closed. | Teacher participation boundary is not signed off. | Data authorization, support owner, rollback plan, and feedback template are not recorded.

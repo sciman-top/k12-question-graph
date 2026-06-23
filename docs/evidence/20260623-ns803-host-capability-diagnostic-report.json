@@ -221,9 +221,9 @@
       "present": true,
       "path": "C:\\Program Files\\LibreOffice\\program\\soffice.COM",
       "probe": {
-        "available": true,
-        "exitCode": 0,
-        "versionLine": ""
+        "available": false,
+        "exitCode": null,
+        "versionLine": "Command '['soffice', '--version']' timed out after 20 seconds"
       }
     },
     "robocopy": {
@@ -307,14 +307,14 @@
       "anchor": "D:\\",
       "available": true,
       "totalGb": 930.0,
-      "freeGb": 299.85
+      "freeGb": 288.91
     },
     "backupRoot": {
       "path": "D:\\KQG_Backups",
       "anchor": "D:\\",
       "available": true,
       "totalGb": 930.0,
-      "freeGb": 299.85
+      "freeGb": 288.91
     }
   },
   "workerOcrProfile": {

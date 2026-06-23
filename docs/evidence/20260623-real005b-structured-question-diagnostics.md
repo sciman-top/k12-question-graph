@@ -1,7 +1,7 @@
 # REAL005B Structured Question Diagnostics
 
 - status: pass
-- checked_at: 2026-06-23T13:39:35.417382+00:00
+- checked_at: 2026-06-23T15:57:45.819146+00:00
 - question_count: 210
 - subquestion_count: 349
 - answer_count: 210

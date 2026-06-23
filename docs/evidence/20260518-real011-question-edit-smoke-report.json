@@ -1,9 +1,9 @@
 {
   "status": "pass",
   "task": "REAL011",
-  "checkedAt": "2026-06-23T21:30:38",
-  "questionId": "e172fc5a-d4c4-418b-b623-fb33fe9808ad",
-  "sourceRegionId": "cdd087ef-7ab6-4f43-a3d4-822b76c95652",
+  "checkedAt": "2026-06-23T23:52:45",
+  "questionId": "4d0f43b0-076e-41c6-b58e-11b636b7e6b0",
+  "sourceRegionId": "e237efef-5cc6-416a-ad9c-5beac94908b4",
   "questionEdit": {
     "questionType": "calculation",
     "defaultScore": 6.0,
@@ -15,7 +15,7 @@
     "blockCount": 2
   },
   "sourceRegionEdit": {
-    "auditId": "d8cbed46-cbe5-402d-9551-2a5c60b9a19a",
+    "auditId": "b448ce3b-a823-4a14-9900-057f0d06a061",
     "regionType": "question_stem_revised",
     "x": 11.0,
     "y": 16.0,
@@ -23,10 +23,10 @@
     "height": 18.0
   },
   "auditProbe": {
-    "questionRevisionAuditId": "c8bbbe0d-939c-4b24-8108-f1b722894cc9",
+    "questionRevisionAuditId": "7428c0fe-9381-4643-a1f1-dbb09b718605",
     "questionAuditDecision": "question_updated",
-    "sourceRegionAuditId": "d8cbed46-cbe5-402d-9551-2a5c60b9a19a"
+    "sourceRegionAuditId": "b448ce3b-a823-4a14-9900-057f0d06a061"
   },
-  "rollback": "delete from review_queue_items where payload->>'questionItemId' = 'e172fc5a-d4c4-418b-b623-fb33fe9808ad' or payload->>'sourceRegionId' = 'cdd087ef-7ab6-4f43-a3d4-822b76c95652'; delete from question_blocks where question_item_id = 'e172fc5a-d4c4-418b-b623-fb33fe9808ad'; delete from question_items where id = 'e172fc5a-d4c4-418b-b623-fb33fe9808ad';",
+  "rollback": "delete from review_queue_items where payload->>'questionItemId' = '4d0f43b0-076e-41c6-b58e-11b636b7e6b0' or payload->>'sourceRegionId' = 'e237efef-5cc6-416a-ad9c-5beac94908b4'; delete from question_blocks where question_item_id = '4d0f43b0-076e-41c6-b58e-11b636b7e6b0'; delete from question_items where id = '4d0f43b0-076e-41c6-b58e-11b636b7e6b0';",
   "summaryChinese": "题干、答案、解析、题型、分值、难度和 SourceRegion bbox 均可修订，且题目与来源框修订都有 audit。"
 }

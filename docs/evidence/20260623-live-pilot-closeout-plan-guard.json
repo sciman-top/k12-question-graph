@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "LIVE_CLOSEOUT_GUARD",
-  "checkedAt": "2026-06-23T21:52:01",
+  "checkedAt": "2026-06-23T23:57:38",
   "planPath": "tasks/live-pilot-closeout-plan.csv",
   "backlogPath": "tasks/backlog.csv",
   "releaseCardPath": "docs/109_ReleaseGoNoGoCard.md",
@@ -18,11 +18,11 @@
     ],
     "blockers": []
   },
-  "real005NextOpen": "REAL005D",
+  "real005NextOpen": "none",
   "rowCount": 26,
   "statusCounts": {
-    "待办": 23,
-    "已完成": 3
+    "待办": 22,
+    "已完成": 4
   },
   "parentCounts": {
     "P001": 8,
@@ -32,7 +32,7 @@
     "REAL005": 4
   },
   "nextOpenByParent": {
-    "REAL005": "REAL005D",
+    "REAL005": "none",
     "P001": "P001A",
     "P003": "P003A",
     "P005": "P005A",

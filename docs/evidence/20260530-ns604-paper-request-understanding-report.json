@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS604",
-  "checkedAt": "2026-06-23T21:21:42",
+  "checkedAt": "2026-06-23T23:45:19",
   "mode": "natural_language_paper_request_understanding",
   "productionEligible": false,
   "externalAiCalls": 0,
@@ -21,7 +21,7 @@
     "knowledgeStatus": "draft"
   },
   "reviewableBlueprint": {
-    "blueprintReviewId": "5b3ad326-bb4f-4304-8682-52ab3d519a26",
+    "blueprintReviewId": "4411d4ae-394c-473b-95e2-7e06bca2cd41",
     "status": "pending_review",
     "mode": "draft_test",
     "subject": "physics",
@@ -53,6 +53,6 @@
     "hotspot": "gate_na: no independent hotspot command; teacher workflow hotspot covered by visible understanding, review questions, pending_review guard, no basket before confirmation, no opaque generation"
   },
   "boundary": "NS604 proves natural-language paper requests are converted into reviewable understanding and blueprint drafts only; they do not create an opaque final paper or draft basket before teacher confirmation.",
-  "rollback": "delete from paper_blueprint_reviews where id = '5b3ad326-bb4f-4304-8682-52ab3d519a26'; git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns604-paper-request-understanding.ps1 docs/evidence/20260530-ns604-paper-request-understanding-report.json",
+  "rollback": "delete from paper_blueprint_reviews where id = '4411d4ae-394c-473b-95e2-7e06bca2cd41'; git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns604-paper-request-understanding.ps1 docs/evidence/20260530-ns604-paper-request-understanding-report.json",
   "next": "NS605 can continue one-click replacement and undo snapshot verification."
 }

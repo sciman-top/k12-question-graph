@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS203",
-  "checkedAt": "2026-06-23T21:16:33",
+  "checkedAt": "2026-06-23T23:41:58",
   "mode": "tracked_text_privacy_license_scan",
   "productionEligible": false,
   "scanScope": {
@@ -18,7 +18,7 @@
       "README.md",
       "ALL_IN_ONE_EXECUTIVE_SPEC.md"
     ],
-    "trackedFileCount": 1340,
+    "trackedFileCount": 1395,
     "policyPath": "docs/102_NonSiteFixturePrivacyPolicy.md",
     "fixturePolicyPath": "tests/golden-import/privacy_and_license.md",
     "rawIgnorePath": "sources/raw/.gitignore"
@@ -32,7 +32,7 @@
     "blockingTrackedBinaryFiles": 0,
     "trackedRawSourceBlockers": 0,
     "localRawSourceFiles": 0,
-    "policyMentionCount": 636,
+    "policyMentionCount": 672,
     "copyrightRawPathMarkers": 0,
     "excludedGeneratedScanReports": 1
   },

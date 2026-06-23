@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "LIVE_PILOT_CLOSEOUT_REPO_SIDE_AUDIT",
-  "checkedAt": "2026-06-23T21:52:01",
+  "checkedAt": "2026-06-23T23:59:50",
   "reportPath": "docs/evidence/20260623-live-pilot-closeout-repo-side-audit.json",
   "markdownReportPath": "docs/evidence/20260623-live-pilot-closeout-repo-side-audit.md",
   "repoSideValidated": {
@@ -44,11 +44,11 @@
       "R007"
     ],
     "liveCloseoutPlanStatusCounts": {
-      "待办": 23,
-      "已完成": 3
+      "待办": 22,
+      "已完成": 4
     },
     "nextOpenByParent": {
-      "REAL005": "REAL005D",
+      "REAL005": "none",
       "P001": "P001A",
       "P003": "P003A",
       "P005": "P005A",
@@ -58,68 +58,68 @@
   },
   "fullGate": {
     "attemptStatus": "pass",
-    "note": "2026-06-23 full gate passed with exit_code=0 using tmp/debug-backup/20260607-212913/file_store as FileStoreRoot; docs truth surfaces were refreshed afterward and observed PQR outputs remain under tmp/full-gate-pqr.",
+    "note": "2026-06-23 fresh rerun run-gates.ps1 exit_code=0 after final REAL005 repo-side closeout alignment",
     "observedOutputRoot": "tmp/full-gate-pqr",
     "observedOutputs": [
       {
         "path": "tmp/full-gate-pqr/pqr-orchestration-consistency-report.json",
         "length": 248,
-        "lastWriteTime": "2026-06-23T21:39:53"
+        "lastWriteTime": "2026-06-23T23:57:58"
       },
       {
         "path": "tmp/full-gate-pqr/pqr-preflight-dashboard.json",
         "length": 3059,
-        "lastWriteTime": "2026-06-23T21:39:53"
+        "lastWriteTime": "2026-06-23T23:57:58"
       },
       {
         "path": "tmp/full-gate-pqr/pqr-preflight-dashboard.md",
         "length": 1527,
-        "lastWriteTime": "2026-06-23T21:39:53"
+        "lastWriteTime": "2026-06-23T23:57:58"
       },
       {
         "path": "tmp/full-gate-pqr/pqr-preflight-freshness-report.json",
         "length": 233,
-        "lastWriteTime": "2026-06-23T21:39:53"
+        "lastWriteTime": "2026-06-23T23:57:58"
       },
       {
         "path": "tmp/full-gate-pqr/pqr-preflight-pack-report.json",
         "length": 1044,
-        "lastWriteTime": "2026-06-23T21:39:52"
+        "lastWriteTime": "2026-06-23T23:57:58"
       },
       {
         "path": "tmp/full-gate-pqr/real005-closure-standard-report.json",
-        "length": 33322,
-        "lastWriteTime": "2026-06-23T21:39:33"
+        "length": 34026,
+        "lastWriteTime": "2026-06-23T23:57:43"
       },
       {
         "path": "tmp/full-gate-pqr/real005-closure-standard-report.md",
-        "length": 4049,
-        "lastWriteTime": "2026-06-23T21:39:33"
+        "length": 4245,
+        "lastWriteTime": "2026-06-23T23:57:43"
       },
       {
         "path": "tmp/full-gate-pqr/real005-detailed-slice-plan-guard.json",
         "length": 430,
-        "lastWriteTime": "2026-06-23T21:39:52"
+        "lastWriteTime": "2026-06-23T23:57:58"
       },
       {
         "path": "tmp/full-gate-pqr/real005-detailed-slice-plan-guard.md",
         "length": 379,
-        "lastWriteTime": "2026-06-23T21:39:52"
+        "lastWriteTime": "2026-06-23T23:57:58"
       },
       {
         "path": "tmp/full-gate-pqr/real005b-question-structure-diagnostics.json",
         "length": 39563,
-        "lastWriteTime": "2026-06-23T21:39:51"
+        "lastWriteTime": "2026-06-23T23:57:57"
       },
       {
         "path": "tmp/full-gate-pqr/real005b-question-structure-diagnostics.md",
         "length": 1180,
-        "lastWriteTime": "2026-06-23T21:39:51"
+        "lastWriteTime": "2026-06-23T23:57:57"
       },
       {
         "path": "tmp/full-gate-pqr/repo-preflight-local-api-detection-contract.json",
         "length": 411,
-        "lastWriteTime": "2026-06-23T21:39:53"
+        "lastWriteTime": "2026-06-23T23:57:58"
       }
     ]
   },
@@ -139,9 +139,7 @@
     "p006": "docs/evidence/20260623-p006-release-decision-admission-report.json"
   },
   "remainingBlockers": {
-    "REAL005": [
-      "closureStatus remains not_closed; truthful docs must continue to say not_closed"
-    ],
+    "REAL005": null,
     "P001": [
       "isolated_machine_install_wizard_not_executed",
       "isolated_machine_backup_restore_not_executed",

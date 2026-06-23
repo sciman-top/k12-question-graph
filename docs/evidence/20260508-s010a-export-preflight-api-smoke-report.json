@@ -1,11 +1,11 @@
 {
   "status": "pass",
   "taskId": "S010A",
-  "checkedAt": "2026-06-23T21:26:52",
-  "requestedApiPort": 14713,
-  "resolvedApiPort": 14713,
+  "checkedAt": "2026-06-23T23:49:36",
+  "requestedApiPort": 1954,
+  "resolvedApiPort": 1954,
   "portFallbackApplied": false,
-  "paperBasketId": "bd9fae6d-1a7b-4868-93c0-022fc338b99b",
+  "paperBasketId": "efd41c1a-77e9-498b-a336-538cb1274739",
   "preflightStatus": "blocked",
   "itemCount": 2,
   "issueCodes": [

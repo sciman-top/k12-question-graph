@@ -195,18 +195,6 @@ try {
     $real005DSliceStatus = [string] $real005.sliceCoverage.REAL005D.status
     Assert-Condition ($real005ASliceStatus -eq 'pass') 'REAL005A must pass before this repo-side audit accepts the completed plan row'
     Assert-Condition (@($real005.sliceCoverage.REAL005A.blockers).Count -eq 0) 'REAL005A blockers must be empty after RG001/RG002 pass'
-    $expectedReal005CompletedCount = if ($real005ASliceStatus -ne 'pass') {
-        0
-    }
-    elseif ($real005BSliceStatus -ne 'pass') {
-        1
-    }
-    elseif ($real005CSliceStatus -ne 'pass') {
-        2
-    }
-    else {
-        3
-    }
     $expectedReal005NextOpen = if ($real005ASliceStatus -ne 'pass') {
         'REAL005A'
     }
@@ -216,18 +204,32 @@ try {
     elseif ($real005CSliceStatus -ne 'pass') {
         'REAL005C'
     }
-    else {
+    elseif ($real005DSliceStatus -ne 'pass') {
         'REAL005D'
+    }
+    else {
+        'none'
+    }
+    $expectedReal005CompletedCount = switch ($expectedReal005NextOpen) {
+        'REAL005A' { 0 }
+        'REAL005B' { 1 }
+        'REAL005C' { 2 }
+        'REAL005D' { 3 }
+        default { 4 }
     }
     Assert-Condition ($closeoutStatusCounts.Contains('待办') -and [int] $closeoutStatusCounts['待办'] -eq (26 - $expectedReal005CompletedCount)) "live closeout plan todo row count drift: expected $(26 - $expectedReal005CompletedCount) actual $($closeoutStatusCounts['待办'])"
     Assert-Condition ($closeoutStatusCounts.Contains('已完成') -and [int] $closeoutStatusCounts['已完成'] -eq $expectedReal005CompletedCount) "live closeout plan completed row count drift: expected $expectedReal005CompletedCount actual $($closeoutStatusCounts['已完成'])"
     Assert-Condition ($nextOpenByParent.REAL005 -eq $expectedReal005NextOpen) "REAL005 next open slice mismatch: expected $expectedReal005NextOpen actual $($nextOpenByParent.REAL005)"
-    $real005CurrentBoundarySlice = $real005.sliceCoverage.PSObject.Properties[$expectedReal005NextOpen].Value
-    Assert-Condition ($null -ne $real005CurrentBoundarySlice) "REAL005 current boundary slice missing from coverage: $expectedReal005NextOpen"
-    Assert-Condition ([string] $real005CurrentBoundarySlice.status -ne 'pass') "REAL005 current boundary slice must remain open while closureStatus is not_closed: $expectedReal005NextOpen"
-    Assert-Condition (@($real005CurrentBoundarySlice.blockers).Count -ge 1) "REAL005 current boundary slice must keep explicit blockers while closureStatus is not_closed: $expectedReal005NextOpen"
-    if ($expectedReal005NextOpen -eq 'REAL005D') {
-        Assert-Condition ($real005DSliceStatus -eq 'blocked') 'REAL005D must remain blocked while outward wording still needs to preserve not_closed'
+    $real005CurrentBoundarySlice = $null
+    if ($expectedReal005NextOpen -eq 'none') {
+        Assert-Condition ($real005DSliceStatus -eq 'pass') 'REAL005D must pass once repo-side truthful wording is refreshed'
+        Assert-Condition (@($real005.sliceCoverage.REAL005D.blockers).Count -eq 0) 'REAL005D blockers must be empty once repo-side closeout is complete'
+    }
+    else {
+        $real005CurrentBoundarySlice = $real005.sliceCoverage.PSObject.Properties[$expectedReal005NextOpen].Value
+        Assert-Condition ($null -ne $real005CurrentBoundarySlice) "REAL005 current boundary slice missing from coverage: $expectedReal005NextOpen"
+        Assert-Condition ([string] $real005CurrentBoundarySlice.status -ne 'pass') "REAL005 current boundary slice must remain open while closureStatus is not_closed: $expectedReal005NextOpen"
+        Assert-Condition (@($real005CurrentBoundarySlice.blockers).Count -ge 1) "REAL005 current boundary slice must keep explicit blockers while closureStatus is not_closed: $expectedReal005NextOpen"
     }
 
     Assert-Condition ([string] $repoPreflight.status -eq 'pass') 'repo preflight CI summary must pass'
@@ -292,7 +294,7 @@ try {
 
     $observedFullGateOutputs = Get-ObservedFiles $FullGateObservedOutputRoot
     $remainingBlockers = [ordered]@{
-        REAL005 = @($real005CurrentBoundarySlice.blockers)
+        REAL005 = if ($null -eq $real005CurrentBoundarySlice) { [string[]]@() } else { [string[]]@($real005CurrentBoundarySlice.blockers) }
         P001 = @($p001.blockers)
         P002 = @($p002.blockers)
         P003 = @($p003.blockers)

@@ -121,9 +121,9 @@
   "closeoutPlan": {
     "rowCount": 26,
     "nextOpenP001": "P001A",
-    "nextOpenREAL005": "REAL005D",
+    "nextOpenREAL005": "none",
     "real005ReportPath": "docs/evidence/20260623-real005-guangzhou-2015-2025-closure-standard-report.json",
-    "real005NextSliceStatus": "blocked"
+    "real005NextSliceStatus": "none"
   },
   "readyForIsolatedMachineRun": true,
   "p001CanClose": false,
@@ -133,6 +133,6 @@
     "isolated_machine_role_audit_not_executed",
     "isolated_machine_four_teacher_entry_smoke_not_executed"
   ],
-  "boundary": "REAL001-REAL012 and read-only diagnostics are ready, but isolated-machine live rehearsal is not executed in this contract; keep P001 as todo until site-run evidence is complete, and keep REAL005 not_closed until its own closeout slices advance",
-  "checkedAt": "2026-06-23T21:39:26"
+  "boundary": "REAL001-REAL012 and read-only diagnostics are ready, but isolated-machine live rehearsal is not executed in this contract; keep P001 as todo until site-run evidence is complete, and keep REAL005 not_closed while onsite/manual closure remains open",
+  "checkedAt": "2026-06-23T23:57:37"
 }

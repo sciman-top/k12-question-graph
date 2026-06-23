@@ -129,6 +129,7 @@ try {
     $real005ASliceStatus = [string]$real005.sliceCoverage.REAL005A.status
     $real005BSliceStatus = [string]$real005.sliceCoverage.REAL005B.status
     $real005CSliceStatus = [string]$real005.sliceCoverage.REAL005C.status
+    $real005DSliceStatus = [string]$real005.sliceCoverage.REAL005D.status
     $real005APlanRow = Get-RequiredRow $closeoutRows 'REAL005A'
     if ($real005ASliceStatus -eq 'pass') {
         Assert-Condition ([string]$real005APlanRow.status -eq '已完成') 'NS905 requires REAL005A plan row to be completed when RG001/RG002 pass'
@@ -177,10 +178,17 @@ try {
     elseif ($real005CSliceStatus -ne 'pass') {
         'REAL005C'
     }
-    else {
+    elseif ($real005DSliceStatus -ne 'pass') {
         'REAL005D'
     }
+    else {
+        'none'
+    }
     Assert-Condition ($closeoutNextOpen['REAL005'] -eq $expectedReal005NextOpen) "next REAL005 closeout slice mismatch: expected $expectedReal005NextOpen actual $($closeoutNextOpen['REAL005'])"
+    if ($expectedReal005NextOpen -eq 'none') {
+        Assert-Condition ($real005DSliceStatus -eq 'pass') 'NS905 requires REAL005D to pass once repo-side truthful wording is refreshed'
+        Assert-Condition (@($real005.sliceCoverage.REAL005D.blockers).Count -eq 0) 'NS905 requires REAL005D blockers to be empty once repo-side closeout is complete'
+    }
     Assert-Condition ($closeoutNextOpen['P001'] -eq 'P001A') 'next P001 closeout slice must start at P001A while todo'
     Assert-Condition ($closeoutNextOpen['P003'] -eq 'P003A') 'next P003 closeout slice must start at P003A while todo'
     Assert-Condition ($closeoutNextOpen['P005'] -eq 'P005A') 'next P005 closeout slice must start at P005A while todo'

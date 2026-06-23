@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS904",
-  "checkedAt": "2026-06-23T21:39:27",
+  "checkedAt": "2026-06-23T23:57:37",
   "mode": "p001_readiness_evidence_pack",
   "productionEligible": false,
   "nonSiteValidated": false,
@@ -44,11 +44,9 @@
     "real005ASliceStatus": "pass",
     "real005BStatus": "pass",
     "real005CStatus": "pass",
-    "real005DStatus": "blocked",
-    "real005NextOpenSlice": "REAL005D",
-    "real005NextOpenBlockers": [
-      "closureStatus remains not_closed; truthful docs must continue to say not_closed"
-    ]
+    "real005DStatus": "pass",
+    "real005NextOpenSlice": "none",
+    "real005NextOpenBlockers": null
   },
   "remainingSiteBlockers": [
     {

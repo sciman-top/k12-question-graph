@@ -2,7 +2,7 @@
 
 本文件给出人工可读任务拆解；机器可导入版见 `tasks/backlog.csv`。任务拆解遵循“小步闭环”：每个任务必须有验收标准和验证方式，不允许只写“建立某模块”。
 
-2026-06-20 状态刷新补充：最新完整 `full gate` 仍是 2026-06-09 通过；2026-06-20 最新 repo-side 守卫、PQR 分组门禁和 REAL005 closure standard 已再次确认 `REAL005 = not_closed`、`REAL005A/B/C = 已完成/pass`、`REAL005D = next open/blocked`、`P001/P003/P005/P006 = 待办`、`release_ready_count = 0`。因此本文件中的已完成任务继续有效，但任何对外完成态都必须优先服从 `tasks/completion-state-dashboard.csv`、`tasks/live-pilot-closeout-plan.csv` 和 `docs/109_ReleaseGoNoGoCard.md` 的当前口径。
+2026-06-23 状态刷新补充：最新完整 `full gate` 已在 2026-06-23 通过；同日最新 repo-side 守卫、PQR 分组门禁和 REAL005 closure standard 已再次确认 `REAL005 = not_closed`、`REAL005A/B/C/D = 已完成/pass`、`REAL005` 的 repo-side next open = `none`、`P001/P003/P005/P006 = 待办`、`release_ready_count = 0`。因此本文件中的已完成任务继续有效，但任何对外完成态都必须优先服从 `tasks/completion-state-dashboard.csv`、`tasks/live-pilot-closeout-plan.csv` 和 `docs/109_ReleaseGoNoGoCard.md` 的当前口径。
 
 动态元素不停工口径：知识点、标签、题型、难度、能力维度、评分规则、组卷规则、导出模板、Excel 字段映射、AI prompt/schema/model routing、分析指标、组织权限和隐私策略都可能变化，但这不能阻断系统搭建。相关任务应先完成 `draft/test` 系统能力和 gate，使用 synthetic fixture、draft bootstrap、sample config 或少量临时资料；正式资料录入后再通过映射、替换、迁移影响报告、人工审核和回滚快照更新。只有生产 `active` 激活、正式统计口径、真实学生数据和真实外部 AI 自动写入必须等待正式资料和人工确认。
 

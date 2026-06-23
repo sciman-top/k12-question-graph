@@ -94,9 +94,8 @@ Assert-True ($closeoutRows.Count -eq 26) "live closeout plan row count drift: ex
 $p001NextCloseout = @($closeoutRows | Where-Object { [string] $_.parent_id -eq 'P001' -and [string] $_.status -ne '已完成' } | Select-Object -First 1)
 $real005NextCloseout = @($closeoutRows | Where-Object { [string] $_.parent_id -eq 'REAL005' -and [string] $_.status -ne '已完成' } | Select-Object -First 1)
 Assert-True ($p001NextCloseout.Count -eq 1) 'live closeout plan must expose next P001 slice'
-Assert-True ($real005NextCloseout.Count -eq 1) 'live closeout plan must expose next REAL005 slice'
 Assert-True ([string] $p001NextCloseout[0].id -eq 'P001A') 'next P001 closeout slice must remain P001A before isolated-machine run'
-Assert-True ([string] $real005NextCloseout[0].id -match '^REAL005[A-D]$') 'next REAL005 closeout slice must stay within REAL005A-D before full closure'
+Assert-True ($real005NextCloseout.Count -le 1) 'live closeout plan can expose at most one next REAL005 slice'
 
 foreach ($requiredTaskId in @('S012', 'O004B', 'O006', 'O007', 'O008', 'REAL001', 'REAL002', 'REAL003', 'REAL004', 'REAL005', 'REAL006', 'REAL007', 'REAL008', 'REAL009', 'REAL010', 'REAL011', 'REAL012', 'P001')) {
     Assert-True ($byId.ContainsKey($requiredTaskId)) "P001 prerequisite task missing: $requiredTaskId"
@@ -153,10 +152,9 @@ Assert-True ($null -ne $real005Report.sliceCoverage.REAL005D) 'P001 preflight re
 $real005AStatus = [string]$real005Report.sliceCoverage.REAL005A.status
 $real005BStatus = [string]$real005Report.sliceCoverage.REAL005B.status
 $real005CStatus = [string]$real005Report.sliceCoverage.REAL005C.status
-$real005NextOpenId = [string] $real005NextCloseout[0].id
+$real005DStatus = [string]$real005Report.sliceCoverage.REAL005D.status
 if ($real005AStatus -ne 'pass') {
     Assert-True ($real005AStatus -in @('blocked', 'partial')) 'P001 preflight requires REAL005A to be pass, blocked, or partial while full closure is open'
-    Assert-True ($real005NextOpenId -eq 'REAL005A') 'P001 preflight requires REAL005A to remain next open until RG001/RG002 pass'
 }
 $expectedReal005NextOpen = if ($real005AStatus -ne 'pass') {
     'REAL005A'
@@ -167,14 +165,28 @@ elseif ($real005BStatus -ne 'pass') {
 elseif ($real005CStatus -ne 'pass') {
     'REAL005C'
 }
-else {
+elseif ($real005DStatus -ne 'pass') {
     'REAL005D'
 }
+else {
+    'none'
+}
+$real005NextOpenId = if ($real005NextCloseout.Count -eq 1) { [string] $real005NextCloseout[0].id } else { 'none' }
 Assert-True ($real005NextOpenId -eq $expectedReal005NextOpen) "P001 preflight requires REAL005 next open slice to match current closure evidence: expected $expectedReal005NextOpen actual $real005NextOpenId"
-$real005NextSliceCoverage = $real005Report.sliceCoverage.PSObject.Properties[$real005NextOpenId].Value
-Assert-True ($null -ne $real005NextSliceCoverage) "P001 preflight requires REAL005 slice coverage for next open slice: $real005NextOpenId"
-Assert-True ([string]$real005NextSliceCoverage.status -ne 'pass') "P001 preflight requires current REAL005 boundary slice to remain open while live pilot is preflight-only: $real005NextOpenId"
-Assert-True (@($real005NextSliceCoverage.blockers).Count -ge 1) "P001 preflight requires current REAL005 boundary blockers while live pilot is preflight-only: $real005NextOpenId"
+$real005NextSliceCoverage = $null
+if ($expectedReal005NextOpen -eq 'none') {
+    Assert-True ($real005DStatus -eq 'pass') 'P001 preflight requires REAL005D to pass once repo-side truthful wording is refreshed'
+    Assert-True (@($real005Report.sliceCoverage.REAL005D.blockers).Count -eq 0) 'P001 preflight requires REAL005D blockers to be empty once repo-side closeout is complete'
+}
+else {
+    if ($real005AStatus -ne 'pass') {
+        Assert-True ($real005NextOpenId -eq 'REAL005A') 'P001 preflight requires REAL005A to remain next open until RG001/RG002 pass'
+    }
+    $real005NextSliceCoverage = $real005Report.sliceCoverage.PSObject.Properties[$real005NextOpenId].Value
+    Assert-True ($null -ne $real005NextSliceCoverage) "P001 preflight requires REAL005 slice coverage for next open slice: $real005NextOpenId"
+    Assert-True ([string]$real005NextSliceCoverage.status -ne 'pass') "P001 preflight requires current REAL005 boundary slice to remain open while live pilot is preflight-only: $real005NextOpenId"
+    Assert-True (@($real005NextSliceCoverage.blockers).Count -ge 1) "P001 preflight requires current REAL005 boundary blockers while live pilot is preflight-only: $real005NextOpenId"
+}
 Assert-True ($real012Report.status -eq 'pass') 'REAL012 report must pass before P001 preflight'
 Assert-True (@($real012Report.searchProbe.selectedQuestionNos).Count -ge 3) 'REAL012 must prove ordered real-question search sample'
 Assert-True ([int]$real012Report.searchProbe.hasImageCount -ge 3) 'REAL012 must prove image-backed real question cards'
@@ -302,7 +314,7 @@ $report = [ordered]@{
         nextOpenP001 = [string] $p001NextCloseout[0].id
         nextOpenREAL005 = $real005NextOpenId
         real005ReportPath = $REAL005ReportPath
-        real005NextSliceStatus = [string]$real005NextSliceCoverage.status
+        real005NextSliceStatus = if ($null -eq $real005NextSliceCoverage) { 'none' } else { [string]$real005NextSliceCoverage.status }
     }
     readyForIsolatedMachineRun = $true
     p001CanClose = $false
@@ -312,7 +324,7 @@ $report = [ordered]@{
         'isolated_machine_role_audit_not_executed',
         'isolated_machine_four_teacher_entry_smoke_not_executed'
     )
-    boundary = 'REAL001-REAL012 and read-only diagnostics are ready, but isolated-machine live rehearsal is not executed in this contract; keep P001 as todo until site-run evidence is complete, and keep REAL005 not_closed until its own closeout slices advance'
+    boundary = 'REAL001-REAL012 and read-only diagnostics are ready, but isolated-machine live rehearsal is not executed in this contract; keep P001 as todo until site-run evidence is complete, and keep REAL005 not_closed while onsite/manual closure remains open'
     checkedAt = (Get-Date).ToString('s')
 }
 

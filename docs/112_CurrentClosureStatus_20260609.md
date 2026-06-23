@@ -19,7 +19,7 @@
 
 当前最准确的对外口径是：
 
-> 仓库内代码、脚本、非现场工作流、参考基线和发布前置口径已经进一步收口；2026-06-23 的完整 `full gate`、closeout/status 守卫与 REAL005 repo-side 切片证据均通过。现场 / 隔离机 / 签收级闭环仍被 `REAL005 = not_closed`、当前 next open `REAL005D` 与 `P001/P003/P005/P006` 阻断。
+> 仓库内代码、脚本、非现场工作流、参考基线和发布前置口径已经进一步收口；2026-06-23 的完整 `full gate`、closeout/status 守卫与 REAL005 repo-side 切片证据均通过。`REAL005A/B/C/D 的 repo-side closeout 已完成`，但整体仍保持 `REAL005 = not_closed`；现场 / 隔离机 / 签收级闭环当前只剩 `P001/P003/P005/P006` 阻断。
 
 ## 2. 最新已验证层级
 
@@ -41,7 +41,7 @@
 - `tools/run-live-pilot-closeout-plan-guard.ps1`
   - 状态：pass
   - 报告：`docs/evidence/20260623-live-pilot-closeout-plan-guard.json` / `.md`
-  - 关键信息：26 行 closeout 计划中 `REAL005A/B/C` 已完成、`REAL005D` 仍待办，`REAL005 = not_closed`，`REAL005D/P001A/P003A/P005A/P006A` 仍是 next open slice。
+  - 关键信息：26 行 closeout 计划中 `REAL005A/B/C/D` 已完成，`REAL005 = not_closed`，`REAL005` 的 repo-side next open slice = `none`，当前只剩 `P001A/P003A/P005A/P006A` 为 next open slice。
 - `tools/run-live-pilot-closeout-repo-side-audit.ps1`
   - 状态：pass
   - 报告：`docs/evidence/20260623-live-pilot-closeout-repo-side-audit.json` / `.md`
@@ -61,7 +61,7 @@
 - `tools/run-real005-guangzhou-2015-2025-closure-standard.ps1`
   - 状态：pass
   - 报告：`docs/evidence/20260623-real005-guangzhou-2015-2025-closure-standard-report.json` / `.md`
-  - 关键信息：`REAL005B` 与 `REAL005C` 的 repo-side evidence 已完成，当前 `fullClosureAllowed = false`、`closureStatus = not_closed`，因此 `REAL005D` 只允许继续保持 truthful `not_closed` 的对外文案，不允许改成已闭环。
+  - 关键信息：`REAL005A/B/C/D 的 repo-side closeout 已完成`，但当前 `fullClosureAllowed = false`、`closureStatus = not_closed`，因此对外仍只能保持 truthful `not_closed` / `No-Go`，不能改成已闭环。
 
 ### 2.3 非现场教师主链路
 
@@ -147,7 +147,7 @@
 ### 5.2 live closeout truthful boundary
 
 - `tasks/live-pilot-closeout-plan.csv` 的 26 行 closeout 计划已被 guard 校验。
-- 最新 next open slice 是 `REAL005D/P001A/P003A/P005A/P006A`；`REAL005A/B/C` 仅表示逐年来源、逐题结构化/审核、真实题使用链与回滚隐私已 repo-side 完成，不表示 `REAL005` 整体闭环。
+- 最新 next open slice 是 `P001A/P003A/P005A/P006A`；`REAL005A/B/C/D` 仅表示 repo-side closeout 已完成，不表示 `REAL005` 整体闭环。
 
 ### 5.3 status sync truthful No-Go
 

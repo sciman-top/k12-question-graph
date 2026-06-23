@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS1001",
-  "checkedAt": "2026-06-23T21:39:27",
+  "checkedAt": "2026-06-23T23:57:38",
   "mode": "isolated_machine_pack_contract",
   "packReportPath": "docs/evidence/20260608-ns1001-isolated-machine-execution-pack.json",
   "manifestPath": "tmp/ns1001-execution-pack/20260608-015422/manifest.json",

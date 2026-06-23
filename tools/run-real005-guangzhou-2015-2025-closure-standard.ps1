@@ -652,7 +652,7 @@ $summaryChinese = if ($closureStatus -eq 'closed') {
     'REAL005 判定标准全部满足，才允许宣称 2015-2025 真卷全流程闭环。'
 }
 elseif ($unfinishedRealTasks.Count -eq 0) {
-    'REAL005 的 repo-side 证据与对外口径已收口；当前真实状态仍是 not_closed，且 completion dashboard 仍保持 contract_done，不可宣称 2015-2025 真卷全流程完成。'
+    'REAL005 的 repo-side 证据与对外口径已收口；REAL005A/B/C/D 的 repo-side closeout 已完成；当前真实状态仍是 not_closed，且 completion dashboard 仍保持 contract_done，不可宣称 2015-2025 真卷全流程完成。'
 }
 else {
     "REAL005 判定标准已安装并通过自检；当前真实状态是 not_closed，仍需完成 $unfinishedText。"
@@ -843,7 +843,7 @@ $real005CCoverage['next'] = if (
     [string]$real005CCriterionStatus.RG015 -eq 'pass' -and
     [string]$real005CCriterionStatus.RG016 -eq 'pass'
 ) {
-    'REAL005C repo-side evidence is complete; advance to REAL005D outward closeout wording while keeping REAL005 not_closed until D is truthfully refreshed.'
+    'REAL005C repo-side evidence is complete; REAL005D repo-side truthful wording is refreshed while keeping REAL005 not_closed until the dashboard area state and onsite/live evidence truly change.'
 }
 elseif (
     [string]$real005BCoverage['status'] -eq 'pass' -and
