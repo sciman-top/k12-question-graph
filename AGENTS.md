@@ -28,18 +28,16 @@
 - 每轮先检查 `git status --short --branch`；若已有脏改动，区分用户改动、治理生成文件和本轮改动。
 - 当前模块归宿：`apps/api` 后端，`apps/web` 前端，`workers/document` 文档/OCR/AI adapter，`tools` gate/backup/restore，`tests` 测试，`docs/evidence` 或任务指定 evidence 路径存证。
 
-### A.3 治理运行时接入
-- 本仓已纳入 `D:\CODE\governed-ai-coding-runtime` target catalog，`target_repo_id=k12-question-graph`。
-- 本项目规则由控制仓 `rules/manifest.json` 管理；目标仓现场修改必须先回写控制仓源文件，再通过同步入口下发。
-- 受管治理资产归 `.governed-ai/` 与 `.claude/`；应用代码、README、业务 docs、项目规则和 `tools/` 不应由一键治理盲覆盖。
-- `.governed-ai/repo-profile.json` 是机器可读承接点；人工阅读和跨工具项目规则以 `AGENTS.md` 为共同主体。
-- 控制仓治理入口：`pwsh -NoProfile -ExecutionPolicy Bypass -File D:\CODE\governed-ai-coding-runtime\scripts\runtime-flow-preset.ps1 -Target k12-question-graph -ApplyGovernanceBaselineOnly -ApplyCodingSpeedProfile -Json`。
+### A.3 规则与本地治理文件
+- 本仓 `AGENTS.md` / `CLAUDE.md` / `GEMINI.md` 由本仓直接维护。
+- 如存在 `.governed-ai/`、`.claude/`、`.githooks/` 或 `scripts/hooks/`，仅按本仓当前事实维护；不要假定存在外部控制仓下发或统一同步。
+- 应用代码、README、业务 docs、项目规则和 `tools/` 变更以本仓门禁和证据为准，不依赖外部治理入口。
 
 ## B. Codex 平台差异
 - Codex 直接读取本文件；不要假定 Codex 会自动读取 `CLAUDE.md`、`GEMINI.md` 或未配置的 fallback 文件。
 - 规则变更后用新 Codex run/session 复核，不假定当前会话热加载。
 - 诊断优先：`codex --version`、`codex --help`；加载链可疑时新会话询问已加载规则来源，并记录 `active_rule_path`。
-- `AGENTS.md` 是上下文规则；危险命令、权限、沙箱和重复 allowlist 应落到 `.codex/rules/*.rules`、控制仓门禁、hooks 或 CI。
+- `AGENTS.md` 是上下文规则；危险命令、权限、沙箱和重复 allowlist 应落到 `.codex/rules/*.rules`、本仓门禁、hooks 或 CI。
 - 未经用户在当前任务中明确确认，不得重启、停止、杀掉或自动拉起 `Codex App`、`codex`、`Claude Code`、`Claude Desktop`、`claude`；provider/auth/API 修复先做文件级状态、dry-run、连通性探针和证据记录，确需重启时先说明影响、会话历史可见性风险和回滚入口。
 
 ## C. 项目差异
@@ -53,7 +51,6 @@
 ### C.2 快速反馈边界
 - quick：`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-c002-dry-run-suite.ps1`
 - quick contract：`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-roadmap-guard.ps1`
-- 控制仓 daily quick：`pwsh -NoProfile -ExecutionPolicy Bypass -File D:\CODE\governed-ai-coding-runtime\scripts\runtime-flow-preset.ps1 -Target k12-question-graph -FlowMode daily -Mode quick -Json`
 - quick 只证明无数据库 C002 dry-run 与 roadmap 依赖一致性；不能替代 `tools/run-gates.ps1` full gate。
 
 ### C.3 失败分流与阻断
@@ -61,10 +58,10 @@
 - CSV/JSON/YAML/schema 解析失败必须先修格式或 schema；不得降级为普通 `gate_na`。
 - PostgreSQL、YAML parser、CLI 或外部工具缺失可记 `platform_na/gate_na`，但必须给替代验证和复测条件。
 - 数据目录、备份恢复、DB migration、权限、外部 AI 调用、真实数据处理和生产 active 切换属于中高风险；先说明回滚路径和验证证据。
-- `.governed-ai/repo-profile.json`、`.claude/settings.json` 或 hooks 与控制仓 catalog/baseline 不一致时，先跑控制仓一致性校验并整合漂移，不手工扩大 allowlist。
+- 若 `.governed-ai/`、`.claude/` 或 hooks 仍带历史治理残留，先按本仓真实用途判断保留或清理；不要把旧外部治理基线当作当前真源。
 
 ### C.4 证据与回滚
-- 默认证据路径：`docs/evidence/`；治理接入或控制仓同步证据落 `D:\CODE\governed-ai-coding-runtime\docs\change-evidence\`。
+- 默认证据路径：`docs/evidence/`。
 - 证据最低字段：规则 ID、风险等级、执行命令、关键输出、兼容性判断、回滚动作。
 - 默认回滚优先 Git；数据库/文件/备份/active 切换必须额外记录 snapshot、manifest 或 restore 命令。
 - 文档/规则轻量门禁可用 CSV/JSON/YAML parse 与 `rg` 检索；若 `yaml` 模块缺失，不因规则修改安装依赖，按 `gate_na` 给替代读取证据。
@@ -87,8 +84,8 @@
   - `R6`: C.1 门禁顺序不可绕过；quick 只能作日常反馈。
   - `R7`: 不破坏现有 schema、migration、backup manifest、C002/C002R 状态语义和教师工作流。
   - `R8`: 每次变更必须留下命令、关键输出、证据路径和回滚动作。
-  - `E4`: `tools/run-gates.ps1`、roadmap guard 和控制仓 target-run evidence 承接健康指标。
+  - `E4`: `tools/run-gates.ps1` 与 roadmap guard 承接健康指标。
   - `E5`: NuGet/npm/Python/AI provider/OCR/外部工具变化必须记录供应链和成本/隐私边界。
   - `E6`: domain asset、DB、backup、export template 和 analysis metric 结构变化必须记录迁移、兼容和回滚。
-- 本文件属于控制仓 manifest 管理；目标仓现场修改必须回写控制仓源文件后同步。
+- 本文件由本仓直接维护；如需跨工具协同，先在本仓更新根规则并复测。
 - 三工具协同约束：`AGENTS.md` 承载共同 A/C/D 项目事实；`CLAUDE.md` / `GEMINI.md` 通过 import 追加 B/D 平台差异，不复制共同正文。

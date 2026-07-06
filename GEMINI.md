@@ -11,7 +11,7 @@
 ## 1. 阅读指引
 - 本文件通过上方 import 承接 k12-question-graph 的共同项目规则，只追加 Gemini CLI 差异。
 - `AGENTS.md` 中的 `## B. Codex 平台差异` 只适用于 Codex；Gemini 以本文件后续 `## B. Gemini 平台差异` 为准。
-- 不在本文件复制项目事实、门禁、证据、回滚或 `Global Rule -> Repo Action`；若共同规则要变，先改控制仓 `rules/projects/k12-question-graph/codex/AGENTS.md` 源文件并同步。
+- 不在本文件复制项目事实、门禁、证据、回滚或 `Global Rule -> Repo Action`；若共同规则要变，直接修改本仓根 `AGENTS.md` 并复测。
 - 合并后的有效上下文必须能推出：当前落点、目标归宿、门禁顺序、证据路径和回滚入口。
 
 ## B. Gemini 平台差异
@@ -26,4 +26,4 @@
 - `plan` 适合研究和契约收口；转执行前重新确认风险、门禁和回滚。`yolo` 不作为默认模式。
 
 ## D. 维护校验
-- 本 wrapper 不改写 `AGENTS.md` 的 A/C/D 项目事实；如发现共同规则与 Gemini 差异冲突，先按代码、gate 和 `AGENTS.md` 事实定位，再回写控制仓源文件。
+- 本 wrapper 不改写 `AGENTS.md` 的 A/C/D 项目事实；如发现共同规则与 Gemini 差异冲突，先按代码、gate 和 `AGENTS.md` 事实定位，再直接修本仓规则。
