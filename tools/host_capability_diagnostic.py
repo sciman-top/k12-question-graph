@@ -15,25 +15,79 @@ import worker_profile_diagnostic
 
 def command_path(name: str) -> str | None:
     found = shutil.which(name)
-    return str(Path(found)) if found else None
+    if not found:
+        return None
+    path = Path(found)
+    if os.name == "nt" and name.lower() == "soffice" and path.name.lower() == "soffice.exe":
+        console_path = path.with_name("soffice.com")
+        if console_path.exists():
+            return str(console_path)
+    return str(path)
 
 
-def run_command(args: list[str], timeout: int = 10) -> dict[str, Any]:
-    try:
-        completed = subprocess.run(
-            args,
+def creation_flags() -> int:
+    if os.name == "nt":
+        return int(getattr(subprocess, "CREATE_NO_WINDOW", 0))
+    return 0
+
+
+def terminate_process_tree(process: subprocess.Popen[str]) -> None:
+    if process.poll() is not None:
+        return
+    if os.name == "nt":
+        subprocess.run(
+            ["taskkill", "/T", "/F", "/PID", str(process.pid)],
             capture_output=True,
             text=True,
             encoding="utf-8",
             errors="replace",
-            timeout=timeout,
+            timeout=10,
             check=False,
+            creationflags=creation_flags(),
         )
+        return
+    process.kill()
+
+
+def run_command(args: list[str], timeout: int = 10) -> dict[str, Any]:
+    try:
+        process = subprocess.Popen(
+            args,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            creationflags=creation_flags(),
+        )
+        stdout, stderr = process.communicate(timeout=timeout)
         return {
-            "available": completed.returncode == 0,
-            "exitCode": completed.returncode,
-            "stdout": completed.stdout.strip(),
-            "stderr": completed.stderr.strip(),
+            "available": process.returncode == 0,
+            "exitCode": process.returncode,
+            "stdout": stdout.strip(),
+            "stderr": stderr.strip(),
+        }
+    except subprocess.TimeoutExpired as exc:
+        stdout = exc.stdout or ""
+        stderr = exc.stderr or ""
+        if isinstance(stdout, bytes):
+            stdout = stdout.decode("utf-8", errors="replace")
+        if isinstance(stderr, bytes):
+            stderr = stderr.decode("utf-8", errors="replace")
+        if "process" in locals():
+            try:
+                terminate_process_tree(process)
+            except Exception:
+                pass
+            try:
+                process.communicate(timeout=5)
+            except Exception:
+                pass
+        return {
+            "available": False,
+            "exitCode": None,
+            "stdout": stdout.strip(),
+            "stderr": str(exc),
         }
     except Exception as exc:
         return {
@@ -147,10 +201,11 @@ def detect_commands() -> dict[str, dict[str, Any]]:
     commands: dict[str, dict[str, Any]] = {}
     for name, args in probes.items():
         path = command_path(name)
+        probe_args = [path, *args[1:]] if path and args and args[0] == name else args
         commands[name] = {
             "present": path is not None,
             "path": path,
-            "probe": version_probe(args, timeout=20) if path else {"available": False, "exitCode": None, "versionLine": ""},
+            "probe": version_probe(probe_args, timeout=20) if path else {"available": False, "exitCode": None, "versionLine": ""},
         }
     return commands
 

@@ -10,6 +10,7 @@ import {
 import { Alert, Button, Form, Input, InputNumber, Modal, Space, Switch, Tag, Typography, message } from 'antd'
 import { useEffect, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
+import type { AdminAiProviderSettingsTestContract } from '../api/contracts'
 import {
   saveAdminAiProviderSettings,
   testAdminAiProviderSettings,
@@ -138,6 +139,10 @@ type SettingsFormValues = {
   apiKey: string
   imageBaseUrl: string
   imageApiKey: string
+  fallbackBaseUrl: string
+  fallbackApiKey: string
+  fallbackImageBaseUrl: string
+  fallbackImageApiKey: string
   maxConcurrency: number
   monthlyBudgetCny: number
   disabledByDefault: boolean
@@ -153,6 +158,7 @@ export function AiRoutingControlPanel() {
   const [testBusy, setTestBusy] = useState(false)
   const [testOutput, setTestOutput] = useState('')
   const [testSummaryOverride, setTestSummaryOverride] = useState('')
+  const [lastTestResult, setLastTestResult] = useState<AdminAiProviderSettingsTestContract | null>(null)
   const [form] = Form.useForm<SettingsFormValues>()
   const queryClient = useQueryClient()
   const settingsQuery = useAdminAiProviderSettingsQuery()
@@ -169,6 +175,10 @@ export function AiRoutingControlPanel() {
       apiKey: '',
       imageBaseUrl: settings.imageBaseUrl,
       imageApiKey: '',
+      fallbackBaseUrl: settings.fallbackBaseUrl,
+      fallbackApiKey: '',
+      fallbackImageBaseUrl: settings.fallbackImageBaseUrl,
+      fallbackImageApiKey: '',
       maxConcurrency: settings.maxConcurrency,
       monthlyBudgetCny: settings.monthlyBudgetCny,
       disabledByDefault: settings.disabledByDefault,
@@ -188,6 +198,10 @@ export function AiRoutingControlPanel() {
       apiKey: values.apiKey,
       imageBaseUrl: values.imageBaseUrl,
       imageApiKey: values.imageApiKey,
+      fallbackBaseUrl: values.fallbackBaseUrl,
+      fallbackApiKey: values.fallbackApiKey,
+      fallbackImageBaseUrl: values.fallbackImageBaseUrl,
+      fallbackImageApiKey: values.fallbackImageApiKey,
       maxConcurrency: values.maxConcurrency,
       monthlyBudgetCny: values.monthlyBudgetCny,
       disabledByDefault: values.disabledByDefault,
@@ -205,8 +219,12 @@ export function AiRoutingControlPanel() {
 
     message.success('管理员 AI 设置已保存')
     setTestSummaryOverride(result.data.teacherMessage)
+    setLastTestResult(null)
+    setTestOutput('')
     form.setFieldValue('apiKey', '')
     form.setFieldValue('imageApiKey', '')
+    form.setFieldValue('fallbackApiKey', '')
+    form.setFieldValue('fallbackImageApiKey', '')
     await queryClient.invalidateQueries({ queryKey: serverStateQueryKeys.adminAiProviderSettings })
   }
 
@@ -218,6 +236,9 @@ export function AiRoutingControlPanel() {
       model: values.defaultSmokeModel,
       inputJson: '',
       baseUrlOverride: values.baseUrl,
+      imageBaseUrlOverride: values.imageBaseUrl,
+      fallbackBaseUrlOverride: values.fallbackBaseUrl,
+      fallbackImageBaseUrlOverride: values.fallbackImageBaseUrl,
     })
     setTestBusy(false)
 
@@ -226,16 +247,36 @@ export function AiRoutingControlPanel() {
       return
     }
 
+    setLastTestResult(result.data)
     setTestSummaryOverride(result.data.message)
     setTestOutput(result.data.outputJson)
-    if (result.data.passed) {
-      message.success('结构化 smoke 试跑已完成')
+    if (result.data.combinedPassed) {
+      message.success('主 smoke 与图片链路探针均已通过')
+    } else if (result.data.passed || result.data.imageProbe.passed) {
+      message.warning('双探针仅部分通过，请查看主 smoke 与图片链路结果')
     } else {
-      message.warning('结构化 smoke 试跑未通过，请查看阻断项')
+      message.warning('主 smoke 与图片链路探针均未通过，请查看阻断项')
     }
   }
 
-  const testSummary = testSummaryOverride || settings?.teacherMessage || '尚未执行真实结构化 smoke 试跑'
+  const testSummary =
+    lastTestResult?.message ||
+    testSummaryOverride ||
+    settings?.teacherMessage ||
+    '尚未执行真实结构化 smoke 试跑'
+  const imageProbe = lastTestResult?.imageProbe ?? null
+  const imageProbeAttemptsSummary = imageProbe?.attempts
+    .map(
+      (attempt) =>
+        `${attempt.providerEndpointId} | ${attempt.baseUrl} | ${attempt.routeKind} | ${attempt.endpointPath} | ${attempt.model} | HTTP ${attempt.httpStatusCode} | ${attempt.latencyMs}ms | ${attempt.passed ? 'passed' : 'failed'} | ${attempt.message}`,
+    )
+    .join('\n')
+  const structuredProbeAttemptsSummary = lastTestResult?.attempts
+    .map(
+      (attempt) =>
+        `${attempt.providerEndpointId} | ${attempt.baseUrl} | ${attempt.routeKind} | ${attempt.endpointPath} | ${attempt.model} | HTTP ${attempt.httpStatusCode} | ${attempt.latencyMs}ms | ${attempt.passed ? 'passed' : 'failed'} | ${attempt.message}`,
+    )
+    .join('\n')
 
   const providerSettingsCard = settings ?? {
     providerProfileId: 'cloud_openai_candidate',
@@ -254,6 +295,14 @@ export function AiRoutingControlPanel() {
     allowRealModelCalls: false,
     defaultSmokeTaskType: 'knowledge_tagging',
     defaultSmokeModel: 'gpt-5.4-mini',
+    fallbackBaseUrl: '',
+    fallbackImageBaseUrl: '',
+    maskedFallbackSecret: '',
+    fallbackSecretConfigured: false,
+    maskedFallbackImageSecret: '',
+    fallbackImageSecretConfigured: false,
+    fallbackImageUsesPrimarySecret: true,
+    endpoints: [],
     lastUpdatedAt: '',
     status: 'unknown',
     mode: 'draft_test',
@@ -337,7 +386,7 @@ export function AiRoutingControlPanel() {
         <div className="ai-provider-head">
           <span>
             <strong>管理员 AI 设置</strong>
-            <small>这里是真正录入 API 参数、保存本机密钥、并做结构化试跑的入口。</small>
+            <small>这里是真正录入 API 参数、保存本机密钥、并做主 responses smoke 与图片链路双探针的入口。</small>
           </span>
           <Button
             icon={<SettingOutlined />}
@@ -353,19 +402,54 @@ export function AiRoutingControlPanel() {
           <span><Typography.Text type="secondary">secret</Typography.Text><code>{providerSettingsCard.maskedSecret || '未配置'}</code></span>
           <span><Typography.Text type="secondary">imageBaseUrl</Typography.Text><code>{providerSettingsCard.imageBaseUrl || providerSettingsCard.baseUrl}</code></span>
           <span><Typography.Text type="secondary">imageSecret</Typography.Text><code>{providerSettingsCard.maskedImageSecret || (providerSettingsCard.imageUsesPrimarySecret ? '复用主 key' : '未配置')}</code></span>
+          <span><Typography.Text type="secondary">fallbackBaseUrl</Typography.Text><code>{providerSettingsCard.fallbackBaseUrl || '未配置'}</code></span>
+          <span><Typography.Text type="secondary">fallbackSecret</Typography.Text><code>{providerSettingsCard.maskedFallbackSecret || '未配置'}</code></span>
           <span><Typography.Text type="secondary">并发</Typography.Text><strong>{providerSettingsCard.maxConcurrency}</strong></span>
           <span><Typography.Text type="secondary">预算</Typography.Text><strong>{providerSettingsCard.monthlyBudgetCny} 元 / 月</strong></span>
           <span><Typography.Text type="secondary">默认试跑</Typography.Text><code>{providerSettingsCard.defaultSmokeTaskType} / {providerSettingsCard.defaultSmokeModel}</code></span>
         </div>
+        {providerSettingsCard.endpoints.length > 0 ? (
+          <div className="ai-provider-meta" data-contract="ai-provider-endpoint-order">
+            {providerSettingsCard.endpoints.map((endpoint) => (
+              <span key={endpoint.endpointId}>
+                <Typography.Text type="secondary">{endpoint.label}</Typography.Text>
+                <code>
+                  {endpoint.endpointId} / {endpoint.baseUrl || '无文本路由'} / {endpoint.secretConfigured ? 'key 已配置' : 'key 未配置'}
+                </code>
+              </span>
+            ))}
+          </div>
+        ) : null}
         <Alert
           showIcon
-          type={providerSettingsCard.secretConfigured ? 'info' : 'warning'}
-          title={providerSettingsCard.secretConfigured ? '主 key 已配置' : '尚未配置主 key'}
+          type={providerSettingsCard.secretConfigured || providerSettingsCard.fallbackSecretConfigured ? 'info' : 'warning'}
+          title={providerSettingsCard.secretConfigured || providerSettingsCard.fallbackSecretConfigured ? '至少一个文本 key 已配置' : '尚未配置文本 key'}
           description={testSummary}
           data-contract="ai-provider-structured-smoke-test"
         />
         {testOutput ? (
           <pre className="ai-smoke-output">{testOutput}</pre>
+        ) : null}
+        {structuredProbeAttemptsSummary ? (
+          <pre className="ai-smoke-output">{structuredProbeAttemptsSummary}</pre>
+        ) : null}
+        {imageProbe ? (
+          <Alert
+            showIcon
+            type={imageProbe.passed ? 'success' : imageProbe.attempted ? 'warning' : 'info'}
+            title={
+              imageProbe.passed
+                ? '图片链路探针已通过'
+                : imageProbe.attempted
+                  ? '图片链路探针未通过'
+                  : '图片链路探针未执行'
+            }
+            description={imageProbe.message}
+            data-contract="ai-provider-image-probe-test"
+          />
+        ) : null}
+        {imageProbeAttemptsSummary ? (
+          <pre className="ai-smoke-output">{imageProbeAttemptsSummary}</pre>
         ) : null}
       </div>
 
@@ -431,6 +515,37 @@ export function AiRoutingControlPanel() {
           >
             <Input.Password placeholder="留空则复用主 key" />
           </Form.Item>
+          <div data-contract="ai-provider-fallback-settings">
+            <Typography.Title level={5}>备用网关</Typography.Title>
+            <Form.Item
+              label="备用 base URL"
+              name="fallbackBaseUrl"
+              extra="主 responses 路由失败后才会尝试；留空则不启用备用文本路由。"
+            >
+              <Input placeholder="https://backup.example.com/v1" />
+            </Form.Item>
+            <Form.Item
+              label="备用 API Key"
+              name="fallbackApiKey"
+              extra={`当前仅显示掩码：${providerSettingsCard.maskedFallbackSecret || '未配置'}；留空则保留现有备用密钥。`}
+            >
+              <Input.Password placeholder="sk-..." />
+            </Form.Item>
+            <Form.Item
+              label="备用图片 base URL"
+              name="fallbackImageBaseUrl"
+              extra="留空时复用备用 base URL；只有备用网关把图片链路挂到另一路径时才需要填写。"
+            >
+              <Input placeholder="https://backup.example.com/v1" />
+            </Form.Item>
+            <Form.Item
+              label="备用图片 API Key"
+              name="fallbackImageApiKey"
+              extra={`当前仅显示掩码：${providerSettingsCard.maskedFallbackImageSecret || (providerSettingsCard.fallbackImageUsesPrimarySecret ? '复用备用 key' : '未配置')}；留空则复用备用 API Key。`}
+            >
+              <Input.Password placeholder="留空则复用备用 API Key" />
+            </Form.Item>
+          </div>
           <Form.Item label="最大并发" name="maxConcurrency" rules={[{ required: true }]}>
             <InputNumber min={1} max={8} style={{ width: '100%' }} />
           </Form.Item>
@@ -478,7 +593,7 @@ export function AiRoutingControlPanel() {
               onClick={() => void handleTest()}
               data-action="test-ai-provider-settings"
             >
-              测试连接并结构化试跑
+              测试主路由与图片链路
             </Button>
           </Space>
         </Form>

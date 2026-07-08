@@ -58,7 +58,9 @@ try {
     foreach ($contractMarker in @(
         'AdminAiProviderSettingsContract',
         'AdminAiProviderSettingsSaveContract',
-        'AdminAiProviderSettingsTestContract'
+        'AdminAiProviderSettingsTestContract',
+        'AdminAiProviderEndpointContract',
+        'AdminAiProviderProbeAttemptContract'
     )) {
         Assert-Condition ($contracts.Contains($contractMarker)) "NS1305A typed contract missing: $contractMarker"
     }
@@ -79,6 +81,44 @@ try {
     Assert-Condition (
         $router.Contains('Path.Combine(environment.ContentRootPath, "..", "..")')
     ) 'NS1305A route/schema checks must resolve repo assets from ContentRootPath back to the repo root.'
+
+    foreach ($fallbackBackendMarker in @(
+        'FallbackBaseUrl',
+        'FallbackImageBaseUrl',
+        'GetRuntimeEndpointsAsync',
+        'TEXT_PROVIDER_FALLBACK_1_BASE_URL',
+        'TEXT_PROVIDER_FALLBACK_1_API_KEY',
+        'IMAGE_PROVIDER_FALLBACK_1_BASE_URL',
+        'IMAGE_PROVIDER_FALLBACK_1_API_KEY_1',
+        'ApplyGatewayCompatibilityHeaders',
+        'codex_exec/k12-question-graph',
+        'application/json, text/event-stream',
+        'selected_provider_endpoint=',
+        'fallback_attempt_count='
+    )) {
+        Assert-Condition ($program.Contains($fallbackBackendMarker)) "NS1305A backend fallback marker missing: $fallbackBackendMarker"
+    }
+
+    foreach ($fallbackClientMarker in @(
+        'fallbackBaseUrl',
+        'fallbackApiKey',
+        'fallbackImageBaseUrl',
+        'fallbackImageApiKey',
+        'effectiveProviderEndpointId',
+        'attempts: readArrayField(value, ''attempts'').map(normalizeAdminAiProviderProbeAttemptResponse)'
+    )) {
+        Assert-Condition ($client.Contains($fallbackClientMarker) -or $contracts.Contains($fallbackClientMarker)) "NS1305A client fallback marker missing: $fallbackClientMarker"
+    }
+
+    foreach ($fallbackUiMarker in @(
+        'data-contract="ai-provider-fallback-settings"',
+        '备用 base URL',
+        '备用 API Key',
+        '备用图片 base URL',
+        '备用图片 API Key'
+    )) {
+        Assert-Condition ($ui.Contains($fallbackUiMarker)) "NS1305A UI fallback marker missing: $fallbackUiMarker"
+    }
 
     foreach ($appMarker in @(
         'data-action="toggle-admin-governance-panels"',
@@ -126,8 +166,11 @@ try {
             structuredSmokeRouteExists = $true
             uiReachableInLocalShell = $true
             adminProxyRouteExists = $true
+            fallbackEndpointContractExists = $true
+            fallbackEnvBootstrapExists = $true
+            runtimeFallbackAttemptsAudited = $true
         }
-        boundary = 'NS1305A proves the admin AI routing surface is no longer display-only: it must expose a reachable local-shell admin entry, a provider settings dialog, typed save/test APIs, and masked secret handling while remaining draft/test and no-active-write.'
+        boundary = 'NS1305A proves the admin AI routing surface is no longer display-only: it must expose a reachable local-shell admin entry, a provider settings dialog, typed save/test APIs, masked secret handling, and automatic primary-to-fallback endpoint attempts while remaining draft/test and no-active-write.'
         rollback = "git restore apps/web/src/App.tsx apps/web/src/App.css apps/web/vite.config.ts apps/web/src/ui/AiRoutingControlPanel.tsx apps/web/src/api/client.ts apps/web/src/api/contracts.ts apps/api/Program.cs tools/run-gates.ps1 tools/README.md; git clean -f -- $ReportPath tools/run-ns1305a-admin-ai-settings-dialog-contract.ps1"
     }
 

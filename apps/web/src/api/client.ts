@@ -220,6 +220,10 @@ export async function saveAdminAiProviderSettings(request: {
   apiKey: string
   imageBaseUrl?: string
   imageApiKey?: string
+  fallbackBaseUrl?: string
+  fallbackApiKey?: string
+  fallbackImageBaseUrl?: string
+  fallbackImageApiKey?: string
   maxConcurrency: number
   monthlyBudgetCny: number
   disabledByDefault: boolean
@@ -240,6 +244,9 @@ export async function testAdminAiProviderSettings(request: {
   inputJson?: string
   model?: string
   baseUrlOverride?: string
+  imageBaseUrlOverride?: string
+  fallbackBaseUrlOverride?: string
+  fallbackImageBaseUrlOverride?: string
 }): Promise<ApiResult<AdminAiProviderSettingsTestContract>> {
   return postAdminJson(
     '/api/admin/ai/provider-settings/test',

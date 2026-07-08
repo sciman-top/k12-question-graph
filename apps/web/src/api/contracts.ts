@@ -355,9 +355,30 @@ export interface AdminAiProviderSettingsContract {
   allowRealModelCalls: boolean
   defaultSmokeTaskType: string
   defaultSmokeModel: string
+  fallbackBaseUrl: string
+  fallbackImageBaseUrl: string
+  maskedFallbackSecret: string
+  fallbackSecretConfigured: boolean
+  maskedFallbackImageSecret: string
+  fallbackImageSecretConfigured: boolean
+  fallbackImageUsesPrimarySecret: boolean
+  endpoints: AdminAiProviderEndpointContract[]
   lastUpdatedAt: string
   teacherMessage: string
   auditTrail: string[]
+}
+
+export interface AdminAiProviderEndpointContract {
+  endpointId: string
+  label: string
+  isFallback: boolean
+  baseUrl: string
+  imageBaseUrl: string
+  maskedSecret: string
+  secretConfigured: boolean
+  maskedImageSecret: string
+  imageSecretConfigured: boolean
+  imageUsesTextSecret: boolean
 }
 
 export interface AdminAiProviderSettingsSaveContract {
@@ -370,8 +391,52 @@ export interface AdminAiProviderSettingsSaveContract {
   imageSecretConfigured: boolean
   maskedImageSecret: string
   imageUsesPrimarySecret: boolean
+  fallbackSecretConfigured: boolean
+  maskedFallbackSecret: string
+  fallbackImageSecretConfigured: boolean
+  maskedFallbackImageSecret: string
+  fallbackImageUsesPrimarySecret: boolean
   lastUpdatedAt: string
   teacherMessage: string
+  auditTrail: string[]
+}
+
+export interface AdminAiProviderProbeAttemptContract {
+  providerEndpointId: string
+  baseUrl: string
+  routeKind: string
+  endpointPath: string
+  model: string
+  passed: boolean
+  httpStatusCode: number
+  latencyMs: number
+  message: string
+}
+
+export interface AdminAiProviderImageProbeAttemptContract {
+  providerEndpointId: string
+  baseUrl: string
+  routeKind: string
+  endpointPath: string
+  model: string
+  passed: boolean
+  httpStatusCode: number
+  latencyMs: number
+  message: string
+}
+
+export interface AdminAiProviderImageProbeResultContract {
+  attempted: boolean
+  passed: boolean
+  effectiveProviderEndpointId: string
+  effectiveBaseUrl: string
+  effectiveRouteKind: string
+  effectiveModel: string
+  httpStatusCode: number
+  latencyMs: number
+  message: string
+  blockers: string[]
+  attempts: AdminAiProviderImageProbeAttemptContract[]
   auditTrail: string[]
 }
 
@@ -385,6 +450,9 @@ export interface AdminAiProviderSettingsTestContract {
   taskType: string
   reviewStatus: string
   passed: boolean
+  combinedPassed: boolean
+  effectiveProviderEndpointId: string
+  effectiveBaseUrl: string
   httpStatusCode: number
   message: string
   outputJson: string
@@ -394,6 +462,8 @@ export interface AdminAiProviderSettingsTestContract {
   cost: number
   latencyMs: number
   blockers: string[]
+  attempts: AdminAiProviderProbeAttemptContract[]
+  imageProbe: AdminAiProviderImageProbeResultContract
   auditTrail: string[]
 }
 
@@ -893,9 +963,32 @@ export function normalizeAdminAiProviderSettingsResponse(
     allowRealModelCalls: readBooleanField(value, 'allowRealModelCalls'),
     defaultSmokeTaskType: readStringField(value, 'defaultSmokeTaskType') ?? '',
     defaultSmokeModel: readStringField(value, 'defaultSmokeModel') ?? '',
+    fallbackBaseUrl: readStringField(value, 'fallbackBaseUrl') ?? '',
+    fallbackImageBaseUrl: readStringField(value, 'fallbackImageBaseUrl') ?? '',
+    maskedFallbackSecret: readStringField(value, 'maskedFallbackSecret') ?? '',
+    fallbackSecretConfigured: readBooleanField(value, 'fallbackSecretConfigured'),
+    maskedFallbackImageSecret: readStringField(value, 'maskedFallbackImageSecret') ?? '',
+    fallbackImageSecretConfigured: readBooleanField(value, 'fallbackImageSecretConfigured'),
+    fallbackImageUsesPrimarySecret: readBooleanField(value, 'fallbackImageUsesPrimarySecret'),
+    endpoints: readArrayField(value, 'endpoints').map(normalizeAdminAiProviderEndpointResponse),
     lastUpdatedAt: readStringField(value, 'lastUpdatedAt') ?? '',
     teacherMessage: readStringField(value, 'teacherMessage') ?? '',
     auditTrail: readArrayField(value, 'auditTrail').map(String),
+  }
+}
+
+function normalizeAdminAiProviderEndpointResponse(value: unknown): AdminAiProviderEndpointContract {
+  return {
+    endpointId: readStringField(value, 'endpointId') ?? '',
+    label: readStringField(value, 'label') ?? '',
+    isFallback: readBooleanField(value, 'isFallback'),
+    baseUrl: readStringField(value, 'baseUrl') ?? '',
+    imageBaseUrl: readStringField(value, 'imageBaseUrl') ?? '',
+    maskedSecret: readStringField(value, 'maskedSecret') ?? '',
+    secretConfigured: readBooleanField(value, 'secretConfigured'),
+    maskedImageSecret: readStringField(value, 'maskedImageSecret') ?? '',
+    imageSecretConfigured: readBooleanField(value, 'imageSecretConfigured'),
+    imageUsesTextSecret: readBooleanField(value, 'imageUsesTextSecret'),
   }
 }
 
@@ -912,8 +1005,64 @@ export function normalizeAdminAiProviderSettingsSaveResponse(
     imageSecretConfigured: readBooleanField(value, 'imageSecretConfigured'),
     maskedImageSecret: readStringField(value, 'maskedImageSecret') ?? '',
     imageUsesPrimarySecret: readBooleanField(value, 'imageUsesPrimarySecret'),
+    fallbackSecretConfigured: readBooleanField(value, 'fallbackSecretConfigured'),
+    maskedFallbackSecret: readStringField(value, 'maskedFallbackSecret') ?? '',
+    fallbackImageSecretConfigured: readBooleanField(value, 'fallbackImageSecretConfigured'),
+    maskedFallbackImageSecret: readStringField(value, 'maskedFallbackImageSecret') ?? '',
+    fallbackImageUsesPrimarySecret: readBooleanField(value, 'fallbackImageUsesPrimarySecret'),
     lastUpdatedAt: readStringField(value, 'lastUpdatedAt') ?? '',
     teacherMessage: readStringField(value, 'teacherMessage') ?? '',
+    auditTrail: readArrayField(value, 'auditTrail').map(String),
+  }
+}
+
+function normalizeAdminAiProviderProbeAttemptResponse(
+  value: unknown,
+): AdminAiProviderProbeAttemptContract {
+  return {
+    providerEndpointId: readStringField(value, 'providerEndpointId') ?? '',
+    baseUrl: readStringField(value, 'baseUrl') ?? '',
+    routeKind: readStringField(value, 'routeKind') ?? 'unknown',
+    endpointPath: readStringField(value, 'endpointPath') ?? '',
+    model: readStringField(value, 'model') ?? '',
+    passed: readBooleanField(value, 'passed'),
+    httpStatusCode: readNumberField(value, 'httpStatusCode'),
+    latencyMs: readNumberField(value, 'latencyMs'),
+    message: readStringField(value, 'message') ?? '',
+  }
+}
+
+function normalizeAdminAiProviderImageProbeAttemptResponse(
+  value: unknown,
+): AdminAiProviderImageProbeAttemptContract {
+  return {
+    providerEndpointId: readStringField(value, 'providerEndpointId') ?? '',
+    baseUrl: readStringField(value, 'baseUrl') ?? '',
+    routeKind: readStringField(value, 'routeKind') ?? 'unknown',
+    endpointPath: readStringField(value, 'endpointPath') ?? '',
+    model: readStringField(value, 'model') ?? '',
+    passed: readBooleanField(value, 'passed'),
+    httpStatusCode: readNumberField(value, 'httpStatusCode'),
+    latencyMs: readNumberField(value, 'latencyMs'),
+    message: readStringField(value, 'message') ?? '',
+  }
+}
+
+function normalizeAdminAiProviderImageProbeResponse(
+  value: unknown,
+): AdminAiProviderImageProbeResultContract {
+  return {
+    attempted: readBooleanField(value, 'attempted'),
+    passed: readBooleanField(value, 'passed'),
+    effectiveProviderEndpointId: readStringField(value, 'effectiveProviderEndpointId') ?? '',
+    effectiveBaseUrl: readStringField(value, 'effectiveBaseUrl') ?? '',
+    effectiveRouteKind: readStringField(value, 'effectiveRouteKind') ?? '',
+    effectiveModel: readStringField(value, 'effectiveModel') ?? '',
+    httpStatusCode: readNumberField(value, 'httpStatusCode'),
+    latencyMs: readNumberField(value, 'latencyMs'),
+    message: readStringField(value, 'message') ?? '',
+    blockers: readArrayField(value, 'blockers').map(String),
+    attempts: readArrayField(value, 'attempts').map(normalizeAdminAiProviderImageProbeAttemptResponse),
     auditTrail: readArrayField(value, 'auditTrail').map(String),
   }
 }
@@ -921,6 +1070,7 @@ export function normalizeAdminAiProviderSettingsSaveResponse(
 export function normalizeAdminAiProviderSettingsTestResponse(
   value: unknown,
 ): AdminAiProviderSettingsTestContract {
+  const imageProbe = readObjectField(value, 'imageProbe')
   return {
     status: readStringField(value, 'status') ?? 'unknown',
     mode: readStringField(value, 'mode') ?? 'unknown',
@@ -931,6 +1081,9 @@ export function normalizeAdminAiProviderSettingsTestResponse(
     taskType: readStringField(value, 'taskType') ?? '',
     reviewStatus: readStringField(value, 'reviewStatus') ?? '',
     passed: readBooleanField(value, 'passed'),
+    combinedPassed: readBooleanField(value, 'combinedPassed'),
+    effectiveProviderEndpointId: readStringField(value, 'effectiveProviderEndpointId') ?? '',
+    effectiveBaseUrl: readStringField(value, 'effectiveBaseUrl') ?? '',
     httpStatusCode: readNumberField(value, 'httpStatusCode'),
     message: readStringField(value, 'message') ?? '',
     outputJson: readStringField(value, 'outputJson') ?? '',
@@ -940,6 +1093,23 @@ export function normalizeAdminAiProviderSettingsTestResponse(
     cost: readNumberField(value, 'cost'),
     latencyMs: readNumberField(value, 'latencyMs'),
     blockers: readArrayField(value, 'blockers').map(String),
+    attempts: readArrayField(value, 'attempts').map(normalizeAdminAiProviderProbeAttemptResponse),
+    imageProbe: imageProbe
+      ? normalizeAdminAiProviderImageProbeResponse(imageProbe)
+      : {
+          attempted: false,
+          passed: false,
+          effectiveProviderEndpointId: '',
+          effectiveBaseUrl: '',
+          effectiveRouteKind: '',
+          effectiveModel: '',
+          httpStatusCode: 0,
+          latencyMs: 0,
+          message: '',
+          blockers: [],
+          attempts: [],
+          auditTrail: [],
+        },
     auditTrail: readArrayField(value, 'auditTrail').map(String),
   }
 }
