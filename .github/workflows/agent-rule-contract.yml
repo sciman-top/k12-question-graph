@@ -1,0 +1,87 @@
+# agent-rule-contract-ci: 2.1
+name: Agent Rule Contract
+
+on:
+  push:
+    paths:
+      - AGENTS.md
+      - CLAUDE.md
+      - .github/workflows/agent-rule-contract.yml
+  pull_request:
+    paths:
+      - AGENTS.md
+      - CLAUDE.md
+      - .github/workflows/agent-rule-contract.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify agent rule contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: true
+
+      - name: Verify project rule and Claude wrapper
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          agents_raw = Path("AGENTS.md").read_bytes()
+          if agents_raw.startswith(b"\xef\xbb\xbf"):
+              raise SystemExit("AGENTS.md must not contain a UTF-8 BOM")
+          agents = agents_raw.decode("utf-8")
+          if len(agents_raw) > 16384 or len(agents.splitlines()) > 140:
+              raise SystemExit("AGENTS.md exceeds the project rule budget")
+          metadata = {"项目契约": "2.0", "全局规则复核": None}
+          for label, expected in metadata.items():
+              match = re.search(
+                  rf"(?m)^\*\*{label}\*\*\s*:\s*\x60?([^\x60\s]+)\x60?\s*$", agents
+              )
+              if match is None:
+                  raise SystemExit(f"AGENTS.md is missing metadata: {label}")
+              if expected is not None and match.group(1) != expected:
+                  raise SystemExit(f"AGENTS.md project contract must be {expected}")
+          for section in ("1", "A", "B", "C", "D"):
+              if not re.search(rf"(?m)^## {section}(?:\.|\s)", agents):
+                  raise SystemExit(f"AGENTS.md is missing section: {section}")
+          for token in (
+              "当前落点",
+              "目标归宿",
+              "build -> test -> contract/invariant -> hotspot",
+              "证据",
+              "回滚",
+          ):
+              if token not in agents:
+                  raise SystemExit(f"AGENTS.md is missing contract token: {token}")
+          if re.search(r"(?im)^## B\.\s*(?:Codex|Claude)\b", agents):
+              raise SystemExit("AGENTS.md must remain host-neutral")
+          if any(token in agents for token in ("Gemini", "GEMINI.md", ".gemini/")):
+              raise SystemExit("AGENTS.md contains managed-family residue")
+
+          wrapper = Path("CLAUDE.md").read_bytes()
+          if wrapper != b"@AGENTS.md\n":
+              raise SystemExit("CLAUDE.md must be the exact one-line @AGENTS.md wrapper")
+          print("agent rule contract: pass")
+          PY
+
+      - name: Normalize incomplete submodule metadata for checkout cleanup
+        if: always()
+        shell: bash
+        run: |
+          known_paths="$({ git config -f .gitmodules --get-regexp '^submodule\..*\.path$' 2>/dev/null || true; } | awk '{print $2}')"
+          while IFS= read -r path; do
+            if ! grep -Fxq "$path" <<<"$known_paths"; then
+              key="${path//\//-}"
+              git config -f .gitmodules "submodule.${key}.path" "$path"
+              git config -f .gitmodules "submodule.${key}.url" "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git"
+            fi
+          done < <(git ls-files --stage | awk '$1 == "160000" {print $4}')
