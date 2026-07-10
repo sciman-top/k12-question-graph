@@ -10,7 +10,7 @@
 - `AGENTS.md` now names the deterministic rule-contract workflow and states that it does not replace repository product gates.
 - `.github/workflows/agent-rule-contract.yml` validates project contract `2.0`, UTF-8/BOM, size/structure, gate/evidence/rollback tokens, host neutrality, and the exact one-line Claude wrapper.
 - workflow permission is `contents: read`; no secret is required. `actions/checkout` is pinned to `34e114876b0b11c390a56381ad16ebd13914f8d5` (`v4`).
-- canonical workflow SHA-256: `2cd1936f70ac10000ab84314043c8c400dac70a10afade12f25425d20c577248`.
+- canonical workflow SHA-256: `634eb76978774b8eaad39fe61172c9f65f5558fcd32ce7f13e98ecfae7214190`.
 
 ## Verification
 

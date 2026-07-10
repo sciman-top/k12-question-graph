@@ -1,4 +1,4 @@
-# agent-rule-contract-ci: 2.0
+# agent-rule-contract-ci: 2.1
 name: Agent Rule Contract
 
 on:
@@ -26,7 +26,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
-          persist-credentials: false
+          persist-credentials: true
 
       - name: Verify project rule and Claude wrapper
         shell: bash
@@ -72,3 +72,16 @@ jobs:
               raise SystemExit("CLAUDE.md must be the exact one-line @AGENTS.md wrapper")
           print("agent rule contract: pass")
           PY
+
+      - name: Normalize incomplete submodule metadata for checkout cleanup
+        if: always()
+        shell: bash
+        run: |
+          known_paths="$({ git config -f .gitmodules --get-regexp '^submodule\..*\.path$' 2>/dev/null || true; } | awk '{print $2}')"
+          while IFS= read -r path; do
+            if ! grep -Fxq "$path" <<<"$known_paths"; then
+              key="${path//\//-}"
+              git config -f .gitmodules "submodule.${key}.path" "$path"
+              git config -f .gitmodules "submodule.${key}.url" "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git"
+            fi
+          done < <(git ls-files --stage | awk '$1 == "160000" {print $4}')
