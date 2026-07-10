@@ -1,7 +1,7 @@
 # 20260711 Agent Rule CI
 
 - repository: `k12-question-graph`
-- status: `verified_local`
+- status: `verified_hosted`
 - risk: low; this slice changes only `AGENTS.md`, `.github/workflows/agent-rule-contract.yml`, and this evidence.
 - goal: make project-rule changes self-verifying in repository CI without replacing product gates.
 
@@ -16,8 +16,8 @@
 
 - control audit: `python scripts/verify-target-project-rules.py --require-all`; result `selected=9 / failed=0 / unavailable=0 / blocking=[]`.
 - the canonical embedded Python gate was executed against valid and invalid temporary repositories; valid `2.0` passed and invalid `1.9` failed.
+- GitHub-hosted verification: [Agent Rule Contract](https://github.com/sciman-top/k12-question-graph/actions/runs/29110121650) completed successfully with checkout cleanup included.
 - `gate_na`: `reason=rule Markdown/workflow-only change`; `alternative_verification=control contract tests + target hash audit + embedded gate execution`; `evidence_link=this file`; `expires_at=2026-08-09`.
-- `platform_na`: `reason=workflow is not pushed, so GitHub-hosted execution is unavailable`; `alternative_verification=same as above`; `evidence_link=this file`; `expires_at=2026-08-09`.
 
 ## Rollback
 
