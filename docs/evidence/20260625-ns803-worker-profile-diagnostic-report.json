@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "worker-profile-diagnostic.v1",
+  "mode": "read_only",
+  "host": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "machine": "AMD64",
+    "processor": "AMD64 Family 23 Model 113 Stepping 0, AuthenticAMD",
+    "pythonExecutable": "C:\\Users\\sciman\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+    "pythonVersion": "3.13.7",
+    "cpuCount": 16,
+    "memoryGb": 31.91
+  },
+  "commands": {
+    "python": true,
+    "uv": true,
+    "conda": false,
+    "docker": false,
+    "wsl": true,
+    "pdftotext": true,
+    "pdftoppm": true,
+    "tesseract": false
+  },
+  "pythonModules": {
+    "rapidocr_onnxruntime": true,
+    "onnxruntime": true,
+    "paddleocr": false,
+    "paddle": false,
+    "cv2": true,
+    "PIL": true
+  },
+  "gpu": {
+    "available": true,
+    "gpus": [
+      {
+        "name": "NVIDIA GeForce GTX 1650 SUPER",
+        "memoryMb": 4096,
+        "driverVersion": "591.86"
+      }
+    ],
+    "raw": {
+      "available": true,
+      "exitCode": 0,
+      "stdout": "NVIDIA GeForce GTX 1650 SUPER, 4096, 591.86",
+      "stderr": ""
+    }
+  },
+  "recommendation": {
+    "recommendedDefaultProfile": "direct_venv_lite",
+    "reason": "RapidOCR/ONNX is available in the current interpreter; use the lightweight local profile first.",
+    "availableProfileCandidates": [
+      "direct_venv_lite",
+      "wsl_or_docker_heavy"
+    ],
+    "needsHumanConfirmationBefore": [
+      "system driver or GPU runtime changes",
+      "Docker Desktop or WSL installation",
+      "cloud OCR token configuration",
+      "switching the production default profile",
+      "processing real non-anonymized materials"
+    ],
+    "nextInstallActions": [
+      "prepare conda_paddle_cpu only after golden-set need is confirmed",
+      "generate launcher/profile with path mapping before WSL/Docker execution"
+    ]
+  },
+  "guardrail": {
+    "noInstallPerformed": true,
+    "noNetworkRequired": true,
+    "productionDefaultChanged": false,
+    "failClosedPolicy": "missing OCR engines must fall back to pending_review/takeoverRequired"
+  }
+}

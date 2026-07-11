@@ -10,6 +10,7 @@ param(
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 $reportRootFullPath = Join-Path $repoRoot $ReportRoot
+. (Join-Path $PSScriptRoot 'script-quality-helpers.ps1')
 New-Item -ItemType Directory -Path $reportRootFullPath -Force | Out-Null
 $referenceValidationMode = if ($Mode -eq 'Ci') { 'Ci' } else { 'Local' }
 $runDate = Get-Date -Format 'yyyyMMdd'
@@ -257,6 +258,11 @@ try {
         if ($LASTEXITCODE -ne 0) { throw 'dotnet build failed' }
     }))
 
+    $steps.Add((Invoke-PreflightStep 'backend tests' {
+        dotnet test tests\api\K12QuestionGraph.Api.Tests\K12QuestionGraph.Api.Tests.csproj -c Release --no-restore | Out-Host
+        if ($LASTEXITCODE -ne 0) { throw 'dotnet test failed' }
+    }))
+
     $steps.Add((Invoke-PreflightStep 'frontend host-local debris guard' {
         $debrisPaths = @(Get-HostLocalFrontendDebrisPaths)
         if ($debrisPaths.Count -gt 0) {
@@ -284,6 +290,27 @@ try {
         finally {
             Pop-Location
         }
+    }))
+
+    $steps.Add((Invoke-PreflightStep 'frontend tests' {
+        Push-Location 'apps\web'
+        try {
+            npm run test | Out-Host
+            if ($LASTEXITCODE -ne 0) { throw 'npm run test failed' }
+        }
+        finally {
+            Pop-Location
+        }
+    }))
+
+    $steps.Add((Invoke-PreflightStep 'script quality sweep' {
+        .\tools\run-script-quality-sweep.ps1 `
+            -JsonReportPath (Join-Path $ReportRoot 'script-quality-sweep.json') | Out-Null
+    }))
+
+    $steps.Add((Invoke-PreflightStep 'worker python tests' {
+        python -m unittest discover -s tests\workers -p test_*.py | Out-Host
+        if ($LASTEXITCODE -ne 0) { throw 'worker python tests failed' }
     }))
 
     $steps.Add((Invoke-PreflightStep 'automation-first guard' {

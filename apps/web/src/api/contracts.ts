@@ -13,8 +13,9 @@ export type ApiResult<T> =
   | {
       ok: false
       error: {
-        code: 'network_error' | 'invalid_response'
+        code: 'network_error' | 'http_error' | 'invalid_response'
         message: string
+        status?: number
       }
     }
 

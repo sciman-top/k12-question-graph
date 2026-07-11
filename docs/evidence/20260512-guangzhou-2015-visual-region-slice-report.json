@@ -1,7 +1,7 @@
 {
   "schemaVersion": "guangzhou-2015-visual-region-slice.v1",
   "workflowKey": "guangzhou_2015_visual_region_v1",
-  "generatedAt": "2026-06-23T15:52:48.578062+00:00",
+  "generatedAt": "2026-06-24T16:32:09.343547+00:00",
   "mode": "apply",
   "status": "pass",
   "scope": {
@@ -66,7 +66,7 @@
         92,
         18
       ],
-      "answerPreview": "19. 1000 三、解析题 [PAGE 2]",
+      "answerPreview": "19. 1000 [PAGE 2] 三、解析题 [PAGE 2]",
       "textPreview": "19. 如图 20 所示，手用 F1 的力直接将物体 B 匀速提升 h，F1 做功为 300 J；若借助滑轮 组把 B 匀速提升相同高度，滑轮组机械效率是 30%，则 F2 做功为 J. 物理试卷 第 5 页 共 8 页 [PAGE 6] 三、解析题（共 24 分） 解析题应写出必要的文字说明、公式和重要演算步骤。只写出最后答案的不能得分。有 数值计算的题，演算过程及结果都要在数字的后面写上正确的单位。 [PAGE 6]"
     },
     {
@@ -146,9 +146,9 @@
   "created": [
     {
       "questionNo": 19,
-      "questionItemId": "98a41d6d-8155-4d36-9c23-eb394b44a379",
-      "questionRegionId": "718db167-21b9-40e2-b137-4f6cb1b80a6a",
-      "answerRegionId": "024ea9d0-b8cd-4d06-a791-99870ec76ac8",
+      "questionItemId": "f2acc208-5baa-4567-894d-c309e3982e5d",
+      "questionRegionId": "6e4405e1-c119-4bf9-afbd-d804c0cbdc23",
+      "answerRegionId": "4e581460-719a-45c4-99ab-71c440bde24c",
       "assetRegionId": null,
       "hasQuestionAsset": false,
       "pageNumber": 5,
@@ -159,15 +159,15 @@
         18
       ],
       "textPreview": "19. 如图 20 所示，手用 F1 的力直接将物体 B 匀速提升 h，F1 做功为 300 J；若借助滑轮 组把 B 匀速提升相同高度，滑轮组机械效率是 30%，则 F2 做功为 J. 物理试卷 第 5 页 共 8 页 [PAGE 6] 三、解析题（共 24 分） 解析题应写出必要的文字说明、公式和重要演算步骤。只写出最后答案的不能得分。有 数值计算的题，",
-      "answerPreview": "19. 1000 三、解析题 [PAGE 2]",
+      "answerPreview": "19. 1000 [PAGE 2] 三、解析题 [PAGE 2]",
       "primaryKnowledgeLabel": "滑轮组机械效率"
     },
     {
       "questionNo": 20,
-      "questionItemId": "549477f2-63ef-4e04-aecf-126b80678f99",
-      "questionRegionId": "69bf0c8d-5f59-4010-8dd8-581d8fe08e76",
-      "answerRegionId": "b9f136ad-c43c-4cc9-9801-5c3bfe7e7af8",
-      "assetRegionId": "c22f4c6a-dd61-4570-885e-1b99d839e365",
+      "questionItemId": "04d9295c-1630-4e9f-bab5-061507cba983",
+      "questionRegionId": "76debd53-65e3-46f8-b519-c2cac4f6f9ec",
+      "answerRegionId": "51cd9b5f-3a3d-4e44-9616-bb8ab408fb00",
+      "assetRegionId": "c6a47eb4-f1d8-455d-8838-784d52faf5a3",
       "hasQuestionAsset": true,
       "pageNumber": 5,
       "bboxPercent": [
@@ -182,10 +182,10 @@
     },
     {
       "questionNo": 21,
-      "questionItemId": "677f39d0-1d75-47e8-817f-f123ae86d631",
-      "questionRegionId": "d1e98823-9e65-41b2-8291-6139b4f80f81",
-      "answerRegionId": "d7d32bb2-5a5a-4d2b-8d5f-a4f1c3550f40",
-      "assetRegionId": "b3207b45-d749-460c-8302-471326491a20",
+      "questionItemId": "a0d3dd1e-bebf-4df8-8b04-a091442502b0",
+      "questionRegionId": "1faa98b3-2895-4d40-b135-0fbab0520c9a",
+      "answerRegionId": "e6af5a11-7443-4136-bdca-1f295292d3f5",
+      "assetRegionId": "99f57071-f858-4d5f-a3b7-c975d82c921b",
       "hasQuestionAsset": true,
       "pageNumber": 6,
       "bboxPercent": [
@@ -200,10 +200,10 @@
     },
     {
       "questionNo": 22,
-      "questionItemId": "3c6b529e-e1c8-4526-85f9-59f6c0654ff2",
-      "questionRegionId": "9e07d20f-8d76-4017-8255-02bc074c25db",
-      "answerRegionId": "9ae8f017-5567-4934-be9e-a819b98b4079",
-      "assetRegionId": "d86df209-3765-4790-9b54-1f8d7fba2138",
+      "questionItemId": "4dcd3f28-b606-42cd-a6bc-c41e228f115f",
+      "questionRegionId": "63235a4d-27af-4469-9c67-78e9eeda9c13",
+      "answerRegionId": "8a9b07b9-3dd3-48b6-bdc9-c7429b70c3c2",
+      "assetRegionId": "a1ea9224-2d2c-4be3-a636-3ce7481638f5",
       "hasQuestionAsset": true,
       "pageNumber": 7,
       "bboxPercent": [
@@ -218,10 +218,10 @@
     },
     {
       "questionNo": 23,
-      "questionItemId": "cdb47c76-4c6d-4737-981f-6f90459a5e9a",
-      "questionRegionId": "6e55e03f-9532-43fc-a098-47dbbe2361e0",
-      "answerRegionId": "121db31e-d972-4463-97e9-211b49ae4a4c",
-      "assetRegionId": "7df4d4e1-c825-463c-a58d-ac9488d8c814",
+      "questionItemId": "9258a98d-5d84-43eb-948d-1428b08af38d",
+      "questionRegionId": "3b3308d3-1526-4936-aca0-69b9d1f3e1cd",
+      "answerRegionId": "9e80f4ad-3872-4ee6-9146-7d13aec2f4ae",
+      "assetRegionId": "4a88698a-daf9-43d6-9378-864ab20b52fa",
       "hasQuestionAsset": true,
       "pageNumber": 7,
       "bboxPercent": [
@@ -236,10 +236,10 @@
     },
     {
       "questionNo": 24,
-      "questionItemId": "7c5d8f50-acb2-42a6-8d11-977be370fdd8",
-      "questionRegionId": "39ade458-16b5-4d4c-94bc-e55ebf5d4000",
-      "answerRegionId": "41c1039d-1288-42f0-ae36-36f0051f87c3",
-      "assetRegionId": "3fd7413d-791b-4701-bccb-43f62db5cbd7",
+      "questionItemId": "46b7b545-5ea3-4a32-add2-0f9f9c53720a",
+      "questionRegionId": "13485a04-0203-4c70-8e70-57eed8f864e4",
+      "answerRegionId": "4927fba7-f4e5-4001-ac61-8dc0f57ab03d",
+      "assetRegionId": "f8b57d5d-bc3d-4448-bbff-f74d2dcb8336",
       "hasQuestionAsset": true,
       "pageNumber": 8,
       "bboxPercent": [
@@ -273,15 +273,15 @@
     "questions": [
       {
         "question_no": 19,
-        "id": "98a41d6d-8155-4d36-9c23-eb394b44a379",
+        "id": "f2acc208-5baa-4567-894d-c309e3982e5d",
         "status": "pending_review",
         "visual_region_status": "screenshot_manifest_pending_teacher_review",
         "primary_knowledge_label": "滑轮组机械效率",
-        "answer": "19. 1000 三、解析题 [PAGE 2]"
+        "answer": "19. 1000 [PAGE 2] 三、解析题 [PAGE 2]"
       },
       {
         "question_no": 20,
-        "id": "549477f2-63ef-4e04-aecf-126b80678f99",
+        "id": "04d9295c-1630-4e9f-bab5-061507cba983",
         "status": "pending_review",
         "visual_region_status": "screenshot_manifest_pending_teacher_review",
         "primary_knowledge_label": "功率与受力分析",
@@ -289,7 +289,7 @@
       },
       {
         "question_no": 21,
-        "id": "677f39d0-1d75-47e8-817f-f123ae86d631",
+        "id": "a0d3dd1e-bebf-4df8-8b04-a091442502b0",
         "status": "pending_review",
         "visual_region_status": "screenshot_manifest_pending_teacher_review",
         "primary_knowledge_label": "电热水壶与热量计算",
@@ -297,7 +297,7 @@
       },
       {
         "question_no": 22,
-        "id": "3c6b529e-e1c8-4526-85f9-59f6c0654ff2",
+        "id": "4dcd3f28-b606-42cd-a6bc-c41e228f115f",
         "status": "pending_review",
         "visual_region_status": "screenshot_manifest_pending_teacher_review",
         "primary_knowledge_label": "实验仪器读数",
@@ -305,7 +305,7 @@
       },
       {
         "question_no": 23,
-        "id": "cdb47c76-4c6d-4737-981f-6f90459a5e9a",
+        "id": "9258a98d-5d84-43eb-948d-1428b08af38d",
         "status": "pending_review",
         "visual_region_status": "screenshot_manifest_pending_teacher_review",
         "primary_knowledge_label": "小灯泡电功率实验",
@@ -313,7 +313,7 @@
       },
       {
         "question_no": 24,
-        "id": "7c5d8f50-acb2-42a6-8d11-977be370fdd8",
+        "id": "46b7b545-5ea3-4a32-add2-0f9f9c53720a",
         "status": "pending_review",
         "visual_region_status": "screenshot_manifest_pending_teacher_review",
         "primary_knowledge_label": "浮力测量设计",

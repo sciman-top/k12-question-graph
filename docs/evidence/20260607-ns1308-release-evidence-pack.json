@@ -1,16 +1,16 @@
 {
   "status": "pass",
   "taskId": "NS1308",
-  "checkedAt": "2026-06-23T23:41:06",
+  "checkedAt": "2026-06-25T00:22:25",
   "mode": "release_evidence_pack_aggregation",
   "productionEligible": false,
   "dependency": {
-    "ns803": "docs/evidence/20260623-ns803-installer-host.json",
-    "ns804": "docs/evidence/20260623-ns804-windows-service.json",
-    "ns805": "docs/evidence/20260623-ns805-health-dashboard.json",
-    "ns806": "docs/evidence/20260623-ns806-upgrade-bundle.json",
-    "ns904": "docs/evidence/20260623-ns904-p001-readiness.json",
-    "p001": "docs/evidence/20260623-p001-live-pilot-readiness-preflight-report.json",
+    "ns803": "docs/evidence/20260624-ns803-installer-host.json",
+    "ns804": "docs/evidence/20260624-ns804-windows-service.json",
+    "ns805": "docs/evidence/20260625-ns805-health-dashboard.json",
+    "ns806": "docs/evidence/20260625-ns806-upgrade-bundle.json",
+    "ns904": "docs/evidence/20260624-ns904-p001-readiness.json",
+    "p001": "docs/evidence/20260624-p001-live-pilot-readiness-preflight-report.json",
     "o004b": "docs/evidence/20260505-o004b-role-audit-closure.md",
     "checklist": "docs/templates/p001-live-pilot-release-checklist.md"
   },
@@ -23,13 +23,13 @@
     },
     "windowsServicePackage": {
       "status": "pass",
-      "apiExecutable": "D:\\CODE\\k12-question-graph\\tmp\\ns804\\windows-service-package\\api\\K12QuestionGraph.Api.exe",
-      "contentRoot": "D:\\CODE\\k12-question-graph\\tmp\\ns804\\windows-service-package\\api",
+      "apiExecutable": "D:\\CODE\\k12-question-graph\\.worktrees\\codex\\full-repo-hardening\\tmp\\ns804\\windows-service-package\\api\\K12QuestionGraph.Api.exe",
+      "contentRoot": "D:\\CODE\\k12-question-graph\\.worktrees\\codex\\full-repo-hardening\\tmp\\ns804\\windows-service-package\\api",
       "dataRoot": "D:\\KQG_Data"
     },
     "capacityHealth": {
       "status": "pass",
-      "backupManifest": "tmp/ns801-backups/20260623-230109/manifest.json",
+      "backupManifest": "tmp/ns801-backups/20260624-235730/manifest.json",
       "storageAreas": [
         "data_root",
         "file_store",

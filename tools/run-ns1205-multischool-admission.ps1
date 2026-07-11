@@ -175,7 +175,7 @@ try {
     Assert-Condition ($livePilotArea.usable_today -eq '不可使用') 'live-pilot must remain unavailable'
     Assert-Condition ($backupRestoreArea.blocking_gap -match 'P001') 'backup-restore must retain P001 operational review boundary'
 
-    $codePatternHits = Find-CodePatternHits @('apps/api', 'apps/web/src', 'configs', 'schemas', 'workers') @(
+    $codePatternHits = @(Find-CodePatternHits @('apps/api', 'apps/web/src', 'configs', 'schemas', 'workers') @(
         '\bTenant\b',
         '\bMultiTenant\b',
         'tenant\s+isolation',
@@ -186,8 +186,8 @@ try {
         'Ingress',
         'LetsEncrypt',
         'certbot'
-    )
-    Assert-Condition ($codePatternHits.Count -eq 0) 'NS1205 found product code/config that appears to enable public/multischool/SaaS deployment'
+    ))
+    Assert-Condition (@($codePatternHits).Count -eq 0) 'NS1205 found product code/config that appears to enable public/multischool/SaaS deployment'
 
     $report = [ordered]@{
         status = 'pass'
@@ -236,7 +236,7 @@ try {
         codeScan = [ordered]@{
             searchedRoots = @('apps/api', 'apps/web/src', 'configs', 'schemas', 'workers')
             blockedPatterns = @('Tenant', 'MultiTenant', 'tenant isolation', 'public internet', 'ReverseProxy', 'YARP', 'Kubernetes', 'Ingress', 'LetsEncrypt', 'certbot')
-            hitCount = [int]$codePatternHits.Count
+            hitCount = [int]@($codePatternHits).Count
             noPublicExposureRoute = $true
             noTenantSchemaOrConfig = $true
             noReverseProxyOrKubernetesDefault = $true

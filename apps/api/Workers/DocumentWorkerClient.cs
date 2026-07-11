@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using System.Text;
+using K12QuestionGraph.Api.Configuration;
+using K12QuestionGraph.Api.Infrastructure.Workers;
 using Microsoft.Extensions.Options;
 
 namespace K12QuestionGraph.Api.Workers;

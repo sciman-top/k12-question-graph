@@ -11,6 +11,7 @@ param(
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 . (Join-Path $PSScriptRoot 'database-env.ps1')
+. (Join-Path $PSScriptRoot 'script-quality-helpers.ps1')
 $DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword
 $results = New-Object System.Collections.Generic.List[object]
 
@@ -237,6 +238,11 @@ try {
         if ($LASTEXITCODE -ne 0) { throw "dotnet build failed" }
     }
 
+    Invoke-GateStep 'backend tests' {
+        dotnet test tests\api\K12QuestionGraph.Api.Tests\K12QuestionGraph.Api.Tests.csproj -c Release --no-restore | Write-Host
+        if ($LASTEXITCODE -ne 0) { throw "dotnet test failed" }
+    }
+
     Invoke-GateStep 'frontend host-local debris guard' {
         $debrisPaths = @(Get-HostLocalFrontendDebrisPaths)
         if ($debrisPaths.Count -gt 0) {
@@ -252,6 +258,20 @@ try {
     Invoke-GateStep 'frontend lint' {
         npm --prefix apps/web run lint | Write-Host
         if ($LASTEXITCODE -ne 0) { throw "npm run lint failed" }
+    }
+
+    Invoke-GateStep 'frontend tests' {
+        npm --prefix apps/web run test | Write-Host
+        if ($LASTEXITCODE -ne 0) { throw "npm run test failed" }
+    }
+
+    Invoke-GateStep 'script quality sweep' {
+        .\tools\run-script-quality-sweep.ps1 -JsonReportPath ('docs/evidence/{0}-script-quality-sweep.json' -f $p0LiveRunDate) | Write-Host
+    }
+
+    Invoke-GateStep 'worker python tests' {
+        python -m unittest discover -s tests\workers -p test_*.py | Write-Host
+        if ($LASTEXITCODE -ne 0) { throw "worker python tests failed" }
     }
 
     Invoke-GateStep 'i001 teacher home ui contract' {

@@ -1,3 +1,7 @@
+param(
+    [string] $GuardPath = 'apps/api/Security/AdminInternalEndpointGuard.cs'
+)
+
 $ErrorActionPreference = 'Stop'
 
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
@@ -60,6 +64,14 @@ function Invoke-ApiForStatus([string] $Uri, [string] $Method = 'GET', [hashtable
 Push-Location $repoRoot
 try {
     $program = Get-Content -LiteralPath 'apps\api\Program.cs' -Raw
+    $guard = Get-Content -LiteralPath $GuardPath -Raw
+
+    foreach ($pattern in @(
+        'UseAdminInternalEndpointGuard'
+    )) {
+        Assert-Condition ($program.Contains($pattern)) "missing O004B Program.cs guard integration marker: $pattern"
+    }
+
     foreach ($pattern in @(
         'X-KQG-Operator-Role',
         'X-KQG-Operator-Id',
@@ -70,7 +82,7 @@ try {
         'rollbackRef',
         'IsRoleAuthorized'
     )) {
-        Assert-Condition ($program.Contains($pattern)) "missing O004B API role/audit marker: $pattern"
+        Assert-Condition ($guard.Contains($pattern)) "missing O004B API role/audit marker: $pattern"
     }
 
     $appsettings = Get-Content -LiteralPath 'apps\api\appsettings.json' -Raw | ConvertFrom-Json

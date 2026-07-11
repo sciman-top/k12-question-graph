@@ -1,14 +1,14 @@
 {
   "status": "pass",
   "task": "REAL008",
-  "checkedAt": "2026-06-23T23:52:32",
+  "checkedAt": "2026-06-25T00:31:53",
   "requestedApiPort": 0,
-  "resolvedApiPort": 7388,
+  "resolvedApiPort": 9723,
   "portFallbackApplied": true,
-  "questionId": "73c9645e-af21-4f83-925c-cb0ec1c71634",
+  "questionId": "db1f9bca-d071-476c-b80a-e317604a457d",
   "sourceDocumentId": "e7fc9823-9c7b-45af-831a-eea5ab4b2908",
-  "stemSourceRegionId": "12a57c1e-dc46-4506-afab-a1c463c937dd",
-  "assetSourceRegionId": "050281b7-027d-4008-b87e-09a51473a5f0",
+  "stemSourceRegionId": "18ceec09-6716-4700-b6f4-e68cd8c97bc9",
+  "assetSourceRegionId": "1d2a4bdb-1cc7-4136-a0db-7179a32a81db",
   "cardProbe": {
     "beforeAssociation": {
       "hasImage": false,
@@ -30,20 +30,20 @@
     "assetCount": 1,
     "assetType": "image",
     "purpose": "question_figure",
-    "sourceRegionScreenshotUrl": "/source-regions/050281b7-027d-4008-b87e-09a51473a5f0/screenshot"
+    "sourceRegionScreenshotUrl": "/source-regions/1d2a4bdb-1cc7-4136-a0db-7179a32a81db/screenshot"
   },
   "sourceProbe": {
     "sourceRegionCount": 2,
     "assetRegionType": "question_asset",
-    "assetScreenshotUrl": "/source-regions/050281b7-027d-4008-b87e-09a51473a5f0/screenshot",
-    "assetPageScreenshotUrl": "/source-regions/050281b7-027d-4008-b87e-09a51473a5f0/page-screenshot",
+    "assetScreenshotUrl": "/source-regions/1d2a4bdb-1cc7-4136-a0db-7179a32a81db/screenshot",
+    "assetPageScreenshotUrl": "/source-regions/1d2a4bdb-1cc7-4136-a0db-7179a32a81db/page-screenshot",
     "assetScreenshotStatusCode": 200
   },
   "auditIds": {
-    "associate": "6a77b589-18ba-47cf-b810-d061a20ce98d",
-    "unlink": "de65f5f9-097d-4101-beb0-83f91b924439",
-    "reassociate": "0312682e-e972-4bc6-84d0-c9208abfdb8d"
+    "associate": "1f50b236-a46b-45db-a8e3-30e1d9e400d5",
+    "unlink": "eb380743-5c67-4120-b8fa-b7c52bd7c502",
+    "reassociate": "b9daf90c-de5e-4c30-b439-adefbc004400"
   },
-  "rollback": "delete from question_assets where question_item_id = '73c9645e-af21-4f83-925c-cb0ec1c71634'; delete from question_blocks where question_item_id = '73c9645e-af21-4f83-925c-cb0ec1c71634'; delete from question_items where id = '73c9645e-af21-4f83-925c-cb0ec1c71634';",
+  "rollback": "delete from question_assets where question_item_id = 'db1f9bca-d071-476c-b80a-e317604a457d'; delete from question_blocks where question_item_id = 'db1f9bca-d071-476c-b80a-e317604a457d'; delete from question_items where id = 'db1f9bca-d071-476c-b80a-e317604a457d';",
   "summaryChinese": "题库卡片 hasImage/assetCount、题目详情题图和来源回看均已证明来自真实 QuestionAsset；关联、解除关联和重新关联均有 audit。"
 }

@@ -4,6 +4,7 @@ param(
     [string] $AppCssPath = 'apps/web/src/App.css',
     [string] $ViteConfigPath = 'apps/web/vite.config.ts',
     [string] $RouterPath = 'apps/api/Ai/AiModelRouter.cs',
+    [string] $SettingsStorePath = 'apps/api/Ai/AdminAiProviderSettings.cs',
     [string] $ClientPath = 'apps/web/src/api/client.ts',
     [string] $ContractsPath = 'apps/web/src/api/contracts.ts',
     [string] $ProgramPath = 'apps/api/Program.cs',
@@ -32,6 +33,7 @@ try {
     $appCss = Read-Text $AppCssPath
     $viteConfig = Read-Text $ViteConfigPath
     $router = Read-Text $RouterPath
+    $settingsStore = Read-Text $SettingsStorePath
     $client = Read-Text $ClientPath
     $contracts = Read-Text $ContractsPath
     $program = Read-Text $ProgramPath
@@ -73,10 +75,10 @@ try {
     }
 
     Assert-Condition (
-        -not $program.Contains('Path.Combine(AppContext.BaseDirectory, "..", "..")')
+        -not $settingsStore.Contains('Path.Combine(AppContext.BaseDirectory, "..", "..")')
     ) 'NS1305A runtime asset loading must resolve repo assets from ContentRootPath, not AppContext.BaseDirectory fallback.'
     Assert-Condition (
-        $program.Contains('Path.Combine(environment.ContentRootPath, "..", "..")')
+        $settingsStore.Contains('Path.Combine(environment.ContentRootPath, "..", "..")')
     ) 'NS1305A runtime asset loading must resolve repo assets from ContentRootPath back to the repo root.'
     Assert-Condition (
         $router.Contains('Path.Combine(environment.ContentRootPath, "..", "..")')

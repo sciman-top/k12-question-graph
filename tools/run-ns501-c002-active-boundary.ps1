@@ -77,11 +77,29 @@ try {
 
     $program = Get-Content -LiteralPath 'apps/api/Program.cs' -Raw
     foreach ($marker in @(
-        'ActiveKnowledgeVersion',
         'PrimaryKnowledgeId',
-        'KnowledgeMappingSources.Manual'
+        'KnowledgeMappingSources.Manual',
+        'knowledgeVersion.GetValueOrDefault(1)'
     )) {
-        Assert-Condition ($program.Contains($marker)) "NS501 API marker missing: $marker"
+        Assert-Condition ($program.Contains($marker)) "NS501 API runtime marker missing: $marker"
+    }
+
+    $paperContracts = Get-Content -LiteralPath 'apps/api/Papers/PaperApiContracts.cs' -Raw
+    foreach ($marker in @(
+        'ActiveKnowledgeVersionCount',
+        'HasKnowledgeVersionReference',
+        'KnowledgeVersionStatus'
+    )) {
+        Assert-Condition ($paperContracts.Contains($marker)) "NS501 API contract marker missing: $marker"
+    }
+
+    $k001Contract = Get-Content -LiteralPath 'tools/k001_active_c002_production_query.py' -Raw
+    foreach ($marker in @(
+        '"activeKnowledgeVersion": ACTIVE_VERSION_REF',
+        '"defaultKnowledgeSource": "active_c002_v1"',
+        '"futureC002RRevisionRequired": "new candidate version, mapping, impact report, review, rollback, active switch"'
+    )) {
+        Assert-Condition ($k001Contract.Contains($marker)) "NS501 K001 contract marker missing: $marker"
     }
 
     $report = [ordered]@{

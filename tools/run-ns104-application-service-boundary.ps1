@@ -13,6 +13,10 @@ function Assert-Condition([bool] $Condition, [string] $Message) {
     }
 }
 
+function ConvertTo-KqgObject([hashtable] $Data) {
+    return [pscustomobject]$Data
+}
+
 function Get-EndpointBlock([string[]] $Lines, [string] $Route) {
     $escapedRoute = [regex]::Escape($Route)
     $start = -1
@@ -33,11 +37,11 @@ function Get-EndpointBlock([string[]] $Lines, [string] $Route) {
         }
     }
 
-    [ordered]@{
+    ConvertTo-KqgObject ([ordered]@{
         route = $Route
         line = $start + 1
         text = ($Lines[$start..$end] -join "`n")
-    }
+    })
 }
 
 function Test-ServiceBackedEndpoint(
@@ -50,7 +54,7 @@ function Test-ServiceBackedEndpoint(
     $text = [string]$block.text
     $missingMarkers = @($RequiredMarkers | Where-Object { $text -notmatch [regex]::Escape($_) })
 
-    [ordered]@{
+    ConvertTo-KqgObject ([ordered]@{
         route = $Route
         line = $block.line
         requiredService = $RequiredService
@@ -65,7 +69,7 @@ function Test-ServiceBackedEndpoint(
             -not ($text -match 'SaveChangesAsync\(') -and
             $missingMarkers.Count -eq 0
         )
-    }
+    })
 }
 
 Push-Location $repoRoot
@@ -110,7 +114,8 @@ try {
     )
 
     $failedServiceEndpoints = @($serviceEndpoints | Where-Object { -not $_.pass })
-    Assert-Condition ($failedServiceEndpoints.Count -eq 0) "service-backed endpoint boundary failed: $($failedServiceEndpoints.route -join ', ')"
+    $failedRoutes = @($failedServiceEndpoints | ForEach-Object { $_.route })
+    Assert-Condition ($failedServiceEndpoints.Count -eq 0) "service-backed endpoint boundary failed: $($failedRoutes -join ', ')"
 
     $legacyDirectDbRoutes = @(
         '/imports',
@@ -126,14 +131,14 @@ try {
     foreach ($route in $legacyDirectDbRoutes) {
         $block = Get-EndpointBlock $programLines $route
         $text = [string]$block.text
-        $legacyDebt += [ordered]@{
+        $legacyDebt += ConvertTo-KqgObject ([ordered]@{
             route = $route
             line = $block.line
             directDbContext = $text -match 'KqgDbContext\s+dbContext'
             saveChangesInEndpoint = $text -match 'SaveChangesAsync\('
             owner = if ($route -like '/review*') { 'NS402/NS403 review API/workbench' } elseif ($route -like '/imports*') { 'NS301/NS401 import source service extraction' } else { 'NS603 paper basket legacy compatibility' }
             allowedInNs104 = $true
-        }
+        })
     }
 
     $serviceFiles = @(
@@ -144,12 +149,12 @@ try {
     )
     $serviceSummaries = foreach ($file in $serviceFiles) {
         $text = Get-Content -LiteralPath $file -Raw
-        [ordered]@{
+        ConvertTo-KqgObject ([ordered]@{
             path = $file
             asyncMethodCount = ([regex]::Matches($text, 'Task<|Task\s')).Count
             saveChangesCount = ([regex]::Matches($text, 'SaveChangesAsync\(')).Count
             dbContextOwnedHere = $text -match 'KqgDbContext'
-        }
+        })
     }
 
     $report = [ordered]@{

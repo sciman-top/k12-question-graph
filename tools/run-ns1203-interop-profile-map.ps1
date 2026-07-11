@@ -179,7 +179,7 @@ try {
     Assert-Condition ($advancedPlatformArea.current_state -eq 'contract_done') 'advanced-platform dashboard state must remain contract_done'
     Assert-Condition ($advancedPlatformArea.usable_today -eq '不可使用') 'advanced-platform must remain unavailable before real integration evidence'
 
-    $codePatternHits = Find-CodePatternHits @('apps/api', 'apps/web/src', 'schemas', 'workers') @(
+    $codePatternHits = @(Find-CodePatternHits @('apps/api', 'apps/web/src', 'schemas', 'workers') @(
         '\bQTI\b',
         '\bOneRoster\b',
         '\bCaliper\b',
@@ -187,8 +187,8 @@ try {
         'CASE\s+framework',
         '\bLTI\b',
         'SIS\s+sync'
-    )
-    Assert-Condition ($codePatternHits.Count -eq 0) 'NS1203 found product code that appears to enable standards import/export or SIS/event sync'
+    ))
+    Assert-Condition (@($codePatternHits).Count -eq 0) 'NS1203 found product code that appears to enable standards import/export or SIS/event sync'
 
     $report = [ordered]@{
         status = 'pass'
@@ -238,7 +238,7 @@ try {
         codeScan = [ordered]@{
             searchedRoots = @('apps/api', 'apps/web/src', 'schemas', 'workers')
             blockedPatterns = @('QTI', 'OneRoster', 'Caliper', 'IMS Global', 'CASE framework', 'LTI', 'SIS sync')
-            hitCount = [int]$codePatternHits.Count
+            hitCount = [int]@($codePatternHits).Count
             noQtiImportExport = $true
             noOneRosterSisSync = $true
             noCaliperEventStream = $true

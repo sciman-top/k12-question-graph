@@ -1,6 +1,6 @@
 # REAL003 广州 2016-2025 真卷批量 dry-run
 
-- status: dry_run_pass
+- status: dry_run_blocked
 - task: REAL003
 - dry_run_only: true
 - years_checked: [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
@@ -10,16 +10,16 @@
 - active_write: false
 
 ## 年度结果
-- 2016: questions=24/24; answers=24/24; source_hashes=3; blockers=none
-- 2017: questions=24/24; answers=24/24; source_hashes=3; blockers=none
-- 2018: questions=24/24; answers=24/24; source_hashes=3; blockers=none
-- 2019: questions=24/24; answers=24/24; source_hashes=3; blockers=none
-- 2020: questions=24/24; answers=24/24; source_hashes=2; blockers=none
-- 2021: questions=18/18; answers=18/18; source_hashes=3; blockers=none
-- 2022: questions=18/18; answers=18/18; source_hashes=4; blockers=none
-- 2023: questions=18/18; answers=18/18; source_hashes=3; blockers=none
-- 2024: questions=18/18; answers=18/18; source_hashes=5; blockers=none
-- 2025: questions=18/18; answers=18/18; source_hashes=4; blockers=none
+- 2016: questions=24/24; answers=24/24; source_hashes=3; blockers=file_store_blob_missing
+- 2017: questions=24/24; answers=24/24; source_hashes=3; blockers=file_store_blob_missing
+- 2018: questions=24/24; answers=24/24; source_hashes=3; blockers=file_store_blob_missing
+- 2019: questions=24/24; answers=24/24; source_hashes=3; blockers=file_store_blob_missing
+- 2020: questions=24/24; answers=24/24; source_hashes=2; blockers=file_store_blob_missing
+- 2021: questions=18/18; answers=18/18; source_hashes=3; blockers=file_store_blob_missing
+- 2022: questions=18/18; answers=18/18; source_hashes=4; blockers=file_store_blob_missing
+- 2023: questions=18/18; answers=18/18; source_hashes=3; blockers=file_store_blob_missing
+- 2024: questions=18/18; answers=18/18; source_hashes=5; blockers=file_store_blob_missing
+- 2025: questions=18/18; answers=18/18; source_hashes=4; blockers=file_store_blob_missing
 
 ## 接管与回滚
 - 所有候选题保持 pending_review，不写 active。

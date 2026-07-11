@@ -88,10 +88,18 @@ try {
         'WithName("UnlinkQuestionAsset")',
         'question_asset_revision',
         'question_asset_associated',
-        'question_asset_unlinked',
-        'sourceRegionScreenshotUrl'
+        'question_asset_unlinked'
     )) {
-        Assert-Condition ($program.Contains($marker)) "NS404 API marker missing: $marker"
+        Assert-Condition ($program.Contains($marker)) "NS404 API runtime marker missing: $marker"
+    }
+
+    $questionContracts = Get-Content -LiteralPath 'apps/api/Questions/QuestionApiContracts.cs' -Raw
+    foreach ($marker in @(
+        'SourceRegionScreenshotUrl',
+        'QuestionAssetRevisionResponse',
+        'QuestionAssetUnlinkResponse'
+    )) {
+        Assert-Condition ($questionContracts.Contains($marker)) "NS404 API contract marker missing: $marker"
     }
 
     $app = Get-Content -LiteralPath 'apps/web/src/App.tsx' -Raw

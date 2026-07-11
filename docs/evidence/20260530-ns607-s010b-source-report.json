@@ -1,34 +1,34 @@
 {
   "status": "pass",
   "taskId": "S010B",
-  "checkedAt": "2026-06-23T23:45:44.487681+08:00",
-  "paperBasketId": "91a8a090-6c96-42e2-86fd-091410238fa1",
+  "checkedAt": "2026-06-25T00:26:55.040437+08:00",
+  "paperBasketId": "148ee12e-adb7-45c0-b73b-f21ed83939f3",
   "preflightStatus": "ready_for_review",
   "productionEligible": false,
   "outputRoot": "tmp\\ns607-paper-artifacts",
   "manifestPath": "tmp\\ns607-paper-artifacts\\kqg-s010b-paper-artifacts.manifest.json",
-  "manifestSha256": "d4c53d0918268d97d0ce26042ba3e3e615050ec6f34c262241729f8ac1f82e46",
+  "manifestSha256": "21a85ad54d3ca87e2a58c26beb1682eb873f9998d50aefe1a4153f2a00e152ee",
   "variants": {
     "student": {
       "label": "学生版",
       "docxPath": "tmp\\ns607-paper-artifacts\\kqg-s010b-student-paper.docx",
-      "docxSha256": "c5a2e3676c825351fddf9bb8aeeaeb311eac000a1ec01092334777c303e9a353",
+      "docxSha256": "651ea6967696913262ece58f024751120f7e7068e954fe090e10a5ecd450a996",
       "pdfPath": "tmp\\ns607-paper-artifacts\\kqg-s010b-student-paper.pdf",
-      "pdfSha256": "3c30909c48b47537b875e3d7aa57c565b0b6fbd3763e2a1e146870d62513a4e1"
+      "pdfSha256": "37fe6ef23e93ed5d457e58bfc8146353431367f72171aa8e142fc86274b2b5ca"
     },
     "teacher": {
       "label": "教师版",
       "docxPath": "tmp\\ns607-paper-artifacts\\kqg-s010b-teacher-paper.docx",
-      "docxSha256": "f8a0a9be28d0179ec84c9e72b9fd23ff1df5aa622a8c2e4209d6c0b603e68d59",
+      "docxSha256": "eaebbb6ab888882440fca6a445c1b51a6449d189db7051c0881cde44479cc04b",
       "pdfPath": "tmp\\ns607-paper-artifacts\\kqg-s010b-teacher-paper.pdf",
-      "pdfSha256": "71a468588d1d7779bd462f15d604ff510a8deffbe6cebf878994ba036638ddf7"
+      "pdfSha256": "69287302cdcbaeab1dcbdce767682666d1d852407700dc83dc7f4afc16036b27"
     },
     "answer": {
       "label": "答案版",
       "docxPath": "tmp\\ns607-paper-artifacts\\kqg-s010b-answer-paper.docx",
-      "docxSha256": "d1ed4e3d49dfa18841f7b1f190547cf28d2e447911cefa44d243cdeb039dcd72",
+      "docxSha256": "54b6178dcdef877c48f84c149f135977a5d61c2637394408efe7e57a1d92cb6f",
       "pdfPath": "tmp\\ns607-paper-artifacts\\kqg-s010b-answer-paper.pdf",
-      "pdfSha256": "6a72ee0d6e87cbd679c1762b74f754359be9ade51d36e95148c5fdabf1cc954f"
+      "pdfSha256": "31e4b20e2e68d3392302323d9f8de826fe2ec7abf7b668ff243af678837dfd09"
     }
   },
   "checks": {
@@ -96,7 +96,7 @@
   },
   "conclusion": "student teacher and answer Word/PDF artifacts were generated from a ready_for_review paper basket and verified by manifest hashes",
   "rollback": "delete tmp/s010b-paper-artifacts and revert the S010B smoke/gate/status changes; no database migration or active switch is involved",
-  "requestedApiPort": 10570,
-  "resolvedApiPort": 10570,
+  "requestedApiPort": 1622,
+  "resolvedApiPort": 1622,
   "portFallbackApplied": false
 }

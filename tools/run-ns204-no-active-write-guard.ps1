@@ -11,6 +11,18 @@ function Assert-Condition([bool] $Condition, [string] $Message) {
     }
 }
 
+function Test-HasProperty([object] $Object, [string] $PropertyName) {
+    return $null -ne $Object -and $Object.PSObject.Properties.Name -contains $PropertyName
+}
+
+function Get-OptionalProperty([object] $Object, [string] $PropertyName, $DefaultValue) {
+    if (Test-HasProperty $Object $PropertyName) {
+        return $Object.$PropertyName
+    }
+
+    return $DefaultValue
+}
+
 function Read-Json([string] $Path) {
     $fullPath = Join-Path $repoRoot $Path
     Assert-Condition (Test-Path -LiteralPath $fullPath) "NS204 required evidence missing: $Path"
@@ -65,8 +77,12 @@ try {
     Assert-Condition ($k005.noProductionHistoryRewrite -eq $true) 'K005 must not rewrite production history'
 
     foreach ($report in @($s011a, $s011b, $s011c)) {
-        Assert-Condition ($report.productionEligible -ne $true) "score/analysis smoke must not be productionEligible=true: $($report.taskId)"
-        Assert-Condition ($report.auditTrail -contains 'no_ai_runtime_dependency') "score/analysis smoke must avoid AI runtime dependency: $($report.taskId)"
+        $reportTaskId = [string](Get-OptionalProperty $report 'taskId' (Get-OptionalProperty $report 'task' 'unknown'))
+        $reportProductionEligible = [bool](Get-OptionalProperty $report 'productionEligible' $false)
+        $reportAuditTrail = @(Get-OptionalProperty $report 'auditTrail' @())
+
+        Assert-Condition (-not $reportProductionEligible) "score/analysis smoke must not be productionEligible=true: $reportTaskId"
+        Assert-Condition ($reportAuditTrail -contains 'no_ai_runtime_dependency') "score/analysis smoke must avoid AI runtime dependency: $reportTaskId"
     }
     Assert-Condition ($s011a.auditTrail -contains 'wrote_draft_test_score_records') 'score import must write only draft/test score records'
     Assert-Condition ($s011a.auditTrail -contains 'blocked_pii') 'score import must block PII before database write'
@@ -119,9 +135,9 @@ try {
             oldActivePreserved = [bool]$k005.oldActivePreserved
         }
         scoreAnalysis = [ordered]@{
-            s011aProductionEligible = [bool]$s011a.productionEligible
-            s011bProductionEligible = [bool]$s011b.productionEligible
-            s011cProductionEligible = [bool]$s011c.productionEligible
+            s011aProductionEligible = [bool](Get-OptionalProperty $s011a 'productionEligible' $false)
+            s011bProductionEligible = [bool](Get-OptionalProperty $s011b 'productionEligible' $false)
+            s011cProductionEligible = [bool](Get-OptionalProperty $s011c 'productionEligible' $false)
             commentaryWritesProductionHistory = $false
         }
         e2e = [ordered]@{

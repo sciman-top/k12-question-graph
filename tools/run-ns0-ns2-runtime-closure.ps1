@@ -13,6 +13,18 @@ function Assert-Condition([bool] $Condition, [string] $Message) {
     if (-not $Condition) { throw $Message }
 }
 
+function Test-HasProperty([object] $Object, [string] $PropertyName) {
+    return $null -ne $Object -and $Object.PSObject.Properties.Name -contains $PropertyName
+}
+
+function Get-OptionalProperty([object] $Object, [string] $PropertyName, $DefaultValue) {
+    if (Test-HasProperty $Object $PropertyName) {
+        return $Object.$PropertyName
+    }
+
+    return $DefaultValue
+}
+
 function Resolve-RepoPath([string] $Path) {
     return Join-Path $repoRoot $Path
 }
@@ -31,11 +43,13 @@ function Invoke-JsonGate([string] $Name, [string] $ScriptPath) {
     $json = $text | ConvertFrom-Json
     Assert-Condition ($json.status -eq 'pass') "${Name} status is not pass"
 
+    $taskIdentifier = [string](Get-OptionalProperty $json 'taskId' (Get-OptionalProperty $json 'task' $Name))
+
     return [ordered]@{
         name = $Name
         script = $ScriptPath
         status = $json.status
-        taskId = $json.taskId
+        taskId = $taskIdentifier
         durationMs = [int]((Get-Date) - $started).TotalMilliseconds
     }
 }

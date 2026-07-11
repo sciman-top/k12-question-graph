@@ -42,6 +42,36 @@ try {
         $latestPackReport = Get-ChildItem -LiteralPath (Resolve-InRepoPath 'docs/evidence') -File -Filter '*-ns1001-isolated-machine-execution-pack.json' |
             Sort-Object LastWriteTime -Descending |
             Select-Object -First 1
+        $latestPackReportMissingArtifacts = $false
+        if ($null -ne $latestPackReport) {
+            try {
+                $latestPackReportJson = Get-Content -LiteralPath $latestPackReport.FullName -Raw | ConvertFrom-Json
+                foreach ($candidatePath in @([string]$latestPackReportJson.packRoot, [string]$latestPackReportJson.manifestPath)) {
+                    if ([string]::IsNullOrWhiteSpace($candidatePath)) {
+                        $latestPackReportMissingArtifacts = $true
+                        break
+                    }
+
+                    $candidateFullPath = if ([System.IO.Path]::IsPathRooted($candidatePath)) {
+                        $candidatePath
+                    }
+                    else {
+                        Resolve-InRepoPath $candidatePath
+                    }
+
+                    if (-not (Test-Path -LiteralPath $candidateFullPath)) {
+                        $latestPackReportMissingArtifacts = $true
+                        break
+                    }
+                }
+            }
+            catch {
+                $latestPackReportMissingArtifacts = $true
+            }
+        }
+        if ($latestPackReportMissingArtifacts) {
+            $latestPackReport = $null
+        }
         if ($null -eq $latestPackReport) {
             $executionPackScriptFullPath = Resolve-FlexiblePath $ExecutionPackScriptPath
             & $executionPackScriptFullPath | Out-Null

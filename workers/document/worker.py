@@ -268,7 +268,8 @@ def split_pdf_text_blocks(text: str, page_number: int, body_started: bool) -> tu
     current_kind = "document_header"
     current_lines: list[str] = []
     question_pattern = re.compile(r"^(\d{1,2})\s*[\.．、]\s*(.+)$")
-    section_pattern = re.compile(r"((第一|第二|第三|第四)部分\s*[（(]|[一二三四]、|参考答案)")
+    option_pattern = re.compile(r"^[ABCD][\.．]\s*(.+)$")
+    section_pattern = re.compile(r"^(第[一二三四]部分|[一二三四]、|参考答案)")
 
     for line in lines:
         if not line:
@@ -281,20 +282,26 @@ def split_pdf_text_blocks(text: str, page_number: int, body_started: bool) -> tu
                 body_started = True
             continue
 
-        match = question_pattern.match(line)
-        if match and current_lines:
+        next_kind = None
+        starts_new_question = False
+        if question_pattern.match(line):
+            next_kind = "question_stem"
+            starts_new_question = True
+        elif option_pattern.match(line):
+            next_kind = "option"
+        elif line.startswith(("答案", "参考答案")) or "参考答案" in line:
+            next_kind = "answer"
+        elif "解析" in line:
+            next_kind = "explanation"
+        elif not current_lines:
+            next_kind = "document_header"
+
+        if current_lines and (starts_new_question or (next_kind and next_kind != current_kind)):
             groups.append((current_kind, current_lines))
             current_lines = []
 
-        if match:
-            current_kind = "question_stem"
-        elif not current_lines:
-            if line.startswith(("答案", "参考答案")) or "参考答案" in line:
-                current_kind = "answer"
-            elif "解析" in line:
-                current_kind = "explanation"
-            else:
-                current_kind = "document_header"
+        if next_kind:
+            current_kind = next_kind
 
         current_lines.append(line)
 

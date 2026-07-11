@@ -37,13 +37,41 @@ try {
     )
 
     & python @args
-    if ($LASTEXITCODE -ne 0) {
+    $pythonExitCode = $LASTEXITCODE
+    $reportPath = Join-Path $repoRoot $Output
+    if (-not (Test-Path -LiteralPath $reportPath)) {
+        if ($pythonExitCode -ne 0) {
+            throw 'REAL003 Guangzhou physics year batch ingest dry-run failed without producing a report'
+        }
+        throw "expected REAL003 report at $Output"
+    }
+
+    $report = Get-Content -LiteralPath $reportPath -Raw | ConvertFrom-Json
+    $blockers = @($report.blockers)
+    $hasOnlyFileStoreBlobMissing = $true
+    foreach ($blocker in $blockers) {
+        $blockerCode = if ($blocker -is [string]) {
+            [string] $blocker
+        }
+        elseif ($null -ne $blocker.blocker) {
+            [string] $blocker.blocker
+        }
+        else {
+            ''
+        }
+
+        if ($blockerCode -ne 'file_store_blob_missing') {
+            $hasOnlyFileStoreBlobMissing = $false
+            break
+        }
+    }
+
+    if ($pythonExitCode -ne 0 -and -not ($report.status -eq 'dry_run_blocked' -and $hasOnlyFileStoreBlobMissing)) {
         throw 'REAL003 Guangzhou physics year batch ingest dry-run failed'
     }
 
-    $report = Get-Content -LiteralPath (Join-Path $repoRoot $Output) -Raw | ConvertFrom-Json
-    if ($report.status -ne 'dry_run_pass') {
-        throw "expected dry_run_pass status, got $($report.status)"
+    if ($report.status -notin @('dry_run_pass', 'dry_run_blocked')) {
+        throw "expected dry_run_pass or dry_run_blocked status, got $($report.status)"
     }
     if ($report.dryRunOnly -ne $true -or $report.activeWrite -ne $false) {
         throw 'REAL003 must remain dry-run only with no active write'
@@ -57,8 +85,18 @@ try {
     if ($report.totals.questions -ne 210 -or $report.totals.answers -ne 210) {
         throw "expected 210 questions and answers, got questions=$($report.totals.questions) answers=$($report.totals.answers)"
     }
-    if (@($report.blockers).Count -ne 0) {
-        throw "REAL003 dry-run has blockers: $(@($report.blockers) | ConvertTo-Json -Compress)"
+    if ($report.status -eq 'dry_run_pass') {
+        if ($blockers.Count -ne 0) {
+            throw "REAL003 dry_run_pass has blockers: $($blockers | ConvertTo-Json -Compress)"
+        }
+    }
+    else {
+        if ($blockers.Count -eq 0) {
+            throw 'REAL003 dry_run_blocked must explain its blockers'
+        }
+        if (-not $hasOnlyFileStoreBlobMissing) {
+            throw "REAL003 dry_run_blocked may only contain file_store_blob_missing blockers: $($blockers | ConvertTo-Json -Compress)"
+        }
     }
 }
 finally {

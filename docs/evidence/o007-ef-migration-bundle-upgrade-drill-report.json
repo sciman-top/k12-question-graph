@@ -15,13 +15,13 @@
   },
   "upgradeDrill": {
     "bundleRunExitCode": 0,
-    "backupManifest": "tmp\\o007\\backup-root\\20260623-235723\\manifest.json",
-    "backupDir": "tmp\\o007\\backup-root\\20260623-235723",
+    "backupManifest": "tmp\\o007\\backup-root\\20260625-003510\\manifest.json",
+    "backupDir": "tmp\\o007\\backup-root\\20260625-003510",
     "backupVerify": "pass",
     "restoreDrillReport": "docs/evidence/o007-o003-recovery-drill-report.json"
   },
   "rollback": {
-    "bundle": "Remove-Item -LiteralPath 'D:\\CODE\\k12-question-graph\\tmp\\o007' -Recurse -Force",
+    "bundle": "Remove-Item -LiteralPath 'D:\\CODE\\k12-question-graph\\.worktrees\\codex\\full-repo-hardening\\tmp\\o007' -Recurse -Force",
     "database": "restore database from backup manifest before downstream production use",
     "notes": "if a real apply introduces incompatibility, restore database and file store from manifest, then rerun efbundle after fixing migration"
   },

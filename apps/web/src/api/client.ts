@@ -44,6 +44,13 @@ import {
 
 const apiBaseUrl = import.meta.env.VITE_KQG_API_BASE_URL ?? ''
 
+type JsonRequestInit = {
+  method?: 'GET' | 'POST'
+  headers?: HeadersInit
+  body?: BodyInit | null
+  includeJsonContentType?: boolean
+}
+
 function buildApiUrl(path: string) {
   if (!apiBaseUrl) {
     return path
@@ -52,38 +59,84 @@ function buildApiUrl(path: string) {
   return `${apiBaseUrl.replace(/\/$/, '')}${path}`
 }
 
-async function requestJson<T>(path: string, normalize: (value: unknown) => T): Promise<ApiResult<T>> {
+function buildErrorResult(
+  code: 'network_error' | 'http_error' | 'invalid_response',
+  message: string,
+  status?: number,
+): ApiResult<never> {
+  return {
+    ok: false,
+    error: {
+      code,
+      message,
+      ...(typeof status === 'number' ? { status } : {}),
+    },
+  }
+}
+
+async function parseJsonResponse<T>(
+  response: Response,
+  normalize: (value: unknown) => T,
+): Promise<ApiResult<T>> {
   try {
-    const response = await fetch(buildApiUrl(path), {
-      headers: {
-        Accept: 'application/json',
-      },
-    })
-
-    if (!response.ok) {
-      return {
-        ok: false,
-        error: {
-          code: 'network_error',
-          message: `HTTP ${response.status}`,
-        },
-      }
-    }
-
     const json: unknown = await response.json()
     return {
       ok: true,
       data: normalize(json),
     }
   } catch (error) {
-    return {
-      ok: false,
-      error: {
-        code: 'network_error',
-        message: error instanceof Error ? error.message : 'Unknown network error',
-      },
-    }
+    return buildErrorResult(
+      'invalid_response',
+      error instanceof Error ? error.message : 'Invalid JSON response',
+      response.status,
+    )
   }
+}
+
+async function requestResponse(
+  path: string,
+  init?: JsonRequestInit,
+): Promise<ApiResult<Response>> {
+  const includeJsonContentType = init?.includeJsonContentType ?? true
+
+  try {
+    const response = await fetch(buildApiUrl(path), {
+      method: init?.method,
+      headers: {
+        Accept: 'application/json',
+        ...(includeJsonContentType && init?.body ? { 'Content-Type': 'application/json' } : {}),
+        ...(init?.headers ?? {}),
+      },
+      body: init?.body ?? null,
+    })
+
+    if (!response.ok) {
+      return buildErrorResult('http_error', `HTTP ${response.status}`, response.status)
+    }
+
+    return {
+      ok: true,
+      data: response,
+    }
+  } catch (error) {
+    return buildErrorResult(
+      'network_error',
+      error instanceof Error ? error.message : 'Unknown network error',
+    )
+  }
+}
+
+async function requestJson<T>(
+  path: string,
+  normalize: (value: unknown) => T,
+  init?: JsonRequestInit,
+): Promise<ApiResult<T>> {
+  const response = await requestResponse(path, init)
+  if (!response.ok) {
+    return response
+  }
+
+  return parseJsonResponse(response.data, normalize)
 }
 
 function adminHeaders() {
@@ -100,72 +153,14 @@ async function postJson<T>(
   body: unknown,
   normalize: (value: unknown) => T,
 ): Promise<ApiResult<T>> {
-  try {
-    const response = await fetch(buildApiUrl(path), {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-    })
-
-    if (!response.ok) {
-      return {
-        ok: false,
-        error: {
-          code: 'network_error',
-          message: `HTTP ${response.status}`,
-        },
-      }
-    }
-
-    const json: unknown = await response.json()
-    return {
-      ok: true,
-      data: normalize(json),
-    }
-  } catch (error) {
-    return {
-      ok: false,
-      error: {
-        code: 'network_error',
-        message: error instanceof Error ? error.message : 'Unknown network error',
-      },
-    }
-  }
+  return requestJson(path, normalize, {
+    method: 'POST',
+    body: JSON.stringify(body),
+  })
 }
 
 async function requestAdminJson<T>(path: string, normalize: (value: unknown) => T): Promise<ApiResult<T>> {
-  try {
-    const response = await fetch(buildApiUrl(path), {
-      headers: adminHeaders(),
-    })
-
-    if (!response.ok) {
-      return {
-        ok: false,
-        error: {
-          code: 'network_error',
-          message: `HTTP ${response.status}`,
-        },
-      }
-    }
-
-    const json: unknown = await response.json()
-    return {
-      ok: true,
-      data: normalize(json),
-    }
-  } catch (error) {
-    return {
-      ok: false,
-      error: {
-        code: 'network_error',
-        message: error instanceof Error ? error.message : 'Unknown network error',
-      },
-    }
-  }
+  return requestJson(path, normalize, { headers: adminHeaders() })
 }
 
 async function postAdminJson<T>(
@@ -173,37 +168,11 @@ async function postAdminJson<T>(
   body: unknown,
   normalize: (value: unknown) => T,
 ): Promise<ApiResult<T>> {
-  try {
-    const response = await fetch(buildApiUrl(path), {
-      method: 'POST',
-      headers: adminHeaders(),
-      body: JSON.stringify(body),
-    })
-
-    if (!response.ok) {
-      return {
-        ok: false,
-        error: {
-          code: 'network_error',
-          message: `HTTP ${response.status}`,
-        },
-      }
-    }
-
-    const json: unknown = await response.json()
-    return {
-      ok: true,
-      data: normalize(json),
-    }
-  } catch (error) {
-    return {
-      ok: false,
-      error: {
-        code: 'network_error',
-        message: error instanceof Error ? error.message : 'Unknown network error',
-      },
-    }
-  }
+  return requestJson(path, normalize, {
+    method: 'POST',
+    headers: adminHeaders(),
+    body: JSON.stringify(body),
+  })
 }
 
 export async function getReadyHealth(): Promise<ApiResult<ReadyHealthContract>> {
@@ -276,39 +245,11 @@ export async function uploadImportFile(file: File): Promise<ApiResult<ImportJobC
   form.append('anonymizationStatus', 'not_applicable')
   form.append('materialBatchKey', 'teacher_upload')
 
-  try {
-    const response = await fetch(buildApiUrl('/imports'), {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-      },
-      body: form,
-    })
-
-    if (!response.ok) {
-      return {
-        ok: false,
-        error: {
-          code: 'network_error',
-          message: `HTTP ${response.status}`,
-        },
-      }
-    }
-
-    const json: unknown = await response.json()
-    return {
-      ok: true,
-      data: normalizeImportJobResponse(json),
-    }
-  } catch (error) {
-    return {
-      ok: false,
-      error: {
-        code: 'network_error',
-        message: error instanceof Error ? error.message : 'Unknown network error',
-      },
-    }
-  }
+  return requestJson('/imports', normalizeImportJobResponse, {
+    method: 'POST',
+    body: form,
+    includeJsonContentType: false,
+  })
 }
 
 export async function runDocumentWorkerSmoke(id: string): Promise<ApiResult<ImportJobContract>> {
@@ -393,39 +334,13 @@ export async function getCutCandidates(id: string): Promise<ApiResult<CutCandida
 export async function generateCutCandidates(
   id: string,
 ): Promise<ApiResult<CutCandidateGenerationContract>> {
-  try {
-    const response = await fetch(
-      buildApiUrl(`/source-documents/${encodeURIComponent(id)}/cut-candidates/generate`),
-      {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-        },
-      },
-    )
-    if (!response.ok) {
-      return {
-        ok: false,
-        error: {
-          code: 'network_error',
-          message: `HTTP ${response.status}`,
-        },
-      }
-    }
-    const json: unknown = await response.json()
-    return {
-      ok: true,
-      data: normalizeCutCandidateGenerationResponse(json),
-    }
-  } catch (error) {
-    return {
-      ok: false,
-      error: {
-        code: 'network_error',
-        message: error instanceof Error ? error.message : 'Unknown network error',
-      },
-    }
-  }
+  return requestJson(
+    `/source-documents/${encodeURIComponent(id)}/cut-candidates/generate`,
+    normalizeCutCandidateGenerationResponse,
+    {
+      method: 'POST',
+    },
+  )
 }
 
 export async function applyReviewWorkbenchAction(request: {
@@ -436,38 +351,7 @@ export async function applyReviewWorkbenchAction(request: {
   reviewedBy?: string
   reason?: string
 }): Promise<ApiResult<ReviewWorkbenchActionContract>> {
-  try {
-    const response = await fetch(buildApiUrl('/review-workbench/actions'), {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(request),
-    })
-    if (!response.ok) {
-      return {
-        ok: false,
-        error: {
-          code: 'network_error',
-          message: `HTTP ${response.status}`,
-        },
-      }
-    }
-    const json: unknown = await response.json()
-    return {
-      ok: true,
-      data: normalizeReviewWorkbenchActionResponse(json),
-    }
-  } catch (error) {
-    return {
-      ok: false,
-      error: {
-        code: 'network_error',
-        message: error instanceof Error ? error.message : 'Unknown network error',
-      },
-    }
-  }
+  return postJson('/review-workbench/actions', request, normalizeReviewWorkbenchActionResponse)
 }
 
 export async function getReviewQueueItems(params: {

@@ -34,6 +34,31 @@ function Assert-True([bool] $Condition, [string] $Message) {
     }
 }
 
+function Get-ItemCount($Value) {
+    if ($null -eq $Value) {
+        return 0
+    }
+
+    if ($Value -is [string]) {
+        return 1
+    }
+
+    if ($Value -is [System.Collections.ICollection]) {
+        return $Value.Count
+    }
+
+    if ($Value -is [System.Collections.IEnumerable]) {
+        $count = 0
+        foreach ($item in $Value) {
+            $count++
+        }
+
+        return $count
+    }
+
+    return 1
+}
+
 function Split-Values([string] $Value) {
     if ([string]::IsNullOrWhiteSpace($Value)) {
         return @()
@@ -139,9 +164,9 @@ $expectedTaskIds = @($policy.expectedTaskIds | ForEach-Object { [string] $_ })
 $expectedModuleIds = @($policy.expectedModuleIds | ForEach-Object { [string] $_ })
 $allowedAdoptionModes = @($policy.allowedAdoptionModes | ForEach-Object { [string] $_ })
 
-Assert-True ($expectedTaskIds.Count -gt 0) 'reference-basis policy must define expectedTaskIds'
-Assert-True ($expectedModuleIds.Count -gt 0) 'reference-basis policy must define expectedModuleIds'
-Assert-True ($allowedAdoptionModes.Count -gt 0) 'reference-basis policy must define allowedAdoptionModes'
+Assert-True ((Get-ItemCount $expectedTaskIds) -gt 0) 'reference-basis policy must define expectedTaskIds'
+Assert-True ((Get-ItemCount $expectedModuleIds) -gt 0) 'reference-basis policy must define expectedModuleIds'
+Assert-True ((Get-ItemCount $allowedAdoptionModes) -gt 0) 'reference-basis policy must define allowedAdoptionModes'
 
 $requirementsRows = @(Import-Csv -LiteralPath $requirementsFullPath -Encoding UTF8)
 $moduleMapRows = @(Import-Csv -LiteralPath $moduleMapFullPath -Encoding UTF8)
@@ -166,8 +191,8 @@ if ($externalManifestAvailable) {
     $missingFromSnapshot = @($externalManifestPaths | Where-Object { $snapshotManifestPaths -notcontains $_ })
     $extraInSnapshot = @($snapshotManifestPaths | Where-Object { $externalManifestPaths -notcontains $_ })
 
-    Assert-True ($missingFromSnapshot.Count -eq 0) ("snapshot manifest is missing external reference entries: {0}. run tools/sync-reference-shelf-snapshot.ps1" -f ($missingFromSnapshot -join ', '))
-    Assert-True ($extraInSnapshot.Count -eq 0) ("snapshot manifest has entries not present in external manifest: {0}. run tools/sync-reference-shelf-snapshot.ps1" -f ($extraInSnapshot -join ', '))
+    Assert-True ((Get-ItemCount $missingFromSnapshot) -eq 0) ("snapshot manifest is missing external reference entries: {0}. run tools/sync-reference-shelf-snapshot.ps1" -f ($missingFromSnapshot -join ', '))
+    Assert-True ((Get-ItemCount $extraInSnapshot) -eq 0) ("snapshot manifest has entries not present in external manifest: {0}. run tools/sync-reference-shelf-snapshot.ps1" -f ($extraInSnapshot -join ', '))
     $manifestParity = 'match'
 }
 
@@ -178,8 +203,8 @@ else {
     $externalManifestPaths
 }
 
-Assert-True ($requirementsRows.Count -eq $expectedTaskIds.Count) "unexpected reference-basis row count: expected $($expectedTaskIds.Count), actual $($requirementsRows.Count)"
-Assert-True ($moduleMapRows.Count -eq $expectedModuleIds.Count) "unexpected reference-basis module row count: expected $($expectedModuleIds.Count), actual $($moduleMapRows.Count)"
+Assert-True ((Get-ItemCount $requirementsRows) -eq (Get-ItemCount $expectedTaskIds)) "unexpected reference-basis row count: expected $((Get-ItemCount $expectedTaskIds)), actual $((Get-ItemCount $requirementsRows))"
+Assert-True ((Get-ItemCount $moduleMapRows) -eq (Get-ItemCount $expectedModuleIds)) "unexpected reference-basis module row count: expected $((Get-ItemCount $expectedModuleIds)), actual $((Get-ItemCount $moduleMapRows))"
 
 foreach ($column in $requiredTaskColumns) {
     Assert-True ($requirementsRows[0].PSObject.Properties.Name -contains $column) "reference-basis csv missing column: $column"
@@ -204,7 +229,7 @@ foreach ($row in $requirementsRows) {
 $automationIds = @($automationRows | ForEach-Object { [string] $_.task_id })
 $backlogIds = @($backlogRows | ForEach-Object { [string] $_.id })
 
-for ($i = 0; $i -lt $expectedTaskIds.Count; $i++) {
+for ($i = 0; $i -lt (Get-ItemCount $expectedTaskIds); $i++) {
     $expectedId = $expectedTaskIds[$i]
     $actualId = [string] $requirementsRows[$i].task_id
     Assert-True ($actualId -eq $expectedId) "reference-basis row order drift at position $($i + 1): expected $expectedId actual $actualId"
@@ -217,8 +242,8 @@ for ($i = 0; $i -lt $expectedTaskIds.Count; $i++) {
     $localPaths = Split-Values $row.local_reference_paths
     $communityPaths = Split-Values $row.community_reference_paths
 
-    Assert-True ($officialUrls.Count -ge 1) "${expectedId} must bind at least one official reference URL"
-    Assert-True ($localPaths.Count -ge 1) "${expectedId} must bind at least one local reference path"
+    Assert-True ((Get-ItemCount $officialUrls) -ge 1) "${expectedId} must bind at least one official reference URL"
+    Assert-True ((Get-ItemCount $localPaths) -ge 1) "${expectedId} must bind at least one local reference path"
 
     foreach ($url in $officialUrls) {
         Assert-True ($referenceUrlsText.Contains($url)) "${expectedId} official reference missing from sources/references.md: $url"
@@ -235,7 +260,7 @@ for ($i = 0; $i -lt $expectedTaskIds.Count; $i++) {
 }
 
 $moduleRowsById = @{}
-for ($i = 0; $i -lt $expectedModuleIds.Count; $i++) {
+for ($i = 0; $i -lt (Get-ItemCount $expectedModuleIds); $i++) {
     $expectedId = $expectedModuleIds[$i]
     $row = $moduleMapRows[$i]
     $actualId = [string] $row.module_id
@@ -257,10 +282,10 @@ for ($i = 0; $i -lt $expectedModuleIds.Count; $i++) {
     $localPaths = Split-Values $row.local_reference_paths
     $communityPaths = Split-Values $row.community_reference_paths
 
-    Assert-True ($modulePaths.Count -ge 1) "${actualId} must bind at least one repo module path"
-    Assert-True ($taskIds.Count -ge 1) "${actualId} must bind at least one guarded task id"
-    Assert-True ($officialUrls.Count -ge 1) "${actualId} must bind at least one official reference URL"
-    Assert-True ($localPaths.Count -ge 1) "${actualId} must bind at least one local reference path"
+    Assert-True ((Get-ItemCount $modulePaths) -ge 1) "${actualId} must bind at least one repo module path"
+    Assert-True ((Get-ItemCount $taskIds) -ge 1) "${actualId} must bind at least one guarded task id"
+    Assert-True ((Get-ItemCount $officialUrls) -ge 1) "${actualId} must bind at least one official reference URL"
+    Assert-True ((Get-ItemCount $localPaths) -ge 1) "${actualId} must bind at least one local reference path"
 
     foreach ($modulePath in $modulePaths) {
         Assert-True (Test-Path -LiteralPath (Resolve-RepoPath $modulePath)) "${actualId} module path missing in repo: $modulePath"
@@ -283,7 +308,7 @@ for ($i = 0; $i -lt $expectedModuleIds.Count; $i++) {
 }
 
 $globalRow = @($automationRows | Where-Object { [string] $_.task_id -eq 'GLOBAL' })
-Assert-True ($globalRow.Count -eq 1) 'automation-first contract must keep exactly one GLOBAL row'
+Assert-True ((Get-ItemCount $globalRow) -eq 1) 'automation-first contract must keep exactly one GLOBAL row'
 Assert-True ($globalRow[0].dedicated_surface -match 'reference-basis-requirements\.csv') 'automation-first GLOBAL row must mention reference-basis-requirements.csv'
 Assert-True ($globalRow[0].evidence_command -match 'run-reference-basis-guard\.ps1') 'automation-first GLOBAL row must mention run-reference-basis-guard.ps1'
 
@@ -299,7 +324,7 @@ foreach ($keyword in @(
     Assert-True ($navigationText.Contains($keyword)) "docs/111_ProjectNavigationOverview.md missing keyword: $keyword"
 }
 
-$communityTaskCount = @($requirementsRows | Where-Object { (Split-Values $_.community_reference_paths).Count -gt 0 }).Count
+$communityTaskCount = Get-ItemCount @($requirementsRows | Where-Object { (Get-ItemCount (Split-Values $_.community_reference_paths)) -gt 0 })
 
 $normalizedChangedPaths = @(
     $ChangedPaths |
@@ -317,7 +342,7 @@ foreach ($changedPath in $normalizedChangedPaths) {
     foreach ($moduleId in $expectedModuleIds) {
         $moduleRow = $moduleRowsById[$moduleId]
         $modulePaths = Split-Values $moduleRow.module_paths
-        if (@($modulePaths | Where-Object { Test-PathPrefixMatch $changedPath $_ }).Count -gt 0) {
+        if ((Get-ItemCount @($modulePaths | Where-Object { Test-PathPrefixMatch $changedPath $_ })) -gt 0) {
             $matchedModuleIds += $moduleId
 
             if ($impactedModuleIds -notcontains $moduleId) {
@@ -330,7 +355,7 @@ foreach ($changedPath in $normalizedChangedPaths) {
         }
     }
 
-    if ($matchedModuleIds.Count -eq 0) {
+    if ((Get-ItemCount $matchedModuleIds) -eq 0) {
         $changedPathsOutsideGuardedModules.Add($changedPath)
     }
 }
@@ -350,14 +375,14 @@ $report = [ordered]@{
     moduleIds = $expectedModuleIds
     communityTaskCount = $communityTaskCount
     externalReferenceRoot = $ExternalReferenceRoot
-    externalManifestFound = ($referenceManifestPaths.Count -gt 0)
+    externalManifestFound = ((Get-ItemCount $referenceManifestPaths) -gt 0)
     externalManifestAvailable = $externalManifestAvailable
     effectiveManifestSource = if ($ValidationMode -eq 'Ci') { 'snapshot' } else { 'external' }
-    snapshotEntryCount = $snapshotManifestPaths.Count
-    externalEntryCount = $externalManifestPaths.Count
+    snapshotEntryCount = Get-ItemCount $snapshotManifestPaths
+    externalEntryCount = Get-ItemCount $externalManifestPaths
     snapshotParity = $manifestParity
     physicalExternalCheck = $checkExternalDisk
-    changedPathCount = $normalizedChangedPaths.Count
+    changedPathCount = Get-ItemCount $normalizedChangedPaths
     changedPaths = $normalizedChangedPaths
     impactedModuleIds = @($impactedModuleIds)
     impactedTaskIds = @($impactedTaskIds | Sort-Object)
@@ -378,8 +403,8 @@ $lines.Add("- policy_path: $PolicyPath")
 $lines.Add("- requirements_path: $RequirementsPath")
 $lines.Add("- module_map_path: $ModuleMapPath")
 $lines.Add("- snapshot_manifest_path: $SnapshotManifestPath")
-$lines.Add("- row_count: $($requirementsRows.Count)")
-$lines.Add("- module_row_count: $($moduleMapRows.Count)")
+$lines.Add("- row_count: $((Get-ItemCount $requirementsRows))")
+$lines.Add("- module_row_count: $((Get-ItemCount $moduleMapRows))")
 $lines.Add("- community_task_count: $communityTaskCount")
 $lines.Add("- effective_manifest_source: $($report.effectiveManifestSource)")
 $lines.Add("- snapshot_entry_count: $($report.snapshotEntryCount)")
@@ -389,7 +414,7 @@ $lines.Add("- physical_external_check: $checkExternalDisk")
 $lines.Add("- changed_path_count: $($report.changedPathCount)")
 $lines.Add('')
 $lines.Add('## Changed Paths')
-if ($normalizedChangedPaths.Count -eq 0) {
+if ((Get-ItemCount $normalizedChangedPaths) -eq 0) {
     $lines.Add('- none')
 }
 else {
