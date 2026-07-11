@@ -61,7 +61,7 @@
       "probe": {
         "available": true,
         "exitCode": 0,
-        "versionLine": "5.1.26100.8655"
+        "versionLine": "5.1.26100.8737"
       }
     },
     "python": {
@@ -219,11 +219,11 @@
     },
     "soffice": {
       "present": true,
-      "path": "C:\\Program Files\\LibreOffice\\program\\soffice.COM",
+      "path": "C:\\Program Files\\LibreOffice\\program\\soffice.com",
       "probe": {
         "available": true,
         "exitCode": 0,
-        "versionLine": ""
+        "versionLine": "LibreOffice 26.2.4.2 0229ac93fcf0d7cbc6376066c6f35021cef002dc"
       }
     },
     "robocopy": {
@@ -307,14 +307,14 @@
       "anchor": "D:\\",
       "available": true,
       "totalGb": 930.0,
-      "freeGb": 290.07
+      "freeGb": 283.35
     },
     "backupRoot": {
       "path": "D:\\KQG_Backups",
       "anchor": "D:\\",
       "available": true,
       "totalGb": 930.0,
-      "freeGb": 290.07
+      "freeGb": 283.35
     }
   },
   "workerOcrProfile": {

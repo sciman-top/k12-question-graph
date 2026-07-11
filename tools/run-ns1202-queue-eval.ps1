@@ -177,7 +177,7 @@ try {
     Assert-Condition ([bool]$workerProfile.guardrail.noInstallPerformed) 'worker profile diagnostic must not install dependencies'
     Assert-Condition (-not [bool]$workerProfile.guardrail.productionDefaultChanged) 'worker profile diagnostic must not change production default'
 
-    $codePatternHits = Find-CodePatternHits @('apps/api', 'apps/web/src', 'workers') @(
+    $codePatternHits = @(Find-CodePatternHits @('apps/api', 'apps/web/src', 'workers') @(
         'Hangfire',
         'RabbitMQ',
         'MassTransit',
@@ -186,8 +186,8 @@ try {
         'IBackgroundJobClient',
         'UseHangfire',
         'QueueDeclare'
-    )
-    Assert-Condition ($codePatternHits.Count -eq 0) 'NS1202 found product code that appears to enable Hangfire/RabbitMQ/distributed queue'
+    ))
+    Assert-Condition (@($codePatternHits).Count -eq 0) 'NS1202 found product code that appears to enable Hangfire/RabbitMQ/distributed queue'
 
     $report = [ordered]@{
         status = 'pass'
@@ -238,7 +238,7 @@ try {
         codeScan = [ordered]@{
             searchedRoots = @('apps/api', 'apps/web/src', 'workers')
             blockedPatterns = @('Hangfire', 'RabbitMQ', 'MassTransit', 'Confluent.Kafka', 'Kafka', 'IBackgroundJobClient', 'UseHangfire', 'QueueDeclare')
-            hitCount = [int]$codePatternHits.Count
+            hitCount = [int]@($codePatternHits).Count
             noHangfirePackageOrRoute = $true
             noRabbitMqOrBrokerRoute = $true
             noDistributedQueueDefault = $true

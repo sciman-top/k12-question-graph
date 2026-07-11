@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text.Json;
+using K12QuestionGraph.Api.Configuration;
 using K12QuestionGraph.Api.Data;
 using K12QuestionGraph.Api.Domain;
 using Microsoft.EntityFrameworkCore;
@@ -170,85 +171,12 @@ public sealed class LocalFileStore(KqgDbContext dbContext, IOptions<KqgPathsOpti
 
     private static SourceDocumentMetadata Normalize(SourceDocumentMetadata metadata)
     {
-        var sourceType = NormalizeToken(metadata.SourceType, "unknown");
-        var sourceTitle = string.IsNullOrWhiteSpace(metadata.SourceTitle) ? "untitled source" : metadata.SourceTitle.Trim();
-        var region = string.IsNullOrWhiteSpace(metadata.Region) ? string.Empty : metadata.Region.Trim();
-        var gradeOrScope = string.IsNullOrWhiteSpace(metadata.GradeOrScope) ? string.Empty : metadata.GradeOrScope.Trim();
-        var editionOrVersion = string.IsNullOrWhiteSpace(metadata.EditionOrVersion) ? string.Empty : metadata.EditionOrVersion.Trim();
-        var materialBatchKey = NormalizeToken(metadata.MaterialBatchKey, string.Empty);
-        var ownerScope = NormalizeToken(metadata.OwnerScope, "teacher_private");
-        var license = string.IsNullOrWhiteSpace(metadata.LicenseOrPermission) ? "unknown" : metadata.LicenseOrPermission.Trim();
-        var anonymizationStatus = NormalizeToken(metadata.AnonymizationStatus, "not_applicable");
-        var allowedAnonymization = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        {
-            "none",
-            "anonymized",
-            "synthetic",
-            "not_applicable"
-        };
-
-        if (!allowedAnonymization.Contains(anonymizationStatus))
-        {
-            anonymizationStatus = "not_applicable";
-        }
-
-        var sharingAllowed = metadata.SharingAllowed && !string.Equals(sourceType, "unknown", StringComparison.OrdinalIgnoreCase);
-        if (metadata.ContainsStudentPii && anonymizationStatus is not ("anonymized" or "synthetic"))
-        {
-            sharingAllowed = false;
-        }
-
-        return metadata with
-        {
-            SourceType = sourceType,
-            SourceTitle = sourceTitle,
-            Region = region,
-            GradeOrScope = gradeOrScope,
-            EditionOrVersion = editionOrVersion,
-            MaterialBatchKey = materialBatchKey,
-            OwnerScope = ownerScope,
-            LicenseOrPermission = license,
-            SharingAllowed = sharingAllowed,
-            AnonymizationStatus = anonymizationStatus
-        };
-    }
-
-    private static string NormalizeToken(string value, string fallback)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            return fallback;
-        }
-
-        return value.Trim().ToLowerInvariant().Replace('-', '_').Replace(' ', '_');
+        return SourceDocumentMetadataPolicy.Normalize(metadata);
     }
 
     private static bool ComputeExternalAiAllowed(SourceDocumentMetadata metadata)
     {
-        if (string.Equals(metadata.SourceType, "unknown", StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        if (!metadata.SharingAllowed)
-        {
-            return false;
-        }
-
-        var license = metadata.LicenseOrPermission.Trim();
-        if (string.Equals(license, "unknown", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(license, "none", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(license, "pending_source_workbench_review", StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        if (metadata.ContainsStudentPii && metadata.AnonymizationStatus is not ("anonymized" or "synthetic"))
-        {
-            return false;
-        }
-
-        return true;
+        return SourceDocumentMetadataPolicy.ComputeExternalAiAllowed(metadata);
     }
 
     private static FileAssetResponse ToResponse(

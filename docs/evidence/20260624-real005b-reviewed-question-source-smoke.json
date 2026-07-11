@@ -1,0 +1,24 @@
+{
+  "status": "partial",
+  "taskId": "REAL005B_REVIEWED_QUESTION_SOURCE_SMOKE",
+  "checkedAt": "2026-06-24T23:29:29",
+  "requestedApiPort": 0,
+  "resolvedApiPort": 10801,
+  "portFallbackApplied": true,
+  "apiUrl": "http://127.0.0.1:10801",
+  "workflowKey": "guangzhou_2016_2025_reviewed_question_materialize_v1",
+  "questionCount": 210,
+  "usableQuestionCount": 210,
+  "sourceRegionCount": 158,
+  "reviewQueueCount": 210,
+  "sourceReviewPass": false,
+  "samples": [],
+  "rollback": [
+    "delete from review_queue_items where review_type = 'real005b_question_materialize';",
+    "delete from question_assets where question_item_id in (select id from question_items where custom_fields->>'sourceWorkflowKey' = 'guangzhou_2016_2025_reviewed_question_materialize_v1');",
+    "delete from question_blocks where question_item_id in (select id from question_items where custom_fields->>'sourceWorkflowKey' = 'guangzhou_2016_2025_reviewed_question_materialize_v1');",
+    "delete from source_regions where region_type in ('real005b_review_question','real005b_review_answer');",
+    "delete from question_items where custom_fields->>'sourceWorkflowKey' = 'guangzhou_2016_2025_reviewed_question_materialize_v1';"
+  ],
+  "boundary": "Repo-side API smoke only; this proves reviewed real questions are API-visible with source review payload, not onsite/manual closeout."
+}

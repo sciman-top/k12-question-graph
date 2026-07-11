@@ -169,7 +169,7 @@ try {
     Assert-Condition ($advancedPlatformArea.usable_today -eq '不可使用') 'advanced-platform must remain unavailable before real bottleneck evidence'
     Assert-Condition ($hostCapability.recommendedProfiles.searchProfile.status -eq 'postgresql_first') 'host capability search profile must stay PostgreSQL-first'
 
-    $codePatternHits = Find-CodePatternHits @('apps/api', 'apps/web/src') @(
+    $codePatternHits = @(Find-CodePatternHits @('apps/api', 'apps/web/src') @(
         'pgvector',
         'CREATE\s+EXTENSION\s+.*vector',
         'embedding',
@@ -178,8 +178,8 @@ try {
         'OpenSearch',
         'Meilisearch',
         'Typesense'
-    )
-    Assert-Condition ($codePatternHits.Count -eq 0) 'NS1201 found product code that appears to enable semantic/vector/external search'
+    ))
+    Assert-Condition (@($codePatternHits).Count -eq 0) 'NS1201 found product code that appears to enable semantic/vector/external search'
 
     $report = [ordered]@{
         status = 'pass'
@@ -229,7 +229,7 @@ try {
         codeScan = [ordered]@{
             searchedRoots = @('apps/api', 'apps/web/src')
             blockedPatterns = @('pgvector', 'CREATE EXTENSION vector', 'embedding', 'semantic', 'ElasticSearch', 'OpenSearch', 'Meilisearch', 'Typesense')
-            hitCount = [int]$codePatternHits.Count
+            hitCount = [int]@($codePatternHits).Count
             noPgvectorMigration = $true
             noEmbeddingTableOrRoute = $true
             noExternalSearchDependency = $true

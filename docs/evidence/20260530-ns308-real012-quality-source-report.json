@@ -1,31 +1,31 @@
 {
   "status": "pass",
   "task": "REAL012",
-  "checkedAt": "2026-06-23T23:42:55",
+  "checkedAt": "2026-06-25T00:24:07",
   "requestedApiPort": 0,
-  "resolvedApiPort": 3483,
+  "resolvedApiPort": 8913,
   "portFallbackApplied": true,
-  "apiUrl": "http://127.0.0.1:3483",
+  "apiUrl": "http://127.0.0.1:8913",
   "sourceDocumentId": "650e9218-c910-40b2-8af3-d5690788ddb6",
   "promotedQuestions": [
     {
       "questionItemId": "ace44579-b70c-4c64-b36a-2852ba86ef97",
       "questionNo": 2,
-      "auditId": "71281054-b017-4259-b8a1-81bed8da1e42",
+      "auditId": "8da88689-0338-41bc-b485-9824eaaa81a4",
       "status": "usable",
       "primaryKnowledgeId": "525eb4ae-4e5a-421f-80fa-bc9ba674de2d"
     },
     {
       "questionItemId": "84eac67d-c612-4ba5-bb7d-e871cbde356f",
       "questionNo": 3,
-      "auditId": "2bb44013-8dbd-4143-a952-3aeeaa56abeb",
+      "auditId": "93571159-737a-4e84-b875-2e4233731058",
       "status": "usable",
       "primaryKnowledgeId": "525eb4ae-4e5a-421f-80fa-bc9ba674de2d"
     },
     {
       "questionItemId": "027acbf1-4692-49b1-9adb-5ae7f06e31a3",
       "questionNo": 4,
-      "auditId": "2da6ac68-0417-4ccd-bd1f-a7cb5141466b",
+      "auditId": "bc1b48d6-2568-4546-b658-7d620cddf803",
       "status": "usable",
       "primaryKnowledgeId": "525eb4ae-4e5a-421f-80fa-bc9ba674de2d"
     }
@@ -42,7 +42,7 @@
     "order": "asc"
   },
   "paperBasket": {
-    "id": "fdc3ec92-97b6-459d-a40e-2d2bad3caf67",
+    "id": "a7bb8691-7155-4462-bfe9-6b23058e18aa",
     "itemCount": 3,
     "title": "REAL012 2015 广州真题抽样组卷"
   },
@@ -66,9 +66,9 @@
     "status": "pass"
   },
   "analysis": {
-    "assessmentId": "ad555ded-a398-4ab3-b2f4-e3fc05086923",
+    "assessmentId": "127e1235-7750-45ff-82b4-0a582101c3a1",
     "status": "ready",
-    "artifactPath": "draft://commentary-reports/ad555deda3984ab3b2f4e3fc05086923.md",
+    "artifactPath": "draft://commentary-reports/127e1235775045ff82b40a582101c3a1.md",
     "allowAiDraftText": false,
     "writesProductionHistory": false,
     "weakKnowledgePointCount": 3

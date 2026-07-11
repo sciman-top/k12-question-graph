@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS0_NS2_RUNTIME_CLOSURE",
-  "checkedAt": "2026-05-31T14:25:14",
+  "checkedAt": "2026-06-24T21:22:22",
   "mode": "repo_landed_to_runtime_verified_closure_guard",
   "targetRows": [
     "NS001",
@@ -42,57 +42,57 @@
       "name": "NS004 non-site implementation plan guard",
       "script": "tools/run-non-site-implementation-plan-guard.ps1",
       "status": "pass",
-      "taskId": "",
-      "durationMs": 238
+      "taskId": "non-site implementation plan guard",
+      "durationMs": 328
     },
     {
       "name": "NS105 teacher route typed client boundary",
       "script": "tools/run-ns105-teacher-route-client-boundary.ps1",
       "status": "pass",
       "taskId": "NS105",
-      "durationMs": 10184
+      "durationMs": 10368
     },
     {
       "name": "NS106 feature profile guard",
       "script": "tools/run-ns106-feature-profile-guard.ps1",
       "status": "pass",
       "taskId": "NS106",
-      "durationMs": 89
+      "durationMs": 72
     },
     {
       "name": "NS201 role audit baseline",
       "script": "tools/run-ns201-role-audit-baseline.ps1",
       "status": "pass",
       "taskId": "NS201",
-      "durationMs": 7328
+      "durationMs": 5427
     },
     {
       "name": "NS202 admin internal fail closed",
       "script": "tools/run-ns202-admin-internal-fail-closed.ps1",
       "status": "pass",
       "taskId": "NS202",
-      "durationMs": 34263
+      "durationMs": 14013
     },
     {
       "name": "NS203 privacy license scan",
       "script": "tools/run-ns203-privacy-license-scan.ps1",
       "status": "pass",
       "taskId": "NS203",
-      "durationMs": 2394
+      "durationMs": 2925
     },
     {
       "name": "NS204 no active write guard",
       "script": "tools/run-ns204-no-active-write-guard.ps1",
       "status": "pass",
       "taskId": "NS204",
-      "durationMs": 47
+      "durationMs": 42
     }
   ],
   "fullGateEvidence": {
     "path": "docs/evidence/20260531-run-gates-ns1104-after-s012a-fix-2.log",
-    "present": true,
-    "failStatusCount": 0,
-    "exceptionCount": 0
+    "present": false,
+    "failStatusCount": null,
+    "exceptionCount": null
   },
   "acceptance": {
     "ns001StatusDictionaryVerified": true,

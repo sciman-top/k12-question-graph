@@ -35,6 +35,31 @@ function Assert-True([bool] $Condition, [string] $Message) {
     if (-not $Condition) { throw $Message }
 }
 
+function Get-ItemCount($Value) {
+    if ($null -eq $Value) {
+        return 0
+    }
+
+    if ($Value -is [string]) {
+        return 1
+    }
+
+    if ($Value -is [System.Collections.ICollection]) {
+        return $Value.Count
+    }
+
+    if ($Value -is [System.Collections.IEnumerable]) {
+        $count = 0
+        foreach ($item in $Value) {
+            $count++
+        }
+
+        return $count
+    }
+
+    return 1
+}
+
 function Resolve-LatestEvidencePath([string] $Filter, [string] $Label) {
     $evidenceRoot = Resolve-RepoPath 'docs/evidence'
     Assert-True (Test-Path -LiteralPath $evidenceRoot) 'missing docs/evidence directory'
@@ -43,7 +68,7 @@ function Resolve-LatestEvidencePath([string] $Filter, [string] $Label) {
             Sort-Object Name -Descending |
             Select-Object -First 1
     )
-    Assert-True ($latest.Count -eq 1) "missing $Label matching filter: $Filter"
+    Assert-True ((Get-ItemCount $latest) -eq 1) "missing $Label matching filter: $Filter"
     return [System.IO.Path]::GetRelativePath($repoRoot, $latest[0].FullName).Replace('\', '/')
 }
 
@@ -56,7 +81,7 @@ function Resolve-LatestEvidencePathFromNames([string[]] $Names, [string] $Label)
             Sort-Object Name -Descending |
             Select-Object -First 1
     )
-    Assert-True ($latest.Count -eq 1) "missing $Label matching explicit names"
+    Assert-True ((Get-ItemCount $latest) -eq 1) "missing $Label matching explicit names"
     return [System.IO.Path]::GetRelativePath($repoRoot, $latest[0].FullName).Replace('\', '/')
 }
 
@@ -161,7 +186,7 @@ function New-Real005DetailedSliceCoverage {
         }
 
         $reportedStatus = 'missing'
-        if ($reportedStatuses.Count -gt 0) {
+        if ((Get-ItemCount $reportedStatuses) -gt 0) {
             if ($reportedStatuses -contains 'blocked') {
                 $reportedStatus = 'blocked'
             }
@@ -174,7 +199,7 @@ function New-Real005DetailedSliceCoverage {
             elseif ($reportedStatuses -contains 'not_evaluated') {
                 $reportedStatus = 'not_evaluated'
             }
-            elseif ((@($reportedStatuses | Select-Object -Unique).Count -eq 1) -and ($reportedStatuses[0] -eq 'pass')) {
+            elseif ((Get-ItemCount @($reportedStatuses | Select-Object -Unique)) -eq 1 -and ($reportedStatuses[0] -eq 'pass')) {
                 $reportedStatus = 'pass'
             }
             else {
@@ -241,7 +266,7 @@ function New-Real005DetailedSliceCoverage {
     $nextDetailedSlice = if (-not [string]::IsNullOrWhiteSpace($currentActionableNext)) {
         $currentActionableNext
     }
-    elseif ($firstNonPass.Count -eq 1) {
+    elseif ((Get-ItemCount $firstNonPass) -eq 1) {
         [string] $firstNonPass[0].Key
     }
     else {
@@ -252,10 +277,10 @@ function New-Real005DetailedSliceCoverage {
         detailedSliceCoverage = $coverage
         nextDetailedSlice = $nextDetailedSlice
         nextDetailedSliceReady = (-not [string]::IsNullOrWhiteSpace($currentActionableNext))
-        allPass = (@(
+        allPass = ((Get-ItemCount @(
             $coverage.GetEnumerator() |
                 Where-Object { [string] $_.Value.status -ne 'pass' }
-        ).Count -eq 0)
+        )) -eq 0)
     }
 }
 
@@ -635,7 +660,7 @@ if ($dashboardRow.current_state -ne 'teacher_validated' -and $dashboardRow.curre
     })
 }
 
-$closureStatus = if ($gaps.Count -eq 0 -and $backlogById['REAL005'].status -eq '已完成') { 'closed' } else { 'not_closed' }
+$closureStatus = if ((Get-ItemCount $gaps) -eq 0 -and $backlogById['REAL005'].status -eq '已完成') { 'closed' } else { 'not_closed' }
 $gapItems = @($gaps | ForEach-Object { $_ })
 $criteriaItems = @($criteriaRows | ForEach-Object {
     [ordered]@{
@@ -647,19 +672,19 @@ $criteriaItems = @($criteriaRows | ForEach-Object {
     }
 })
 $unfinishedRealTasks = @('REAL002','REAL003','REAL004') | Where-Object { $backlogById[$_].status -ne '已完成' }
-$unfinishedText = if ($unfinishedRealTasks.Count -gt 0) { $unfinishedRealTasks -join '/' } else { '逐年逐题闭环证据' }
+$unfinishedText = if ((Get-ItemCount $unfinishedRealTasks) -gt 0) { $unfinishedRealTasks -join '/' } else { '逐年逐题闭环证据' }
 $summaryChinese = if ($closureStatus -eq 'closed') {
     'REAL005 判定标准全部满足，才允许宣称 2015-2025 真卷全流程闭环。'
 }
-elseif ($unfinishedRealTasks.Count -eq 0) {
+elseif ((Get-ItemCount $unfinishedRealTasks) -eq 0) {
     'REAL005 的 repo-side 证据与对外口径已收口；REAL005A/B/C/D 的 repo-side closeout 已完成；当前真实状态仍是 not_closed，且 completion dashboard 仍保持 contract_done，不可宣称 2015-2025 真卷全流程完成。'
 }
 else {
     "REAL005 判定标准已安装并通过自检；当前真实状态是 not_closed，仍需完成 $unfinishedText。"
 }
 
-$rg001Status = if ($rg001YearCoverage.Count -eq 11 -and $rg001BlockedYears.Count -eq 0) { 'pass' } else { 'blocked' }
-$rg002Status = if ($rg002YearCoverage.Count -eq 11 -and $rg002BlockedYears.Count -eq 0) { 'pass' } else { 'blocked' }
+$rg001Status = if ((Get-ItemCount $rg001YearCoverage) -eq 11 -and (Get-ItemCount $rg001BlockedYears) -eq 0) { 'pass' } else { 'blocked' }
+$rg002Status = if ((Get-ItemCount $rg002YearCoverage) -eq 11 -and (Get-ItemCount $rg002BlockedYears) -eq 0) { 'pass' } else { 'blocked' }
 $rg001CoveredYears = @($rg001YearCoverage | ForEach-Object { [int]$_.year })
 $rg002CoveredYears = @($rg002YearCoverage | ForEach-Object { [int]$_.year })
 $rg001EvidencePaths = @($rg001YearCoverage | ForEach-Object { [string]$_.evidencePath } | Sort-Object -Unique)
@@ -690,8 +715,8 @@ if ($rg002Status -ne 'pass') {
     $real005ABlockers.Add("RG002 adapter diagnostics are incomplete for years: $($rg002BlockedYears -join ', ')")
 }
 
-$real005AStatus = if ($real005ABlockers.Count -eq 0) { 'pass' } else { 'blocked' }
-$real005ANext = if ($real005ABlockers.Count -eq 0) { 'REAL005A evidence is ready for manual closeout review.' } else { '补齐逐年 paper+answer source anchors and per-year adapter diagnostics before advancing REAL005A.' }
+$real005AStatus = if ((Get-ItemCount $real005ABlockers) -eq 0) { 'pass' } else { 'blocked' }
+$real005ANext = if ((Get-ItemCount $real005ABlockers) -eq 0) { 'REAL005A evidence is ready for manual closeout review.' } else { '补齐逐年 paper+answer source anchors and per-year adapter diagnostics before advancing REAL005A.' }
 $sliceCoverage = New-Object System.Collections.Specialized.OrderedDictionary
 $real005ACoverage = @{}
 $real005ACoverage['criteriaIds'] = @('RG001', 'RG002')
@@ -928,11 +953,11 @@ foreach ($entry in $real005DChecks.GetEnumerator()) {
 }
 $real005DCoverage = @{}
 $real005DCoverage['criteriaIds'] = @('DOCS', 'README', 'GO_NO_GO_CARD', 'DASHBOARD')
-$real005DCoverage['status'] = if ($real005DBlockers.Count -eq 0) { 'pass' } else { 'blocked' }
+$real005DCoverage['status'] = if ((Get-ItemCount $real005DBlockers) -eq 0) { 'pass' } else { 'blocked' }
 $real005DCoverage['blockers'] = @($real005DBlockers)
 $real005DCoverage['evidencePaths'] = @($closureSummaryPath, $releaseCardPath, $readmePath, $DashboardPath)
 $real005DCoverage['checks'] = $real005DChecks
-$real005DCoverage['next'] = if ($real005DBlockers.Count -eq 0) {
+$real005DCoverage['next'] = if ((Get-ItemCount $real005DBlockers) -eq 0) {
     'REAL005D repo-side truthful wording is refreshed. Keep REAL005 not_closed until the dashboard area state and onsite/live evidence truly change.'
 }
 else {
@@ -988,10 +1013,10 @@ $fallbackDetailedCandidate = @(
         Where-Object { $_.sliceId -ne 'none' } |
         Select-Object -First 1
 )
-$nextDetailedOpen = if ($readyDetailedCandidate.Count -eq 1) {
+$nextDetailedOpen = if ((Get-ItemCount $readyDetailedCandidate) -eq 1) {
     $readyDetailedCandidate[0]
 }
-elseif ($fallbackDetailedCandidate.Count -eq 1) {
+elseif ((Get-ItemCount $fallbackDetailedCandidate) -eq 1) {
     $fallbackDetailedCandidate[0]
 }
 else {
@@ -1008,7 +1033,7 @@ $report = [ordered]@{
     checkedAt = (Get-Date).ToString('s')
     closureStatus = $closureStatus
     criteriaPath = $CriteriaPath
-    criteriaCount = $criteriaRows.Count
+    criteriaCount = Get-ItemCount $criteriaRows
     requiredYears = @(2015..2025)
     fullClosureAllowed = ($closureStatus -eq 'closed')
     currentTruth = 'S012/REAL001/REAL002/REAL003 dry-run/REAL004 review smoke evidence is not enough to claim 2015-2025 full workflow closure'
@@ -1041,7 +1066,7 @@ foreach ($sliceEntry in $sliceCoverage.GetEnumerator()) {
     $sliceId = [string]$sliceEntry.Key
     $slice = $sliceEntry.Value
     $criteriaText = @($slice.criteriaIds) -join ', '
-    $blockerText = if (@($slice.blockers).Count -eq 0) { '无' } else { @($slice.blockers) -join ' | ' }
+    $blockerText = if ((Get-ItemCount @($slice.blockers)) -eq 0) { '无' } else { @($slice.blockers) -join ' | ' }
     $lines.Add(('- {0}: status={1}; criteria={2}; blockers={3}; next={4}' -f $sliceId, $slice.status, $criteriaText, $blockerText, $slice.next))
 }
 $lines.Add('')
@@ -1052,13 +1077,13 @@ foreach ($parentSliceId in @('REAL005B', 'REAL005C')) {
     foreach ($detailedEntry in $parentSlice.detailedSliceCoverage.GetEnumerator()) {
         $detailedSlice = $detailedEntry.Value
         $criteriaText = @($detailedSlice.criterionIds) -join ', '
-        $blockerText = if (@($detailedSlice.blockers).Count -eq 0) { '无' } else { @($detailedSlice.blockers) -join ' | ' }
+        $blockerText = if ((Get-ItemCount @($detailedSlice.blockers)) -eq 0) { '无' } else { @($detailedSlice.blockers) -join ' | ' }
         $lines.Add("  - $($detailedEntry.Key): status=$($detailedSlice.status); reported=$($detailedSlice.reportedCriterionStatus); ready=$($detailedSlice.readyToAdvance); criteria=$criteriaText; blockers=$blockerText")
     }
 }
 $lines.Add('')
 $lines.Add('## 阻断缺口')
-if ($gaps.Count -eq 0) {
+if ((Get-ItemCount $gaps) -eq 0) {
     $lines.Add('- 无')
 }
 else {

@@ -31,6 +31,131 @@ function Write-JsonFile([string] $Path, [object] $Value) {
     $Value | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $Path -Encoding UTF8
 }
 
+function Ensure-NS1001ImportSmokeFixture([string] $FixtureRelativePath) {
+    $fixtureFullPath = Resolve-InRepoPath $FixtureRelativePath
+    if (Test-Path -LiteralPath $fixtureFullPath -PathType Container) {
+        return $fixtureFullPath
+    }
+
+    & (Join-Path $repoRoot 'tools/run-ns1001-isolated-machine-pack-contract.ps1') | Out-Null
+
+    $latestPackReport = Get-ChildItem -LiteralPath (Resolve-InRepoPath 'docs/evidence') -File -Filter '*-ns1001-isolated-machine-execution-pack.json' |
+        Sort-Object LastWriteTime -Descending |
+        Select-Object -First 1
+    Assert-Condition ($null -ne $latestPackReport) 'missing NS1001 execution-pack report for import smoke fixture'
+
+    $packReport = Get-Content -LiteralPath $latestPackReport.FullName -Raw | ConvertFrom-Json
+    $packRootPath = [string]$packReport.packRoot
+    $packRootFullPath = if ([System.IO.Path]::IsPathRooted($packRootPath)) {
+        $packRootPath
+    }
+    else {
+        Resolve-InRepoPath $packRootPath
+    }
+    Assert-Condition (Test-Path -LiteralPath $packRootFullPath -PathType Container) "missing NS1001 execution pack root: $packRootPath"
+
+    New-Item -ItemType Directory -Path $fixtureFullPath -Force | Out-Null
+    foreach ($entry in Get-ChildItem -LiteralPath $packRootFullPath -Force) {
+        $targetPath = Join-Path $fixtureFullPath $entry.Name
+        Copy-Item -LiteralPath $entry.FullName -Destination $targetPath -Recurse -Force
+    }
+
+    $returnEvidenceJsonFullPath = Join-Path $fixtureFullPath 'return/p001-isolated-machine-evidence.json'
+    $returnEvidenceMarkdownFullPath = Join-Path $fixtureFullPath 'return/p001-isolated-machine-evidence.md'
+    $returnAttachmentsRootFullPath = Join-Path $fixtureFullPath 'return/attachments'
+    New-Item -ItemType Directory -Path $returnAttachmentsRootFullPath -Force | Out-Null
+
+    $returnEvidence = Get-Content -LiteralPath $returnEvidenceJsonFullPath -Raw | ConvertFrom-Json
+    $attachmentRelativePath = 'return/attachments/smoke/health-ready.txt'
+    $attachmentFullPath = Join-Path $fixtureFullPath ($attachmentRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+    New-Item -ItemType Directory -Path (Split-Path -Parent $attachmentFullPath) -Force | Out-Null
+    Set-Content -LiteralPath $attachmentFullPath -Value 'ns1001 import smoke attachment' -Encoding UTF8
+
+    $returnEvidence.execution.date = Get-Date -Format 'yyyy-MM-dd'
+    $returnEvidence.execution.machineId = 'smoke-isolated-machine'
+    $returnEvidence.execution.location = 'repo-smoke-lab'
+    $returnEvidence.execution.operator = 'codex-smoke'
+    $returnEvidence.execution.supportOwner = 'support-owner'
+    $returnEvidence.execution.rollbackOwner = 'release-owner'
+    $returnEvidence.anchors.checklistVerified = $true
+
+    $returnEvidence.installInit.status = 'blocked'
+    $returnEvidence.installInit.installDir = 'D:\KQG_App'
+    $returnEvidence.installInit.dataDir = 'D:\KQG_Data'
+    $returnEvidence.installInit.backupDir = 'D:\KQG_Backups'
+    $returnEvidence.installInit.pgpassNonInteractiveOk = $true
+    $returnEvidence.installInit.hostCapabilitySummary = 'smoke fixture reused latest execution pack host diagnostics'
+    $returnEvidence.installInit.workerProfileSummary = 'direct_venv_lite'
+    $returnEvidence.installInit.technologyRefreshSummary = 'report_only'
+    $returnEvidence.installInit.initLogPaths = @($attachmentRelativePath)
+    $returnEvidence.installInit.commands = @(
+        [ordered]@{
+            command = 'installer smoke fixture'
+            exitCode = '0'
+            keyOutput = 'latest execution pack reused for import contract smoke'
+        }
+    )
+
+    $returnEvidence.backupRestore.status = 'blocked'
+    $returnEvidence.backupRestore.backupManifestPath = 'tmp/ns801-backups/smoke/manifest.json'
+    $returnEvidence.backupRestore.verifySummary = 'smoke fixture placeholder'
+    $returnEvidence.backupRestore.restoreSummary = 'smoke fixture placeholder'
+    $returnEvidence.backupRestore.healthReadinessSummary = 'ready'
+    $returnEvidence.backupRestore.rollbackCommand = 'pwsh -File tools/verify-backup.ps1'
+    $returnEvidence.backupRestore.attachmentPaths = @($attachmentRelativePath)
+    $returnEvidence.backupRestore.commands = @(
+        [ordered]@{
+            command = 'backup restore smoke fixture'
+            exitCode = '0'
+            keyOutput = 'placeholder backup/restore evidence for contract import'
+        }
+    )
+
+    $returnEvidence.roleAudit.status = 'blocked'
+    $returnEvidence.roleAudit.teacherGroupLeadAdminSeparation = 'smoke fixture placeholder'
+    $returnEvidence.roleAudit.adminFailClosed = 'smoke fixture placeholder'
+    $returnEvidence.roleAudit.internalAiFailClosed = 'smoke fixture placeholder'
+    $returnEvidence.roleAudit.auditLogPaths = @($attachmentRelativePath)
+    $returnEvidence.roleAudit.domainPermissionSummary = 'domain permission still blocked in smoke fixture'
+    $returnEvidence.roleAudit.commands = @(
+        [ordered]@{
+            command = 'role audit smoke fixture'
+            exitCode = '0'
+            keyOutput = 'placeholder audit evidence for contract import'
+        }
+    )
+
+    foreach ($entryName in @('import', 'paperAssembly', 'scoreImport', 'analysis')) {
+        $returnEvidence.teacherEntrySmokes.$entryName.status = 'blocked'
+        $returnEvidence.teacherEntrySmokes.$entryName.durationMinutes = '5'
+        $returnEvidence.teacherEntrySmokes.$entryName.blockers = @('smoke_fixture_site_run_not_executed')
+        $returnEvidence.teacherEntrySmokes.$entryName.takeoverPoints = @('keep_blocked_until_real_isolated_machine_run')
+        $returnEvidence.teacherEntrySmokes.$entryName.rollbackAction = 'keep_blocked'
+        $returnEvidence.teacherEntrySmokes.$entryName.attachmentPaths = @($attachmentRelativePath)
+    }
+
+    $returnEvidence.siteSpecific.printerSummary = 'printer not executed in smoke fixture'
+    $returnEvidence.siteSpecific.networkSummary = 'network not executed in smoke fixture'
+    $returnEvidence.siteSpecific.domainPermissionSummary = 'domain permission not executed in smoke fixture'
+    $returnEvidence.siteSpecific.openBlockers = @('smoke_fixture_site_checks_not_executed')
+    $returnEvidence.siteSpecific.attachmentPaths = @($attachmentRelativePath)
+
+    $returnEvidence.na.platformNa.used = $false
+    $returnEvidence.na.gateNa.used = $false
+
+    $returnEvidence.signoff.decision = 'keep_blocked'
+    $returnEvidence.signoff.remainingRisks = @('smoke fixture preserves site blockers')
+    $returnEvidence.signoff.rollbackConfirmed = $true
+    $returnEvidence.signoff.operatorSignoff = 'codex-smoke'
+    $returnEvidence.signoff.supportOwnerSignoff = 'support-owner'
+    $returnEvidence.signoff.releaseOwnerReview = 'release-owner'
+
+    $returnEvidence | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $returnEvidenceJsonFullPath -Encoding UTF8
+    Set-Content -LiteralPath $returnEvidenceMarkdownFullPath -Value "# P001 isolated-machine import smoke`r`n`r`n- decision: keep_blocked`r`n- note: smoke fixture regenerated from latest execution pack." -Encoding UTF8
+
+    return $fixtureFullPath
+}
+
 Push-Location $repoRoot
 try {
     $workRootFullPath = Resolve-InRepoPath $WorkRoot
@@ -42,8 +167,7 @@ try {
     $latestNs904ReportPath = Resolve-LatestEvidencePath '*-ns904-p001-readiness.json' 'docs/evidence/20260617-ns904-p001-readiness.json'
     $latestCloseoutGuardPath = Resolve-LatestEvidencePath '*-live-pilot-closeout-plan-guard.md' 'docs/evidence/20260617-live-pilot-closeout-plan-guard.md'
 
-    $p001ReturnedPackRoot = Resolve-InRepoPath 'tmp/ns1001-import-smoke'
-    Assert-Condition (Test-Path -LiteralPath $p001ReturnedPackRoot -PathType Container) 'missing NS1001 smoke fixture under tmp/ns1001-import-smoke'
+    $p001ReturnedPackRoot = Ensure-NS1001ImportSmokeFixture -FixtureRelativePath 'tmp/ns1001-import-smoke'
 
     $p001EvidenceOutputPath = Join-Path $WorkRoot 'p001/p001-isolated-machine.md'
     $p001AttachmentOutputRoot = Join-Path $WorkRoot 'p001/attachments'

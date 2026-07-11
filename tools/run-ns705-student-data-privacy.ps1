@@ -23,6 +23,26 @@ function Read-Text([string] $Path) {
     return Get-Content -LiteralPath $fullPath -Raw
 }
 
+function Test-JsonProperty([object] $InputObject, [string] $PropertyName) {
+    return $null -ne $InputObject -and $null -ne $InputObject.PSObject.Properties[$PropertyName]
+}
+
+function Get-OptionalJsonBool([object] $InputObject, [string] $PropertyName, [bool] $Fallback = $false) {
+    if (-not (Test-JsonProperty -InputObject $InputObject -PropertyName $PropertyName)) {
+        return $Fallback
+    }
+
+    return [bool]$InputObject.PSObject.Properties[$PropertyName].Value
+}
+
+function Get-OptionalJsonInt([object] $InputObject, [string] $PropertyName, [int] $Fallback = 0) {
+    if (-not (Test-JsonProperty -InputObject $InputObject -PropertyName $PropertyName)) {
+        return $Fallback
+    }
+
+    return [int]$InputObject.PSObject.Properties[$PropertyName].Value
+}
+
 function Invoke-CheckedScript([scriptblock] $Command, [string] $Label) {
     $output = & $Command 2>&1 | Out-String
     Assert-Condition (-not [string]::IsNullOrWhiteSpace($output)) "$Label returned no output"
@@ -80,12 +100,12 @@ try {
     foreach ($path in $scoreReports) {
         $report = Read-Json $path
         Assert-Condition ($report.status -eq 'pass') "NS705 score-chain report did not pass: $path"
-        Assert-Condition (-not [bool]$report.realStudentDataUsed) "NS705 found real student data use in $path"
-        Assert-Condition (-not [bool]$report.productionEligible) "NS705 found production eligible score-chain report: $path"
-        if ($null -ne $report.writesProductionHistory) {
-            Assert-Condition (-not [bool]$report.writesProductionHistory) "NS705 found production history write in $path"
+        Assert-Condition (-not (Get-OptionalJsonBool -InputObject $report -PropertyName 'realStudentDataUsed')) "NS705 found real student data use in $path"
+        Assert-Condition (-not (Get-OptionalJsonBool -InputObject $report -PropertyName 'productionEligible')) "NS705 found production eligible score-chain report: $path"
+        if (Test-JsonProperty -InputObject $report -PropertyName 'writesProductionHistory') {
+            Assert-Condition (-not (Get-OptionalJsonBool -InputObject $report -PropertyName 'writesProductionHistory')) "NS705 found production history write in $path"
         }
-        Assert-Condition ([int]$report.externalAiCalls -eq 0) "NS705 found external AI calls in $path"
+        Assert-Condition ((Get-OptionalJsonInt -InputObject $report -PropertyName 'externalAiCalls') -eq 0) "NS705 found external AI calls in $path"
     }
 
     $reportOut = [ordered]@{

@@ -1,5 +1,6 @@
 param(
-    [string] $ReportPath = 'docs/evidence/20260529-ns202-admin-internal-fail-closed-report.json'
+    [string] $ReportPath = 'docs/evidence/20260529-ns202-admin-internal-fail-closed-report.json',
+    [string] $GuardPath = 'apps/api/Security/AdminInternalEndpointGuard.cs'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -159,8 +160,15 @@ function Invoke-WithApi(
 Push-Location $repoRoot
 try {
     $program = Get-Content -LiteralPath 'apps/api/Program.cs' -Raw
+    $guard = Get-Content -LiteralPath $GuardPath -Raw
     $appsettings = Get-Content -LiteralPath 'apps/api/appsettings.json' -Raw | ConvertFrom-Json
     $development = Get-Content -LiteralPath 'apps/api/appsettings.Development.json' -Raw | ConvertFrom-Json
+
+    foreach ($marker in @(
+        'UseAdminInternalEndpointGuard'
+    )) {
+        Assert-Condition ($program.Contains($marker)) "NS202 Program.cs integration marker missing: $marker"
+    }
 
     foreach ($marker in @(
         'admin_internal_guard_not_configured',
@@ -172,7 +180,7 @@ try {
         'draft-test-unguarded-admin-internal',
         'CryptographicOperations.FixedTimeEquals'
     )) {
-        Assert-Condition ($program.Contains($marker)) "NS202 marker missing from Program.cs: $marker"
+        Assert-Condition ($guard.Contains($marker)) "NS202 guard marker missing from AdminInternalEndpointGuard: $marker"
     }
 
     Assert-Condition ([string]$appsettings.AdminInternalGuard.ApiKey -eq '') 'production default API key must be blank'

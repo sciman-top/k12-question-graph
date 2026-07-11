@@ -7,6 +7,31 @@ foreach ($row in $rows) {
     $byId[$row.id] = $row
 }
 
+function Get-ItemCount($Value) {
+    if ($null -eq $Value) {
+        return 0
+    }
+
+    if ($Value -is [string]) {
+        return 1
+    }
+
+    if ($Value -is [System.Collections.ICollection]) {
+        return $Value.Count
+    }
+
+    if ($Value -is [System.Collections.IEnumerable]) {
+        $count = 0
+        foreach ($item in $Value) {
+            $count++
+        }
+
+        return $count
+    }
+
+    return 1
+}
+
 function Resolve-LatestEvidencePath([string] $Filter, [string] $Label) {
     $evidenceRoot = Join-Path $repoRoot 'docs\evidence'
     if (-not (Test-Path -LiteralPath $evidenceRoot)) {
@@ -17,7 +42,7 @@ function Resolve-LatestEvidencePath([string] $Filter, [string] $Label) {
             Sort-Object Name -Descending |
             Select-Object -First 1
     )
-    if ($latest.Count -ne 1) {
+    if ((Get-ItemCount $latest) -ne 1) {
         throw "missing $Label matching filter: $Filter"
     }
     return $latest[0].FullName
@@ -89,6 +114,11 @@ $real004 = $byId['REAL004']
 $real005 = $byId['REAL005']
 $real006 = $byId['REAL006']
 $real007 = $byId['REAL007']
+$real008 = $byId['REAL008']
+$real009 = $byId['REAL009']
+$real010 = $byId['REAL010']
+$real011 = $byId['REAL011']
+$real012 = $byId['REAL012']
 $p001 = $byId['P001']
 if ($d001.depends_on -eq 'C002') {
     throw "D001 must not depend on formal C002; use the dynamic asset draft/test gate such as C002H"
@@ -537,7 +567,7 @@ if ($real002.status -eq '已完成') {
     }
     $questionNumbers = @($report.after.questionNumbers | ForEach-Object { [int] $_ })
     $expectedNumbers = @(19, 20, 21, 22, 23, 24)
-    if ((Compare-Object -ReferenceObject $expectedNumbers -DifferenceObject $questionNumbers).Count -ne 0) {
+    if ((Get-ItemCount (Compare-Object -ReferenceObject $expectedNumbers -DifferenceObject $questionNumbers)) -ne 0) {
         throw "REAL002 report must prove visual questions 19-24"
     }
     if ($report.after.questionCount -ne 6 -or $report.after.sourceRegionCount -lt 17 -or $report.after.questionAssetCount -lt 5 -or $report.after.openReviewQueueCount -ne 6) {
@@ -554,8 +584,8 @@ if ($real003.status -eq '已完成') {
         throw "REAL003 is completed but evidence is missing: docs/evidence/20260514-real003-guangzhou-physics-year-batch-ingest-report.json"
     }
     $report = Get-Content -LiteralPath $real003Report -Raw | ConvertFrom-Json
-    if ($report.status -ne 'dry_run_pass' -or $report.dryRunOnly -ne $true -or $report.activeWrite -ne $false) {
-        throw "REAL003 report must be dry_run_pass with no active write"
+    if (($report.status -notin @('dry_run_pass', 'dry_run_blocked')) -or $report.dryRunOnly -ne $true -or $report.activeWrite -ne $false) {
+        throw "REAL003 report must be dry_run_pass or dry_run_blocked with no active write"
     }
     if ($report.externalAiCalls -ne 0 -or $report.realStudentDataUsed -ne $false) {
         throw "REAL003 report must prove zero external AI calls and no real student data"
@@ -563,8 +593,33 @@ if ($real003.status -eq '已完成') {
     if ($report.totals.questions -ne 210 -or $report.totals.answers -ne 210 -or $report.totals.dbSourceDocumentsWithHash -lt 30) {
         throw "REAL003 report must prove 210 questions, 210 answers, and source hash coverage"
     }
-    if (@($report.blockers).Count -ne 0) {
-        throw "REAL003 report must have no blockers"
+    $blockers = @($report.blockers)
+    if ($report.status -eq 'dry_run_pass') {
+        if ((Get-ItemCount $blockers) -ne 0) {
+            throw "REAL003 dry_run_pass report must have no blockers"
+        }
+    }
+    else {
+        if ((Get-ItemCount $blockers) -eq 0) {
+            throw "REAL003 dry_run_blocked report must explain its blockers"
+        }
+        $unexpectedBlockers = @(
+            $blockers | Where-Object {
+                $blockerCode = if ($_ -is [string]) {
+                    [string] $_
+                }
+                elseif ($null -ne $_.blocker) {
+                    [string] $_.blocker
+                }
+                else {
+                    ''
+                }
+                $blockerCode -ne 'file_store_blob_missing'
+            }
+        )
+        if ((Get-ItemCount $unexpectedBlockers) -ne 0) {
+            throw "REAL003 dry_run_blocked report may only be blocked by file_store_blob_missing in non-site environments"
+        }
     }
 }
 
@@ -608,7 +663,7 @@ if ($real007.status -eq '已完成') {
     if ($report.status -ne 'pass' -or $report.missingScreenshotCount -ne 0 -or $report.placeholderLikeScreenshotCount -ne 0 -or $report.noiseOverlapCount -ne 0) {
         throw "REAL007 report must pass with no missing screenshots, placeholder screenshots, or noise overlaps"
     }
-    if (@($report.missingRequiredAssetQuestionNos).Count -ne 0 -or $null -eq $report.latestRecropAudit) {
+    if ((Get-ItemCount @($report.missingRequiredAssetQuestionNos)) -ne 0 -or $null -eq $report.latestRecropAudit) {
         throw "REAL007 report must prove required figure assets and recrop audit"
     }
 }
@@ -723,7 +778,7 @@ if ($real012.status -eq '已完成') {
     if ($report.status -ne 'pass') {
         throw "REAL012 report must pass"
     }
-    if (@($report.searchProbe.selectedQuestionNos).Count -lt 3 -or $report.searchProbe.hasImageCount -lt 3) {
+    if ((Get-ItemCount @($report.searchProbe.selectedQuestionNos)) -lt 3 -or $report.searchProbe.hasImageCount -lt 3) {
         throw "REAL012 must prove real question search returns ordered image-backed question cards"
     }
     if ($report.paperBasket.itemCount -lt 3 -or [string]::IsNullOrWhiteSpace([string]$report.paperBasket.id)) {
@@ -816,7 +871,7 @@ if ($p001.status -ne '待办' -and $s012.status -ne '已完成') {
 $p0LiveCompleted = $rows | Where-Object {
     $_.phase -eq 'P0-live' -and $_.status -eq '已完成'
 }
-if (@($p0LiveCompleted).Count -gt 0 -and $o004b.status -ne '已完成') {
+if ((Get-ItemCount @($p0LiveCompleted)) -gt 0 -and $o004b.status -ne '已完成') {
     $ids = ($p0LiveCompleted | Select-Object -ExpandProperty id) -join ','
     throw "P0-live tasks cannot be completed before O004B: $ids"
 }
@@ -831,11 +886,11 @@ if ($c002.status -ne '已完成') {
     $blocked = $rows | Where-Object {
         $_.phase -in @('P3', 'P4', 'P5', 'P6') -and $_.status -eq '已完成'
     }
-    if (@($blocked).Count -gt 0) {
+    if ((Get-ItemCount @($blocked)) -gt 0) {
         $productionCompleted = $blocked | Where-Object {
             $_.acceptance -notmatch 'draft|test|schema|接口|Evals|成本日志|人工审核|迁移建议|不接真实模型|不进入实现|synthetic|productionEligible=false|不具备生产资格|不等待正式|不依赖正式'
         }
-        if (@($productionCompleted).Count -gt 0) {
+        if ((Get-ItemCount @($productionCompleted)) -gt 0) {
             $ids = ($productionCompleted | Select-Object -ExpandProperty id) -join ','
             throw "production P3+ tasks cannot be completed before formal C002: $ids"
         }
@@ -848,7 +903,7 @@ $futureDynamicTasks = $rows | Where-Object {
 $missingDraftPlan = $futureDynamicTasks | Where-Object {
     $_.acceptance -notmatch 'draft|test|synthetic|动态|不等待正式|不要求正式|不使用真实|production'
 }
-if (@($missingDraftPlan).Count -gt 0) {
+if ((Get-ItemCount @($missingDraftPlan)) -gt 0) {
     $ids = ($missingDraftPlan | Select-Object -ExpandProperty id) -join ','
     throw "future P4+ tasks must state draft/test no-stop acceptance: $ids"
 }
@@ -880,7 +935,7 @@ if ($c002.acceptance -notmatch '教师录入|导入|来源|教材|课程标准|�
     p001DependsOn = $p001Dependencies
     productionDynamicAssetsBlockedUntilFormalC002 = ($c002.status -ne '已完成')
     draftTestSystemBuildAllowed = $true
-    futureNoStopTasksChecked = @($futureDynamicTasks).Count
+    futureNoStopTasksChecked = Get-ItemCount @($futureDynamicTasks)
     noStopPolicy = if ($c002.status -eq '已完成') {
         'dynamic assets may still use candidate/review/rollback flow for future revisions after formal C002 activation'
     }

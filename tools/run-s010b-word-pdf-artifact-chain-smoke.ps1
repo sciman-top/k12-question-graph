@@ -13,22 +13,12 @@ param(
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 . (Join-Path $PSScriptRoot 'database-env.ps1')
+. (Join-Path $PSScriptRoot 'script-quality-helpers.ps1')
 $DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword
 if ([string]::IsNullOrWhiteSpace($DatabasePassword)) { throw 'DatabasePassword or PGPASSWORD is required for S010B smoke' }
 
 function Assert-True([bool] $Condition, [string] $Message) {
     if (-not $Condition) { throw $Message }
-}
-
-function Get-FreeTcpPort {
-    $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, 0)
-    try {
-        $listener.Start()
-        return $listener.LocalEndpoint.Port
-    }
-    finally {
-        $listener.Stop()
-    }
 }
 
 function Test-FileHashMatches([string] $Path, [string] $ExpectedHash) {
@@ -38,7 +28,7 @@ function Test-FileHashMatches([string] $Path, [string] $ExpectedHash) {
 
 $requestedApiPort = $ApiPort
 if ($ApiPort -le 0) {
-    $ApiPort = Get-FreeTcpPort
+    $ApiPort = Get-KqgFreeTcpPort
 }
 $apiUrl = "http://127.0.0.1:$ApiPort"
 $logOut = Join-Path $repoRoot 'docs/evidence/s010b-smoke-api.out.log'
@@ -55,11 +45,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'dotnet ef database update failed' }
 
     $process = Start-Process -FilePath dotnet -ArgumentList @('run','--project','apps\\api\\K12QuestionGraph.Api.csproj','-c','Release','--no-build','--urls',$apiUrl) -PassThru -WindowStyle Hidden -RedirectStandardOutput $logOut -RedirectStandardError $logErr
-    $ready = $false
-    for ($i = 0; $i -lt 120; $i++) {
-        try { if ((Invoke-RestMethod -Uri "$apiUrl/health/ready" -TimeoutSec 2).status -eq 'ok') { $ready = $true; break } } catch {}
-        Start-Sleep -Milliseconds 500
-    }
+    $ready = Wait-KqgApiReady -ApiUrl $apiUrl -Attempts 120
     if (-not $ready) { throw "API did not become ready on $apiUrl" }
 
     $psql = Join-Path $PgBin 'psql.exe'

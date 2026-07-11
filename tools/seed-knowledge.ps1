@@ -50,14 +50,27 @@ function Invoke-NonQuery([string] $Sql) {
     }
 }
 
+function Get-OptionalArray([object] $InputObject, [string] $PropertyName) {
+    if ($null -eq $InputObject) {
+        return @()
+    }
+
+    $property = $InputObject.PSObject.Properties[$PropertyName]
+    if ($null -eq $property -or $null -eq $property.Value) {
+        return @()
+    }
+
+    return @($property.Value)
+}
+
 try {
     foreach ($node in ($seed.nodes | Sort-Object level, code)) {
         $metadata = [ordered]@{
             seed_id = $seed.seedId
             source_basis = 'bootstrap_draft_not_authoritative'
             requires_source_review = $true
-            aliases = @($node.aliases)
-            formulas = @($node.formulas)
+            aliases = @(Get-OptionalArray -InputObject $node -PropertyName 'aliases')
+            formulas = @(Get-OptionalArray -InputObject $node -PropertyName 'formulas')
         } | ConvertTo-Json -Compress
 
         $parentExpression = 'null'

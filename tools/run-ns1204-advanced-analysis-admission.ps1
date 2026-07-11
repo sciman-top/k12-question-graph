@@ -172,7 +172,7 @@ try {
     Assert-Condition ($analysisReportArea.blocking_gap -match '正式历史口径|现场学情发布') 'analysis-report must retain formal-history/pilot boundary'
     Assert-Condition ($advancedPlatformArea.usable_today -eq '不可使用') 'advanced-platform must remain unavailable before advanced-analysis admission'
 
-    $codePatternHits = Find-CodePatternHits @('apps/api', 'apps/web/src', 'schemas', 'workers') @(
+    $codePatternHits = @(Find-CodePatternHits @('apps/api', 'apps/web/src', 'schemas', 'workers') @(
         '\bIRT\b',
         'item\s+response\s+theory',
         'form\s+equating',
@@ -180,8 +180,8 @@ try {
         'ability\s+scale',
         'growth\s+score',
         'DIF\s+diagnostic'
-    )
-    Assert-Condition ($codePatternHits.Count -eq 0) 'NS1204 found product code that appears to enable IRT/equating/growth analysis'
+    ))
+    Assert-Condition (@($codePatternHits).Count -eq 0) 'NS1204 found product code that appears to enable IRT/equating/growth analysis'
 
     $report = [ordered]@{
         status = 'pass'
@@ -230,7 +230,7 @@ try {
         codeScan = [ordered]@{
             searchedRoots = @('apps/api', 'apps/web/src', 'schemas', 'workers')
             blockedPatterns = @('IRT', 'item response theory', 'form equating', 'longitudinal growth', 'ability scale', 'growth score', 'DIF diagnostic')
-            hitCount = [int]$codePatternHits.Count
+            hitCount = [int]@($codePatternHits).Count
             noIrtEndpointOrMetric = $true
             noEquatingOutput = $true
             noLongitudinalGrowthRoute = $true

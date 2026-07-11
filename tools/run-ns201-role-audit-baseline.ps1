@@ -1,5 +1,6 @@
 param(
-    [string] $ReportPath = 'docs/evidence/20260529-ns201-role-audit-baseline-report.json'
+    [string] $ReportPath = 'docs/evidence/20260529-ns201-role-audit-baseline-report.json',
+    [string] $GuardPath = 'apps/api/Security/AdminInternalEndpointGuard.cs'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -26,9 +27,16 @@ function Invoke-JsonContract([string] $RelativeScriptPath) {
 Push-Location $repoRoot
 try {
     $program = Get-Content -LiteralPath 'apps/api/Program.cs' -Raw
+    $guard = Get-Content -LiteralPath $GuardPath -Raw
     $appSettings = Get-Content -LiteralPath 'apps/api/appsettings.json' -Raw | ConvertFrom-Json
     $app = Get-Content -LiteralPath 'apps/web/src/App.tsx' -Raw
     $adminPanels = Get-Content -LiteralPath 'apps/web/src/ui/AdminGovernancePanels.tsx' -Raw
+
+    foreach ($needle in @(
+        'UseAdminInternalEndpointGuard'
+    )) {
+        Assert-Contains $program $needle "Program.cs missing NS201 guard integration marker: $needle"
+    }
 
     foreach ($needle in @(
         'X-KQG-Operator-Role',
@@ -42,7 +50,7 @@ try {
         'operatorId',
         'rollbackRef'
     )) {
-        Assert-Contains $program $needle "Program.cs missing NS201 role/audit marker: $needle"
+        Assert-Contains $guard $needle "AdminInternalEndpointGuard missing NS201 role/audit marker: $needle"
     }
 
     Assert-Condition ($appSettings.AdminInternalRoleAudit.Enabled -eq $true) 'AdminInternalRoleAudit must be enabled by default'
