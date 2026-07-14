@@ -1,8 +1,8 @@
 # AGENTS.md - k12-question-graph
 **项目契约**: 2.0
-**全局规则复核**: 9.55
+**全局规则复核**: 9.56
 **类型**: K-12 teacher-first question graph platform
-**最后更新**: 2026-07-10
+**最后更新**: 2026-07-14
 
 ## 1. 当前落点与目标归宿
 - 当前落点：本仓是校本题谱平台，v0.1 聚焦初中物理，已有 API/Web/Worker/PostgreSQL/FileStore/backup 与版本化领域资产。
@@ -29,9 +29,9 @@
 - build：`dotnet build apps/api/K12QuestionGraph.Api.csproj`
 - test/full：`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-gates.ps1`，仅在 PostgreSQL/进程影响获确认后执行。
 - contract/invariant：`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-roadmap-guard.ps1`
-- hotspot：当前无独立命令；按 `gate_na` 记录 `reason=仓库尚无独立 hotspot`、`alternative_verification=受影响 API/UI/worker/data/AI/export 合同与教师效率复核`、`evidence_link=docs/18_TestStrategy.md`、`expires_at=next_executable_change`。
+- hotspot：当前无独立命令；按 `gate_na` 记录 `reason=仓库尚无独立 hotspot`、`alternative_verification=受影响 API/UI/worker/data/AI/export 合同与教师效率复核`、`evidence_link=docs/18_TestStrategy.md`、`expires_at=next_executable_change`、`recovery_condition=建立独立 hotspot 命令并纳入门禁`。
 - quick：`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-c002-dry-run-suite.ps1`；只证明无数据库 C002 dry-run，不能替代 full gate。
-- 规则/文档 slice 若因数据库与进程影响不运行 full gate，必须逐项记录 `gate_na` 四字段，并至少解析 CSV/JSON/YAML、运行 roadmap guard 与静态项目规则审计。
+- 规则/文档 slice 若因数据库与进程影响不运行 full gate，必须逐项记录 `gate_na` 的 `reason / alternative_verification / evidence_link / expires_at / recovery_condition`，并至少解析 CSV/JSON/YAML、运行 roadmap guard 与静态项目规则审计。
 - backlog/roadmap/README 顺序冲突、schema parse 失败或 C002R 状态语义破坏时阻断。
 - 证据放入 `docs/evidence/`；DB/FileStore/active 变化额外记录 snapshot、manifest 或 restore 命令。
 - 回滚只撤销当前代码/规则/证据 slice；数据变化必须使用已记录 backup/restore，不能用 Git 回滚代替。
