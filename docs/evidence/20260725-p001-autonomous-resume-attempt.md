@@ -25,7 +25,8 @@
    - `pg_isready`: `127.0.0.1:5432 - no response`
    - Windows service: `postgresql-x64-17`, original and final state `Stopped`, start type `Manual`
    - `Start-Service`: blocked because the current host session cannot open the service.
-   - direct `pg_ctl` start: PostgreSQL stopped after TCP socket bind returned `Permission denied` for `::` and `0.0.0.0`.
+   - direct `pg_ctl` start with repository defaults: PostgreSQL stopped after TCP socket bind returned `Permission denied` for `::` and `0.0.0.0`.
+   - direct `pg_ctl` start with command-line `listen_addresses=127.0.0.1`: PostgreSQL again stopped after TCP socket bind returned `Permission denied` for `127.0.0.1`.
 4. Existing portable pack verification:
    - pack: `tmp/ns1001-execution-pack/20260608-015422`
    - manifest entries checked: `71`
@@ -42,7 +43,7 @@
 ## N/A and recovery
 
 - `platform_na`
-  - reason: current host session cannot start `postgresql-x64-17`, and direct PostgreSQL startup cannot bind its configured TCP sockets.
+  - reason: current host session cannot start `postgresql-x64-17`, and direct PostgreSQL startup cannot bind either wildcard or loopback TCP sockets.
   - alternative_verification: refreshed P001 readiness contract and verified all 71 files in the latest existing NS1001 pack against its SHA-256 manifest.
   - evidence_link: `docs/evidence/20260725-p001-autonomous-resume-attempt.md`
   - expires_at: `next_privileged_or_unrestricted_p001_pack_refresh`
