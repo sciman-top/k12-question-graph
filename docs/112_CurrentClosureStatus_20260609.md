@@ -1,6 +1,6 @@
 # 112 · 当前闭环状态总览
 
-日期：2026-06-23。状态证据核对到 2026-06-23。文件名保留 `20260609` 作为稳定入口。
+日期：2026-07-25。状态证据核对到 2026-07-25。文件名保留 `20260609` 作为稳定入口。
 
 ## 1. 当前结论
 
@@ -16,10 +16,13 @@
   - `tools/run-repo-preflight.ps1 -Mode Ci`：pass
 - 非现场教师主链路、Web/API 本地联调和管理员 AI 设置入口都已有仓库内证据或 contract，不再只是规划。
 - 但项目仍不能宣称 `release_ready`，也不能宣称“现场发布闭环完成”。
+- 2026-07-25 已按用户授权恢复 `P001` 连续推进：P001 readiness preflight 通过并确认 `readyForIsolatedMachineRun=true`，但当前宿主无法启动 PostgreSQL，最新 NS1001 包因缺少可验证 backup manifest 而 fail-closed。旧包 71 个 manifest 条目 SHA-256 全部匹配，但回传字段仍为 `not_run/keep_blocked`，所以 `P001A` 未关闭。
 
 当前最准确的对外口径是：
 
 > 仓库内代码、脚本、非现场工作流、参考基线和发布前置口径已经进一步收口；2026-06-23 的完整 `full gate`、closeout/status 守卫与 REAL005 repo-side 切片证据均通过。`REAL005A/B/C/D 的 repo-side closeout 已完成`，但整体仍保持 `REAL005 = not_closed`；现场 / 隔离机 / 签收级闭环当前只剩 `P001/P003/P005/P006` 阻断。
+
+2026-07-25 恢复执行证据：`docs/evidence/20260725-p001-autonomous-resume-attempt.md`。该证据只证明 repo-side readiness 与旧执行包完整性，不替代隔离机现场事实。
 
 ## 2. 最新已验证层级
 
