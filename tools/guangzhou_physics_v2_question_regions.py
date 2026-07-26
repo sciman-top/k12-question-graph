@@ -23,6 +23,9 @@ YEARS = list(range(2016, 2026))
 DEFAULT_MATERIAL_BATCH_KEY = "guangzhou_physics_2015_2025_20260726_v2"
 ANCHOR_PATTERN = re.compile(r"(?:^|[^0-9])(\d{1,2})[.．、](?=[^0-9]|$)")
 MULTI_QUESTION_HEADING_PATTERN = re.compile(r"\d{1,2}\s*[、,，]\s*\d{1,2}\s*题")
+SECTION_BOUNDARY_PATTERN = re.compile(
+    r"^\s*(?:第[一二三四五六七八九十]+部分|[一二三四五六七八九十]+[、.．]\s*(?:选择题|填空|作图|解析题|实验|探究题)|解析题应写出)"
+)
 
 
 @dataclass(frozen=True)
@@ -179,6 +182,10 @@ def following_question_sequence_start(anchors: list[Anchor], last_anchor: Anchor
     return None
 
 
+def is_section_boundary_segment(text: str) -> bool:
+    return bool(SECTION_BOUNDARY_PATTERN.search(text.replace("\n", " ")))
+
+
 def crop_percent(source: Path, target: Path, left: float, top: float, right: float, bottom: float) -> dict[str, Any]:
     with Image.open(source) as image:
         width, height = image.size
@@ -234,18 +241,26 @@ def build_question_regions(
             last_page = next_anchor.page_number if next_anchor else question_end_page
             regions: list[dict[str, Any]] = []
             skipped_blank_segments: list[int] = []
+            skipped_section_segments: list[int] = []
             for page_number in range(start.page_number, last_page + 1):
                 screenshot_relative_path = page_images.get(page_number)
                 if not screenshot_relative_path:
                     blockers.append(f"source_page_screenshot_missing:q{question_number}:p{page_number}")
                     continue
                 page_height = float(pdf.pages[page_number - 1].height)
-                top = max(3.0, (start.top / page_height * 100) - 1.5) if page_number == start.page_number else 3.0
+                anchor_padding = 0.5 if question_number == 1 and not start.text.startswith("inferred_") else 1.5
+                top = max(3.0, (start.top / page_height * 100) - anchor_padding) if page_number == start.page_number else 3.0
                 bottom = (
                     min(97.0, (next_anchor.top / page_height * 100) - 0.8)
                     if next_anchor and page_number == next_anchor.page_number
                     else 97.0
                 )
+                if page_number != start.page_number and next_anchor and page_number == next_anchor.page_number:
+                    page = pdf.pages[page_number - 1]
+                    segment_text = page.crop((0, page.height * top / 100, page.width, page.height * bottom / 100)).extract_text() or ""
+                    if is_section_boundary_segment(segment_text):
+                        skipped_section_segments.append(page_number)
+                        continue
                 target_relative_path = (
                     f"generated/{namespace}/question-regions/{year}/{source['source_document_id']}/"
                     f"q{question_number:02d}-p{page_number:03d}.png"
@@ -284,6 +299,7 @@ def build_question_regions(
                     },
                     "regions": regions,
                     "skippedBlankPageSegments": skipped_blank_segments,
+                    "skippedSectionBoundarySegments": skipped_section_segments,
                 }
             )
     return {

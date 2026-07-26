@@ -56,6 +56,11 @@ class GuangzhouV2QuestionRegionTests(unittest.TestCase):
 
         self.assertIsNone(regions.following_question_sequence_start(anchors, last))
 
+    def test_section_boundary_segment_detects_transition_but_not_question_continuation(self) -> None:
+        self.assertTrue(regions.is_section_boundary_segment("三、解析题（共24分） 解析题应写出必要步骤"))
+        self.assertTrue(regions.is_section_boundary_segment("第二部分（共64分） 二、填空作图题"))
+        self.assertFalse(regions.is_section_boundary_segment("（2）继续完成上页实验，并记录数据"))
+
     def test_crop_percent_creates_nonblank_region(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = pathlib.Path(temp_dir)
