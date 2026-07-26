@@ -2,133 +2,86 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+import psycopg
+from psycopg.rows import dict_row
+
 
 REQUIRED_YEARS = list(range(2015, 2026))
-REAL001_REPORT_GLOB = "docs/evidence/*-guangzhou-2015-real-ingest-slice-report.json"
-REAL003_REPORT = "docs/evidence/20260514-real003-guangzhou-physics-year-batch-ingest-report.json"
+DEFAULT_MATERIAL_BATCH_KEY = "guangzhou_physics_2015_2025_20260726_v2"
 
 
-def read_json(path: Path) -> dict[str, Any]:
-    return json.loads(path.read_text(encoding="utf-8"))
-
-
-def find_latest_json(repo_root: Path, glob_pattern: str) -> str:
-    matches = sorted(
-        (repo_root / "docs/evidence").glob(Path(glob_pattern).name),
-        key=lambda path: path.name,
-        reverse=True,
-    )
-    if not matches:
-        raise FileNotFoundError(f"missing evidence matching {glob_pattern}")
-    return str(matches[0].relative_to(repo_root)).replace("\\", "/")
-
-
-def label_for(source: dict[str, Any]) -> str:
-    return " ".join(
-        str(source.get(key) or "")
-        for key in ("title", "source_title", "fileName", "original_file_name")
-    )
-
-
-def is_answer_like(source: dict[str, Any]) -> bool:
-    label = label_for(source)
-    return any(term in label for term in ("答案", "参考答案", "解析版", "含答案"))
-
-
-def is_combined_paper_answer(source: dict[str, Any]) -> bool:
-    label = label_for(source)
-    return any(term in label for term in ("含答案", "解析版"))
-
-
-def normalize_source(source: dict[str, Any], year: int) -> dict[str, Any]:
+def role_for_source_type(source_type: str) -> str | None:
     return {
-        "year": year,
-        "sourceDocumentId": source.get("sourceDocumentId") or source.get("source_document_id"),
-        "sourceType": source.get("sourceType") or source.get("source_type"),
-        "title": source.get("title") or source.get("source_title"),
-        "fileName": source.get("fileName") or source.get("original_file_name"),
-        "relativePath": source.get("relativePath") or source.get("relative_path"),
-        "sha256": source.get("sha256"),
-        "sizeBytes": source.get("sizeBytes") or source.get("size_bytes"),
-    }
+        "local_exam_paper": "paper",
+        "answer_or_solution": "answer",
+        "exam_analysis_report": "report",
+        "exam_year_report": "report",
+    }.get(source_type)
 
 
-def add_role(target: dict[str, dict[str, Any]], source: dict[str, Any], role: str) -> None:
-    key = str(source["relativePath"])
+def add_source_row(target: dict[str, dict[str, Any]], row: dict[str, Any]) -> None:
+    key = str(row["relative_path"])
+    role = role_for_source_type(str(row["source_type"]))
+    if role is None:
+        return
     if key not in target:
-        target[key] = dict(source)
-        target[key]["roles"] = []
+        target[key] = {
+            "year": int(row["year"]),
+            "sourceDocumentIds": [],
+            "sourceTypes": [],
+            "titles": [],
+            "fileName": row["original_file_name"],
+            "relativePath": row["relative_path"],
+            "sha256": row["sha256"],
+            "sizeBytes": row["size_bytes"],
+            "roles": [],
+        }
+    target[key]["sourceDocumentIds"].append(str(row["source_document_id"]))
+    target[key]["sourceTypes"].append(str(row["source_type"]))
+    target[key]["titles"].append(str(row["source_title"]))
     if role not in target[key]["roles"]:
         target[key]["roles"].append(role)
 
 
-def build_sources(repo_root: Path) -> dict[int, list[dict[str, Any]]]:
-    real001_report = find_latest_json(repo_root, REAL001_REPORT_GLOB)
-    real001 = read_json(repo_root / real001_report)
-    real003 = read_json(repo_root / REAL003_REPORT)
-
+def build_sources_from_rows(rows: list[dict[str, Any]]) -> dict[int, list[dict[str, Any]]]:
     by_year: dict[int, dict[str, dict[str, Any]]] = {year: {} for year in REQUIRED_YEARS}
-
-    paper_2015 = normalize_source(real001["sourceDocuments"]["paper"], 2015)
-    answer_2015 = normalize_source(real001["sourceDocuments"]["answer"], 2015)
-    add_role(by_year[2015], paper_2015, "paper")
-    add_role(by_year[2015], answer_2015, "answer")
-
-    for year_item in real003["years"]:
-        year = int(year_item["year"])
-        if year not in by_year:
-            continue
-
-        local_exam_sources = [
-            normalize_source(source, year)
-            for source in year_item.get("sourceHashes", [])
-            if str(source.get("sourceType") or source.get("source_type")) == "local_exam_paper"
-        ]
-        for source in local_exam_sources:
-            if (not is_answer_like(source)) or is_combined_paper_answer(source):
-                add_role(by_year[year], source, "paper")
-            if is_answer_like(source):
-                add_role(by_year[year], source, "answer")
-
-    return {year: list(sources.values()) for year, sources in by_year.items()}
+    for row in rows:
+        year = int(row["year"])
+        if year in by_year:
+            add_source_row(by_year[year], row)
+    return {year: sorted(sources.values(), key=lambda source: source["fileName"]) for year, sources in by_year.items()}
 
 
-def iter_candidate_file_roots(repo_root: Path, preferred_root: Path) -> list[Path]:
-    candidates: list[Path] = []
-
-    def add_candidate(path: Path) -> None:
-        if path.is_dir() and path not in candidates:
-            candidates.append(path)
-
-    add_candidate(preferred_root)
-
-    tmp_root = repo_root / "tmp"
-    if tmp_root.exists():
-        for file_store_root in tmp_root.rglob("file_store"):
-            add_candidate(file_store_root)
-
-    return candidates
-
-
-def resolve_file_root(repo_root: Path, preferred_root: Path, sources_by_year: dict[int, list[dict[str, Any]]]) -> Path:
-    required_relative_paths = []
-    for year in REQUIRED_YEARS:
-        for source in sources_by_year.get(year, []):
-            relative_path = str(source.get("relativePath") or "").strip()
-            if relative_path and relative_path not in required_relative_paths:
-                required_relative_paths.append(relative_path)
-
-    for candidate_root in iter_candidate_file_roots(repo_root, preferred_root):
-        if all((candidate_root / Path(relative_path)).exists() for relative_path in required_relative_paths):
-            return candidate_root
-
-    return preferred_root
+def read_sources(connection: str, material_batch_key: str) -> tuple[dict[int, list[dict[str, Any]]], int]:
+    with psycopg.connect(connection, row_factory=dict_row) as conn:
+        rows = list(
+            conn.execute(
+                """
+                select
+                    sd.id as source_document_id,
+                    sd.source_type,
+                    sd.source_title,
+                    sd.year,
+                    fa.original_file_name,
+                    fa.relative_path,
+                    fa.sha256,
+                    fa.size_bytes
+                from source_documents sd
+                join file_assets fa on fa.id = sd.file_asset_id
+                where sd.material_batch_key = %s
+                order by sd.year, sd.source_type, fa.original_file_name, sd.id
+                """,
+                (material_batch_key,),
+            ).fetchall()
+        )
+    return build_sources_from_rows(rows), len(rows)
 
 
 def has_required_diagnostic_fields(diagnostic: dict[str, Any]) -> bool:
@@ -146,9 +99,9 @@ def run_worker(repo_root: Path, file_root: Path, source: dict[str, Any]) -> dict
     relative_path = str(source["relativePath"])
     full_path = file_root / Path(relative_path.replace("/", "\\"))
     result: dict[str, Any] = {
-        "sourceDocumentId": source.get("sourceDocumentId"),
-        "sourceType": source.get("sourceType"),
-        "title": source.get("title"),
+        "sourceDocumentIds": source.get("sourceDocumentIds", []),
+        "sourceTypes": source.get("sourceTypes", []),
+        "titles": source.get("titles", []),
         "fileName": source.get("fileName"),
         "relativePath": relative_path,
         "roles": sorted(source.get("roles", [])),
@@ -157,6 +110,10 @@ def run_worker(repo_root: Path, file_root: Path, source: dict[str, Any]) -> dict
         "workerExitCode": None,
         "diagnosticStatus": "not_run",
         "adapterDiagnostics": [],
+        "pageCount": 0,
+        "layoutBlockCount": 0,
+        "textCharacterCount": 0,
+        "takeoverPageCount": 0,
         "issues": [],
     }
 
@@ -193,6 +150,18 @@ def run_worker(repo_root: Path, file_root: Path, source: dict[str, Any]) -> dict
 
     diagnostics = worker_json.get("adapterDiagnostics") or []
     result["adapterDiagnostics"] = diagnostics
+    pages = worker_json.get("documentModel", {}).get("pages") or []
+    blocks = [block for page in pages for block in (page.get("layoutBlocks") or [])]
+    result["pageCount"] = len(pages)
+    result["layoutBlockCount"] = len(blocks)
+    result["textCharacterCount"] = sum(len(str(block.get("textPreview") or "")) for block in blocks)
+    result["takeoverPageCount"] = sum(
+        1 for page in pages if any(bool(block.get("takeoverRequired")) for block in (page.get("layoutBlocks") or []))
+    )
+    if not pages:
+        result["issues"].append("document_pages_missing")
+    if not blocks:
+        result["issues"].append("layout_blocks_missing")
     if not diagnostics:
         result["issues"].append("adapter_diagnostics_missing")
     for diagnostic in diagnostics:
@@ -215,6 +184,9 @@ def write_markdown(report: dict[str, Any], path: Path) -> None:
         f"- checked_at: {report['checkedAt']}",
         f"- years_checked: {len(report['years'])}",
         f"- file_root: `{report['fileRoot']}`",
+        f"- material_batch_key: `{report['materialBatchKey']}`",
+        f"- source_documents: {report['sourceDocumentCount']}",
+        f"- physical_files: {report['physicalFileCount']}",
         f"- active_write: {str(report['activeWrite']).lower()}",
         f"- external_ai_calls: {report['externalAiCalls']}",
         "",
@@ -225,7 +197,8 @@ def write_markdown(report: dict[str, Any], path: Path) -> None:
         lines.append(
             f"- {year['year']}: status={year['status']}; "
             f"paper={str(year['hasPaperDiagnostic']).lower()}; "
-            f"answer={str(year['hasAnswerDiagnostic']).lower()}; blockers={blockers}"
+            f"answer={str(year['hasAnswerDiagnostic']).lower()}; "
+            f"report={str(year['hasReportDiagnostic']).lower()}; blockers={blockers}"
         )
     lines.extend(
         [
@@ -240,27 +213,35 @@ def write_markdown(report: dict[str, Any], path: Path) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="REAL005 yearly adapter diagnostic evidence")
+    parser.add_argument("--host", default="127.0.0.1")
+    parser.add_argument("--port", type=int, default=5432)
+    parser.add_argument("--database", default="k12_question_graph")
+    parser.add_argument("--user", default="postgres")
+    parser.add_argument("--password", default=os.environ.get("PGPASSWORD", ""))
+    parser.add_argument("--material-batch-key", default=DEFAULT_MATERIAL_BATCH_KEY)
     parser.add_argument("--file-root", default=r"D:\KQG_Data\file_store")
     parser.add_argument("--output", required=True)
     parser.add_argument("--markdown-output", required=True)
     args = parser.parse_args()
 
     repo_root = Path(__file__).resolve().parents[1]
-    real001_report = find_latest_json(repo_root, REAL001_REPORT_GLOB)
-    sources_by_year = build_sources(repo_root)
-    preferred_file_root = Path(args.file_root)
-    file_root = resolve_file_root(repo_root, preferred_file_root, sources_by_year)
+    connection = f"host={args.host} port={args.port} dbname={args.database} user={args.user} password={args.password}"
+    sources_by_year, source_document_count = read_sources(connection, args.material_batch_key)
+    file_root = Path(args.file_root)
 
     years: list[dict[str, Any]] = []
     for year in REQUIRED_YEARS:
         documents = [run_worker(repo_root, file_root, source) for source in sources_by_year.get(year, [])]
         has_paper = any("paper" in doc.get("roles", []) and doc["diagnosticStatus"] == "pass" for doc in documents)
         has_answer = any("answer" in doc.get("roles", []) and doc["diagnosticStatus"] == "pass" for doc in documents)
+        has_report = any("report" in doc.get("roles", []) and doc["diagnosticStatus"] == "pass" for doc in documents)
         blockers: list[str] = []
         if not has_paper:
             blockers.append("paper_adapter_diagnostic_missing")
         if not has_answer:
             blockers.append("answer_adapter_diagnostic_missing")
+        if not has_report:
+            blockers.append("report_adapter_diagnostic_missing")
         for doc in documents:
             blockers.extend(f"{doc['fileName']}:{issue}" for issue in doc["issues"])
 
@@ -270,6 +251,7 @@ def main() -> int:
                 "status": "pass" if not blockers else "blocked",
                 "hasPaperDiagnostic": has_paper,
                 "hasAnswerDiagnostic": has_answer,
+                "hasReportDiagnostic": has_report,
                 "documentCount": len(documents),
                 "documents": documents,
                 "blockers": blockers,
@@ -281,9 +263,11 @@ def main() -> int:
         "status": "pass" if not blocked_years else "blocked",
         "taskId": "REAL005_YEARLY_ADAPTER_DIAGNOSTICS",
         "checkedAt": datetime.now(timezone.utc).isoformat(),
-        "preferredFileRoot": str(preferred_file_root),
         "fileRoot": str(file_root),
-        "sourceEvidence": [real001_report, REAL003_REPORT],
+        "materialBatchKey": args.material_batch_key,
+        "sourceEvidence": [f"postgresql:source_documents.material_batch_key={args.material_batch_key}"],
+        "sourceDocumentCount": source_document_count,
+        "physicalFileCount": sum(len(year["documents"]) for year in years),
         "requiredYears": REQUIRED_YEARS,
         "blockedYears": blocked_years,
         "activeWrite": False,

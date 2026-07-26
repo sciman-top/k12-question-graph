@@ -97,6 +97,34 @@ class WorkerHelpersTests(unittest.TestCase):
         self.assertTrue(pages[0]["layoutBlocks"][0]["takeoverRequired"])
         self.assertEqual(pages[1]["layoutBlocks"][0]["sourceRegion"]["pageObject"], 12)
 
+    def test_sparse_pdf_text_requires_ocr_fallback(self) -> None:
+        sparse_pages = [
+            {
+                "pageNumber": page_number,
+                "layoutBlocks": [
+                    {
+                        "blockType": "document_header",
+                        "textPreview": f"物理试卷{page_number}",
+                    }
+                ],
+            }
+            for page_number in range(1, 7)
+        ]
+        normal_pages = [
+            {
+                "pageNumber": 1,
+                "layoutBlocks": [
+                    {
+                        "blockType": "answer",
+                        "textPreview": "参考答案 " + ("有效答案和解析内容" * 40),
+                    }
+                ],
+            }
+        ]
+
+        self.assertTrue(worker.pdf_text_is_too_sparse(sparse_pages))
+        self.assertFalse(worker.pdf_text_is_too_sparse(normal_pages))
+
     def test_resolve_pdftoppm_prefers_executable_on_windows(self) -> None:
         candidates = {
             "pdftoppm.exe": r"C:\tools\poppler\pdftoppm.exe",

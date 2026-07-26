@@ -614,6 +614,17 @@ def parse_scanned_image_ocr_review(target: pathlib.Path) -> tuple[list[dict], li
     return build_ocr_review_pages(1, "image_ocr_review", warning), [warning]
 
 
+def pdf_text_is_too_sparse(pages: list[dict]) -> bool:
+    if len(pages) < 2:
+        return False
+    text_character_count = sum(
+        len(str(block.get("textPreview") or "").strip())
+        for page in pages
+        for block in page.get("layoutBlocks", [])
+    )
+    return text_character_count < len(pages) * 40
+
+
 def build_document_model(job_id: str, relative_path: str, target: pathlib.Path) -> dict:
     warnings = []
     adapter_name = "placeholder_document_adapter"
@@ -631,8 +642,11 @@ def build_document_model(job_id: str, relative_path: str, target: pathlib.Path) 
         blocks = []
         adapter_name = "pdf_text_adapter"
         adapter_version = "0.1"
-        if not any(page["layoutBlocks"] for page in pages):
-            pages, warnings = parse_scanned_pdf_with_rapidocr(target)
+        requires_ocr = not any(page["layoutBlocks"] for page in pages) or pdf_text_is_too_sparse(pages)
+        if requires_ocr:
+            sparse_warning = "PDF text layer is empty or too sparse; RapidOCR fallback selected"
+            pages, ocr_warnings = parse_scanned_pdf_with_rapidocr(target)
+            warnings = warnings + [sparse_warning] + ocr_warnings
             adapter_name = "rapidocr_scanned_pdf_adapter"
             adapter_version = "0.1"
             if not any(page["layoutBlocks"] for page in pages):
