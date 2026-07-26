@@ -970,6 +970,30 @@ then applies the reviewed question, answer, year-report, source, and quality
 issue evidence tables. It does not write the database and does not activate
 C002.
 
+Guangzhou physics 2015-2025 source batch staging:
+
+```powershell
+.\tools\run-guangzhou-physics-source-batch-stage.ps1
+```
+
+The default dry-run inventories the 32 PDFs under
+`D:\KQG_Data\guangzhou_physics_2015_2025`, validates PDF magic, page/text
+counts, SHA-256 hashes, and complete 2015-2025 paper/answer/year-report role
+coverage. The 2020 combined paper is one physical PDF with both paper and
+answer roles, so the contract is 32 physical files and 33 logical sources. The
+PDF inspection dependency is pinned in `workers/document/requirements.txt`.
+
+After a verified database/FileStore backup, stage the batch into the immutable
+versioned source directory with `-Apply`. Use `-Rollback` to move only this
+batch's PDFs back to the source directory. Both operations fail before moving
+files when a source/destination conflict exists and verify hash parity after
+every move.
+
+```powershell
+.\tools\run-guangzhou-physics-source-batch-stage.ps1 -Apply
+.\tools\run-guangzhou-physics-source-batch-stage.ps1 -Rollback
+```
+
 C002 real source material import:
 
 ```powershell
