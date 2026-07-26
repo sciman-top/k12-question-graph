@@ -1,14 +1,14 @@
 {
   "status": "pass",
   "taskId": "S011C",
-  "checkedAt": "2026-06-25T00:27:28",
+  "checkedAt": "2026-07-26T00:49:32",
   "endpoint": "/assessments/{assessmentId}/commentary-report/export",
-  "requestedApiPort": 1696,
-  "resolvedApiPort": 1696,
+  "requestedApiPort": 4468,
+  "resolvedApiPort": 4468,
   "portFallbackApplied": false,
-  "assessmentId": "76d0339f-35ba-4199-bcb7-9c517474e6b1",
-  "artifactPath": "draft://commentary-reports/76d0339f35ba4199bcb79c517474e6b1.md",
-  "manifestSha256": "fc24195f8e1171a7429daed9e5daac7dc14fb62d1b34735b3da954516e25b2fd",
+  "assessmentId": "3462fd14-24d0-47a3-be3b-ebb5aa2a6f98",
+  "artifactPath": "draft://commentary-reports/3462fd1424d047a3be3bebb5aa2a6f98.md",
+  "manifestSha256": "8bdef129be9f1303cca7601418c626d9ed94618f23dcaf61e6caef903e9038cb",
   "sectionCount": 3,
   "weakKnowledgePointCount": 2,
   "practiceSuggestionCount": 2,
@@ -31,14 +31,14 @@
   ],
   "weakKnowledgePoints": [
     {
-      "knowledgeNodeId": "7f395189-4c9c-43a5-b626-080c9de73cc9",
+      "knowledgeNodeId": "3a9f88e5-3550-48ba-adaf-5866dca8585c",
       "title": "Inertia",
       "version": 1,
       "scoreRate": 0.8,
       "questionNo": "Q1"
     },
     {
-      "knowledgeNodeId": "62a16729-e7c9-49f4-8bab-2b379f71bb9a",
+      "knowledgeNodeId": "55e88eb1-297d-44d6-beb3-9dc1ee7228df",
       "title": "Force analysis",
       "version": 1,
       "scoreRate": 0.8333,
@@ -47,12 +47,12 @@
   ],
   "practiceSuggestions": [
     {
-      "knowledgeNodeId": "7f395189-4c9c-43a5-b626-080c9de73cc9",
+      "knowledgeNodeId": "3a9f88e5-3550-48ba-adaf-5866dca8585c",
       "knowledgeTitle": "Inertia",
       "suggestion": "补充 2 道 Inertia 的基础巩固题，先用于课堂讲评草稿。"
     },
     {
-      "knowledgeNodeId": "62a16729-e7c9-49f4-8bab-2b379f71bb9a",
+      "knowledgeNodeId": "55e88eb1-297d-44d6-beb3-9dc1ee7228df",
       "knowledgeTitle": "Force analysis",
       "suggestion": "补充 2 道 Force analysis 的基础巩固题，先用于课堂讲评草稿。"
     }

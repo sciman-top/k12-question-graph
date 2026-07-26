@@ -37,6 +37,7 @@ try {
     $client = Read-Text $ClientPath
     $contracts = Read-Text $ContractsPath
     $program = Read-Text $ProgramPath
+    $fallbackBackend = $program + $settingsStore
 
     foreach ($marker in @(
         'data-contract="admin-ai-settings-dialog"',
@@ -98,7 +99,7 @@ try {
         'selected_provider_endpoint=',
         'fallback_attempt_count='
     )) {
-        Assert-Condition ($program.Contains($fallbackBackendMarker)) "NS1305A backend fallback marker missing: $fallbackBackendMarker"
+        Assert-Condition ($fallbackBackend.Contains($fallbackBackendMarker)) "NS1305A backend fallback marker missing: $fallbackBackendMarker"
     }
 
     foreach ($fallbackClientMarker in @(

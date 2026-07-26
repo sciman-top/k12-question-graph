@@ -29,7 +29,12 @@ function Resolve-CommandProbe([string] $Name, [string[]] $FallbackPaths = @()) {
         default { @('--version') }
     }
 
-    $command = Get-Command $Name -ErrorAction SilentlyContinue
+    $command = if ($IsWindows -and $Name -eq 'pdftoppm') {
+        Get-Command "$Name.exe" -ErrorAction SilentlyContinue
+    }
+    else {
+        Get-Command $Name -ErrorAction SilentlyContinue
+    }
     if ($null -ne $command) {
         $versionOutput = & $command.Source $versionArgs 2>&1
         $exitCode = $LASTEXITCODE
@@ -245,14 +250,23 @@ try {
         }
     }
 
-    Assert-Condition ($hostJson.recommendedProfiles.exportPrintProfile.status -eq 'partial_toolchain') 'NS1304 expects export toolchain to stay partial when qpdf/ghostscript are missing'
+    $expectedExportStatus = if ([bool]$hostJson.commands.pandoc.present -and [bool]$hostJson.commands.qpdf.present) {
+        'ready'
+    }
+    else {
+        'partial_toolchain'
+    }
+    Assert-Condition ([string]$hostJson.recommendedProfiles.exportPrintProfile.status -eq $expectedExportStatus) 'NS1304 export status must match the current host pandoc/qpdf probes'
     Assert-Condition ([string]$hostJson.recommendedProfiles.exportPrintProfile.fallback -eq 'keep_docx_or_html_export_until_pdf_toolchain_admitted') 'NS1304 export fallback must stay docx/html-first'
     Assert-Condition (-not [bool]$catalogData.defaultRouteChangeAllowed) 'NS1304 must not allow automatic default route change'
     Assert-Condition (-not [bool]$catalogData.installAllowedByAutomation) 'NS1304 must not allow automatic install'
     Assert-Condition ($blockedToFallback.Contains('docling_layout_pipeline')) 'NS1304 must keep missing Docling fail-closed'
     Assert-Condition ($blockedToFallback.Contains('paddleocr_ppocr')) 'NS1304 must keep missing PaddleOCR fail-closed'
-    Assert-Condition ($blockedToFallback.Contains('qpdf')) 'NS1304 must keep missing qpdf fail-closed'
-    Assert-Condition ($blockedToFallback.Contains('ghostscript')) 'NS1304 must keep missing Ghostscript fail-closed'
+    foreach ($optionalTool in @('qpdf', 'ghostscript')) {
+        $entry = @($catalogEntries | Where-Object { $_.id -eq $optionalTool })[0]
+        $expectedStatus = if ([bool]$entry.available) { 'available_but_not_admitted' } else { 'blocked_missing_tool_fall_closed' }
+        Assert-Condition ([string]$entry.status -eq $expectedStatus) "NS1304 $optionalTool status must reflect current-host availability without automatic admission"
+    }
 
     $report = [ordered]@{
         status = 'pass'
@@ -306,7 +320,7 @@ try {
             contractInvariant = 'toolchain catalog, current profile admission, and fail-closed fallback must stay explicit when heavy tools are missing'
             hotspot = 'gate_na: no package install, no model download, no driver/runtime mutation, and no production default switch'
         }
-        boundary = 'NS1304 proves the current host stays on an open-source/free toolchain profile with explicit admission evidence and fail-closed fallbacks. It does not auto-install missing tools, does not switch default OCR/export routes, and does not claim full PDF or heavy-OCR readiness when qpdf/Ghostscript/PaddleOCR/Docling are still absent.'
+        boundary = 'NS1304 proves the current host stays on an open-source/free toolchain profile with explicit admission evidence and fail-closed fallbacks. Available optional tools remain available_but_not_admitted, missing tools remain blocked_missing_tool_fall_closed, and no default OCR/export route changes automatically.'
         rollback = "git restore tasks/non-site-implementation-plan.csv tasks/productization-roadmap.csv tools/run-gates.ps1 tools/README.md; git clean -f -- configs/toolchain-admission.catalog.yaml tools/run-ns1304-toolchain-admission-contract.ps1 $ReportPath"
         next = 'NS1305 can continue role-routed AI admission on top of the fixed toolchain/profile boundary.'
     }

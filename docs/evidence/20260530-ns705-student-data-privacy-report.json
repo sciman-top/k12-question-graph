@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS705",
-  "checkedAt": "2026-06-25T00:27:28",
+  "checkedAt": "2026-07-26T00:49:32",
   "mode": "real_student_data_privacy_admission",
   "productionEligible": false,
   "externalAiCalls": 0,
@@ -15,7 +15,7 @@
     "n006": "docs/evidence/20260505-n006-pre-pilot-security-audit.md"
   },
   "scan": {
-    "trackedFileCount": 1395,
+    "trackedFileCount": 1550,
     "blockingSecretHits": 0,
     "blockingPiiHits": 0,
     "trackedRawSourceBlockers": 0,

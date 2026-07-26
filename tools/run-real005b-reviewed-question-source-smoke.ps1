@@ -181,10 +181,10 @@ try {
     Push-Location $repoRoot
 
     if ($AllowPartialReport) {
-        & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005b-source-region-screenshots.ps1 -FileStoreRoot $runtimeFileStoreRoot -AllowPartialReport | Out-Null
+        & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005b-source-region-screenshots.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -FileStoreRoot $runtimeFileStoreRoot -AllowPartialReport | Out-Null
     }
     else {
-        & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005b-source-region-screenshots.ps1 -FileStoreRoot $runtimeFileStoreRoot | Out-Null
+        & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005b-source-region-screenshots.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -FileStoreRoot $runtimeFileStoreRoot | Out-Null
     }
     if ($LASTEXITCODE -ne 0) {
         if (-not $AllowPartialReport) {
@@ -203,10 +203,10 @@ try {
     }
 
     if ($AllowPartialReport) {
-        & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005b-reviewed-question-materialize.ps1 -FileStoreRoot $runtimeFileStoreRoot -Apply -AllowPartialReport | Out-Null
+        & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005b-reviewed-question-materialize.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -FileStoreRoot $runtimeFileStoreRoot -Apply -AllowPartialReport | Out-Null
     }
     else {
-        & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005b-reviewed-question-materialize.ps1 -FileStoreRoot $runtimeFileStoreRoot -Apply | Out-Null
+        & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005b-reviewed-question-materialize.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -FileStoreRoot $runtimeFileStoreRoot -Apply | Out-Null
     }
     if ($LASTEXITCODE -ne 0) {
         throw 'REAL005B reviewed question materialize apply failed'

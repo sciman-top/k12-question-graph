@@ -58,7 +58,7 @@ try {
         $args += '--apply'
     }
 
-    & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005b-source-region-screenshots.ps1 -FileStoreRoot $FileStoreRoot @screenshotArgs | Out-Null
+    & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005b-source-region-screenshots.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -FileStoreRoot $FileStoreRoot @screenshotArgs | Out-Null
     if ($LASTEXITCODE -ne 0) {
         throw "REAL005B source-region screenshot evidence prerequisite failed with exit code $LASTEXITCODE"
     }

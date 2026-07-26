@@ -6,12 +6,15 @@ param(
     [string]$DatabaseHost = '127.0.0.1',
     [int]$DatabasePort = 5432,
     [string]$DatabaseUser = 'postgres',
+    [string]$DatabasePassword = $env:PGPASSWORD,
     [string]$ReportPath = 'docs/evidence/o003-recovery-drill-report.json'
 )
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 $drillRoot = Join-Path $repoRoot 'tmp/o003/restore-drill'
+. (Join-Path $PSScriptRoot 'database-env.ps1')
+$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword
 
 function Assert-Condition([bool]$Condition, [string]$Message) {
     if (-not $Condition) { throw $Message }
@@ -53,6 +56,7 @@ function Resolve-ManifestGroupRoot($Manifest, [string]$ManifestPath, [string]$Sn
 
 Push-Location $repoRoot
 try {
+    Assert-Condition (-not [string]::IsNullOrWhiteSpace($DatabasePassword)) 'DatabasePassword or PGPASSWORD is required for O003 recovery drill'
     Remove-Item -LiteralPath (Join-Path $repoRoot 'tmp/o003') -Recurse -Force -ErrorAction SilentlyContinue
     New-Item -ItemType Directory -Path $BackupRoot -Force | Out-Null
     New-Item -ItemType Directory -Path $drillRoot -Force | Out-Null

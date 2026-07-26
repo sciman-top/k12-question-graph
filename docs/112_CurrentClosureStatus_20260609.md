@@ -6,8 +6,8 @@
 
 截至最新已验证证据，本仓的真实状态是：
 
-- 最新一次完整 `full gate` 已在 2026-06-23 通过，且退出码为 `0`。
-- 2026-06-23 又刷新了 repo-side 真值守卫与预检：
+- 最新一次完整 `full gate` 已在 2026-07-26 通过，且 `RUN_GATES_EXIT=0`。
+- 2026-07-26 又刷新了 repo-side 真值守卫与预检：
   - `tools/run-reference-basis-guard.ps1`：pass
   - `tools/run-live-pilot-closeout-plan-guard.ps1`：pass
   - `tools/run-live-pilot-closeout-repo-side-audit.ps1`：pass
@@ -16,26 +16,26 @@
   - `tools/run-repo-preflight.ps1 -Mode Ci`：pass
 - 非现场教师主链路、Web/API 本地联调和管理员 AI 设置入口都已有仓库内证据或 contract，不再只是规划。
 - 但项目仍不能宣称 `release_ready`，也不能宣称“现场发布闭环完成”。
-- 2026-07-25 已按用户授权恢复 `P001` 连续推进：P001 readiness preflight 通过并确认 `readyForIsolatedMachineRun=true`，但当前宿主无法启动 PostgreSQL，最新 NS1001 包因缺少可验证 backup manifest 而 fail-closed。旧包 71 个 manifest 条目 SHA-256 全部匹配，但回传字段仍为 `not_run/keep_blocked`，所以 `P001A` 未关闭。
+- 2026-07-25 至 2026-07-26 已按用户授权恢复 `P001` 连续推进：确认 Windows 排除端口范围 `5334-5433` 覆盖 PostgreSQL 默认 `5432` 后，使用未被排除的临时端口 `55432` 完成完整 `full gate`、NS801-NS806、NS904、NS1308 和 P001 readiness 刷新；最新 NS1001 包 `tmp/ns1001-execution-pack/20260726-114733` 的 79 个 manifest 条目 SHA-256 全部匹配。该包尚未在非开发隔离机执行，回传与签收仍为空，所以 `P001A` 未关闭。
 
 当前最准确的对外口径是：
 
-> 仓库内代码、脚本、非现场工作流、参考基线和发布前置口径已经进一步收口；2026-06-23 的完整 `full gate`、closeout/status 守卫与 REAL005 repo-side 切片证据均通过。`REAL005A/B/C/D 的 repo-side closeout 已完成`，但整体仍保持 `REAL005 = not_closed`；现场 / 隔离机 / 签收级闭环当前只剩 `P001/P003/P005/P006` 阻断。
+> 仓库内代码、脚本、非现场工作流、参考基线和发布前置口径已经进一步收口；2026-07-26 的完整 `full gate`、closeout/status 守卫与 REAL005 repo-side 切片证据均通过。`REAL005A/B/C/D 的 repo-side closeout 已完成`，但整体仍保持 `REAL005 = not_closed`；现场 / 隔离机 / 签收级闭环当前只剩 `P001/P003/P005/P006` 阻断。
 
-2026-07-25 恢复执行证据：`docs/evidence/20260725-p001-autonomous-resume-attempt.md`。该证据只证明 repo-side readiness 与旧执行包完整性，不替代隔离机现场事实。
+2026-07-25 至 2026-07-26 恢复执行证据：`docs/evidence/20260725-p001-autonomous-resume-attempt.md`。该证据证明 repo-side full gate、readiness 与最新执行包完整性，不替代隔离机现场事实。
 
 ## 2. 最新已验证层级
 
 ### 2.1 仓库级 full gate
 
 - `tools/run-gates.ps1`
-  - 最近一次完整通过：2026-06-23。
-  - 结果证据：`docs/evidence/20260623-live-pilot-closeout-repo-side-audit.json`
+  - 最近一次完整通过：2026-07-26，运行时数据库端口为临时 loopback `55432`。
+  - 结果证据：`docs/evidence/20260725-run-gates-port-55432.log`，末尾为 `RUN_GATES_EXIT=0`。
   - 观测产物：`tmp/full-gate-pqr/`
 
-这已经取代 2026-06-09 成为当前可引用的最新完整 full gate；2026-06-14 那次未取得最终退出码的重跑仍不能作为独立通过证据。
+这已经取代 2026-06-23 成为当前可引用的最新完整 full gate；更早未取得最终退出码的重跑仍不能作为独立通过证据。
 
-### 2.2 2026-06-23 repo-side 守卫刷新
+### 2.2 2026-07-26 repo-side 守卫刷新
 
 - `tools/run-reference-basis-guard.ps1`
   - 状态：pass
@@ -43,7 +43,7 @@
   - 关键信息：20 个受管任务、13 个模块、`snapshot_parity = match`、本机 external corpus 存在。
 - `tools/run-live-pilot-closeout-plan-guard.ps1`
   - 状态：pass
-  - 报告：`docs/evidence/20260623-live-pilot-closeout-plan-guard.json` / `.md`
+  - 报告：`docs/evidence/20260726-live-pilot-closeout-plan-guard.json` / `.md`
   - 关键信息：26 行 closeout 计划中 `REAL005A/B/C/D` 已完成，`REAL005 = not_closed`，`REAL005` 的 repo-side next open slice = `none`，当前只剩 `P001A/P003A/P005A/P006A` 为 next open slice。
 - `tools/run-live-pilot-closeout-repo-side-audit.ps1`
   - 状态：pass
@@ -51,7 +51,7 @@
   - 关键信息：repo-side validated 仍只证明 backlog、dashboard、closeout plan、release card 与 truth boundary 对齐；本次额外记录了 2026-06-23 完整 `full gate` 已通过、`exit_code = 0`，但没有把现场事实阻断自动消掉。
 - `tools/run-ns905-status-sync-audit.ps1`
   - 状态：pass
-  - 报告：`docs/evidence/20260623-ns905-status-sync.md`
+  - 报告：`docs/evidence/20260726-ns905-status-sync.md`
   - 关键信息：`release_ready_count = 0`、`next_task = P001` 的 area 仍有 16 个、`teacher_validated` area 为 14 个，且 `non_site_validated` 没有被误写成已完成。
 - `tools/run-gate-group.ps1 -Group pqr`
   - 状态：pass
@@ -63,7 +63,7 @@
 
 - `tools/run-real005-guangzhou-2015-2025-closure-standard.ps1`
   - 状态：pass
-  - 报告：`docs/evidence/20260623-real005-guangzhou-2015-2025-closure-standard-report.json` / `.md`
+  - 报告：`docs/evidence/20260726-real005-guangzhou-2015-2025-closure-standard-report.json` / `.md`
   - 关键信息：`REAL005A/B/C/D 的 repo-side closeout 已完成`，但当前 `fullClosureAllowed = false`、`closureStatus = not_closed`，因此对外仍只能保持 truthful `not_closed` / `No-Go`，不能改成已闭环。
 
 ### 2.3 非现场教师主链路
@@ -167,5 +167,5 @@
 若继续自动自主推进，优先级建议如下：
 
 1. 按 `tasks/live-pilot-closeout-plan.csv` 收口 `REAL005` 与 `P001/P003/P005/P006`，不再从长文档里手工提炼剩余阻断。
-2. 若需要改写对外发布口径，先区分“2026-06-23 完整 full gate 已通过”与“现场 / 签字 / 发布裁决仍未关闭”，不要把仓库侧通过误写成发布完成。
+2. 若需要改写对外发布口径，先区分“2026-07-26 完整 full gate 已通过”与“现场 / 签字 / 发布裁决仍未关闭”，不要把仓库侧通过误写成发布完成。
 3. 对任何新的高风险架构 / 运维 / 发布任务，先补 `reference-basis` 锚点，再进入编码或文档裁决。

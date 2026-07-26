@@ -1,19 +1,19 @@
 {
   "status": "pass",
   "taskId": "NS1302",
-  "checkedAt": "2026-06-25T00:22:13",
+  "checkedAt": "2026-07-26T00:44:42",
   "mode": "windows_service_and_service_control_panel_contract",
   "productionEligible": false,
   "dependency": {
-    "ns804": "docs/evidence/20260624-ns804-windows-service.json",
-    "ns805": "docs/evidence/20260625-ns805-health-dashboard.json",
-    "ns806": "docs/evidence/20260625-ns806-upgrade-bundle.json"
+    "ns804": "docs/evidence/20260726-ns804-windows-service.json",
+    "ns805": "docs/evidence/20260726-ns805-health-dashboard.json",
+    "ns806": "docs/evidence/20260726-ns806-upgrade-bundle.json"
   },
   "runtime": {
     "windowsServiceHost": true,
-    "contentRoot": "D:\\CODE\\k12-question-graph\\.worktrees\\codex\\full-repo-hardening\\tmp\\ns804\\windows-service-package\\api",
+    "contentRoot": "D:\\CODE\\k12-question-graph\\tmp\\ns804\\windows-service-package\\api",
     "dataRoot": "D:\\KQG_Data",
-    "apiExecutable": "D:\\CODE\\k12-question-graph\\.worktrees\\codex\\full-repo-hardening\\tmp\\ns804\\windows-service-package\\api\\K12QuestionGraph.Api.exe",
+    "apiExecutable": "D:\\CODE\\k12-question-graph\\tmp\\ns804\\windows-service-package\\api\\K12QuestionGraph.Api.exe",
     "healthReadinessPassed": true,
     "packageRuntime": "win-x64"
   },
@@ -36,7 +36,7 @@
       "logs",
       "cache"
     ],
-    "backupManifest": "tmp/ns801-backups/20260624-235730/manifest.json",
+    "backupManifest": "tmp/ns801-backups/20260726-002055/manifest.json",
     "bundleExe": "tmp\\o007\\bundle\\efbundle.exe",
     "restoreDrillReport": "docs/evidence/o007-o003-recovery-drill-report.json"
   },

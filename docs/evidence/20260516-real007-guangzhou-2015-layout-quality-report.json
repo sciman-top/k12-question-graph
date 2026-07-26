@@ -60,18 +60,9 @@
   "noiseOverlapCount": 0,
   "pageSummary": [
     {
-      "sourceGroup": "answer",
-      "pageNumber": 1,
-      "retainedRegionCount": 18,
-      "noiseRegionKinds": [
-        "top_margin",
-        "footer_page_number"
-      ]
-    },
-    {
       "sourceGroup": "paper",
-      "pageNumber": 2,
-      "retainedRegionCount": 8,
+      "pageNumber": 4,
+      "retainedRegionCount": 10,
       "noiseRegionKinds": [
         "top_margin",
         "footer_page_number"
@@ -79,55 +70,8 @@
     },
     {
       "sourceGroup": "answer",
-      "pageNumber": 3,
-      "retainedRegionCount": 2,
-      "noiseRegionKinds": [
-        "top_margin",
-        "footer_page_number"
-      ]
-    },
-    {
-      "sourceGroup": "paper",
-      "pageNumber": 5,
-      "retainedRegionCount": 4,
-      "noiseRegionKinds": [
-        "top_margin",
-        "footer_page_number"
-      ]
-    },
-    {
-      "sourceGroup": "paper",
-      "pageNumber": 3,
-      "retainedRegionCount": 8,
-      "noiseRegionKinds": [
-        "top_margin",
-        "footer_page_number"
-      ]
-    },
-    {
-      "sourceGroup": "paper",
       "pageNumber": 1,
-      "retainedRegionCount": 3,
-      "noiseRegionKinds": [
-        "top_margin",
-        "footer_page_number",
-        "binding_line",
-        "exam_instructions"
-      ]
-    },
-    {
-      "sourceGroup": "paper",
-      "pageNumber": 6,
-      "retainedRegionCount": 4,
-      "noiseRegionKinds": [
-        "top_margin",
-        "footer_page_number"
-      ]
-    },
-    {
-      "sourceGroup": "answer",
-      "pageNumber": 2,
-      "retainedRegionCount": 3,
+      "retainedRegionCount": 18,
       "noiseRegionKinds": [
         "top_margin",
         "footer_page_number"
@@ -144,8 +88,35 @@
     },
     {
       "sourceGroup": "paper",
-      "pageNumber": 4,
-      "retainedRegionCount": 10,
+      "pageNumber": 2,
+      "retainedRegionCount": 8,
+      "noiseRegionKinds": [
+        "top_margin",
+        "footer_page_number"
+      ]
+    },
+    {
+      "sourceGroup": "paper",
+      "pageNumber": 3,
+      "retainedRegionCount": 8,
+      "noiseRegionKinds": [
+        "top_margin",
+        "footer_page_number"
+      ]
+    },
+    {
+      "sourceGroup": "paper",
+      "pageNumber": 6,
+      "retainedRegionCount": 4,
+      "noiseRegionKinds": [
+        "top_margin",
+        "footer_page_number"
+      ]
+    },
+    {
+      "sourceGroup": "paper",
+      "pageNumber": 5,
+      "retainedRegionCount": 4,
       "noiseRegionKinds": [
         "top_margin",
         "footer_page_number"
@@ -167,6 +138,35 @@
       "noiseRegionKinds": [
         "top_margin",
         "footer_page_number"
+      ]
+    },
+    {
+      "sourceGroup": "answer",
+      "pageNumber": 2,
+      "retainedRegionCount": 3,
+      "noiseRegionKinds": [
+        "top_margin",
+        "footer_page_number"
+      ]
+    },
+    {
+      "sourceGroup": "answer",
+      "pageNumber": 3,
+      "retainedRegionCount": 2,
+      "noiseRegionKinds": [
+        "top_margin",
+        "footer_page_number"
+      ]
+    },
+    {
+      "sourceGroup": "paper",
+      "pageNumber": 1,
+      "retainedRegionCount": 3,
+      "noiseRegionKinds": [
+        "top_margin",
+        "footer_page_number",
+        "binding_line",
+        "exam_instructions"
       ]
     }
   ],
@@ -225,9 +225,9 @@
     ]
   },
   "latestRecropAudit": {
-    "id": "1d6eab07-5c73-4d87-b037-06db4d4d8dc7",
-    "createdAt": "2026-06-25T00:31:48.192551+08:00",
-    "resolvedAt": "2026-06-25T00:31:48.192551+08:00"
+    "id": "c642b347-ff25-4899-ab8d-fe006d7e5a2e",
+    "createdAt": "2026-07-26T00:53:18.224058+08:00",
+    "resolvedAt": "2026-07-26T00:53:18.224058+08:00"
   },
   "blockers": [],
   "samples": {

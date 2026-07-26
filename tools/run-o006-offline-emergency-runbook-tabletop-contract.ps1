@@ -1,9 +1,18 @@
 param(
+    [string] $DatabaseName = 'k12_question_graph',
+    [string] $DatabaseUser = 'postgres',
+    [string] $DatabaseHost = '127.0.0.1',
+    [int] $DatabasePort = 5432,
+    [string] $DatabasePassword = $env:PGPASSWORD,
+    [string] $PgBin = 'C:\Program Files\PostgreSQL\17\bin',
+    [string] $FileStoreRoot = 'D:\KQG_Data\file_store',
     [string] $Report = 'docs/evidence/o006-offline-emergency-runbook-tabletop-report.json'
 )
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+. (Join-Path $PSScriptRoot 'database-env.ps1')
+$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword
 
 function Assert-Condition([bool]$Condition, [string]$Message) {
     if (-not $Condition) { throw $Message }
@@ -11,6 +20,7 @@ function Assert-Condition([bool]$Condition, [string]$Message) {
 
 Push-Location $repoRoot
 try {
+    Assert-Condition (-not [string]::IsNullOrWhiteSpace($DatabasePassword)) 'DatabasePassword or PGPASSWORD is required for O006 tabletop'
     $runbook = Join-Path $repoRoot 'runbooks/WinPE_EmergencyRecovery.md'
     Assert-Condition (Test-Path -LiteralPath $runbook) 'missing runbook: runbooks/WinPE_EmergencyRecovery.md'
 
@@ -30,7 +40,7 @@ try {
     Assert-Condition ($LASTEXITCODE -eq 0) 'G003 contract failed inside O006'
     $g003 = $g003Json | ConvertFrom-Json
 
-    $backupJson = & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/backup.ps1
+    $backupJson = & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/backup.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -PgBin $PgBin -FileStoreRoot $FileStoreRoot
     Assert-Condition ($LASTEXITCODE -eq 0) 'backup.ps1 failed inside O006'
     $backup = $backupJson | ConvertFrom-Json
 

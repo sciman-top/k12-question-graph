@@ -1,4 +1,9 @@
 param(
+    [string] $DatabaseName = 'k12_question_graph',
+    [string] $DatabaseUser = 'postgres',
+    [string] $DatabaseHost = '127.0.0.1',
+    [int] $DatabasePort = 5432,
+    [string] $DatabasePassword = $env:PGPASSWORD,
     [string] $FileStoreRoot = 'tmp\real005b-runtime\data\file_store',
     [string] $ReportPath = '',
     [string] $MarkdownReportPath = ''
@@ -7,6 +12,8 @@ param(
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 $runDate = Get-Date -Format 'yyyyMMdd'
+. (Join-Path $PSScriptRoot 'database-env.ps1')
+$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword
 $sourceRegionReportPath = ('docs/evidence/{0}-real005b-source-region-screenshots.json' -f $runDate)
 $sourceRegionMarkdownReportPath = ('docs/evidence/{0}-real005b-source-region-screenshots.md' -f $runDate)
 
@@ -21,6 +28,11 @@ if ([string]::IsNullOrWhiteSpace($MarkdownReportPath)) {
 Push-Location $repoRoot
 try {
     & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005b-source-region-screenshots.ps1 `
+        -DatabaseName $DatabaseName `
+        -DatabaseUser $DatabaseUser `
+        -DatabaseHost $DatabaseHost `
+        -DatabasePort $DatabasePort `
+        -DatabasePassword $DatabasePassword `
         -FileStoreRoot $FileStoreRoot `
         -ReportPath $sourceRegionReportPath `
         -MarkdownReportPath $sourceRegionMarkdownReportPath `
@@ -40,11 +52,23 @@ try {
     if ($LASTEXITCODE -ne 0) {
         throw "REAL005B structured question evidence failed with exit code $LASTEXITCODE"
     }
-    & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005b-reviewed-question-visibility.ps1 | Out-Null
+    & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005b-reviewed-question-visibility.ps1 `
+        -DatabaseName $DatabaseName `
+        -DatabaseUser $DatabaseUser `
+        -DatabaseHost $DatabaseHost `
+        -DatabasePort $DatabasePort `
+        -DatabasePassword $DatabasePassword | Out-Null
     if ($LASTEXITCODE -ne 0) {
         throw "REAL005B reviewed-question visibility evidence failed with exit code $LASTEXITCODE"
     }
-    & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005b-reviewed-question-source-smoke.ps1 -FileStoreRoot $FileStoreRoot -AllowPartialReport | Out-Null
+    & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005b-reviewed-question-source-smoke.ps1 `
+        -DatabaseName $DatabaseName `
+        -DatabaseUser $DatabaseUser `
+        -DatabaseHost $DatabaseHost `
+        -DatabasePort $DatabasePort `
+        -DatabasePassword $DatabasePassword `
+        -FileStoreRoot $FileStoreRoot `
+        -AllowPartialReport | Out-Null
     if ($LASTEXITCODE -ne 0) {
         throw "REAL005B reviewed-question source smoke failed with exit code $LASTEXITCODE"
     }

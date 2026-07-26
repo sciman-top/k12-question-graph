@@ -25,7 +25,7 @@
       "probe": {
         "available": true,
         "exitCode": 0,
-        "versionLine": "10.0.300"
+        "versionLine": "10.0.302"
       }
     },
     "node": {
@@ -52,7 +52,7 @@
       "probe": {
         "available": true,
         "exitCode": 0,
-        "versionLine": "PowerShell 7.5.5"
+        "versionLine": "PowerShell 7.6.3"
       }
     },
     "powershell": {
@@ -61,7 +61,7 @@
       "probe": {
         "available": true,
         "exitCode": 0,
-        "versionLine": "5.1.26100.8737"
+        "versionLine": "5.1.26100.8894"
       }
     },
     "python": {
@@ -92,12 +92,12 @@
       }
     },
     "docker": {
-      "present": false,
-      "path": null,
+      "present": true,
+      "path": "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.EXE",
       "probe": {
-        "available": false,
-        "exitCode": null,
-        "versionLine": ""
+        "available": true,
+        "exitCode": 0,
+        "versionLine": "Docker version 29.5.3, build d1c06ef"
       }
     },
     "wsl": {
@@ -156,7 +156,7 @@
     },
     "pdftoppm": {
       "present": true,
-      "path": "C:\\Users\\sciman\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\pdftoppm.EXE",
+      "path": "C:\\Users\\sciman\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\pdftoppm.exe",
       "probe": {
         "available": true,
         "exitCode": 0,
@@ -164,21 +164,21 @@
       }
     },
     "tesseract": {
-      "present": false,
-      "path": null,
+      "present": true,
+      "path": "C:\\Program Files\\Tesseract-OCR\\tesseract.EXE",
       "probe": {
-        "available": false,
-        "exitCode": null,
-        "versionLine": ""
+        "available": true,
+        "exitCode": 0,
+        "versionLine": "tesseract v5.5.0.20241111"
       }
     },
     "qpdf": {
-      "present": false,
-      "path": null,
+      "present": true,
+      "path": "C:\\Program Files\\qpdf 12.3.2\\bin\\qpdf.EXE",
       "probe": {
-        "available": false,
-        "exitCode": null,
-        "versionLine": ""
+        "available": true,
+        "exitCode": 0,
+        "versionLine": "qpdf.EXE version 12.3.2"
       }
     },
     "gswin64c": {
@@ -307,14 +307,14 @@
       "anchor": "D:\\",
       "available": true,
       "totalGb": 930.0,
-      "freeGb": 282.6
+      "freeGb": 423.81
     },
     "backupRoot": {
       "path": "D:\\KQG_Backups",
       "anchor": "D:\\",
       "available": true,
       "totalGb": 930.0,
-      "freeGb": 282.6
+      "freeGb": 423.81
     }
   },
   "workerOcrProfile": {
@@ -322,7 +322,7 @@
       "commands": {
         "uv": true,
         "conda": false,
-        "docker": false,
+        "docker": true,
         "wsl": true
       },
       "pythonModules": {
@@ -406,7 +406,7 @@
       "fallback": "pending_review_takeover_required"
     },
     "exportPrintProfile": {
-      "status": "partial_toolchain",
+      "status": "ready",
       "recommended": "docx_pdf_artifact_chain_with_preflight_manifest",
       "fallback": "keep_docx_or_html_export_until_pdf_toolchain_admitted",
       "checks": [

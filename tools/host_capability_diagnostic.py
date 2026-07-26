@@ -14,7 +14,8 @@ import worker_profile_diagnostic
 
 
 def command_path(name: str) -> str | None:
-    found = shutil.which(name)
+    candidates = [f"{name}.exe", name] if os.name == "nt" and name.lower() == "pdftoppm" else [name]
+    found = next((resolved for candidate in candidates if (resolved := shutil.which(candidate))), None)
     if not found:
         return None
     path = Path(found)

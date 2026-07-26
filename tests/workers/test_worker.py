@@ -1,6 +1,7 @@
 import pathlib
 import sys
 import unittest
+from unittest import mock
 
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[2]
@@ -95,6 +96,20 @@ class WorkerHelpersTests(unittest.TestCase):
         self.assertEqual(pages[0]["layoutBlocks"][0]["blockType"], "ocr_candidate")
         self.assertTrue(pages[0]["layoutBlocks"][0]["takeoverRequired"])
         self.assertEqual(pages[1]["layoutBlocks"][0]["sourceRegion"]["pageObject"], 12)
+
+    def test_resolve_pdftoppm_prefers_executable_on_windows(self) -> None:
+        candidates = {
+            "pdftoppm.exe": r"C:\tools\poppler\pdftoppm.exe",
+            "pdftoppm": r"C:\broken-wrapper\pdftoppm.cmd",
+        }
+        with (
+            mock.patch.object(worker.platform, "system", return_value="Windows"),
+            mock.patch.object(worker.shutil, "which", side_effect=candidates.get) as which,
+        ):
+            resolved = worker.resolve_pdftoppm()
+
+        self.assertEqual(resolved, candidates["pdftoppm.exe"])
+        which.assert_called_once_with("pdftoppm.exe")
 
 
 if __name__ == "__main__":

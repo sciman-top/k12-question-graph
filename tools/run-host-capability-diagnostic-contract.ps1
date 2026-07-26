@@ -14,7 +14,7 @@ Push-Location $repoRoot
 try {
     Assert-Condition (Test-Path -LiteralPath $Config) "missing installer config: $Config"
 
-    python tools\host_capability_diagnostic.py --config $Config --output $Report | Write-Host
+    python -X utf8 tools\host_capability_diagnostic.py --config $Config --output $Report | Write-Host
     Assert-Condition ($LASTEXITCODE -eq 0) 'host capability diagnostic failed'
     Assert-Condition (Test-Path -LiteralPath $Report) "missing host capability diagnostic report: $Report"
 

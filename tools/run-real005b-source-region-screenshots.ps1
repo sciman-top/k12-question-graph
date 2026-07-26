@@ -27,7 +27,11 @@ if ([string]::IsNullOrWhiteSpace($MarkdownReportPath)) {
 }
 
 if ([string]::IsNullOrWhiteSpace($PdfToPpm)) {
-    $PdfToPpm = (Get-Command pdftoppm -ErrorAction SilentlyContinue).Source
+    $resolvedPdfToPpm = Get-Command pdftoppm.exe -ErrorAction SilentlyContinue
+    if (-not $resolvedPdfToPpm) {
+        $resolvedPdfToPpm = Get-Command pdftoppm -ErrorAction SilentlyContinue
+    }
+    $PdfToPpm = $resolvedPdfToPpm.Source
 }
 
 if ([string]::IsNullOrWhiteSpace($PdfInfo)) {

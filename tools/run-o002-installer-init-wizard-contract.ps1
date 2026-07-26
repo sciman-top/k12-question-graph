@@ -1,6 +1,11 @@
 param(
     [string]$Config = 'configs\installer_init.defaults.yaml',
+    [string]$DatabaseName = 'k12_question_graph',
+    [string]$DatabaseUser = 'postgres',
+    [string]$DatabaseHost = '127.0.0.1',
+    [int]$DatabasePort = 5432,
     [string]$DatabasePassword = $env:PGPASSWORD,
+    [string]$PgBin = 'C:\Program Files\PostgreSQL\17\bin',
     [string]$Report = 'docs\evidence\o002-installer-init-wizard-report.json'
 )
 
@@ -54,7 +59,7 @@ try {
     Assert-Condition (-not [string]::IsNullOrWhiteSpace($DatabasePassword)) 'DatabasePassword or PGPASSWORD is required for O002 installer init dry-run'
 
     $pgpassReport = 'docs\evidence\o002-installer-pgpass-dry-run-report.json'
-    & pwsh -NoProfile -ExecutionPolicy Bypass -File $pgpassGate -DatabasePassword $DatabasePassword -Config $pgpassConfig -Report $pgpassReport | Out-Null
+    & pwsh -NoProfile -ExecutionPolicy Bypass -File $pgpassGate -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin -Config $pgpassConfig -Report $pgpassReport | Out-Null
     Assert-Condition ($LASTEXITCODE -eq 0) 'embedded G004 pgpass dry-run failed'
     Assert-Condition (Test-Path -LiteralPath $pgpassReport) 'missing embedded pgpass evidence report'
 

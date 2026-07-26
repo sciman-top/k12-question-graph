@@ -77,8 +77,10 @@ try {
     Assert-Condition ($aclText -match [regex]::Escape($identity)) "pgpass ACL does not include current identity"
 
     $previousAppData = $env:APPDATA
+    $previousPgpassFile = $env:PGPASSFILE
     $previousPgPassword = $env:PGPASSWORD
     $env:APPDATA = $tempAppData
+    $env:PGPASSFILE = $pgpassPath
     $env:PGPASSWORD = $null
     try {
         $queryOutput = & $psql -w -h $DatabaseHost -p $DatabasePort -U $DatabaseUser -d $DatabaseName -t -A -c "select current_database();"
@@ -87,6 +89,7 @@ try {
     }
     finally {
         $env:APPDATA = $previousAppData
+        $env:PGPASSFILE = $previousPgpassFile
         $env:PGPASSWORD = $previousPgPassword
     }
 

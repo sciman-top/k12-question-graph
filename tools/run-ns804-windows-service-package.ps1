@@ -4,7 +4,12 @@ param(
     [string] $ReportPath = '',
     [string] $Runtime = 'win-x64',
     [switch] $SelfContained,
-    [switch] $SkipWebBuild
+    [switch] $SkipWebBuild,
+    [string] $DatabaseName = 'k12_question_graph',
+    [string] $DatabaseUser = 'postgres',
+    [string] $DatabaseHost = '127.0.0.1',
+    [int] $DatabasePort = 5432,
+    [string] $DatabasePassword = $env:PGPASSWORD
 )
 
 $ErrorActionPreference = 'Stop'
@@ -75,7 +80,17 @@ try {
         '-OutputRoot',
         $OutputRoot,
         '-Runtime',
-        $Runtime
+        $Runtime,
+        '-DatabaseName',
+        $DatabaseName,
+        '-DatabaseUser',
+        $DatabaseUser,
+        '-DatabaseHost',
+        $DatabaseHost,
+        '-DatabasePort',
+        ([string]$DatabasePort),
+        '-DatabasePassword',
+        $DatabasePassword
     )
     if ($SelfContained) {
         $publishArgs += '-SelfContained'

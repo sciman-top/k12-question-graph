@@ -637,7 +637,7 @@ try {
     }
 
     Invoke-GateStep 'ns804 windows service package guard' {
-        .\tools\run-ns804-windows-service-package.ps1 | Write-Host
+        .\tools\run-ns804-windows-service-package.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword | Write-Host
     }
 
     Invoke-GateStep 'local-first ai consumption guard' {
@@ -700,18 +700,18 @@ try {
     }
     Invoke-GateStep 's009b blueprint review workflow smoke' {
         $port = Get-FreeTcpPort
-        .\tools\run-s009b-blueprint-review-workflow-smoke.ps1 -ApiPort $port | Write-Host
+        .\tools\run-s009b-blueprint-review-workflow-smoke.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -ApiPort $port -PgBin $PgBin | Write-Host
     }
     Invoke-GateStep 's009c paper workbench ui contract' {
         .\tools\run-s009c-paper-workbench-ui-contract.ps1 | Write-Host
     }
     Invoke-GateStep 's010a export preflight api smoke' {
         $port = Get-FreeTcpPort
-        .\tools\run-s010a-export-preflight-api-smoke.ps1 -ApiPort $port | Write-Host
+        .\tools\run-s010a-export-preflight-api-smoke.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -ApiPort $port -PgBin $PgBin | Write-Host
     }
     Invoke-GateStep 's010b word pdf artifact chain smoke' {
         $port = Get-FreeTcpPort
-        .\tools\run-s010b-word-pdf-artifact-chain-smoke.ps1 -ApiPort $port | Write-Host
+        .\tools\run-s010b-word-pdf-artifact-chain-smoke.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -ApiPort $port -PgBin $PgBin | Write-Host
     }
     Invoke-GateStep 'm003 replacement production constraints' {
         .\tools\run-m003-replacement-production-constraints.ps1 | Write-Host
@@ -733,21 +733,21 @@ try {
     }
     Invoke-GateStep 's011a score import api smoke' {
         $port = Get-FreeTcpPort
-        .\tools\run-s011a-score-import-api-smoke.ps1 -ApiPort $port | Write-Host
+        .\tools\run-s011a-score-import-api-smoke.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -ApiPort $port -PgBin $PgBin | Write-Host
     }
     Invoke-GateStep 's011b item score mapping ui api smoke' {
         $port = Get-FreeTcpPort
-        .\tools\run-s011b-item-score-mapping-ui-api-smoke.ps1 -ApiPort $port | Write-Host
+        .\tools\run-s011b-item-score-mapping-ui-api-smoke.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -ApiPort $port -PgBin $PgBin | Write-Host
     }
     Invoke-GateStep 's011c commentary report export smoke' {
         $port = Get-FreeTcpPort
-        .\tools\run-s011c-commentary-report-export-smoke.ps1 -ApiPort $port | Write-Host
+        .\tools\run-s011c-commentary-report-export-smoke.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -ApiPort $port -PgBin $PgBin | Write-Host
     }
     Invoke-GateStep 's012a e2e proxy fixture pack' {
         .\tools\run-s012a-e2e-proxy-fixture-pack.ps1 | Write-Host
     }
     Invoke-GateStep 's012b non-site e2e rehearsal' {
-        .\tools\run-s012b-non-site-e2e-rehearsal.ps1 | Write-Host
+        .\tools\run-s012b-non-site-e2e-rehearsal.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin -FileStoreRoot $FileStoreRoot | Write-Host
     }
     Invoke-GateStep 'ns901 non-site scenario pack' {
         .\tools\run-ns901-non-site-scenario-pack.ps1 -SkipS012Refresh | Write-Host
@@ -984,19 +984,19 @@ try {
     }
 
     Invoke-GateStep 'o001 windows service publish package contract' {
-        .\tools\run-o001-windows-service-publish-contract.ps1 | Write-Host
+        .\tools\run-o001-windows-service-publish-contract.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword | Write-Host
     }
 
     Invoke-GateStep 'o002 installer init wizard contract' {
-        .\tools\run-o002-installer-init-wizard-contract.ps1 | Write-Host
+        .\tools\run-o002-installer-init-wizard-contract.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin | Write-Host
     }
 
     Invoke-GateStep 'o003 recovery drill upgrade contract' {
-        .\tools\run-o003-recovery-drill-contract.ps1 | Write-Host
+        .\tools\run-o003-recovery-drill-contract.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin -FileStoreRoot $FileStoreRoot | Write-Host
     }
 
     Invoke-GateStep 'o007 ef migration bundle and upgrade drill contract' {
-        .\tools\run-o007-ef-migration-bundle-upgrade-contract.ps1 | Write-Host
+        .\tools\run-o007-ef-migration-bundle-upgrade-contract.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin | Write-Host
     }
 
     Invoke-GateStep 'ns806 ef migration bundle upgrade rehearsal guard' {
@@ -1004,7 +1004,7 @@ try {
     }
 
     Invoke-GateStep 'o006 offline emergency runbook and tabletop contract' {
-        .\tools\run-o006-offline-emergency-runbook-tabletop-contract.ps1 | Write-Host
+        .\tools\run-o006-offline-emergency-runbook-tabletop-contract.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin -FileStoreRoot $FileStoreRoot | Write-Host
     }
 
     Invoke-GateStep 'o008 technology refresh candidate admission contract' {
@@ -1147,6 +1147,11 @@ try {
     }
     Invoke-GateStep 'real005b question structure diagnostics' {
         .\tools\run-real005b-question-structure-diagnostics.ps1 `
+            -DatabaseName $DatabaseName `
+            -DatabaseUser $DatabaseUser `
+            -DatabaseHost $DatabaseHost `
+            -DatabasePort $DatabasePort `
+            -DatabasePassword $DatabasePassword `
             -ReportPath (Join-Path $pqrReportRoot 'real005b-question-structure-diagnostics.json') `
             -MarkdownReportPath (Join-Path $pqrReportRoot 'real005b-question-structure-diagnostics.md') | Write-Host
     }

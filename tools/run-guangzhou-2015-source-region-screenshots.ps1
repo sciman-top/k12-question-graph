@@ -21,7 +21,10 @@ if ([string]::IsNullOrWhiteSpace($DatabasePassword)) {
 }
 
 if (-not (Test-Path -LiteralPath $PdfToPpm)) {
-    $resolved = Get-Command pdftoppm -ErrorAction SilentlyContinue
+    $resolved = Get-Command pdftoppm.exe -ErrorAction SilentlyContinue
+    if (-not $resolved) {
+        $resolved = Get-Command pdftoppm -ErrorAction SilentlyContinue
+    }
     if (-not $resolved) {
         throw 'pdftoppm is required to render PDF source screenshots'
     }

@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS1304",
-  "checkedAt": "2026-06-25T00:22:21",
+  "checkedAt": "2026-07-26T00:44:51",
   "mode": "toolchain_catalog_and_profile_admission",
   "productionEligible": false,
   "dependency": {
@@ -114,9 +114,9 @@
         "id": "qpdf",
         "kind": "cli",
         "currentRoute": "candidate",
-        "available": false,
-        "status": "blocked_missing_tool_fall_closed",
-        "detail": "",
+        "available": true,
+        "status": "available_but_not_admitted",
+        "detail": "qpdf version 12.3.2",
         "fallbackWhenMissing": "keep_docx_or_html_export",
         "requiredEvidence": [
           "export_artifact_regression",
@@ -214,11 +214,11 @@
         "versionLine": ""
       },
       "qpdf": {
-        "present": false,
-        "path": null,
-        "source": "not_found",
-        "exitCode": null,
-        "versionLine": ""
+        "present": true,
+        "path": "C:\\Program Files\\qpdf 12.3.2\\bin\\qpdf.exe",
+        "source": "PATH",
+        "exitCode": 0,
+        "versionLine": "qpdf version 12.3.2"
       },
       "gswin64c": {
         "present": false,
@@ -300,7 +300,6 @@
       "docling_layout_pipeline",
       "paddleocr_ppocr",
       "ocrmypdf",
-      "qpdf",
       "ghostscript",
       "libvips"
     ],
@@ -323,7 +322,7 @@
     "contractInvariant": "toolchain catalog, current profile admission, and fail-closed fallback must stay explicit when heavy tools are missing",
     "hotspot": "gate_na: no package install, no model download, no driver/runtime mutation, and no production default switch"
   },
-  "boundary": "NS1304 proves the current host stays on an open-source/free toolchain profile with explicit admission evidence and fail-closed fallbacks. It does not auto-install missing tools, does not switch default OCR/export routes, and does not claim full PDF or heavy-OCR readiness when qpdf/Ghostscript/PaddleOCR/Docling are still absent.",
+  "boundary": "NS1304 proves the current host stays on an open-source/free toolchain profile with explicit admission evidence and fail-closed fallbacks. Available optional tools remain available_but_not_admitted, missing tools remain blocked_missing_tool_fall_closed, and no default OCR/export route changes automatically.",
   "rollback": "git restore tasks/non-site-implementation-plan.csv tasks/productization-roadmap.csv tools/run-gates.ps1 tools/README.md; git clean -f -- configs/toolchain-admission.catalog.yaml tools/run-ns1304-toolchain-admission-contract.ps1 docs/evidence/20260607-ns1304-toolchain-profile.json",
   "next": "NS1305 can continue role-routed AI admission on top of the fixed toolchain/profile boundary."
 }

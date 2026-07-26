@@ -3,11 +3,18 @@ param(
     [string]$Runtime = 'win-x64',
     [switch]$SelfContained,
     [string]$OutputRoot = 'tmp/o001/windows-service-package',
-    [switch]$SkipWebBuild
+    [switch]$SkipWebBuild,
+    [string]$DatabaseName = 'k12_question_graph',
+    [string]$DatabaseUser = 'postgres',
+    [string]$DatabaseHost = '127.0.0.1',
+    [int]$DatabasePort = 5432,
+    [string]$DatabasePassword = $env:PGPASSWORD
 )
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+. (Join-Path $PSScriptRoot 'database-env.ps1')
+$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword
 $packageRoot = Join-Path $repoRoot $OutputRoot
 $apiPublishRoot = Join-Path $packageRoot 'api'
 $webPublishRoot = Join-Path $packageRoot 'web'
@@ -120,7 +127,9 @@ try {
     $stderrLog = Join-Path $packageRoot 'published-api.err.log'
 
     $previousAspNetCoreEnvironment = $env:ASPNETCORE_ENVIRONMENT
+    $previousConnectionString = $env:KQG_CONNECTION_STRING
     $env:ASPNETCORE_ENVIRONMENT = 'Production'
+    $env:KQG_CONNECTION_STRING = "Host=$DatabaseHost;Port=$DatabasePort;Database=$DatabaseName;Username=$DatabaseUser;Password=$DatabasePassword"
     $process = Start-Process -FilePath $apiExe -ArgumentList @('--urls', $apiUrl, '--contentRoot', $apiPublishRoot) -WorkingDirectory $tempRunDir -PassThru -WindowStyle Hidden -RedirectStandardOutput $stdoutLog -RedirectStandardError $stderrLog
     try {
         $health = Wait-Health -Process $process -HealthUrl "$apiUrl/health"
@@ -164,6 +173,7 @@ try {
     finally {
         Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
         $env:ASPNETCORE_ENVIRONMENT = $previousAspNetCoreEnvironment
+        $env:KQG_CONNECTION_STRING = $previousConnectionString
     }
 }
 finally {

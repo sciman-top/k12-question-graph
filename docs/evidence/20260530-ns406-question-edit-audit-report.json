@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS406",
-  "checkedAt": "2026-06-25T00:24:59",
+  "checkedAt": "2026-07-26T00:47:19",
   "mode": "real011_question_edit_wrapper_plus_ns404_ns405_dependencies_and_workbench_markers",
   "productionEligible": false,
   "dependency": {
@@ -10,8 +10,8 @@
     "real011": "docs/evidence/20260530-ns406-real011-source-report.json"
   },
   "questionEdit": {
-    "questionId": "53cf80fe-8525-4222-8875-b594bb984d15",
-    "sourceRegionId": "28472b88-5d50-400c-9ebd-96cd43840f77",
+    "questionId": "f0fe74e1-180f-4fca-b47a-efd1dec7b89b",
+    "sourceRegionId": "b0c6f897-db74-47b3-820c-f8f21ff69faf",
     "questionType": "calculation",
     "defaultScore": 6.0,
     "difficultyEstimated": 0.74,
@@ -27,12 +27,12 @@
     "y": 16.0,
     "width": 58.0,
     "height": 18.0,
-    "sourceRegionAuditId": "5ad5aaf1-1687-481e-95b7-910a40399ad5"
+    "sourceRegionAuditId": "11acdf1b-eb85-4a96-9185-ad814a69e423"
   },
   "audit": {
-    "questionRevisionAuditId": "8ddb6662-4383-41e9-88d5-1a3781ed501c",
+    "questionRevisionAuditId": "255da59d-e212-4212-bcc9-32e0c3f6acb5",
     "questionAuditDecision": "question_updated",
-    "sourceRegionAuditId": "5ad5aaf1-1687-481e-95b7-910a40399ad5"
+    "sourceRegionAuditId": "11acdf1b-eb85-4a96-9185-ad814a69e423"
   },
   "relatedContracts": {
     "questionAssetAuditFromNs404": true,

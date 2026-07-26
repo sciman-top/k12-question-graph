@@ -7,7 +7,7 @@
 - 状态：`pass`。
 - API endpoint count: `53`。
 - typed client function count: `21`。
-- typed contract count: `30`。
+- typed contract count: `34`。
 - error code count: `59`。
 - 本快照是静态 typed API snapshot，不宣称 OpenAPI runtime 已验证；后续若拉起 API 服务并抓取 `/openapi/v1.json`，可把 NS103 升级为 `runtime_verified`。
 
@@ -100,6 +100,10 @@
 | Kind | Name |
 |---|---|
 | `type` | `ApiResult` |
+| `interface` | `AdminAiProviderImageProbeAttemptContract` |
+| `interface` | `AdminAiProviderProbeAttemptContract` |
+| `interface` | `AdminAiProviderSettingsSaveContract` |
+| `interface` | `AdminAiProviderEndpointContract` |
 | `interface` | `AdminAiProviderSettingsContract` |
 | `interface` | `CommentaryReportExportContract` |
 | `interface` | `ItemScoreMappingPreviewContract` |
@@ -113,21 +117,21 @@
 | `interface` | `QuestionCardContract` |
 | `interface` | `QuestionSourceReviewContract` |
 | `interface` | `QuestionSourceRegionContract` |
-| `interface` | `ReviewQueueListContract` |
-| `interface` | `ReviewQueueItemContract` |
-| `interface` | `ReviewQueuePayloadContract` |
-| `interface` | `ReviewWorkbenchActionContract` |
-| `interface` | `CutCandidateGenerationContract` |
-| `interface` | `CutCandidateListContract` |
-| `interface` | `CutCandidateContract` |
-| `interface` | `SourceDocumentPreviewContract` |
-| `interface` | `SourcePreviewPageContract` |
-| `interface` | `SourcePreviewRegionContract` |
-| `interface` | `SourceMaterialListContract` |
-| `interface` | `SourceMaterialContract` |
-| `interface` | `ReadyHealthContract` |
 | `type` | `ReadyHealthStatus` |
-| `interface` | `AdminAiProviderSettingsSaveContract` |
+| `interface` | `ReadyHealthContract` |
+| `interface` | `SourceMaterialContract` |
+| `interface` | `SourceMaterialListContract` |
+| `interface` | `SourcePreviewRegionContract` |
+| `interface` | `SourcePreviewPageContract` |
+| `interface` | `AdminAiProviderImageProbeResultContract` |
+| `interface` | `SourceDocumentPreviewContract` |
+| `interface` | `CutCandidateListContract` |
+| `interface` | `CutCandidateGenerationContract` |
+| `interface` | `ReviewWorkbenchActionContract` |
+| `interface` | `ReviewQueuePayloadContract` |
+| `interface` | `ReviewQueueItemContract` |
+| `interface` | `ReviewQueueListContract` |
+| `interface` | `CutCandidateContract` |
 | `interface` | `AdminAiProviderSettingsTestContract` |
 
 ## Error Codes

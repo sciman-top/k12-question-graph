@@ -14,11 +14,11 @@
     "python": true,
     "uv": true,
     "conda": false,
-    "docker": false,
+    "docker": true,
     "wsl": true,
     "pdftotext": true,
     "pdftoppm": true,
-    "tesseract": false
+    "tesseract": true
   },
   "pythonModules": {
     "rapidocr_onnxruntime": true,

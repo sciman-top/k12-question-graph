@@ -4,10 +4,10 @@
   "mode": "draft_test",
   "productionEligible": false,
   "backup": {
-    "manifest": "tmp\\o007\\o003-backup-root\\20260625-003524\\manifest.json",
-    "backupDir": "tmp\\o007\\o003-backup-root\\20260625-003524",
-    "databaseDump": "tmp\\o007\\o003-backup-root\\20260625-003524\\database.dump",
-    "fileCount": 2403,
+    "manifest": "tmp\\o007\\o003-backup-root\\20260726-005621\\manifest.json",
+    "backupDir": "tmp\\o007\\o003-backup-root\\20260726-005621",
+    "databaseDump": "tmp\\o007\\o003-backup-root\\20260726-005621\\database.dump",
+    "fileCount": 2021,
     "configCount": 3
   },
   "recoveryDrill": {
@@ -19,7 +19,7 @@
       "schemaExtractOk": true
     },
     "fileStore": {
-      "restoredFileCount": 2403,
+      "restoredFileCount": 2021,
       "targetRoot": "tmp\\o003\\restore-drill\\file_store"
     },
     "configs": {
@@ -38,8 +38,8 @@
     }
   },
   "rollback": {
-    "deleteBackupRoot": "Remove-Item -LiteralPath 'D:\\CODE\\k12-question-graph\\.worktrees\\codex\\full-repo-hardening\\tmp\\o007\\o003-backup-root' -Recurse -Force",
-    "deleteDrillRoot": "Remove-Item -LiteralPath 'D:\\CODE\\k12-question-graph\\.worktrees\\codex\\full-repo-hardening\\tmp\\o003\\restore-drill' -Recurse -Force"
+    "deleteBackupRoot": "Remove-Item -LiteralPath 'D:\\CODE\\k12-question-graph\\tmp\\o007\\o003-backup-root' -Recurse -Force",
+    "deleteDrillRoot": "Remove-Item -LiteralPath 'D:\\CODE\\k12-question-graph\\tmp\\o003\\restore-drill' -Recurse -Force"
   },
   "summaryChinese": {
     "title": "O003 恢复演练升级合同报告",

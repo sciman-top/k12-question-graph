@@ -134,5 +134,5 @@
     "isolated_machine_four_teacher_entry_smoke_not_executed"
   ],
   "boundary": "REAL001-REAL012 and read-only diagnostics are ready, but isolated-machine live rehearsal is not executed in this contract; keep P001 as todo until site-run evidence is complete, and keep REAL005 not_closed while onsite/manual closure remains open",
-  "checkedAt": "2026-07-25T22:04:05"
+  "checkedAt": "2026-07-25T22:25:34"
 }

@@ -530,8 +530,13 @@ def parse_image_with_rapidocr(target: pathlib.Path) -> tuple[list[dict], list[st
     return ocr_lines_to_pages([lines], "rapidocr_image_ocr"), warnings
 
 
+def resolve_pdftoppm() -> str | None:
+    candidates = ["pdftoppm.exe", "pdftoppm"] if platform.system() == "Windows" else ["pdftoppm"]
+    return next((resolved for candidate in candidates if (resolved := shutil.which(candidate))), None)
+
+
 def render_pdf_pages_with_pdftoppm(target: pathlib.Path, output_dir: pathlib.Path) -> tuple[list[pathlib.Path], list[str]]:
-    pdftoppm = shutil.which("pdftoppm")
+    pdftoppm = resolve_pdftoppm()
     if pdftoppm is None:
         return [], ["pdftoppm unavailable; scanned PDF cannot be rendered for local OCR"]
 

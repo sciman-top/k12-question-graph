@@ -45,6 +45,7 @@ function Test-AllowlistedCredentialLine([string] $Line) {
         $Line -match '(?i)\$reasonToken\s*=\s*["''][a-z0-9_]+_(smoke|audit|report)["'']' -or
         $Line -match '(?i)(Use-KqgDatabasePassword|Resolve-KqgDatabasePassword|args\.password|\$DatabasePassword\s*=)' -or
         $Line -match '(?i)(request\.ApiKey|request\.ImageApiKey|values\.apiKey|values\.imageApiKey|ProtectSecret\(|UnprotectSecret\(|ResolveEffectiveImageSecret\(|maskedSecret\s*:|maskedImageSecret\s*:|readStringField\(value,\s*''maskedSecret''\)|readStringField\(value,\s*''maskedImageSecret''\)|imageUsesPrimarySecret|ReadFirstEnvironmentValue\(|primarySecret\s*:\s*explicitImageSecret)' -or
+        $Line -match '(?i)(request\.Fallback(ApiKey|ImageApiKey)|values\.fallback(ApiKey|ImageApiKey)|maskedFallback(Secret|ImageSecret)\s*:|readStringField\(value,\s*''maskedFallback(Secret|ImageSecret)''\)|imageUsesTextSecret|Secret\s*:\s*(primarySecret|fallbackSecret)|ImageSecret\s*:\s*(primaryImageSecret|fallbackImageSecret))' -or
         $Line -match '(?i)(ApiKey|Password|Token|Secret)["'']?\s*[:=]\s*["'']?\s*["'']?\s*(,|$)' -or
         $Line -match '(?i)(HeaderName|RoleHeaderName|OperatorIdHeaderName|RollbackRefHeaderName)'
 }
