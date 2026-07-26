@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -13,6 +14,8 @@ from pathlib import Path
 from typing import Any
 
 import psycopg
+from PIL import Image, ImageChops
+from pypdf import PdfReader
 from psycopg.rows import dict_row
 
 
@@ -37,10 +40,9 @@ VISUAL_HINTS = (
     "探究",
 )
 
-SOURCE_MATERIAL_CSV = "guangzhou-physics-full-research-package-2016-2025/csv/c003-source-material.csv"
 QUESTION_CSV = "guangzhou-physics-full-research-package-2016-2025/csv/c003-question-item-full.csv"
 SUBQUESTION_CSV = "guangzhou-physics-full-research-package-2016-2025/csv/c003-subquestion-item-full.csv"
-MATERIAL_BATCH_KEY = "guangzhou_physics_2016_2025"
+DEFAULT_MATERIAL_BATCH_KEY = "guangzhou_physics_2015_2025_20260726_v2"
 
 
 def read_csv(repo_root: Path, relative_path: str) -> list[dict[str, str]]:
@@ -89,6 +91,7 @@ def group_by_question_id(rows: list[dict[str, str]]) -> dict[str, list[dict[str,
 
 def read_source_documents(
     conn: psycopg.Connection[Any],
+    material_batch_key: str,
     year: int,
     source_file: str,
 ) -> list[dict[str, Any]]:
@@ -112,26 +115,16 @@ def read_source_documents(
               and fa.original_file_name = %s
             order by sd.created_at desc
             """,
-            (MATERIAL_BATCH_KEY, year, source_file),
+            (material_batch_key, year, source_file),
         )
         return list(cur.fetchall())
 
 
-def pdf_page_count(pdfinfo: str, pdf_path: Path) -> int:
-    completed = subprocess.run(
-        [pdfinfo, str(pdf_path)],
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        timeout=60,
-    )
-    match = re.search(r"(?m)^Pages:\s+(\d+)\s*$", completed.stdout)
-    if not match:
-        if pdf_path.exists():
-            return 1
-        raise RuntimeError(f"pdfinfo did not report page count for {pdf_path}: {completed.stderr.strip() or completed.stdout.strip()}")
-    return int(match.group(1))
+def pdf_page_count(pdf_path: Path) -> int:
+    page_count = len(PdfReader(pdf_path).pages)
+    if page_count < 1:
+        raise RuntimeError(f"PDF has no pages: {pdf_path}")
+    return page_count
 
 
 def render_page(pdftoppm: str, pdf_path: Path, page_number: int, target_path: Path, scratch_root: Path) -> None:
@@ -176,27 +169,39 @@ def render_page(pdftoppm: str, pdf_path: Path, page_number: int, target_path: Pa
         shutil.rmtree(scratch_dir, ignore_errors=True)
 
 
-def source_material_lookup(rows: list[dict[str, str]]) -> dict[tuple[int, str], dict[str, str]]:
-    lookup: dict[tuple[int, str], dict[str, str]] = {}
-    for row in rows:
-        year_text = str(row.get("year") or "").strip()
-        source_file = str(row.get("source_file") or "").strip()
-        if year_text.isdigit() and source_file:
-            lookup[(int(year_text), source_file)] = row
-    return lookup
+def image_quality(path: Path) -> dict[str, Any]:
+    with Image.open(path) as image:
+        rgb = image.convert("RGB")
+        background = Image.new("RGB", rgb.size, "white")
+        difference = ImageChops.difference(rgb, background).convert("L")
+        histogram = difference.histogram()
+        changed_pixels = sum(histogram[8:])
+        total_pixels = rgb.width * rgb.height
+        non_white_ratio = changed_pixels / total_pixels if total_pixels else 0.0
+        return {
+            "width": rgb.width,
+            "height": rgb.height,
+            "sizeBytes": path.stat().st_size,
+            "nonWhitePixelRatio": round(non_white_ratio, 6),
+            "nonBlank": rgb.width > 0 and rgb.height > 0 and non_white_ratio >= 0.001,
+        }
+
+
+def generated_page_relative_path(material_batch_key: str, year: int, source_document_id: Any, page_number: int) -> str:
+    namespace = material_batch_key.replace("_", "-")
+    return f"generated/{namespace}/source-pages/{year}/{source_document_id}/page-{page_number:03d}.png"
 
 
 def build_year_report(
     repo_root: Path,
     conn: psycopg.Connection[Any],
+    material_batch_key: str,
     file_root: Path,
     scratch_root: Path,
     pdftoppm: str,
-    pdfinfo: str,
     year: int,
     year_questions: list[dict[str, str]],
     subquestions_by_question: dict[str, list[dict[str, str]]],
-    source_material_lookup_by_year_file: dict[tuple[int, str], dict[str, str]],
 ) -> dict[str, Any]:
     source_files = sorted({str(row.get("source_file") or "").strip() for row in year_questions if str(row.get("source_file") or "").strip()})
     if not source_files:
@@ -215,7 +220,7 @@ def build_year_report(
     rendered_source_docs: list[dict[str, Any]] = []
 
     for source_file in source_files:
-        docs = read_source_documents(conn, year, source_file)
+        docs = read_source_documents(conn, material_batch_key, year, source_file)
         if not docs:
             blockers.append(f"source_document_missing:{source_file}")
             continue
@@ -233,7 +238,7 @@ def build_year_report(
             blockers.append(f"paper_file_missing:{source_file}")
             continue
 
-        page_count = pdf_page_count(pdfinfo, pdf_path)
+        page_count = pdf_page_count(pdf_path)
         page_numbers = sorted(
             {
                 page_number
@@ -253,14 +258,19 @@ def build_year_report(
             if page_number < 1 or page_number > page_count:
                 blockers.append(f"page_out_of_range:{source_file}:p{page_number}")
                 continue
-            relative_path = f"generated/guangzhou-physics-2016-2025/source-pages/{year}/{source_doc['source_document_id']}/page-{page_number:03d}.png"
-            render_page(pdftoppm, pdf_path, page_number, file_root / Path(relative_path), scratch_root)
+            relative_path = generated_page_relative_path(material_batch_key, year, source_doc["source_document_id"], page_number)
+            rendered_path = file_root / Path(relative_path)
+            render_page(pdftoppm, pdf_path, page_number, rendered_path, scratch_root)
+            quality = image_quality(rendered_path)
+            if not quality["nonBlank"]:
+                blockers.append(f"rendered_page_blank:{source_file}:p{page_number}")
             rendered_page_paths[(source_file, page_number)] = relative_path
             rendered_pages.append(
                 {
                     "sourceFile": source_file,
                     "pageNumber": page_number,
                     "relativePath": relative_path,
+                    "imageQuality": quality,
                 }
             )
 
@@ -357,11 +367,11 @@ def main() -> int:
     parser.add_argument("--port", type=int, default=5432)
     parser.add_argument("--database", default="k12_question_graph")
     parser.add_argument("--user", default="postgres")
-    parser.add_argument("--password", default="")
+    parser.add_argument("--password", default=os.environ.get("PGPASSWORD", ""))
+    parser.add_argument("--material-batch-key", default=DEFAULT_MATERIAL_BATCH_KEY)
     parser.add_argument("--file-root", default=r"D:\KQG_Data\file_store")
     parser.add_argument("--csv-root", default="guangzhou-physics-full-research-package-2016-2025/csv")
     parser.add_argument("--pdftoppm", default="pdftoppm")
-    parser.add_argument("--pdfinfo", default="pdfinfo")
     parser.add_argument("--output", required=True)
     parser.add_argument("--markdown-output", required=True)
     args = parser.parse_args()
@@ -370,11 +380,9 @@ def main() -> int:
     file_root = Path(args.file_root)
     question_rows = read_csv(repo_root, f"{args.csv_root}/c003-question-item-full.csv")
     subquestion_rows = read_csv(repo_root, f"{args.csv_root}/c003-subquestion-item-full.csv")
-    source_material_rows = read_csv(repo_root, f"{args.csv_root}/c003-source-material.csv")
 
     questions_by_year = group_by_year(question_rows)
     subquestions_by_question = group_by_question_id(subquestion_rows)
-    source_material_lookup_by_year_file = source_material_lookup(source_material_rows)
 
     connection = (
         f"host={args.host} port={args.port} dbname={args.database} "
@@ -389,14 +397,13 @@ def main() -> int:
                 build_year_report(
                     repo_root,
                     conn,
+                    args.material_batch_key,
                     file_root,
                     scratch_root,
                     args.pdftoppm,
-                    args.pdfinfo,
                     year,
                     questions_by_year.get(year, []),
                     subquestions_by_question,
-                    source_material_lookup_by_year_file,
                 )
             )
 
@@ -406,9 +413,10 @@ def main() -> int:
         "taskId": "REAL005B_SOURCE_REGION_SCREENSHOTS",
         "checkedAt": datetime.now(timezone.utc).isoformat(),
         "fileRoot": str(file_root),
+        "materialBatchKey": args.material_batch_key,
         "csvRoot": str((repo_root / args.csv_root).resolve()),
         "sourceEvidence": [
-            SOURCE_MATERIAL_CSV,
+            f"postgresql:source_documents.material_batch_key={args.material_batch_key}",
             QUESTION_CSV,
             SUBQUESTION_CSV,
         ],
@@ -421,6 +429,9 @@ def main() -> int:
             "questions": sum(year["questionCount"] for year in years),
             "visualQuestions": sum(year["visualQuestionCount"] for year in years),
             "renderedPages": sum(year["renderedPageCount"] for year in years),
+            "nonBlankRenderedPages": sum(
+                1 for year in years for page in year["renderedPages"] if page["imageQuality"]["nonBlank"]
+            ),
         },
         "years": years,
         "sourceRegionCoveragePass": len(blocked_years) == 0,

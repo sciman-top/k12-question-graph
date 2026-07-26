@@ -5,8 +5,8 @@ param(
     [int] $DatabasePort = 5432,
     [string] $DatabasePassword = $env:PGPASSWORD,
     [string] $FileStoreRoot = 'D:\KQG_Data\file_store',
+    [string] $MaterialBatchKey = 'guangzhou_physics_2015_2025_20260726_v2',
     [string] $PdfToPpm = '',
-    [string] $PdfInfo = '',
     [string] $ReportPath = '',
     [string] $MarkdownReportPath = '',
     [switch] $AllowPartialReport
@@ -34,16 +34,12 @@ if ([string]::IsNullOrWhiteSpace($PdfToPpm)) {
     $PdfToPpm = $resolvedPdfToPpm.Source
 }
 
-if ([string]::IsNullOrWhiteSpace($PdfInfo)) {
-    $PdfInfo = (Get-Command pdfinfo -ErrorAction SilentlyContinue).Source
-}
-
 if ([string]::IsNullOrWhiteSpace($DatabasePassword)) {
     throw 'DatabasePassword or PGPASSWORD is required for REAL005B source-region screenshots'
 }
 
-if ([string]::IsNullOrWhiteSpace($PdfToPpm) -or [string]::IsNullOrWhiteSpace($PdfInfo)) {
-    throw 'pdftoppm and pdfinfo are required for REAL005B source-region screenshots'
+if ([string]::IsNullOrWhiteSpace($PdfToPpm)) {
+    throw 'pdftoppm is required for REAL005B source-region screenshots'
 }
 
 Push-Location $repoRoot
@@ -56,10 +52,9 @@ try {
         --port $DatabasePort `
         --database $DatabaseName `
         --user $DatabaseUser `
-        --password $DatabasePassword `
+        --material-batch-key $MaterialBatchKey `
         --file-root $FileStoreRoot `
         --pdftoppm $PdfToPpm `
-        --pdfinfo $PdfInfo `
         --output $ReportPath `
         --markdown-output $MarkdownReportPath
     if ($LASTEXITCODE -ne 0) {
@@ -91,6 +86,9 @@ try {
     }
     if ($report.sourceRegionCoveragePass -ne $true) {
         throw 'REAL005B source-region screenshot coverage must pass'
+    }
+    if ($report.materialBatchKey -ne $MaterialBatchKey -or $report.totals.renderedPages -ne $report.totals.nonBlankRenderedPages) {
+        throw 'REAL005B source-region screenshots must bind v2 and every rendered page must be nonblank'
     }
     if ($report.activeWrite -ne $false -or $report.externalAiCalls -ne 0 -or $report.realStudentDataUsed -ne $false) {
         throw 'REAL005B source-region screenshot evidence must stay read-only'

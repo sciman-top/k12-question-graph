@@ -1663,4 +1663,4 @@ REAL005B reviewed-question visibility evidence:
 .\tools\run-real005b-reviewed-question-visibility.ps1
 ```
 
-This renders page-level source screenshots for the admitted Guangzhou 2016-2025 physics candidate package and writes fresh read-only evidence under `docs/evidence/<yyyyMMdd>-real005b-source-region-screenshots.*`.
+This defaults to the versioned `guangzhou_physics_2015_2025_20260726_v2` source batch, renders page-level screenshots for the Guangzhou 2016-2025 question candidates, and writes fresh read-only evidence under `docs/evidence/<yyyyMMdd>-real005b-source-region-screenshots.*`. Page counts come from `pypdf`; every generated PNG must have valid dimensions and a non-white pixel ratio of at least `0.001`.
