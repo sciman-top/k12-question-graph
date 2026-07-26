@@ -42,28 +42,23 @@ public sealed class LocalFileStore(KqgDbContext dbContext, IOptions<KqgPathsOpti
         var extension = Path.GetExtension(safeName);
         var shard = Path.Combine("original", sha256[..2], sha256[2..4]);
         var relativePath = Path.Combine(shard, $"{sha256}{extension}").Replace('\\', '/');
-        var absoluteDirectory = Path.Combine(paths.FileStoreRoot, shard);
-        var absolutePath = Path.Combine(paths.FileStoreRoot, relativePath);
 
         var normalizedSourceMetadata = Normalize(sourceMetadata);
         var existingByHash = await dbContext.FileAssets
             .FirstOrDefaultAsync(x => x.StorageScope == "original" && x.Sha256 == sha256 && x.SizeBytes == sizeBytes, cancellationToken);
         if (existingByHash is not null)
         {
-            File.Delete(tempPath);
+            OriginalBlobMaterializer.Reconcile(
+                paths.FileStoreRoot,
+                existingByHash.RelativePath,
+                tempPath,
+                sha256,
+                sizeBytes);
             var sourceDocument = await AddSourceDocumentAsync(existingByHash.Id, normalizedSourceMetadata, cancellationToken);
             return ToResponse(existingByHash, isDuplicate: true, duplicateOfFileAssetId: existingByHash.Id, sourceDocument);
         }
 
-        Directory.CreateDirectory(absoluteDirectory);
-        if (!File.Exists(absolutePath))
-        {
-            File.Move(tempPath, absolutePath);
-        }
-        else
-        {
-            File.Delete(tempPath);
-        }
+        OriginalBlobMaterializer.Reconcile(paths.FileStoreRoot, relativePath, tempPath, sha256, sizeBytes);
 
         var existing = await dbContext.FileAssets
             .FirstOrDefaultAsync(x => x.StorageScope == "original" && x.RelativePath == relativePath, cancellationToken);

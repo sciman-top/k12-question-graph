@@ -1008,6 +1008,27 @@ existing Guangzhou `SourceDocument/FileAsset` mapping snapshot:
 The script verifies the base manifest, performs database and FileStore restore
 dry-runs, writes a supplemental manifest beside the backup, and records the
 exact restore command without applying it or exposing the database password.
+The external batch key retains hyphens; API persistence follows the existing
+token normalization contract and stores
+`guangzhou_physics_2015_2025_20260726_v2` as `material_batch_key`.
+
+After source registration, classify every existing C003 question against the
+old/new paper, answer, and year-report hashes:
+
+```powershell
+.\tools\run-guangzhou-physics-v2-rebaseline.ps1 `
+  -OldSourceSnapshot 'D:\KQG_Backups\<timestamp>\guangzhou-physics-v2-source-mapping-before.json'
+```
+
+The rebaseline is read-only. Changed rows remain `pending_review`, blocked rows
+fail closed, and neither outcome permits a C002 active write.
+
+Verify database identity, FileStore blob hashes, idempotency, 2020 dual-role
+sharing, and the no-active-write invariant:
+
+```powershell
+.\tools\run-guangzhou-physics-v2-source-import-invariants.ps1
+```
 
 C002 real source material import:
 
@@ -1028,7 +1049,8 @@ after a backup check:
 ```powershell
 $env:PGPASSWORD='<local-password>'
 $env:KQG_CONNECTION_STRING='Host=127.0.0.1;Port=5432;Database=k12_question_graph;Username=postgres;Password=<local-password>'
-.\tools\import-c002-source-materials.ps1 -Apply -StartApi
+.\tools\import-c002-source-materials.ps1 -Apply -StartApi `
+  -BackupManifest 'D:\KQG_Backups\<timestamp>\manifest.json'
 ```
 
 This uploads the original files through the API into `SourceDocument/FileAsset`

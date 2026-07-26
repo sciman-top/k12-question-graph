@@ -58,4 +58,19 @@ public class SourceDocumentMetadataPolicyTests
         var pendingReview = normalized with { LicenseOrPermission = "pending_source_workbench_review" };
         Assert.False(SourceDocumentMetadataPolicy.ComputeExternalAiAllowed(pendingReview));
     }
+
+    [Theory]
+    [InlineData("2021广州中考-参考答案.pdf", "answer_or_solution")]
+    [InlineData("2024广州中考（解析版）.pdf", "answer_or_solution")]
+    [InlineData("2020广州中考（含答案）.pdf", "local_exam_paper")]
+    [InlineData("2025广州中考年报.pdf", "exam_analysis_report")]
+    [InlineData("2025广州中考.pdf", "local_exam_paper")]
+    public void Classify_RecognizesFlatGuangzhouSourceNames(string fileName, string expectedSourceType)
+    {
+        var classified = SourceMaterialClassifier.Classify(SourceDocumentMetadata.Defaults(fileName), fileName);
+
+        Assert.Equal(expectedSourceType, classified.SourceType);
+        Assert.Equal(int.Parse(fileName[..4]), classified.Year);
+        Assert.Equal("guangzhou", classified.Region);
+    }
 }

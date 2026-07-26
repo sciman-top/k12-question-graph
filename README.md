@@ -113,7 +113,7 @@ C002 候选资料与真实来源资料入口：
 .\tools\import-c002-source-materials.ps1
 ```
 
-`prepare-c002-candidate-csvs.ps1` 只清洗候选 CSV，输出 cleaned candidate 输入，不写库、不激活正式资产。默认兼容旧 `c002-*` 候选包；当输入目录包含 `c003-source-material.csv` 时，会自动把完整 `c003-*full` 数据转换成既有 C002 candidate import 格式，继续保持 `candidate/pending_review/productionEligible=false`。`merge-c003-quality-review-package.ps1` 会把完整 C003 CSV 包与 `quality-review-complete-csv-package` 合并到 `D:\KQG_Data\candidate_packages\c003-merged-quality-review-2016-2025`，用于复跑 C002S 和生成新 candidate 输入。原始 PDF 统一存放在 `D:\KQG_Data\source_materials\imported\guangzhou_physics_2016_2025`；`import-c002-source-materials.ps1` 默认从该目录 dry-run。真实导入必须先设置正确 `PGPASSWORD/KQG_CONNECTION_STRING` 并保留备份证据，再用 `-Apply -StartApi` 把原始 PDF 导入 `SourceDocument/FileAsset` 证据层。C002 正式激活只走 `run-c002t-active-switch.ps1`：先 dry-run，再备份并校验 manifest，最后 `-Apply`。
+`prepare-c002-candidate-csvs.ps1` 只清洗候选 CSV，输出 cleaned candidate 输入，不写库、不激活正式资产。默认兼容旧 `c002-*` 候选包；当输入目录包含 `c003-source-material.csv` 时，会自动把完整 `c003-*full` 数据转换成既有 C002 candidate import 格式，继续保持 `candidate/pending_review/productionEligible=false`。`merge-c003-quality-review-package.ps1` 会把完整 C003 CSV 包与 `quality-review-complete-csv-package` 合并到 `D:\KQG_Data\candidate_packages\c003-merged-quality-review-2016-2025`，用于复跑 C002S 和生成新 candidate 输入。原始 PDF 统一存放在 `D:\KQG_Data\source_materials\imported\guangzhou_physics_2016_2025`；`import-c002-source-materials.ps1` 默认从该目录 dry-run。真实导入必须先设置正确 `PGPASSWORD/KQG_CONNECTION_STRING` 并保留备份证据，再用 `-Apply -StartApi -BackupManifest 'D:\KQG_Backups\<timestamp>\manifest.json'` 把原始 PDF 导入 `SourceDocument/FileAsset` 证据层。C002 正式激活只走 `run-c002t-active-switch.ps1`：先 dry-run，再备份并校验 manifest，最后 `-Apply`。
 
 广州真卷 REAL 入口：
 

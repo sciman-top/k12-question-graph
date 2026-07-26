@@ -27,7 +27,9 @@ public static class SourceMaterialClassifier
         var year = ReadYear(fileName) ?? metadata.Year;
         var sourceType = ContainsAny(fileName, "年报", "质量分析", "分析报告")
             ? "exam_analysis_report"
-            : "local_exam_paper";
+            : LooksLikeAnswerOrSolution(fileName)
+                ? "answer_or_solution"
+                : "local_exam_paper";
 
         var mayUseForKnowledgeExtraction = sourceType == "local_exam_paper" || metadata.MayUseForKnowledgeExtraction;
         var mayUseForExamPointExtraction = sourceType is "local_exam_paper" or "exam_analysis_report" || metadata.MayUseForExamPointExtraction;
@@ -56,6 +58,12 @@ public static class SourceMaterialClassifier
     private static bool LooksLikeGuangzhouZhongkao(string fileName)
     {
         return ContainsAny(fileName, "广州", "廣州") && ContainsAny(fileName, "中考");
+    }
+
+    private static bool LooksLikeAnswerOrSolution(string fileName)
+    {
+        return ContainsAny(fileName, "参考答案", "解析版") ||
+            Regex.IsMatch(fileName, @"(?<!含)答案", RegexOptions.IgnoreCase);
     }
 
     private static int? ReadYear(string fileName)

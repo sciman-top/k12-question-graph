@@ -6,7 +6,7 @@
 
 ## Architecture Decisions
 
-- 批次键固定为 `guangzhou-physics-2015-2025-20260726-v2`，所有新增数据库事实、FileStore 工件和 evidence 均可追到该键。
+- 外部文件/证据批次键固定为 `guangzhou-physics-2015-2025-20260726-v2`；API 按既有 token 契约将数据库 `material_batch_key` 规范化为 `guangzhou_physics_2015_2025_20260726_v2`，两者在报告中显式映射。
 - 原始 PDF 迁移到版本化目录，FileStore 继续 content-addressed 去重；2015 相同 hash 复用旧原件。
 - 现有 C003 CSV 只作为候选基线，必须与新 PDF 的页、题号、答案和年报证据重新对齐。
 - C002 active 不直接修改；知识点、考点、难度和能力标签先进入 candidate/review 流程。

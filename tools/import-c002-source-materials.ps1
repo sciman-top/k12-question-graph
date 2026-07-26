@@ -10,7 +10,8 @@ param(
     [string] $DatabasePassword = $env:PGPASSWORD,
     [string] $FileStoreRoot = 'D:\KQG_Data\file_store',
     [string] $MaterialBatchKey = 'guangzhou_physics_2016_2025',
-    [string] $ReportPath = 'docs\evidence\c002-source-material-import-report.json'
+    [string] $ReportPath = 'docs\evidence\c002-source-material-import-report.json',
+    [string] $BackupManifest = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -19,6 +20,8 @@ $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 $DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword
 $resolvedSourceRoot = (Resolve-Path -LiteralPath $SourceRoot).Path
 $reportFullPath = Join-Path $repoRoot $ReportPath
+$requestedMaterialBatchKey = $MaterialBatchKey
+$MaterialBatchKey = $MaterialBatchKey.Trim().ToLowerInvariant().Replace('-', '_').Replace(' ', '_')
 
 function Get-FreeTcpPort {
     $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Parse('127.0.0.1'), 0)
@@ -60,22 +63,20 @@ function Get-YearFromName([string] $Name) {
     return $null
 }
 
-function Get-SourceMetadata([System.IO.FileInfo] $File) {
+function Get-SourceMetadata([System.IO.FileInfo] $File, [string] $SourceType) {
     $relativePath = [System.IO.Path]::GetRelativePath($resolvedSourceRoot, $File.FullName)
     $relativeNormalized = $relativePath -replace '\\', '/'
     $name = $File.Name
     $parent = $File.DirectoryName
     $year = Get-YearFromName $name
 
-    $sourceType = 'unknown'
     $gradeOrScope = 'junior_middle_school'
     $editionOrVersion = ''
     $mayKnowledge = $false
     $mayExamPoint = $false
     $mayTrend = $false
 
-    if ($relativeNormalized -like '*/初中物理教材（人教版）/*' -or $parent -like '*初中物理教材*') {
-        $sourceType = 'textbook'
+    if ($SourceType -eq 'textbook') {
         $mayKnowledge = $true
         if ($name -like '*八上*') {
             $gradeOrScope = 'grade_8_volume_1'
@@ -93,23 +94,24 @@ function Get-SourceMetadata([System.IO.FileInfo] $File) {
             $editionOrVersion = 'person_education_press'
         }
     }
-    elseif ($relativeNormalized -like '*/广州中考年报/*' -or $parent -like '*广州中考年报*') {
-        $sourceType = 'exam_analysis_report'
+    elseif ($SourceType -eq 'exam_analysis_report') {
         $gradeOrScope = 'grade_9'
         $editionOrVersion = if ($year) { [string]$year } else { '' }
         $mayExamPoint = $true
         $mayTrend = $true
     }
-    elseif ($relativeNormalized -like '*/广州中考真题/*' -or $parent -like '*广州中考真题*') {
-        $sourceType = 'local_exam_paper'
+    elseif ($SourceType -eq 'local_exam_paper') {
         $gradeOrScope = 'grade_9'
         $editionOrVersion = if ($year) { [string]$year } else { '' }
         $mayKnowledge = $true
         $mayExamPoint = $true
         $mayTrend = $true
     }
-    elseif ($name -like '*课程标准*') {
-        $sourceType = 'curriculum_standard'
+    elseif ($SourceType -eq 'answer_or_solution') {
+        $gradeOrScope = 'grade_9'
+        $editionOrVersion = if ($year) { [string]$year } else { '' }
+    }
+    elseif ($SourceType -eq 'curriculum_standard') {
         $year = if ($year) { $year } else { 2025 }
         $gradeOrScope = 'junior_middle_school'
         $editionOrVersion = '2022_2025_revision'
@@ -119,9 +121,9 @@ function Get-SourceMetadata([System.IO.FileInfo] $File) {
     [ordered]@{
         path = $File.FullName
         relativePath = $relativeNormalized
-        sourceType = $sourceType
+        sourceType = $SourceType
         sourceTitle = [System.IO.Path]::GetFileNameWithoutExtension($name)
-        region = if ($sourceType -eq 'curriculum_standard') { 'China' } else { 'Guangzhou' }
+        region = if ($SourceType -eq 'curriculum_standard') { 'China' } else { 'Guangzhou' }
         year = $year
         gradeOrScope = $gradeOrScope
         editionOrVersion = $editionOrVersion
@@ -137,6 +139,33 @@ function Get-SourceMetadata([System.IO.FileInfo] $File) {
     }
 }
 
+function Get-SourceTypes([System.IO.FileInfo] $File) {
+    $relativePath = [System.IO.Path]::GetRelativePath($resolvedSourceRoot, $File.FullName) -replace '\\', '/'
+    $name = $File.Name
+    $parent = $File.DirectoryName
+
+    if ($relativePath -like '*/初中物理教材（人教版）/*' -or $parent -like '*初中物理教材*') {
+        return @('textbook')
+    }
+    if ($name -like '*课程标准*') {
+        return @('curriculum_standard')
+    }
+    if ($name -like '*年报*' -or $relativePath -like '*/广州中考年报/*' -or $parent -like '*广州中考年报*') {
+        return @('exam_analysis_report')
+    }
+    if ($name -like '*含答案*') {
+        return @('local_exam_paper', 'answer_or_solution')
+    }
+    if ($name -match '(?<!含)答案' -or $name -like '*解析版*') {
+        return @('answer_or_solution')
+    }
+    if ($name -like '*广州中考*' -or $relativePath -like '*/广州中考真题/*' -or $parent -like '*广州中考真题*') {
+        return @('local_exam_paper')
+    }
+
+    return @('unknown')
+}
+
 function ConvertTo-CurlBool([bool] $Value) {
     if ($Value) { return 'true' }
     return 'false'
@@ -144,7 +173,7 @@ function ConvertTo-CurlBool([bool] $Value) {
 
 function Upload-SourceMaterial([string] $BaseUrl, [object] $Metadata) {
     $args = @(
-        '-s',
+        '-fsS',
         '-F', "file=@$($Metadata.path);filename=$([System.IO.Path]::GetFileName($Metadata.path))",
         '-F', "sourceType=$($Metadata.sourceType)",
         '-F', "sourceTitle=$($Metadata.sourceTitle)",
@@ -182,11 +211,24 @@ try {
         throw "No PDF files found under $resolvedSourceRoot"
     }
 
-    $plan = @($files | ForEach-Object { Get-SourceMetadata $_ })
+    $plan = @($files | ForEach-Object {
+        $file = $_
+        Get-SourceTypes -File $file | ForEach-Object { Get-SourceMetadata -File $file -SourceType $_ }
+    })
+    if (@($plan | Where-Object { $_.sourceType -eq 'unknown' }).Count -gt 0) {
+        throw 'Source plan contains unknown source types'
+    }
     $apiProcess = $null
     $previousConnectionString = $env:KQG_CONNECTION_STRING
     $previousFileStoreRoot = $env:KqgPaths__FileStoreRoot
     $baseUrl = $ApiUrl.TrimEnd('/')
+
+    if ($Apply) {
+        if ([string]::IsNullOrWhiteSpace($BackupManifest)) {
+            throw 'BackupManifest is required when applying source material import'
+        }
+        & (Join-Path $PSScriptRoot 'verify-backup.ps1') -ManifestPath $BackupManifest | Out-Null
+    }
 
     if ($Apply -and $StartApi) {
         if ([string]::IsNullOrWhiteSpace($DatabasePassword)) {
@@ -216,11 +258,15 @@ try {
     if ($Apply) {
         foreach ($item in $plan) {
             $response = Upload-SourceMaterial -BaseUrl $baseUrl -Metadata $item
+            if ($response.sourceDocument.materialBatchKey -ne $MaterialBatchKey) {
+                throw "API persisted an unexpected material batch key for $($item.path)"
+            }
             $uploaded.Add([ordered]@{
                 path = $item.path
                 sourceType = $response.sourceDocument.sourceType
                 sourceDocumentId = $response.sourceDocument.id
                 fileAssetId = $response.id
+                relativePath = $response.relativePath
                 sha256 = $response.sha256
                 materialBatchKey = $response.sourceDocument.materialBatchKey
                 isDuplicate = $response.isDuplicate
@@ -231,9 +277,15 @@ try {
     $report = [ordered]@{
         status = if ($Apply) { 'uploaded' } else { 'dry_run' }
         sourceRoot = $resolvedSourceRoot
+        requestedMaterialBatchKey = $requestedMaterialBatchKey
         materialBatchKey = $MaterialBatchKey
         apiUrl = $baseUrl
-        fileCount = $plan.Count
+        backupManifest = if ($Apply) { $BackupManifest } else { '' }
+        restoreCommand = if ($Apply) { "pwsh -NoProfile -ExecutionPolicy Bypass -File tools\restore.ps1 -ManifestPath '$BackupManifest' -ApplyDatabase -ApplyFileStore -DryRun:`$false" } else { '' }
+        c002ActiveWrite = $false
+        fileCount = $files.Count
+        physicalFileCount = $files.Count
+        logicalSourceCount = $plan.Count
         bySourceType = @($plan | Group-Object { $_.sourceType } | ForEach-Object {
             [ordered]@{ sourceType = $_.Name; count = $_.Count }
         })

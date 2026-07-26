@@ -174,7 +174,7 @@ API、Worker 和 Web 启动后，使用真实批次执行：
 
 ## 8. 错误处理与回滚
 
-任何写入前必须存在通过校验的数据库备份、FileStore manifest 和恢复命令。所有新写入带 `sourceBatchId=guangzhou-physics-2015-2025-20260726-v2` 或等价稳定批次键。
+任何写入前必须存在通过校验的数据库备份、FileStore manifest 和恢复命令。外部文件/证据使用 `sourceBatchId=guangzhou-physics-2015-2025-20260726-v2`；数据库遵循既有 token normalization，使用等价的 `material_batch_key=guangzhou_physics_2015_2025_20260726_v2`，报告必须显式记录二者映射。
 
 失败处理规则：
 
