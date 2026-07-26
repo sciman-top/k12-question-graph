@@ -82,6 +82,11 @@ class SourceBatchTests(unittest.TestCase):
             self.assertEqual(len(list(destination.glob("*.pdf"))), 32)
             self.assertTrue((destination.parent / "source-batch-inventory.json").exists())
 
+            rollback_dry_run = batch.run_stage(source, destination, "rollback_dry_run", report_path, csv_path)
+            self.assertEqual(rollback_dry_run["mode"], "rollback_dry_run")
+            self.assertFalse(rollback_dry_run["hashParityChecked"])
+            self.assertEqual(len(list(destination.glob("*.pdf"))), 32)
+
             rollback_report = batch.run_stage(source, destination, "rollback", report_path, csv_path)
             self.assertEqual(apply_report["inventoryDigest"], rollback_report["inventoryDigest"])
             self.assertEqual(len(list(source.glob("*.pdf"))), 32)

@@ -991,8 +991,23 @@ every move.
 
 ```powershell
 .\tools\run-guangzhou-physics-source-batch-stage.ps1 -Apply
+.\tools\run-guangzhou-physics-source-batch-stage.ps1 -ValidateRollback `
+  -ReportPath 'docs\evidence\20260726-guangzhou-physics-source-batch-rollback-dry-run.json' `
+  -InventoryCsvPath 'docs\evidence\20260726-guangzhou-physics-source-batch-rollback-dry-run.csv'
 .\tools\run-guangzhou-physics-source-batch-stage.ps1 -Rollback
 ```
+
+Before `-Apply`, create and verify the database/FileStore backup plus the
+existing Guangzhou `SourceDocument/FileAsset` mapping snapshot:
+
+```powershell
+.\tools\run-guangzhou-physics-v2-prewrite-backup.ps1 `
+  -BackupManifest 'D:\KQG_Backups\<timestamp>\manifest.json'
+```
+
+The script verifies the base manifest, performs database and FileStore restore
+dry-runs, writes a supplemental manifest beside the backup, and records the
+exact restore command without applying it or exposing the database password.
 
 C002 real source material import:
 

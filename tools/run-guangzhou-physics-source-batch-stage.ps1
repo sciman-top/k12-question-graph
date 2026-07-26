@@ -4,7 +4,8 @@ param(
     [string] $ReportPath = 'docs\evidence\20260726-guangzhou-physics-source-batch-stage.json',
     [string] $InventoryCsvPath = 'docs\evidence\20260726-guangzhou-physics-source-batch-inventory.csv',
     [switch] $Apply,
-    [switch] $Rollback
+    [switch] $Rollback,
+    [switch] $ValidateRollback
 )
 
 $ErrorActionPreference = 'Stop'
@@ -12,8 +13,9 @@ $env:PYTHONIOENCODING = 'utf-8'
 [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 
-if ($Apply -and $Rollback) {
-    throw '-Apply and -Rollback are mutually exclusive'
+$selectedModes = @($Apply.IsPresent, $Rollback.IsPresent, $ValidateRollback.IsPresent)
+if (@($selectedModes | Where-Object { $_ }).Count -gt 1) {
+    throw '-Apply, -Rollback, and -ValidateRollback are mutually exclusive'
 }
 
 Push-Location $repoRoot
@@ -30,6 +32,9 @@ try {
     }
     elseif ($Rollback) {
         $arguments += '--rollback'
+    }
+    elseif ($ValidateRollback) {
+        $arguments += '--validate-rollback'
     }
 
     & python @arguments

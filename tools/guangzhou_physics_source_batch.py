@@ -223,7 +223,7 @@ def run_stage(
     inventory = [inspect_pdf(item, source_root, destination_root) for item in discover_files(source_root, destination_root)]
     validate_inventory(inventory)
     before_digest = inventory_digest(inventory)
-    expected_location = "destination" if mode == "rollback" else "source"
+    expected_location = "destination" if mode in {"rollback", "rollback_dry_run"} else "source"
     assert_locations(inventory, expected_location)
 
     moved_files: list[str] = []
@@ -289,9 +289,18 @@ def main() -> int:
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--apply", action="store_true")
     mode.add_argument("--rollback", action="store_true")
+    mode.add_argument("--validate-rollback", action="store_true")
     args = parser.parse_args()
 
-    selected_mode = "apply" if args.apply else "rollback" if args.rollback else "dry_run"
+    selected_mode = (
+        "apply"
+        if args.apply
+        else "rollback"
+        if args.rollback
+        else "rollback_dry_run"
+        if args.validate_rollback
+        else "dry_run"
+    )
     try:
         report = run_stage(
             Path(args.source_root),

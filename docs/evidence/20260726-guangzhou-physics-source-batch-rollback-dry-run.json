@@ -1,8 +1,8 @@
 {
   "schemaVersion": "1.0",
   "status": "pass",
-  "mode": "apply",
-  "checkedAt": "2026-07-26T14:42:33.808404+00:00",
+  "mode": "rollback_dry_run",
+  "checkedAt": "2026-07-26T14:44:32.060088+00:00",
   "batchKey": "guangzhou-physics-2015-2025-20260726-v2",
   "sourceRoot": "D:\\KQG_Data\\guangzhou_physics_2015_2025",
   "destinationRoot": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2015_2025\\20260726-v2\\raw",
@@ -28,43 +28,10 @@
   ],
   "inventoryDigest": "f9139b4c98b34fb74c93a1e6337c8d28a7c90ff7cd00c903155947255a932786",
   "pdfIntegrityPass": true,
-  "hashParityChecked": true,
-  "hashParityPass": true,
+  "hashParityChecked": false,
+  "hashParityPass": null,
   "inventoryState": "pre_operation",
-  "movedFiles": [
-    "2015广州中考.pdf",
-    "2015广州中考年报.pdf",
-    "2015广州中考答案.pdf",
-    "2016广州中考.pdf",
-    "2016广州中考年报.pdf",
-    "2016广州中考答案.pdf",
-    "2017广州中考.pdf",
-    "2017广州中考年报.pdf",
-    "2017广州中考答案.pdf",
-    "2018广州中考.pdf",
-    "2018广州中考年报.pdf",
-    "2018广州中考答案.pdf",
-    "2019广州中考.pdf",
-    "2019广州中考年报.pdf",
-    "2019广州中考答案.pdf",
-    "2020广州中考年报.pdf",
-    "2020广州中考（含答案）.pdf",
-    "2021广州中考-参考答案.pdf",
-    "2021广州中考.pdf",
-    "2021广州中考年报.pdf",
-    "2022广州中考-参考答案.pdf",
-    "2022广州中考.pdf",
-    "2022广州中考年报.pdf",
-    "2023广州中考.pdf",
-    "2023广州中考_参考答案.pdf",
-    "2023广州中考年报.pdf",
-    "2024广州中考.pdf",
-    "2024广州中考年报.pdf",
-    "2024广州中考（解析版）.pdf",
-    "2025广州中考.pdf",
-    "2025广州中考年报.pdf",
-    "2025广州中考（答案）.pdf"
-  ],
+  "movedFiles": [],
   "inventory": [
     {
       "year": 2015,
@@ -80,7 +47,7 @@
       "textCharacterCount": 6188,
       "sourcePath": "D:\\KQG_Data\\guangzhou_physics_2015_2025\\2015广州中考.pdf",
       "destinationPath": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2015_2025\\20260726-v2\\raw\\2015广州中考.pdf",
-      "currentLocation": "source"
+      "currentLocation": "destination"
     },
     {
       "year": 2015,
@@ -96,7 +63,7 @@
       "textCharacterCount": 41011,
       "sourcePath": "D:\\KQG_Data\\guangzhou_physics_2015_2025\\2015广州中考年报.pdf",
       "destinationPath": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2015_2025\\20260726-v2\\raw\\2015广州中考年报.pdf",
-      "currentLocation": "source"
+      "currentLocation": "destination"
     },
     {
       "year": 2015,
@@ -112,7 +79,7 @@
       "textCharacterCount": 1292,
       "sourcePath": "D:\\KQG_Data\\guangzhou_physics_2015_2025\\2015广州中考答案.pdf",
       "destinationPath": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2015_2025\\20260726-v2\\raw\\2015广州中考答案.pdf",
-      "currentLocation": "source"
+      "currentLocation": "destination"
     },
     {
       "year": 2016,
@@ -128,7 +95,7 @@
       "textCharacterCount": 6228,
       "sourcePath": "D:\\KQG_Data\\guangzhou_physics_2015_2025\\2016广州中考.pdf",
       "destinationPath": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2015_2025\\20260726-v2\\raw\\2016广州中考.pdf",
-      "currentLocation": "source"
+      "currentLocation": "destination"
     },
     {
       "year": 2016,
@@ -144,7 +111,7 @@
       "textCharacterCount": 64617,
       "sourcePath": "D:\\KQG_Data\\guangzhou_physics_2015_2025\\2016广州中考年报.pdf",
       "destinationPath": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2015_2025\\20260726-v2\\raw\\2016广州中考年报.pdf",
-      "currentLocation": "source"
+      "currentLocation": "destination"
     },
     {
       "year": 2016,
@@ -160,7 +127,7 @@
       "textCharacterCount": 131,
       "sourcePath": "D:\\KQG_Data\\guangzhou_physics_2015_2025\\2016广州中考答案.pdf",
       "destinationPath": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2015_2025\\20260726-v2\\raw\\2016广州中考答案.pdf",
-      "currentLocation": "source"
+      "currentLocation": "destination"
     },
     {
       "year": 2017,
@@ -176,7 +143,7 @@
       "textCharacterCount": 6207,
       "sourcePath": "D:\\KQG_Data\\guangzhou_physics_2015_2025\\2017广州中考.pdf",
       "destinationPath": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2015_2025\\20260726-v2\\raw\\2017广州中考.pdf",
-      "currentLocation": "source"
+      "currentLocation": "destination"
     },
     {
       "year": 2017,
@@ -192,7 +159,7 @@
       "textCharacterCount": 56657,
       "sourcePath": "D:\\KQG_Data\\guangzhou_physics_2015_2025\\2017广州中考年报.pdf",
       "destinationPath": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2015_2025\\20260726-v2\\raw\\2017广州中考年报.pdf",
-      "currentLocation": "source"
+      "currentLocation": "destination"
     },
     {
       "year": 2017,
@@ -208,7 +175,7 @@
       "textCharacterCount": 1642,
       "sourcePath": "D:\\KQG_Data\\guangzhou_physics_2015_2025\\2017广州中考答案.pdf",
       "destinationPath": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2015_2025\\20260726-v2\\raw\\2017广州中考答案.pdf",
-      "currentLocation": "source"
+      "currentLocation": "destination"
     },
     {
       "year": 2018,
@@ -224,7 +191,7 @@
       "textCharacterCount": 6852,
       "sourcePath": "D:\\KQG_Data\\guangzhou_physics_2015_2025\\2018广州中考.pdf",
       "destinationPath": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2015_2025\\20260726-v2\\raw\\2018广州中考.pdf",
-      "currentLocation": "source"
+      "currentLocation": "destination"
     },
     {
       "year": 2018,
@@ -240,7 +207,7 @@
       "textCharacterCount": 106906,
       "sourcePath": "D:\\KQG_Data\\guangzhou_physics_2015_2025\\2018广州中考年报.pdf",
       "destinationPath": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2015_2025\\20260726-v2\\raw\\2018广州中考年报.pdf",
-      "currentLocation": "source"
+      "currentLocation": "destination"
     },
     {
       "year": 2018,
@@ -256,7 +223,7 @@
       "textCharacterCount": 1663,
       "sourcePath": "D:\\KQG_Data\\guangzhou_physics_2015_2025\\2018广州中考答案.pdf",
       "destinationPath": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2015_2025\\20260726-v2\\raw\\2018广州中考答案.pdf",
-      "currentLocation": "source"
+      "currentLocation": "destination"
     },
     {
       "year": 2019,
@@ -272,7 +239,7 @@
       "textCharacterCount": 5141,
       "sourcePath": "D:\\KQG_Data\\guangzhou_physics_2015_2025\\2019广州中考.pdf",
       "destinationPath": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2015_2025\\20260726-v2\\raw\\2019广州中考.pdf",
-      "currentLocation": "source"
+      "currentLocation": "destination"
     },
     {
       "year": 2019,
@@ -288,7 +255,7 @@
       "textCharacterCount": 103044,
       "sourcePath": "D:\\KQG_Data\\guangzhou_physics_2015_2025\\2019广州中考年报.pdf",
       "destinationPath": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2015_2025\\20260726-v2\\raw\\2019广州中考年报.pdf",
-      "currentLocation": "source"
+      "currentLocation": "destination"
     },
     {
       "year": 2019,
@@ -304,7 +271,7 @@
       "textCharacterCount": 10670,
       "sourcePath": "D:\\KQG_Data\\guangzhou_physics_2015_2025\\2019广州中考答案.pdf",
       "destinationPath": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2015_2025\\20260726-v2\\raw\\2019广州中考答案.pdf",
-      "currentLocation": "source"
+      "currentLocation": "destination"
     },
     {
       "year": 2020,
@@ -320,7 +287,7 @@
       "textCharacterCount": 87336,
       "sourcePath": "D:\\KQG_Data\\guangzhou_physics_2015_2025\\2020广州中考年报.pdf",
       "destinationPath": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2015_2025\\20260726-v2\\raw\\2020广州中考年报.pdf",
-      "currentLocation": "source"
+      "currentLocation": "destination"
     },
     {
       "year": 2020,
@@ -337,7 +304,7 @@
       "textCharacterCount": 6926,
       "sourcePath": "D:\\KQG_Data\\guangzhou_physics_2015_2025\\2020广州中考（含答案）.pdf",
       "destinationPath": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2015_2025\\20260726-v2\\raw\\2020广州中考（含答案）.pdf",
-      "currentLocation": "source"
+      "currentLocation": "destination"
     },
     {
       "year": 2021,
@@ -353,7 +320,7 @@
       "textCharacterCount": 1151,
       "sourcePath": "D:\\KQG_Data\\guangzhou_physics_2015_2025\\2021广州中考-参考答案.pdf",
       "destinationPath": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2015_2025\\20260726-v2\\raw\\2021广州中考-参考答案.pdf",
-      "currentLocation": "source"
+      "currentLocation": "destination"
     },
     {
       "year": 2021,
@@ -369,7 +336,7 @@
       "textCharacterCount": 3857,
       "sourcePath": "D:\\KQG_Data\\guangzhou_physics_2015_2025\\2021广州中考.pdf",
       "destinationPath": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2015_2025\\20260726-v2\\raw\\2021广州中考.pdf",
-      "currentLocation": "source"
+      "currentLocation": "destination"
     },
     {
       "year": 2021,
@@ -385,7 +352,7 @@
       "textCharacterCount": 53962,
       "sourcePath": "D:\\KQG_Data\\guangzhou_physics_2015_2025\\2021广州中考年报.pdf",
       "destinationPath": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2015_2025\\20260726-v2\\raw\\2021广州中考年报.pdf",
-      "currentLocation": "source"
+      "currentLocation": "destination"
     },
     {
       "year": 2022,
@@ -401,7 +368,7 @@
       "textCharacterCount": 9164,
       "sourcePath": "D:\\KQG_Data\\guangzhou_physics_2015_2025\\2022广州中考-参考答案.pdf",
       "destinationPath": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2015_2025\\20260726-v2\\raw\\2022广州中考-参考答案.pdf",
-      "currentLocation": "source"
+      "currentLocation": "destination"
     },
     {
       "year": 2022,
@@ -417,7 +384,7 @@
       "textCharacterCount": 4399,
       "sourcePath": "D:\\KQG_Data\\guangzhou_physics_2015_2025\\2022广州中考.pdf",
       "destinationPath": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2015_2025\\20260726-v2\\raw\\2022广州中考.pdf",
-      "currentLocation": "source"
+      "currentLocation": "destination"
     },
     {
       "year": 2022,
@@ -433,7 +400,7 @@
       "textCharacterCount": 52267,
       "sourcePath": "D:\\KQG_Data\\guangzhou_physics_2015_2025\\2022广州中考年报.pdf",
       "destinationPath": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2015_2025\\20260726-v2\\raw\\2022广州中考年报.pdf",
-      "currentLocation": "source"
+      "currentLocation": "destination"
     },
     {
       "year": 2023,
@@ -449,7 +416,7 @@
       "textCharacterCount": 4597,
       "sourcePath": "D:\\KQG_Data\\guangzhou_physics_2015_2025\\2023广州中考.pdf",
       "destinationPath": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2015_2025\\20260726-v2\\raw\\2023广州中考.pdf",
-      "currentLocation": "source"
+      "currentLocation": "destination"
     },
     {
       "year": 2023,
@@ -465,7 +432,7 @@
       "textCharacterCount": 906,
       "sourcePath": "D:\\KQG_Data\\guangzhou_physics_2015_2025\\2023广州中考_参考答案.pdf",
       "destinationPath": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2015_2025\\20260726-v2\\raw\\2023广州中考_参考答案.pdf",
-      "currentLocation": "source"
+      "currentLocation": "destination"
     },
     {
       "year": 2023,
@@ -481,7 +448,7 @@
       "textCharacterCount": 50946,
       "sourcePath": "D:\\KQG_Data\\guangzhou_physics_2015_2025\\2023广州中考年报.pdf",
       "destinationPath": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2015_2025\\20260726-v2\\raw\\2023广州中考年报.pdf",
-      "currentLocation": "source"
+      "currentLocation": "destination"
     },
     {
       "year": 2024,
@@ -497,7 +464,7 @@
       "textCharacterCount": 4797,
       "sourcePath": "D:\\KQG_Data\\guangzhou_physics_2015_2025\\2024广州中考.pdf",
       "destinationPath": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2015_2025\\20260726-v2\\raw\\2024广州中考.pdf",
-      "currentLocation": "source"
+      "currentLocation": "destination"
     },
     {
       "year": 2024,
@@ -513,7 +480,7 @@
       "textCharacterCount": 60493,
       "sourcePath": "D:\\KQG_Data\\guangzhou_physics_2015_2025\\2024广州中考年报.pdf",
       "destinationPath": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2015_2025\\20260726-v2\\raw\\2024广州中考年报.pdf",
-      "currentLocation": "source"
+      "currentLocation": "destination"
     },
     {
       "year": 2024,
@@ -529,7 +496,7 @@
       "textCharacterCount": 10477,
       "sourcePath": "D:\\KQG_Data\\guangzhou_physics_2015_2025\\2024广州中考（解析版）.pdf",
       "destinationPath": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2015_2025\\20260726-v2\\raw\\2024广州中考（解析版）.pdf",
-      "currentLocation": "source"
+      "currentLocation": "destination"
     },
     {
       "year": 2025,
@@ -545,7 +512,7 @@
       "textCharacterCount": 4798,
       "sourcePath": "D:\\KQG_Data\\guangzhou_physics_2015_2025\\2025广州中考.pdf",
       "destinationPath": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2015_2025\\20260726-v2\\raw\\2025广州中考.pdf",
-      "currentLocation": "source"
+      "currentLocation": "destination"
     },
     {
       "year": 2025,
@@ -561,7 +528,7 @@
       "textCharacterCount": 50362,
       "sourcePath": "D:\\KQG_Data\\guangzhou_physics_2015_2025\\2025广州中考年报.pdf",
       "destinationPath": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2015_2025\\20260726-v2\\raw\\2025广州中考年报.pdf",
-      "currentLocation": "source"
+      "currentLocation": "destination"
     },
     {
       "year": 2025,
@@ -577,7 +544,7 @@
       "textCharacterCount": 1225,
       "sourcePath": "D:\\KQG_Data\\guangzhou_physics_2015_2025\\2025广州中考（答案）.pdf",
       "destinationPath": "D:\\KQG_Data\\source_materials\\imported\\guangzhou_physics_2015_2025\\20260726-v2\\raw\\2025广州中考（答案）.pdf",
-      "currentLocation": "source"
+      "currentLocation": "destination"
     }
   ],
   "rollback": "Run the same wrapper with -Rollback; it only moves PDFs from this batch destination back to the recorded source root.",

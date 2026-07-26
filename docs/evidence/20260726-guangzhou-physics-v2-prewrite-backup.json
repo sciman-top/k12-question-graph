@@ -1,0 +1,46 @@
+{
+  "status": "pass",
+  "checkedAt": "2026-07-26T14:45:21.8285323Z",
+  "task": "Guangzhou physics 2015-2025 v2 prewrite backup",
+  "batchKey": "guangzhou-physics-2015-2025-20260726-v2",
+  "backupDir": "D:\\KQG_Backups\\20260726-223829",
+  "baseManifest": {
+    "path": "D:\\KQG_Backups\\20260726-223829\\manifest.json",
+    "sha256": "a1dc64c480638f8a2f28e8b9a21e2d79c738c5d094b15647a7b3cdcee76b926a"
+  },
+  "databaseDump": {
+    "path": "D:\\KQG_Backups\\20260726-223829\\database.dump",
+    "sha256": "d2057e86c97144d057f4db9edc3b60b914462ea9ee71dd358a59b9d29381e99b"
+  },
+  "fileStoreFileCount": 2026,
+  "backupVerification": {
+    "status": "ok"
+  },
+  "restoreDryRun": {
+    "status": "ok",
+    "mode": "dry_run",
+    "actionAreas": [
+      "file_store",
+      "database"
+    ]
+  },
+  "sourceMappingSnapshot": {
+    "path": "D:\\KQG_Backups\\20260726-223829\\guangzhou-physics-v2-source-mapping-before.json",
+    "sha256": "a51e1c12c7fc6581b6356a2d4768957094d99ac142031ad35ace269f0184d474",
+    "sourceDocumentCount": 106
+  },
+  "supplementalManifest": {
+    "path": "D:\\KQG_Backups\\20260726-223829\\guangzhou-physics-v2-prewrite-manifest.json",
+    "sha256": "1b648d9a48c375a7eb37701b8cb62659f422c0463a72cc729e50fa00a372f46e"
+  },
+  "sourceBatchInventory": {
+    "report": "D:\\CODE\\k12-question-graph\\docs\\evidence\\20260726-guangzhou-physics-source-batch-stage.json",
+    "digest": "f9139b4c98b34fb74c93a1e6337c8d28a7c90ff7cd00c903155947255a932786",
+    "physicalFileCount": 32,
+    "logicalSourceCount": 33
+  },
+  "restoreCommand": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools\\restore.ps1 -ManifestPath 'D:\\KQG_Backups\\20260726-223829\\manifest.json' -ApplyDatabase -ApplyFileStore -DryRun:$false",
+  "sourceBatchRollbackCommand": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools\\run-guangzhou-physics-source-batch-stage.ps1 -Rollback",
+  "activeWrite": false,
+  "completionBoundary": "This evidence proves a verified prewrite backup and restore dry-run; it does not apply a restore or import source data."
+}
