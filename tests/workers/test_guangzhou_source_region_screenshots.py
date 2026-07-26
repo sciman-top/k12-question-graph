@@ -16,6 +16,25 @@ import guangzhou_physics_2016_2025_source_region_screenshots as screenshots  # n
 
 
 class GuangzhouSourceRegionScreenshotTests(unittest.TestCase):
+    def test_select_paper_source_document_ignores_answer_role_for_combined_file(self) -> None:
+        docs = [
+            {"source_document_id": "answer", "source_type": "answer_or_solution"},
+            {"source_document_id": "paper", "source_type": "local_exam_paper"},
+        ]
+
+        selected = screenshots.select_paper_source_document(docs)
+
+        self.assertEqual(selected["source_document_id"], "paper")
+
+    def test_select_paper_source_document_rejects_ambiguous_paper_roles(self) -> None:
+        docs = [
+            {"source_document_id": "paper-1", "source_type": "local_exam_paper"},
+            {"source_document_id": "paper-2", "source_type": "local_exam_paper"},
+        ]
+
+        with self.assertRaisesRegex(RuntimeError, "ambiguous local_exam_paper"):
+            screenshots.select_paper_source_document(docs)
+
     def test_generated_page_path_is_scoped_to_material_batch(self) -> None:
         path = screenshots.generated_page_relative_path(
             "guangzhou_physics_2015_2025_20260726_v2",

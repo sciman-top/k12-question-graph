@@ -127,6 +127,13 @@ def pdf_page_count(pdf_path: Path) -> int:
     return page_count
 
 
+def select_paper_source_document(docs: list[dict[str, Any]]) -> dict[str, Any] | None:
+    paper_docs = [doc for doc in docs if str(doc.get("source_type") or "") == "local_exam_paper"]
+    if len(paper_docs) > 1:
+        raise RuntimeError("ambiguous local_exam_paper source documents")
+    return paper_docs[0] if paper_docs else None
+
+
 def render_page(pdftoppm: str, pdf_path: Path, page_number: int, target_path: Path, scratch_root: Path) -> None:
     if target_path.exists():
         return
@@ -224,7 +231,10 @@ def build_year_report(
         if not docs:
             blockers.append(f"source_document_missing:{source_file}")
             continue
-        source_doc = docs[0]
+        source_doc = select_paper_source_document(docs)
+        if source_doc is None:
+            blockers.append(f"paper_source_document_missing:{source_file}")
+            continue
         rendered_source_docs.append(
             {
                 "sourceFile": source_file,
@@ -239,20 +249,7 @@ def build_year_report(
             continue
 
         page_count = pdf_page_count(pdf_path)
-        page_numbers = sorted(
-            {
-                page_number
-                for row in year_questions
-                if str(row.get("source_file") or "").strip() == source_file
-                for page_number in parse_pages(
-                    row.get("page_or_location"),
-                    *(sq.get("page_or_location") for sq in subquestions_by_question.get(str(row.get("question_id") or "").strip(), [])),
-                )
-            }
-        )
-        if not page_numbers:
-            blockers.append(f"page_location_missing:{source_file}")
-            continue
+        page_numbers = list(range(1, page_count + 1))
 
         for page_number in page_numbers:
             if page_number < 1 or page_number > page_count:

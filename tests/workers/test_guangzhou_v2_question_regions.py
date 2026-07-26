@@ -1,0 +1,75 @@
+import pathlib
+import sys
+import tempfile
+import unittest
+
+from PIL import Image, ImageDraw
+
+
+REPO_ROOT = pathlib.Path(__file__).resolve().parents[2]
+TOOLS_ROOT = REPO_ROOT / "tools"
+if str(TOOLS_ROOT) not in sys.path:
+    sys.path.insert(0, str(TOOLS_ROOT))
+
+import guangzhou_physics_v2_question_regions as regions  # noqa: E402
+
+
+class GuangzhouV2QuestionRegionTests(unittest.TestCase):
+    def test_anchor_numbers_rejects_multi_question_heading_and_accepts_embedded_anchor(self) -> None:
+        self.assertEqual(regions.anchor_numbers("16、17题结合题目要求"), [])
+        self.assertEqual(regions.anchor_numbers("②16. 图a所示"), [16])
+
+    def test_select_question_anchors_skips_exam_instructions_before_choice_section(self) -> None:
+        anchors = [
+            regions.Anchor(1, 1, 100, 50, "1.答题前"),
+            regions.Anchor(1, 1, 300, 50, "1.实际试题"),
+            regions.Anchor(2, 1, 400, 50, "2.实际试题"),
+            regions.Anchor(3, 2, 80, 50, "3.实际试题"),
+        ]
+
+        selected, takeovers = regions.select_question_anchors(anchors, {1: 250}, 3)
+
+        self.assertEqual(selected[1].top, 300)
+        self.assertEqual(selected[2].top, 400)
+        self.assertEqual(selected[3].page_number, 2)
+        self.assertEqual(takeovers, [])
+
+    def test_following_question_sequence_requires_three_consecutive_numbers(self) -> None:
+        last = regions.Anchor(24, 8, 100, 50, "24. final question")
+        anchors = [
+            last,
+            regions.Anchor(2, 9, 80, 50, "2. isolated formula"),
+            regions.Anchor(13, 10, 90, 50, "13. answer"),
+            regions.Anchor(14, 10, 180, 50, "14. answer"),
+            regions.Anchor(15, 10, 260, 50, "15. answer"),
+        ]
+
+        boundary = regions.following_question_sequence_start(anchors, last)
+
+        self.assertIsNotNone(boundary)
+        self.assertEqual(boundary.question_number, 13)
+        self.assertEqual(boundary.page_number, 10)
+
+    def test_following_question_sequence_ignores_isolated_later_number(self) -> None:
+        last = regions.Anchor(18, 7, 600, 50, "18. final question")
+        anchors = [last, regions.Anchor(2, 8, 300, 50, "2. isolated formula")]
+
+        self.assertIsNone(regions.following_question_sequence_start(anchors, last))
+
+    def test_crop_percent_creates_nonblank_region(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = pathlib.Path(temp_dir)
+            source = root / "page.png"
+            target = root / "crop.png"
+            image = Image.new("RGB", (400, 400), "white")
+            ImageDraw.Draw(image).rectangle((40, 80, 360, 300), fill="black")
+            image.save(source)
+
+            quality = regions.crop_percent(source, target, 5, 10, 95, 90)
+
+            self.assertTrue(target.exists())
+            self.assertTrue(quality["nonBlank"])
+
+
+if __name__ == "__main__":
+    unittest.main()

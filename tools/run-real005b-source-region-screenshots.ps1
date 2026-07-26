@@ -90,6 +90,10 @@ try {
     if ($report.materialBatchKey -ne $MaterialBatchKey -or $report.totals.renderedPages -ne $report.totals.nonBlankRenderedPages) {
         throw 'REAL005B source-region screenshots must bind v2 and every rendered page must be nonblank'
     }
+    $nonPaperSources = @($report.years.sourceDocuments | Where-Object { $_.sourceType -ne 'local_exam_paper' })
+    if ($nonPaperSources.Count -ne 0) {
+        throw 'REAL005B source-region screenshots must be owned by local_exam_paper source documents'
+    }
     if ($report.activeWrite -ne $false -or $report.externalAiCalls -ne 0 -or $report.realStudentDataUsed -ne $false) {
         throw 'REAL005B source-region screenshot evidence must stay read-only'
     }
