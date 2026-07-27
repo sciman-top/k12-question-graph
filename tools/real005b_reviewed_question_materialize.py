@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import os
+import subprocess
+import sys
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -10,6 +13,7 @@ from typing import Any
 
 import psycopg
 from psycopg.rows import dict_row
+from pypdf import PdfReader
 
 from guangzhou_physics_v2_materialize import (
     BATCH_KEY,
@@ -21,10 +25,12 @@ from guangzhou_physics_v2_materialize import (
     YearRegionPlan,
     answer_region_mode,
     build_blocks,
+    extract_compact_choice_sequence,
+    extract_numbered_answer_sections,
     flatten_question_regions,
     load_c003_candidates,
     load_question_region_plans,
-    locate_answer_pages,
+    locate_answer_pages_from_texts,
     stable_id,
     validate_candidate_coverage,
 )
@@ -138,6 +144,7 @@ def load_2015_candidates(conn: psycopg.Connection[Any]) -> tuple[dict[tuple[int,
             "questionType": str(row["question_type"] or "unknown"),
             "score": float(row["default_score"]) if row["default_score"] is not None else None,
             "answer": str(answer.get("value") or ""),
+            "answerTextSource": "existing_2015_candidate",
             "solution": str(solution.get("text") or ""),
             "primaryKnowledgeCandidateId": "",
             "primaryKnowledgeLabel": str(custom.get("primaryKnowledgeLabel") or ""),
@@ -173,6 +180,63 @@ def validate_region_files(file_root: Path, plans: dict[int, YearRegionPlan]) -> 
     ]
     if missing:
         raise FileNotFoundError(f"question_region_files_missing:{missing[:10]}")
+
+
+def load_answer_page_texts(
+    repo_root: Path, file_root: Path, answer_doc: dict[str, Any]
+) -> tuple[list[str], str]:
+    reader = PdfReader(str(answer_doc["path"]))
+    page_texts = [page.extract_text() or "" for page in reader.pages]
+    if sum(len(text.strip()) for text in page_texts) >= len(page_texts) * 40:
+        return page_texts, "pypdf_text"
+
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "workers" / "document" / "worker.py"),
+            "--job-id",
+            f"{WORKFLOW_KEY}-answer-{answer_doc['year']}",
+            "--relative-path",
+            str(answer_doc["relative_path"]),
+            "--file-root",
+            str(file_root),
+        ],
+        cwd=repo_root,
+        text=True,
+        capture_output=True,
+        encoding="utf-8",
+        timeout=180,
+        check=False,
+    )
+    if completed.returncode != 0:
+        raise ValueError(f"answer_worker_failed:{answer_doc['year']}:{completed.stderr[-500:]}")
+    payload = json.loads(completed.stdout)
+    pages = payload.get("documentModel", {}).get("pages") or []
+    worker_texts = [
+        "\n".join(str(block.get("textPreview") or "") for block in page.get("layoutBlocks") or [])
+        for page in pages
+    ]
+    if len(worker_texts) != len(page_texts) or not any(text.strip() for text in worker_texts):
+        raise ValueError(f"answer_worker_page_contract_failed:{answer_doc['year']}")
+    adapter = str((payload.get("adapterDiagnostics") or [{}])[0].get("adapterName") or "document_worker")
+    return worker_texts, adapter
+
+
+def load_forced_ocr_page_texts(repo_root: Path, path: Path) -> list[str]:
+    worker_path = repo_root / "workers" / "document" / "worker.py"
+    spec = importlib.util.spec_from_file_location("kqg_document_worker_for_answer_ocr", worker_path)
+    if spec is None or spec.loader is None:
+        raise ValueError("answer_ocr_worker_import_failed")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    pages, warnings = module.parse_scanned_pdf_with_rapidocr(path)
+    texts = [
+        "\n".join(str(block.get("textPreview") or "") for block in page.get("layoutBlocks") or [])
+        for page in pages
+    ]
+    if not any(text.strip() for text in texts):
+        raise ValueError(f"forced_answer_ocr_empty:{path}:{warnings[-3:]}")
+    return texts
 
 
 def clear_materialized_children(conn: psycopg.Connection[Any], target_ids: list[uuid.UUID]) -> None:
@@ -269,6 +333,7 @@ def upsert_question(
         "answerSourceRegionIds": [str(value) for value in answer_regions],
         "answerSourceMode": answer_mode,
         "answerStatus": "pending_review",
+        "answerTextSource": candidate.get("answerTextSource", "c003_answer_value"),
         "answer": {"value": candidate.get("answer", ""), "status": "pending_review"},
         "solution": {"text": candidate.get("solution", ""), "status": "pending_review"},
         "primaryKnowledgeCandidateId": candidate.get("primaryKnowledgeCandidateId", ""),
@@ -496,11 +561,61 @@ def main() -> int:
 
         answer_page_map: dict[int, dict[int, tuple[int, ...]]] = {}
         answer_page_counts: dict[int, int] = {}
+        answer_text_adapters: dict[int, str] = {}
+        extracted_answer_counts: dict[int, int] = {}
         for year in YEARS:
             answer_doc = sources[(year, "answer_or_solution")]
             minimum_page = plans[year].questions[max(plans[year].questions)][-1].page_number + 1 if year == 2020 else 1
-            answer_page_map[year] = locate_answer_pages(answer_doc["path"], EXPECTED_COUNTS[year], minimum_page)
-            answer_page_counts[year] = len(set(page for pages in answer_page_map[year].values() for page in pages))
+            page_texts, adapter = load_answer_page_texts(repo_root, file_root, answer_doc)
+            sections = extract_numbered_answer_sections(page_texts, EXPECTED_COUNTS[year], minimum_page)
+            extracted_count = 0
+            for number in range(1, EXPECTED_COUNTS[year] + 1):
+                candidate = candidates[(year, number)]
+                if not str(candidate.get("answer") or "").strip() and sections.get(number):
+                    candidate["answer"] = sections[number]
+                    candidate["answerTextSource"] = f"{adapter}_numbered_section_candidate"
+                    extracted_count += 1
+
+            compact_choices = (
+                extract_compact_choice_sequence(page_texts[max(0, minimum_page - 1) :], 12)
+                if year == 2020
+                else {}
+            )
+            for number, answer in compact_choices.items():
+                candidate = candidates[(year, number)]
+                if not str(candidate.get("answer") or "").strip():
+                    candidate["answer"] = answer
+                    candidate["answerTextSource"] = "compact_choice_sequence_candidate"
+                    extracted_count += 1
+
+            missing_numbers = [
+                number
+                for number in range(1, EXPECTED_COUNTS[year] + 1)
+                if not str(candidates[(year, number)].get("answer") or "").strip()
+            ]
+            if missing_numbers:
+                forced_ocr_texts = load_forced_ocr_page_texts(repo_root, answer_doc["path"])
+                forced_sections = extract_numbered_answer_sections(
+                    forced_ocr_texts, EXPECTED_COUNTS[year], minimum_page
+                )
+                for number in missing_numbers:
+                    if forced_sections.get(number):
+                        candidates[(year, number)]["answer"] = forced_sections[number]
+                        candidates[(year, number)]["answerTextSource"] = (
+                            "forced_rapidocr_numbered_section_candidate"
+                        )
+                        extracted_count += 1
+                page_texts = forced_ocr_texts
+                adapter = "forced_rapidocr"
+
+            answer_text_adapters[year] = adapter
+            answer_page_map[year] = locate_answer_pages_from_texts(
+                page_texts, EXPECTED_COUNTS[year], minimum_page
+            )
+            answer_page_counts[year] = len(
+                set(page for pages in answer_page_map[year].values() for page in pages)
+            )
+            extracted_answer_counts[year] = extracted_count
 
         year_reports: list[dict[str, Any]] = []
         answer_region_ids: set[uuid.UUID] = set()
@@ -525,6 +640,8 @@ def main() -> int:
                     "questionRegions": sum(len(value) for value in plan.questions.values()),
                     "answerDocumentId": str(answer_doc["id"]),
                     "answerModes": modes,
+                    "answerTextAdapter": answer_text_adapters[year],
+                    "extractedAnswerCandidateCount": extracted_answer_counts[year],
                 }
             )
 
@@ -532,6 +649,7 @@ def main() -> int:
         inside_review_count = scalar(conn, "select count(*) from review_queue_items where payload->>'sourceWorkflowKey'=%s and status='open'", (WORKFLOW_KEY,))
         inside_pending_count = scalar(conn, "select count(*) from question_items where custom_fields->>'sourceWorkflowKey'=%s and status='pending_review'", (WORKFLOW_KEY,))
         production_eligible_count = scalar(conn, "select count(*) from question_items where custom_fields->>'sourceWorkflowKey'=%s and coalesce((custom_fields->>'productionEligible')::boolean,false)=true", (WORKFLOW_KEY,))
+        missing_answer_count = scalar(conn, "select count(*) from question_items where custom_fields->>'sourceWorkflowKey'=%s and coalesce(custom_fields#>>'{answer,value}','')=''", (WORKFLOW_KEY,))
         active_inside = scalar(
             conn,
             "select count(*) from domain_asset_versions where source_evidence->>'importKey'=%s and status='active'",
@@ -541,6 +659,19 @@ def main() -> int:
             raise ValueError(f"materialize_invariant_failed:{inside_question_count}:{inside_review_count}:{inside_pending_count}")
         if production_eligible_count or active_inside != active_before:
             raise ValueError("production_or_active_write_detected")
+        if missing_answer_count:
+            missing_answers = rows(
+                conn,
+                """
+                select custom_fields->>'year' as year, custom_fields->>'questionNo' as question_number
+                from question_items
+                where custom_fields->>'sourceWorkflowKey'=%s
+                  and coalesce(custom_fields#>>'{answer,value}','')=''
+                order by (custom_fields->>'year')::int, (custom_fields->>'questionNo')::int
+                """,
+                (WORKFLOW_KEY,),
+            )
+            raise ValueError(f"answer_candidate_text_missing:{missing_answers}")
 
         if args.apply:
             conn.commit()
@@ -575,6 +706,7 @@ def main() -> int:
                 "pendingReviewCountInsideTransaction": inside_pending_count,
                 "openReviewCountInsideTransaction": inside_review_count,
                 "productionEligibleCountInsideTransaction": production_eligible_count,
+                "missingAnswerCandidateCountInsideTransaction": missing_answer_count,
                 "persistedBeforeRun": persisted_before,
                 "persistedAfterRun": persisted_after,
                 "stateFingerprintBefore": fingerprint_before,
@@ -584,6 +716,7 @@ def main() -> int:
                 "allQuestionsPendingReview": inside_pending_count == 234,
                 "allReviewItemsOpen": inside_review_count == 234,
                 "productionEligibleFalse": production_eligible_count == 0,
+                "allAnswerCandidatesNonEmpty": missing_answer_count == 0,
                 "c002ActiveCountBefore": active_before,
                 "c002ActiveCountAfter": active_after,
                 "c002ActiveCountUnchanged": active_before == active_after,

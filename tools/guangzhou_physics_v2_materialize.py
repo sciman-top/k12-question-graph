@@ -208,9 +208,15 @@ def pdf_page_count(path: Path) -> int:
 def locate_answer_pages(path: Path, expected_count: int, minimum_page: int = 1) -> dict[int, tuple[int, ...]]:
     reader = PdfReader(str(path))
     page_text = [page.extract_text() or "" for page in reader.pages]
+    return locate_answer_pages_from_texts(page_text, expected_count, minimum_page)
+
+
+def locate_answer_pages_from_texts(
+    page_text: list[str], expected_count: int, minimum_page: int = 1
+) -> dict[int, tuple[int, ...]]:
     eligible_pages = tuple(range(max(1, minimum_page), len(page_text) + 1))
     if not eligible_pages:
-        raise ValueError(f"answer_pdf_has_no_eligible_pages:{path}")
+        raise ValueError("answer_pdf_has_no_eligible_pages")
 
     anchors: dict[int, list[int]] = defaultdict(list)
     for page_number in eligible_pages:
@@ -224,6 +230,48 @@ def locate_answer_pages(path: Path, expected_count: int, minimum_page: int = 1) 
         unique = tuple(dict.fromkeys(anchors.get(number, [])))
         result[number] = unique if unique else eligible_pages
     return result
+
+
+def extract_numbered_answer_sections(
+    page_text: list[str], expected_count: int, minimum_page: int = 1
+) -> dict[int, str]:
+    eligible = page_text[max(0, minimum_page - 1) :]
+    joined_parts: list[str] = []
+    for page in eligible:
+        joined_parts.append(page)
+    joined = "\n\f\n".join(joined_parts)
+    anchors = [
+        (int(match.group(1)), match.start(), match.end())
+        for match in QUESTION_ANCHOR.finditer(joined)
+        if 1 <= int(match.group(1)) <= expected_count
+    ]
+    first_anchor: dict[int, tuple[int, int]] = {}
+    for number, start, end in anchors:
+        first_anchor.setdefault(number, (start, end))
+
+    result: dict[int, str] = {}
+    for number, (start, end) in first_anchor.items():
+        next_starts = [candidate_start for _, candidate_start, _ in anchors if candidate_start > start]
+        section_end = min(next_starts) if next_starts else len(joined)
+        section = joined[start:section_end].strip()
+        answer_marker = re.search(r"【\s*答案\s*】|\[\s*答案\s*\]|答案\s*[:：]", section)
+        if answer_marker:
+            section = section[answer_marker.end() :].strip()
+        section = re.sub(r"\s+", " ", section).strip()
+        if section:
+            result[number] = section[:4000]
+    return result
+
+
+def extract_compact_choice_sequence(page_text: list[str], expected_count: int) -> dict[int, str]:
+    for page in page_text:
+        for line in page.splitlines():
+            if not re.fullmatch(r"[A-D\s]+", line.strip()):
+                continue
+            letters = re.findall(r"[A-D]", line)
+            if len(letters) == expected_count:
+                return {index: value for index, value in enumerate(letters, start=1)}
+    return {}
 
 
 def answer_region_mode(pages: tuple[int, ...], eligible_page_count: int) -> str:

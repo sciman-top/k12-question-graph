@@ -71,6 +71,21 @@ class GuangzhouV2MaterializeTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "answer_pdf_has_no_eligible_pages"):
                 materialize.locate_answer_pages(path, 18)
 
+    def test_extract_numbered_answer_sections_prefers_answer_marker(self) -> None:
+        sections = materialize.extract_numbered_answer_sections(
+            ["13. 题干\n【答案】甲；乙\n14. 题干\n答案：丙"],
+            18,
+        )
+        self.assertEqual("甲；乙", sections[13])
+        self.assertEqual("丙", sections[14])
+
+    def test_extract_compact_choice_sequence_requires_exact_length(self) -> None:
+        self.assertEqual(
+            {index: value for index, value in enumerate("DCCDACBABDDD", start=1)},
+            materialize.extract_compact_choice_sequence(["一、\nDCCDA CBABD DD"], 12),
+        )
+        self.assertEqual({}, materialize.extract_compact_choice_sequence(["ABCD"], 12))
+
 
 if __name__ == "__main__":
     unittest.main()

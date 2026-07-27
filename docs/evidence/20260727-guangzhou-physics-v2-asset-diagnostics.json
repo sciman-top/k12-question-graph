@@ -1,0 +1,63 @@
+{
+  "status": "pass",
+  "taskId": "GUANGZHOU_PHYSICS_V2_ASSET_DIAGNOSTICS",
+  "checkedAt": "2026-07-27T13:23:00.895020+00:00",
+  "workflowKey": "guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1",
+  "readOnly": true,
+  "counts": {
+    "questions": 234,
+    "pendingReviewQuestions": 234,
+    "usableQuestions": 0,
+    "productionEligibleQuestions": 0,
+    "missingAnswerTexts": 0,
+    "openReviews": 234,
+    "answerBlocks": 234,
+    "subquestionBlocks": 349,
+    "formulaBlocks": 62,
+    "tableBlocks": 21,
+    "questionAssets": 270,
+    "uniqueAssetSourceRegions": 270,
+    "c002ActiveCount": 452
+  },
+  "integrity": {
+    "questionsWithoutAnswerSourceRegion": 0,
+    "wrongAnswerSourceDocumentType": 0,
+    "answerBlockSourceTypeMismatch": 0,
+    "questionBlockSourceTypeMismatch": 0,
+    "orphanBlocks": 0,
+    "orphanAssets": 0,
+    "assetSourceTypeMismatch": 0,
+    "fallbackWithoutOpenReview": 0,
+    "answerPageBefore2020Page9": 0
+  },
+  "answerTextSources": [
+    {
+      "source": "c003_answer_value",
+      "count": 98
+    },
+    {
+      "source": "compact_choice_sequence_candidate",
+      "count": 12
+    },
+    {
+      "source": "existing_2015_candidate",
+      "count": 24
+    },
+    {
+      "source": "forced_rapidocr_numbered_section_candidate",
+      "count": 1
+    },
+    {
+      "source": "pypdf_text_numbered_section_candidate",
+      "count": 87
+    },
+    {
+      "source": "rapidocr_scanned_pdf_adapter_numbered_section_candidate",
+      "count": 12
+    }
+  ],
+  "missingQuestionRegionScreenshots": [],
+  "blockers": [],
+  "boundary": "Read-only local PostgreSQL/FileStore diagnostics. All answers, blocks, tags, and reviews remain candidates pending teacher validation; no C002 active switch, teacher acceptance, onsite closure, or REAL005 closure is claimed.",
+  "rollback": "No rollback required; the diagnostic opens a read-only transaction and writes evidence files only."
+}
