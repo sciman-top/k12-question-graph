@@ -1,17 +1,17 @@
 {
   "status": "pass",
   "taskId": "REAL004",
-  "checkedAt": "2026-07-26T00:53:05",
+  "checkedAt": "2026-07-27T22:25:27",
   "requestedApiPort": 0,
-  "resolvedApiPort": 2394,
+  "resolvedApiPort": 3027,
   "portFallbackApplied": true,
-  "apiUrl": "http://127.0.0.1:2394",
+  "apiUrl": "http://127.0.0.1:3027",
   "workflowKey": "guangzhou_2015_real_ingest_v1 + guangzhou_2015_visual_region_v1",
   "reviewType": "guangzhou_2015_question_review",
   "initialOpenReviewItems": 24,
   "loadedQuestion": {
     "questionNo": 1,
-    "questionItemId": "06e4bedf-a2be-4665-844f-8c0c02e0b1d6",
+    "questionItemId": "6a2f2a21-5c7b-4617-8939-ed612db826f4",
     "sourceRegionCount": 2,
     "sourceScreenshotUrlCount": 2,
     "hasTextPreview": true,
@@ -31,7 +31,7 @@
   },
   "actions": {
     "confirm": {
-      "itemId": "a926133d-0777-477f-a769-5fcd3357cb08",
+      "itemId": "da36ae80-b725-4053-a1eb-8559d60c24ad",
       "status": "resolved",
       "auditReviewedBy": "teacher-real004-smoke",
       "auditReason": "checked and revised stem answer tags and source regions",
@@ -43,7 +43,7 @@
       ]
     },
     "dismiss": {
-      "itemId": "2b02753d-6ab3-496f-a797-6d2d4862ccb6",
+      "itemId": "40fecb6f-892c-4e02-aeb4-ba9595e0049c",
       "status": "dismissed",
       "auditDecision": "dismissed",
       "auditReason": "returned for precise visual crop and tag correction"
@@ -81,7 +81,7 @@
       "delete from cut_candidates where metadata::text like '%guangzhou_2015_visual_region_v1%' or candidate_payload::text like '%guangzhou_2015_visual_region_v1%';",
       "delete from question_items where custom_fields->>'sourceWorkflowKey' = 'guangzhou_2015_real_ingest_v1';",
       "delete from question_items where custom_fields->>'sourceWorkflowKey' = 'guangzhou_2015_visual_region_v1';",
-      "delete from source_regions where region_type in ('guangzhou_2015_question','guangzhou_2015_answer','guangzhou_2015_visual_question','guangzhou_2015_visual_answer','guangzhou_2015_visual_asset');"
+      "delete from source_regions where region_type in ('guangzhou_2015_question','guangzhou_2015_answer','guangzhou_2015_visual_question','guangzhou_2015_visual_answer','guangzhou_2015_visual_asset') and not exists (select 1 from question_blocks where question_blocks.source_region_id = source_regions.id) and not exists (select 1 from question_assets where question_assets.source_region_id = source_regions.id) and not exists (select 1 from cut_candidates where cut_candidates.source_region_id = source_regions.id);"
     ]
   }
 }

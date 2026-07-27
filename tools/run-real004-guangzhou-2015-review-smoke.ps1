@@ -346,7 +346,7 @@ try {
                 "delete from cut_candidates where metadata::text like '%guangzhou_2015_visual_region_v1%' or candidate_payload::text like '%guangzhou_2015_visual_region_v1%';",
                 "delete from question_items where custom_fields->>'sourceWorkflowKey' = 'guangzhou_2015_real_ingest_v1';",
                 "delete from question_items where custom_fields->>'sourceWorkflowKey' = 'guangzhou_2015_visual_region_v1';",
-                "delete from source_regions where region_type in ('guangzhou_2015_question','guangzhou_2015_answer','guangzhou_2015_visual_question','guangzhou_2015_visual_answer','guangzhou_2015_visual_asset');"
+                "delete from source_regions where region_type in ('guangzhou_2015_question','guangzhou_2015_answer','guangzhou_2015_visual_question','guangzhou_2015_visual_answer','guangzhou_2015_visual_asset') and not exists (select 1 from question_blocks where question_blocks.source_region_id = source_regions.id) and not exists (select 1 from question_assets where question_assets.source_region_id = source_regions.id) and not exists (select 1 from cut_candidates where cut_candidates.source_region_id = source_regions.id);"
             )
         }
     }

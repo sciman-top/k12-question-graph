@@ -292,6 +292,15 @@ def cleanup_previous_workflow(conn: psycopg.Connection[Any], paper_id: str, answ
             delete from source_regions
             where source_document_id in (%s, %s)
               and region_type in ('guangzhou_2015_question', 'guangzhou_2015_answer')
+              and not exists (
+                  select 1 from question_blocks where question_blocks.source_region_id = source_regions.id
+              )
+              and not exists (
+                  select 1 from question_assets where question_assets.source_region_id = source_regions.id
+              )
+              and not exists (
+                  select 1 from cut_candidates where cut_candidates.source_region_id = source_regions.id
+              )
             """,
             (paper_id, answer_id),
         )
@@ -651,10 +660,13 @@ def workflow_after(conn: psycopg.Connection[Any]) -> dict[str, Any]:
         "sourceRegionCount": scalar(
             conn,
             """
-            select count(*)
-            from source_regions
-            where region_type in ('guangzhou_2015_question', 'guangzhou_2015_answer')
+            select count(distinct question_blocks.source_region_id)
+            from question_blocks
+            join question_items on question_items.id = question_blocks.question_item_id
+            where question_items.custom_fields->>'sourceWorkflowKey' = %s
+              and question_blocks.source_region_id is not null
             """,
+            (WORKFLOW_KEY,),
         ),
         "openReviewQueueCount": scalar(
             conn,
@@ -790,11 +802,12 @@ def main() -> int:
             report["rollback"] = {
                 "preferred": "restore the pre-run database backup if this was part of a release rehearsal",
                 "targetedSql": [
-                    f"delete from review_queue_items where payload::text like '%{WORKFLOW_KEY}%';",
                     f"delete from question_blocks where question_item_id in (select id from question_items where custom_fields->>'sourceWorkflowKey' = '{WORKFLOW_KEY}');",
+                    f"delete from question_assets where question_item_id in (select id from question_items where custom_fields->>'sourceWorkflowKey' = '{WORKFLOW_KEY}');",
                     f"delete from cut_candidates where metadata::text like '%{WORKFLOW_KEY}%' or candidate_payload::text like '%{WORKFLOW_KEY}%';",
+                    f"delete from source_regions where id in (select (payload->>'sourceRegionId')::uuid from review_queue_items where payload->>'sourceWorkflowKey' = '{WORKFLOW_KEY}' union select (payload->>'answerRegionId')::uuid from review_queue_items where payload->>'sourceWorkflowKey' = '{WORKFLOW_KEY}');",
+                    f"delete from review_queue_items where payload::text like '%{WORKFLOW_KEY}%';",
                     f"delete from question_items where custom_fields->>'sourceWorkflowKey' = '{WORKFLOW_KEY}';",
-                    "delete from source_regions where region_type in ('guangzhou_2015_question','guangzhou_2015_answer');",
                 ],
             }
 
