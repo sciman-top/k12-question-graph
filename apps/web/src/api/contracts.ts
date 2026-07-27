@@ -202,6 +202,7 @@ export interface QuestionSourceReviewContract {
 export interface QuestionCardContract {
   id: string
   questionType: string
+  defaultScore: number | null
   difficultyEstimated: number | null
   status: string
   questionNo: number | null
@@ -210,6 +211,13 @@ export interface QuestionCardContract {
     title: string
     status: string
     version: number
+  } | null
+  candidateTags: {
+    primaryKnowledge: { id: string; label: string } | null
+    primaryExamPoint: { id: string; label: string } | null
+    abilityDimensions: string[]
+    reviewStatus: string
+    productionEligible: boolean
   } | null
   preview: string
   blockCount: number
@@ -238,6 +246,22 @@ export interface QuestionSearchContract {
   knowledgeStatus: string
   knowledgeVersion: number | null
   items: QuestionCardContract[]
+}
+
+export interface QuestionSearchParams {
+  page?: number
+  limit?: number
+  questionType?: string
+  sourceType?: string
+  status?: string
+  sortBy?: string
+  order?: 'asc' | 'desc'
+  year?: number
+  knowledgeCandidateId?: string
+  examPointCandidateId?: string
+  difficultyMin?: number
+  difficultyMax?: number
+  hasImage?: boolean
 }
 
 export interface PaperBlueprintRowContract {
@@ -276,6 +300,44 @@ export interface PaperBlueprintConfirmContract {
   paperBasketId: string | null
   selectedQuestionCount: number
   teacherMessage: string
+  auditTrail: string[]
+}
+
+export interface PaperDraftQuestionContract {
+  id: string
+  stemPreview: string
+  questionType: string
+  score: number
+  difficultyEstimated: number | null
+  primaryKnowledgeId: string
+  primaryKnowledgeTitle: string
+  sourceType: string
+  recentUseStatus: string
+}
+
+export interface PaperQuestionReplacementContract {
+  mode: string
+  productionEligible: boolean
+  allowRealModelCalls: boolean
+  action: string
+  reason: string
+  constraints: {
+    sameKnowledge: boolean
+    sameQuestionType: boolean
+    similarDifficulty: boolean
+    sameScore: boolean
+    excludeCurrentPaperDuplicates: boolean
+    excludeRecentlyUsed: boolean
+    knowledgeStatus: string
+    blocksProductionPaper: boolean
+  }
+  replacement: PaperDraftQuestionContract
+  undo: {
+    undoToken: string
+    beforeQuestion: PaperDraftQuestionContract
+    afterQuestion: PaperDraftQuestionContract
+    revertAction: string
+  }
   auditTrail: string[]
 }
 
@@ -866,12 +928,22 @@ export function normalizeQuestionSearchResponse(value: unknown): QuestionSearchC
       const primaryKnowledge = row && typeof row === 'object'
         ? (row as Record<string, unknown>).primaryKnowledge
         : null
+      const candidateTags = row && typeof row === 'object'
+        ? (row as Record<string, unknown>).candidateTags
+        : null
+      const candidatePrimaryKnowledge = candidateTags && typeof candidateTags === 'object'
+        ? (candidateTags as Record<string, unknown>).primaryKnowledge
+        : null
+      const candidatePrimaryExamPoint = candidateTags && typeof candidateTags === 'object'
+        ? (candidateTags as Record<string, unknown>).primaryExamPoint
+        : null
       const sources = row && typeof row === 'object'
         ? (row as Record<string, unknown>).sources
         : null
       return {
         id: readStringField(row, 'id') ?? '',
         questionType: readStringField(row, 'questionType') ?? 'unknown',
+        defaultScore: readNullableNumberField(row, 'defaultScore'),
         difficultyEstimated:
           readNumberField(row, 'difficultyEstimated') === 0
             ? null
@@ -885,6 +957,28 @@ export function normalizeQuestionSearchResponse(value: unknown): QuestionSearchC
                 title: readStringField(primaryKnowledge, 'title') ?? '',
                 status: readStringField(primaryKnowledge, 'status') ?? '',
                 version: readNumberField(primaryKnowledge, 'version'),
+              }
+            : null,
+        candidateTags:
+          candidateTags && typeof candidateTags === 'object'
+            ? {
+                primaryKnowledge:
+                  candidatePrimaryKnowledge && typeof candidatePrimaryKnowledge === 'object'
+                    ? {
+                        id: readStringField(candidatePrimaryKnowledge, 'id') ?? '',
+                        label: readStringField(candidatePrimaryKnowledge, 'label') ?? '',
+                      }
+                    : null,
+                primaryExamPoint:
+                  candidatePrimaryExamPoint && typeof candidatePrimaryExamPoint === 'object'
+                    ? {
+                        id: readStringField(candidatePrimaryExamPoint, 'id') ?? '',
+                        label: readStringField(candidatePrimaryExamPoint, 'label') ?? '',
+                      }
+                    : null,
+                abilityDimensions: readArrayField(candidateTags, 'abilityDimensions').map(String),
+                reviewStatus: readStringField(candidateTags, 'reviewStatus') ?? 'pending_review',
+                productionEligible: readBooleanField(candidateTags, 'productionEligible'),
               }
             : null,
         preview: readStringField(row, 'preview') ?? '',
@@ -938,6 +1032,60 @@ export function normalizePaperBlueprintConfirmResponse(value: unknown): PaperBlu
     paperBasketId: readNullableStringField(value, 'paperBasketId'),
     selectedQuestionCount: readNumberField(value, 'selectedQuestionCount'),
     teacherMessage: readStringField(value, 'teacherMessage') ?? '',
+    auditTrail: readArrayField(value, 'auditTrail').map(String),
+  }
+}
+
+function normalizePaperDraftQuestion(value: unknown): PaperDraftQuestionContract {
+  return {
+    id: readStringField(value, 'id') ?? '',
+    stemPreview: readStringField(value, 'stemPreview') ?? '',
+    questionType: readStringField(value, 'questionType') ?? 'unknown',
+    score: readNumberField(value, 'score'),
+    difficultyEstimated: readNullableNumberField(value, 'difficultyEstimated'),
+    primaryKnowledgeId: readStringField(value, 'primaryKnowledgeId') ?? '',
+    primaryKnowledgeTitle: readStringField(value, 'primaryKnowledgeTitle') ?? '',
+    sourceType: readStringField(value, 'sourceType') ?? 'unknown',
+    recentUseStatus: readStringField(value, 'recentUseStatus') ?? 'unknown',
+  }
+}
+
+export function normalizePaperQuestionReplacementResponse(value: unknown): PaperQuestionReplacementContract {
+  const constraints = value && typeof value === 'object'
+    ? (value as Record<string, unknown>).constraints
+    : null
+  const undo = value && typeof value === 'object'
+    ? (value as Record<string, unknown>).undo
+    : null
+  return {
+    mode: readStringField(value, 'mode') ?? 'unknown',
+    productionEligible: readBooleanField(value, 'productionEligible'),
+    allowRealModelCalls: readBooleanField(value, 'allowRealModelCalls'),
+    action: readStringField(value, 'action') ?? '',
+    reason: readStringField(value, 'reason') ?? '',
+    constraints: {
+      sameKnowledge: readBooleanField(constraints, 'sameKnowledge'),
+      sameQuestionType: readBooleanField(constraints, 'sameQuestionType'),
+      similarDifficulty: readBooleanField(constraints, 'similarDifficulty'),
+      sameScore: readBooleanField(constraints, 'sameScore'),
+      excludeCurrentPaperDuplicates: readBooleanField(constraints, 'excludeCurrentPaperDuplicates'),
+      excludeRecentlyUsed: readBooleanField(constraints, 'excludeRecentlyUsed'),
+      knowledgeStatus: readStringField(constraints, 'knowledgeStatus') ?? 'unknown',
+      blocksProductionPaper: readBooleanField(constraints, 'blocksProductionPaper'),
+    },
+    replacement: normalizePaperDraftQuestion(
+      value && typeof value === 'object' ? (value as Record<string, unknown>).replacement : null,
+    ),
+    undo: {
+      undoToken: readStringField(undo, 'undoToken') ?? '',
+      beforeQuestion: normalizePaperDraftQuestion(
+        undo && typeof undo === 'object' ? (undo as Record<string, unknown>).beforeQuestion : null,
+      ),
+      afterQuestion: normalizePaperDraftQuestion(
+        undo && typeof undo === 'object' ? (undo as Record<string, unknown>).afterQuestion : null,
+      ),
+      revertAction: readStringField(undo, 'revertAction') ?? '',
+    },
     auditTrail: readArrayField(value, 'auditTrail').map(String),
   }
 }

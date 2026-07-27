@@ -12,9 +12,54 @@ TOOLS_ROOT = Path(__file__).resolve().parents[2] / "tools"
 sys.path.insert(0, str(TOOLS_ROOT))
 
 import guangzhou_physics_v2_materialize as materialize  # noqa: E402
+import real005b_reviewed_question_materialize as reviewed_materialize  # noqa: E402
 
 
 class GuangzhouV2MaterializeTests(unittest.TestCase):
+    def test_reviewed_materialize_connection_allows_local_passwordless_auth(self) -> None:
+        without_password = reviewed_materialize.build_connection_kwargs(
+            "127.0.0.1", 5432, "k12_question_graph", "postgres", ""
+        )
+        with_password = reviewed_materialize.build_connection_kwargs(
+            "127.0.0.1", 5432, "k12_question_graph", "postgres", "secret"
+        )
+
+        self.assertNotIn("password", without_password)
+        self.assertEqual("secret", with_password["password"])
+
+    def test_2015_candidate_selection_prefers_current_v2_over_legacy(self) -> None:
+        rows = [
+            {"id": "legacy", "custom_fields": {"questionNo": 1, "sourceWorkflowKey": "guangzhou_2015_real_ingest_v1"}},
+            {"id": "current", "custom_fields": {"questionNo": 1, "sourceWorkflowKey": materialize.WORKFLOW_KEY}},
+        ]
+
+        selected = reviewed_materialize.select_2015_candidate_rows(rows)
+
+        self.assertEqual(["current"], [row["id"] for row in selected])
+
+    def test_2015_candidate_selection_rejects_duplicate_current_rows(self) -> None:
+        rows = [
+            {"id": "current-a", "custom_fields": {"questionNo": 1, "sourceWorkflowKey": materialize.WORKFLOW_KEY}},
+            {"id": "current-b", "custom_fields": {"questionNo": 1, "sourceWorkflowKey": materialize.WORKFLOW_KEY}},
+        ]
+
+        with self.assertRaisesRegex(ValueError, "duplicate_2015_candidate:1"):
+            reviewed_materialize.select_2015_candidate_rows(rows)
+
+    def test_2015_candidate_stem_is_cleaned_before_materialization(self) -> None:
+        blocks = [
+            {
+                "type": "stem",
+                "content": {
+                    "text": "考生号： 装订线 19. 如图所示，物体保持静止。物理试卷 第 6 页 共 8 页 [PAGE 6]"
+                },
+            }
+        ]
+
+        stem = reviewed_materialize.extract_2015_candidate_stem(blocks, 19)
+
+        self.assertEqual("19. 如图所示，物体保持静止。", stem)
+
     def test_expected_question_total_is_234(self) -> None:
         self.assertEqual(234, sum(materialize.EXPECTED_COUNTS.values()))
         self.assertEqual(24, materialize.EXPECTED_COUNTS[2015])
@@ -35,6 +80,18 @@ class GuangzhouV2MaterializeTests(unittest.TestCase):
         del candidates[(2022, 1)]
         with self.assertRaisesRegex(ValueError, "candidate_sequence_mismatch:2022"):
             materialize.validate_candidate_coverage(candidates)
+
+    def test_validate_candidate_content_rejects_exam_instructions(self) -> None:
+        candidates = {
+            (year, number): {"stem": f"{number}. 真实物理题干"}
+            for year in materialize.YEARS
+            for number in range(1, materialize.EXPECTED_COUNTS[year] + 1)
+        }
+        materialize.validate_candidate_content(candidates)
+        candidates[(2017, 2)]["stem"] = "2. 第一部分每小题选出答案后，用2B铅笔涂答题卡。"
+
+        with self.assertRaisesRegex(ValueError, "candidate_exam_instruction_stem:2017:2"):
+            materialize.validate_candidate_content(candidates)
 
     def test_answer_region_mode_marks_full_document_fallback(self) -> None:
         self.assertEqual(

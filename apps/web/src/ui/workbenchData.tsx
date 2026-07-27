@@ -6,7 +6,7 @@ import {
   FileSearchOutlined,
   FileTextOutlined,
 } from '@ant-design/icons'
-import type { QuestionSourceRegionContract } from '../api/contracts'
+import type { QuestionSearchParams, QuestionSourceRegionContract } from '../api/contracts'
 import {
   teacherDifficultyRangeLabelFor,
   teacherLabelFor,
@@ -363,10 +363,22 @@ export const replacementAuditTags = [
 ]
 
 export const questionSearchFilterChips = [
-  { filter: 'knowledge', label: '惯性' },
-  { filter: 'question-type', label: '单选题' },
-  { filter: 'difficulty', label: defaultDifficultyFilterLabel },
-  { filter: 'source', label: '示例来源' },
+  { filter: 'all-real', label: '全部待确认真题', params: { status: 'pending_review' } },
+  { filter: 'year', label: '2025 真题', params: { status: 'pending_review', year: 2025 } },
+  { filter: 'question-type', label: '单选题', params: { status: 'pending_review', questionType: 'single_choice' } },
+  { filter: 'difficulty', label: defaultDifficultyFilterLabel, params: { status: 'pending_review', difficultyMin: 0.4, difficultyMax: 0.7 } },
+  { filter: 'image', label: '有题图', params: { status: 'pending_review', hasImage: true } },
+  { filter: 'knowledge', label: '测量类实验', params: { status: 'pending_review', knowledgeCandidateId: 'KPHY-C003-081' } },
+  { filter: 'exam-point', label: '电表使用与读数', params: { status: 'pending_review', examPointCandidateId: 'EPHY-C003-032' } },
+] satisfies Array<{ filter: string; label: string; params: QuestionSearchParams }>
+
+export const questionSearchParamsFor = (filter: string): QuestionSearchParams =>
+  questionSearchFilterChips.find((item) => item.filter === filter)?.params ?? { status: 'pending_review' }
+
+export const realExamDifficultyOptions = [
+  { value: 30 / 100, label: '难度偏基础' },
+  { value: 55 / 100, label: '难度中等' },
+  { value: 75 / 100, label: '难度略高' },
 ]
 
 export const guangzhou2015EvidencePreview: RealExamPreviewRow[] = [

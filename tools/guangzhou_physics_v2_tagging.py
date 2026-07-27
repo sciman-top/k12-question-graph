@@ -72,6 +72,24 @@ def scalar(conn: psycopg.Connection[Any], sql: str, params: tuple[Any, ...] = ()
         return int(row[0]) if row else 0
 
 
+def build_connection_kwargs(
+    host: str,
+    port: int,
+    database: str,
+    user: str,
+    password: str,
+) -> dict[str, Any]:
+    kwargs: dict[str, Any] = {
+        "host": host,
+        "port": port,
+        "dbname": database,
+        "user": user,
+    }
+    if password:
+        kwargs["password"] = password
+    return kwargs
+
+
 def workflow_fingerprint(conn: psycopg.Connection[Any]) -> str:
     with conn.cursor() as cursor:
         cursor.execute(
@@ -219,10 +237,10 @@ def main() -> int:
     if args.apply and (not args.backup_manifest or not Path(args.backup_manifest).is_file()):
         raise ValueError("verified_backup_manifest_required_for_apply")
     password = os.environ.get("PGPASSWORD", "")
-    if not password:
-        raise ValueError("PGPASSWORD_required")
 
-    conn = psycopg.connect(host=args.host, port=args.port, dbname=args.database, user=args.user, password=password)
+    conn = psycopg.connect(
+        **build_connection_kwargs(args.host, args.port, args.database, args.user, password)
+    )
     conn.autocommit = False
     try:
         assets = load_active_assets(conn)

@@ -69,7 +69,9 @@ Assert-True ($null -ne $ns204) "missing NS204 guard report: $NoActiveWriteGuardP
 
 Assert-True ([string] $real005C1.status -eq 'pass') 'REAL005C1 report must pass'
 Assert-True ([string] $real005C1.rg010Status -eq 'pass') 'REAL005C1 must expose RG010 pass'
-Assert-True ([bool] $real005C1.activeWrite) 'REAL005C1 must record activeWrite=true'
+Assert-True ([bool] $real005C1.transientActiveWrite) 'REAL005C1 must record transientActiveWrite=true'
+Assert-True (-not [bool] $real005C1.activeWrite) 'REAL005C1 must leave activeWrite=false after rollback'
+Assert-True ([bool] $real005C1.rollbackApplied) 'REAL005C1 must apply rollback before reporting'
 Assert-True ([int] $real005C1.externalAiCalls -eq 0) 'REAL005C1 must keep externalAiCalls=0'
 Assert-True (-not [bool] $real005C1.realStudentDataUsed) 'REAL005C1 must keep realStudentDataUsed=false'
 Assert-True (-not [bool] $real005C1.productionEligible) 'REAL005C1 must stay non-production'
@@ -80,7 +82,9 @@ Assert-True ([int] $real005C1.anomalyPreflight.derivedIssueCounts.solution_missi
 
 Assert-True ([string] $real005C2.status -eq 'pass') 'REAL005C2 report must pass'
 Assert-True ([string] $real005C2.rg011Status -eq 'pass') 'REAL005C2 must expose RG011 pass'
-Assert-True ([bool] $real005C2.activeWrite) 'REAL005C2 must record activeWrite=true'
+Assert-True ([bool] $real005C2.transientActiveWrite) 'REAL005C2 must record transientActiveWrite=true'
+Assert-True (-not [bool] $real005C2.activeWrite) 'REAL005C2 must leave activeWrite=false after rollback'
+Assert-True ([bool] $real005C2.rollbackApplied) 'REAL005C2 must apply rollback before reporting'
 Assert-True ([int] $real005C2.externalAiCalls -eq 0) 'REAL005C2 must keep externalAiCalls=0'
 Assert-True (-not [bool] $real005C2.realStudentDataUsed) 'REAL005C2 must keep realStudentDataUsed=false'
 Assert-True (-not [bool] $real005C2.productionEligible) 'REAL005C2 must stay non-production'
@@ -128,7 +132,9 @@ $report = [ordered]@{
     }
     batchBoundaries = [ordered]@{
         real005c1 = [ordered]@{
-            activeWrite = [bool] $real005C1.activeWrite
+            transientActiveWrite = [bool] $real005C1.transientActiveWrite
+            activeWriteAfterRun = [bool] $real005C1.activeWrite
+            rollbackApplied = [bool] $real005C1.rollbackApplied
             externalAiCalls = [int] $real005C1.externalAiCalls
             realStudentDataUsed = [bool] $real005C1.realStudentDataUsed
             productionEligible = [bool] $real005C1.productionEligible
@@ -136,7 +142,9 @@ $report = [ordered]@{
             anomalySolutionMissing = [int] $real005C1.anomalyPreflight.derivedIssueCounts.solution_missing
         }
         real005c2 = [ordered]@{
-            activeWrite = [bool] $real005C2.activeWrite
+            transientActiveWrite = [bool] $real005C2.transientActiveWrite
+            activeWriteAfterRun = [bool] $real005C2.activeWrite
+            rollbackApplied = [bool] $real005C2.rollbackApplied
             externalAiCalls = [int] $real005C2.externalAiCalls
             realStudentDataUsed = [bool] $real005C2.realStudentDataUsed
             productionEligible = [bool] $real005C2.productionEligible
@@ -154,8 +162,8 @@ $report = [ordered]@{
         liveClosureNotClaimed = [bool] $ns204Acceptance.liveClosureNotClaimed
         real005ClosureStatus = [string] $ns204.e2e.real005ClosureStatus
     }
-    boundary = 'Repo-side RG012 report only: it proves REAL005C1 and REAL005C2 both leave explicit rollbackSql, stay synthetic/privacy-safe, keep external AI disabled, and remain under the no-active-write boundary. REAL005 still stays not_closed until RG013-RG016 also pass.'
-    summaryChinese = 'REAL005C1 与 REAL005C2 的写库批次现在都有 repo-side RG012 证据：rollbackSql 明确、realStudentDataUsed=false、externalAiCalls=0、productionEligible=false，并继续受 NS204 no-active-write 守卫约束。'
+    boundary = 'Repo-side RG012 report only: it proves REAL005C1 and REAL005C2 apply their rollbackSql before reporting, stay synthetic/privacy-safe, keep external AI disabled, and leave activeWrite=false. REAL005 still stays not_closed until RG013-RG016 also pass.'
+    summaryChinese = 'REAL005C1 与 REAL005C2 的临时写入均已在报告前自动回滚：rollbackApplied=true、activeWriteAfterRun=false、realStudentDataUsed=false、externalAiCalls=0、productionEligible=false，并继续受 NS204 no-active-write 守卫约束。'
 }
 
 $jsonFullPath = Resolve-RepoPath $JsonReportPath

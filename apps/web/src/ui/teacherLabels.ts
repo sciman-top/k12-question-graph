@@ -1,6 +1,7 @@
 const teacherText: Record<string, string> = {
   calculation: '计算题',
   active: '当前版本',
+  candidate_filters: '待确认标签',
   draft: '草稿',
   draft_dynamic_asset: '示例约束',
   draft_test: '示例流程',

@@ -47,6 +47,8 @@ REAL010_REPORT = "docs/evidence/20260518-real010-formula-fidelity-smoke-report.j
 REAL011_REPORT = "docs/evidence/20260518-real011-question-edit-smoke-report.json"
 REAL005B_REVIEWED_VISIBILITY_GLOB = "docs/evidence/*-real005b-reviewed-question-visibility.json"
 REAL005B_REVIEWED_SOURCE_SMOKE_GLOB = "docs/evidence/*-real005b-reviewed-question-source-smoke.json"
+REVIEWED_WORKFLOW_KEY = "guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1"
+UNIFIED_REVIEWED_QUESTION_COUNT = 234
 
 
 def read_json(repo_root: Path, relative_path: str) -> dict[str, Any]:
@@ -79,6 +81,18 @@ def find_latest_json_with_status(repo_root: Path, glob_pattern: str, desired_sta
         if str(report.get("status") or "").strip() == desired_status:
             return relative_path
     return None
+
+
+def reviewed_source_smoke_covers_workflow(report: dict[str, Any] | None) -> bool:
+    return bool(
+        report
+        and report.get("status") == "pass"
+        and report.get("workflowKey") == REVIEWED_WORKFLOW_KEY
+        and int(report.get("questionCount") or 0) == UNIFIED_REVIEWED_QUESTION_COUNT
+        and int(report.get("pendingReviewQuestionCount") or 0) == UNIFIED_REVIEWED_QUESTION_COUNT
+        and int(report.get("reviewQueueCount") or 0) == UNIFIED_REVIEWED_QUESTION_COUNT
+        and bool(report.get("sourceReviewPass"))
+    )
 
 
 def require_latest_json(repo_root: Path, glob_pattern: str, label: str) -> str:
@@ -638,12 +652,7 @@ def reviewed_source_detail_coverage_2016_2025(repo_root: Path) -> dict[str, Any]
         and visibility_report.get("status") == "pass"
         and visibility_report.get("hasApiVisible2016_2025ReviewedQuestions") is True
     )
-    reviewed_question_source_smoke_pass = bool(
-        source_smoke_report
-        and source_smoke_report.get("status") == "pass"
-        and int(source_smoke_report.get("questionCount") or 0) == len(question_rows)
-        and bool(source_smoke_report.get("sourceReviewPass"))
-    )
+    reviewed_question_source_smoke_pass = reviewed_source_smoke_covers_workflow(source_smoke_report)
 
     blockers: list[str] = []
     if not per_question_source_detail_pass:

@@ -1953,6 +1953,9 @@ app.MapGet("/questions", async (
     string? questionType,
     string? status,
     Guid? primaryKnowledgeId,
+    int? year,
+    string? knowledgeCandidateId,
+    string? examPointCandidateId,
     double? difficultyMin,
     double? difficultyMax,
     string? sourceType,
@@ -1969,6 +1972,11 @@ app.MapGet("/questions", async (
     CancellationToken cancellationToken) =>
 {
     var query = dbContext.QuestionItems.AsNoTracking().AsQueryable();
+    var usesCandidateFilters =
+        year.HasValue ||
+        !string.IsNullOrWhiteSpace(knowledgeCandidateId) ||
+        !string.IsNullOrWhiteSpace(examPointCandidateId) ||
+        string.Equals(status?.Trim(), QuestionStatuses.PendingReview, StringComparison.OrdinalIgnoreCase);
 
     if (!string.IsNullOrWhiteSpace(subject))
     {
@@ -2004,7 +2012,7 @@ app.MapGet("/questions", async (
     {
         query = query.Where(x => x.PrimaryKnowledgeId == primaryKnowledgeId.Value);
     }
-    else
+    else if (!usesCandidateFilters)
     {
         var normalizedKnowledgeStatus = string.IsNullOrWhiteSpace(knowledgeStatus)
             ? KnowledgeStatuses.Active
@@ -2015,6 +2023,28 @@ app.MapGet("/questions", async (
             .Where(x => x.Status == normalizedKnowledgeStatus && x.Version == normalizedKnowledgeVersion)
             .Select(x => x.Id);
         query = query.Where(x => x.PrimaryKnowledgeId.HasValue && knowledgeIds.Contains(x.PrimaryKnowledgeId.Value));
+    }
+
+    if (year.HasValue)
+    {
+        var yearFilter = QuestionCustomFieldHelpers.BuildContainmentFilter("year", year.Value);
+        query = query.Where(x => EF.Functions.JsonContains(x.CustomFields, yearFilter));
+    }
+
+    if (!string.IsNullOrWhiteSpace(knowledgeCandidateId))
+    {
+        var candidateFilter = QuestionCustomFieldHelpers.BuildArrayContainmentFilter(
+            "knowledgeCandidateIds",
+            knowledgeCandidateId.Trim());
+        query = query.Where(x => EF.Functions.JsonContains(x.CustomFields, candidateFilter));
+    }
+
+    if (!string.IsNullOrWhiteSpace(examPointCandidateId))
+    {
+        var candidateFilter = QuestionCustomFieldHelpers.BuildArrayContainmentFilter(
+            "examPointCandidateIds",
+            examPointCandidateId.Trim());
+        query = query.Where(x => EF.Functions.JsonContains(x.CustomFields, candidateFilter));
     }
 
     if (difficultyMin.HasValue)
@@ -2076,7 +2106,7 @@ app.MapGet("/questions", async (
     {
         var imageQuestionIds = dbContext.QuestionAssets
             .AsNoTracking()
-            .Where(x => x.AssetType == "image")
+            .Where(x => x.AssetType == "image" || x.AssetType == "question_region_image")
             .Select(x => x.QuestionItemId)
             .Distinct();
         query = hasImage.Value
@@ -2142,6 +2172,25 @@ app.MapGet("/questions", async (
         .Where(x => primaryKnowledgeIds.Contains(x.Id))
         .ToDictionaryAsync(x => x.Id, cancellationToken);
 
+    var candidateStableIds = items
+        .SelectMany(item => new[]
+        {
+            QuestionCustomFieldHelpers.TryGetStringField(item.CustomFields, "primaryKnowledgeCandidateId"),
+            QuestionCustomFieldHelpers.TryGetStringField(item.CustomFields, "primaryExamPointCandidateId")
+        })
+        .Where(value => !string.IsNullOrWhiteSpace(value))
+        .Select(value => value!)
+        .Distinct(StringComparer.OrdinalIgnoreCase)
+        .ToArray();
+    var candidateAssets = await dbContext.DomainAssetVersions
+        .AsNoTracking()
+        .Where(x => x.Status == "active" && candidateStableIds.Contains(x.StableId))
+        .OrderByDescending(x => x.Version)
+        .ToListAsync(cancellationToken);
+    var candidateAssetByStableId = candidateAssets
+        .GroupBy(x => x.StableId, StringComparer.OrdinalIgnoreCase)
+        .ToDictionary(x => x.Key, x => x.First(), StringComparer.OrdinalIgnoreCase);
+
     var sourceRows = await (
         from block in dbContext.QuestionBlocks.AsNoTracking()
         where questionIds.Contains(block.QuestionItemId) && block.SourceRegionId != null
@@ -2187,7 +2236,7 @@ app.MapGet("/questions", async (
         .GroupBy(x => x.QuestionItemId)
         .ToDictionary(x => x.Key, _ => true);
     var hasImageByQuestionId = assets
-        .Where(x => x.AssetType == "image")
+        .Where(x => x.AssetType == "image" || x.AssetType == "question_region_image")
         .GroupBy(x => x.QuestionItemId)
         .ToDictionary(x => x.Key, _ => true);
     var sourceByQuestionId = sourceRows
@@ -2212,6 +2261,27 @@ app.MapGet("/questions", async (
         var primaryKnowledge = item.PrimaryKnowledgeId.HasValue && knowledgeById.TryGetValue(item.PrimaryKnowledgeId.Value, out var node)
             ? KnowledgeNodeCardResponse.From(node)
             : null;
+        var primaryKnowledgeCandidateId = QuestionCustomFieldHelpers.TryGetStringField(
+            item.CustomFields,
+            "primaryKnowledgeCandidateId");
+        var primaryExamPointCandidateId = QuestionCustomFieldHelpers.TryGetStringField(
+            item.CustomFields,
+            "primaryExamPointCandidateId");
+        CandidateAssetReferenceResponse? CandidateReference(string? stableId)
+        {
+            return !string.IsNullOrWhiteSpace(stableId) &&
+                   candidateAssetByStableId.TryGetValue(stableId, out var asset)
+                ? new CandidateAssetReferenceResponse(asset.StableId, asset.DisplayName)
+                : null;
+        }
+        var candidateTags = primaryKnowledgeCandidateId is not null || primaryExamPointCandidateId is not null
+            ? new QuestionCandidateTagsResponse(
+                CandidateReference(primaryKnowledgeCandidateId),
+                CandidateReference(primaryExamPointCandidateId),
+                QuestionCustomFieldHelpers.TryGetStringArrayField(item.CustomFields, "abilityDimensions"),
+                QuestionCustomFieldHelpers.TryGetStringField(item.CustomFields, "taggingStatus") ?? "pending_review",
+                QuestionCustomFieldHelpers.TryGetBoolField(item.CustomFields, "productionEligible") ?? false)
+            : null;
 
         return new QuestionCardResponse(
             item.Id,
@@ -2224,6 +2294,7 @@ app.MapGet("/questions", async (
             item.Status,
             TryGetIntCustomField(item.CustomFields, "questionNo"),
             primaryKnowledge,
+            candidateTags,
             GetQuestionPreview(itemBlocks ?? []),
             itemBlocks?.Length ?? 0,
             assetCount,
@@ -2239,10 +2310,12 @@ app.MapGet("/questions", async (
         Total: total,
         Page: pageIndex,
         Limit: pageSize,
-        KnowledgeStatus: primaryKnowledgeId.HasValue
+        KnowledgeStatus: usesCandidateFilters
+            ? "candidate_filters"
+            : primaryKnowledgeId.HasValue
             ? "by_primary_knowledge_id"
             : (string.IsNullOrWhiteSpace(knowledgeStatus) ? KnowledgeStatuses.Active : NormalizeToken(knowledgeStatus, KnowledgeStatuses.Active)),
-        KnowledgeVersion: primaryKnowledgeId.HasValue
+        KnowledgeVersion: usesCandidateFilters || primaryKnowledgeId.HasValue
             ? null
             : (knowledgeVersion ?? 1),
         Items: cards));

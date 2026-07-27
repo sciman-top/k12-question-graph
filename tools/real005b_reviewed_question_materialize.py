@@ -33,7 +33,9 @@ from guangzhou_physics_v2_materialize import (
     locate_answer_pages_from_texts,
     stable_id,
     validate_candidate_coverage,
+    validate_candidate_content,
 )
+from repair_c003_question_stems_from_regions import extract_question_stem_from_region_text
 
 
 def rows(conn: psycopg.Connection[Any], sql: str, params: tuple[Any, ...] = ()) -> list[dict[str, Any]]:
@@ -47,6 +49,24 @@ def scalar(conn: psycopg.Connection[Any], sql: str, params: tuple[Any, ...] = ()
         cursor.execute(sql, params)
         result = cursor.fetchone()
         return int(result[0]) if result else 0
+
+
+def build_connection_kwargs(
+    host: str,
+    port: int,
+    database: str,
+    user: str,
+    password: str,
+) -> dict[str, Any]:
+    kwargs: dict[str, Any] = {
+        "host": host,
+        "port": port,
+        "dbname": database,
+        "user": user,
+    }
+    if password:
+        kwargs["password"] = password
+    return kwargs
 
 
 def text_value(conn: psycopg.Connection[Any], sql: str, params: tuple[Any, ...] = ()) -> str:
@@ -111,6 +131,35 @@ def load_source_documents(conn: psycopg.Connection[Any], file_root: Path) -> dic
     return result
 
 
+def select_2015_candidate_rows(candidate_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    grouped: dict[int, list[dict[str, Any]]] = {}
+    for row in candidate_rows:
+        custom = row.get("custom_fields") or {}
+        number = int(custom["questionNo"])
+        grouped.setdefault(number, []).append(row)
+
+    selected: list[dict[str, Any]] = []
+    for number, alternatives in sorted(grouped.items()):
+        current = [
+            row
+            for row in alternatives
+            if str((row.get("custom_fields") or {}).get("sourceWorkflowKey") or "") == WORKFLOW_KEY
+        ]
+        preferred = current if current else alternatives
+        if len(preferred) != 1:
+            raise ValueError(f"duplicate_2015_candidate:{number}")
+        selected.append(preferred[0])
+    return selected
+
+
+def extract_2015_candidate_stem(blocks: list[dict[str, Any]], question_number: int) -> str:
+    stem = next(
+        (str(block.get("content", {}).get("text") or "") for block in blocks if block.get("type") == "stem"),
+        "",
+    )
+    return extract_question_stem_from_region_text(stem, question_number)
+
+
 def load_2015_candidates(conn: psycopg.Connection[Any]) -> tuple[dict[tuple[int, int], dict[str, Any]], dict[int, uuid.UUID]]:
     result: dict[tuple[int, int], dict[str, Any]] = {}
     ids: dict[int, uuid.UUID] = {}
@@ -129,13 +178,11 @@ def load_2015_candidates(conn: psycopg.Connection[Any]) -> tuple[dict[tuple[int,
         """,
         (WORKFLOW_KEY,),
     )
-    for row in old_rows:
+    for row in select_2015_candidate_rows(old_rows):
         custom = row["custom_fields"] or {}
         number = int(custom["questionNo"])
-        if number in ids:
-            raise ValueError(f"duplicate_2015_candidate:{number}")
         blocks = row["blocks"] or []
-        stem = next((str(block.get("content", {}).get("text") or "") for block in blocks if block.get("type") == "stem"), "")
+        stem = extract_2015_candidate_stem(blocks, number)
         answer = custom.get("answer") or {}
         solution = custom.get("solution") or {}
         result[(2015, number)] = {
@@ -518,8 +565,6 @@ def main() -> int:
     if args.apply and (not args.backup_manifest or not Path(args.backup_manifest).is_file()):
         raise ValueError("verified_backup_manifest_required_for_apply")
     password = os.environ.get("PGPASSWORD", "")
-    if not password:
-        raise ValueError("PGPASSWORD_required")
 
     repo_root = Path(__file__).resolve().parents[1]
     file_root = Path(args.file_root).resolve()
@@ -531,11 +576,7 @@ def main() -> int:
     validate_region_files(file_root, plans)
 
     conn = psycopg.connect(
-        host=args.host,
-        port=args.port,
-        dbname=args.database,
-        user=args.user,
-        password=password,
+        **build_connection_kwargs(args.host, args.port, args.database, args.user, password)
     )
     conn.autocommit = False
     try:
@@ -544,6 +585,7 @@ def main() -> int:
         candidates_2015, existing_2015_ids = load_2015_candidates(conn)
         candidates.update(candidates_2015)
         validate_candidate_coverage(candidates)
+        validate_candidate_content(candidates)
 
         target_ids = [
             question_id(year, number, plans[year].source_file, existing_2015_ids)

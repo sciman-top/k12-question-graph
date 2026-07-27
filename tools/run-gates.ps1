@@ -224,7 +224,9 @@ if ($repoApiProcesses.Count -gt 0) {
 
     foreach ($repoProcess in $repoApiProcesses) {
         $stillRunning = Get-Process -Id $repoProcess.ProcessId -ErrorAction SilentlyContinue
-        Assert-True ($null -eq $stillRunning) "failed to pause repo-local API process $($repoProcess.ProcessId) before full gate"
+        if ($null -ne $stillRunning) {
+            throw "failed to pause repo-local API process $($repoProcess.ProcessId) before full gate"
+        }
     }
 
     $resumeDefaultLocalApi = $true

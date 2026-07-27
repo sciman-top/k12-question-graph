@@ -1,0 +1,202 @@
+{
+  "status": "pass",
+  "taskId": "REAL005B_REVIEWED_QUESTION_VISIBILITY",
+  "checkedAt": "2026-07-28T00:52:08",
+  "activeWrite": false,
+  "externalAiCalls": 0,
+  "realStudentDataUsed": false,
+  "sourceEvidence": [
+    "guangzhou-physics-full-research-package-2016-2025/csv/c003-evidence-index.csv",
+    "guangzhou-physics-full-research-package-2016-2025/quality-review-complete-csv-package/c003-quality-issue-review-evidence.csv",
+    "guangzhou-physics-full-research-package-2016-2025/quality-review-complete-csv-package/c003-quality-issue-registry.csv"
+  ],
+  "questionStatusCounts": [
+    {
+      "status": "draft",
+      "count": 9544
+    },
+    {
+      "status": "pending_review",
+      "count": 423
+    }
+  ],
+  "workflowKey": "guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1",
+  "workflowStatusCounts": [
+    {
+      "workflowKey": "<null>",
+      "status": "draft",
+      "count": 9544
+    },
+    {
+      "workflowKey": "<null>",
+      "status": "pending_review",
+      "count": 165
+    },
+    {
+      "workflowKey": "guangzhou_2015_real_ingest_v1",
+      "status": "pending_review",
+      "count": 18
+    },
+    {
+      "workflowKey": "guangzhou_2015_visual_region_v1",
+      "status": "pending_review",
+      "count": 6
+    },
+    {
+      "workflowKey": "guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1",
+      "status": "pending_review",
+      "count": 234
+    }
+  ],
+  "usableQuestionSample": [
+    {
+      "id": "90850550-0a1b-5dfd-bff3-1e8c530e30e3",
+      "status": "pending_review",
+      "questionNo": 23,
+      "workflowKey": "guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1",
+      "sourceDocumentId": "f5ac57b5-ec55-417f-ad68-4af9de9c97b0"
+    },
+    {
+      "id": "85dc5ea3-44c8-5809-b647-0938e16fa06e",
+      "status": "pending_review",
+      "questionNo": 9,
+      "workflowKey": "guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1",
+      "sourceDocumentId": "19df0c07-8ed2-4fa7-835f-5d17b6385fec"
+    },
+    {
+      "id": "3a1d4ed5-487c-52f9-bd84-82985bc38f06",
+      "status": "pending_review",
+      "questionNo": 7,
+      "workflowKey": "guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1",
+      "sourceDocumentId": "fa3350f2-3eb5-410a-98d7-01f91b6774e5"
+    },
+    {
+      "id": "bde3c780-7b76-56a0-b648-92089a1d1208",
+      "status": "pending_review",
+      "questionNo": 1,
+      "workflowKey": "guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1",
+      "sourceDocumentId": "d57353d8-1c5a-4998-9a91-9e2280d273ca"
+    },
+    {
+      "id": "76b13724-4f88-595e-9e0a-182881032abe",
+      "status": "pending_review",
+      "questionNo": 1,
+      "workflowKey": "guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1",
+      "sourceDocumentId": "4450a83c-be10-4bb2-b133-6ab910f62208"
+    },
+    {
+      "id": "3027013d-1557-5501-974a-e6a110ae0265",
+      "status": "pending_review",
+      "questionNo": 1,
+      "workflowKey": "guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1",
+      "sourceDocumentId": "38228958-7e94-48bd-9f2b-e230ee2e8c39"
+    },
+    {
+      "id": "5bfa6a0e-324c-5737-90bd-beb20bceb8ae",
+      "status": "pending_review",
+      "questionNo": 1,
+      "workflowKey": "guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1",
+      "sourceDocumentId": "c29bdd5f-a7b7-4cc1-bf59-e8ec297af1ea"
+    },
+    {
+      "id": "bd618220-d434-42d2-acae-b27d5a22e10d",
+      "status": "pending_review",
+      "questionNo": 11,
+      "workflowKey": "guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1",
+      "sourceDocumentId": "1b22c6d1-8abb-4f7a-9b29-825c6a12990e"
+    },
+    {
+      "id": "3ae21bf5-65a1-42e4-b467-380ef025bc59",
+      "status": "pending_review",
+      "questionNo": 15,
+      "workflowKey": "guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1",
+      "sourceDocumentId": "1b22c6d1-8abb-4f7a-9b29-825c6a12990e"
+    },
+    {
+      "id": "5e242607-9a18-5014-97f5-0245ac52d04e",
+      "status": "pending_review",
+      "questionNo": 8,
+      "workflowKey": "guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1",
+      "sourceDocumentId": "7b567ac3-1a37-42aa-a8de-b49fbdf564a8"
+    },
+    {
+      "id": "b6d931d0-a0d5-538b-b1da-e99e89db7e6c",
+      "status": "pending_review",
+      "questionNo": 2,
+      "workflowKey": "guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1",
+      "sourceDocumentId": "f5ac57b5-ec55-417f-ad68-4af9de9c97b0"
+    },
+    {
+      "id": "bd9ede06-3888-5277-977a-896592f735d6",
+      "status": "pending_review",
+      "questionNo": 5,
+      "workflowKey": "guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1",
+      "sourceDocumentId": "f5ac57b5-ec55-417f-ad68-4af9de9c97b0"
+    },
+    {
+      "id": "5f7b3d86-28de-5e9f-bc63-1d343b358a06",
+      "status": "pending_review",
+      "questionNo": 16,
+      "workflowKey": "guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1",
+      "sourceDocumentId": "f5ac57b5-ec55-417f-ad68-4af9de9c97b0"
+    },
+    {
+      "id": "fb799455-c384-5ade-9f17-3c5b2ae82bc2",
+      "status": "pending_review",
+      "questionNo": 14,
+      "workflowKey": "guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1",
+      "sourceDocumentId": "2c654b14-bed6-418e-b113-eb1e154058c3"
+    },
+    {
+      "id": "64a36fbc-6e5d-5eae-a71e-66cb36185110",
+      "status": "pending_review",
+      "questionNo": 18,
+      "workflowKey": "guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1",
+      "sourceDocumentId": "c29bdd5f-a7b7-4cc1-bf59-e8ec297af1ea"
+    },
+    {
+      "id": "5bff53ee-a62f-50b0-b616-e485a92cee26",
+      "status": "pending_review",
+      "questionNo": 1,
+      "workflowKey": "guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1",
+      "sourceDocumentId": "fa3350f2-3eb5-410a-98d7-01f91b6774e5"
+    },
+    {
+      "id": "eea2f847-ec88-5b0b-88e9-4cd984d9347b",
+      "status": "pending_review",
+      "questionNo": 13,
+      "workflowKey": "guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1",
+      "sourceDocumentId": "fa3350f2-3eb5-410a-98d7-01f91b6774e5"
+    },
+    {
+      "id": "027acbf1-4692-49b1-9adb-5ae7f06e31a3",
+      "status": "pending_review",
+      "questionNo": 4,
+      "workflowKey": "guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1",
+      "sourceDocumentId": "1b22c6d1-8abb-4f7a-9b29-825c6a12990e"
+    },
+    {
+      "id": "4c24ea39-15b4-5190-8a50-63d93d4da04f",
+      "status": "pending_review",
+      "questionNo": 18,
+      "workflowKey": "guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1",
+      "sourceDocumentId": "19df0c07-8ed2-4fa7-835f-5d17b6385fec"
+    },
+    {
+      "id": "906d748c-ee76-5bb2-b596-4096fcf27d5a",
+      "status": "pending_review",
+      "questionNo": 6,
+      "workflowKey": "guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1",
+      "sourceDocumentId": "2c654b14-bed6-418e-b113-eb1e154058c3"
+    }
+  ],
+  "sourceDocumentCount2016_2025": 297,
+  "sourceRegionCount2016_2025": 342,
+  "guangzhouNon2015QuestionCount": 234,
+  "hasOnly2015UsableQuestions": false,
+  "hasApiVisible2016_2025ReviewedQuestions": true,
+  "visibilityClosureReady": true,
+  "blockers": [],
+  "conclusion": "2015-2025 v2 real-question candidates are materialized into API-visible pending-review question/source state.",
+  "rollback": "No rollback required; this diagnostic is read-only."
+}

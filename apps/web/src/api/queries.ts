@@ -8,6 +8,7 @@ import {
   getSourceDocumentPreview,
   getSourceMaterials,
 } from './client'
+import type { QuestionSearchParams } from './contracts'
 
 export const serverStateQueryKeys = {
   readyHealth: ['server-state', 'ready-health'] as const,
@@ -18,8 +19,8 @@ export const serverStateQueryKeys = {
     ['server-state', 'source-preview', sourceDocumentId] as const,
   cutCandidates: (sourceDocumentId: string) =>
     ['server-state', 'cut-candidates', sourceDocumentId] as const,
-  questionSearch: (page: number, limit: number) =>
-    ['server-state', 'question-search', page, limit] as const,
+  questionSearch: (params: QuestionSearchParams) =>
+    ['server-state', 'question-search', params] as const,
 } as const
 
 export function useReadyHealthQuery() {
@@ -79,10 +80,11 @@ export function useCutCandidatesQuery(sourceDocumentId: string, enabled = true) 
   })
 }
 
-export function useQuestionSearchQuery(page = 1, limit = 10) {
+export function useQuestionSearchQuery(params: QuestionSearchParams = {}) {
+  const resolvedParams = { ...params, page: params.page ?? 1, limit: params.limit ?? 10 }
   return useQuery({
-    queryKey: serverStateQueryKeys.questionSearch(page, limit),
-    queryFn: () => searchQuestions({ page, limit, sortBy: 'question_no', order: 'asc' }),
+    queryKey: serverStateQueryKeys.questionSearch(resolvedParams),
+    queryFn: () => searchQuestions({ ...resolvedParams, sortBy: 'question_no', order: 'asc' }),
     retry: false,
     staleTime: 15_000,
   })

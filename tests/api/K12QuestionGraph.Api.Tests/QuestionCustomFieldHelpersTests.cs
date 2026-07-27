@@ -14,6 +14,21 @@ public class QuestionCustomFieldHelpersTests
     }
 
     [Fact]
+    public void TryGetStringAndArrayFields_ReadCandidateMetadataWithoutPromotingIt()
+    {
+        const string json = """{"primaryKnowledgeCandidateId":"KPHY-C003-025","abilityDimensions":["信息提取","科学推理"]}""";
+
+        Assert.Equal(
+            "KPHY-C003-025",
+            QuestionCustomFieldHelpers.TryGetStringField(json, "primaryKnowledgeCandidateId"));
+        Assert.Equal(
+            ["信息提取", "科学推理"],
+            QuestionCustomFieldHelpers.TryGetStringArrayField(json, "abilityDimensions"));
+        Assert.Null(QuestionCustomFieldHelpers.TryGetStringField("not-json", "primaryKnowledgeCandidateId"));
+        Assert.Empty(QuestionCustomFieldHelpers.TryGetStringArrayField("not-json", "abilityDimensions"));
+    }
+
+    [Fact]
     public void Merge_PreservesExistingFields_AndOverwritesAnswerSolution()
     {
         using var answerDoc = JsonDocument.Parse("""{"value":"B"}""");
@@ -52,6 +67,21 @@ public class QuestionCustomFieldHelpersTests
     {
         Assert.False(QuestionCustomFieldHelpers.HasMeaningfulValue("""{"answer":null}""", "answer"));
         Assert.False(QuestionCustomFieldHelpers.HasMeaningfulValue("""{"answer":{"text":""}}""", "answer"));
+        Assert.False(QuestionCustomFieldHelpers.HasMeaningfulValue("""{"answer":{"value":"","reviewStatus":"pending_review"}}""", "answer"));
+        Assert.False(QuestionCustomFieldHelpers.HasMeaningfulValue("""{"solution":{"text":"","source":"answer_pdf","reviewStatus":"pending_review"}}""", "solution"));
         Assert.True(QuestionCustomFieldHelpers.HasMeaningfulValue("""{"answer":{"text":"有效"}}""", "answer"));
+        Assert.True(QuestionCustomFieldHelpers.HasMeaningfulValue("""{"solution":{"text":"有效解析","reviewStatus":"pending_review"}}""", "solution"));
+    }
+
+    [Fact]
+    public void BuildContainmentFilter_UsesNumberForYearAndArrayForCandidateIds()
+    {
+        Assert.Equal("""{"year":2025}""", QuestionCustomFieldHelpers.BuildContainmentFilter("year", 2025));
+        Assert.Equal(
+            """{"knowledgeCandidateIds":["KPHY-C003-059"]}""",
+            QuestionCustomFieldHelpers.BuildArrayContainmentFilter("knowledgeCandidateIds", "KPHY-C003-059"));
+        Assert.Equal(
+            """{"examPointCandidateIds":["EPHY-C003-032"]}""",
+            QuestionCustomFieldHelpers.BuildArrayContainmentFilter("examPointCandidateIds", "EPHY-C003-032"));
     }
 }

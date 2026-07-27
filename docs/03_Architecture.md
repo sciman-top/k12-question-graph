@@ -149,6 +149,7 @@ D:\KQG_Backups\
 | `apps/web/src/ui/ScoreWorkbenchPanelContent.tsx` | 成绩导入、字段映射、小题映射、报告导出展示 | 只消费 typed client/query 已归一化的数据 |
 | `apps/web/src/ui/AnalysisPanelContent.tsx` | 讲评摘要展示 | 不承载管理员治理面板 |
 | `apps/web/src/ui/PaperWorkbenchPanels.tsx` | 题库检索、自然语言组卷、换题、导出四段纸面工作台 | 只组织视图状态和按钮回调，业务约束仍由 API/service 决定 |
+| `apps/web/src/ui/RealExamReviewWorkbench.tsx` | 广州真卷逐题复核、修订、来源重裁与撤销界面 | 只组织复核视图和回调，队列状态与 API 编排仍由 `App.tsx` 持有 |
 | `apps/api/Program.cs` | host、配置、DI、middleware、route registration、health/readiness | 继续保持 Windows Service host 和 workflow service 注入，不回灌页面级业务规则 |
 | `apps/api/Application/Workflows/*.cs` | 导入、组卷、成绩应用服务编排 | 仍是业务编排归宿；遗留 direct-DB endpoint 债务继续由 `NS104/NS1301` guard 跟踪 |
 

@@ -7,7 +7,7 @@ import {
   SwapOutlined,
   UndoOutlined,
 } from '@ant-design/icons'
-import type { QuestionSearchContract } from '../api/contracts'
+import type { QuestionCardContract, QuestionSearchContract } from '../api/contracts'
 import {
   initialPaperDraft,
   initialPaperUnderstanding,
@@ -39,7 +39,7 @@ type PaperWorkbenchPanelsProps = {
   onConfirmPaperBlueprint: () => void
   onRefreshQuestionSearch: () => void
   onApplyQuestionFilter: (filter: string, label: string) => void
-  onSelectQuestionCard: (cardId: string, preview: string) => void
+  onSelectQuestionCard: (card: QuestionCardContract) => void
   onReplacePaperQuestion: () => void
   onUndoPaperReplacement: () => void
   onExportPaper: (format: 'docx' | 'pdf') => void
@@ -220,7 +220,7 @@ export function PaperWorkbenchPanels({
               data-card="question-card"
               key={card.id}
               type="button"
-              onClick={() => onSelectQuestionCard(card.id, card.preview)}
+              onClick={() => onSelectQuestionCard(card)}
             >
               <span>
                 <strong>
@@ -228,7 +228,10 @@ export function PaperWorkbenchPanels({
                   {card.preview || '未命名题目'}
                 </strong>
                 <small>
-                  {card.primaryKnowledge?.title ?? '待补知识点'} ·{' '}
+                  {card.primaryKnowledge?.title ??
+                    (card.candidateTags?.primaryKnowledge?.label
+                      ? `${card.candidateTags.primaryKnowledge.label}（候选）`
+                      : '待补知识点')} ·{' '}
                   {card.sources.titles[0] ?? '来源待补'}
                 </small>
               </span>
@@ -240,8 +243,15 @@ export function PaperWorkbenchPanels({
                 <Tag>
                   {card.primaryKnowledge
                     ? `v${card.primaryKnowledge.version}`
-                    : '待定版本'}
+                    : card.candidateTags?.primaryKnowledge
+                      ? '候选标签'
+                      : '待定版本'}
                 </Tag>
+                {card.candidateTags?.primaryExamPoint ? (
+                  <Tag color="blue">
+                    考点候选：{card.candidateTags.primaryExamPoint.label}
+                  </Tag>
+                ) : null}
                 <Tag>
                   {card.sources.types[0]
                     ? teacherLabelFor(card.sources.types[0])

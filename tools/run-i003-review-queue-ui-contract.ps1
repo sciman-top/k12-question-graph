@@ -2,6 +2,12 @@ $ErrorActionPreference = 'Stop'
 
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 $app = Get-Content -LiteralPath (Join-Path $repoRoot 'apps\web\src\App.tsx') -Raw
+$realExamReviewPath = Join-Path $repoRoot 'apps\web\src\ui\RealExamReviewWorkbench.tsx'
+if (-not (Test-Path -LiteralPath $realExamReviewPath)) {
+    throw 'missing I003 extracted real exam review workbench'
+}
+$realExamReview = Get-Content -LiteralPath $realExamReviewPath -Raw
+$uiSource = $app + "`n" + $realExamReview
 $css = Get-Content -LiteralPath (Join-Path $repoRoot 'apps\web\src\App.css') -Raw
 
 foreach ($pattern in @(
@@ -31,13 +37,13 @@ foreach ($pattern in @(
     'getReviewQueueItems',
     'resolveReviewQueueItem'
 )) {
-    if (-not $app.Contains($pattern)) {
+    if (-not $uiSource.Contains($pattern)) {
         throw "missing I003 review queue marker: $pattern"
     }
 }
 
 foreach ($label in @('待确认','已选择','预计处理','只看异常','批量确认','2015-2025 广州真卷','逐题复核','查询真卷队列','载入当前题','确认当前题','退回当前题','审核说明','题干预览','答案','标签','来源','修订题干','修订答案','修订标签')) {
-    if (-not $app.Contains($label)) {
+    if (-not $uiSource.Contains($label)) {
         throw "missing I003 teacher-facing label: $label"
     }
 }

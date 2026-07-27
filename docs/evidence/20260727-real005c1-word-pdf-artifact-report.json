@@ -1,0 +1,120 @@
+{
+  "status": "pass",
+  "taskId": "S010B",
+  "checkedAt": "2026-07-27T15:17:45.373075+00:00",
+  "paperBasketId": "761b0e8d-a9a2-4ade-8ba5-42d6f9fd1ece",
+  "preflightStatus": "ready_for_review",
+  "productionEligible": false,
+  "outputRoot": "tmp\\real005c1-paper-artifacts",
+  "manifestPath": "tmp\\real005c1-paper-artifacts\\kqg-s010b-paper-artifacts.manifest.json",
+  "manifestSha256": "740d672e5042ab981cec0a0685025468624bb478f4472fb5ee1860ba83a8f4ce",
+  "variants": {
+    "student": {
+      "label": "学生版",
+      "docxPath": "tmp\\real005c1-paper-artifacts\\kqg-s010b-student-paper.docx",
+      "docxSha256": "f5f147bc4cd494efe3c8a1a24b0f57cbe360d902f0e535019089a848d6f7c3b0",
+      "pdfPath": "tmp\\real005c1-paper-artifacts\\kqg-s010b-student-paper.pdf",
+      "pdfSha256": "4014c821131a4e176b6bcb73970797933e3ab511a31152c1ea5846fbb5ec6f5b"
+    },
+    "teacher": {
+      "label": "教师版",
+      "docxPath": "tmp\\real005c1-paper-artifacts\\kqg-s010b-teacher-paper.docx",
+      "docxSha256": "9546544a8839c9da260070ebf0d53ca49b077656d56d2202008e9b6b2a2b2987",
+      "pdfPath": "tmp\\real005c1-paper-artifacts\\kqg-s010b-teacher-paper.pdf",
+      "pdfSha256": "faa373834f1f8ee7cd98ad11265cb7dbac58613b435884879063bf108c95ca2f"
+    },
+    "answer": {
+      "label": "答案版",
+      "docxPath": "tmp\\real005c1-paper-artifacts\\kqg-s010b-answer-paper.docx",
+      "docxSha256": "ff1b8bf36cd14e978fdced4b791c3497f27b72e60305a5ad5067c7ab2b8672f6",
+      "pdfPath": "tmp\\real005c1-paper-artifacts\\kqg-s010b-answer-paper.pdf",
+      "pdfSha256": "fdedfb1adde380b0e5a404409ce36e791b088d1f7c8c558fb9428445815525bc"
+    }
+  },
+  "checks": {
+    "student": {
+      "docx": {
+        "hasDocumentXml": true,
+        "hasFormulaText": false,
+        "hasFigureMedia": true,
+        "hasTable": false,
+        "hasSourceAuthorization": false,
+        "hasKnowledgeVersionReference": false,
+        "hasAnswer": false,
+        "hasSolution": false,
+        "studentHidesAnswer": true,
+        "mediaCount": 10,
+        "allMediaSubstantive": true
+      },
+      "pdf": {
+        "hasPdfHeader": true,
+        "hasEof": true,
+        "hasTaskMarker": true,
+        "pageCountPositive": true,
+        "fileSizeSubstantive": true,
+        "textLengthSubstantive": true,
+        "pageCount": 2,
+        "fileSizeBytes": 521789,
+        "extractedTextLength": 324
+      }
+    },
+    "teacher": {
+      "docx": {
+        "hasDocumentXml": true,
+        "hasFormulaText": false,
+        "hasFigureMedia": true,
+        "hasTable": false,
+        "hasSourceAuthorization": false,
+        "hasKnowledgeVersionReference": false,
+        "hasAnswer": true,
+        "hasSolution": true,
+        "studentHidesAnswer": true,
+        "mediaCount": 10,
+        "allMediaSubstantive": true
+      },
+      "pdf": {
+        "hasPdfHeader": true,
+        "hasEof": true,
+        "hasTaskMarker": true,
+        "pageCountPositive": true,
+        "fileSizeSubstantive": true,
+        "textLengthSubstantive": true,
+        "pageCount": 3,
+        "fileSizeBytes": 595800,
+        "extractedTextLength": 521
+      }
+    },
+    "answer": {
+      "docx": {
+        "hasDocumentXml": true,
+        "hasFormulaText": false,
+        "hasFigureMedia": true,
+        "hasTable": true,
+        "hasSourceAuthorization": true,
+        "hasKnowledgeVersionReference": false,
+        "hasAnswer": true,
+        "hasSolution": true,
+        "studentHidesAnswer": true,
+        "mediaCount": 0,
+        "allMediaSubstantive": true
+      },
+      "pdf": {
+        "hasPdfHeader": true,
+        "hasEof": true,
+        "hasTaskMarker": true,
+        "pageCountPositive": true,
+        "fileSizeSubstantive": true,
+        "textLengthSubstantive": true,
+        "pageCount": 1,
+        "fileSizeBytes": 185233,
+        "extractedTextLength": 450
+      }
+    }
+  },
+  "requirements": {
+    "requiresFormula": false,
+    "requiresTable": false
+  },
+  "conclusion": "student teacher and answer Word/PDF artifacts were generated from a ready_for_review paper basket and verified by manifest hashes",
+  "rollback": "delete tmp/s010b-paper-artifacts and revert the S010B smoke/gate/status changes; no database migration or active switch is involved"
+}

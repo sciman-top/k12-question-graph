@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS104",
-  "checkedAt": "2026-07-26T00:44:23",
+  "checkedAt": "2026-07-28T01:39:08",
   "mode": "static_architecture_guard_plus_build",
   "productionEligible": false,
   "build": {
@@ -16,238 +16,238 @@
   ],
   "serviceBackedEndpoints": [
     {
+      "missingMarkers": [],
+      "saveChangesInEndpoint": false,
+      "serviceInjected": true,
+      "route": "/source-documents/{id:guid}/cut-candidates/generate",
+      "pass": true,
+      "directDbContext": false,
+      "requiredService": "ICutCandidateGenerationService",
       "requiredMarkers": [
         "GenerateAsync(",
         "CutCandidateGenerationResponse"
       ],
-      "requiredService": "ICutCandidateGenerationService",
-      "missingMarkers": [],
-      "route": "/source-documents/{id:guid}/cut-candidates/generate",
-      "saveChangesInEndpoint": false,
-      "serviceInjected": true,
-      "directDbContext": false,
-      "pass": true,
       "line": 1324
     },
     {
+      "missingMarkers": [],
+      "saveChangesInEndpoint": false,
+      "serviceInjected": true,
+      "route": "/score-imports",
+      "pass": true,
+      "directDbContext": false,
+      "requiredService": "IScoreAnalysisWorkflowService",
       "requiredMarkers": [
         "ImportScoresAsync(",
         "ScoreImportServiceRequest"
       ],
-      "requiredService": "IScoreAnalysisWorkflowService",
-      "missingMarkers": [],
-      "route": "/score-imports",
-      "saveChangesInEndpoint": false,
-      "serviceInjected": true,
-      "directDbContext": false,
-      "pass": true,
-      "line": 2808
+      "line": 2935
     },
     {
+      "missingMarkers": [],
+      "saveChangesInEndpoint": false,
+      "serviceInjected": true,
+      "route": "/assessments/{assessmentId:guid}/item-score-mappings/preview",
+      "pass": true,
+      "directDbContext": false,
+      "requiredService": "IScoreAnalysisWorkflowService",
       "requiredMarkers": [
         "PreviewItemScoreMappingsAsync(",
         "ItemScoreMappingPreviewServiceRequest"
       ],
-      "requiredService": "IScoreAnalysisWorkflowService",
-      "missingMarkers": [],
-      "route": "/assessments/{assessmentId:guid}/item-score-mappings/preview",
-      "saveChangesInEndpoint": false,
-      "serviceInjected": true,
-      "directDbContext": false,
-      "pass": true,
-      "line": 2848
+      "line": 2975
     },
     {
+      "missingMarkers": [],
+      "saveChangesInEndpoint": false,
+      "serviceInjected": true,
+      "route": "/assessments/{assessmentId:guid}/commentary-report/export",
+      "pass": true,
+      "directDbContext": false,
+      "requiredService": "IScoreAnalysisWorkflowService",
       "requiredMarkers": [
         "ExportCommentaryReportAsync(",
         "CommentaryReportExportServiceRequest"
       ],
-      "requiredService": "IScoreAnalysisWorkflowService",
-      "missingMarkers": [],
-      "route": "/assessments/{assessmentId:guid}/commentary-report/export",
-      "saveChangesInEndpoint": false,
-      "serviceInjected": true,
-      "directDbContext": false,
-      "pass": true,
-      "line": 2870
+      "line": 2997
     },
     {
+      "missingMarkers": [],
+      "saveChangesInEndpoint": false,
+      "serviceInjected": true,
+      "route": "/paper-baskets/{id:guid}/export-preflight",
+      "pass": true,
+      "directDbContext": false,
+      "requiredService": "IPaperWorkflowService",
       "requiredMarkers": [
         "RunExportPreflightAsync(",
         "PaperExportPreflightResponse"
       ],
-      "requiredService": "IPaperWorkflowService",
-      "missingMarkers": [],
-      "route": "/paper-baskets/{id:guid}/export-preflight",
-      "saveChangesInEndpoint": false,
-      "serviceInjected": true,
-      "directDbContext": false,
-      "pass": true,
-      "line": 2897
+      "line": 3024
     },
     {
+      "missingMarkers": [],
+      "saveChangesInEndpoint": false,
+      "serviceInjected": true,
+      "route": "/paper-requests/parse",
+      "pass": true,
+      "directDbContext": false,
+      "requiredService": "IPaperWorkflowService",
       "requiredMarkers": [
         "ParsePaperRequest(",
         "PaperRequestParseResponse"
       ],
-      "requiredService": "IPaperWorkflowService",
-      "missingMarkers": [],
-      "route": "/paper-requests/parse",
-      "saveChangesInEndpoint": false,
-      "serviceInjected": true,
-      "directDbContext": false,
-      "pass": true,
-      "line": 2916
+      "line": 3043
     },
     {
+      "missingMarkers": [],
+      "saveChangesInEndpoint": false,
+      "serviceInjected": true,
+      "route": "/paper-blueprints",
+      "pass": true,
+      "directDbContext": false,
+      "requiredService": "IPaperWorkflowService",
       "requiredMarkers": [
         "CreateBlueprintReviewAsync(",
         "PaperBlueprintReviewResponse"
       ],
-      "requiredService": "IPaperWorkflowService",
-      "missingMarkers": [],
-      "route": "/paper-blueprints",
-      "saveChangesInEndpoint": false,
-      "serviceInjected": true,
-      "directDbContext": false,
-      "pass": true,
-      "line": 2945
+      "line": 3072
     },
     {
+      "missingMarkers": [],
+      "saveChangesInEndpoint": false,
+      "serviceInjected": true,
+      "route": "/paper-blueprints/{id:guid}/confirm",
+      "pass": true,
+      "directDbContext": false,
+      "requiredService": "IPaperWorkflowService",
       "requiredMarkers": [
         "ConfirmBlueprintReviewAsync(",
         "PaperBlueprintConfirmResponse"
       ],
-      "requiredService": "IPaperWorkflowService",
-      "missingMarkers": [],
-      "route": "/paper-blueprints/{id:guid}/confirm",
-      "saveChangesInEndpoint": false,
-      "serviceInjected": true,
-      "directDbContext": false,
-      "pass": true,
-      "line": 2964
+      "line": 3091
     },
     {
+      "missingMarkers": [],
+      "saveChangesInEndpoint": false,
+      "serviceInjected": true,
+      "route": "/paper-requests/replace-question",
+      "pass": true,
+      "directDbContext": false,
+      "requiredService": "IPaperWorkflowService",
       "requiredMarkers": [
         "ReplaceQuestion(",
         "PaperQuestionReplacementResponse"
       ],
-      "requiredService": "IPaperWorkflowService",
-      "missingMarkers": [],
-      "route": "/paper-requests/replace-question",
-      "saveChangesInEndpoint": false,
-      "serviceInjected": true,
-      "directDbContext": false,
-      "pass": true,
-      "line": 3000
+      "line": 3127
     },
     {
+      "missingMarkers": [],
+      "saveChangesInEndpoint": false,
+      "serviceInjected": true,
+      "route": "/knowledge-version-explanations/resolve",
+      "pass": true,
+      "directDbContext": false,
+      "requiredService": "IPaperWorkflowService",
       "requiredMarkers": [
         "ResolveKnowledgeVersionExplanation(",
         "KnowledgeVersionExplanationResponse"
       ],
-      "requiredService": "IPaperWorkflowService",
-      "missingMarkers": [],
-      "route": "/knowledge-version-explanations/resolve",
-      "saveChangesInEndpoint": false,
-      "serviceInjected": true,
-      "directDbContext": false,
-      "pass": true,
-      "line": 3062
+      "line": 3189
     }
   ],
   "serviceBackedEndpointCount": 10,
   "legacyDirectDbEndpointDebt": [
     {
-      "directDbContext": true,
+      "owner": "NS301/NS401 import source service extraction",
       "route": "/imports",
-      "owner": "NS301/NS401 import source service extraction",
-      "saveChangesInEndpoint": true,
+      "line": 847,
       "allowedInNs104": true,
-      "line": 847
+      "saveChangesInEndpoint": true,
+      "directDbContext": true
     },
     {
-      "directDbContext": true,
+      "owner": "NS301/NS401 import source service extraction",
       "route": "/imports/{id:guid}",
-      "owner": "NS301/NS401 import source service extraction",
-      "saveChangesInEndpoint": false,
+      "line": 897,
       "allowedInNs104": true,
-      "line": 897
+      "saveChangesInEndpoint": false,
+      "directDbContext": true
     },
     {
-      "directDbContext": true,
+      "owner": "NS402/NS403 review API/workbench",
       "route": "/review-queue",
-      "owner": "NS402/NS403 review API/workbench",
-      "saveChangesInEndpoint": false,
+      "line": 1371,
       "allowedInNs104": true,
-      "line": 1371
+      "saveChangesInEndpoint": false,
+      "directDbContext": true
     },
     {
-      "directDbContext": true,
+      "owner": "NS402/NS403 review API/workbench",
       "route": "/review-queue/batch-resolve",
-      "owner": "NS402/NS403 review API/workbench",
-      "saveChangesInEndpoint": true,
+      "line": 1418,
       "allowedInNs104": true,
-      "line": 1411
+      "saveChangesInEndpoint": true,
+      "directDbContext": true
     },
     {
-      "directDbContext": true,
+      "owner": "NS402/NS403 review API/workbench",
       "route": "/review-queue/{id:guid}/resolve",
-      "owner": "NS402/NS403 review API/workbench",
-      "saveChangesInEndpoint": true,
+      "line": 1476,
       "allowedInNs104": true,
-      "line": 1469
+      "saveChangesInEndpoint": true,
+      "directDbContext": true
     },
     {
-      "directDbContext": true,
+      "owner": "NS402/NS403 review API/workbench",
       "route": "/review-workbench/actions",
-      "owner": "NS402/NS403 review API/workbench",
-      "saveChangesInEndpoint": true,
+      "line": 1561,
       "allowedInNs104": true,
-      "line": 1512
+      "saveChangesInEndpoint": true,
+      "directDbContext": true
     },
     {
-      "directDbContext": true,
+      "owner": "NS603 paper basket legacy compatibility",
       "route": "/paper-baskets",
-      "owner": "NS603 paper basket legacy compatibility",
-      "saveChangesInEndpoint": true,
+      "line": 2822,
       "allowedInNs104": true,
-      "line": 2695
+      "saveChangesInEndpoint": true,
+      "directDbContext": true
     },
     {
-      "directDbContext": true,
-      "route": "/paper-baskets/{id:guid}",
       "owner": "NS603 paper basket legacy compatibility",
-      "saveChangesInEndpoint": false,
+      "route": "/paper-baskets/{id:guid}",
+      "line": 2914,
       "allowedInNs104": true,
-      "line": 2787
+      "saveChangesInEndpoint": false,
+      "directDbContext": true
     }
   ],
   "legacyDebtCount": 8,
   "serviceSummaries": [
     {
-      "dbContextOwnedHere": true,
       "asyncMethodCount": 4,
-      "path": "apps/api/Application/Workflows/ImportReviewWorkflowService.cs",
-      "saveChangesCount": 0
+      "saveChangesCount": 0,
+      "dbContextOwnedHere": true,
+      "path": "apps/api/Application/Workflows/ImportReviewWorkflowService.cs"
     },
     {
-      "dbContextOwnedHere": true,
       "asyncMethodCount": 2,
-      "path": "apps/api/Application/Workflows/CutCandidateGenerationService.cs",
-      "saveChangesCount": 1
+      "saveChangesCount": 1,
+      "dbContextOwnedHere": true,
+      "path": "apps/api/Application/Workflows/CutCandidateGenerationService.cs"
     },
     {
-      "dbContextOwnedHere": true,
       "asyncMethodCount": 8,
-      "path": "apps/api/Application/Workflows/PaperWorkflowService.cs",
-      "saveChangesCount": 3
+      "saveChangesCount": 3,
+      "dbContextOwnedHere": true,
+      "path": "apps/api/Application/Workflows/PaperWorkflowService.cs"
     },
     {
-      "dbContextOwnedHere": true,
       "asyncMethodCount": 10,
-      "path": "apps/api/Application/Workflows/ScoreAnalysisWorkflowService.cs",
-      "saveChangesCount": 1
+      "saveChangesCount": 1,
+      "dbContextOwnedHere": true,
+      "path": "apps/api/Application/Workflows/ScoreAnalysisWorkflowService.cs"
     }
   ],
   "acceptance": {

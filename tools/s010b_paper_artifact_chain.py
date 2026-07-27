@@ -4,6 +4,9 @@ import argparse
 import hashlib
 import html
 import json
+import shutil
+import struct
+import subprocess
 import zipfile
 from collections import OrderedDict
 from datetime import datetime, timezone
@@ -14,12 +17,6 @@ from typing import Any
 DEFAULT_INPUT = Path("tmp/s010b-paper-artifacts/s010b-paper-input.json")
 DEFAULT_OUTPUT_ROOT = Path("tmp/s010b-paper-artifacts")
 DEFAULT_REPORT = Path("docs/evidence/20260508-s010b-word-pdf-artifact-chain-report.json")
-PNG_1X1 = bytes.fromhex(
-    "89504e470d0a1a0000000d4948445200000001000000010806000000"
-    "1f15c4890000000a49444154789c63000100000500010d0a2db40000000049454e44ae426082"
-)
-
-
 VARIANTS = OrderedDict(
     [
         ("student", "学生版"),
@@ -76,21 +73,34 @@ def table_xml(rows: list[list[Any]]) -> str:
     return "<w:tbl>" + "".join(rendered_rows) + "</w:tbl>"
 
 
-def image_xml(index: int) -> str:
+def png_dimensions(path: Path) -> tuple[int, int]:
+    payload = path.read_bytes()[:24]
+    if len(payload) < 24 or payload[:8] != b"\x89PNG\r\n\x1a\n":
+        raise ValueError(f"unsupported or invalid question image: {path}")
+    return struct.unpack(">II", payload[16:24])
+
+
+def image_xml(index: int, path: Path) -> str:
     rid = f"rIdFigure{index}"
+    width, height = png_dimensions(path)
+    max_width = 5_300_000
+    max_height = 6_500_000
+    scale = min(max_width / width, max_height / height)
+    cx = max(914_400, int(width * scale))
+    cy = max(457_200, int(height * scale))
     return f"""
     <w:p>
       <w:r>
         <w:drawing>
           <wp:inline>
-            <wp:extent cx="914400" cy="457200"/>
+            <wp:extent cx="{cx}" cy="{cy}"/>
             <wp:docPr id="{index}" name="题图{index}"/>
             <a:graphic>
               <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
                 <pic:pic>
                   <pic:nvPicPr><pic:cNvPr id="{index}" name="figure{index}.png"/><pic:cNvPicPr/></pic:nvPicPr>
                   <pic:blipFill><a:blip r:embed="{rid}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>
-                  <pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="914400" cy="457200"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr>
+                  <pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="{cx}" cy="{cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr>
                 </pic:pic>
               </a:graphicData>
             </a:graphic>
@@ -101,24 +111,27 @@ def image_xml(index: int) -> str:
 """
 
 
-def question_docx_body(data: dict[str, Any], variant: str) -> tuple[str, int]:
+def question_docx_body(data: dict[str, Any], variant: str) -> tuple[str, list[Path]]:
     lines: list[str] = [
-        paragraph(f"校本题谱 S010B {VARIANTS[variant]}"),
-        paragraph("draft/test artifact chain; productionEligible=false"),
-        paragraph(f"题篮：{data['paperBasketId']}"),
+        paragraph(f"{data.get('basketTitle', '校本题谱试卷草稿')}（{VARIANTS[variant]}）"),
+        paragraph("校本题谱内部草稿，非正式发布"),
     ]
-    image_count = 0
+    image_paths: list[Path] = []
     questions = data.get("questions", [])
     for index, question in enumerate(questions, start=1):
         if variant == "answer":
-            lines.append(paragraph(f"{index}. 答案：{text(question.get('answer'))}"))
+            lines.append(paragraph(f"{index}. {question.get('title', '题目')}"))
+            lines.append(paragraph(f"答案：{text(question.get('answer'))}"))
             lines.append(paragraph(f"解析：{text(question.get('solution'))}"))
-            lines.append(paragraph(f"版本引用：{question.get('knowledgeVersionStatus')} v{question.get('knowledgeVersion')}"))
             continue
 
         lines.append(paragraph(f"{index}. {question.get('title', '题目')}（{question.get('score')} 分）"))
+        seen_text: set[str] = set()
+        has_image = bool(question.get("hasImage"))
         for block in question.get("blocks", []):
             block_type = text(block.get("blockType")).lower()
+            if block_type == "answer":
+                continue
             if block_type == "formula":
                 lines.append(paragraph(f"公式：{content_value(block, 'latex', 'formula')}"))
             elif block_type == "table":
@@ -126,24 +139,32 @@ def question_docx_body(data: dict[str, Any], variant: str) -> tuple[str, int]:
                 rows = content.get("rows") if isinstance(content, dict) else None
                 lines.append(table_xml(rows if isinstance(rows, list) else [["字段", "值"], ["table", text(content)]]))
             else:
-                lines.append(paragraph(content_value(block, "text", "value")))
+                block_text = content_value(block, "text", "value").strip()
+                normalized = " ".join(block_text.split())
+                if not has_image and normalized and normalized not in seen_text:
+                    seen_text.add(normalized)
+                    lines.append(paragraph(block_text))
 
         if question.get("hasImage"):
-            image_count += 1
-            lines.append(image_xml(image_count))
+            question_images = [Path(value) for value in question.get("imagePaths", []) if value]
+            if not question_images:
+                raise ValueError(f"question {index} declares an image but provides no imagePaths")
+            image_path = question_images[0]
+            if not image_path.is_file() or image_path.stat().st_size <= 1000:
+                raise ValueError(f"question {index} image is missing or empty: {image_path}")
+            image_paths.append(image_path)
+            lines.append(image_xml(len(image_paths), image_path))
 
-        lines.append(paragraph(f"来源授权：{question.get('sourceAuthorizationStatus')}"))
-        lines.append(paragraph(f"版本引用：{question.get('knowledgeVersionStatus')} v{question.get('knowledgeVersion')}"))
         if variant == "teacher":
             lines.append(paragraph(f"答案：{text(question.get('answer'))}"))
             lines.append(paragraph(f"解析：{text(question.get('solution'))}"))
 
     lines.append('<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440"/></w:sectPr>')
-    return "\n".join(lines), image_count
+    return "\n".join(lines), image_paths
 
 
 def create_docx(path: Path, data: dict[str, Any], variant: str) -> None:
-    body, image_count = question_docx_body(data, variant)
+    body, image_paths = question_docx_body(data, variant)
     document_xml = f"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
   xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
@@ -157,7 +178,7 @@ def create_docx(path: Path, data: dict[str, Any], variant: str) -> None:
 """
     relationships = [
         f'<Relationship Id="rIdFigure{i}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/figure{i}.png"/>'
-        for i in range(1, image_count + 1)
+        for i in range(1, len(image_paths) + 1)
     ]
 
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -181,33 +202,44 @@ def create_docx(path: Path, data: dict[str, Any], variant: str) -> None:
 </Relationships>
 """)
         docx.writestr("word/document.xml", document_xml)
-        for i in range(1, image_count + 1):
-            docx.writestr(f"word/media/figure{i}.png", PNG_1X1)
+        for i, image_path in enumerate(image_paths, start=1):
+            docx.writestr(f"word/media/figure{i}.png", image_path.read_bytes())
 
 
-def create_pdf(path: Path, data: dict[str, Any], variant: str) -> None:
+def create_pdf(path: Path, docx_path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    label = {"student": "student", "teacher": "teacher", "answer": "answer"}[variant]
-    content_text = f"KQG S010B {label} paper artifact; basket {data['paperBasketId']}; productionEligible=false"
-    content = f"BT /F1 12 Tf 72 760 Td ({content_text}) Tj ET"
-    objects = [
-        "1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n",
-        "2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj\n",
-        "3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >> endobj\n",
-        "4 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj\n",
-        f"5 0 obj << /Length {len(content.encode('ascii'))} >> stream\n{content}\nendstream endobj\n",
-    ]
-    pdf = "%PDF-1.4\n"
-    offsets = [0]
-    for obj in objects:
-        offsets.append(len(pdf.encode("ascii")))
-        pdf += obj
-    xref_offset = len(pdf.encode("ascii"))
-    pdf += f"xref\n0 {len(objects) + 1}\n0000000000 65535 f \n"
-    for offset in offsets[1:]:
-        pdf += f"{offset:010d} 00000 n \n"
-    pdf += f"trailer << /Size {len(objects) + 1} /Root 1 0 R >>\nstartxref\n{xref_offset}\n%%EOF\n"
-    path.write_bytes(pdf.encode("ascii"))
+    soffice = shutil.which("soffice") or next(
+        (str(candidate) for candidate in (
+            Path(r"C:\Program Files\LibreOffice\program\soffice.exe"),
+            Path(r"C:\Program Files (x86)\LibreOffice\program\soffice.exe"),
+        ) if candidate.is_file()),
+        "",
+    )
+    if not soffice:
+        raise RuntimeError("LibreOffice soffice is required for substantive PDF export")
+    if path.exists():
+        path.unlink()
+    profile = (path.parent / f".lo-profile-{docx_path.stem}").resolve()
+    shutil.rmtree(profile, ignore_errors=True)
+    completed = subprocess.run(
+        [
+            soffice,
+            "--headless",
+            f"-env:UserInstallation={profile.as_uri()}",
+            "--convert-to",
+            "pdf:writer_pdf_Export",
+            "--outdir",
+            str(path.parent.resolve()),
+            str(docx_path.resolve()),
+        ],
+        capture_output=True,
+        text=True,
+        timeout=90,
+        check=False,
+    )
+    shutil.rmtree(profile, ignore_errors=True)
+    if completed.returncode != 0 or not path.is_file():
+        raise RuntimeError(f"LibreOffice PDF conversion failed: {completed.stderr or completed.stdout}")
 
 
 def verify_docx(path: Path, variant: str) -> dict[str, Any]:
@@ -215,6 +247,7 @@ def verify_docx(path: Path, variant: str) -> dict[str, Any]:
         names = set(docx.namelist())
         document_xml = docx.read("word/document.xml").decode("utf-8")
         media = [name for name in names if name.startswith("word/media/")]
+        media_sizes = [len(docx.read(name)) for name in media]
     return {
         "hasDocumentXml": "word/document.xml" in names,
         "hasFormulaText": "v=s/t" in document_xml,
@@ -226,15 +259,26 @@ def verify_docx(path: Path, variant: str) -> dict[str, Any]:
         "hasSolution": "解析：" in document_xml,
         "studentHidesAnswer": ("答案：" not in document_xml and "解析：" not in document_xml) if variant == "student" else True,
         "mediaCount": len(media),
+        "allMediaSubstantive": all(size > 1000 for size in media_sizes) if media else variant == "answer",
     }
 
 
-def verify_pdf(path: Path) -> dict[str, Any]:
+def verify_pdf(path: Path, expected_question_count: int) -> dict[str, Any]:
+    from pypdf import PdfReader
+
     payload = path.read_bytes()
+    reader = PdfReader(path)
+    extracted_text = "\n".join((page.extract_text() or "") for page in reader.pages)
     return {
         "hasPdfHeader": payload.startswith(b"%PDF-"),
         "hasEof": payload.rstrip().endswith(b"%%EOF"),
-        "hasTaskMarker": b"S010B" in payload,
+        "hasTaskMarker": "校本题谱" in extracted_text,
+        "pageCountPositive": len(reader.pages) >= 1,
+        "fileSizeSubstantive": len(payload) > 10_000,
+        "textLengthSubstantive": len(extracted_text.strip()) > max(200, expected_question_count * 20),
+        "pageCount": len(reader.pages),
+        "fileSizeBytes": len(payload),
+        "extractedTextLength": len(extracted_text.strip()),
     }
 
 
@@ -250,14 +294,13 @@ def variant_checks_pass(variant: str, checks: OrderedDict[str, Any], requirement
     pdf = checks["pdf"]
     common_docx = (
         docx["hasDocumentXml"]
-        and docx["hasKnowledgeVersionReference"]
         and docx["studentHidesAnswer"]
     )
     if variant in {"student", "teacher"}:
         common_docx = (
             common_docx
             and docx["hasFigureMedia"]
-            and docx["hasSourceAuthorization"]
+            and docx["allMediaSubstantive"]
         )
         if requirements["requiresFormula"]:
             common_docx = common_docx and docx["hasFormulaText"]
@@ -267,7 +310,10 @@ def variant_checks_pass(variant: str, checks: OrderedDict[str, Any], requirement
         common_docx = common_docx and docx["hasAnswer"] and docx["hasSolution"]
     if variant == "answer":
         common_docx = common_docx and docx["hasAnswer"] and docx["hasSolution"]
-    return common_docx and all(value is True for value in pdf.values())
+    return common_docx and all(pdf[key] is True for key in (
+        "hasPdfHeader", "hasEof", "hasTaskMarker", "pageCountPositive",
+        "fileSizeSubstantive", "textLengthSubstantive",
+    ))
 
 
 def main() -> int:
@@ -292,9 +338,9 @@ def main() -> int:
         docx_path = output_root / f"kqg-s010b-{variant}-paper.docx"
         pdf_path = output_root / f"kqg-s010b-{variant}-paper.pdf"
         create_docx(docx_path, data, variant)
-        create_pdf(pdf_path, data, variant)
+        create_pdf(pdf_path, docx_path)
         docx_checks = verify_docx(docx_path, variant)
-        pdf_checks = verify_pdf(pdf_path)
+        pdf_checks = verify_pdf(pdf_path, len(data.get("questions", [])))
         artifacts[variant] = OrderedDict(
             [
                 ("label", VARIANTS[variant]),

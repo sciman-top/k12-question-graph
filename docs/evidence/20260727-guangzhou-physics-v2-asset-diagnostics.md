@@ -1,7 +1,7 @@
 # Guangzhou Physics v2 Asset Diagnostics
 
 - status: pass
-- checked_at: 2026-07-27T13:23:00.895020+00:00
+- checked_at: 2026-07-27T13:34:20.066641+00:00
 - questions: 234
 - answer_blocks: 234
 - subquestion_blocks: 349

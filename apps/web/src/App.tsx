@@ -6,10 +6,8 @@ import {
   ConfigProvider,
   Divider,
   Input,
-  InputNumber,
   Layout,
   Progress,
-  Select,
   Space,
   Tag,
   Typography,
@@ -22,7 +20,6 @@ import {
   LinkOutlined,
   MergeCellsOutlined,
   SearchOutlined,
-  SaveOutlined,
   SplitCellsOutlined,
   UndoOutlined,
 } from '@ant-design/icons'
@@ -40,6 +37,7 @@ import {
   getReviewQueueItems,
   previewItemScoreMappings,
   reopenReviewQueueItem,
+  replacePaperQuestion,
   resolveReviewQueueItem,
   runDocumentWorkerSmoke,
   updateQuestion,
@@ -48,6 +46,8 @@ import {
 } from './api/client'
 import type {
   QuestionDetailContract,
+  QuestionCardContract,
+  QuestionSearchParams,
   QuestionSourceRegionContract,
   ReviewQueueItemContract,
 } from './api/contracts'
@@ -61,6 +61,7 @@ import {
 } from './api/queries'
 import { AnalysisPanelContent } from './ui/AnalysisPanelContent'
 import { PaperWorkbenchPanels } from './ui/PaperWorkbenchPanels'
+import { RealExamReviewWorkbench } from './ui/RealExamReviewWorkbench'
 import { ScoreWorkbenchPanelContent } from './ui/ScoreWorkbenchPanelContent'
 import { TeacherHomePanelContent } from './ui/TeacherHomePanelContent'
 import { teacherDifficultyLabelFor, teacherLabelFor } from './ui/teacherLabels'
@@ -77,8 +78,8 @@ import {
   importWizardSteps,
   isQuestionAssetRegion,
   jobStates,
+  questionSearchParamsFor,
   renderMathAwareText,
-  reviewRiskColorFor,
   sharedAssets,
   sourceRegionRank,
   splitQuestionText,
@@ -294,7 +295,10 @@ function App() {
   const [commentaryReportPreview, setCommentaryReportPreview] = useState(initialCommentaryReportPreview)
   const [scoreWorkflowBusy, setScoreWorkflowBusy] = useState(false)
   const [analysisMessage, setAnalysisMessage] = useState('点击查看摘要后，会聚焦当前讲评建议和导出状态。')
-  const [activeQuestionFilter, setActiveQuestionFilter] = useState('all')
+  const [activeQuestionFilter, setActiveQuestionFilter] = useState('all-real')
+  const [questionSearchParams, setQuestionSearchParams] = useState<QuestionSearchParams>({
+    status: 'pending_review',
+  })
   const [selectedQuestionId, setSelectedQuestionId] = useState('')
   const [questionInteractionMessage, setQuestionInteractionMessage] = useState('选择题目后，可用于组卷、换题或来源回看。')
   const [importStartedAt] = useState<Date>(() => new Date())
@@ -325,7 +329,7 @@ function App() {
     selectedSourceDocumentId,
     selectedSourceDocumentId.length > 0,
   )
-  const questionSearchQuery = useQuestionSearchQuery(1, 10)
+  const questionSearchQuery = useQuestionSearchQuery(questionSearchParams)
   const cutCandidates = cutCandidatesQuery.data?.ok ? cutCandidatesQuery.data.data : undefined
   const questionSearch = questionSearchQuery.data?.ok ? questionSearchQuery.data.data : undefined
   const sourcePreview = previewQuery.data?.ok ? previewQuery.data.data : undefined
@@ -1099,29 +1103,36 @@ function App() {
     appendLog(`已确认细目表并保存题篮：${result.data.selectedQuestionCount} 题`)
   }
 
-  const replacePaperQuestion = () => {
-    const replacement = {
-      ...paperDraft.currentQuestion,
-      id: nextLocalId('paper-q-replacement'),
-      stemPreview: '关于惯性的理解，下列说法正确的是哪一项？',
-      difficultyEstimated: Math.min(1, paperDraft.currentQuestion.difficultyEstimated + 0.03),
-      recentUseStatus: 'not_recently_used',
+  const replacePaperQuestionFromApi = async () => {
+    setPaperWorkflowBusy(true)
+    setPaperWorkflowMessage('正在按当前约束查找替换题...')
+    const result = await replacePaperQuestion(paperDraft.currentQuestion)
+    setPaperWorkflowBusy(false)
+
+    if (!result.ok) {
+      setPaperWorkflowMessage(`换题失败：${result.error.message}；原题和当前组卷内容已保留。`)
+      appendLog(`换题失败，已保留原题：${result.error.message}`)
+      return
     }
+
     setPaperDraft((current) => ({
       ...current,
-      replacementQuestion: replacement,
-      undoSnapshot: {
-        undoToken: nextLocalId('undo'),
-        revertAction: 'restore_before_question',
+      mode: result.data.mode,
+      productionEligible: result.data.productionEligible,
+      allowRealModelCalls: result.data.allowRealModelCalls,
+      replacementQuestion: {
+        ...result.data.replacement,
+        difficultyEstimated:
+          result.data.replacement.difficultyEstimated ?? current.currentQuestion.difficultyEstimated,
       },
-      auditTrail: [
-        'kept primary knowledge constraint',
-        'kept question type constraint',
-        'kept score constraint',
-        'kept draft_test non-production boundary',
-      ],
+      undoSnapshot: {
+        undoToken: result.data.undo.undoToken,
+        revertAction: result.data.undo.revertAction,
+      },
+      auditTrail: result.data.auditTrail,
     }))
-    appendLog('已按同知识点、同题型、相近难度和同分值生成替换题')
+    setPaperWorkflowMessage('已生成受约束替换题；可撤销并恢复原题。')
+    appendLog('已通过真实 API 按同知识点、同题型、相近难度和同分值生成替换题')
   }
 
   const undoPaperReplacement = () => {
@@ -1279,13 +1290,35 @@ function App() {
 
   const applyQuestionFilter = (filter: string, label: string) => {
     setActiveQuestionFilter(filter)
+    setQuestionSearchParams(questionSearchParamsFor(filter))
     setQuestionInteractionMessage(`已应用筛选：${label}`)
     appendLog(`已应用题库筛选：${label}`)
   }
 
-  const selectQuestionCard = (cardId: string, preview: string) => {
-    setSelectedQuestionId(cardId)
-    setQuestionInteractionMessage(`已选择题目：${preview || cardId}`)
+  const selectQuestionCard = (card: QuestionCardContract) => {
+    setSelectedQuestionId(card.id)
+    setPaperDraft((current) => ({
+      ...current,
+      currentQuestion: {
+        id: card.id,
+        stemPreview: card.preview,
+        questionType: card.questionType,
+        score: card.defaultScore ?? 0,
+        difficultyEstimated: card.difficultyEstimated ?? 0.5,
+        primaryKnowledgeId: card.primaryKnowledge?.id ?? '',
+        primaryKnowledgeTitle:
+          card.primaryKnowledge?.title ??
+          (card.candidateTags?.primaryKnowledge?.label
+            ? `${card.candidateTags.primaryKnowledge.label}（候选）`
+            : '知识点待确认'),
+        sourceType: card.sources.types[0] ?? 'unknown',
+        recentUseStatus: 'not_recently_used',
+      },
+      replacementQuestion: null,
+      undoSnapshot: null,
+      auditTrail: [],
+    }))
+    setQuestionInteractionMessage(`已选择题目：${card.preview || card.id}`)
     appendLog('已选择题目，可加入组卷流程')
   }
 
@@ -1658,261 +1691,56 @@ function App() {
               </Space>
             </div>
 
-            <div className="real-exam-review" data-contract="real-guangzhou-2015-review-workbench" data-workflow="guangzhou-physics-2015-2025-v2">
-              <div className="panel-heading compact">
-                <div>
-                  <Typography.Text type="secondary">2015-2025 广州真卷</Typography.Text>
-                  <Typography.Title level={3}>逐题复核</Typography.Title>
-                </div>
-                <Tag color={realExamQueue.length > 0 ? 'orange' : 'default'}>
-                  {realExamQueue.length > 0 ? `${realExamQueue.length} 待确认` : '未加载'}
-                </Tag>
-              </div>
-              <div className="review-summary" data-contract="real-exam-review-summary">
-                <span>
-                  <Typography.Text type="secondary">队列总数</Typography.Text>
-                  <strong>{realExamQueueTotal}</strong>
-                </span>
-                <span>
-                  <Typography.Text type="secondary">当前题号</Typography.Text>
-                  <strong>{selectedRealExamReview?.payload.questionNo || '-'}</strong>
-                </span>
-                <span>
-                  <Typography.Text type="secondary">状态</Typography.Text>
-                  <strong>{realExamQueueBusy ? '查询中' : realExamQueue.length > 0 ? '待确认' : '未加载'}</strong>
-                </span>
-              </div>
-              <Typography.Text>{realExamQueueMessage}</Typography.Text>
-              <Select
-                aria-label="真卷年份"
-                value={realExamReviewYear}
-                options={Array.from({ length: 11 }, (_, index) => ({ value: 2015 + index, label: `${2015 + index} 年` }))}
-                onChange={(year) => {
-                  setRealExamReviewYear(year)
-                  const next = realExamQueue.find((item) => item.payload.year === year)
-                  if (next) {
-                    void loadRealExamReviewItem(next)
-                  }
-                }}
-                data-action="select-real-guangzhou-review-year"
-              />
-              <div className="real-exam-detail" data-contract="real-exam-review-detail">
-                <span>
-                  <Typography.Text type="secondary">题干预览</Typography.Text>
-                  <strong>{selectedRealExamReview?.payload.textPreview || '请选择一题后载入'}</strong>
-                </span>
-                <span>
-                  <Typography.Text type="secondary">答案</Typography.Text>
-                  <strong>{selectedRealExamReview?.payload.answer || '-'}</strong>
-                </span>
-                <span>
-                  <Typography.Text type="secondary">标签</Typography.Text>
-                  <strong>
-                    {selectedRealExamReview?.payload.primaryKnowledgeLabel || '-'}
-                    {selectedRealExamReview?.payload.knowledgeTags.length
-                      ? ` · ${selectedRealExamReview.payload.knowledgeTags.join(' / ')}`
-                      : ''}
-                  </strong>
-                </span>
-                <span>
-                  <Typography.Text type="secondary">难度</Typography.Text>
-                  <strong>{realExamRevision.difficultyEstimated ?? '-'}</strong>
-                </span>
-                <span>
-                  <Typography.Text type="secondary">来源</Typography.Text>
-                  <strong>{savedQuestionSourceSummary}</strong>
-                </span>
-              </div>
-              <div className="real-exam-revision" data-contract="real-exam-teacher-revision">
-                <div>
-                  <Typography.Text type="secondary">修订题干</Typography.Text>
-                  <Input.TextArea
-                    aria-label="广州真卷修订题干"
-                    data-action="real-guangzhou-2015-revision-stem"
-                    value={realExamRevision.textPreview}
-                    onChange={(event) =>
-                      setRealExamRevision((current) => ({ ...current, textPreview: event.target.value }))
-                    }
-                    autoSize={{ minRows: 2, maxRows: 5 }}
-                    placeholder="载入题目后可修订题干"
-                  />
-                </div>
-                <div>
-                  <Typography.Text type="secondary">修订答案</Typography.Text>
-                  <Input.TextArea
-                    aria-label="广州真卷修订答案"
-                    data-action="real-guangzhou-2015-revision-answer"
-                    value={realExamRevision.answer}
-                    onChange={(event) =>
-                      setRealExamRevision((current) => ({ ...current, answer: event.target.value }))
-                    }
-                    autoSize={{ minRows: 2, maxRows: 5 }}
-                    placeholder="载入题目后可修订答案"
-                  />
-                </div>
-                <div>
-                  <Typography.Text type="secondary">修订标签</Typography.Text>
-                  <Input
-                    aria-label="广州真卷主标签"
-                    data-action="real-guangzhou-2015-revision-primary-tag"
-                    value={realExamRevision.primaryKnowledgeLabel}
-                    onChange={(event) =>
-                      setRealExamRevision((current) => ({
-                        ...current,
-                        primaryKnowledgeLabel: event.target.value,
-                      }))
-                    }
-                    placeholder="主标签"
-                  />
-                  <Input
-                    aria-label="广州真卷知识标签"
-                    data-action="real-guangzhou-2015-revision-tags"
-                    value={realExamRevision.knowledgeTagsText}
-                    onChange={(event) =>
-                      setRealExamRevision((current) => ({ ...current, knowledgeTagsText: event.target.value }))
-                    }
-                    placeholder="多个标签用 / 分隔"
-                  />
-                  <InputNumber
-                    aria-label="真卷预估难度"
-                    min={0}
-                    max={1}
-                    step={0.05}
-                    value={realExamRevision.difficultyEstimated}
-                    onChange={(value) => setRealExamRevision((current) => ({ ...current, difficultyEstimated: value }))}
-                    placeholder="0 易 - 1 难"
-                    data-action="real-guangzhou-v2-revision-difficulty"
-                  />
-                </div>
-              </div>
-              {cropDraft ? (
-                <div className="real-exam-crop" data-contract="real-exam-source-recrop">
-                  <Typography.Text type="secondary">
-                    重裁区域：第 {cropDraft.pageNumber} 页 · {formatRegionKind(cropDraft.regionType)}
-                  </Typography.Text>
-                  <Space size="small" wrap>
-                    {(['x', 'y', 'width', 'height'] as const).map((field) => (
-                      <InputNumber
-                        key={field}
-                        aria-label={`重裁 ${field}`}
-                        min={0}
-                        max={100}
-                        step={0.1}
-                        value={cropDraft[field]}
-                        addonBefore={field}
-                        onChange={(value) => setCropDraft((current) => current ? { ...current, [field]: value ?? 0 } : current)}
-                        data-action={`real-guangzhou-v2-recrop-${field}`}
-                      />
-                    ))}
-                    <Button icon={<SaveOutlined />} onClick={() => void saveRealExamRecrop()} data-action="save-real-guangzhou-v2-recrop">
-                      保存重裁
-                    </Button>
-                    <Button icon={<UndoOutlined />} disabled={!cropUndoSnapshot} onClick={() => void undoRealExamRecrop()} data-action="undo-real-guangzhou-v2-recrop">
-                      撤销重裁
-                    </Button>
-                  </Space>
-                </div>
-              ) : null}
-              <Input.TextArea
-                aria-label="广州真卷审核说明"
-                data-action="real-guangzhou-2015-review-note"
-                value={realExamReviewNote}
-                onChange={(event) => setRealExamReviewNote(event.target.value)}
-                autoSize={{ minRows: 2, maxRows: 4 }}
-                placeholder="填写确认或退回说明"
-              />
-              <Space size="small" wrap>
-                <Button
-                  icon={<FileSearchOutlined />}
-                  onClick={loadRealExamReviewQueue}
-                  disabled={realExamQueueBusy}
-                  data-action="load-real-guangzhou-2015-review-queue"
-                >
-                  查询真卷队列
-                </Button>
-                <Button
-                  icon={<SearchOutlined />}
-                  onClick={() =>
-                    selectedRealExamReview
-                      ? void loadRealExamReviewItem(selectedRealExamReview)
-                      : setRealExamQueueMessage('请先选择一题')
-                  }
-                  disabled={!selectedRealExamReview}
-                  data-action="load-real-guangzhou-2015-review-item"
-                >
-                  载入当前题
-                </Button>
-                <Button
-                  icon={<SaveOutlined />}
-                  onClick={() => selectedRealExamReview ? void saveRealExamRevision(selectedRealExamReview) : undefined}
-                  disabled={!selectedRealExamReview || !loadedRealExamQuestion}
-                  data-action="save-real-guangzhou-v2-review-revision"
-                >
-                  保存修订
-                </Button>
-                <Button
-                  type="primary"
-                  icon={<EditOutlined />}
-                  onClick={() =>
-                    selectedRealExamReview
-                      ? void finishRealExamReviewItem(selectedRealExamReview, 'resolved')
-                      : setRealExamQueueMessage('请先选择一题')
-                  }
-                  disabled={!selectedRealExamReview}
-                  data-action="confirm-real-guangzhou-2015-review-item"
-                >
-                  确认当前题
-                </Button>
-                <Button
-                  icon={<UndoOutlined />}
-                  onClick={() =>
-                    selectedRealExamReview
-                      ? void finishRealExamReviewItem(selectedRealExamReview, 'dismissed')
-                      : setRealExamQueueMessage('请先选择一题')
-                  }
-                  disabled={!selectedRealExamReview}
-                  data-action="dismiss-real-guangzhou-2015-review-item"
-                >
-                  退回当前题
-                </Button>
-                <Button
-                  icon={<UndoOutlined />}
-                  onClick={() => void undoLastRealExamReview()}
-                  disabled={!lastReviewedRealExamItem}
-                  data-action="undo-real-guangzhou-v2-review-item"
-                >
-                  撤销上次审核
-                </Button>
-              </Space>
-              <div className="real-exam-list" aria-label={`${realExamReviewYear} 年广州真卷待复核题目`}>
-                {[...visibleRealExamQueue]
-                  .sort((left, right) => (left.payload.questionNo || 0) - (right.payload.questionNo || 0))
-                  .slice(0, 30)
-                  .map((item) => {
-                  const selected = item.id === selectedRealExamReviewId
-                  return (
-                    <button
-                      key={item.id}
-                      type="button"
-                      className={selected ? 'real-exam-row active' : 'real-exam-row'}
-                      onClick={() => void loadRealExamReviewItem(item)}
-                      data-review-type={item.reviewType}
-                    >
-                      <span>
-                        <strong>第 {item.payload.questionNo || '?'} 题</strong>
-                        <small>
-                          {item.payload.year} 真卷复核 · {item.requiredActions.map(teacherLabelFor).join(' / ')}
-                        </small>
-                      </span>
-                      <Tag color={reviewRiskColorFor(item.riskLevel)}>
-                        {teacherLabelFor(`risk_${item.riskLevel}`)}
-                      </Tag>
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-
+            <RealExamReviewWorkbench
+              queue={realExamQueue}
+              queueTotal={realExamQueueTotal}
+              queueBusy={realExamQueueBusy}
+              queueMessage={realExamQueueMessage}
+              reviewYear={realExamReviewYear}
+              selectedReviewId={selectedRealExamReviewId}
+              selectedReview={selectedRealExamReview}
+              visibleQueue={visibleRealExamQueue}
+              revision={realExamRevision}
+              cropDraft={cropDraft}
+              cropUndoAvailable={Boolean(cropUndoSnapshot)}
+              loadedQuestionAvailable={Boolean(loadedRealExamQuestion)}
+              lastReviewedAvailable={Boolean(lastReviewedRealExamItem)}
+              sourceSummary={savedQuestionSourceSummary}
+              reviewNote={realExamReviewNote}
+              onYearChange={(year) => {
+                setRealExamReviewYear(year)
+                const next = realExamQueue.find((item) => item.payload.year === year)
+                if (next) void loadRealExamReviewItem(next)
+              }}
+              onRevisionChange={(patch) => setRealExamRevision((current) => ({ ...current, ...patch }))}
+              onCropChange={(field, value) =>
+                setCropDraft((current) => current ? { ...current, [field]: value } : current)
+              }
+              onSaveCrop={() => void saveRealExamRecrop()}
+              onUndoCrop={() => void undoRealExamRecrop()}
+              onReviewNoteChange={setRealExamReviewNote}
+              onLoadQueue={() => void loadRealExamReviewQueue()}
+              onLoadSelected={() =>
+                selectedRealExamReview
+                  ? void loadRealExamReviewItem(selectedRealExamReview)
+                  : setRealExamQueueMessage('请先选择一题')
+              }
+              onSaveSelected={() => {
+                if (selectedRealExamReview) void saveRealExamRevision(selectedRealExamReview)
+              }}
+              onConfirmSelected={() =>
+                selectedRealExamReview
+                  ? void finishRealExamReviewItem(selectedRealExamReview, 'resolved')
+                  : setRealExamQueueMessage('请先选择一题')
+              }
+              onDismissSelected={() =>
+                selectedRealExamReview
+                  ? void finishRealExamReviewItem(selectedRealExamReview, 'dismissed')
+                  : setRealExamQueueMessage('请先选择一题')
+              }
+              onUndoLastReview={() => void undoLastRealExamReview()}
+              onSelectReview={(item) => void loadRealExamReviewItem(item)}
+            />
             <div className="score-field-mapping" data-contract="s003b-import-job-query">
               <Typography.Text type="secondary">导入任务状态（真实 API）</Typography.Text>
               <Space.Compact block>
@@ -2031,7 +1859,7 @@ function App() {
             onRefreshQuestionSearch={() => questionSearchQuery.refetch()}
             onApplyQuestionFilter={applyQuestionFilter}
             onSelectQuestionCard={selectQuestionCard}
-            onReplacePaperQuestion={replacePaperQuestion}
+            onReplacePaperQuestion={() => void replacePaperQuestionFromApi()}
             onUndoPaperReplacement={undoPaperReplacement}
             onExportPaper={exportPaper}
           />

@@ -21,6 +21,16 @@ EXPECTED_COUNTS = {year: 24 if year <= 2020 else 18 for year in YEARS}
 TABLE_PATTERN = re.compile(r"(表\s*\d+|数据在表|根据表|表格|如下表|表中)")
 FORMULA_PATTERN = re.compile(r"(公式|U-I|F=|Q=|v=|R=|I/A|U/V|ρ=)")
 QUESTION_ANCHOR = re.compile(r"(?m)(?:^|[\n\r。；;])\s*(\d{1,2})\s*[\.．、)]")
+EXAM_INSTRUCTION_MARKERS = (
+    "答题前",
+    "考生务必",
+    "答题卡上对应题目",
+    "第一部分每小题选出答案后",
+    "选择题每小题选出答案后",
+    "答案必须写在答题卡",
+    "考生必须保持答题卡",
+    "请考生检查题数",
+)
 
 
 @dataclass(frozen=True)
@@ -197,6 +207,19 @@ def validate_candidate_coverage(candidates: dict[tuple[int, int], dict[str, Any]
         actual = {number for candidate_year, number in candidates if candidate_year == year}
         if actual != expected:
             blockers.append(f"candidate_sequence_mismatch:{year}:{sorted(expected - actual)}:{sorted(actual - expected)}")
+    if blockers:
+        raise ValueError(";".join(blockers))
+
+
+def validate_candidate_content(candidates: dict[tuple[int, int], dict[str, Any]]) -> None:
+    blockers: list[str] = []
+    for (year, number), candidate in sorted(candidates.items()):
+        stem = re.sub(r"\s+", " ", str(candidate.get("stem") or "")).strip()
+        if not stem:
+            blockers.append(f"candidate_stem_missing:{year}:{number}")
+            continue
+        if any(marker in stem[:400] for marker in EXAM_INSTRUCTION_MARKERS):
+            blockers.append(f"candidate_exam_instruction_stem:{year}:{number}")
     if blockers:
         raise ValueError(";".join(blockers))
 

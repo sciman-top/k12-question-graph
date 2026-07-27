@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "GUANGZHOU_PHYSICS_V2_ASSET_DIAGNOSTICS",
-  "checkedAt": "2026-07-27T13:23:00.895020+00:00",
+  "checkedAt": "2026-07-27T13:34:20.066641+00:00",
   "workflowKey": "guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1",
   "readOnly": true,
   "counts": {

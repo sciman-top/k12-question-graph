@@ -178,6 +178,7 @@ public sealed record QuestionCardResponse(
     string Status,
     int? QuestionNo,
     KnowledgeNodeCardResponse? PrimaryKnowledge,
+    QuestionCandidateTagsResponse? CandidateTags,
     string Preview,
     int BlockCount,
     int AssetCount,
@@ -185,6 +186,15 @@ public sealed record QuestionCardResponse(
     bool HasFormula,
     bool HasTable,
     bool HasImage);
+
+public sealed record CandidateAssetReferenceResponse(string Id, string Label);
+
+public sealed record QuestionCandidateTagsResponse(
+    CandidateAssetReferenceResponse? PrimaryKnowledge,
+    CandidateAssetReferenceResponse? PrimaryExamPoint,
+    IReadOnlyList<string> AbilityDimensions,
+    string ReviewStatus,
+    bool ProductionEligible);
 
 public sealed record KnowledgeNodeCardResponse(
     Guid Id,

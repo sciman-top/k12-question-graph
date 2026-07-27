@@ -12,6 +12,17 @@ import guangzhou_physics_v2_tagging as tagging  # noqa: E402
 
 
 class GuangzhouV2TaggingTests(unittest.TestCase):
+    def test_connection_allows_local_passwordless_auth(self) -> None:
+        without_password = tagging.build_connection_kwargs(
+            "127.0.0.1", 5432, "k12_question_graph", "postgres", ""
+        )
+        with_password = tagging.build_connection_kwargs(
+            "127.0.0.1", 5432, "k12_question_graph", "postgres", "secret"
+        )
+
+        self.assertNotIn("password", without_password)
+        self.assertEqual("secret", with_password["password"])
+
     def test_2015_crosswalk_covers_all_24_questions(self) -> None:
         self.assertEqual(set(range(1, 25)), set(tagging.EXAM_POINT_CROSSWALK_2015))
         self.assertTrue(all(tagging.EXAM_POINT_CROSSWALK_2015.values()))

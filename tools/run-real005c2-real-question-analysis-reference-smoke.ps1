@@ -1,4 +1,6 @@
 param(
+    [Parameter(Mandatory)]
+    [string] $BackupManifest,
     [string] $DatabaseName = 'k12_question_graph',
     [string] $DatabaseUser = 'postgres',
     [string] $DatabaseHost = '127.0.0.1',
@@ -28,7 +30,7 @@ if ([string]::IsNullOrWhiteSpace($MarkdownReportPath)) {
     $MarkdownReportPath = ('docs/evidence/{0}-real005c2-real-question-analysis-reference-smoke.md' -f $runDate)
 }
 
-$workflowKey = 'guangzhou_2016_2025_reviewed_question_materialize_v1'
+$workflowKey = 'guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1'
 $reasonToken = 'real005c2_analysis_reference_smoke'
 $successYears = @(2016, 2017, 2018, 2019)
 
@@ -96,6 +98,30 @@ function Invoke-ScalarSql {
     return [string] $rows[0]
 }
 
+function Invoke-CommandSql {
+    param([string] $Sql)
+    $psql = Join-Path $PgBin 'psql.exe'
+    $commandId = [Guid]::NewGuid().ToString('N')
+    $commandDir = Join-Path $repoRoot 'tmp\real005c-sql'
+    $sqlPath = Join-Path $commandDir "$commandId.sql"
+    $outPath = Join-Path $commandDir "$commandId.out.log"
+    $errPath = Join-Path $commandDir "$commandId.err.log"
+    New-Item -ItemType Directory -Path $commandDir -Force | Out-Null
+    [System.IO.File]::WriteAllText($sqlPath, $Sql, [System.Text.UTF8Encoding]::new($false))
+    try {
+        $sqlProcess = Start-Process -FilePath $psql -ArgumentList @(
+            '-h', $DatabaseHost, '-p', [string] $DatabasePort, '-U', $DatabaseUser,
+            '-d', $DatabaseName, '-v', 'ON_ERROR_STOP=1', '-f', $sqlPath
+        ) -Wait -PassThru -WindowStyle Hidden -RedirectStandardOutput $outPath -RedirectStandardError $errPath
+        if ($sqlProcess.ExitCode -ne 0) {
+            throw "REAL005C2 command SQL failed: $(Get-Content -LiteralPath $errPath -Raw)"
+        }
+    }
+    finally {
+        Remove-Item -LiteralPath $sqlPath, $outPath, $errPath -Force -ErrorAction SilentlyContinue
+    }
+}
+
 function ConvertTo-SqlStringLiteral {
     param([AllowNull()][string] $Value)
     if ($null -eq $Value) {
@@ -122,12 +148,22 @@ $previousConnectionString = $env:KQG_CONNECTION_STRING
 $env:KQG_CONNECTION_STRING = "Host=$DatabaseHost;Port=$DatabasePort;Database=$DatabaseName;Username=$DatabaseUser;Password=$DatabasePassword"
 $process = $null
 $pushedLocation = $false
+$rollbackSql = ''
+$rollbackApplied = $false
+$knowledgeId = ''
+$assessmentId = ''
+$studentIds = @()
+$questionSnapshots = @{}
+$allQuestionIds = @()
+
+$backupVerification = & (Join-Path $PSScriptRoot 'verify-backup.ps1') -ManifestPath $BackupManifest | ConvertFrom-Json
+Assert-True ([string] $backupVerification.status -eq 'ok') 'REAL005C2 backup verification failed'
 
 try {
     Push-Location $repoRoot
     $pushedLocation = $true
 
-    & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005c1-real-question-search-paper-export-smoke.ps1 | Out-Null
+    & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005c1-real-question-search-paper-export-smoke.ps1 -BackupManifest $BackupManifest | Out-Null
     if ($LASTEXITCODE -ne 0) {
         throw 'REAL005C2 prerequisite REAL005C1 smoke failed'
     }
@@ -189,7 +225,6 @@ limit 1;
     $allQuestionIds = $successQuestionIds + @([string] $anomalySample.questionId)
     $selectedIdsSql = Join-IdsForSql -Ids $allQuestionIds
 
-    $questionSnapshots = @{}
     $questionSnapshotRows = @(
         Invoke-RowSql -Sql @"
 select
@@ -307,6 +342,10 @@ values (
     Assert-True (-not [bool] $import.productionEligible) 'REAL005C2 score import must stay non-production'
     Assert-True (-not [bool] $import.realStudentDataUsed) 'REAL005C2 score import must not use real student data'
     $assessmentId = [string] $import.assessmentId
+    $studentIds = @(
+        Invoke-RowSql -Sql "select distinct student_id::text from score_records where assessment_id='$assessmentId' order by student_id;"
+    )
+    Assert-True ($studentIds.Count -eq 3) 'REAL005C2 expected three synthetic students'
 
     $mappingEntries = @()
     $itemIndex = 1
@@ -381,6 +420,7 @@ where id = '$assessmentId';
 "@
     )
     Assert-True ($assessmentSnapshotRows.Count -eq 1) 'REAL005C2 assessment snapshot missing'
+    $studentIdsSql = Join-IdsForSql -Ids $studentIds
 
     $questionRollbackLines = New-Object System.Collections.Generic.List[string]
     foreach ($questionId in $allQuestionIds) {
@@ -396,8 +436,8 @@ where id = '$assessmentId';
     $rollbackLines.Add("delete from item_scores where score_record_id in (select id from score_records where assessment_id = '$assessmentId');") | Out-Null
     $rollbackLines.Add("delete from score_records where assessment_id = '$assessmentId';") | Out-Null
     $rollbackLines.Add("delete from score_import_batches where assessment_id = '$assessmentId';") | Out-Null
-    $rollbackLines.Add("delete from students where metadata::text like '%S011A%' and student_key like 's011a-student-%';") | Out-Null
     $rollbackLines.Add("delete from assessments where id = '$assessmentId';") | Out-Null
+    $rollbackLines.Add("delete from students where id in ($studentIdsSql) and not exists (select 1 from score_records where score_records.student_id=students.id) and not exists (select 1 from assessment_enrollments where assessment_enrollments.student_id=students.id);") | Out-Null
     $rollbackLines.Add("delete from score_import_templates where template_key like 'real005c2-score-template-v1%';") | Out-Null
     $rollbackLines.Add("delete from review_queue_items where payload::text like '%$reasonToken%';") | Out-Null
     $rollbackLines.Add("delete from knowledge_mappings where question_item_id in ($successQuestionIdsSql) and knowledge_node_id = '$knowledgeId';") | Out-Null
@@ -407,6 +447,26 @@ where id = '$assessmentId';
     $rollbackLines.Add("delete from knowledge_nodes where id = '$knowledgeId';") | Out-Null
     $rollbackLines.Add('commit;') | Out-Null
     $rollbackSql = [string]::Join("`r`n", $rollbackLines)
+
+    Invoke-CommandSql -Sql $rollbackSql
+    $rollbackApplied = $true
+    $postRollbackRow = @(Invoke-RowSql -Sql @"
+select concat_ws('|',
+  count(*) filter (where status='pending_review'),
+  count(*) filter (where primary_knowledge_id is null),
+  count(*) filter (where coalesce((custom_fields->>'productionEligible')::boolean,false)=false),
+  (select count(*) from review_queue_items where payload->>'sourceWorkflowKey'='$workflowKey' and status='open'),
+  (select count(*) from assessments where id='$assessmentId'),
+  (select count(*) from knowledge_nodes where id='$knowledgeId'),
+  (select count(*) from students where id in ($studentIdsSql))
+)
+from question_items
+where custom_fields->>'sourceWorkflowKey'='$workflowKey';
+"@)
+    Assert-True ($postRollbackRow.Count -eq 1) 'REAL005C2 post-rollback invariant query failed'
+    $postRollbackParts = $postRollbackRow[0] -split '\|', 7
+    Assert-True (($postRollbackParts[0..3] -join '|') -eq '234|234|234|234') 'REAL005C2 did not restore all Guangzhou v2 pending-review invariants'
+    Assert-True (($postRollbackParts[4..6] -join '|') -eq '0|0|0') 'REAL005C2 temporary assessment, knowledge node, or students remain after rollback'
 
     $promotedSuccessSampleReports = @(
         $promotedSuccessSamples | ForEach-Object {
@@ -432,7 +492,10 @@ where id = '$assessmentId';
         portFallbackApplied = ($requestedApiPort -ne $ApiPort)
         apiUrl = $apiUrl
         workflowKey = $workflowKey
-        activeWrite = $true
+        transientActiveWrite = $true
+        activeWrite = $false
+        rollbackApplied = $rollbackApplied
+        backupManifest = (Resolve-Path -LiteralPath $BackupManifest).Path
         externalAiCalls = 0
         realStudentDataUsed = $false
         productionEligible = $false
@@ -481,8 +544,8 @@ where id = '$assessmentId';
             blockingIssueCodes = @($blockedIssueCodes)
         }
         rollbackSql = $rollbackSql
-        boundary = 'Repo-side RG011 smoke only: it proves reviewed real questions with active knowledge references can drive commentary export while a reviewed real question without primary knowledge is blocked by knowledge_mapping_missing. REAL005 must remain not_closed until RG012-RG016 also pass.'
-        summaryChinese = 'reviewed real questions now have repo-side RG011 evidence: active 知识版本样本可进入学情分析/讲评导出，缺 primary knowledge 的 reviewed real question 会被 knowledge_mapping_missing 阻断，且全程不写正式历史。'
+        boundary = 'Repo-side reversible RG011 smoke only: it uses anonymous synthetic scores and temporarily qualified v2 pending-review samples, then restores every database mutation before reporting. It does not simulate teacher approval, use real student data, or write production history. REAL005 remains not_closed.'
+        summaryChinese = 'v2 待审核真题仅在可逆 smoke 窗口内驱动匿名 synthetic 成绩、小题映射和确定性讲评导出；缺主知识点样本继续阻断，数据库已自动恢复，未留下教师确认、真实学生数据或正式历史。'
     }
 
     $reportFullPath = Join-Path $repoRoot ($ReportPath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
@@ -507,6 +570,32 @@ where id = '$assessmentId';
 finally {
     if ($null -ne $process) {
         Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+    }
+    if (-not $rollbackApplied -and $questionSnapshots.Count -gt 0) {
+        $emergencyLines = [System.Collections.Generic.List[string]]::new()
+        $emergencyLines.Add('begin;') | Out-Null
+        if (-not [string]::IsNullOrWhiteSpace($assessmentId)) {
+            $emergencyLines.Add("delete from assessments where id='$assessmentId';") | Out-Null
+        }
+        if ($studentIds.Count -gt 0) {
+            $emergencyStudentIdsSql = Join-IdsForSql -Ids $studentIds
+            $emergencyLines.Add("delete from students where id in ($emergencyStudentIdsSql) and not exists (select 1 from score_records where score_records.student_id=students.id) and not exists (select 1 from assessment_enrollments where assessment_enrollments.student_id=students.id);") | Out-Null
+        }
+        $emergencyLines.Add("delete from score_import_templates where template_key like 'real005c2-score-template-v1%';") | Out-Null
+        $emergencyLines.Add("delete from review_queue_items where payload::text like '%$reasonToken%';") | Out-Null
+        if (-not [string]::IsNullOrWhiteSpace($knowledgeId)) {
+            $emergencyLines.Add("delete from knowledge_mappings where knowledge_node_id='$knowledgeId';") | Out-Null
+        }
+        foreach ($questionId in $allQuestionIds) {
+            $snapshot = $questionSnapshots[[string] $questionId]
+            $primaryKnowledgeSql = if ([string]::IsNullOrWhiteSpace([string] $snapshot.primaryKnowledgeId)) { 'null' } else { "'$([string] $snapshot.primaryKnowledgeId)'" }
+            $emergencyLines.Add("update question_items set status=$(ConvertTo-SqlStringLiteral ([string] $snapshot.status)), primary_knowledge_id=$primaryKnowledgeSql, custom_fields=$(ConvertTo-SqlStringLiteral ([string] $snapshot.customFieldsJson))::jsonb where id='$questionId';") | Out-Null
+        }
+        if (-not [string]::IsNullOrWhiteSpace($knowledgeId)) {
+            $emergencyLines.Add("delete from knowledge_nodes where id='$knowledgeId';") | Out-Null
+        }
+        $emergencyLines.Add('commit;') | Out-Null
+        Invoke-CommandSql -Sql ([string]::Join("`r`n", $emergencyLines))
     }
     $env:KQG_CONNECTION_STRING = $previousConnectionString
     if ($pushedLocation) {

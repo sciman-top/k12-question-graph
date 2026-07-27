@@ -5,6 +5,8 @@ param(
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 $app = Get-Content -LiteralPath (Join-Path $repoRoot 'apps\web\src\App.tsx') -Raw
+$realExamReview = Get-Content -LiteralPath (Join-Path $repoRoot 'apps\web\src\ui\RealExamReviewWorkbench.tsx') -Raw
+$uiSource = $app + "`n" + $realExamReview
 $client = Get-Content -LiteralPath (Join-Path $repoRoot 'apps\web\src\api\client.ts') -Raw
 $api = Get-Content -LiteralPath (Join-Path $repoRoot 'apps\api\Program.cs') -Raw
 
@@ -30,7 +32,7 @@ $appMarkers = [ordered]@{
 }
 
 foreach ($entry in $appMarkers.GetEnumerator()) {
-    Assert-Contains $app $entry.Value $entry.Key
+    Assert-Contains $uiSource $entry.Value $entry.Key
 }
 
 $clientMarkers = [ordered]@{

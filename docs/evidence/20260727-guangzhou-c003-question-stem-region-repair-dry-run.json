@@ -1,0 +1,57 @@
+{
+  "status": "pass",
+  "checkedAt": "2026-07-27T15:59:44.163264+00:00",
+  "mode": "dry_run",
+  "candidateOnly": true,
+  "productionEligible": false,
+  "activeWrite": false,
+  "repairCount": 210,
+  "packages": [
+    {
+      "csvRoot": "D:\\CODE\\k12-question-graph\\guangzhou-physics-full-research-package-2016-2025\\csv",
+      "mode": "dry_run",
+      "questionRowsRepaired": 210,
+      "candidateMappingRowsRepaired": 36,
+      "subquestionRowsRepaired": 208,
+      "evidenceRowsRepaired": 210,
+      "mappingRowsRepaired": 72,
+      "optionalFilesPresent": {
+        "subquestions": true,
+        "evidenceIndex": true,
+        "assetMapping": true
+      },
+      "remainingInstructionStemCount": 0
+    },
+    {
+      "csvRoot": "D:\\CODE\\k12-question-graph\\guangzhou-physics-full-research-package-2016-2025\\quality-review-complete-csv-package",
+      "mode": "dry_run",
+      "questionRowsRepaired": 210,
+      "candidateMappingRowsRepaired": 36,
+      "subquestionRowsRepaired": 0,
+      "evidenceRowsRepaired": 0,
+      "mappingRowsRepaired": 0,
+      "optionalFilesPresent": {
+        "subquestions": false,
+        "evidenceIndex": false,
+        "assetMapping": false
+      },
+      "remainingInstructionStemCount": 0
+    },
+    {
+      "csvRoot": "D:\\KQG_Data\\candidate_packages\\c003-merged-quality-review-2016-2025",
+      "mode": "dry_run",
+      "questionRowsRepaired": 210,
+      "candidateMappingRowsRepaired": 36,
+      "subquestionRowsRepaired": 208,
+      "evidenceRowsRepaired": 210,
+      "mappingRowsRepaired": 72,
+      "optionalFilesPresent": {
+        "subquestions": true,
+        "evidenceIndex": true,
+        "assetMapping": true
+      },
+      "remainingInstructionStemCount": 0
+    }
+  ],
+  "boundary": "Repairs pending-review C003 candidate text and candidate mappings only; no database, active C002, review resolution, or teacher acceptance write."
+}

@@ -29,7 +29,8 @@ try {
         'apps/web/src/ui/TeacherHomePanelContent.tsx',
         'apps/web/src/ui/ScoreWorkbenchPanelContent.tsx',
         'apps/web/src/ui/AnalysisPanelContent.tsx',
-        'apps/web/src/ui/PaperWorkbenchPanels.tsx'
+        'apps/web/src/ui/PaperWorkbenchPanels.tsx',
+        'apps/web/src/ui/RealExamReviewWorkbench.tsx'
     )
 
     foreach ($path in $requiredUiFiles) {
@@ -41,6 +42,7 @@ try {
         "from './ui/ScoreWorkbenchPanelContent'",
         "from './ui/AnalysisPanelContent'",
         "from './ui/PaperWorkbenchPanels'",
+        "from './ui/RealExamReviewWorkbench'",
         "from './ui/workbenchData'"
     )) {
         Assert-Condition ($app.Contains($marker)) "NS1301 App.tsx missing extracted import marker: $marker"
@@ -50,7 +52,8 @@ try {
         '<TeacherHomePanelContent',
         '<ScoreWorkbenchPanelContent',
         '<AnalysisPanelContent',
-        '<PaperWorkbenchPanels'
+        '<PaperWorkbenchPanels',
+        '<RealExamReviewWorkbench'
     )) {
         Assert-Condition ($app.Contains($marker)) "NS1301 App.tsx missing extracted component usage: $marker"
     }
@@ -103,7 +106,8 @@ try {
                 'TeacherHomePanelContent',
                 'ScoreWorkbenchPanelContent',
                 'AnalysisPanelContent',
-                'PaperWorkbenchPanels'
+                'PaperWorkbenchPanels',
+                'RealExamReviewWorkbench'
             )
             extractedDataModule = 'apps/web/src/ui/workbenchData.tsx'
         }

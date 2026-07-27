@@ -62,52 +62,7 @@ function Resolve-Real005bSourceFileStoreRoot {
     throw 'No REAL005B source file store root with original PDFs was found'
 }
 
-function Initialize-Real005bRuntimeRoots {
-    param(
-        [string] $RepoRoot,
-        [string] $RuntimeFileStoreRoot
-    )
-
-    $resolvedFileStoreRoot = if ([System.IO.Path]::IsPathRooted($RuntimeFileStoreRoot)) {
-        [System.IO.Path]::GetFullPath($RuntimeFileStoreRoot)
-    }
-    else {
-        [System.IO.Path]::GetFullPath((Join-Path $RepoRoot $RuntimeFileStoreRoot))
-    }
-
-    $runtimeDataRoot = Split-Path -Parent $resolvedFileStoreRoot
-    $runtimeRoot = Split-Path -Parent $runtimeDataRoot
-    $runtimeBackupRoot = Join-Path $runtimeRoot 'backups'
-    $runtimeLogsRoot = Join-Path $runtimeDataRoot 'logs'
-    $runtimeCacheRoot = Join-Path $runtimeDataRoot 'cache'
-    $sourceFileStoreRoot = Resolve-Real005bSourceFileStoreRoot -RepoRoot $RepoRoot
-    $sourceOriginalRoot = Join-Path $sourceFileStoreRoot 'original'
-    $runtimeOriginalRoot = Join-Path $resolvedFileStoreRoot 'original'
-
-    foreach ($path in @($runtimeDataRoot, $resolvedFileStoreRoot, $runtimeBackupRoot, $runtimeLogsRoot, $runtimeCacheRoot)) {
-        New-Item -ItemType Directory -Path $path -Force | Out-Null
-    }
-
-    if (-not (Test-Path -LiteralPath $sourceOriginalRoot)) {
-        throw "REAL005B source file store original root missing: $sourceOriginalRoot"
-    }
-
-    if (Test-Path -LiteralPath $runtimeOriginalRoot) {
-        Remove-Item -LiteralPath $runtimeOriginalRoot -Recurse -Force -ErrorAction SilentlyContinue
-    }
-
-    New-Item -ItemType Junction -Path $runtimeOriginalRoot -Target $sourceOriginalRoot | Out-Null
-
-    return [pscustomobject]@{
-        RuntimeRoot = $runtimeRoot
-        DataRoot = $runtimeDataRoot
-        FileStoreRoot = $resolvedFileStoreRoot
-        BackupRoot = $runtimeBackupRoot
-        LogsRoot = $runtimeLogsRoot
-        CacheRoot = $runtimeCacheRoot
-        SourceFileStoreRoot = $sourceFileStoreRoot
-    }
-}
+. (Join-Path $PSScriptRoot 'real005b-runtime-roots.ps1')
 
 function Wait-ApiReady {
     param([int] $ProcessId, [string] $ApiUrl, [string] $LogErr)
@@ -154,11 +109,12 @@ if ($ApiPort -le 0) {
 $apiUrl = "http://127.0.0.1:$ApiPort"
 $logOut = Join-Path $repoRoot 'docs/evidence/real005b-reviewed-source-smoke-api.out.log'
 $logErr = Join-Path $repoRoot 'docs/evidence/real005b-reviewed-source-smoke-api.err.log'
-$runtimeFileStoreRoot = (Resolve-Path -LiteralPath $FileStoreRoot).Path
-$runtimeDataRoot = Split-Path -Parent $runtimeFileStoreRoot
-$runtimeBackupRoot = Join-Path $runtimeDataRoot 'backups'
-$runtimeLogsRoot = Join-Path $runtimeDataRoot 'logs'
-$runtimeCacheRoot = Join-Path $runtimeDataRoot 'cache'
+$runtimeRoots = Initialize-Real005bRuntimeRoots -RepoRoot $repoRoot -RuntimeFileStoreRoot $FileStoreRoot
+$runtimeFileStoreRoot = $runtimeRoots.FileStoreRoot
+$runtimeDataRoot = $runtimeRoots.DataRoot
+$runtimeBackupRoot = $runtimeRoots.BackupRoot
+$runtimeLogsRoot = $runtimeRoots.LogsRoot
+$runtimeCacheRoot = $runtimeRoots.CacheRoot
 $previousConnectionString = $env:KQG_CONNECTION_STRING
 $previousDataRoot = $env:KqgPaths__DataRoot
 $previousFileStoreRoot = $env:KqgPaths__FileStoreRoot
@@ -288,6 +244,8 @@ order by (custom_fields->>'year')::int, (custom_fields->>'questionNo')::int, id:
         sourceRegionCount = [int](Invoke-ScalarSql "select count(*) from source_regions where region_type in ('guangzhou_v2_question_candidate','guangzhou_v2_answer_document_page');")
         reviewQueueCount = [int](Invoke-ScalarSql "select count(*) from review_queue_items where payload->>'sourceWorkflowKey' = '$WorkflowKey' and status='open';")
         sourceReviewPass = ($missing.Count -eq 0)
+        missingCount = $missing.Count
+        missingSample = @($missing | Select-Object -First 20)
         samples = $samples
         rollback = 'No rollback required; this smoke only starts a temporary API process and reads existing rows.'
         boundary = 'Repo-side read-only API smoke only; this proves pending-review v2 candidates expose question and independent answer sources, not teacher acceptance or onsite/manual closeout.'

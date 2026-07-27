@@ -10,9 +10,12 @@ import type {
   ItemScoreMappingPreviewContract,
   PaperBlueprintConfirmContract,
   PaperBlueprintReviewContract,
+  PaperDraftQuestionContract,
+  PaperQuestionReplacementContract,
   QuestionDetailContract,
   QuestionRevisionContract,
   QuestionSearchContract,
+  QuestionSearchParams,
   QuestionSourceReviewContract,
   ReadyHealthContract,
   ReviewQueueItemContract,
@@ -34,6 +37,7 @@ import {
   normalizeItemScoreMappingPreviewResponse,
   normalizePaperBlueprintConfirmResponse,
   normalizePaperBlueprintReviewResponse,
+  normalizePaperQuestionReplacementResponse,
   normalizeQuestionDetailResponse,
   normalizeQuestionRevisionResponse,
   normalizeQuestionSearchResponse,
@@ -48,7 +52,8 @@ import {
   normalizeSourceRegionRevisionResponse,
 } from './contracts'
 
-const apiBaseUrl = import.meta.env.VITE_KQG_API_BASE_URL ?? ''
+const configuredApiBaseUrl = import.meta.env.VITE_KQG_API_BASE_URL ?? ''
+const apiBaseUrl = import.meta.env.DEV ? '' : configuredApiBaseUrl
 
 type JsonRequestInit = {
   method?: 'GET' | 'POST' | 'PATCH'
@@ -487,15 +492,7 @@ export async function getQuestionSources(
   )
 }
 
-export async function searchQuestions(params: {
-  page?: number
-  limit?: number
-  questionType?: string
-  sourceType?: string
-  status?: string
-  sortBy?: string
-  order?: 'asc' | 'desc'
-} = {}): Promise<ApiResult<QuestionSearchContract>> {
+export async function searchQuestions(params: QuestionSearchParams = {}): Promise<ApiResult<QuestionSearchContract>> {
   const query = new URLSearchParams()
   query.set('subject', 'physics')
   query.set('stage', 'junior_middle_school')
@@ -516,8 +513,36 @@ export async function searchQuestions(params: {
   if (params.order) {
     query.set('order', params.order)
   }
+  if (params.year !== undefined) {
+    query.set('year', String(params.year))
+  }
+  if (params.knowledgeCandidateId) {
+    query.set('knowledgeCandidateId', params.knowledgeCandidateId)
+  }
+  if (params.examPointCandidateId) {
+    query.set('examPointCandidateId', params.examPointCandidateId)
+  }
+  if (params.difficultyMin !== undefined) {
+    query.set('difficultyMin', String(params.difficultyMin))
+  }
+  if (params.difficultyMax !== undefined) {
+    query.set('difficultyMax', String(params.difficultyMax))
+  }
+  if (params.hasImage !== undefined) {
+    query.set('hasImage', String(params.hasImage))
+  }
 
   return requestJson(`/questions?${query.toString()}`, normalizeQuestionSearchResponse)
+}
+
+export async function replacePaperQuestion(
+  currentQuestion: PaperDraftQuestionContract,
+): Promise<ApiResult<PaperQuestionReplacementContract>> {
+  return postJson(
+    '/paper-requests/replace-question',
+    { currentQuestion },
+    normalizePaperQuestionReplacementResponse,
+  )
 }
 
 export async function createPaperBlueprintReview(request: {

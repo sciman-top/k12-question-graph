@@ -1,6 +1,7 @@
 using K12QuestionGraph.Api.Application.Workflows.Contracts;
 using K12QuestionGraph.Api.Data;
 using K12QuestionGraph.Api.Domain;
+using K12QuestionGraph.Api.Infrastructure.Json;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
@@ -578,17 +579,15 @@ public sealed class PaperWorkflowService(KqgDbContext dbContext) : IPaperWorkflo
         }
 
         var issues = new List<PaperExportPreflightIssueServiceItem>();
-        var hasImage = assets.Any(x =>
-            string.Equals(x.AssetType, "image", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(x.AssetType, "figure", StringComparison.OrdinalIgnoreCase));
+        var hasImage = assets.Any(x => IsImageAssetType(x.AssetType));
         var hasFormula = blocks.Any(x =>
             string.Equals(x.BlockType, "formula", StringComparison.OrdinalIgnoreCase) ||
             ContentContainsAny(x.Content, "latex", "formula"));
         var hasTable = blocks.Any(x =>
             string.Equals(x.BlockType, "table", StringComparison.OrdinalIgnoreCase) ||
             ContentContainsAny(x.Content, "rows", "columns", "table"));
-        var hasAnswer = CustomFieldHasValue(question.CustomFields, "answer");
-        var hasSolution = CustomFieldHasValue(question.CustomFields, "solution");
+        var hasAnswer = QuestionCustomFieldHelpers.HasMeaningfulValue(question.CustomFields, "answer");
+        var hasSolution = QuestionCustomFieldHelpers.HasMeaningfulValue(question.CustomFields, "solution");
         var sourceDocuments = ResolveSourceDocuments(blocks, assets, regions, documents);
         var sourceAuthorizationStatus = GetSourceAuthorizationStatus(sourceDocuments);
         var hasKnowledgeVersionReference =
@@ -676,23 +675,11 @@ public sealed class PaperWorkflowService(KqgDbContext dbContext) : IPaperWorkflo
         return allAuthorized ? "authorized" : "risk";
     }
 
-    private static bool CustomFieldHasValue(string customFields, string field)
+    internal static bool IsImageAssetType(string assetType)
     {
-        try
-        {
-            using var document = JsonDocument.Parse(customFields);
-            if (!document.RootElement.TryGetProperty(field, out var value) ||
-                value.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
-            {
-                return false;
-            }
-
-            return value.ValueKind != JsonValueKind.Object || value.EnumerateObject().Any();
-        }
-        catch (JsonException)
-        {
-            return false;
-        }
+        return assetType.Equals("image", StringComparison.OrdinalIgnoreCase) ||
+               assetType.Equals("figure", StringComparison.OrdinalIgnoreCase) ||
+               assetType.Equals("question_region_image", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool ContentContainsAny(string content, params string[] tokens)

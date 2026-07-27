@@ -1,4 +1,6 @@
 param(
+    [Parameter(Mandatory)]
+    [string] $BackupManifest,
     [string] $DatabaseName = 'k12_question_graph',
     [string] $DatabaseUser = 'postgres',
     [string] $DatabaseHost = '127.0.0.1',
@@ -30,10 +32,10 @@ if ([string]::IsNullOrWhiteSpace($MarkdownReportPath)) {
 }
 $artifactReportPath = ('docs/evidence/{0}-real005c1-word-pdf-artifact-report.json' -f $runDate)
 
-$workflowKey = 'guangzhou_2016_2025_reviewed_question_materialize_v1'
+$workflowKey = 'guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1'
 $reasonToken = 'real005c1_search_paper_export_smoke'
-$successYears = @(2016, 2017, 2018, 2019, 2021, 2022, 2023, 2024, 2025)
-$anomalyYear = 2020
+$successYears = @(2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025)
+$anomalyYear = 2015
 
 function Assert-True {
     param([bool] $Condition, [string] $Message)
@@ -99,6 +101,30 @@ function Invoke-ScalarSql {
     return [string] $rows[0]
 }
 
+function Invoke-CommandSql {
+    param([string] $Sql)
+    $psql = Join-Path $PgBin 'psql.exe'
+    $commandId = [Guid]::NewGuid().ToString('N')
+    $commandDir = Join-Path $repoRoot 'tmp\real005c-sql'
+    $sqlPath = Join-Path $commandDir "$commandId.sql"
+    $outPath = Join-Path $commandDir "$commandId.out.log"
+    $errPath = Join-Path $commandDir "$commandId.err.log"
+    New-Item -ItemType Directory -Path $commandDir -Force | Out-Null
+    [System.IO.File]::WriteAllText($sqlPath, $Sql, [System.Text.UTF8Encoding]::new($false))
+    try {
+        $sqlProcess = Start-Process -FilePath $psql -ArgumentList @(
+            '-h', $DatabaseHost, '-p', [string] $DatabasePort, '-U', $DatabaseUser,
+            '-d', $DatabaseName, '-v', 'ON_ERROR_STOP=1', '-f', $sqlPath
+        ) -Wait -PassThru -WindowStyle Hidden -RedirectStandardOutput $outPath -RedirectStandardError $errPath
+        if ($sqlProcess.ExitCode -ne 0) {
+            throw "REAL005C1 command SQL failed: $(Get-Content -LiteralPath $errPath -Raw)"
+        }
+    }
+    finally {
+        Remove-Item -LiteralPath $sqlPath, $outPath, $errPath -Force -ErrorAction SilentlyContinue
+    }
+}
+
 function ConvertTo-SqlStringLiteral {
     param([AllowNull()][string] $Value)
     if ($null -eq $Value) {
@@ -123,21 +149,18 @@ function ConvertTo-QuestionArtifact {
         [object] $Card,
         [int] $QuestionNo,
         [decimal] $Score,
-        [int] $Year
+        [int] $Year,
+        [string[]] $ImagePaths
     )
 
     return [ordered]@{
         questionItemId = [string] $Detail.id
         questionNo = $QuestionNo
         score = $Score
-        title = if ([string]::IsNullOrWhiteSpace([string] $Card.preview)) {
-            "广州 $Year 真题抽样第 $QuestionNo 题"
-        }
-        else {
-            "[$Year] " + [string] $Card.preview
-        }
+        title = "$Year 年广州中考物理第 $QuestionNo 题"
         blocks = @($Detail.blocks)
         hasImage = (@($Detail.assets).Count -gt 0)
+        imagePaths = @($ImagePaths)
         answer = [string] $Detail.customFields.answer.value
         solution = [string] $Detail.customFields.solution.text
         sourceAuthorizationStatus = 'authorized'
@@ -188,6 +211,17 @@ $previousConnectionString = $env:KQG_CONNECTION_STRING
 $env:KQG_CONNECTION_STRING = "Host=$DatabaseHost;Port=$DatabasePort;Database=$DatabaseName;Username=$DatabaseUser;Password=$DatabasePassword"
 $process = $null
 $pushedLocation = $false
+$rollbackSql = ''
+$rollbackApplied = $false
+$knowledgeId = ''
+$successBasket = $null
+$anomalyBasket = $null
+$questionSnapshots = @{}
+$sourceSnapshots = @{}
+$allSelectedQuestionIds = @()
+
+$backupVerification = & (Join-Path $PSScriptRoot 'verify-backup.ps1') -ManifestPath $BackupManifest | ConvertFrom-Json
+Assert-True ([string] $backupVerification.status -eq 'ok') 'REAL005C1 backup verification failed'
 
 try {
     Push-Location $repoRoot
@@ -214,6 +248,7 @@ with ranked as (
   join source_documents sd on sd.id = (qi.custom_fields->>'sourceDocumentId')::uuid
   where coalesce(qi.custom_fields->>'sourceWorkflowKey','') = '$workflowKey'
     and coalesce(qi.custom_fields->'answer'->>'value','') <> ''
+    and coalesce(qi.custom_fields->'solution'->>'text','') <> ''
 )
 select year::text || '|' || question_no || '|' || answer_value || '|' || question_id
 from ranked
@@ -249,7 +284,8 @@ with ranked as (
   join source_documents sd on sd.id = (qi.custom_fields->>'sourceDocumentId')::uuid
   where coalesce(qi.custom_fields->>'sourceWorkflowKey','') = '$workflowKey'
     and sd.year = $anomalyYear
-    and coalesce(qi.custom_fields->'answer'->>'value','') = ''
+    and coalesce(qi.custom_fields->'answer'->>'value','') <> ''
+    and coalesce(qi.custom_fields->'solution'->>'text','') = ''
 )
 select year::text || '|' || question_no || '|' || question_id
 from ranked
@@ -267,7 +303,6 @@ where rn = 1;
     $allSelectedQuestionIds = @($successSamples | ForEach-Object { [string] $_.questionId }) + @([string] $anomalySample.questionId)
     $selectedIdsSql = Join-IdsForSql -Ids $allSelectedQuestionIds
 
-    $questionSnapshots = @{}
     $questionSnapshotRows = @(
         Invoke-RowSql -Sql @"
 select
@@ -302,13 +337,30 @@ order by nullif(qi.custom_fields->>'questionNo','')::int nulls last, qi.id;
     Assert-True ($questionSnapshots.Count -eq $allSelectedQuestionIds.Count) "REAL005C1 question snapshot count mismatch: expected $($allSelectedQuestionIds.Count), actual $($questionSnapshots.Count)"
 
     $sourceDocumentIds = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
-    foreach ($questionId in $allSelectedQuestionIds) {
-        $sourceDocumentId = [string] $questionSnapshots[$questionId].sourceDocumentId
-        Assert-True (-not [string]::IsNullOrWhiteSpace($sourceDocumentId)) "REAL005C1 sample question $questionId is missing sourceDocumentId"
-        [void] $sourceDocumentIds.Add($sourceDocumentId)
+    $linkedSourceDocumentRows = @(Invoke-RowSql -Sql @"
+select distinct source_document_id::text
+from (
+  select sr.source_document_id
+  from question_blocks qb
+  join source_regions sr on sr.id=qb.source_region_id
+  where qb.question_item_id in ($selectedIdsSql)
+  union
+  select sr.source_document_id
+  from question_assets qa
+  join source_regions sr on sr.id=qa.source_region_id
+  where qa.question_item_id in ($selectedIdsSql)
+  union
+  select (qi.custom_fields->>'sourceDocumentId')::uuid
+  from question_items qi
+  where qi.id in ($selectedIdsSql)
+) linked
+order by source_document_id;
+"@)
+    foreach ($sourceDocumentId in $linkedSourceDocumentRows) {
+        [void] $sourceDocumentIds.Add([string] $sourceDocumentId)
     }
+    Assert-True ($sourceDocumentIds.Count -ge 2) 'REAL005C1 must resolve both paper and answer/solution source documents'
 
-    $sourceSnapshots = @{}
     foreach ($sourceDocumentId in $sourceDocumentIds) {
         $sourceRows = @(
             Invoke-RowSql -Sql @"
@@ -375,6 +427,54 @@ values (
     ) -PassThru -WindowStyle Hidden -RedirectStandardOutput $logOut -RedirectStandardError $logErr
     Wait-ApiReady -ProcessId $process.Id -ApiUrl $apiUrl -LogErr $logErr
 
+    $candidateFilterRows = @(Invoke-RowSql -Sql @"
+select concat_ws('|',
+  qi.id::text,
+  qi.custom_fields->>'year',
+  qi.custom_fields->>'questionNo',
+  qi.question_type,
+  qi.difficulty_estimated::text,
+  qi.custom_fields->'knowledgeCandidateIds'->>0,
+  qi.custom_fields->'examPointCandidateIds'->>0
+)
+from question_items qi
+where qi.custom_fields->>'sourceWorkflowKey'='$workflowKey'
+  and qi.status='pending_review'
+  and jsonb_array_length(coalesce(qi.custom_fields->'knowledgeCandidateIds','[]'::jsonb)) > 0
+  and jsonb_array_length(coalesce(qi.custom_fields->'examPointCandidateIds','[]'::jsonb)) > 0
+  and exists (
+    select 1 from question_assets qa
+    where qa.question_item_id=qi.id
+      and qa.asset_type in ('image','question_region_image')
+  )
+order by (qi.custom_fields->>'year')::int, (qi.custom_fields->>'questionNo')::int
+limit 1;
+"@)
+    Assert-True ($candidateFilterRows.Count -eq 1) 'REAL005C1 requires one pending-review candidate with knowledge, exam point, difficulty, and image metadata'
+    $candidateFilterParts = $candidateFilterRows[0] -split '\|', 7
+    $candidateFilterSample = [ordered]@{
+        questionItemId = [string] $candidateFilterParts[0]
+        year = [int] $candidateFilterParts[1]
+        questionNo = [int] $candidateFilterParts[2]
+        questionType = [string] $candidateFilterParts[3]
+        difficulty = [double]::Parse([string] $candidateFilterParts[4], [System.Globalization.CultureInfo]::InvariantCulture)
+        knowledgeCandidateId = [string] $candidateFilterParts[5]
+        examPointCandidateId = [string] $candidateFilterParts[6]
+    }
+    $difficultyMin = ($candidateFilterSample.difficulty - 0.001).ToString('0.###', [System.Globalization.CultureInfo]::InvariantCulture)
+    $difficultyMax = ($candidateFilterSample.difficulty + 0.001).ToString('0.###', [System.Globalization.CultureInfo]::InvariantCulture)
+    $candidateSearchUri = "$apiUrl/questions?subject=physics&stage=junior_middle_school&status=pending_review&year=$($candidateFilterSample.year)&questionType=$([Uri]::EscapeDataString($candidateFilterSample.questionType))&knowledgeCandidateId=$([Uri]::EscapeDataString($candidateFilterSample.knowledgeCandidateId))&examPointCandidateId=$([Uri]::EscapeDataString($candidateFilterSample.examPointCandidateId))&difficultyMin=$difficultyMin&difficultyMax=$difficultyMax&hasImage=true&page=1&limit=1"
+    $candidateSearch = Invoke-RestMethod -Method Get -Uri $candidateSearchUri -TimeoutSec 10
+    Assert-True ([string] $candidateSearch.knowledgeStatus -eq 'candidate_filters') 'REAL005C1 candidate search must expose candidate_filters boundary'
+    Assert-True (-not [bool] $candidateSearch.productionEligible) 'REAL005C1 candidate search must remain non-production eligible'
+    Assert-True ([int] $candidateSearch.total -ge 1) 'REAL005C1 combined candidate filters returned no real questions'
+    Assert-True ([string] @($candidateSearch.items)[0].id -eq [string] $candidateFilterSample.questionItemId) 'REAL005C1 combined candidate filters returned the wrong question'
+    Assert-True ([bool] @($candidateSearch.items)[0].hasImage) 'REAL005C1 question_region_image must satisfy hasImage=true'
+
+    $candidateMissYear = [int] $candidateFilterSample.year + 1
+    $candidateMiss = Invoke-RestMethod -Method Get -Uri ($candidateSearchUri -replace "year=$($candidateFilterSample.year)", "year=$candidateMissYear") -TimeoutSec 10
+    Assert-True (@($candidateMiss.items | Where-Object { [string] $_.id -eq [string] $candidateFilterSample.questionItemId }).Count -eq 0) 'REAL005C1 wrong-year negative filter returned the selected question'
+
     foreach ($sourceDocumentId in $sourceDocumentIds) {
         $authorizationBody = [ordered]@{
             licenseOrPermission = 'internal_authorized'
@@ -395,19 +495,13 @@ values (
     foreach ($sample in $successSamples) {
         $detail = Invoke-RestMethod -Method Get -Uri "$apiUrl/questions/$($sample.questionId)" -TimeoutSec 10
         Assert-True (@($detail.assets).Count -ge 1) "REAL005C1 success sample $($sample.questionId) must expose at least one asset"
-        $solutionText = "RG010 导出预检抽样解析：已审核答案为 $($sample.answer)；本解析仅用于 repo-side 检索/题篮/导出链 smoke，不代表全量解析治理完成。"
         $patchBody = [ordered]@{
             status = 'usable'
             primaryKnowledgeId = $knowledgeId
             defaultScore = if ($null -eq $detail.defaultScore) { 4 } else { [decimal] $detail.defaultScore }
             difficultyEstimated = if ($null -eq $detail.difficultyEstimated) { 0.62 } else { [double] $detail.difficultyEstimated }
-            solution = [ordered]@{
-                text = $solutionText
-                source = $reasonToken
-                reviewStatus = 'draft'
-            }
             reviewedBy = 'real005c1-smoke'
-            reason = $reasonToken + '_promote_success_sample'
+            reason = $reasonToken + '_temporary_qualification_sample'
         } | ConvertTo-Json -Depth 8
         $revision = Invoke-RestMethod -Method Patch -Uri "$apiUrl/questions/$($sample.questionId)" -ContentType 'application/json' -Body $patchBody -TimeoutSec 10
         $promotedSuccessSamples.Add([pscustomobject]@{
@@ -443,11 +537,25 @@ values (
 
     $basketItems = @()
     $questionArtifacts = @()
+    $sourceImageRoot = Join-Path $repoRoot (Join-Path $OutputRoot 'source-images')
+    New-Item -ItemType Directory -Path $sourceImageRoot -Force | Out-Null
     $sortOrder = 0
     $displayQuestionNo = 1
     foreach ($sample in @($promotedSuccessSamples | Sort-Object year, questionNo)) {
         $card = @($successCards | Where-Object { [string] $_.id -eq [string] $sample.questionItemId } | Select-Object -First 1)[0]
         $detail = Invoke-RestMethod -Method Get -Uri "$apiUrl/questions/$($sample.questionItemId)" -TimeoutSec 10
+        $imagePaths = @()
+        $assetIndex = 0
+        foreach ($asset in @($detail.assets)) {
+            if ([string]::IsNullOrWhiteSpace([string] $asset.sourceRegionScreenshotUrl)) { continue }
+            $assetIndex += 1
+            $imageRelativePath = Join-Path $OutputRoot ("source-images\q{0:D2}-{1:D2}.png" -f $displayQuestionNo, $assetIndex)
+            $imageFullPath = Join-Path $repoRoot $imageRelativePath
+            Invoke-WebRequest -UseBasicParsing -Uri ($apiUrl + [string] $asset.sourceRegionScreenshotUrl) -OutFile $imageFullPath -TimeoutSec 20
+            Assert-True ((Get-Item -LiteralPath $imageFullPath).Length -gt 1000) "REAL005C1 source image is empty: $imageRelativePath"
+            $imagePaths += ($imageRelativePath -replace '\\', '/')
+        }
+        Assert-True ($imagePaths.Count -ge 1) "REAL005C1 question $($sample.questionItemId) has no downloadable source image"
         $score = if ($null -eq $detail.defaultScore) { 4 } else { [decimal] $detail.defaultScore }
         $basketItems += [ordered]@{
             questionItemId = [string] $detail.id
@@ -457,7 +565,7 @@ values (
             score = $score
             sortOrder = $sortOrder
         }
-        $questionArtifacts += ConvertTo-QuestionArtifact -Detail $detail -Card $card -QuestionNo $displayQuestionNo -Score $score -Year ([int] $sample.year)
+        $questionArtifacts += ConvertTo-QuestionArtifact -Detail $detail -Card $card -QuestionNo $displayQuestionNo -Score $score -Year ([int] $sample.year) -ImagePaths $imagePaths
         $sortOrder += 1
         $displayQuestionNo += 1
     }
@@ -475,7 +583,7 @@ values (
 
     $preflightBody = @{ exportFormat = 'docx' } | ConvertTo-Json
     $successPreflight = Invoke-RestMethod -Method Post -Uri "$apiUrl/paper-baskets/$($successBasket.id)/export-preflight" -ContentType 'application/json' -Body $preflightBody -TimeoutSec 10
-    Assert-True ([string] $successPreflight.status -eq 'ready_for_review') 'REAL005C1 success basket preflight must be ready_for_review'
+    Assert-True ([string] $successPreflight.status -eq 'ready_for_review') "REAL005C1 success basket preflight must be ready_for_review; status=$([string] $successPreflight.status); issueCounts=$($successPreflight.issueCounts | ConvertTo-Json -Compress)"
     Assert-True (-not [bool] $successPreflight.productionEligible) 'REAL005C1 success preflight must remain non-production eligible'
     Assert-True ([int] $successPreflight.itemCount -eq $promotedSuccessSamples.Count) 'REAL005C1 success preflight item count mismatch'
     Assert-True (@($successPreflight.issueCounts.PSObject.Properties).Count -eq 0) 'REAL005C1 success preflight should not expose blockers'
@@ -490,7 +598,7 @@ values (
     $artifactInput = [ordered]@{
         taskId = 'REAL005C1'
         paperBasketId = $successBasket.id
-        basketTitle = $successBasket.title
+        basketTitle = '2016-2025 年广州中考物理真题抽样卷'
         preflight = $successPreflight
         questions = $questionArtifacts
     }
@@ -508,7 +616,7 @@ values (
     Assert-True ([string] $artifactReport.preflightStatus -eq 'ready_for_review') 'REAL005C1 artifact report preflight must stay ready_for_review'
 
     $anomalyBasketBody = [ordered]@{
-        title = 'REAL005C1 2020 anomaly export preflight'
+        title = 'REAL005C1 2015 missing-solution anomaly export preflight'
         subject = 'physics'
         stage = 'junior_middle_school'
         grade = 'grade_9'
@@ -533,7 +641,7 @@ values (
     Assert-True ([string] $anomalyPreflight.status -eq 'blocked') 'REAL005C1 anomaly preflight must stay blocked'
     Assert-True ($anomalySolutionMissingCount -ge 1) 'REAL005C1 anomaly preflight must expose solution_missing'
     Assert-True (-not [bool] $anomalyFirstItem.hasSolution) 'REAL005C1 anomaly item must still lack solution'
-    Assert-True ([bool] $anomalyFirstItem.hasAnswer) 'REAL005C1 anomaly should currently expose an answer object even when its value is empty'
+    Assert-True ([bool] $anomalyFirstItem.hasAnswer) 'REAL005C1 anomaly must keep its extracted answer while solution is missing'
     Assert-True ([int] $anomalyPreflight.summary.authorizedSourceCount -eq 1) 'REAL005C1 anomaly source authorization should be isolated from answer/solution blockers'
     Assert-True ([int] $anomalyPreflight.summary.activeKnowledgeVersionCount -eq 1) 'REAL005C1 anomaly should still prove knowledge reference wiring'
 
@@ -574,6 +682,25 @@ values (
     $rollbackLines.Add("delete from knowledge_nodes where id = '$knowledgeId';") | Out-Null
     $rollbackLines.Add('commit;') | Out-Null
     $rollbackSql = [string]::Join("`r`n", $rollbackLines)
+
+    Invoke-CommandSql -Sql $rollbackSql
+    $rollbackApplied = $true
+    $postRollbackRow = @(Invoke-RowSql -Sql @"
+select concat_ws('|',
+  count(*) filter (where status='pending_review'),
+  count(*) filter (where primary_knowledge_id is null),
+  count(*) filter (where coalesce((custom_fields->>'productionEligible')::boolean,false)=false),
+  (select count(*) from review_queue_items where payload->>'sourceWorkflowKey'='$workflowKey' and status='open'),
+  (select count(*) from paper_baskets where id in ('$($successBasket.id)','$($anomalyBasket.id)')),
+  (select count(*) from knowledge_nodes where id='$knowledgeId')
+)
+from question_items
+where custom_fields->>'sourceWorkflowKey'='$workflowKey';
+"@)
+    Assert-True ($postRollbackRow.Count -eq 1) 'REAL005C1 post-rollback invariant query failed'
+    $postRollbackParts = $postRollbackRow[0] -split '\|', 6
+    Assert-True (($postRollbackParts[0..3] -join '|') -eq '234|234|234|234') 'REAL005C1 did not restore all Guangzhou v2 pending-review invariants'
+    Assert-True (($postRollbackParts[4..5] -join '|') -eq '0|0') 'REAL005C1 temporary basket or knowledge node remains after rollback'
 
     $successPreflightSummary = [ordered]@{
         imageReadyCount = [int] $successPreflight.summary.imageReadyCount
@@ -625,7 +752,10 @@ values (
         portFallbackApplied = ($requestedApiPort -ne $ApiPort)
         apiUrl = $apiUrl
         workflowKey = $workflowKey
-        activeWrite = $true
+        transientActiveWrite = $true
+        activeWrite = $false
+        rollbackApplied = $rollbackApplied
+        backupManifest = (Resolve-Path -LiteralPath $BackupManifest).Path
         externalAiCalls = 0
         realStudentDataUsed = $false
         productionEligible = $false
@@ -650,6 +780,19 @@ values (
             returnedSelectedQuestionIds = @($returnedIds | Where-Object { $allSelectedQuestionIds -contains $_ })
             successYears = @($promotedSuccessSamples | ForEach-Object { [int] $_.year })
             anomalyYear = $anomalySample.year
+            candidateFilters = [ordered]@{
+                questionItemId = $candidateFilterSample.questionItemId
+                year = $candidateFilterSample.year
+                questionNo = $candidateFilterSample.questionNo
+                questionType = $candidateFilterSample.questionType
+                knowledgeCandidateId = $candidateFilterSample.knowledgeCandidateId
+                examPointCandidateId = $candidateFilterSample.examPointCandidateId
+                difficultyMin = $difficultyMin
+                difficultyMax = $difficultyMax
+                hasImage = [bool] @($candidateSearch.items)[0].hasImage
+                total = [int] $candidateSearch.total
+                wrongYearExcludesSelectedQuestion = $true
+            }
         }
         successPreflight = [ordered]@{
             paperBasketId = [string] $successBasket.id
@@ -684,8 +827,8 @@ values (
             "Remove generated artifacts under $OutputRoot after applying rollback SQL.",
             "Delete $(($artifactInputRelativePath -replace '\\', '/')) if the report is reverted."
         )
-        boundary = 'Repo-side RG010 smoke only: it proves sampled reviewed real questions can enter search, basket, export preflight, and Word/PDF draft artifacts while a 2020 empty-answer/no-solution anomaly still blocks preflight. REAL005 must remain not_closed until RG011-RG016 also pass.'
-        summaryChinese = '2016-2025 reviewed real questions now have repo-side RG010 evidence: sampled years进入检索/题篮/导出链，2020 空答案且缺解析异常仍按当前 API 合同被导出预检阻断。'
+        boundary = 'Repo-side reversible RG010 smoke only: it temporarily qualifies v2 pending-review samples for API exercise, generates draft Word/PDF artifacts, and restores every database mutation before reporting. It does not simulate or persist teacher approval. The 2015 answer-present/solution-missing sample remains blocked, and REAL005 stays not_closed.'
+        summaryChinese = '2016-2025 v2 待审核真题仅在可逆 smoke 窗口内临时进入检索、题篮和 Word/PDF 草稿链；2015 有答案但缺解析样本仍被阻断，数据库已自动恢复，未留下教师确认或 active 写入。'
     }
 
     $finalReport | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $reportFullPath -Encoding UTF8
@@ -712,6 +855,33 @@ values (
 finally {
     if ($null -ne $process) {
         Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+    }
+    if (-not $rollbackApplied -and $questionSnapshots.Count -gt 0) {
+        $emergencyLines = [System.Collections.Generic.List[string]]::new()
+        $emergencyLines.Add('begin;') | Out-Null
+        foreach ($basket in @($successBasket, $anomalyBasket)) {
+            if ($null -ne $basket -and -not [string]::IsNullOrWhiteSpace([string] $basket.id)) {
+                $emergencyLines.Add("delete from paper_baskets where id='$([string] $basket.id)';") | Out-Null
+            }
+        }
+        $emergencyLines.Add("delete from review_queue_items where payload::text like '%$reasonToken%';") | Out-Null
+        if (-not [string]::IsNullOrWhiteSpace($knowledgeId)) {
+            $emergencyLines.Add("delete from knowledge_mappings where knowledge_node_id='$knowledgeId';") | Out-Null
+        }
+        foreach ($questionId in $allSelectedQuestionIds) {
+            $snapshot = $questionSnapshots[[string] $questionId]
+            $primaryKnowledgeSql = if ([string]::IsNullOrWhiteSpace([string] $snapshot.primaryKnowledgeId)) { 'null' } else { "'$([string] $snapshot.primaryKnowledgeId)'" }
+            $emergencyLines.Add("update question_items set status=$(ConvertTo-SqlStringLiteral ([string] $snapshot.status)), primary_knowledge_id=$primaryKnowledgeSql, custom_fields=$(ConvertTo-SqlStringLiteral ([string] $snapshot.customFieldsJson))::jsonb where id='$questionId';") | Out-Null
+        }
+        foreach ($sourceDocumentId in @($sourceSnapshots.Keys)) {
+            $snapshot = $sourceSnapshots[[string] $sourceDocumentId]
+            $emergencyLines.Add("update source_documents set license_or_permission=$(ConvertTo-SqlStringLiteral ([string] $snapshot.licenseOrPermission)), sharing_allowed=$([string] $snapshot.sharingAllowed), contains_student_pii=$([string] $snapshot.containsStudentPii), anonymization_status=$(ConvertTo-SqlStringLiteral ([string] $snapshot.anonymizationStatus)), external_ai_allowed=$([string] $snapshot.externalAiAllowed), may_use_for_exam_point_extraction=$([string] $snapshot.mayUseForExamPointExtraction), may_use_for_knowledge_extraction=$([string] $snapshot.mayUseForKnowledgeExtraction), may_use_for_trend_analysis=$([string] $snapshot.mayUseForTrendAnalysis) where id='$sourceDocumentId';") | Out-Null
+        }
+        if (-not [string]::IsNullOrWhiteSpace($knowledgeId)) {
+            $emergencyLines.Add("delete from knowledge_nodes where id='$knowledgeId';") | Out-Null
+        }
+        $emergencyLines.Add('commit;') | Out-Null
+        Invoke-CommandSql -Sql ([string]::Join("`r`n", $emergencyLines))
     }
     $env:KQG_CONNECTION_STRING = $previousConnectionString
     if ($pushedLocation) {

@@ -1,0 +1,29 @@
+{
+  "status": "pass",
+  "taskId": "GUANGZHOU_PHYSICS_V2_TAGGING",
+  "checkedAt": "2026-07-27T16:19:51.704146+00:00",
+  "mode": "apply",
+  "workflowKey": "guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1",
+  "backupManifest": "D:\\KQG_Backups\\20260727-223257\\manifest.json",
+  "updatedQuestionCount": 234,
+  "counts": {
+    "questions": 234,
+    "completeTagCandidates": 234,
+    "observedDifficultyCandidates": 150,
+    "estimatedDifficultyCandidates": 234,
+    "difficultyConflictsPendingReview": 44,
+    "pendingReviewQuestions": 234,
+    "productionEligibleQuestions": 0,
+    "primaryKnowledgeIdWrites": 0,
+    "c002ActiveCount": 452
+  },
+  "stateFingerprintBefore": "5e32a022e2e82723d1cbec120e8d103c",
+  "stateFingerprintAfter": "97a24ef95760335c82cd599fb04c5fc0",
+  "dryRunRolledBack": null,
+  "activeAssetWrite": false,
+  "questionCandidateWriteApplied": true,
+  "externalAiCalls": 0,
+  "realStudentDataUsed": false,
+  "boundary": "Tag and difficulty candidates only. C002 assets are referenced but not modified; primary_knowledge_id remains null, all questions remain pending_review/productionEligible=false, and teacher validation is still required.",
+  "rollback": "restore database from D:\\KQG_Backups\\20260727-223257\\manifest.json"
+}

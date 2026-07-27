@@ -3,17 +3,19 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 $appPath = Join-Path $repoRoot 'apps\web\src\App.tsx'
 $paperPanelsPath = Join-Path $repoRoot 'apps\web\src\ui\PaperWorkbenchPanels.tsx'
+$realExamReviewPath = Join-Path $repoRoot 'apps\web\src\ui\RealExamReviewWorkbench.tsx'
 $cssPath = Join-Path $repoRoot 'apps\web\src\App.css'
 $teacherLabelsPath = Join-Path $repoRoot 'apps\web\src\ui\teacherLabels.ts'
 $adminPanelsPath = Join-Path $repoRoot 'apps\web\src\ui\AdminGovernancePanels.tsx'
 
 $app = Get-Content -LiteralPath $appPath -Raw
 $paperPanels = Get-Content -LiteralPath $paperPanelsPath -Raw
+$realExamReview = Get-Content -LiteralPath $realExamReviewPath -Raw
 $css = Get-Content -LiteralPath $cssPath -Raw
 $teacherLabels = Get-Content -LiteralPath $teacherLabelsPath -Raw
 $adminPanels = Get-Content -LiteralPath $adminPanelsPath -Raw
 $uiSource = $app + "`n" + $adminPanels
-$teacherSectionSource = $app + "`n" + $paperPanels
+$teacherSectionSource = $app + "`n" + $paperPanels + "`n" + $realExamReview
 
 $mainMatch = [regex]::Match($app, '<main\s+className=\{`workspace teacher-view-\$\{activeTeacherView\}`\}[\s\S]*?</main>')
 if (-not $mainMatch.Success) {
