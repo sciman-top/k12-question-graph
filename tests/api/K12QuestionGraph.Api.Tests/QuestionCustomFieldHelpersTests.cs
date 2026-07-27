@@ -31,6 +31,23 @@ public class QuestionCustomFieldHelpersTests
     }
 
     [Fact]
+    public void Merge_UpdatesReviewLabelsWithoutChangingOtherCandidateFields()
+    {
+        var merged = QuestionCustomFieldHelpers.Merge(
+            """{"questionNo":5,"productionEligible":false,"primaryKnowledgeCandidateId":"K-1"}""",
+            answer: null,
+            solution: null,
+            primaryKnowledgeLabel: "光的反射",
+            knowledgeTags: ["光学", "光学", " 反射 "]);
+
+        using var mergedDoc = JsonDocument.Parse(merged);
+        Assert.Equal("K-1", mergedDoc.RootElement.GetProperty("primaryKnowledgeCandidateId").GetString());
+        Assert.False(mergedDoc.RootElement.GetProperty("productionEligible").GetBoolean());
+        Assert.Equal("光的反射", mergedDoc.RootElement.GetProperty("primaryKnowledgeLabel").GetString());
+        Assert.Equal(["光学", "反射"], mergedDoc.RootElement.GetProperty("knowledgeTags").EnumerateArray().Select(x => x.GetString()));
+    }
+
+    [Fact]
     public void HasMeaningfulValue_Rejects_Null_And_EmptyObjects()
     {
         Assert.False(QuestionCustomFieldHelpers.HasMeaningfulValue("""{"answer":null}""", "answer"));

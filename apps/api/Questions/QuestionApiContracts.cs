@@ -34,6 +34,8 @@ public sealed record QuestionUpdateRequest(
     IReadOnlyList<QuestionBlockUpdateRequest>? Blocks,
     JsonElement? Answer,
     JsonElement? Solution,
+    string? PrimaryKnowledgeLabel,
+    IReadOnlyList<string>? KnowledgeTags,
     string ReviewedBy,
     string Reason);
 

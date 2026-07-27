@@ -2494,7 +2494,12 @@ app.MapPatch("/questions/{id:guid}", async (
     var solution = request.Solution.HasValue
         ? request.Solution.Value.Clone()
         : TryGetCustomFieldElement(item.CustomFields, "solution");
-    item.CustomFields = MergeQuestionCustomFields(item.CustomFields, answer, solution);
+    item.CustomFields = MergeQuestionCustomFields(
+        item.CustomFields,
+        answer,
+        solution,
+        request.PrimaryKnowledgeLabel,
+        request.KnowledgeTags);
     item.Blocks = SerializeJson(blocks.OrderBy(x => x.SortOrder).Select(block => new
     {
         type = block.BlockType,
@@ -3883,9 +3888,14 @@ static int? TryGetIntCustomField(string json, string propertyName)
     return QuestionCustomFieldHelpers.TryGetIntField(json, propertyName);
 }
 
-static string MergeQuestionCustomFields(string json, JsonElement? answer, JsonElement? solution)
+static string MergeQuestionCustomFields(
+    string json,
+    JsonElement? answer,
+    JsonElement? solution,
+    string? primaryKnowledgeLabel = null,
+    IReadOnlyList<string>? knowledgeTags = null)
 {
-    return QuestionCustomFieldHelpers.Merge(json, answer, solution);
+    return QuestionCustomFieldHelpers.Merge(json, answer, solution, primaryKnowledgeLabel, knowledgeTags);
 }
 
 static bool QuestionCustomFieldHasValue(string json, string propertyName)

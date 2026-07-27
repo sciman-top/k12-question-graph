@@ -445,6 +445,8 @@ export async function updateQuestion(
     }>
     answer?: Record<string, unknown>
     solution?: Record<string, unknown>
+    primaryKnowledgeLabel?: string
+    knowledgeTags?: string[]
   },
 ): Promise<ApiResult<QuestionRevisionContract>> {
   return patchJson(

@@ -48,7 +48,12 @@ public static class QuestionCustomFieldHelpers
         }
     }
 
-    public static string Merge(string json, JsonElement? answer, JsonElement? solution)
+    public static string Merge(
+        string json,
+        JsonElement? answer,
+        JsonElement? solution,
+        string? primaryKnowledgeLabel = null,
+        IReadOnlyList<string>? knowledgeTags = null)
     {
         var fields = new Dictionary<string, JsonElement>(StringComparer.OrdinalIgnoreCase);
         try
@@ -75,6 +80,21 @@ public static class QuestionCustomFieldHelpers
         if (solution.HasValue)
         {
             fields["solution"] = solution.Value.Clone();
+        }
+
+        if (primaryKnowledgeLabel is not null)
+        {
+            fields["primaryKnowledgeLabel"] = JsonSerializer.SerializeToElement(primaryKnowledgeLabel.Trim());
+        }
+
+        if (knowledgeTags is not null)
+        {
+            var normalizedTags = knowledgeTags
+                .Where(tag => !string.IsNullOrWhiteSpace(tag))
+                .Select(tag => tag.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+            fields["knowledgeTags"] = JsonSerializer.SerializeToElement(normalizedTags);
         }
 
         return JsonSerializer.Serialize(fields);
