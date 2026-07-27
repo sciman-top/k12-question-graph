@@ -1509,6 +1509,48 @@ app.MapPost("/review-queue/{id:guid}/resolve", async (
 })
 .WithName("ResolveReviewQueueItem");
 
+app.MapPost("/review-queue/{id:guid}/reopen", async (
+    Guid id,
+    ReviewQueueReopenRequest request,
+    KqgDbContext dbContext,
+    CancellationToken cancellationToken) =>
+{
+    if (string.IsNullOrWhiteSpace(request.ReviewedBy))
+    {
+        return Results.BadRequest(new { error = "reviewed_by_required" });
+    }
+
+    if (string.IsNullOrWhiteSpace(request.Reason))
+    {
+        return Results.BadRequest(new { error = "reason_required" });
+    }
+
+    var row = await dbContext.ReviewQueueItems.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+    if (row is null)
+    {
+        return Results.NotFound(new { error = "review_queue_item_not_found" });
+    }
+
+    if (string.Equals(row.Status, ReviewStatuses.Open, StringComparison.OrdinalIgnoreCase))
+    {
+        return Results.Conflict(new { error = "review_queue_item_already_open" });
+    }
+
+    var now = DateTimeOffset.UtcNow;
+    row.Status = ReviewStatuses.Open;
+    row.ResolvedAt = null;
+    row.Payload = ReviewQueuePayloadHelpers.WithReviewAudit(
+        row.Payload,
+        request.ReviewedBy.Trim(),
+        "reopened",
+        request.Reason.Trim(),
+        now);
+    await dbContext.SaveChangesAsync(cancellationToken);
+
+    return Results.Ok(ReviewQueueItemResponse.From(row));
+})
+.WithName("ReopenReviewQueueItem");
+
 app.MapPost("/review-workbench/actions", async (
     ReviewWorkbenchActionRequest request,
     KqgDbContext dbContext,

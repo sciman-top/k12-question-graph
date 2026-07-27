@@ -237,6 +237,7 @@ public sealed record ReviewQueueItemResponse(
     string Status,
     string RiskLevel,
     string RequiredAction,
+    IReadOnlyList<string> RequiredActions,
     decimal? Confidence,
     string? Reason,
     JsonElement Payload,
@@ -252,6 +253,7 @@ public sealed record ReviewQueueItemResponse(
             row.Status,
             ReviewQueuePayloadHelpers.ResolveRiskLevel(payload),
             ReviewQueuePayloadHelpers.ResolveRequiredAction(payload),
+            ReviewQueuePayloadHelpers.ResolveRequiredActions(payload),
             ReviewQueuePayloadHelpers.ResolveConfidence(payload),
             ReviewQueuePayloadHelpers.ResolveReason(payload),
             payload,
@@ -275,6 +277,10 @@ public sealed record ReviewQueueResolveRequest(
     string Decision,
     string Reason,
     ReviewQueueRevisionRequest? Revision);
+
+public sealed record ReviewQueueReopenRequest(
+    string ReviewedBy,
+    string Reason);
 
 public sealed record ReviewWorkbenchActionRequest(
     string Action,

@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using K12QuestionGraph.Api.Domain;
 using K12QuestionGraph.Api.ImportJobs;
 
@@ -49,14 +50,35 @@ public static class ReviewQueuePayloadHelpers
 
     public static string ResolveRequiredAction(JsonElement payload)
     {
-        if (payload.ValueKind == JsonValueKind.Object &&
-            payload.TryGetProperty("requiredAction", out var actionElement) &&
-            actionElement.ValueKind == JsonValueKind.String)
+        return ResolveRequiredActions(payload).FirstOrDefault() ?? "manual_review";
+    }
+
+    public static IReadOnlyList<string> ResolveRequiredActions(JsonElement payload)
+    {
+        if (payload.ValueKind != JsonValueKind.Object)
         {
-            return actionElement.GetString() ?? "manual_review";
+            return [];
         }
 
-        return "manual_review";
+        if (payload.TryGetProperty("requiredActions", out var actionsElement) &&
+            actionsElement.ValueKind == JsonValueKind.Array)
+        {
+            return actionsElement
+                .EnumerateArray()
+                .Where(x => x.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(x.GetString()))
+                .Select(x => x.GetString()!.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+        }
+
+        if (payload.TryGetProperty("requiredAction", out var actionElement) &&
+            actionElement.ValueKind == JsonValueKind.String &&
+            !string.IsNullOrWhiteSpace(actionElement.GetString()))
+        {
+            return [actionElement.GetString()!.Trim()];
+        }
+
+        return [];
     }
 
     public static decimal? ResolveConfidence(JsonElement payload)
@@ -113,14 +135,14 @@ public static class ReviewQueuePayloadHelpers
         DateTimeOffset reviewedAt,
         ReviewQueueRevisionRequest? revision = null)
     {
-        Dictionary<string, object?> payload;
+        JsonObject payload;
         try
         {
-            payload = JsonSerializer.Deserialize<Dictionary<string, object?>>(payloadJson) ?? new Dictionary<string, object?>();
+            payload = JsonNode.Parse(payloadJson) as JsonObject ?? new JsonObject();
         }
         catch
         {
-            payload = new Dictionary<string, object?>();
+            payload = new JsonObject();
         }
 
         var trimmedTags = revision?.KnowledgeTags?
@@ -134,24 +156,29 @@ public static class ReviewQueuePayloadHelpers
             !string.IsNullOrWhiteSpace(revision.PrimaryKnowledgeLabel) ||
             (trimmedTags is { Length: > 0 }));
 
-        payload["reviewAudit"] = new
+        var audit = new JsonObject
         {
-            reviewedBy,
-            decision,
-            reason,
-            reviewedAt = reviewedAt.ToString("O"),
-            revision = hasRevision
-                ? new
+            ["reviewedBy"] = reviewedBy,
+            ["decision"] = decision,
+            ["reason"] = reason,
+            ["reviewedAt"] = reviewedAt.ToString("O"),
+            ["revision"] = hasRevision
+                ? new JsonObject
                 {
-                    textPreview = revision?.TextPreview?.Trim(),
-                    answer = revision?.Answer?.Trim(),
-                    primaryKnowledgeLabel = revision?.PrimaryKnowledgeLabel?.Trim(),
-                    knowledgeTags = trimmedTags ?? Array.Empty<string>()
+                    ["textPreview"] = revision?.TextPreview?.Trim(),
+                    ["answer"] = revision?.Answer?.Trim(),
+                    ["primaryKnowledgeLabel"] = revision?.PrimaryKnowledgeLabel?.Trim(),
+                    ["knowledgeTags"] = new JsonArray((trimmedTags ?? []).Select(tag => JsonValue.Create(tag)).ToArray())
                 }
                 : null
         };
 
-        return JsonSerializer.Serialize(payload);
+        var history = payload["reviewAuditHistory"] as JsonArray ?? new JsonArray();
+        history.Add(audit.DeepClone());
+        payload["reviewAuditHistory"] = history;
+        payload["reviewAudit"] = audit;
+
+        return payload.ToJsonString();
     }
 }
 
