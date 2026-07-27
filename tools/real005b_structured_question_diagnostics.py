@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from real005b_reviewed_question_materialize import is_formula_candidate, is_table_candidate
+from guangzhou_physics_v2_materialize import is_formula_candidate, is_table_candidate
 
 
 CSV_ROOT = Path("guangzhou-physics-full-research-package-2016-2025/csv")

@@ -4,9 +4,11 @@ param(
     [string] $DatabaseHost = '127.0.0.1',
     [int] $DatabasePort = 5432,
     [string] $DatabasePassword = $env:PGPASSWORD,
-    [string] $FileStoreRoot = 'tmp\real005b-runtime\data\file_store',
-    [string] $CsvRoot = 'guangzhou-physics-full-research-package-2016-2025\csv',
-    [string] $QualityReviewCsvRoot = 'guangzhou-physics-full-research-package-2016-2025\quality-review-complete-csv-package',
+    [string] $FileStoreRoot = 'D:\KQG_Data\file_store',
+    [string] $CsvRoot = 'D:\KQG_Data\candidate_packages\c003-merged-quality-review-2016-2025',
+    [string] $QuestionRegionReport2015 = 'docs/evidence/20260726-guangzhou-physics-v2-2015-question-regions.json',
+    [string] $QuestionRegionReport2016To2025 = 'docs/evidence/20260726-guangzhou-physics-v2-question-regions.json',
+    [string] $BackupManifest = '',
     [switch] $Apply,
     [switch] $AllowPartialReport,
     [string] $ReportPath = '',
@@ -24,6 +26,16 @@ if ([string]::IsNullOrWhiteSpace($DatabasePassword)) {
     throw 'DatabasePassword or PGPASSWORD is required for REAL005B reviewed-question materialization'
 }
 
+if ($Apply) {
+    if ([string]::IsNullOrWhiteSpace($BackupManifest) -or -not (Test-Path -LiteralPath $BackupManifest -PathType Leaf)) {
+        throw 'Apply requires a verified prewrite BackupManifest'
+    }
+    $verifyResult = & (Join-Path $PSScriptRoot 'verify-backup.ps1') -ManifestPath $BackupManifest | ConvertFrom-Json
+    if ([string]$verifyResult.status -ne 'ok') {
+        throw "Backup manifest verification failed: $BackupManifest"
+    }
+}
+
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = ('docs/evidence/{0}-real005b-reviewed-question-materialize.json' -f (Get-Date -Format 'yyyyMMdd'))
 }
@@ -34,33 +46,22 @@ if ([string]::IsNullOrWhiteSpace($MarkdownReportPath)) {
 
 Push-Location $repoRoot
 try {
+    $env:PGPASSWORD = $DatabasePassword
     $args = @(
         'tools\real005b_reviewed_question_materialize.py',
         '--host', $DatabaseHost,
         '--port', ([string] $DatabasePort),
         '--database', $DatabaseName,
         '--user', $DatabaseUser,
-        '--password', $DatabasePassword,
         '--file-root', $FileStoreRoot,
         '--csv-root', $CsvRoot,
-        '--quality-review-csv-root', $QualityReviewCsvRoot,
+        '--question-region-report-2015', $QuestionRegionReport2015,
+        '--question-region-report-2016-2025', $QuestionRegionReport2016To2025,
         '--output', $ReportPath,
         '--markdown-output', $MarkdownReportPath
     )
-    $screenshotArgs = @(
-        '-ReportPath', ('docs/evidence/{0}-real005b-source-region-screenshots.json' -f (Get-Date -Format 'yyyyMMdd')),
-        '-MarkdownReportPath', ('docs/evidence/{0}-real005b-source-region-screenshots.md' -f (Get-Date -Format 'yyyyMMdd'))
-    )
-    if ($AllowPartialReport) {
-        $screenshotArgs += '-AllowPartialReport'
-    }
     if ($Apply) {
-        $args += '--apply'
-    }
-
-    & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005b-source-region-screenshots.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -FileStoreRoot $FileStoreRoot @screenshotArgs | Out-Null
-    if ($LASTEXITCODE -ne 0) {
-        throw "REAL005B source-region screenshot evidence prerequisite failed with exit code $LASTEXITCODE"
+        $args += @('--apply', '--backup-manifest', (Resolve-Path -LiteralPath $BackupManifest).Path)
     }
 
     & python @args

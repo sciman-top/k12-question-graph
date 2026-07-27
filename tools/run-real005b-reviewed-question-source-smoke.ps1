@@ -4,7 +4,8 @@ param(
     [string] $DatabaseHost = '127.0.0.1',
     [int] $DatabasePort = 5432,
     [string] $DatabasePassword = $env:PGPASSWORD,
-    [string] $FileStoreRoot = 'tmp\real005b-runtime\data\file_store',
+    [string] $FileStoreRoot = 'D:\KQG_Data\file_store',
+    [string] $WorkflowKey = 'guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1',
     [int] $ApiPort = 0,
     [switch] $AllowPartialReport,
     [string] $ReportPath = '',
@@ -153,12 +154,11 @@ if ($ApiPort -le 0) {
 $apiUrl = "http://127.0.0.1:$ApiPort"
 $logOut = Join-Path $repoRoot 'docs/evidence/real005b-reviewed-source-smoke-api.out.log'
 $logErr = Join-Path $repoRoot 'docs/evidence/real005b-reviewed-source-smoke-api.err.log'
-$runtime = Initialize-Real005bRuntimeRoots -RepoRoot $repoRoot -RuntimeFileStoreRoot $FileStoreRoot
-$runtimeFileStoreRoot = $runtime.FileStoreRoot
-$runtimeDataRoot = $runtime.DataRoot
-$runtimeBackupRoot = $runtime.BackupRoot
-$runtimeLogsRoot = $runtime.LogsRoot
-$runtimeCacheRoot = $runtime.CacheRoot
+$runtimeFileStoreRoot = (Resolve-Path -LiteralPath $FileStoreRoot).Path
+$runtimeDataRoot = Split-Path -Parent $runtimeFileStoreRoot
+$runtimeBackupRoot = Join-Path $runtimeDataRoot 'backups'
+$runtimeLogsRoot = Join-Path $runtimeDataRoot 'logs'
+$runtimeCacheRoot = Join-Path $runtimeDataRoot 'cache'
 $previousConnectionString = $env:KQG_CONNECTION_STRING
 $previousDataRoot = $env:KqgPaths__DataRoot
 $previousFileStoreRoot = $env:KqgPaths__FileStoreRoot
@@ -180,38 +180,6 @@ $process = $null
 try {
     Push-Location $repoRoot
 
-    if ($AllowPartialReport) {
-        & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005b-source-region-screenshots.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -FileStoreRoot $runtimeFileStoreRoot -AllowPartialReport | Out-Null
-    }
-    else {
-        & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005b-source-region-screenshots.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -FileStoreRoot $runtimeFileStoreRoot | Out-Null
-    }
-    if ($LASTEXITCODE -ne 0) {
-        if (-not $AllowPartialReport) {
-            throw 'REAL005B screenshot evidence prerequisite failed'
-        }
-
-        $screenshotReportPath = Join-Path $repoRoot ('docs/evidence/{0}-real005b-source-region-screenshots.json' -f (Get-Date -Format 'yyyyMMdd'))
-        if (-not (Test-Path -LiteralPath $screenshotReportPath)) {
-            throw 'REAL005B screenshot evidence prerequisite failed and no report file was written'
-        }
-
-        $screenshotReport = Get-Content -LiteralPath $screenshotReportPath -Raw | ConvertFrom-Json
-        if ($screenshotReport.status -ne 'partial') {
-            throw "REAL005B screenshot evidence prerequisite failed and status $($screenshotReport.status)"
-        }
-    }
-
-    if ($AllowPartialReport) {
-        & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005b-reviewed-question-materialize.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -FileStoreRoot $runtimeFileStoreRoot -Apply -AllowPartialReport | Out-Null
-    }
-    else {
-        & pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-real005b-reviewed-question-materialize.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -FileStoreRoot $runtimeFileStoreRoot -Apply | Out-Null
-    }
-    if ($LASTEXITCODE -ne 0) {
-        throw 'REAL005B reviewed question materialize apply failed'
-    }
-
     $process = Start-Process -FilePath dotnet -ArgumentList @(
         'run',
         '--project',
@@ -232,8 +200,8 @@ select
   coalesce(custom_fields->>'questionNo','') || '|' ||
   coalesce(custom_fields->>'sourceFile','')
 from question_items
-where coalesce(custom_fields->>'sourceWorkflowKey','') = 'guangzhou_2016_2025_reviewed_question_materialize_v1'
-order by (custom_fields->>'questionNo')::int, id::text;
+where custom_fields->>'sourceWorkflowKey' = '$WorkflowKey'
+order by (custom_fields->>'year')::int, (custom_fields->>'questionNo')::int, id::text;
 "@
 
     $samples = @()
@@ -274,7 +242,9 @@ order by (custom_fields->>'questionNo')::int, id::text;
             continue
         }
 
-        if ($status -ne 'usable' -or $regions.Count -lt 2 -or $screenshotCount -lt 2 -or $pageScreenshotCount -lt 2) {
+        $questionRegionCount = @($regions | Where-Object { [string]$_.regionType -eq 'guangzhou_v2_question_candidate' }).Count
+        $answerRegionCount = @($regions | Where-Object { [string]$_.regionType -eq 'guangzhou_v2_answer_document_page' }).Count
+        if ($status -ne 'pending_review' -or $questionRegionCount -lt 1 -or $answerRegionCount -lt 1 -or $screenshotCount -lt 1 -or $pageScreenshotCount -lt 2) {
             $missing += [pscustomobject]@{
                 questionId = $questionId
                 questionNo = $questionNo
@@ -311,21 +281,16 @@ order by (custom_fields->>'questionNo')::int, id::text;
         resolvedApiPort = $ApiPort
         portFallbackApplied = ($requestedApiPort -ne $ApiPort)
         apiUrl = $apiUrl
-        workflowKey = 'guangzhou_2016_2025_reviewed_question_materialize_v1'
+        workflowKey = $WorkflowKey
         questionCount = $questionRows.Count
-        usableQuestionCount = [int](Invoke-ScalarSql "select count(*) from question_items where coalesce(custom_fields->>'sourceWorkflowKey','') = 'guangzhou_2016_2025_reviewed_question_materialize_v1' and status = 'usable';")
-        sourceRegionCount = [int](Invoke-ScalarSql "select count(*) from source_regions where region_type in ('real005b_review_question','real005b_review_answer');")
-        reviewQueueCount = [int](Invoke-ScalarSql "select count(*) from review_queue_items where review_type = 'real005b_question_materialize';")
+        usableQuestionCount = [int](Invoke-ScalarSql "select count(*) from question_items where custom_fields->>'sourceWorkflowKey' = '$WorkflowKey' and status = 'usable';")
+        pendingReviewQuestionCount = [int](Invoke-ScalarSql "select count(*) from question_items where custom_fields->>'sourceWorkflowKey' = '$WorkflowKey' and status = 'pending_review';")
+        sourceRegionCount = [int](Invoke-ScalarSql "select count(*) from source_regions where region_type in ('guangzhou_v2_question_candidate','guangzhou_v2_answer_document_page');")
+        reviewQueueCount = [int](Invoke-ScalarSql "select count(*) from review_queue_items where payload->>'sourceWorkflowKey' = '$WorkflowKey' and status='open';")
         sourceReviewPass = ($missing.Count -eq 0)
         samples = $samples
-        rollback = @(
-            "delete from review_queue_items where review_type = 'real005b_question_materialize';",
-            "delete from question_assets where question_item_id in (select id from question_items where custom_fields->>'sourceWorkflowKey' = 'guangzhou_2016_2025_reviewed_question_materialize_v1');",
-            "delete from question_blocks where question_item_id in (select id from question_items where custom_fields->>'sourceWorkflowKey' = 'guangzhou_2016_2025_reviewed_question_materialize_v1');",
-            "delete from source_regions where region_type in ('real005b_review_question','real005b_review_answer');",
-            "delete from question_items where custom_fields->>'sourceWorkflowKey' = 'guangzhou_2016_2025_reviewed_question_materialize_v1';"
-        )
-        boundary = 'Repo-side API smoke only; this proves reviewed real questions are API-visible with source review payload, not onsite/manual closeout.'
+        rollback = 'No rollback required; this smoke only starts a temporary API process and reads existing rows.'
+        boundary = 'Repo-side read-only API smoke only; this proves pending-review v2 candidates expose question and independent answer sources, not teacher acceptance or onsite/manual closeout.'
     }
 
     if ($missing.Count -gt 0) {
@@ -344,6 +309,7 @@ order by (custom_fields->>'questionNo')::int, id::text;
         "- status: $($report.status)",
         "- question_count: $($report.questionCount)",
         "- usable_question_count: $($report.usableQuestionCount)",
+        "- pending_review_question_count: $($report.pendingReviewQuestionCount)",
         "- source_region_count: $($report.sourceRegionCount)",
         "- review_queue_count: $($report.reviewQueueCount)",
         '',

@@ -1023,6 +1023,26 @@ old/new paper, answer, and year-report hashes:
 The rebaseline is read-only. Changed rows remain `pending_review`, blocked rows
 fail closed, and neither outcome permits a C002 active write.
 
+Materialize all 234 v2 question candidates only after the transaction rollback
+dry-run passes and a fresh backup manifest has been verified:
+
+```powershell
+.\tools\run-real005b-reviewed-question-materialize.ps1
+.\tools\run-real005b-reviewed-question-materialize.ps1 -Apply `
+  -BackupManifest 'D:\KQG_Backups\<timestamp>\manifest.json'
+.\tools\run-real005b-reviewed-question-visibility.ps1
+.\tools\run-real005b-reviewed-question-source-smoke.ps1
+```
+
+The v2 materializer binds question coordinates to the 2015 and 2016-2025
+question-region reports and binds answer evidence to the independent v2 answer
+`SourceDocument`. When a per-question answer page cannot be located reliably,
+the candidate references the complete answer document and opens teacher review;
+it never substitutes a fixed exam-paper box. Dry-run executes the same database
+plan and rolls back the transaction. Apply is idempotent, keeps all 234 questions
+at `pending_review`, creates 234 open review items, leaves
+`productionEligible=false`, and does not change the 452 C002 active assets.
+
 Verify database identity, FileStore blob hashes, idempotency, 2020 dual-role
 sharing, and the no-active-write invariant:
 

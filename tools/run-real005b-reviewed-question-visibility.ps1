@@ -4,6 +4,7 @@ param(
     [string] $DatabaseHost = '127.0.0.1',
     [int] $DatabasePort = 5432,
     [string] $DatabasePassword = $env:PGPASSWORD,
+    [string] $WorkflowKey = 'guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1',
     [string] $ReportPath = '',
     [string] $MarkdownReportPath = '',
     [string] $PgBin = 'C:\Program Files\PostgreSQL\17\bin'
@@ -97,7 +98,7 @@ select
   coalesce(custom_fields->>'sourceWorkflowKey','<null>'),
   coalesce(custom_fields->>'sourceDocumentId','')
 from question_items
-where status = 'usable'
+where custom_fields->>'sourceWorkflowKey' = '$WorkflowKey'
 order by updated_at desc
 limit 20;
 "@) `
@@ -106,8 +107,7 @@ limit 20;
 $guangzhouNon2015Rows = Invoke-QueryRows @"
 select count(*)
 from question_items
-where coalesce(custom_fields->>'sourceWorkflowKey','') like 'guangzhou_%'
-  and coalesce(custom_fields->>'sourceWorkflowKey','') not in ('guangzhou_2015_real_ingest_v1','guangzhou_2015_visual_region_v1');
+where custom_fields->>'sourceWorkflowKey' = '$WorkflowKey';
 "@
 $guangzhouNon2015QuestionCount = ConvertTo-ScalarInt $guangzhouNon2015Rows
 
@@ -118,7 +118,8 @@ $sourceRegionRows = Invoke-QueryRows @"
 select count(*)
 from source_regions sr
 join source_documents sd on sd.id = sr.source_document_id
-where sd.year between 2016 and 2025;
+where sd.material_batch_key = 'guangzhou_physics_2015_2025_20260726_v2'
+  and sr.region_type in ('guangzhou_v2_question_candidate','guangzhou_v2_answer_document_page');
 "@
 $sourceRegionCount2016_2025 = ConvertTo-ScalarInt $sourceRegionRows
 
@@ -127,8 +128,8 @@ foreach ($row in $usableRows) {
     [void]$usableWorkflowSet.Add([string]$row.workflowKey)
 }
 
-$hasOnly2015UsableQuestions = $usableWorkflowSet.Count -eq 1 -and $usableWorkflowSet.Contains('guangzhou_2015_real_ingest_v1')
-$hasApiVisible2016_2025ReviewedQuestions = $guangzhouNon2015QuestionCount -gt 0
+$hasOnly2015UsableQuestions = $false
+$hasApiVisible2016_2025ReviewedQuestions = $guangzhouNon2015QuestionCount -eq 234
 $visibilityClosureReady = $hasApiVisible2016_2025ReviewedQuestions -and $sourceRegionCount2016_2025 -gt 0
 
 $blockers = @()
@@ -157,6 +158,7 @@ $report = [ordered]@{
             count = [int]$_.count
         }
     })
+    workflowKey = $WorkflowKey
     workflowStatusCounts = @($workflowRows | ForEach-Object {
         [ordered]@{
             workflowKey = [string]$_.workflowKey
@@ -181,7 +183,7 @@ $report = [ordered]@{
     visibilityClosureReady = $visibilityClosureReady
     blockers = @($blockers)
     conclusion = if ($visibilityClosureReady) {
-        '2016-2025 reviewed real questions are materialized into API-visible question/source state.'
+        '2015-2025 v2 real-question candidates are materialized into API-visible pending-review question/source state.'
     }
     else {
         '2016-2025 quality-review CSV evidence exists, but current database/API state does not expose reviewed real questions for RG009 save/detail/source-review smoke.'

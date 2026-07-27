@@ -1,11 +1,9 @@
 from __future__ import annotations
 
 import argparse
-import csv
 import json
-import re
+import os
 import uuid
-from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -13,637 +11,601 @@ from typing import Any
 import psycopg
 from psycopg.rows import dict_row
 
-
-YEARS = list(range(2016, 2026))
-QUESTION_TYPE_BY_ROW = {
-    "choice": "single_choice",
-    "fill_or_drawing": "fill_or_drawing",
-    "analysis_calculation": "analysis_calculation",
-    "experiment_inquiry": "experiment_inquiry",
-    "comprehensive_calculation": "comprehensive_calculation",
-}
-SOURCE_WORKFLOW_KEY = "guangzhou_2016_2025_reviewed_question_materialize_v1"
-TABLE_PATTERN = re.compile(r"(表\s*\d+|数据在表|根据表|表格|如下表|表中)")
-FORMULA_PATTERN = re.compile(r"(公式|U-I|F=|Q=|v=|R=|I/A|U/V|ρ=)")
-FORMULA_QUESTION_TYPES = {
-    "analysis_calculation",
-    "experiment_inquiry",
-    "comprehensive_calculation",
-}
-
-
-def read_csv(path: Path) -> list[dict[str, str]]:
-    with path.open("r", encoding="utf-8-sig", newline="") as handle:
-        return list(csv.DictReader(handle))
+from guangzhou_physics_v2_materialize import (
+    BATCH_KEY,
+    C002_IMPORT_KEY,
+    EXPECTED_COUNTS,
+    OLD_WORKFLOW_KEY,
+    WORKFLOW_KEY,
+    YEARS,
+    YearRegionPlan,
+    answer_region_mode,
+    build_blocks,
+    flatten_question_regions,
+    load_c003_candidates,
+    load_question_region_plans,
+    locate_answer_pages,
+    stable_id,
+    validate_candidate_coverage,
+)
 
 
 def rows(conn: psycopg.Connection[Any], sql: str, params: tuple[Any, ...] = ()) -> list[dict[str, Any]]:
-    with conn.cursor(row_factory=dict_row) as cur:
-        cur.execute(sql, params)
-        return list(cur.fetchall())
+    with conn.cursor(row_factory=dict_row) as cursor:
+        cursor.execute(sql, params)
+        return list(cursor.fetchall())
 
 
 def scalar(conn: psycopg.Connection[Any], sql: str, params: tuple[Any, ...] = ()) -> int:
-    with conn.cursor(row_factory=dict_row) as cur:
-        cur.execute(sql, params)
-        row = cur.fetchone()
-        if row is None:
-            return 0
-        value = next(iter(row.values()))
-        return int(value or 0)
+    with conn.cursor() as cursor:
+        cursor.execute(sql, params)
+        result = cursor.fetchone()
+        return int(result[0]) if result else 0
 
 
-def group_by_year(rows_in: list[dict[str, str]]) -> dict[int, list[dict[str, str]]]:
-    grouped: dict[int, list[dict[str, str]]] = defaultdict(list)
-    for row in rows_in:
-        year_text = str(row.get("year") or "").strip()
-        if year_text.isdigit():
-            grouped[int(year_text)].append(row)
-    return grouped
+def text_value(conn: psycopg.Connection[Any], sql: str, params: tuple[Any, ...] = ()) -> str:
+    with conn.cursor() as cursor:
+        cursor.execute(sql, params)
+        result = cursor.fetchone()
+        return str(result[0]) if result and result[0] is not None else ""
 
 
-def normalize_question_type(value: str) -> str:
-    return QUESTION_TYPE_BY_ROW.get(value.strip(), "unknown")
-
-
-def parse_confidence(value: str | None, default: float = 0.62) -> float:
-    try:
-        parsed = float(str(value or "").strip())
-    except ValueError:
-        return default
-    return max(0.0, min(parsed, 1.0))
-
-
-def question_text(question_row: dict[str, str]) -> str:
-    stem_text = str(question_row.get("stem_summary") or "").strip()
-    notes = str(question_row.get("notes") or "").strip()
-    return f"{stem_text} {notes}".strip()
-
-
-def is_table_candidate(question_row: dict[str, str]) -> bool:
-    return bool(TABLE_PATTERN.search(question_text(question_row)))
-
-
-def is_formula_candidate(question_row: dict[str, str]) -> bool:
-    question_type = normalize_question_type(str(question_row.get("question_type") or ""))
-    if question_type in FORMULA_QUESTION_TYPES:
-        return True
-    return bool(FORMULA_PATTERN.search(question_text(question_row)))
-
-
-def build_table_candidate_content(question_row: dict[str, str], question_region_id: uuid.UUID) -> dict[str, Any]:
-    stem_text = str(question_row.get("stem_summary") or "").strip()
-    match = TABLE_PATTERN.search(stem_text)
-    raw_segment = stem_text[match.start() :] if match else stem_text
-    raw_segment = " ".join(raw_segment.split())
-    caption_match = re.search(r"表\s*\d+", raw_segment)
-    caption = caption_match.group(0) if caption_match else "表格候选"
-    raw_lines = [
-        " ".join(part.split())
-        for part in re.split(r"[；;。]", raw_segment)
-        if " ".join(part.split())
-    ]
-    if not raw_lines:
-        raw_lines = [raw_segment or stem_text]
-    rows = [[line] for line in raw_lines[:8]]
-    return {
-        "structureVersion": "table.v1",
-        "caption": caption,
-        "columns": ["raw_text"],
-        "rows": rows,
-        "rawText": raw_segment[:600],
-        "confidence": min(parse_confidence(question_row.get("confidence"), 0.62), 0.79),
-        "reviewStatus": "pending_review",
-        "sourceRegionId": str(question_region_id),
-    }
-
-
-def build_formula_candidate_content(question_row: dict[str, str], question_region_id: uuid.UUID) -> dict[str, Any]:
-    stem_text = str(question_row.get("stem_summary") or "").strip()
-    formula_tokens = FORMULA_PATTERN.findall(stem_text)
-    fallback_text = " ".join(formula_tokens).strip()
-    if not fallback_text:
-        fallback_text = stem_text[:160]
-    return {
-        "sourceFormat": "scanned_formula_candidate",
-        "textCandidate": fallback_text[:160],
-        "confidence": min(parse_confidence(question_row.get("confidence"), 0.62), 0.89),
-        "reviewStatus": "pending_review",
-        "fallbackImageSourceRegionId": str(question_region_id),
-        "fallbackImageUrl": f"/source-regions/{question_region_id}/screenshot",
-        "recognitionEngine": "real005b_candidate_summary",
-    }
-
-
-def source_region_index_for_block_type(block_type: str) -> int:
-    return 1 if block_type == "answer" else 0
-
-
-def build_question_blocks(
-    question_row: dict[str, str],
-    answer_row: dict[str, str],
-    question_region_id: uuid.UUID,
-) -> list[dict[str, Any]]:
-    question_no = int(question_row["question_number"])
-    stem_text = str(question_row.get("stem_summary") or "").strip()
-    answer_text = str(answer_row.get("answer_value") or "").strip()
-    question_type = normalize_question_type(str(question_row.get("question_type") or ""))
-    blocks = [
-        {
-            "blockType": "text",
-            "sortOrder": 0,
-            "content": {
-                "text": stem_text,
-                "questionNo": question_no,
-                "sourceFile": question_row.get("source_file"),
-                "evidenceNote": question_row.get("evidence_note") or "",
-            },
-            "sourceRegionIndex": source_region_index_for_block_type("text"),
-        },
-        {
-            "blockType": "answer",
-            "sortOrder": 1,
-            "content": {
-                "answer": answer_text,
-                "sourceFile": answer_row.get("answer_source_file") or question_row.get("source_file"),
-                "reviewDecision": answer_row.get("decision") or "resolved_with_unavailable_or_unextracted_fields",
-            },
-            "sourceRegionIndex": source_region_index_for_block_type("answer"),
-        },
-    ]
-    if is_formula_candidate(question_row):
-        blocks.append(
-            {
-                "blockType": "formula",
-                "sortOrder": len(blocks),
-                "content": build_formula_candidate_content(question_row, question_region_id),
-                "sourceRegionIndex": source_region_index_for_block_type("formula"),
-            }
-        )
-    if is_table_candidate(question_row):
-        blocks.append(
-            {
-                "blockType": "table",
-                "sortOrder": len(blocks),
-                "content": build_table_candidate_content(question_row, question_region_id),
-                "sourceRegionIndex": source_region_index_for_block_type("table"),
-            }
-        )
-    return blocks
-
-
-def ensure_source_regions(
-    conn: psycopg.Connection[Any],
-    source_document_id: uuid.UUID,
-    year: int,
-    question_row: dict[str, str],
-    answer_row: dict[str, str],
-) -> tuple[uuid.UUID, uuid.UUID]:
-    question_no = int(question_row["question_number"])
-    page_text = str(question_row.get("page_or_location") or "")
-    question_page = int("".join(ch for ch in page_text if ch.isdigit()) or "1")
-    answer_page = question_page
-    now = datetime.now(timezone.utc)
-    question_page_screenshot = f"generated/guangzhou-physics-2016-2025/source-pages/{year}/{source_document_id}/page-{question_page:03d}.png"
-    answer_page_screenshot = f"generated/guangzhou-physics-2016-2025/source-pages/{year}/{source_document_id}/page-{answer_page:03d}.png"
-
-    existing = rows(
+def workflow_fingerprint(conn: psycopg.Connection[Any]) -> str:
+    return text_value(
         conn,
         """
-        select id, region_type
-        from source_regions
-        where source_document_id = %s
-          and region_type in ('real005b_review_question', 'real005b_review_answer')
-          and page_number = %s
-        order by created_at
+        with target as (
+            select id from question_items where custom_fields->>'sourceWorkflowKey'=%s
+        ), parts as (
+            select 'q' kind, id::text key, row_to_json(q)::text value from question_items q where id in (select id from target)
+            union all
+            select 'b', id::text, row_to_json(b)::text from question_blocks b where question_item_id in (select id from target)
+            union all
+            select 'a', id::text, row_to_json(a)::text from question_assets a where question_item_id in (select id from target)
+            union all
+            select 'c', id::text, row_to_json(c)::text from cut_candidates c where suggested_question_item_id in (select id from target)
+            union all
+            select 'r', id::text, row_to_json(r)::text from review_queue_items r where payload->>'sourceWorkflowKey'=%s
+        )
+        select md5(coalesce(string_agg(kind || ':' || key || ':' || value, E'\n' order by kind,key),'')) from parts
         """,
-        (source_document_id, question_page),
+        (WORKFLOW_KEY, WORKFLOW_KEY),
     )
-    question_region_id = next(
-        (row["id"] for row in existing if row["region_type"] == "real005b_review_question"),
-        None,
-    )
-    answer_region_id = next(
-        (row["id"] for row in existing if row["region_type"] == "real005b_review_answer"),
-        None,
-    )
-    if question_region_id is not None and answer_region_id is not None:
-        return question_region_id, answer_region_id
 
-    question_region_id = question_region_id or uuid.uuid4()
-    answer_region_id = answer_region_id or uuid.uuid4()
-    with conn.cursor() as cur:
-        if question_region_id not in {row["id"] for row in existing}:
-            cur.execute(
+
+def load_source_documents(conn: psycopg.Connection[Any], file_root: Path) -> dict[tuple[int, str], dict[str, Any]]:
+    source_rows = rows(
+        conn,
+        """
+        select sd.id, sd.year, sd.source_type, sd.source_title, sd.file_asset_id,
+               fa.relative_path, fa.sha256
+        from source_documents sd
+        join file_assets fa on fa.id = sd.file_asset_id
+        where sd.material_batch_key = %s
+          and sd.year between 2015 and 2025
+          and sd.source_type in ('local_exam_paper', 'answer_or_solution', 'exam_analysis_report')
+        order by sd.year, sd.source_type, sd.created_at desc
+        """,
+        (BATCH_KEY,),
+    )
+    result: dict[tuple[int, str], dict[str, Any]] = {}
+    for row in source_rows:
+        key = (int(row["year"]), str(row["source_type"]))
+        if key in result:
+            raise ValueError(f"duplicate_v2_source_document:{key}")
+        path = file_root / str(row["relative_path"])
+        if not path.is_file():
+            raise FileNotFoundError(f"file_store_asset_missing:{path}")
+        row["path"] = path
+        result[key] = row
+    expected = {(year, source_type) for year in YEARS for source_type in ("local_exam_paper", "answer_or_solution", "exam_analysis_report")}
+    missing = sorted(expected - set(result))
+    if missing:
+        raise ValueError(f"v2_source_documents_missing:{missing}")
+    return result
+
+
+def load_2015_candidates(conn: psycopg.Connection[Any]) -> tuple[dict[tuple[int, int], dict[str, Any]], dict[int, uuid.UUID]]:
+    result: dict[tuple[int, int], dict[str, Any]] = {}
+    ids: dict[int, uuid.UUID] = {}
+    old_rows = rows(
+        conn,
+        """
+        select id, question_type, default_score, blocks, custom_fields, quality_signals
+        from question_items
+        where custom_fields->>'sourceWorkflowKey' in (
+            'guangzhou_2015_real_ingest_v1',
+            'guangzhou_2015_visual_region_v1',
+            %s
+        )
+          and coalesce(custom_fields->>'year', custom_fields#>>'{exam,year}') = '2015'
+        order by (custom_fields->>'questionNo')::int, updated_at desc
+        """,
+        (WORKFLOW_KEY,),
+    )
+    for row in old_rows:
+        custom = row["custom_fields"] or {}
+        number = int(custom["questionNo"])
+        if number in ids:
+            raise ValueError(f"duplicate_2015_candidate:{number}")
+        blocks = row["blocks"] or []
+        stem = next((str(block.get("content", {}).get("text") or "") for block in blocks if block.get("type") == "stem"), "")
+        answer = custom.get("answer") or {}
+        solution = custom.get("solution") or {}
+        result[(2015, number)] = {
+            "legacyQuestionId": f"2015-existing-{row['id']}",
+            "stem": stem,
+            "questionType": str(row["question_type"] or "unknown"),
+            "score": float(row["default_score"]) if row["default_score"] is not None else None,
+            "answer": str(answer.get("value") or ""),
+            "solution": str(solution.get("text") or ""),
+            "primaryKnowledgeCandidateId": "",
+            "primaryKnowledgeLabel": str(custom.get("primaryKnowledgeLabel") or ""),
+            "knowledgeCandidateIds": list(custom.get("knowledgeCandidateIds") or custom.get("knowledgeTags") or []),
+            "primaryExamPointCandidateId": "",
+            "examPointCandidateIds": [],
+            "abilityDimensions": [],
+            "confidence": 0.0,
+            "difficultyObserved": None,
+            "discriminationObserved": None,
+            "yearReportEvidenceLocation": str(custom.get("yearReportEvidenceLocation") or "pending_v2_year_report_alignment"),
+            "officialExamPointSummary": str(custom.get("officialExamPointSummary") or ""),
+            "answerEvidenceLocation": str(custom.get("answerEvidenceLocation") or "2015 answer PDF; per-question page alignment pending review"),
+            "subquestions": [],
+        }
+        ids[number] = uuid.UUID(str(row["id"]))
+    return result, ids
+
+
+def question_id(year: int, number: int, source_file: str, existing_2015: dict[int, uuid.UUID]) -> uuid.UUID:
+    if year == 2015:
+        return existing_2015[number]
+    return uuid.uuid5(uuid.NAMESPACE_URL, f"real005b:{year}:{number}:{source_file}")
+
+
+def validate_region_files(file_root: Path, plans: dict[int, YearRegionPlan]) -> None:
+    missing = [
+        region.relative_path
+        for plan in plans.values()
+        for regions in plan.questions.values()
+        for region in regions
+        if not region.relative_path or not (file_root / region.relative_path).is_file()
+    ]
+    if missing:
+        raise FileNotFoundError(f"question_region_files_missing:{missing[:10]}")
+
+
+def clear_materialized_children(conn: psycopg.Connection[Any], target_ids: list[uuid.UUID]) -> None:
+    with conn.cursor() as cursor:
+        cursor.execute(
+            "delete from review_queue_items where payload->>'sourceWorkflowKey' in (%s, %s)",
+            (WORKFLOW_KEY, OLD_WORKFLOW_KEY),
+        )
+        cursor.execute("delete from cut_candidates where suggested_question_item_id = any(%s)", (target_ids,))
+        cursor.execute("delete from question_assets where question_item_id = any(%s)", (target_ids,))
+        cursor.execute("delete from question_blocks where question_item_id = any(%s)", (target_ids,))
+
+
+def ensure_answer_regions(
+    conn: psycopg.Connection[Any],
+    year: int,
+    answer_doc: dict[str, Any],
+    page_numbers: tuple[int, ...],
+) -> list[uuid.UUID]:
+    result: list[uuid.UUID] = []
+    for page_number in page_numbers:
+        region_id = stable_id("answer-document-page", answer_doc["id"], page_number)
+        with conn.cursor() as cursor:
+            cursor.execute(
                 """
                 insert into source_regions (
                     id, source_document_id, page_number, x, y, width, height,
                     coordinate_unit, screenshot_relative_path, region_type, created_at
-                )
-                values (%s, %s, %s, 5, 8, 90, 18, 'percent', %s, 'real005b_review_question', %s)
+                ) values (%s, %s, %s, 0, 0, 100, 100, 'percent', null, 'guangzhou_v2_answer_document_page', now())
+                on conflict (id) do update set
+                    source_document_id = excluded.source_document_id,
+                    page_number = excluded.page_number,
+                    x = excluded.x, y = excluded.y, width = excluded.width, height = excluded.height,
+                    coordinate_unit = excluded.coordinate_unit,
+                    screenshot_relative_path = excluded.screenshot_relative_path,
+                    region_type = excluded.region_type
                 """,
-                (
-                    question_region_id,
-                    source_document_id,
-                    question_page,
-                    question_page_screenshot,
-                    now,
-                ),
+                (region_id, answer_doc["id"], page_number),
             )
-        if answer_region_id not in {row["id"] for row in existing}:
-            cur.execute(
+        result.append(region_id)
+    return result
+
+
+def ensure_question_regions(
+    conn: psycopg.Connection[Any], year: int, number: int, plan: YearRegionPlan
+) -> list[uuid.UUID]:
+    result: list[uuid.UUID] = []
+    for index, region in enumerate(plan.questions[number], start=1):
+        region_id = stable_id("question-region", year, number, index)
+        x, y, width, height = region.bbox_percent
+        with conn.cursor() as cursor:
+            cursor.execute(
                 """
                 insert into source_regions (
                     id, source_document_id, page_number, x, y, width, height,
                     coordinate_unit, screenshot_relative_path, region_type, created_at
-                )
-                values (%s, %s, %s, 5, 78, 90, 12, 'percent', %s, 'real005b_review_answer', %s)
+                ) values (%s, %s, %s, %s, %s, %s, %s, 'percent', %s, 'guangzhou_v2_question_candidate', now())
+                on conflict (id) do update set
+                    source_document_id = excluded.source_document_id,
+                    page_number = excluded.page_number,
+                    x = excluded.x, y = excluded.y, width = excluded.width, height = excluded.height,
+                    coordinate_unit = excluded.coordinate_unit,
+                    screenshot_relative_path = excluded.screenshot_relative_path,
+                    region_type = excluded.region_type
+                """,
+                (region_id, plan.source_document_id, region.page_number, x, y, width, height, region.relative_path),
+            )
+        result.append(region_id)
+    return result
+
+
+def upsert_question(
+    conn: psycopg.Connection[Any],
+    qid: uuid.UUID,
+    year: int,
+    number: int,
+    candidate: dict[str, Any],
+    plan: YearRegionPlan,
+    question_regions: list[uuid.UUID],
+    answer_doc: dict[str, Any],
+    answer_regions: list[uuid.UUID],
+    answer_mode: str,
+) -> None:
+    blocks = build_blocks(candidate, question_regions[0], answer_regions[0])
+    custom_fields = {
+        "sourceWorkflowKey": WORKFLOW_KEY,
+        "materialBatchKey": BATCH_KEY,
+        "year": year,
+        "questionNo": number,
+        "sourceFile": plan.source_file,
+        "sourceDocumentId": str(plan.source_document_id),
+        "questionSourceRegionIds": [str(value) for value in question_regions],
+        "answerSourceDocumentId": str(answer_doc["id"]),
+        "answerSourceRegionIds": [str(value) for value in answer_regions],
+        "answerSourceMode": answer_mode,
+        "answerStatus": "pending_review",
+        "answer": {"value": candidate.get("answer", ""), "status": "pending_review"},
+        "solution": {"text": candidate.get("solution", ""), "status": "pending_review"},
+        "primaryKnowledgeCandidateId": candidate.get("primaryKnowledgeCandidateId", ""),
+        "primaryKnowledgeLabel": candidate.get("primaryKnowledgeLabel", ""),
+        "knowledgeCandidateIds": candidate.get("knowledgeCandidateIds", []),
+        "primaryExamPointCandidateId": candidate.get("primaryExamPointCandidateId", ""),
+        "examPointCandidateIds": candidate.get("examPointCandidateIds", []),
+        "abilityDimensions": candidate.get("abilityDimensions", []),
+        "taggingStatus": "pending_review",
+        "teacherValidationRequired": True,
+        "productionEligible": False,
+        "manualTakeoverRequired": number in plan.manual_takeovers or answer_mode == "whole_answer_document_pending_review",
+        "yearReportEvidenceLocation": candidate.get("yearReportEvidenceLocation", ""),
+        "answerEvidenceLocation": candidate.get("answerEvidenceLocation", ""),
+        "officialExamPointSummary": candidate.get("officialExamPointSummary", ""),
+        "legacyQuestionId": candidate.get("legacyQuestionId", ""),
+    }
+    quality_signals = {
+        "reviewStatus": "pending_review",
+        "productionEligible": False,
+        "teacherValidationRequired": True,
+        "externalAiCalls": 0,
+        "realStudentDataUsed": False,
+        "candidateConfidence": candidate.get("confidence", 0.0),
+        "discriminationObservedCandidate": candidate.get("discriminationObserved"),
+    }
+    with conn.cursor() as cursor:
+        cursor.execute(
+            """
+            insert into question_items (
+                id, subject, stage, grade, question_type, default_score,
+                difficulty_estimated, difficulty_observed, status, primary_knowledge_id,
+                blocks, custom_fields, quality_signals, created_at, updated_at
+            ) values (
+                %s, 'physics', 'junior_middle_school', 'grade_9', %s, %s,
+                null, %s, 'pending_review', null, %s::jsonb, %s::jsonb, %s::jsonb, now(), now()
+            )
+            on conflict (id) do update set
+                subject = excluded.subject, stage = excluded.stage, grade = excluded.grade,
+                question_type = excluded.question_type, default_score = excluded.default_score,
+                difficulty_estimated = excluded.difficulty_estimated,
+                difficulty_observed = excluded.difficulty_observed,
+                status = excluded.status, primary_knowledge_id = null,
+                blocks = excluded.blocks, custom_fields = excluded.custom_fields,
+                quality_signals = excluded.quality_signals, updated_at = excluded.updated_at
+            """,
+            (
+                qid,
+                candidate.get("questionType"),
+                candidate.get("score"),
+                candidate.get("difficultyObserved"),
+                json.dumps(blocks, ensure_ascii=False),
+                json.dumps(custom_fields, ensure_ascii=False),
+                json.dumps(quality_signals, ensure_ascii=False),
+            ),
+        )
+        for block in blocks:
+            cursor.execute(
+                """
+                insert into question_blocks (id, question_item_id, block_type, sort_order, content, source_region_id, created_at)
+                values (%s, %s, %s, %s, %s::jsonb, %s, now())
                 """,
                 (
-                    answer_region_id,
-                    source_document_id,
-                    answer_page,
-                    answer_page_screenshot,
-                    now,
+                    stable_id("question-block", qid, block["order"], block["type"]),
+                    qid,
+                    block["type"],
+                    block["order"],
+                    json.dumps(block["content"], ensure_ascii=False),
+                    uuid.UUID(block["sourceRegionId"]),
                 ),
             )
-    return question_region_id, answer_region_id
+        for index, region_id in enumerate(question_regions, start=1):
+            cursor.execute(
+                """
+                insert into question_assets (
+                    id, question_item_id, file_asset_id, source_region_id, asset_type, purpose, metadata, created_at
+                ) values (%s, %s, null, %s, 'question_region_image', 'source_review', %s::jsonb, now())
+                """,
+                (
+                    stable_id("question-asset", qid, index),
+                    qid,
+                    region_id,
+                    json.dumps({"sourceWorkflowKey": WORKFLOW_KEY, "segmentIndex": index}, ensure_ascii=False),
+                ),
+            )
+        cursor.execute(
+            """
+            insert into cut_candidates (
+                id, source_document_id, source_region_id, suggested_question_item_id,
+                status, confidence, segment_type, sequence_no, candidate_payload,
+                failure_reason, takeover_action, metadata, created_at, updated_at
+            ) values (%s, %s, %s, %s, 'pending_review', %s, 'question', %s, %s::jsonb, '', 'manual_review', %s::jsonb, now(), now())
+            on conflict (id) do update set
+                source_document_id=excluded.source_document_id, source_region_id=excluded.source_region_id,
+                suggested_question_item_id=excluded.suggested_question_item_id, status=excluded.status,
+                confidence=excluded.confidence, segment_type=excluded.segment_type,
+                sequence_no=excluded.sequence_no, candidate_payload=excluded.candidate_payload,
+                failure_reason=excluded.failure_reason, takeover_action=excluded.takeover_action,
+                metadata=excluded.metadata, updated_at=excluded.updated_at
+            """,
+            (
+                stable_id("cut-candidate", year, number),
+                plan.source_document_id,
+                question_regions[0],
+                qid,
+                candidate.get("confidence", 0.0),
+                number,
+                json.dumps({"year": year, "questionNo": number, "status": "pending_review"}, ensure_ascii=False),
+                json.dumps({"sourceWorkflowKey": WORKFLOW_KEY, "teacherValidationRequired": True}, ensure_ascii=False),
+            ),
+        )
+        cursor.execute(
+            """
+            insert into review_queue_items (id, review_type, status, payload, created_at, resolved_at)
+            values (%s, 'guangzhou_v2_question_candidate_review', 'open', %s::jsonb, now(), null)
+            on conflict (id) do update set status='open', payload=excluded.payload, resolved_at=null
+            """,
+            (
+                stable_id("review", year, number),
+                json.dumps(
+                    {
+                        "sourceWorkflowKey": WORKFLOW_KEY,
+                        "materialBatchKey": BATCH_KEY,
+                        "questionItemId": str(qid),
+                        "year": year,
+                        "questionNo": number,
+                        "answerSourceMode": answer_mode,
+                        "requiredActions": ["review_question_crop", "review_answer_source", "review_tags", "review_difficulty"],
+                        "teacherValidationRequired": True,
+                        "productionEligible": False,
+                    },
+                    ensure_ascii=False,
+                ),
+            ),
+        )
+
+
+def write_reports(report: dict[str, Any], json_path: Path, markdown_path: Path) -> None:
+    json_path.parent.mkdir(parents=True, exist_ok=True)
+    json_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    lines = [
+        "# REAL005B Guangzhou v2 candidate materialize",
+        "",
+        f"- status: {report['status']}",
+        f"- mode: {report['mode']}",
+        f"- workflow_key: {report['workflowKey']}",
+        f"- planned_questions: {report['totals']['questions']}",
+        f"- question_regions: {report['totals']['questionRegions']}",
+        f"- answer_regions: {report['totals']['answerRegions']}",
+        f"- open_reviews: {report['database']['openReviewCountInsideTransaction']}",
+        f"- persisted_after_run: {report['database']['persistedAfterRun']}",
+        f"- active_count_unchanged: {report['invariants']['c002ActiveCountUnchanged']}",
+        "",
+        "## Years",
+    ]
+    for item in report["years"]:
+        lines.append(
+            f"- {item['year']}: questions={item['questions']}; question_regions={item['questionRegions']}; "
+            f"answer_modes={json.dumps(item['answerModes'], ensure_ascii=False, sort_keys=True)}"
+        )
+    lines.extend(["", "## Boundary", report["boundary"]])
+    markdown_path.parent.mkdir(parents=True, exist_ok=True)
+    markdown_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Materialize reviewed 2016-2025 Guangzhou physics questions into API-visible rows")
+    parser = argparse.ArgumentParser(description="Materialize Guangzhou physics 2015-2025 v2 candidates")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=5432)
     parser.add_argument("--database", default="k12_question_graph")
     parser.add_argument("--user", default="postgres")
-    parser.add_argument("--password", default="")
     parser.add_argument("--file-root", default=r"D:\KQG_Data\file_store")
-    parser.add_argument("--csv-root", default="guangzhou-physics-full-research-package-2016-2025/csv")
-    parser.add_argument("--quality-review-csv-root", default="guangzhou-physics-full-research-package-2016-2025/quality-review-complete-csv-package")
-    parser.add_argument("--output", default="docs/evidence/20260617-real005b-reviewed-question-materialize.json")
-    parser.add_argument("--markdown-output", default="docs/evidence/20260617-real005b-reviewed-question-materialize.md")
+    parser.add_argument("--csv-root", default=r"D:\KQG_Data\candidate_packages\c003-merged-quality-review-2016-2025")
+    parser.add_argument("--question-region-report-2015", default="docs/evidence/20260726-guangzhou-physics-v2-2015-question-regions.json")
+    parser.add_argument("--question-region-report-2016-2025", default="docs/evidence/20260726-guangzhou-physics-v2-question-regions.json")
+    parser.add_argument("--backup-manifest", default="")
+    parser.add_argument("--output", required=True)
+    parser.add_argument("--markdown-output", required=True)
     parser.add_argument("--apply", action="store_true")
     args = parser.parse_args()
 
+    if args.apply and (not args.backup_manifest or not Path(args.backup_manifest).is_file()):
+        raise ValueError("verified_backup_manifest_required_for_apply")
+    password = os.environ.get("PGPASSWORD", "")
+    if not password:
+        raise ValueError("PGPASSWORD_required")
+
     repo_root = Path(__file__).resolve().parents[1]
-    csv_root = Path(args.csv_root)
-    quality_root = Path(args.quality_review_csv_root)
+    file_root = Path(args.file_root).resolve()
+    csv_root = Path(args.csv_root).resolve()
+    plans = load_question_region_plans(
+        (repo_root / args.question_region_report_2015).resolve(),
+        (repo_root / args.question_region_report_2016_2025).resolve(),
+    )
+    validate_region_files(file_root, plans)
 
-    question_rows = read_csv(quality_root / "c003-question-item-full.csv")
-    answer_rows = read_csv(quality_root / "c003-answer-scoring-point.csv")
-    review_rows = read_csv(quality_root / "c003-quality-issue-review-evidence.csv")
-    source_rows = read_csv(csv_root / "c003-source-material.csv")
-
-    question_by_year = group_by_year(question_rows)
-    answer_by_year = group_by_year(answer_rows)
-    review_by_question = {str(row.get("question_id") or ""): row for row in review_rows if str(row.get("question_id") or "").strip()}
-    now = datetime.now(timezone.utc)
-
-    with psycopg.connect(
+    conn = psycopg.connect(
         host=args.host,
         port=args.port,
         dbname=args.database,
         user=args.user,
-        password=args.password,
-        row_factory=dict_row,
-    ) as conn:
-        created_question_ids: list[str] = []
-        created_region_ids: list[str] = []
-        year_reports: list[dict[str, Any]] = []
-
-        conn.execute("begin")
-        try:
-            for year in YEARS:
-                qrows = sorted(question_by_year.get(year, []), key=lambda row: int(row["question_number"]))
-                arows = {int(row["question_number"]): row for row in answer_by_year.get(year, [])}
-                if not qrows:
-                    year_reports.append({"year": year, "status": "blocked", "blockers": ["question_rows_missing"]})
-                    continue
-
-                year_question_ids: list[str] = []
-                year_blockers: list[str] = []
-                for qrow in qrows:
-                    question_no = int(qrow["question_number"])
-                    arow = arows.get(question_no)
-                    if arow is None:
-                        year_blockers.append(f"answer_missing:{question_no}")
-                        continue
-
-                    source_file = str(qrow.get("source_file") or "").strip()
-                    source_doc_rows = rows(
-                        conn,
-                        """
-                        select sd.id, sd.source_type, sd.source_title, sd.year, sd.material_batch_key, fa.relative_path
-                        from source_documents sd
-                        join file_assets fa on fa.id = sd.file_asset_id
-                        where sd.year = %s and fa.original_file_name = %s
-                        order by sd.created_at desc
-                        """,
-                        (year, source_file),
-                    )
-                    if not source_doc_rows:
-                        year_blockers.append(f"source_document_missing:{question_no}")
-                        continue
-                    source_document_id = source_doc_rows[0]["id"]
-                    question_region_id, answer_region_id = ensure_source_regions(conn, source_document_id, year, qrow, arow)
-                    created_region_ids.extend([str(question_region_id), str(answer_region_id)])
-
-                    question_id = uuid.uuid5(uuid.NAMESPACE_URL, f"real005b:{year}:{question_no}:{source_file}")
-                    review = review_by_question.get(str(qrow["question_id"]))
-                    question_type = normalize_question_type(str(qrow.get("question_type") or ""))
-                    answer_text = str(arow.get("answer_value") or "").strip()
-                    blocks = build_question_blocks(qrow, arow, question_region_id)
-                    blocks_json = [
-                        {
-                            "blockType": block["blockType"],
-                            "sortOrder": block["sortOrder"],
-                            "content": block["content"],
-                            "sourceRegionIndex": block["sourceRegionIndex"],
-                        }
-                        for block in blocks
-                    ]
-                    custom_fields = {
-                        "sourceWorkflowKey": SOURCE_WORKFLOW_KEY,
-                        "questionNo": question_no,
-                        "sourceFile": source_file,
-                        "sourceDocumentId": str(source_document_id),
-                        "reviewDecision": review.get("decision") if review else "resolved_with_unavailable_or_unextracted_fields",
-                        "reviewer": review.get("reviewer") if review else "chatgpt_web_document_review",
-                        "reviewedAt": review.get("reviewed_at") if review else now.isoformat(),
-                        "answer": {"value": answer_text, "sourceFile": review.get("answer_source_file") if review else source_file},
-                        "yearReportEvidenceLocation": review.get("year_report_evidence_location") if review else "",
-                        "officialExamPointSummary": review.get("official_exam_point_summary") if review else "",
-                    }
-                    quality_signals = {
-                        "reviewStatus": "resolved",
-                        "productionEligible": False,
-                        "externalAiCalls": 0,
-                        "realStudentDataUsed": False,
-                        "reviewEvidencePath": f"{quality_root}/c003-quality-issue-review-evidence.csv",
-                    }
-
-                    with conn.cursor() as cur:
-                        cur.execute(
-                            """
-                            insert into question_items (
-                                id, subject, stage, grade, question_type, default_score,
-                                difficulty_estimated, status, primary_knowledge_id, blocks,
-                                custom_fields, quality_signals, created_at, updated_at
-                            )
-                            values (
-                                %s, 'physics', 'junior_middle_school', %s, %s, %s,
-                                null, 'usable', null, %s::jsonb, %s::jsonb, %s::jsonb, %s, %s
-                            )
-                            on conflict (id) do update set
-                                subject = excluded.subject,
-                                stage = excluded.stage,
-                                grade = excluded.grade,
-                                question_type = excluded.question_type,
-                                default_score = excluded.default_score,
-                                status = excluded.status,
-                                primary_knowledge_id = excluded.primary_knowledge_id,
-                                blocks = excluded.blocks,
-                                custom_fields = excluded.custom_fields,
-                                quality_signals = excluded.quality_signals,
-                                updated_at = excluded.updated_at
-                            """,
-                            (
-                                question_id,
-                                "grade_9",
-                                question_type,
-                                qrow.get("score") or None,
-                                json.dumps(blocks_json, ensure_ascii=False),
-                                json.dumps(custom_fields, ensure_ascii=False),
-                                json.dumps(quality_signals, ensure_ascii=False),
-                                now,
-                                now,
-                            ),
-                        )
-
-                    with conn.cursor() as cur:
-                        cur.execute("delete from question_blocks where question_item_id = %s", (question_id,))
-                        cur.execute("delete from question_assets where question_item_id = %s", (question_id,))
-                        for block in blocks:
-                            block_id = uuid.uuid5(uuid.NAMESPACE_URL, f"real005b-block:{question_id}:{block['sortOrder']}")
-                            cur.execute(
-                                """
-                                insert into question_blocks (id, question_item_id, block_type, sort_order, content, source_region_id, created_at)
-                                values (%s, %s, %s, %s, %s::jsonb, %s, %s)
-                                """,
-                                (
-                                    block_id,
-                                    question_id,
-                                    block["blockType"],
-                                    block["sortOrder"],
-                                    json.dumps(block["content"], ensure_ascii=False),
-                                    question_region_id if block["sourceRegionIndex"] == 0 else answer_region_id,
-                                    now,
-                                ),
-                            )
-                        cur.execute(
-                            """
-                            insert into question_assets (id, question_item_id, file_asset_id, source_region_id, asset_type, purpose, metadata, created_at)
-                            values (%s, %s, null, %s, 'image', 'question_content', %s::jsonb, %s)
-                            on conflict do nothing
-                            """,
-                            (
-                                uuid.uuid5(uuid.NAMESPACE_URL, f"real005b-asset:{question_id}"),
-                                question_id,
-                                question_region_id,
-                                json.dumps({"sourceWorkflowKey": SOURCE_WORKFLOW_KEY}, ensure_ascii=False),
-                                now,
-                            ),
-                        )
-                        cur.execute(
-                            """
-                            insert into review_queue_items (id, review_type, status, payload, created_at)
-                            values (%s, 'real005b_question_materialize', 'resolved', %s::jsonb, %s)
-                            on conflict (id) do update set
-                                status = excluded.status,
-                                payload = excluded.payload
-                            """,
-                            (
-                                uuid.uuid5(uuid.NAMESPACE_URL, f"real005b-review:{question_id}"),
-                                json.dumps(
-                                    {
-                                        "questionId": str(question_id),
-                                        "questionNo": question_no,
-                                        "reviewDecision": custom_fields["reviewDecision"],
-                                        "reviewer": custom_fields["reviewer"],
-                                        "sourceDocumentId": str(source_document_id),
-                                        "sourceWorkflowKey": SOURCE_WORKFLOW_KEY,
-                                    },
-                                    ensure_ascii=False,
-                                ),
-                                now,
-                            ),
-                        )
-
-                        for block in blocks:
-                            block_id = uuid.uuid5(uuid.NAMESPACE_URL, f"real005b-block:{question_id}:{block['sortOrder']}")
-                            source_region_id = question_region_id if block["sourceRegionIndex"] == 0 else answer_region_id
-                            if block["blockType"] == "table":
-                                cur.execute(
-                                    """
-                                    insert into review_queue_items (id, review_type, status, payload, created_at)
-                                    values (%s, 'question_table_block_review', 'open', %s::jsonb, %s)
-                                    on conflict (id) do update set
-                                        status = excluded.status,
-                                        payload = excluded.payload
-                                    """,
-                                    (
-                                        uuid.uuid5(uuid.NAMESPACE_URL, f"real005b-table-review:{question_id}:{block['sortOrder']}"),
-                                        json.dumps(
-                                            {
-                                                "questionItemId": str(question_id),
-                                                "questionBlockId": str(block_id),
-                                                "sourceRegionId": str(source_region_id),
-                                                "blockType": "table",
-                                                "caption": block["content"].get("caption"),
-                                                "confidence": block["content"].get("confidence"),
-                                                "reviewStatus": block["content"].get("reviewStatus", "pending_review"),
-                                                "riskLevel": "medium",
-                                                "requiredAction": "review_table_structure",
-                                                "reason": "table_block_low_confidence_or_pending_review",
-                                                "sourceWorkflowKey": SOURCE_WORKFLOW_KEY,
-                                            },
-                                            ensure_ascii=False,
-                                        ),
-                                        now,
-                                    ),
-                                )
-                            if block["blockType"] == "formula":
-                                cur.execute(
-                                    """
-                                    insert into review_queue_items (id, review_type, status, payload, created_at)
-                                    values (%s, 'question_formula_block_review', 'open', %s::jsonb, %s)
-                                    on conflict (id) do update set
-                                        status = excluded.status,
-                                        payload = excluded.payload
-                                    """,
-                                    (
-                                        uuid.uuid5(uuid.NAMESPACE_URL, f"real005b-formula-review:{question_id}:{block['sortOrder']}"),
-                                        json.dumps(
-                                            {
-                                                "questionItemId": str(question_id),
-                                                "questionBlockId": str(block_id),
-                                                "sourceRegionId": str(source_region_id),
-                                                "blockType": "formula",
-                                                "sourceFormat": block["content"].get("sourceFormat", "unknown"),
-                                                "confidence": block["content"].get("confidence"),
-                                                "fallbackImageUrl": block["content"].get("fallbackImageUrl"),
-                                                "reviewStatus": block["content"].get("reviewStatus", "pending_review"),
-                                                "riskLevel": "medium",
-                                                "requiredAction": "review_formula_structure",
-                                                "reason": "formula_block_low_confidence_or_non_omml_candidate",
-                                                "sourceWorkflowKey": SOURCE_WORKFLOW_KEY,
-                                            },
-                                            ensure_ascii=False,
-                                        ),
-                                        now,
-                                    ),
-                                )
-
-                    created_question_ids.append(str(question_id))
-                    year_question_ids.append(str(question_id))
-
-                year_reports.append(
-                    {
-                        "year": year,
-                        "status": "pass" if not year_blockers else "blocked",
-                        "questionCount": len(year_question_ids),
-                        "questionIds": year_question_ids[:3],
-                        "blockers": year_blockers,
-                    }
-                )
-
-            report = {
-                "status": "pass" if args.apply else "dry_run_pass",
-                "taskId": "REAL005B_REVIEWED_QUESTION_MATERIALIZE",
-                "checkedAt": now.isoformat(),
-                "apply": bool(args.apply),
-                "activeWrite": bool(args.apply),
-                "externalAiCalls": 0,
-                "realStudentDataUsed": False,
-                "createdQuestionCount": len(created_question_ids),
-                "createdRegionCount": len(created_region_ids),
-                "yearReports": year_reports,
-                "questionCountAfter": scalar(conn, f"select count(*) from question_items where coalesce(custom_fields->>'sourceWorkflowKey','') = '{SOURCE_WORKFLOW_KEY}';"),
-                "reviewQueueCountAfter": scalar(conn, "select count(*) from review_queue_items where review_type = 'real005b_question_materialize';"),
-                "tableReviewQueueCountAfter": scalar(
-                    conn,
-                    f"select count(*) from review_queue_items where review_type = 'question_table_block_review' and coalesce(payload->>'sourceWorkflowKey','') = '{SOURCE_WORKFLOW_KEY}';",
-                ),
-                "formulaReviewQueueCountAfter": scalar(
-                    conn,
-                    f"select count(*) from review_queue_items where review_type = 'question_formula_block_review' and coalesce(payload->>'sourceWorkflowKey','') = '{SOURCE_WORKFLOW_KEY}';",
-                ),
-                "tableBlockCountAfter": scalar(
-                    conn,
-                    f"""
-                    select count(*)
-                    from question_blocks qb
-                    join question_items qi on qi.id = qb.question_item_id
-                    where qb.block_type = 'table'
-                      and coalesce(qi.custom_fields->>'sourceWorkflowKey','') = '{SOURCE_WORKFLOW_KEY}';
-                    """,
-                ),
-                "formulaBlockCountAfter": scalar(
-                    conn,
-                    f"""
-                    select count(*)
-                    from question_blocks qb
-                    join question_items qi on qi.id = qb.question_item_id
-                    where qb.block_type = 'formula'
-                      and coalesce(qi.custom_fields->>'sourceWorkflowKey','') = '{SOURCE_WORKFLOW_KEY}';
-                    """,
-                ),
-                "rollback": [
-                    f"delete from review_queue_items where review_type in ('question_table_block_review', 'question_formula_block_review') and coalesce(payload->>'sourceWorkflowKey','') = '{SOURCE_WORKFLOW_KEY}';",
-                    "delete from review_queue_items where review_type = 'real005b_question_materialize';",
-                    f"delete from question_assets where question_item_id in (select id from question_items where custom_fields->>'sourceWorkflowKey' = '{SOURCE_WORKFLOW_KEY}');",
-                    f"delete from question_blocks where question_item_id in (select id from question_items where custom_fields->>'sourceWorkflowKey' = '{SOURCE_WORKFLOW_KEY}');",
-                    "delete from source_regions where region_type in ('real005b_review_question','real005b_review_answer');",
-                    f"delete from question_items where custom_fields->>'sourceWorkflowKey' = '{SOURCE_WORKFLOW_KEY}';",
-                ],
-            }
-
-            if args.apply:
-                conn.commit()
-            else:
-                conn.rollback()
-
-        except Exception:
-            conn.rollback()
-            raise
-
-    output = Path(args.output)
-    output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
-    Path(args.markdown_output).write_text(
-        "\n".join(
-            [
-                "# REAL005B Reviewed Question Materialize",
-                "",
-                f"- status: {report['status']}",
-                f"- created_question_count: {report['createdQuestionCount']}",
-                f"- created_region_count: {report['createdRegionCount']}",
-                f"- question_count_after: {report['questionCountAfter']}",
-                f"- review_queue_count_after: {report['reviewQueueCountAfter']}",
-                f"- table_block_count_after: {report['tableBlockCountAfter']}",
-                f"- formula_block_count_after: {report['formulaBlockCountAfter']}",
-                f"- table_review_queue_count_after: {report['tableReviewQueueCountAfter']}",
-                f"- formula_review_queue_count_after: {report['formulaReviewQueueCountAfter']}",
-                "",
-                "## Boundary",
-                "This command is repo-side only. Use -Apply only after validating the dry run and keep rollback SQL with the report.",
-            ]
-        )
-        + "\n",
-        encoding="utf-8",
+        password=password,
     )
-    print(json.dumps(report, ensure_ascii=False, indent=2))
-    return 0
+    conn.autocommit = False
+    try:
+        sources = load_source_documents(conn, file_root)
+        candidates = load_c003_candidates(csv_root)
+        candidates_2015, existing_2015_ids = load_2015_candidates(conn)
+        candidates.update(candidates_2015)
+        validate_candidate_coverage(candidates)
+
+        target_ids = [
+            question_id(year, number, plans[year].source_file, existing_2015_ids)
+            for year in YEARS
+            for number in range(1, EXPECTED_COUNTS[year] + 1)
+        ]
+        persisted_before = scalar(conn, "select count(*) from question_items where custom_fields->>'sourceWorkflowKey'=%s", (WORKFLOW_KEY,))
+        fingerprint_before = workflow_fingerprint(conn)
+        active_before = scalar(
+            conn,
+            "select count(*) from domain_asset_versions where source_evidence->>'importKey'=%s and status='active'",
+            (C002_IMPORT_KEY,),
+        )
+        clear_materialized_children(conn, target_ids)
+
+        answer_page_map: dict[int, dict[int, tuple[int, ...]]] = {}
+        answer_page_counts: dict[int, int] = {}
+        for year in YEARS:
+            answer_doc = sources[(year, "answer_or_solution")]
+            minimum_page = plans[year].questions[max(plans[year].questions)][-1].page_number + 1 if year == 2020 else 1
+            answer_page_map[year] = locate_answer_pages(answer_doc["path"], EXPECTED_COUNTS[year], minimum_page)
+            answer_page_counts[year] = len(set(page for pages in answer_page_map[year].values() for page in pages))
+
+        year_reports: list[dict[str, Any]] = []
+        answer_region_ids: set[uuid.UUID] = set()
+        for year in YEARS:
+            plan = plans[year]
+            answer_doc = sources[(year, "answer_or_solution")]
+            modes: dict[str, int] = {}
+            for number in range(1, EXPECTED_COUNTS[year] + 1):
+                candidate = candidates[(year, number)]
+                qid = question_id(year, number, plan.source_file, existing_2015_ids)
+                question_regions = ensure_question_regions(conn, year, number, plan)
+                page_numbers = answer_page_map[year][number]
+                answer_regions = ensure_answer_regions(conn, year, answer_doc, page_numbers)
+                answer_region_ids.update(answer_regions)
+                mode = answer_region_mode(page_numbers, answer_page_counts[year])
+                modes[mode] = modes.get(mode, 0) + 1
+                upsert_question(conn, qid, year, number, candidate, plan, question_regions, answer_doc, answer_regions, mode)
+            year_reports.append(
+                {
+                    "year": year,
+                    "questions": EXPECTED_COUNTS[year],
+                    "questionRegions": sum(len(value) for value in plan.questions.values()),
+                    "answerDocumentId": str(answer_doc["id"]),
+                    "answerModes": modes,
+                }
+            )
+
+        inside_question_count = scalar(conn, "select count(*) from question_items where custom_fields->>'sourceWorkflowKey'=%s", (WORKFLOW_KEY,))
+        inside_review_count = scalar(conn, "select count(*) from review_queue_items where payload->>'sourceWorkflowKey'=%s and status='open'", (WORKFLOW_KEY,))
+        inside_pending_count = scalar(conn, "select count(*) from question_items where custom_fields->>'sourceWorkflowKey'=%s and status='pending_review'", (WORKFLOW_KEY,))
+        production_eligible_count = scalar(conn, "select count(*) from question_items where custom_fields->>'sourceWorkflowKey'=%s and coalesce((custom_fields->>'productionEligible')::boolean,false)=true", (WORKFLOW_KEY,))
+        active_inside = scalar(
+            conn,
+            "select count(*) from domain_asset_versions where source_evidence->>'importKey'=%s and status='active'",
+            (C002_IMPORT_KEY,),
+        )
+        if inside_question_count != 234 or inside_review_count != 234 or inside_pending_count != 234:
+            raise ValueError(f"materialize_invariant_failed:{inside_question_count}:{inside_review_count}:{inside_pending_count}")
+        if production_eligible_count or active_inside != active_before:
+            raise ValueError("production_or_active_write_detected")
+
+        if args.apply:
+            conn.commit()
+        else:
+            conn.rollback()
+        persisted_after = scalar(conn, "select count(*) from question_items where custom_fields->>'sourceWorkflowKey'=%s", (WORKFLOW_KEY,))
+        fingerprint_after = workflow_fingerprint(conn)
+        active_after = scalar(
+            conn,
+            "select count(*) from domain_asset_versions where source_evidence->>'importKey'=%s and status='active'",
+            (C002_IMPORT_KEY,),
+        )
+        report = {
+            "status": "pass" if args.apply else "dry_run_pass",
+            "taskId": "GUANGZHOU_PHYSICS_V2_CANDIDATE_MATERIALIZE",
+            "checkedAt": datetime.now(timezone.utc).isoformat(),
+            "mode": "apply" if args.apply else "transaction_rollback_dry_run",
+            "workflowKey": WORKFLOW_KEY,
+            "materialBatchKey": BATCH_KEY,
+            "backupManifest": args.backup_manifest if args.apply else None,
+            "activeWrite": False,
+            "externalAiCalls": 0,
+            "realStudentDataUsed": False,
+            "totals": {
+                "questions": 234,
+                "questionRegions": flatten_question_regions(plans.values()),
+                "answerRegions": len(answer_region_ids),
+            },
+            "years": year_reports,
+            "database": {
+                "questionCountInsideTransaction": inside_question_count,
+                "pendingReviewCountInsideTransaction": inside_pending_count,
+                "openReviewCountInsideTransaction": inside_review_count,
+                "productionEligibleCountInsideTransaction": production_eligible_count,
+                "persistedBeforeRun": persisted_before,
+                "persistedAfterRun": persisted_after,
+                "stateFingerprintBefore": fingerprint_before,
+                "stateFingerprintAfter": fingerprint_after,
+            },
+            "invariants": {
+                "allQuestionsPendingReview": inside_pending_count == 234,
+                "allReviewItemsOpen": inside_review_count == 234,
+                "productionEligibleFalse": production_eligible_count == 0,
+                "c002ActiveCountBefore": active_before,
+                "c002ActiveCountAfter": active_after,
+                "c002ActiveCountUnchanged": active_before == active_after,
+                "dryRunRolledBack": None if args.apply else (
+                    persisted_after == persisted_before and fingerprint_after == fingerprint_before
+                ),
+            },
+            "rollback": {
+                "primary": f"restore database from {args.backup_manifest}" if args.apply else "transaction rollback completed",
+                "targetedWorkflowKey": WORKFLOW_KEY,
+                "restoreCommand": f"pwsh -NoProfile -ExecutionPolicy Bypass -File tools/restore.ps1 -ManifestPath '{args.backup_manifest}' -ApplyDatabase -ApplyFileStore -DryRun:$false" if args.apply else None,
+            },
+            "boundary": "Candidate materialization only. All 234 questions and reviews remain pending/open; answer full-document fallbacks require teacher validation. No C002 active switch, teacher acceptance, onsite closure, or REAL005 closure is claimed.",
+        }
+        write_reports(report, (repo_root / args.output).resolve(), (repo_root / args.markdown_output).resolve())
+        print(json.dumps(report, ensure_ascii=False, indent=2))
+        return 0
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
 
 
 if __name__ == "__main__":

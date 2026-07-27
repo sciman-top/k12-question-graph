@@ -1,0 +1,294 @@
+from __future__ import annotations
+
+import csv
+import json
+import re
+import uuid
+from collections import defaultdict
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Iterable
+
+from pypdf import PdfReader
+
+
+BATCH_KEY = "guangzhou_physics_2015_2025_20260726_v2"
+WORKFLOW_KEY = "guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1"
+OLD_WORKFLOW_KEY = "guangzhou_2016_2025_reviewed_question_materialize_v1"
+C002_IMPORT_KEY = "c002_candidate_import_guangzhou_physics_2016_2025_v1"
+YEARS = tuple(range(2015, 2026))
+EXPECTED_COUNTS = {year: 24 if year <= 2020 else 18 for year in YEARS}
+TABLE_PATTERN = re.compile(r"(表\s*\d+|数据在表|根据表|表格|如下表|表中)")
+FORMULA_PATTERN = re.compile(r"(公式|U-I|F=|Q=|v=|R=|I/A|U/V|ρ=)")
+QUESTION_ANCHOR = re.compile(r"(?m)(?:^|[\n\r。；;])\s*(\d{1,2})\s*[\.．、)]")
+
+
+@dataclass(frozen=True)
+class RegionPlan:
+    page_number: int
+    bbox_percent: tuple[float, float, float, float]
+    relative_path: str | None
+
+
+@dataclass(frozen=True)
+class YearRegionPlan:
+    year: int
+    source_document_id: uuid.UUID
+    source_file: str
+    questions: dict[int, tuple[RegionPlan, ...]]
+    manual_takeovers: frozenset[int]
+
+
+def read_csv(path: Path) -> list[dict[str, str]]:
+    with path.open("r", encoding="utf-8-sig", newline="") as stream:
+        return list(csv.DictReader(stream))
+
+
+def json_load(path: Path) -> dict[str, Any]:
+    return json.loads(path.read_text(encoding="utf-8-sig"))
+
+
+def stable_id(kind: str, *parts: object) -> uuid.UUID:
+    token = ":".join(str(part) for part in (WORKFLOW_KEY, kind, *parts))
+    return uuid.uuid5(uuid.NAMESPACE_URL, token)
+
+
+def normalize_question_type(value: str) -> str:
+    aliases = {
+        "choice": "single_choice",
+        "fill_blank": "fill_blank_or_drawing",
+        "analysis_calculation": "experiment_or_calculation",
+        "experiment_inquiry": "experiment_or_calculation",
+        "comprehensive_calculation": "experiment_or_calculation",
+    }
+    return aliases.get(value.strip(), value.strip() or "unknown")
+
+
+def parse_optional_float(value: str | None) -> float | None:
+    text = str(value or "").strip()
+    if not text:
+        return None
+    try:
+        return float(text)
+    except ValueError:
+        return None
+
+
+def split_tokens(value: str | None) -> list[str]:
+    return [token.strip() for token in re.split(r"[;；|]", str(value or "")) if token.strip()]
+
+
+def _candidate_text(value: str | dict[str, Any]) -> str:
+    if isinstance(value, dict):
+        return f"{value.get('question_type', '')} {value.get('stem_summary', '')} {value.get('notes', '')}"
+    return str(value)
+
+
+def is_table_candidate(value: str | dict[str, Any]) -> bool:
+    return bool(TABLE_PATTERN.search(_candidate_text(value)))
+
+
+def is_formula_candidate(value: str | dict[str, Any], question_type: str = "") -> bool:
+    text = _candidate_text(value)
+    if isinstance(value, dict):
+        question_type = str(value.get("question_type") or question_type)
+    return question_type in {
+        "experiment_or_calculation",
+        "calculation",
+        "analysis_calculation",
+        "experiment_inquiry",
+        "comprehensive_calculation",
+    } or bool(FORMULA_PATTERN.search(text))
+
+
+def _year_from_report(item: dict[str, Any]) -> YearRegionPlan:
+    questions: dict[int, tuple[RegionPlan, ...]] = {}
+    for question in item.get("questions", []):
+        number = int(question["questionNumber"])
+        regions = tuple(
+            RegionPlan(
+                page_number=int(region["pageNumber"]),
+                bbox_percent=tuple(float(value) for value in region["bboxPercent"]),  # type: ignore[arg-type]
+                relative_path=str(region["relativePath"]),
+            )
+            for region in question.get("regions", [])
+        )
+        questions[number] = regions
+    takeovers = frozenset(
+        int(value["questionNumber"] if isinstance(value, dict) else value)
+        for value in item.get("manualTakeoverCandidates", [])
+    )
+    return YearRegionPlan(
+        year=int(item["year"]),
+        source_document_id=uuid.UUID(str(item["sourceDocumentId"])),
+        source_file=str(item["sourceFile"]),
+        questions=questions,
+        manual_takeovers=takeovers,
+    )
+
+
+def load_question_region_plans(report_2015: Path, report_2016_2025: Path) -> dict[int, YearRegionPlan]:
+    first = json_load(report_2015)
+    later = json_load(report_2016_2025)
+    plans = [_year_from_report(first["year"]), *(_year_from_report(item) for item in later["years"])]
+    result = {plan.year: plan for plan in plans}
+    blockers: list[str] = []
+    for year in YEARS:
+        plan = result.get(year)
+        if plan is None:
+            blockers.append(f"question_region_year_missing:{year}")
+            continue
+        expected = set(range(1, EXPECTED_COUNTS[year] + 1))
+        actual = set(plan.questions)
+        if actual != expected:
+            blockers.append(f"question_region_sequence_mismatch:{year}:{sorted(expected - actual)}:{sorted(actual - expected)}")
+        if any(not regions for regions in plan.questions.values()):
+            blockers.append(f"question_region_empty:{year}")
+    if blockers:
+        raise ValueError(";".join(blockers))
+    return result
+
+
+def load_c003_candidates(csv_root: Path) -> dict[tuple[int, int], dict[str, Any]]:
+    questions = read_csv(csv_root / "c003-question-item-full.csv")
+    answers = read_csv(csv_root / "c003-answer-scoring-point.csv")
+    reviews = read_csv(csv_root / "c003-quality-issue-review-evidence.csv")
+    subquestions = read_csv(csv_root / "c003-subquestion-item-full.csv")
+    by_question = {row["question_id"]: row for row in questions}
+    answer_by_question = {row["question_id"]: row for row in answers}
+    review_by_question = {row["question_id"]: row for row in reviews}
+    subs_by_question: dict[str, list[dict[str, str]]] = defaultdict(list)
+    for row in subquestions:
+        subs_by_question[row["question_id"]].append(row)
+
+    result: dict[tuple[int, int], dict[str, Any]] = {}
+    for question_id, row in by_question.items():
+        year = int(row["year"])
+        number = int(row["question_number"])
+        answer = answer_by_question.get(question_id, {})
+        review = review_by_question.get(question_id, {})
+        result[(year, number)] = {
+            "legacyQuestionId": question_id,
+            "stem": row.get("stem_summary", "").strip(),
+            "questionType": normalize_question_type(row.get("question_type", "")),
+            "score": parse_optional_float(row.get("score")),
+            "answer": answer.get("answer_value", "").strip(),
+            "solution": answer.get("scoring_point_summary", "").strip(),
+            "primaryKnowledgeCandidateId": row.get("primary_knowledge_id", "").strip(),
+            "knowledgeCandidateIds": split_tokens(row.get("secondary_knowledge_ids")),
+            "primaryExamPointCandidateId": row.get("primary_exam_point_id", "").strip(),
+            "examPointCandidateIds": split_tokens(row.get("secondary_exam_point_ids")),
+            "abilityDimensions": split_tokens(row.get("ability_dimensions")),
+            "confidence": parse_optional_float(row.get("confidence")) or 0.0,
+            "difficultyObserved": parse_optional_float(review.get("difficulty_value")),
+            "discriminationObserved": parse_optional_float(review.get("discrimination_value")),
+            "yearReportEvidenceLocation": review.get("year_report_evidence_location", "").strip(),
+            "officialExamPointSummary": review.get("official_exam_point_summary", "").strip(),
+            "answerEvidenceLocation": answer.get("evidence_locations", "").strip(),
+            "subquestions": sorted(subs_by_question.get(question_id, []), key=lambda item: item.get("subquestion_number", "")),
+        }
+    return result
+
+
+def validate_candidate_coverage(candidates: dict[tuple[int, int], dict[str, Any]]) -> None:
+    blockers: list[str] = []
+    for year in YEARS:
+        expected = set(range(1, EXPECTED_COUNTS[year] + 1))
+        actual = {number for candidate_year, number in candidates if candidate_year == year}
+        if actual != expected:
+            blockers.append(f"candidate_sequence_mismatch:{year}:{sorted(expected - actual)}:{sorted(actual - expected)}")
+    if blockers:
+        raise ValueError(";".join(blockers))
+
+
+def pdf_page_count(path: Path) -> int:
+    return len(PdfReader(str(path)).pages)
+
+
+def locate_answer_pages(path: Path, expected_count: int, minimum_page: int = 1) -> dict[int, tuple[int, ...]]:
+    reader = PdfReader(str(path))
+    page_text = [page.extract_text() or "" for page in reader.pages]
+    eligible_pages = tuple(range(max(1, minimum_page), len(page_text) + 1))
+    if not eligible_pages:
+        raise ValueError(f"answer_pdf_has_no_eligible_pages:{path}")
+
+    anchors: dict[int, list[int]] = defaultdict(list)
+    for page_number in eligible_pages:
+        for match in QUESTION_ANCHOR.finditer(page_text[page_number - 1]):
+            number = int(match.group(1))
+            if 1 <= number <= expected_count:
+                anchors[number].append(page_number)
+
+    result: dict[int, tuple[int, ...]] = {}
+    for number in range(1, expected_count + 1):
+        unique = tuple(dict.fromkeys(anchors.get(number, [])))
+        result[number] = unique if unique else eligible_pages
+    return result
+
+
+def answer_region_mode(pages: tuple[int, ...], eligible_page_count: int) -> str:
+    return "question_anchor_page_candidate" if len(pages) < eligible_page_count else "whole_answer_document_pending_review"
+
+
+def build_blocks(candidate: dict[str, Any], question_region_id: uuid.UUID, answer_region_id: uuid.UUID) -> list[dict[str, Any]]:
+    blocks: list[dict[str, Any]] = [
+        {
+            "type": "stem",
+            "order": 0,
+            "sourceRegionId": str(question_region_id),
+            "content": {"text": candidate.get("stem", ""), "reviewStatus": "pending_review"},
+        }
+    ]
+    order = 1
+    for subquestion in candidate.get("subquestions", []):
+        blocks.append(
+            {
+                "type": "subquestion",
+                "order": order,
+                "sourceRegionId": str(question_region_id),
+                "content": {
+                    "label": subquestion.get("subquestion_number", ""),
+                    "text": subquestion.get("stem_summary", ""),
+                    "reviewStatus": "pending_review",
+                },
+            }
+        )
+        order += 1
+    blocks.append(
+        {
+            "type": "answer",
+            "order": order,
+            "sourceRegionId": str(answer_region_id),
+            "content": {
+                "value": candidate.get("answer", ""),
+                "solution": candidate.get("solution", ""),
+                "reviewStatus": "pending_review",
+            },
+        }
+    )
+    order += 1
+    text = str(candidate.get("stem", ""))
+    if is_table_candidate(text):
+        blocks.append(
+            {
+                "type": "table",
+                "order": order,
+                "sourceRegionId": str(question_region_id),
+                "content": {"status": "candidate", "reviewStatus": "pending_review", "sourceText": text},
+            }
+        )
+        order += 1
+    if is_formula_candidate(text, str(candidate.get("questionType", ""))):
+        blocks.append(
+            {
+                "type": "formula",
+                "order": order,
+                "sourceRegionId": str(question_region_id),
+                "content": {"status": "candidate", "reviewStatus": "pending_review", "sourceText": text},
+            }
+        )
+    return blocks
+
+
+def flatten_question_regions(plans: Iterable[YearRegionPlan]) -> int:
+    return sum(len(regions) for plan in plans for regions in plan.questions.values())
