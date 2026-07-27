@@ -1380,7 +1380,7 @@ app.MapGet("/review-queue", async (
     var normalizedStatus = string.IsNullOrWhiteSpace(status) ? ReviewStatuses.Open : NormalizeToken(status, ReviewStatuses.Open);
     var normalizedSortBy = string.IsNullOrWhiteSpace(sortBy) ? "created_at" : NormalizeToken(sortBy, "created_at");
     var descending = !string.Equals(order, "asc", StringComparison.OrdinalIgnoreCase);
-    var takeCount = Math.Clamp(limit ?? 100, 1, 200);
+    var takeCount = Math.Clamp(limit ?? 100, 1, 500);
 
     var query = dbContext.ReviewQueueItems.AsNoTracking().Where(x => x.Status == normalizedStatus);
     if (!string.IsNullOrWhiteSpace(reviewType))
@@ -1396,6 +1396,13 @@ app.MapGet("/review-queue", async (
         "question_no" => descending
             ? mapped.OrderByDescending(x => ReviewQueuePayloadHelpers.ResolveQuestionNo(x.Payload) ?? int.MinValue).ThenByDescending(x => x.CreatedAt).ToList()
             : mapped.OrderBy(x => ReviewQueuePayloadHelpers.ResolveQuestionNo(x.Payload) ?? int.MaxValue).ThenBy(x => x.CreatedAt).ToList(),
+        "year_question_no" => descending
+            ? mapped.OrderByDescending(x => ReviewQueuePayloadHelpers.ResolveYear(x.Payload) ?? int.MinValue)
+                .ThenByDescending(x => ReviewQueuePayloadHelpers.ResolveQuestionNo(x.Payload) ?? int.MinValue)
+                .ThenByDescending(x => x.CreatedAt).ToList()
+            : mapped.OrderBy(x => ReviewQueuePayloadHelpers.ResolveYear(x.Payload) ?? int.MaxValue)
+                .ThenBy(x => ReviewQueuePayloadHelpers.ResolveQuestionNo(x.Payload) ?? int.MaxValue)
+                .ThenBy(x => x.CreatedAt).ToList(),
         "risk" => descending
             ? mapped.OrderByDescending(x => x.RiskLevel).ThenByDescending(x => x.CreatedAt).ToList()
             : mapped.OrderBy(x => x.RiskLevel).ThenBy(x => x.CreatedAt).ToList(),

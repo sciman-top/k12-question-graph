@@ -113,7 +113,7 @@ public static class ReviewQueuePayloadHelpers
             return null;
         }
 
-        if (questionNoElement.TryGetInt32(out var questionNo))
+        if (questionNoElement.ValueKind == JsonValueKind.Number && questionNoElement.TryGetInt32(out var questionNo))
         {
             return questionNo;
         }
@@ -125,6 +125,25 @@ public static class ReviewQueuePayloadHelpers
         }
 
         return null;
+    }
+
+    public static int? ResolveYear(JsonElement payload)
+    {
+        if (payload.ValueKind != JsonValueKind.Object ||
+            !payload.TryGetProperty("year", out var yearElement))
+        {
+            return null;
+        }
+
+        if (yearElement.ValueKind == JsonValueKind.Number && yearElement.TryGetInt32(out var year))
+        {
+            return year;
+        }
+
+        return yearElement.ValueKind == JsonValueKind.String &&
+            int.TryParse(yearElement.GetString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out year)
+            ? year
+            : null;
     }
 
     public static string WithReviewAudit(

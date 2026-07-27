@@ -17,6 +17,15 @@ public class ReviewQueuePayloadHelpersTests
     }
 
     [Fact]
+    public void ResolveYear_ReadsNumberAndStringValues()
+    {
+        Assert.Equal(2020, ReviewQueuePayloadHelpers.ResolveYear(JsonHelpers.ParseJsonElement("""{"year":2020}""")));
+        Assert.Equal(2021, ReviewQueuePayloadHelpers.ResolveYear(JsonHelpers.ParseJsonElement("""{"year":"2021"}""")));
+        Assert.Null(ReviewQueuePayloadHelpers.ResolveYear(JsonHelpers.ParseJsonElement("{}")));
+        Assert.Equal(12, ReviewQueuePayloadHelpers.ResolveQuestionNo(JsonHelpers.ParseJsonElement("""{"questionNo":"12"}""")));
+    }
+
+    [Fact]
     public void WithReviewAudit_AppendsHistoryInsteadOfOverwritingIt()
     {
         var first = ReviewQueuePayloadHelpers.WithReviewAudit(
