@@ -1,0 +1,20 @@
+{
+  "status": "pass",
+  "checkedAt": "2026-07-27T13:27:13.3975378Z",
+  "task": "Guangzhou physics v2 tagging prewrite backup",
+  "manifest": {
+    "path": "D:\\KQG_Backups\\20260727-212644\\manifest.json",
+    "sha256": "3a72648b92cb2b2e0fab7acdf62248b32ccbd8bd1b80b9abfff7405084d6e841"
+  },
+  "databaseDump": {
+    "path": "D:\\KQG_Backups\\20260727-212644\\database.dump",
+    "sha256": "b9b762c80ae7b06e102c3ef00e1eaad7d77fda0ef0f1a8eac78f0de9dde70d66"
+  },
+  "fileStoreFileCount": 2435,
+  "configCount": 3,
+  "templateCount": 4,
+  "evidenceCount": 6,
+  "verificationStatus": "ok",
+  "restoreCommand": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/restore.ps1 -ManifestPath 'D:\\KQG_Backups\\20260727-212644\\manifest.json' -ApplyDatabase -ApplyFileStore -DryRun:$false",
+  "boundary": "Verified local prewrite recovery point only; no restore was applied."
+}
