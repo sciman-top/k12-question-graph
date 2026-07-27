@@ -100,6 +100,8 @@ export interface ReviewWorkbenchActionContract {
 
 export interface ReviewQueuePayloadContract {
   sourceWorkflowKey: string
+  materialBatchKey: string
+  year: number
   questionNo: number
   sourceDocumentId: string
   answerSourceDocumentId: string
@@ -109,6 +111,7 @@ export interface ReviewQueuePayloadContract {
   questionItemId: string
   confidence: number
   requiredAction: string
+  requiredActions: string[]
   reason: string
   riskLevel: string
   textPreview: string
@@ -135,6 +138,7 @@ export interface ReviewQueueItemContract {
   status: string
   riskLevel: string
   requiredAction: string
+  requiredActions: string[]
   confidence: number | null
   reason: string | null
   payload: ReviewQueuePayloadContract
@@ -161,6 +165,33 @@ export interface QuestionSourceRegionContract {
   screenshotRelativePath: string | null
   screenshotUrl: string | null
   pageScreenshotUrl: string | null
+}
+
+export interface QuestionBlockContract {
+  id: string
+  blockType: string
+  sortOrder: number
+  content: Record<string, unknown>
+  sourceRegionId: string | null
+}
+
+export interface QuestionDetailContract {
+  id: string
+  questionNo: number
+  status: string
+  difficultyEstimated: number | null
+  blocks: QuestionBlockContract[]
+  customFields: Record<string, unknown>
+}
+
+export interface QuestionRevisionContract {
+  question: QuestionDetailContract
+  auditId: string
+}
+
+export interface SourceRegionRevisionContract {
+  region: QuestionSourceRegionContract
+  auditId: string
 }
 
 export interface QuestionSourceReviewContract {
@@ -672,6 +703,8 @@ export function normalizeReviewWorkbenchActionResponse(
 function normalizeReviewQueuePayload(value: unknown): ReviewQueuePayloadContract {
   return {
     sourceWorkflowKey: readStringField(value, 'sourceWorkflowKey') ?? '',
+    materialBatchKey: readStringField(value, 'materialBatchKey') ?? '',
+    year: readNumberField(value, 'year'),
     questionNo: readNumberField(value, 'questionNo'),
     sourceDocumentId: readStringField(value, 'sourceDocumentId') ?? '',
     answerSourceDocumentId: readStringField(value, 'answerSourceDocumentId') ?? '',
@@ -681,6 +714,7 @@ function normalizeReviewQueuePayload(value: unknown): ReviewQueuePayloadContract
     questionItemId: readStringField(value, 'questionItemId') ?? '',
     confidence: readNumberField(value, 'confidence'),
     requiredAction: readStringField(value, 'requiredAction') ?? 'manual_review',
+    requiredActions: readArrayField(value, 'requiredActions').map((action) => String(action)),
     reason: readStringField(value, 'reason') ?? '',
     riskLevel: readStringField(value, 'riskLevel') ?? 'medium',
     textPreview: readStringField(value, 'textPreview') ?? '',
@@ -722,6 +756,7 @@ export function normalizeReviewQueueItemResponse(value: unknown): ReviewQueueIte
     status: readStringField(value, 'status') ?? 'open',
     riskLevel: readStringField(value, 'riskLevel') ?? 'medium',
     requiredAction: readStringField(value, 'requiredAction') ?? 'manual_review',
+    requiredActions: readArrayField(value, 'requiredActions').map((action) => String(action)),
     confidence: confidence === 0 ? null : confidence,
     reason: readNullableStringField(value, 'reason'),
     payload: normalizeReviewQueuePayload(payload),
@@ -758,6 +793,55 @@ export function normalizeQuestionSourceReviewResponse(
       screenshotUrl: readNullableStringField(row, 'screenshotUrl'),
       pageScreenshotUrl: readNullableStringField(row, 'pageScreenshotUrl'),
     })),
+  }
+}
+
+export function normalizeQuestionDetailResponse(value: unknown): QuestionDetailContract {
+  const difficulty = readNumberField(value, 'difficultyEstimated')
+  return {
+    id: readStringField(value, 'id') ?? '',
+    questionNo: readNumberField(value, 'questionNo'),
+    status: readStringField(value, 'status') ?? 'pending_review',
+    difficultyEstimated: difficulty === 0 && readNullableStringField(value, 'difficultyEstimated') === null
+      ? null
+      : difficulty,
+    blocks: readArrayField(value, 'blocks').map((block) => ({
+      id: readStringField(block, 'id') ?? '',
+      blockType: readStringField(block, 'blockType') ?? 'text',
+      sortOrder: readNumberField(block, 'sortOrder'),
+      content: readObjectField(block, 'content') ?? {},
+      sourceRegionId: readNullableStringField(block, 'sourceRegionId'),
+    })),
+    customFields: readObjectField(value, 'customFields') ?? {},
+  }
+}
+
+export function normalizeQuestionRevisionResponse(value: unknown): QuestionRevisionContract {
+  return {
+    question: normalizeQuestionDetailResponse(readObjectField(value, 'question') ?? {}),
+    auditId: readStringField(value, 'auditId') ?? '',
+  }
+}
+
+export function normalizeSourceRegionRevisionResponse(value: unknown): SourceRegionRevisionContract {
+  const region = readObjectField(value, 'region') ?? {}
+  return {
+    region: {
+      id: readStringField(region, 'id') ?? '',
+      sourceDocumentId: readStringField(region, 'sourceDocumentId') ?? '',
+      sourceTitle: readNullableStringField(region, 'sourceTitle'),
+      pageNumber: readNumberField(region, 'pageNumber'),
+      x: readNumberField(region, 'x'),
+      y: readNumberField(region, 'y'),
+      width: readNumberField(region, 'width'),
+      height: readNumberField(region, 'height'),
+      coordinateUnit: readStringField(region, 'coordinateUnit') ?? 'percent',
+      regionType: readStringField(region, 'regionType') ?? 'question',
+      screenshotRelativePath: readNullableStringField(region, 'screenshotRelativePath'),
+      screenshotUrl: readNullableStringField(region, 'screenshotUrl'),
+      pageScreenshotUrl: readNullableStringField(region, 'pageScreenshotUrl'),
+    },
+    auditId: readStringField(value, 'auditId') ?? '',
   }
 }
 

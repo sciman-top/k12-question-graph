@@ -10,6 +10,8 @@ import type {
   ItemScoreMappingPreviewContract,
   PaperBlueprintConfirmContract,
   PaperBlueprintReviewContract,
+  QuestionDetailContract,
+  QuestionRevisionContract,
   QuestionSearchContract,
   QuestionSourceReviewContract,
   ReadyHealthContract,
@@ -19,6 +21,7 @@ import type {
   ScoreImportContract,
   SourceDocumentPreviewContract,
   SourceMaterialListContract,
+  SourceRegionRevisionContract,
 } from './contracts'
 import {
   normalizeAdminAiProviderSettingsResponse,
@@ -31,6 +34,8 @@ import {
   normalizeItemScoreMappingPreviewResponse,
   normalizePaperBlueprintConfirmResponse,
   normalizePaperBlueprintReviewResponse,
+  normalizeQuestionDetailResponse,
+  normalizeQuestionRevisionResponse,
   normalizeQuestionSearchResponse,
   normalizeQuestionSourceReviewResponse,
   normalizeReadyHealthResponse,
@@ -40,12 +45,13 @@ import {
   normalizeScoreImportResponse,
   normalizeSourceDocumentPreviewResponse,
   normalizeSourceMaterialListResponse,
+  normalizeSourceRegionRevisionResponse,
 } from './contracts'
 
 const apiBaseUrl = import.meta.env.VITE_KQG_API_BASE_URL ?? ''
 
 type JsonRequestInit = {
-  method?: 'GET' | 'POST'
+  method?: 'GET' | 'POST' | 'PATCH'
   headers?: HeadersInit
   body?: BodyInit | null
   includeJsonContentType?: boolean
@@ -155,6 +161,17 @@ async function postJson<T>(
 ): Promise<ApiResult<T>> {
   return requestJson(path, normalize, {
     method: 'POST',
+    body: JSON.stringify(body),
+  })
+}
+
+async function patchJson<T>(
+  path: string,
+  body: unknown,
+  normalize: (value: unknown) => T,
+): Promise<ApiResult<T>> {
+  return requestJson(path, normalize, {
+    method: 'PATCH',
     body: JSON.stringify(body),
   })
 }
@@ -395,6 +412,67 @@ export async function resolveReviewQueueItem(
     `/review-queue/${encodeURIComponent(id)}/resolve`,
     request,
     normalizeReviewQueueItemResponse,
+  )
+}
+
+export async function reopenReviewQueueItem(
+  id: string,
+  request: { reviewedBy: string; reason: string },
+): Promise<ApiResult<ReviewQueueItemContract>> {
+  return postJson(
+    `/review-queue/${encodeURIComponent(id)}/reopen`,
+    request,
+    normalizeReviewQueueItemResponse,
+  )
+}
+
+export async function getQuestion(questionId: string): Promise<ApiResult<QuestionDetailContract>> {
+  return requestJson(`/questions/${encodeURIComponent(questionId)}`, normalizeQuestionDetailResponse)
+}
+
+export async function updateQuestion(
+  questionId: string,
+  request: {
+    reviewedBy: string
+    reason: string
+    difficultyEstimated?: number
+    blocks?: Array<{
+      id: string
+      blockType?: string
+      sortOrder?: number
+      content?: Record<string, unknown>
+      sourceRegionId?: string
+    }>
+    answer?: Record<string, unknown>
+    solution?: Record<string, unknown>
+  },
+): Promise<ApiResult<QuestionRevisionContract>> {
+  return patchJson(
+    `/questions/${encodeURIComponent(questionId)}`,
+    request,
+    normalizeQuestionRevisionResponse,
+  )
+}
+
+export async function updateSourceRegion(
+  regionId: string,
+  request: {
+    pageNumber?: number
+    x?: number
+    y?: number
+    width?: number
+    height?: number
+    coordinateUnit?: string
+    screenshotRelativePath?: string | null
+    regionType?: string
+    reviewedBy: string
+    reason: string
+  },
+): Promise<ApiResult<SourceRegionRevisionContract>> {
+  return patchJson(
+    `/source-regions/${encodeURIComponent(regionId)}`,
+    request,
+    normalizeSourceRegionRevisionResponse,
   )
 }
 
