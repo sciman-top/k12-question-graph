@@ -1,0 +1,45 @@
+{
+  "taskId": "T7",
+  "status": "pass",
+  "checkedAt": "2026-07-27T22:24:36.0327871+08:00",
+  "workflow": "guangzhou-physics-2015-2025-v2",
+  "uiContracts": [
+    "workflow",
+    "yearSelector",
+    "saveRevision",
+    "confirm",
+    "dismiss",
+    "recrop",
+    "undoRecrop",
+    "undoReview",
+    "retryMessage",
+    "partialFailureMessage",
+    "staleLoadGuard",
+    "questionIdentityGuard"
+  ],
+  "clientContracts": [
+    "loadQuestion",
+    "reviseQuestion",
+    "reviseSource",
+    "reopenReview"
+  ],
+  "apiContracts": [
+    "question_patch",
+    "source_region_patch",
+    "review_resolve",
+    "review_reopen"
+  ],
+  "browserVerification": {
+    "status": "platform_na",
+    "reason": "Codex Browser and Chrome plugins block localhost non-root routes with net::ERR_BLOCKED_BY_CLIENT in this host session.",
+    "alternativeVerification": [
+      "static UI/client/API contract guard",
+      "npm test and production build",
+      "reversible real API/database workflow smoke"
+    ],
+    "evidenceLink": "docs/evidence/20260727-guangzhou-physics-v2-review-workflow-smoke.json",
+    "expiresAt": "next_browser_capability_refresh",
+    "recoveryCondition": "Browser plugin can load localhost API/proxy routes and complete click-path assertions."
+  },
+  "truthBoundary": "UI contract presence plus API smoke only; no real teacher acceptance or production review decision is recorded."
+}

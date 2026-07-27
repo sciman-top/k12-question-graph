@@ -441,7 +441,7 @@ export async function updateQuestion(
       blockType?: string
       sortOrder?: number
       content?: Record<string, unknown>
-      sourceRegionId?: string
+      sourceRegionId?: string | null
     }>
     answer?: Record<string, unknown>
     solution?: Record<string, unknown>

@@ -4044,8 +4044,10 @@ static bool IsAllowedQuestionBlockType(string blockType)
 {
     return blockType is
         "text" or
+        "stem" or
         "option" or
         "sub_question" or
+        "subquestion" or
         "answer" or
         "solution" or
         "formula" or

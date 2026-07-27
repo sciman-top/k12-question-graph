@@ -1,0 +1,68 @@
+{
+  "taskId": "T7",
+  "status": "pass",
+  "checkedAt": "2026-07-27T22:25:44.7651320+08:00",
+  "materialBatchKey": "guangzhou_physics_2015_2025_20260726_v2",
+  "sourceWorkflowKey": "guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1",
+  "backupManifest": "D:\\KQG_Backups\\20260727-215646\\manifest.json",
+  "backupVerification": {
+    "status": "ok",
+    "manifest": "D:\\KQG_Backups\\20260727-215646\\manifest.json",
+    "fileCount": 2435,
+    "configCount": 3,
+    "templateCount": 4,
+    "evidenceCount": 6
+  },
+  "reviewQueueItemId": "3d4c6a56-c91e-52e5-8031-5ecf2c57f980",
+  "questionItemId": "06e4bedf-a2be-4665-844f-8c0c02e0b1d6",
+  "events": [
+    {
+      "action": "identity_failure",
+      "status": 400,
+      "dataChanged": false
+    },
+    {
+      "action": "revise",
+      "auditId": "70b83009-065c-4c31-8557-49017d043210"
+    },
+    {
+      "action": "recrop",
+      "auditId": "0056e30b-299c-45a2-b2f1-fb825c97a45d"
+    },
+    {
+      "action": "confirm",
+      "status": "resolved"
+    },
+    {
+      "action": "conflict",
+      "status": 409,
+      "dataChanged": false
+    },
+    {
+      "action": "undo_confirm",
+      "status": "open"
+    },
+    {
+      "action": "return",
+      "status": "dismissed"
+    },
+    {
+      "action": "undo_return",
+      "status": "open",
+      "auditHistoryCount": 16
+    }
+  ],
+  "final": {
+    "openReviewCount": 234,
+    "reviewStatus": "open",
+    "questionStatus": "pending_review",
+    "productionEligible": false,
+    "primaryKnowledgeId": null,
+    "stemRestored": true,
+    "difficultyRestored": true,
+    "sourceRegionRestored": true,
+    "auditHistoryCount": 16
+  },
+  "rollback": "restore D:\\KQG_Backups\\20260727-215646\\manifest.json only if the finally restoration assertions fail",
+  "truthBoundary": "reversible local smoke only; no teacher acceptance, production eligibility, C002 activation, onsite validation, or live release"
+}

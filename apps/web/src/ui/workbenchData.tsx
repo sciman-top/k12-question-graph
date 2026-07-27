@@ -19,6 +19,7 @@ export type RealExamRevisionState = {
   answer: string
   primaryKnowledgeLabel: string
   knowledgeTagsText: string
+  difficultyEstimated: number | null
 }
 
 export type RealExamPreviewRow = {

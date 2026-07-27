@@ -557,6 +557,15 @@ function readNumberField(value: unknown, field: string): number {
   return typeof record[field] === 'number' ? record[field] : 0
 }
 
+function readNullableNumberField(value: unknown, field: string): number | null {
+  if (!value || typeof value !== 'object' || !(field in value)) {
+    return null
+  }
+
+  const record = value as Record<string, unknown>
+  return typeof record[field] === 'number' ? record[field] : null
+}
+
 function readBooleanField(value: unknown, field: string): boolean {
   if (!value || typeof value !== 'object' || !(field in value)) {
     return false
@@ -797,14 +806,11 @@ export function normalizeQuestionSourceReviewResponse(
 }
 
 export function normalizeQuestionDetailResponse(value: unknown): QuestionDetailContract {
-  const difficulty = readNumberField(value, 'difficultyEstimated')
   return {
     id: readStringField(value, 'id') ?? '',
     questionNo: readNumberField(value, 'questionNo'),
     status: readStringField(value, 'status') ?? 'pending_review',
-    difficultyEstimated: difficulty === 0 && readNullableStringField(value, 'difficultyEstimated') === null
-      ? null
-      : difficulty,
+    difficultyEstimated: readNullableNumberField(value, 'difficultyEstimated'),
     blocks: readArrayField(value, 'blocks').map((block) => ({
       id: readStringField(block, 'id') ?? '',
       blockType: readStringField(block, 'blockType') ?? 'text',

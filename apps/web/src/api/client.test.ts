@@ -179,4 +179,25 @@ describe('api client error handling', () => {
       ['/review-queue/review-1/reopen', 'POST'],
     ])
   })
+
+  it('preserves a zero question difficulty instead of treating it as missing', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue(
+      Response.json({
+        id: 'question-zero-difficulty',
+        questionNo: 1,
+        status: 'pending_review',
+        difficultyEstimated: 0,
+        blocks: [],
+        customFields: {},
+      }),
+    ) as typeof fetch
+
+    const result = await getQuestion('question-zero-difficulty')
+
+    expect(result.ok).toBe(true)
+    if (!result.ok) {
+      throw new Error('expected question result')
+    }
+    expect(result.data.difficultyEstimated).toBe(0)
+  })
 })
