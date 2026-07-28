@@ -1693,6 +1693,23 @@ contains only counts, hashes, governance, and compatibility results. The
 wrapper performs one read-only database snapshot query and no database write,
 model call, mapping persistence, or C002 active switch.
 
+CEK-09 isolated curriculum candidate import smoke:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File tools\run-curriculum-candidate-import-smoke.ps1 `
+  -BackupManifest 'D:\KQG_Backups\<verified>\manifest.json' `
+  -DatabaseName 'k12_question_graph_cek009_<date>'
+```
+
+The importer canonicalizes parents and facets as `curriculum_requirement` and
+`requirement_facet` DomainAssetVersion candidates while retaining
+`curriculum_standard_item` only as legacy export metadata. Apply is fail-closed
+unless the database name contains `cek009` and a verified backup manifest is
+provided. The smoke runs dry-run plus two applies, proves idempotency, anchor
+presence, active knowledge targets, pending review, and exact active fingerprint
+parity. It writes only the disposable isolated database and never inserts or
+activates KnowledgeNode rows.
+
 Backup:
 
 ```powershell

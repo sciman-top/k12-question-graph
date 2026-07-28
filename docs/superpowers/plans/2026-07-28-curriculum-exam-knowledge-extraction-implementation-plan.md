@@ -1,7 +1,7 @@
 # 课程标准与中考真题多层证据提炼实施计划
 
 - 日期：2026-07-28
-- 状态：实施中；CEK-01..08 与 Checkpoint B1 已完成，CEK-09 待执行
+- 状态：实施中；CEK-01..09 与 Checkpoint B2 已完成，CEK-10 待执行
 - 设计依据：`docs/superpowers/specs/2026-07-28-curriculum-exam-knowledge-extraction-design.md`
 - 当前范围：初中物理、2022 年版 2025 年修订课程标准、广州 2015-2025 中考真题/答案/年报
 - 计划性质：现有知识资产治理和广州真题闭环的下级专题计划，不新增顶层路线图
@@ -270,9 +270,9 @@ flowchart TD
 
 **验收：**
 
-- [ ] canonical 语义类型为 `curriculum_requirement/requirement_facet`，旧导出仍可使用 `curriculum_standard_item`。
-- [ ] 所有候选 `status=candidate`、`reviewStatus=pending_review`、`productionEligible=false`，锚点引用存在。
-- [ ] 写入前后 active C002 数量、stable IDs 和指纹完全一致。
+- [x] canonical 语义类型为 `curriculum_requirement/requirement_facet`，旧导出仍可使用 `curriculum_standard_item`。
+- [x] 所有候选 `status=candidate`、`reviewStatus=pending_review`、`productionEligible=false`，锚点引用存在。
+- [x] 写入前后 active C002 数量、stable IDs 和指纹完全一致。
 
 **验证：** candidate import dry-run；有 backup manifest 后定向 apply；`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-curriculum-candidate-import-smoke.ps1`；`tools/run-ns204-no-active-write-guard.ps1`。
 
@@ -282,13 +282,15 @@ flowchart TD
 
 **证据 / 回滚：** `docs/evidence/cek009-curriculum-candidate-import.json`；按 import key 删除本批 candidate/mapping 或恢复写前快照。
 
+**实施真值：** 在由已验证备份 `D:\KQG_Backups\20260728-225054\manifest.json` 恢复的一次性 CEK-09 隔离库中，dry-run 后连续 apply 两次，幂等持久化 89 个 `curriculum_requirement`、184 个 `requirement_facet` 和 94 条 pending mapping。全部资产保持 candidate/pending_review/productionEligible=false 且锚点存在；全部 mapping 指向 active knowledge_point，auto_applied=false。active 资产与知识节点合计 1573 条，写前写后 SHA-256 均为 `e7293b31e82192c448ebeff1d7216e1578466c73fa28733eee93a2a66db94d02`。主库写入、KnowledgeNode 写入和 C002 active 写入均为 0。
+
 **规模：** M，4 个仓库文件。
 
 ## Checkpoint B2：课标候选进入治理链
 
-- [ ] CEK-07..09 通过，原文、分面、知识映射和锚点可追溯。
-- [ ] 新知识内容仍是 candidate，未发生 active 写入。
-- [ ] 教材层仍保持独立，不被课标结构覆盖。
+- [x] CEK-07..09 通过，原文、分面、知识映射和锚点可追溯。
+- [x] 新知识内容仍是 candidate，未发生 active 写入。
+- [x] 教材层仍保持独立，不被课标结构覆盖。
 
 ### Phase C：题目范围、考查目标与三源对齐
 

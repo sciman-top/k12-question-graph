@@ -1,6 +1,6 @@
 # 课程标准与中考真题多层证据提炼任务清单
 
-- 状态：实施中；CEK-01..08 与 Checkpoint B1 已完成，CEK-09 待执行
+- 状态：实施中；CEK-01..09 与 Checkpoint B2 已完成，CEK-10 待执行
 - 设计：`docs/superpowers/specs/2026-07-28-curriculum-exam-knowledge-extraction-design.md`
 - 详细计划：`docs/superpowers/plans/2026-07-28-curriculum-exam-knowledge-extraction-implementation-plan.md`
 - 范围：初中物理、2022 年版 2025 年修订课标、广州 2015-2025 真题/答案/年报
@@ -22,8 +22,8 @@
 - [x] Checkpoint B1：课标结构可靠，无无证据条目
 - [x] CEK-07 要求分面候选与 AI schema/eval
 - [x] CEK-08 课程要求到知识节点的候选 crosswalk
-- [ ] CEK-09 课程要求/分面 candidate 持久化与查询 smoke
-- [ ] Checkpoint B2：课标候选进入治理链，无 active 写入
+- [x] CEK-09 课程要求/分面 candidate 持久化与查询 smoke
+- [x] Checkpoint B2：课标候选进入治理链，无 active 写入
 
 ## Phase C：题目范围、考查目标与三源对齐
 
