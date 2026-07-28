@@ -160,6 +160,8 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
         entity.Property(x => x.CoordinateUnit).HasMaxLength(32).HasDefaultValue("percent");
         entity.Property(x => x.ScreenshotRelativePath).HasMaxLength(512);
         entity.Property(x => x.RegionType).HasMaxLength(64).HasDefaultValue("preview");
+        entity.Property(x => x.Metadata).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.HasIndex(x => x.Metadata).HasMethod("gin");
         entity.HasOne<SourceDocument>().WithMany().HasForeignKey(x => x.SourceDocumentId).OnDelete(DeleteBehavior.Cascade);
         entity.ToTable(x =>
         {

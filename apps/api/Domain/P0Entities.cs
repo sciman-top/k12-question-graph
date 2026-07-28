@@ -241,6 +241,8 @@ public sealed class SourceRegion
 
     public string RegionType { get; set; } = "preview";
 
+    public string Metadata { get; set; } = "{}";
+
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 }
 
