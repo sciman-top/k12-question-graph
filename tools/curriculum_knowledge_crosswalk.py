@@ -335,14 +335,15 @@ def build_crosswalk(
         "knowledge_snapshot": {
             "seed_id": knowledge["seedId"],
             "node_count": len(nodes),
-            "source": "repo_snapshot",
+            "source": knowledge.get("source", "repo_snapshot"),
+            "status": knowledge.get("status"),
         },
         "governance": {
             "status": "candidate",
             "review_status": "pending_review",
             "production_eligible": False,
             "human_review_required": True,
-            "database_read": False,
+            "database_read": knowledge.get("source") == "domain_asset_versions",
             "database_write": False,
             "knowledge_node_write": False,
             "domain_asset_mapping_write": False,
@@ -367,7 +368,6 @@ def validate_crosswalk(envelope: dict[str, Any]) -> None:
         governance.get(field) is not False
         for field in (
             "production_eligible",
-            "database_read",
             "database_write",
             "knowledge_node_write",
             "domain_asset_mapping_write",
@@ -410,7 +410,7 @@ def summary(envelope: dict[str, Any]) -> dict[str, Any]:
         "highPriorityReviewCount": sum(
             item["priority"] == "high" for item in envelope["review_queue"]
         ),
-        "databaseReads": 0,
+        "databaseReads": int(envelope["governance"]["database_read"]),
         "databaseWrites": 0,
         "activeWrites": 0,
     }

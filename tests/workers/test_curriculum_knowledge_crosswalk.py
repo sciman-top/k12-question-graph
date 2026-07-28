@@ -150,6 +150,23 @@ class CurriculumKnowledgeCrosswalkTests(unittest.TestCase):
         self.assertFalse(result["governance"]["knowledge_node_write"])
         self.assertFalse(result["governance"]["c002_active_write"])
 
+    def test_active_domain_asset_snapshot_records_read_only_database_access(self) -> None:
+        knowledge = {
+            "seedId": "C002_ACTIVE_DOMAIN_ASSETS",
+            "source": "domain_asset_versions",
+            "status": "active",
+            "nodes": [node("KPHY-ACTIVE-001", "欧姆定律")],
+        }
+
+        result = crosswalk.build_crosswalk(
+            envelope([facet("CR-TEST-1-F01", "欧姆定律")]), knowledge
+        )
+
+        self.assertTrue(result["governance"]["database_read"])
+        self.assertFalse(result["governance"]["database_write"])
+        self.assertEqual(result["knowledge_snapshot"]["source"], "domain_asset_versions")
+        self.assertEqual(result["knowledge_snapshot"]["status"], "active")
+
     def test_many_to_many_and_low_confidence_are_high_priority_with_rollback(self) -> None:
         source = envelope(
             [

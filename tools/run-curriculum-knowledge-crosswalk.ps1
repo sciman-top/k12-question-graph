@@ -1,11 +1,17 @@
 param(
     [string] $RequirementCandidatePath = 'tmp\cek007\curriculum-requirement-facets.candidate.json',
-    [string] $KnowledgeSnapshotPath = 'configs\knowledge\junior-physics-l1-l3.json',
+    [string] $KnowledgeSnapshotPath = 'tmp\cek008\c002-active-knowledge.snapshot.json',
     [string] $CrosswalkOutputPath = 'tmp\cek008\curriculum-knowledge-crosswalk.candidate.json',
     [string] $CompatibilityCsvPath = 'tmp\cek008\c002-asset-mapping.candidate.csv',
     [string] $SchemaPath = 'schemas\ai\knowledge_mapping.schema.json',
     [string] $ReportPath = 'docs\evidence\cek008-curriculum-knowledge-crosswalk.json',
-    [string] $PythonCommand = 'python'
+    [string] $PythonCommand = 'python',
+    [string] $PgBin = 'C:\Program Files\PostgreSQL\17\bin',
+    [string] $DatabaseName = 'k12_question_graph',
+    [string] $DatabaseHost = '127.0.0.1',
+    [int] $DatabasePort = 5432,
+    [string] $DatabaseUser = 'postgres',
+    [string] $DatabasePassword = $env:PGPASSWORD
 )
 
 Set-StrictMode -Version Latest
@@ -62,7 +68,7 @@ function Test-Definition([object] $Value, [object] $Schema, [string] $Definition
 }
 
 $requirements = Resolve-Input $RequirementCandidatePath 'CEK-07 requirement candidate'
-$knowledge = Resolve-Input $KnowledgeSnapshotPath 'C002 knowledge snapshot'
+$knowledgeOutput = Resolve-Output $KnowledgeSnapshotPath
 $schemaFile = Resolve-Input $SchemaPath 'knowledge mapping schema'
 $crosswalkOutput = Resolve-Output $CrosswalkOutputPath
 $compatOutput = Resolve-Output $CompatibilityCsvPath
@@ -70,6 +76,35 @@ $reportOutput = Resolve-Output $ReportPath
 
 Push-Location $repoRoot
 try {
+    . (Join-Path $PSScriptRoot 'database-env.ps1')
+    $DatabasePassword = Use-KqgDatabasePassword $DatabasePassword
+    Assert-True (-not [string]::IsNullOrWhiteSpace($DatabasePassword)) 'database password is required for the read-only active snapshot'
+    $psql = Join-Path $PgBin 'psql.exe'
+    Assert-True (Test-Path -LiteralPath $psql -PathType Leaf) "psql.exe not found: $psql"
+    $knowledgeRelative = Assert-Ignored $knowledgeOutput 'Active knowledge snapshot'
+    $snapshotJson = & $psql -h $DatabaseHost -p $DatabasePort -U $DatabaseUser -d $DatabaseName -t -A -v ON_ERROR_STOP=1 -c @"
+select json_build_object(
+  'seedId', 'C002_ACTIVE_DOMAIN_ASSETS',
+  'source', 'domain_asset_versions',
+  'status', 'active',
+  'nodes', coalesce(json_agg(json_build_object(
+    'code', stable_id,
+    'title', display_name,
+    'level', coalesce(nullif(metadata->>'level','')::int, 3),
+    'nodeType', coalesce(nullif(metadata->>'node_type',''), 'concept'),
+    'parentCode', nullif(metadata->>'parent_stable_id',''),
+    'aliases', '[]'::json
+  ) order by stable_id), '[]'::json)
+)
+from domain_asset_versions
+where asset_type='knowledge_point' and status='active';
+"@
+    Assert-True ($LASTEXITCODE -eq 0) 'active C002 knowledge snapshot query failed'
+    $snapshot = $snapshotJson | ConvertFrom-Json -Depth 20
+    Assert-True (@($snapshot.nodes).Count -gt 0) 'active C002 knowledge snapshot is empty'
+    Assert-True (@($snapshot.nodes.code | Sort-Object -Unique).Count -eq @($snapshot.nodes).Count) 'active C002 knowledge stable IDs are not unique'
+    Write-Json $snapshot $knowledgeOutput
+    $knowledge = Resolve-Input $knowledgeOutput 'C002 active knowledge snapshot'
     $crosswalkRelative = Assert-Ignored $crosswalkOutput 'Crosswalk output'
     $compatRelative = Assert-Ignored $compatOutput 'Compatibility CSV'
     $requirementHashBefore = Get-Sha256 $requirements
@@ -107,7 +142,8 @@ try {
         Assert-True ($candidate.production_eligible -eq $false) 'unmatched candidate is production eligible'
         Assert-True ($candidate.knowledge_node_write -eq $false) 'unmatched candidate writes a knowledge node'
     }
-    foreach ($field in 'database_read','database_write','knowledge_node_write','domain_asset_mapping_write','c002_active_write') {
+    Assert-True ($result.governance.database_read -eq $true) 'active snapshot must be read from the database'
+    foreach ($field in 'database_write','knowledge_node_write','domain_asset_mapping_write','c002_active_write') {
         Assert-True ($result.governance.$field -eq $false) "unsafe governance field: $field"
     }
 
@@ -131,7 +167,7 @@ try {
             knowledgeSnapshotSha256 = $knowledgeHashBefore
             knowledgeSeedId = [string]$result.knowledge_snapshot.seed_id
             knowledgeNodeCount = [int]$result.knowledge_snapshot.node_count
-            databaseRead = $false
+            databaseRead = $true
             inputMutation = $false
         }
         result = [ordered]@{

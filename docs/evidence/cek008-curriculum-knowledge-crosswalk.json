@@ -1,44 +1,44 @@
 {
   "schemaVersion": "cek008-curriculum-knowledge-crosswalk.v1",
   "status": "pass",
-  "checkedAt": "2026-07-28T14:36:06.8521206+00:00",
+  "checkedAt": "2026-07-28T14:55:08.2637864+00:00",
   "taskId": "CEK-08",
   "inputs": {
     "requirementCandidatePath": "tmp/cek007/curriculum-requirement-facets.candidate.json",
     "requirementCandidateSha256": "f3d776753aeabae2b07aea8d8cbac765cfe400fe6515ec760b1a881f1dbe215a",
-    "knowledgeSnapshotPath": "configs/knowledge/junior-physics-l1-l3.json",
-    "knowledgeSnapshotSha256": "30f79fedccc2718743df9f43ba2ed11800e5aff72f4244c396ee76f912c379ee",
-    "knowledgeSeedId": "C002_JUNIOR_PHYSICS_V1",
-    "knowledgeNodeCount": 57,
-    "databaseRead": false,
+    "knowledgeSnapshotPath": "tmp/cek008/c002-active-knowledge.snapshot.json",
+    "knowledgeSnapshotSha256": "61755193613b1580df30bb274b12c54b1bc4cfeb42d6c68e209e1a968bc4d061",
+    "knowledgeSeedId": "C002_ACTIVE_DOMAIN_ASSETS",
+    "knowledgeNodeCount": 106,
+    "databaseRead": true,
     "inputMutation": false
   },
   "result": {
     "facetCount": 184,
-    "mappingCount": 71,
+    "mappingCount": 94,
     "mappingTypes": {
-      "equivalent": 8,
-      "broader": 39,
-      "narrower": 24
+      "equivalent": 2,
+      "broader": 56,
+      "narrower": 36
     },
-    "knowledgeCandidateCount": 137,
-    "reviewQueueCount": 208,
-    "highPriorityReviewCount": 207,
-    "oneToManyReviewCount": 44,
-    "manyToOneReviewCount": 52,
-    "lowConfidenceReviewCount": 34,
-    "outputPayloadSha256": "704d5998df426f4383cd78e46a9d334ab027d6bd8a93ba068fd80dbf4f318ac4",
+    "knowledgeCandidateCount": 126,
+    "reviewQueueCount": 220,
+    "highPriorityReviewCount": 220,
+    "oneToManyReviewCount": 64,
+    "manyToOneReviewCount": 65,
+    "lowConfidenceReviewCount": 40,
+    "outputPayloadSha256": "af2800c61d77b17dbf329f2a41bc25d268161b93c34e622bbf796df7ab7db970",
     "crosswalkPath": "tmp/cek008/curriculum-knowledge-crosswalk.candidate.json",
-    "crosswalkSha256": "ddda717c554807a26abb94750478ba2fb913a44e5a086f7e3ff8e38a1a80d872",
+    "crosswalkSha256": "147e1d8f162299f65c0b495f22f26399fcbc26fbfaebaadfa1e27fe075073e53",
     "compatibilityCsvPath": "tmp/cek008/c002-asset-mapping.candidate.csv",
-    "compatibilityCsvSha256": "36e503909818593e448e1e68ccc67163f8c10f30537a5eca882a34d7b3823fb3",
+    "compatibilityCsvSha256": "efaa8fb6f47484bbf775e03c0540fb3f819b6321f92efb64a64d137b513b8a49",
     "outputsGitIgnored": true,
     "committedEvidenceContainsVerbatimSourceText": false
   },
   "contracts": {
     "schemaPath": "schemas/ai/knowledge_mapping.schema.json",
-    "mappingDefinitionValidCount": 71,
-    "candidateDefinitionValidCount": 137,
+    "mappingDefinitionValidCount": 94,
+    "candidateDefinitionValidCount": 126,
     "allowedMappingTypes": [
       "equivalent",
       "broader",
@@ -54,7 +54,7 @@
     "review_status": "pending_review",
     "production_eligible": false,
     "human_review_required": true,
-    "database_read": false,
+    "database_read": true,
     "database_write": false,
     "knowledge_node_write": false,
     "domain_asset_mapping_write": false,
@@ -65,13 +65,19 @@
     "newDependenciesAdded": false,
     "implementation": "Python standard library and PowerShell Test-Json"
   },
+  "correction": {
+    "status": "corrected",
+    "rootCause": "configs/knowledge/junior-physics-l1-l3.json is a draft bootstrap, not the active C002 ontology",
+    "previousInputRejected": "C002_JUNIOR_PHYSICS_V1",
+    "authoritativeInput": "active knowledge_point rows from domain_asset_versions",
+    "activeSnapshotReadOnly": true
+  },
   "fixedOrderGates": {
     "build": {
       "status": "pass",
-      "command": "dotnet build apps/api/K12QuestionGraph.Api.csproj -c Release --no-restore",
       "errors": 0,
       "warnings": 1,
-      "knownWarning": "Microsoft.OpenApi 2.0.0 NU1903 high severity advisory GHSA-v5pm-xwqc-g5wc"
+      "knownWarning": "Microsoft.OpenApi 2.0.0 NU1903 GHSA-v5pm-xwqc-g5wc"
     },
     "test": {
       "status": "pass",
@@ -80,22 +86,13 @@
     },
     "contractInvariant": {
       "status": "pass",
-      "crosswalkWrapper": "pass",
-      "rootQuestionMappingCompatibility": "pass",
+      "activeDomainAssetSnapshot": "106 knowledge_point rows",
       "roadmapGuard": "pass",
       "REAL005": "not_closed"
     },
     "hotspot": {
       "status": "pass",
-      "checks": [
-        "ruff",
-        "python_compile",
-        "powershell_ast",
-        "json_csv_parse",
-        "privacy",
-        "secret_scan",
-        "no_database_or_network_write_path"
-      ]
+      "checks": ["ruff", "python_compile", "powershell_ast", "schema_and_privacy_contracts"]
     }
   },
   "fullGate": {

@@ -1675,8 +1675,10 @@ python -m unittest tests.workers.test_curriculum_knowledge_crosswalk
 pwsh -NoProfile -ExecutionPolicy Bypass -File tools\run-curriculum-knowledge-crosswalk.ps1
 ```
 
-The crosswalk reads the Git-ignored CEK-07 facet candidate and the repository
-`C002_JUNIOR_PHYSICS_V1` snapshot. It only accepts normalized exact or
+The crosswalk reads the Git-ignored CEK-07 facet candidate and performs a
+read-only export of active `knowledge_point` rows from `domain_asset_versions`
+to a Git-ignored snapshot. The legacy `C002_JUNIOR_PHYSICS_V1` seed is draft
+bootstrap and must not be used as the active ontology. The matcher only accepts normalized exact or
 containment matches against stable knowledge titles and aliases. Exact matches
 produce `equivalent`; explicit containment direction produces a review-only
 `broader` or `narrower` candidate. It does not use fuzzy similarity or infer
@@ -1688,8 +1690,8 @@ nodes. One-to-many, many-to-one, low-confidence, directional, and high-impact
 items are routed to human review with a rollback requirement. Verbatim and
 source-derived values stay under Git-ignored `tmp/cek008`; the committed report
 contains only counts, hashes, governance, and compatibility results. The
-wrapper performs no database read/write, model call, mapping persistence, or
-C002 active switch.
+wrapper performs one read-only database snapshot query and no database write,
+model call, mapping persistence, or C002 active switch.
 
 Backup:
 

@@ -258,7 +258,7 @@ flowchart TD
 
 **证据 / 回滚：** `docs/evidence/cek008-curriculum-knowledge-crosswalk.json`；丢弃 crosswalk candidate 和兼容导出。
 
-**实施真值：** 基于 Git 忽略的 CEK-07 184 个 facet 和仓库 `C002_JUNIOR_PHYSICS_V1` 57 个稳定节点，以标准化 title/alias 等值或包含关系生成 71 条确定性候选映射（8 equivalent、39 broader、24 narrower）及 137 个未匹配 knowledge candidate。208 个审核项中 207 个 high；全部映射 `pending_review/auto_apply_allowed=false/rollback_required=true`。真实文本与兼容 CSV 仅存在 `tmp/cek008`；模型调用、数据库读写、KnowledgeNode/DomainAssetMapping/C002 active 写入均为 0。
+**实施真值：** 基于 Git 忽略的 CEK-07 184 个 facet，以及从 `domain_asset_versions` 只读导出的 106 个 active C002 `knowledge_point`，以标准化 title 等值或包含关系生成 94 条确定性候选映射（2 equivalent、56 broader、36 narrower）及 126 个未匹配 knowledge candidate。220 个审核项全部 high；全部映射 `pending_review/auto_apply_allowed=false/rollback_required=true`。旧 `C002_JUNIOR_PHYSICS_V1` 是 draft bootstrap，不作为 active 输入。真实文本、active 快照与兼容 CSV 仅存在 `tmp/cek008`；模型调用、数据库写入、KnowledgeNode/DomainAssetMapping/C002 active 写入均为 0，数据库读取为 1 次只读快照查询。
 
 **规模：** M，5 个仓库文件。
 
