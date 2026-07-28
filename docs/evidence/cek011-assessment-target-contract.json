@@ -1,0 +1,182 @@
+{
+  "schemaVersion": "cek011-assessment-target-contract.v1",
+  "status": "pass",
+  "checkedAt": "2026-07-28T15:47:15.4877864Z",
+  "taskId": "CEK-11",
+  "validator": {
+    "engine": "PowerShell Test-Json",
+    "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",
+    "addedDependency": false
+  },
+  "inputHashes": {
+    "assessmentTarget": "4de5477539d314cef3b2f08d63067fbf4f317d7d839bee7d6ce59bf78ea2624b",
+    "curriculumAlignment": "979069332088e49bac29660b219b8ac077751bf57a13d6db363855c950a6a72b",
+    "template": "47317b7a93df8cfc4b12d3e3408241ee4f71818d6d8b2a08a315240b3c53e7ff",
+    "contract": "4c7bee915b612c5ebb7635da5aaba0dbc2878ba2b65d42348194d4ab1b7c4de5"
+  },
+  "positiveCases": {
+    "candidateTemplate": "pass",
+    "sourceCitedAlignment": "pass",
+    "targetWithAlignment": "pass"
+  },
+  "negativeCaseCount": 9,
+  "negativeCases": [
+    {
+      "id": "non_whole_requires_block",
+      "rejected": true,
+      "errors": [
+        "The JSON is not valid with the schema: Expected \"true\" at '/production_eligible'",
+        "The JSON is not valid with the schema: Expected \"\\u0022whole_question\\u0022\" at '/question_scope/scope_type'",
+        "The JSON is not valid with the schema: Value is \"null\" but should be \"string\" at '/question_scope/question_block_id'",
+        "The JSON is not valid with the schema: Value is \"null\" but should be \"string\" at '/evidence_anchors/0/source_region_id'",
+        "The JSON is not valid with the schema: Value is \"null\" but should be \"integer\" at '/evidence_anchors/0/printed_page_number'",
+        "The JSON is not valid with the schema: Value is \"null\" but should be \"string\" at '/evidence_anchors/0/printed_page_number'",
+        "The JSON is not valid with the schema: Value is \"null\" but should be \"string\" at '/evidence_anchors/0/official_item_code'"
+      ]
+    },
+    {
+      "id": "whole_forbids_block",
+      "rejected": true,
+      "errors": [
+        "The JSON is not valid with the schema: Expected \"true\" at '/production_eligible'",
+        "The JSON is not valid with the schema: Value is \"string\" but should be \"null\" at '/question_scope/question_block_id'",
+        "The JSON is not valid with the schema: Value should match one of the values specified by the enum at '/question_scope/scope_type'",
+        "The JSON is not valid with the schema: Value is \"null\" but should be \"string\" at '/evidence_anchors/0/source_region_id'",
+        "The JSON is not valid with the schema: Value is \"null\" but should be \"integer\" at '/evidence_anchors/0/printed_page_number'",
+        "The JSON is not valid with the schema: Value is \"null\" but should be \"string\" at '/evidence_anchors/0/printed_page_number'",
+        "The JSON is not valid with the schema: Value is \"null\" but should be \"string\" at '/evidence_anchors/0/official_item_code'"
+      ]
+    },
+    {
+      "id": "primary_knowledge_is_single",
+      "rejected": true,
+      "errors": [
+        "The JSON is not valid with the schema: Value is \"array\" but should be \"string, null\" at '/primary_knowledge_id'",
+        "The JSON is not valid with the schema: Expected \"true\" at '/production_eligible'",
+        "The JSON is not valid with the schema: Value should match one of the values specified by the enum at '/question_scope/scope_type'",
+        "The JSON is not valid with the schema: Value is \"null\" but should be \"string\" at '/evidence_anchors/0/source_region_id'",
+        "The JSON is not valid with the schema: Value is \"null\" but should be \"integer\" at '/evidence_anchors/0/printed_page_number'",
+        "The JSON is not valid with the schema: Value is \"null\" but should be \"string\" at '/evidence_anchors/0/printed_page_number'",
+        "The JSON is not valid with the schema: Value is \"null\" but should be \"string\" at '/evidence_anchors/0/official_item_code'"
+      ]
+    },
+    {
+      "id": "alignment_type_closed_enum",
+      "rejected": true,
+      "errors": [
+        "The JSON is not valid with the schema: Value should match one of the values specified by the enum at '/alignment_type'",
+        "The JSON is not valid with the schema: Expected \"\\u0022source_cited\\u0022\" at '/alignment_type'",
+        "The JSON is not valid with the schema: Value should match one of the values specified by the enum at '/alignment_type'",
+        "The JSON is not valid with the schema: Expected \"true\" at '/production_eligible'",
+        "The JSON is not valid with the schema: Value is \"null\" but should be \"string\" at '/evidence_anchors/0/source_region_id'",
+        "The JSON is not valid with the schema: Value is \"null\" but should be \"integer\" at '/evidence_anchors/0/printed_page_number'",
+        "The JSON is not valid with the schema: Value is \"null\" but should be \"string\" at '/evidence_anchors/0/printed_page_number'",
+        "The JSON is not valid with the schema: Value is \"null\" but should be \"string\" at '/evidence_anchors/0/official_item_code'"
+      ]
+    },
+    {
+      "id": "standard_version_required",
+      "rejected": true,
+      "errors": [
+        "The JSON is not valid with the schema: Required properties [\"standard_version\"] are not present at ''",
+        "The JSON is not valid with the schema: Value should match one of the values specified by the enum at '/alignment_type'",
+        "The JSON is not valid with the schema: Expected \"true\" at '/production_eligible'",
+        "The JSON is not valid with the schema: Value is \"null\" but should be \"string\" at '/evidence_anchors/0/source_region_id'",
+        "The JSON is not valid with the schema: Value is \"null\" but should be \"integer\" at '/evidence_anchors/0/printed_page_number'",
+        "The JSON is not valid with the schema: Value is \"null\" but should be \"string\" at '/evidence_anchors/0/printed_page_number'",
+        "The JSON is not valid with the schema: Value is \"null\" but should be \"string\" at '/evidence_anchors/0/official_item_code'"
+      ]
+    },
+    {
+      "id": "alignment_anchor_required",
+      "rejected": true,
+      "errors": [
+        "The JSON is not valid with the schema: Value should have at least 1 items at '/evidence_anchors'",
+        "The JSON is not valid with the schema: Value should match one of the values specified by the enum at '/alignment_type'",
+        "The JSON is not valid with the schema: Expected \"true\" at '/production_eligible'"
+      ]
+    },
+    {
+      "id": "alignment_status_required",
+      "rejected": true,
+      "errors": [
+        "The JSON is not valid with the schema: Required properties [\"status\"] are not present at ''",
+        "The JSON is not valid with the schema: Required properties [\"status\"] are not present at ''",
+        "The JSON is not valid with the schema: Value should match one of the values specified by the enum at '/alignment_type'",
+        "The JSON is not valid with the schema: Expected \"true\" at '/production_eligible'",
+        "The JSON is not valid with the schema: Value is \"null\" but should be \"string\" at '/evidence_anchors/0/source_region_id'",
+        "The JSON is not valid with the schema: Value is \"null\" but should be \"integer\" at '/evidence_anchors/0/printed_page_number'",
+        "The JSON is not valid with the schema: Value is \"null\" but should be \"string\" at '/evidence_anchors/0/printed_page_number'",
+        "The JSON is not valid with the schema: Value is \"null\" but should be \"string\" at '/evidence_anchors/0/official_item_code'"
+      ]
+    },
+    {
+      "id": "retrospective_not_original_basis",
+      "rejected": true,
+      "errors": [
+        "The JSON is not valid with the schema: Expected \"\\u0022source_cited\\u0022\" at '/alignment_type'",
+        "The JSON is not valid with the schema: Expected \"false\" at '/original_basis'",
+        "The JSON is not valid with the schema: Expected \"true\" at '/production_eligible'",
+        "The JSON is not valid with the schema: Value is \"null\" but should be \"string\" at '/evidence_anchors/0/source_region_id'",
+        "The JSON is not valid with the schema: Value is \"null\" but should be \"integer\" at '/evidence_anchors/0/printed_page_number'",
+        "The JSON is not valid with the schema: Value is \"null\" but should be \"string\" at '/evidence_anchors/0/printed_page_number'",
+        "The JSON is not valid with the schema: Value is \"null\" but should be \"string\" at '/evidence_anchors/0/official_item_code'"
+      ]
+    },
+    {
+      "id": "candidate_not_production_eligible",
+      "rejected": true,
+      "errors": [
+        "The JSON is not valid with the schema: Value should match one of the values specified by the enum at '/alignment_type'",
+        "The JSON is not valid with the schema: Expected \"false\" at '/production_eligible'",
+        "The JSON is not valid with the schema: Expected \"\\u0022active\\u0022\" at '/status'",
+        "The JSON is not valid with the schema: Expected \"\\u0022approved\\u0022\" at '/review_status'",
+        "The JSON is not valid with the schema: Value is \"null\" but should be \"string\" at '/evidence_anchors/0/source_region_id'",
+        "The JSON is not valid with the schema: Value is \"null\" but should be \"integer\" at '/evidence_anchors/0/printed_page_number'",
+        "The JSON is not valid with the schema: Value is \"null\" but should be \"string\" at '/evidence_anchors/0/printed_page_number'",
+        "The JSON is not valid with the schema: Value is \"null\" but should be \"string\" at '/evidence_anchors/0/official_item_code'"
+      ]
+    }
+  ],
+  "invariants": {
+    "oneExactScope": true,
+    "singlePrimaryKnowledgeField": true,
+    "nonWholeRequiresQuestionBlock": true,
+    "alignmentTypesClosed": true,
+    "standardVersionAnchorConfidenceRequired": true,
+    "retrospectiveOriginalBasisForbidden": true,
+    "candidatePendingReview": true,
+    "productionEligible": false
+  },
+  "referencesReviewed": [
+    {
+      "url": "https://json-schema.org/draft/2020-12/json-schema-core.html",
+      "status": "HTTP 200",
+      "adoptionDecision": "official_semantics_first"
+    }
+  ],
+  "localReference": {
+    "status": "gate_na",
+    "reason": "reference-basis manifest has no JSON Schema official source mapping",
+    "alternative_verification": "official JSON Schema 2020-12 specification plus PowerShell Test-Json positive/negative fixtures",
+    "evidence_link": "docs/evidence/cek011-assessment-target-contract.json",
+    "expires_at": "next_reference_shelf_governance_update",
+    "recovery_condition": "add a versioned JSON Schema official source anchor to the reference-basis manifest"
+  },
+  "executionBoundary": {
+    "databaseWrite": false,
+    "activeWrite": false,
+    "externalAiCalls": 0,
+    "realStudentDataUsed": false
+  },
+  "fullGate": {
+    "status": "gate_na",
+    "reason": "tools/run-gates.ps1 is reserved for CEK-34 due to PostgreSQL/API process impact",
+    "alternative_verification": "Release build, schema fixtures, roadmap/reference guards, and static checks",
+    "evidence_link": "docs/evidence/cek011-assessment-target-contract.json",
+    "expires_at": "CEK-34",
+    "recovery_condition": "obtain planned confirmation and run tools/run-gates.ps1 at CEK-34"
+  },
+  "rollback": "remove only CEK-11 schemas, template, contract, docs, and evidence; no data restore required",
+  "completionBoundary": "CEK-11 defines repo-side candidate contracts only; it does not create database records, approve alignments, close REAL005, permit release, or establish teacher/live acceptance."
+}

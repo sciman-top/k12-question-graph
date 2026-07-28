@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AssessmentTarget",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "record_type", "target_id", "question_scope", "target_statement", "is_primary_target", "primary_knowledge_id", "secondary_knowledge_ids", "prerequisite_knowledge_ids", "curriculum_alignments", "ability_dimensions", "cognitive_demands", "method_model_experiment_ids", "context_type", "representation_types", "task_type", "score_weight", "evidence_anchors", "generation", "confidence", "status", "review_status", "production_eligible"],
+  "properties": {
+    "schema_version": { "const": "assessment-target.v1" },
+    "record_type": { "const": "assessment_target" },
+    "target_id": { "type": "string", "minLength": 1 },
+    "question_scope": { "$ref": "#/$defs/question_scope" },
+    "target_statement": { "type": "string", "minLength": 1 },
+    "is_primary_target": { "type": "boolean" },
+    "primary_knowledge_id": { "type": ["string", "null"], "minLength": 1 },
+    "secondary_knowledge_ids": { "$ref": "#/$defs/stable_id_array" },
+    "prerequisite_knowledge_ids": { "$ref": "#/$defs/stable_id_array" },
+    "curriculum_alignments": { "type": "array", "items": { "$ref": "curriculum_alignment.schema.json" } },
+    "ability_dimensions": { "$ref": "#/$defs/stable_id_array" },
+    "cognitive_demands": { "$ref": "#/$defs/stable_id_array" },
+    "method_model_experiment_ids": { "$ref": "#/$defs/stable_id_array" },
+    "context_type": { "type": "string", "minLength": 1 },
+    "representation_types": { "$ref": "#/$defs/stable_id_array" },
+    "task_type": { "type": "string", "minLength": 1 },
+    "score_weight": { "type": ["number", "null"], "minimum": 0 },
+    "evidence_anchors": { "type": "array", "minItems": 1, "items": { "$ref": "evidence_anchor.schema.json" } },
+    "generation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["method", "generator", "version"],
+      "properties": {
+        "method": { "enum": ["rules", "ai", "human"] },
+        "generator": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 }
+      }
+    },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "status": { "enum": ["candidate", "reviewed", "active", "rejected"] },
+    "review_status": { "enum": ["pending_review", "approved", "rejected"] },
+    "production_eligible": { "type": "boolean" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "status": { "const": "candidate" } }, "required": ["status"] },
+      "then": { "properties": { "review_status": { "const": "pending_review" }, "production_eligible": { "const": false } } }
+    },
+    {
+      "if": { "properties": { "production_eligible": { "const": true } }, "required": ["production_eligible"] },
+      "then": { "properties": { "status": { "const": "active" }, "review_status": { "const": "approved" } } }
+    }
+  ],
+  "$defs": {
+    "stable_id_array": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+    "question_scope": {
+      "type": "object", "additionalProperties": false,
+      "required": ["scope_key", "scope_type", "question_item_id", "question_block_id"],
+      "properties": {
+        "scope_key": { "type": "string", "pattern": "^question-scope:v1:" },
+        "scope_type": { "enum": ["whole_question", "subquestion", "scoring_point"] },
+        "question_item_id": { "type": "string", "format": "uuid" },
+        "question_block_id": { "type": ["string", "null"], "format": "uuid" }
+      },
+      "allOf": [
+        { "if": { "properties": { "scope_type": { "const": "whole_question" } }, "required": ["scope_type"] }, "then": { "properties": { "question_block_id": { "type": "null" } } } },
+        { "if": { "properties": { "scope_type": { "enum": ["subquestion", "scoring_point"] } }, "required": ["scope_type"] }, "then": { "properties": { "question_block_id": { "type": "string", "format": "uuid" } } } }
+      ]
+    }
+  }
+}

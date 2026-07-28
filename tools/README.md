@@ -1725,6 +1725,19 @@ never split on punctuation. The committed report contains only counts, hashes,
 governance, reference decisions, and the repo-side completion boundary. No
 question content is approved or written to the database.
 
+CEK-11 assessment target and curriculum alignment contract:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File tools\run-assessment-target-contract.ps1
+```
+
+The contract validates candidate-safe AssessmentTarget and CurriculumAlignment
+schemas with positive and fail-closed fixtures. A target has one exact question
+scope and a single optional primary knowledge ID. Non-whole scopes require a
+QuestionBlock UUID. Alignment types are closed to `source_cited`,
+`contemporaneous_inferred`, and `retrospective_crosswalk`; only source-cited
+alignment may claim `original_basis=true`.
+
 Backup:
 
 ```powershell

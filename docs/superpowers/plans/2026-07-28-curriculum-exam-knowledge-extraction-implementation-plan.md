@@ -1,7 +1,7 @@
 # 课程标准与中考真题多层证据提炼实施计划
 
 - 日期：2026-07-28
-- 状态：实施中；CEK-01..10 与 Checkpoint B2 已完成，CEK-11 待执行
+- 状态：实施中；CEK-01..11 与 Checkpoint B2 已完成，CEK-12 待执行
 - 设计依据：`docs/superpowers/specs/2026-07-28-curriculum-exam-knowledge-extraction-design.md`
 - 当前范围：初中物理、2022 年版 2025 年修订课程标准、广州 2015-2025 中考真题/答案/年报
 - 计划性质：现有知识资产治理和广州真题闭环的下级专题计划，不新增顶层路线图
@@ -326,9 +326,9 @@ flowchart TD
 
 **验收：**
 
-- [ ] 每个 target 只有一个精确 question scope 和最多一个 primary knowledge，可有多个 secondary/prerequisite/method 映射。
-- [ ] alignment type 只允许 `source_cited/contemporaneous_inferred/retrospective_crosswalk`，并强制 standard version、anchor 和 confidence。
-- [ ] 后设对齐不能携带“original basis”标志，缺证据/状态时 fail-closed。
+- [x] 每个 target 只有一个精确 question scope 和最多一个 primary knowledge，可有多个 secondary/prerequisite/method 映射。
+- [x] alignment type 只允许 `source_cited/contemporaneous_inferred/retrospective_crosswalk`，并强制 standard version、anchor 和 confidence。
+- [x] 后设对齐不能携带“original basis”标志，缺证据/状态时 fail-closed。
 
 **验证：** `pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-assessment-target-contract.ps1`；正负 fixture parse。
 

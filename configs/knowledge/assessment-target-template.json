@@ -1,0 +1,41 @@
+{
+  "schema_version": "assessment-target.v1",
+  "record_type": "assessment_target",
+  "target_id": "AT-QPHY-REPLACE_WITH_STABLE_SCOPE-01",
+  "question_scope": {
+    "scope_key": "question-scope:v1:11111111-1111-1111-1111-111111111111:whole_question",
+    "scope_type": "whole_question",
+    "question_item_id": "11111111-1111-1111-1111-111111111111",
+    "question_block_id": null
+  },
+  "target_statement": "REPLACE_WITH_REVIEWABLE_MEASUREMENT_INTENT",
+  "is_primary_target": true,
+  "primary_knowledge_id": null,
+  "secondary_knowledge_ids": [],
+  "prerequisite_knowledge_ids": [],
+  "curriculum_alignments": [],
+  "ability_dimensions": [],
+  "cognitive_demands": [],
+  "method_model_experiment_ids": [],
+  "context_type": "unclassified",
+  "representation_types": [],
+  "task_type": "unclassified",
+  "score_weight": null,
+  "evidence_anchors": [{
+    "source_document_id": "22222222-2222-2222-2222-222222222222",
+    "source_region_id": null,
+    "source_document_version": "candidate",
+    "source_document_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "pdf_page_number": 1,
+    "printed_page_number": null,
+    "section_path": ["REPLACE_WITH_VERIFIED_QUESTION_LOCATION"],
+    "official_item_code": null,
+    "text_block_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "evidence_role": "question_stem_source"
+  }],
+  "generation": { "method": "rules", "generator": "assessment-target-template", "version": "v1" },
+  "confidence": 0,
+  "status": "candidate",
+  "review_status": "pending_review",
+  "production_eligible": false
+}
