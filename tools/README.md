@@ -1645,6 +1645,29 @@ After visually inspecting rendered PDF pages 2, 12, 42, and 51 under
 `tmp/pdfs/cek006`, rerun with `-VisualReviewPassed` to record the operator
 assertion in the evidence report.
 
+CEK-07 curriculum requirement facet extraction and AI contract eval:
+
+```powershell
+python -m unittest tests.workers.test_curriculum_requirement_facets
+pwsh -NoProfile -ExecutionPolicy Bypass -File tools\run-curriculum-requirement-extraction-eval.ps1
+```
+
+The deterministic parser reads the Git-ignored CEK-06 candidate and emits
+reviewable `RequirementFacet` candidates under `tmp/cek007`. It splits explicit
+behavior clauses, keeps the parent requirement and every source anchor, records
+field-level provenance, and routes all candidates to `pending_review`. The fixed
+source currently yields 89 parent requirements and 184 facets; 53 composite
+requirements and every confidence below `0.85` receive high-priority review.
+Unknown or incomplete clauses fail closed as blocked review items rather than
+receiving invented behavior or content fields.
+
+The same wrapper hydrates a synthetic offline AI fixture and validates model
+role/name/version, prompt/schema versions, input/output hashes, token/cost
+fields, parent/anchor invariants, and six negative cases. It never calls a real
+model, writes a database or SourceRegion, creates knowledge mappings, or changes
+C002 active. Verbatim rule output remains Git-ignored; the committed CEK-07
+report contains only counts, hashes, routing results, and governance evidence.
+
 Backup:
 
 ```powershell

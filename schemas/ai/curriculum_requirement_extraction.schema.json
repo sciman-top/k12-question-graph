@@ -1,0 +1,572 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CurriculumRequirementExtraction",
+  "description": "Fail-closed rule or AI extraction envelope for reviewable RequirementFacet candidates.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "mode",
+    "generation",
+    "governance",
+    "requirements",
+    "review_queue",
+    "warnings"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "curriculum-requirement-extraction.v1"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mode": {
+      "const": "draft_test"
+    },
+    "generation": {
+      "$ref": "#/$defs/generation"
+    },
+    "governance": {
+      "$ref": "#/$defs/governance"
+    },
+    "requirements": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/requirement_result"
+      }
+    },
+    "review_queue": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/review_queue_item"
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[A-Fa-f0-9]{64}$"
+    },
+    "nullable_string": {
+      "oneOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "cost": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "input_tokens",
+        "output_tokens",
+        "estimated_usd",
+        "currency"
+      ],
+      "properties": {
+        "input_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "output_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "estimated_usd": {
+          "type": "number",
+          "minimum": 0
+        },
+        "currency": {
+          "const": "USD"
+        }
+      }
+    },
+    "model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "role",
+        "name",
+        "version"
+      ],
+      "properties": {
+        "role": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "generation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method",
+        "engine_role",
+        "engine_name",
+        "engine_version",
+        "model",
+        "prompt_version",
+        "output_schema_version",
+        "input_sha256",
+        "output_sha256",
+        "output_hash_scope",
+        "cost",
+        "external_model_calls"
+      ],
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": [
+            "rules",
+            "ai"
+          ]
+        },
+        "engine_role": {
+          "type": "string",
+          "enum": [
+            "deterministic_rule_parser",
+            "semantic_candidate_extractor"
+          ]
+        },
+        "engine_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "engine_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/model"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "prompt_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "output_schema_version": {
+          "const": "curriculum-requirement-extraction.v1"
+        },
+        "input_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "output_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "output_hash_scope": {
+          "const": "requirements+review_queue+warnings"
+        },
+        "cost": {
+          "$ref": "#/$defs/cost"
+        },
+        "external_model_calls": {
+          "const": 0
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "method": {
+                "const": "rules"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "engine_role": {
+                "const": "deterministic_rule_parser"
+              },
+              "model": {
+                "type": "null"
+              },
+              "cost": {
+                "properties": {
+                  "input_tokens": {
+                    "const": 0
+                  },
+                  "output_tokens": {
+                    "const": 0
+                  },
+                  "estimated_usd": {
+                    "const": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "method": {
+                "const": "ai"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "engine_role": {
+                "const": "semantic_candidate_extractor"
+              },
+              "model": {
+                "$ref": "#/$defs/model"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "governance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "review_status",
+        "production_eligible",
+        "human_review_required",
+        "database_write",
+        "source_region_write",
+        "knowledge_asset_write",
+        "c002_active_write"
+      ],
+      "properties": {
+        "status": {
+          "const": "candidate"
+        },
+        "review_status": {
+          "const": "pending_review"
+        },
+        "production_eligible": {
+          "const": false
+        },
+        "human_review_required": {
+          "const": true
+        },
+        "database_write": {
+          "const": false
+        },
+        "source_region_write": {
+          "const": false
+        },
+        "knowledge_asset_write": {
+          "const": false
+        },
+        "c002_active_write": {
+          "const": false
+        }
+      }
+    },
+    "review_reason": {
+      "type": "string",
+      "enum": [
+        "candidate_only",
+        "low_confidence",
+        "multiple_facets",
+        "compound_behavior",
+        "conflicting_fields",
+        "missing_behavior_verb",
+        "missing_content_object",
+        "ai_generated"
+      ]
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "required",
+        "status",
+        "priority",
+        "reasons"
+      ],
+      "properties": {
+        "required": {
+          "const": true
+        },
+        "status": {
+          "const": "pending_review"
+        },
+        "priority": {
+          "type": "string",
+          "enum": [
+            "normal",
+            "high",
+            "blocked"
+          ]
+        },
+        "reasons": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/review_reason"
+          }
+        }
+      }
+    },
+    "field_provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "field",
+        "generation_method",
+        "source_kind",
+        "confidence",
+        "anchor_sha256s",
+        "rule_id",
+        "model_output_path"
+      ],
+      "properties": {
+        "field": {
+          "type": "string",
+          "enum": [
+            "facet_statement",
+            "behavior_verb",
+            "content_object",
+            "condition_or_performance",
+            "cognitive_demands",
+            "ability_dimensions"
+          ]
+        },
+        "generation_method": {
+          "type": "string",
+          "enum": [
+            "rules",
+            "ai"
+          ]
+        },
+        "source_kind": {
+          "type": "string",
+          "enum": [
+            "explicit_text",
+            "derived_candidate",
+            "not_inferred"
+          ]
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "anchor_sha256s": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/sha256"
+          }
+        },
+        "rule_id": {
+          "$ref": "#/$defs/nullable_string"
+        },
+        "model_output_path": {
+          "$ref": "#/$defs/nullable_string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "generation_method": {
+                "const": "rules"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "rule_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "model_output_path": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "generation_method": {
+                "const": "ai"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "rule_id": {
+                "type": "null"
+              },
+              "model_output_path": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "facet_candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "facet",
+        "field_provenance",
+        "review"
+      ],
+      "properties": {
+        "facet": {
+          "$ref": "../curriculum_requirement.schema.json#/$defs/requirement_facet"
+        },
+        "field_provenance": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6,
+          "items": {
+            "$ref": "#/$defs/field_provenance"
+          }
+        },
+        "review": {
+          "$ref": "#/$defs/review"
+        }
+      }
+    },
+    "requirement_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "parent_requirement_stable_id",
+        "official_item_code",
+        "source_text_sha256",
+        "source_anchor_sha256s",
+        "composite",
+        "facets",
+        "unresolved_reasons"
+      ],
+      "properties": {
+        "parent_requirement_stable_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "official_item_code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_text_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "source_anchor_sha256s": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/sha256"
+          }
+        },
+        "composite": {
+          "type": "boolean"
+        },
+        "facets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/facet_candidate"
+          }
+        },
+        "unresolved_reasons": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/review_reason"
+          }
+        }
+      }
+    },
+    "review_queue_item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "review_item_id",
+        "parent_requirement_stable_id",
+        "facet_stable_id",
+        "official_item_code",
+        "priority",
+        "reasons",
+        "evidence_anchor_sha256s",
+        "status"
+      ],
+      "properties": {
+        "review_item_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "parent_requirement_stable_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "facet_stable_id": {
+          "$ref": "#/$defs/nullable_string"
+        },
+        "official_item_code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "priority": {
+          "type": "string",
+          "enum": [
+            "normal",
+            "high",
+            "blocked"
+          ]
+        },
+        "reasons": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/review_reason"
+          }
+        },
+        "evidence_anchor_sha256s": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/sha256"
+          }
+        },
+        "status": {
+          "const": "pending_review"
+        }
+      }
+    }
+  }
+}

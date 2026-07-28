@@ -222,9 +222,9 @@ flowchart TD
 
 **验收：**
 
-- [ ] 一个复合条目可拆多 facet，每个 facet 始终保留 parent 和 source anchor。
-- [ ] 规则与 AI 输出都满足 schema，模型/prompt/schema version、输入输出 hash 和成本字段可追溯。
-- [ ] 低于 0.85、复合/冲突或缺字段候选进入人工审核，绝不自动正式化。
+- [x] 一个复合条目可拆多 facet，每个 facet 始终保留 parent 和 source anchor。
+- [x] 规则与 AI 输出都满足 schema，模型/prompt/schema version、输入输出 hash 和成本字段可追溯。
+- [x] 低于 0.85、复合/冲突或缺字段候选进入人工审核，绝不自动正式化。
 
 **验证：** `python -m unittest tests.workers.test_curriculum_requirement_facets`；`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-curriculum-requirement-extraction-eval.ps1`。
 
@@ -233,6 +233,8 @@ flowchart TD
 **预计写集：** `schemas/ai/curriculum_requirement_extraction.schema.json`、`configs/ai-evals/curriculum-requirement-extraction.sample.json`、`tools/curriculum_requirement_facets.py`、`tools/run-curriculum-requirement-extraction-eval.ps1`、`tests/workers/test_curriculum_requirement_facets.py`。
 
 **证据 / 回滚：** `docs/evidence/cek007-curriculum-requirement-extraction-eval.json`；删除本批 candidate，不动 source_text 或 active。
+
+**实施真值：** 固定 CEK-06 候选的 89 条要求生成 184 个规则 facet；53 条复合要求与 31 个低置信度 facet 已进入待审，blocked 为 0。离线 AI golden 及 6 个负例通过，真实模型调用、数据库/SourceRegion/knowledge/C002 active 写入均为 0。规则和合成 AI 输出只存在 `tmp/cek007`，提交证据不含真实条文。
 
 **规模：** M，5 个仓库文件。
 

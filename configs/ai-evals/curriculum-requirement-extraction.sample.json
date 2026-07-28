@@ -1,0 +1,215 @@
+{
+  "schemaVersion": "curriculum-requirement-extraction-eval.v1",
+  "suiteId": "cek007-curriculum-requirement-extraction-golden",
+  "mode": "draft_test",
+  "allowRealModelCalls": false,
+  "productionEligible": false,
+  "reviewThreshold": 0.85,
+  "cases": [
+    {
+      "caseId": "synthetic-low-confidence-ai-candidate",
+      "taskType": "curriculum_requirement_extraction",
+      "schemaPath": "schemas/ai/curriculum_requirement_extraction.schema.json",
+      "promptVersion": "curriculum-requirement-extraction.ai.v1",
+      "input": {
+        "parentRequirementStableId": "CR-PHY-JM-SYNTHETIC-1.1.1",
+        "officialItemCode": "1.1.1",
+        "sourceText": "通过实验，认识物理量甲。"
+      },
+      "expectedOutput": {
+        "schema_version": "curriculum-requirement-extraction.v1",
+        "run_id": "cek007-ai-golden-001",
+        "mode": "draft_test",
+        "generation": {
+          "method": "ai",
+          "engine_role": "semantic_candidate_extractor",
+          "engine_name": "offline-golden-fixture",
+          "engine_version": "v1",
+          "model": {
+            "role": "curriculum_semantic_extraction",
+            "name": "fixture-model",
+            "version": "offline-v1"
+          },
+          "prompt_version": "curriculum-requirement-extraction.ai.v1",
+          "output_schema_version": "curriculum-requirement-extraction.v1",
+          "input_sha256": "INPUT_SHA256_FROM_CASE",
+          "output_sha256": "OUTPUT_SHA256_FROM_PAYLOAD",
+          "output_hash_scope": "requirements+review_queue+warnings",
+          "cost": {
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "estimated_usd": 0,
+            "currency": "USD"
+          },
+          "external_model_calls": 0
+        },
+        "governance": {
+          "status": "candidate",
+          "review_status": "pending_review",
+          "production_eligible": false,
+          "human_review_required": true,
+          "database_write": false,
+          "source_region_write": false,
+          "knowledge_asset_write": false,
+          "c002_active_write": false
+        },
+        "requirements": [
+          {
+            "parent_requirement_stable_id": "CR-PHY-JM-SYNTHETIC-1.1.1",
+            "official_item_code": "1.1.1",
+            "source_text_sha256": "SOURCE_TEXT_SHA256_FROM_CASE",
+            "source_anchor_sha256s": [
+              "1111111111111111111111111111111111111111111111111111111111111111"
+            ],
+            "composite": false,
+            "facets": [
+              {
+                "facet": {
+                  "record_type": "requirement_facet",
+                  "stable_id": "CR-PHY-JM-SYNTHETIC-1.1.1-F01",
+                  "parent_requirement_stable_id": "CR-PHY-JM-SYNTHETIC-1.1.1",
+                  "standard_version": "synthetic-v1",
+                  "official_item_code": "1.1.1",
+                  "requirement_type": "content_requirement",
+                  "source_text": "通过实验，认识物理量甲。",
+                  "facet_statement": "通过实验认识物理量甲",
+                  "behavior_verb": "认识",
+                  "content_object": "物理量甲",
+                  "condition_or_performance": "通过实验",
+                  "cognitive_demands": [
+                    "CAND-CD-PHY-JM-SYNTHETIC-RECOGNIZE"
+                  ],
+                  "ability_dimensions": [
+                    "CAND-AD-PHY-JM-SYNTHETIC-SCIENTIFIC-INQUIRY"
+                  ],
+                  "knowledge_stable_ids": [],
+                  "evidence_anchors": [
+                    {
+                      "source_document_id": "00000000-0000-0000-0000-000000000001",
+                      "source_region_id": null,
+                      "source_document_version": "synthetic-v1",
+                      "source_document_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                      "pdf_page_number": 1,
+                      "printed_page_number": 1,
+                      "section_path": [
+                        "synthetic",
+                        "1.1.1"
+                      ],
+                      "official_item_code": "1.1.1",
+                      "text_block_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+                      "evidence_role": "curriculum_facet_source"
+                    }
+                  ],
+                  "confidence": 0.82,
+                  "status": "candidate",
+                  "review_status": "pending_review",
+                  "production_eligible": false
+                },
+                "field_provenance": [
+                  {
+                    "field": "facet_statement",
+                    "generation_method": "ai",
+                    "source_kind": "derived_candidate",
+                    "confidence": 0.82,
+                    "anchor_sha256s": [
+                      "1111111111111111111111111111111111111111111111111111111111111111"
+                    ],
+                    "rule_id": null,
+                    "model_output_path": "$.requirements[0].facets[0].facet.facet_statement"
+                  },
+                  {
+                    "field": "behavior_verb",
+                    "generation_method": "ai",
+                    "source_kind": "explicit_text",
+                    "confidence": 0.94,
+                    "anchor_sha256s": [
+                      "1111111111111111111111111111111111111111111111111111111111111111"
+                    ],
+                    "rule_id": null,
+                    "model_output_path": "$.requirements[0].facets[0].facet.behavior_verb"
+                  },
+                  {
+                    "field": "content_object",
+                    "generation_method": "ai",
+                    "source_kind": "derived_candidate",
+                    "confidence": 0.88,
+                    "anchor_sha256s": [
+                      "1111111111111111111111111111111111111111111111111111111111111111"
+                    ],
+                    "rule_id": null,
+                    "model_output_path": "$.requirements[0].facets[0].facet.content_object"
+                  },
+                  {
+                    "field": "condition_or_performance",
+                    "generation_method": "ai",
+                    "source_kind": "explicit_text",
+                    "confidence": 0.95,
+                    "anchor_sha256s": [
+                      "1111111111111111111111111111111111111111111111111111111111111111"
+                    ],
+                    "rule_id": null,
+                    "model_output_path": "$.requirements[0].facets[0].facet.condition_or_performance"
+                  },
+                  {
+                    "field": "cognitive_demands",
+                    "generation_method": "ai",
+                    "source_kind": "derived_candidate",
+                    "confidence": 0.82,
+                    "anchor_sha256s": [
+                      "1111111111111111111111111111111111111111111111111111111111111111"
+                    ],
+                    "rule_id": null,
+                    "model_output_path": "$.requirements[0].facets[0].facet.cognitive_demands"
+                  },
+                  {
+                    "field": "ability_dimensions",
+                    "generation_method": "ai",
+                    "source_kind": "derived_candidate",
+                    "confidence": 0.8,
+                    "anchor_sha256s": [
+                      "1111111111111111111111111111111111111111111111111111111111111111"
+                    ],
+                    "rule_id": null,
+                    "model_output_path": "$.requirements[0].facets[0].facet.ability_dimensions"
+                  }
+                ],
+                "review": {
+                  "required": true,
+                  "status": "pending_review",
+                  "priority": "high",
+                  "reasons": [
+                    "candidate_only",
+                    "low_confidence",
+                    "ai_generated"
+                  ]
+                }
+              }
+            ],
+            "unresolved_reasons": []
+          }
+        ],
+        "review_queue": [
+          {
+            "review_item_id": "CEK007-AI-001-F01",
+            "parent_requirement_stable_id": "CR-PHY-JM-SYNTHETIC-1.1.1",
+            "facet_stable_id": "CR-PHY-JM-SYNTHETIC-1.1.1-F01",
+            "official_item_code": "1.1.1",
+            "priority": "high",
+            "reasons": [
+              "candidate_only",
+              "low_confidence",
+              "ai_generated"
+            ],
+            "evidence_anchor_sha256s": [
+              "1111111111111111111111111111111111111111111111111111111111111111"
+            ],
+            "status": "pending_review"
+          }
+        ],
+        "warnings": [
+          "offline synthetic fixture; no real model call was made"
+        ]
+      }
+    }
+  ]
+}
