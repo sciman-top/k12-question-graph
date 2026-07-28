@@ -1,7 +1,7 @@
 # 课程标准与中考真题多层证据提炼实施计划
 
 - 日期：2026-07-28
-- 状态：实施中；CEK-01..09 与 Checkpoint B2 已完成，CEK-10 待执行
+- 状态：实施中；CEK-01..10 与 Checkpoint B2 已完成，CEK-11 待执行
 - 设计依据：`docs/superpowers/specs/2026-07-28-curriculum-exam-knowledge-extraction-design.md`
 - 当前范围：初中物理、2022 年版 2025 年修订课程标准、广州 2015-2025 中考真题/答案/年报
 - 计划性质：现有知识资产治理和广州真题闭环的下级专题计划，不新增顶层路线图
@@ -302,15 +302,17 @@ flowchart TD
 
 **验收：**
 
-- [ ] 整题、小问、评分点各有稳定 scope key；非整题范围必须引用对应 QuestionBlock。
-- [ ] 无法拆分的 scoring summary 保持整题，不按标点自动伪造多个评分点。
-- [ ] 旧题 Blocks/CustomFields 可继续读取，所有新增内容仍 pending review。
+- [x] 整题、小问、评分点各有稳定 scope key；非整题范围必须引用对应 QuestionBlock。
+- [x] 无法拆分的 scoring summary 保持整题，不按标点自动伪造多个评分点。
+- [x] 旧题 Blocks/CustomFields 可继续读取，所有新增内容仍 pending review。
 
 **验证：** `python -m unittest tests.workers.test_question_scope_normalization`；`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-question-scope-normalization.ps1`；现有 REAL005B question-structure diagnostics。
 
 **依赖：** CEK-09；现有 T7a-T7c 数据基线。
 
 **预计写集：** `schemas/question_item.schema.json`、`tools/guangzhou_physics_v2_materialize.py`、`tools/question_scope_normalization.py`、`tests/workers/test_question_scope_normalization.py`、`apps/api/Program.cs`。
+
+**实际补充写集：** 为保证确定性 QuestionBlock UUID、可执行证据和工具可发现性，另修改 `tools/real005b_reviewed_question_materialize.py`、`tools/run-question-scope-normalization.ps1`、`tools/README.md`，并写入 `docs/evidence/cek010-question-scope-normalization.json`。
 
 **证据 / 回滚：** `docs/evidence/cek010-question-scope-normalization.json`；删除新增 block candidates/恢复本批 QuestionBlock 快照。
 

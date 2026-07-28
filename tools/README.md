@@ -1710,6 +1710,21 @@ presence, active knowledge targets, pending review, and exact active fingerprint
 parity. It writes only the disposable isolated database and never inserts or
 activates KnowledgeNode rows.
 
+CEK-10 question scope normalization:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File tools\run-question-scope-normalization.ps1
+```
+
+The wrapper reads the 234 materialized Guangzhou questions in one read-only
+transaction and writes the detailed scope manifest under Git-ignored
+`tmp/cek010`. Whole questions have no block reference; explicit subquestions
+and scoring points receive deterministic QuestionBlock IDs. A scoring summary
+without an explicit scoring-point ID remains at whole-question scope and is
+never split on punctuation. The committed report contains only counts, hashes,
+governance, reference decisions, and the repo-side completion boundary. No
+question content is approved or written to the database.
+
 Backup:
 
 ```powershell

@@ -367,7 +367,7 @@ def upsert_question(
     answer_regions: list[uuid.UUID],
     answer_mode: str,
 ) -> None:
-    blocks = build_blocks(candidate, question_regions[0], answer_regions[0])
+    blocks = build_blocks(candidate, question_regions[0], answer_regions[0], qid)
     custom_fields = {
         "sourceWorkflowKey": WORKFLOW_KEY,
         "materialBatchKey": BATCH_KEY,
@@ -438,13 +438,16 @@ def upsert_question(
             ),
         )
         for block in blocks:
+            question_block_id = block["content"].get("questionBlockId") or stable_id(
+                "question-block", qid, block["order"], block["type"]
+            )
             cursor.execute(
                 """
                 insert into question_blocks (id, question_item_id, block_type, sort_order, content, source_region_id, created_at)
                 values (%s, %s, %s, %s, %s::jsonb, %s, now())
                 """,
                 (
-                    stable_id("question-block", qid, block["order"], block["type"]),
+                    question_block_id,
                     qid,
                     block["type"],
                     block["order"],

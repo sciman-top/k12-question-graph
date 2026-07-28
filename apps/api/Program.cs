@@ -4121,6 +4121,7 @@ static bool IsAllowedQuestionBlockType(string blockType)
         "option" or
         "sub_question" or
         "subquestion" or
+        "scoring_point" or
         "answer" or
         "solution" or
         "formula" or

@@ -11,6 +11,8 @@ from typing import Any, Iterable
 
 from pypdf import PdfReader
 
+from question_scope_normalization import build_scope_key, normalize_question_scopes
+
 
 BATCH_KEY = "guangzhou_physics_2015_2025_20260726_v2"
 WORKFLOW_KEY = "guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1"
@@ -165,7 +167,9 @@ def load_c003_candidates(csv_root: Path) -> dict[tuple[int, int], dict[str, Any]
     reviews = read_csv(csv_root / "c003-quality-issue-review-evidence.csv")
     subquestions = read_csv(csv_root / "c003-subquestion-item-full.csv")
     by_question = {row["question_id"]: row for row in questions}
-    answer_by_question = {row["question_id"]: row for row in answers}
+    answers_by_question: dict[str, list[dict[str, str]]] = defaultdict(list)
+    for row in answers:
+        answers_by_question[row["question_id"]].append(row)
     review_by_question = {row["question_id"]: row for row in reviews}
     subs_by_question: dict[str, list[dict[str, str]]] = defaultdict(list)
     for row in subquestions:
@@ -175,7 +179,8 @@ def load_c003_candidates(csv_root: Path) -> dict[tuple[int, int], dict[str, Any]
     for question_id, row in by_question.items():
         year = int(row["year"])
         number = int(row["question_number"])
-        answer = answer_by_question.get(question_id, {})
+        answer_rows = answers_by_question.get(question_id, [])
+        answer = answer_rows[0] if answer_rows else {}
         review = review_by_question.get(question_id, {})
         result[(year, number)] = {
             "legacyQuestionId": question_id,
@@ -184,6 +189,7 @@ def load_c003_candidates(csv_root: Path) -> dict[tuple[int, int], dict[str, Any]
             "score": parse_optional_float(row.get("score")),
             "answer": answer.get("answer_value", "").strip(),
             "solution": answer.get("scoring_point_summary", "").strip(),
+            "scoringRows": answer_rows,
             "primaryKnowledgeCandidateId": row.get("primary_knowledge_id", "").strip(),
             "knowledgeCandidateIds": split_tokens(row.get("secondary_knowledge_ids")),
             "primaryExamPointCandidateId": row.get("primary_exam_point_id", "").strip(),
@@ -301,26 +307,48 @@ def answer_region_mode(pages: tuple[int, ...], eligible_page_count: int) -> str:
     return "question_anchor_page_candidate" if len(pages) < eligible_page_count else "whole_answer_document_pending_review"
 
 
-def build_blocks(candidate: dict[str, Any], question_region_id: uuid.UUID, answer_region_id: uuid.UUID) -> list[dict[str, Any]]:
+def build_blocks(
+    candidate: dict[str, Any],
+    question_region_id: uuid.UUID,
+    answer_region_id: uuid.UUID,
+    question_id: str | uuid.UUID | None = None,
+) -> list[dict[str, Any]]:
+    question_key = str(question_id or candidate.get("legacyQuestionId") or "").strip()
+    normalized = normalize_question_scopes(
+        question_key,
+        candidate.get("subquestions", []),
+        candidate.get("scoringRows", []),
+    )
+    whole_scope_key = build_scope_key(question_key, "whole_question")
     blocks: list[dict[str, Any]] = [
         {
             "type": "stem",
             "order": 0,
             "sourceRegionId": str(question_region_id),
-            "content": {"text": candidate.get("stem", ""), "reviewStatus": "pending_review"},
+            "content": {
+                "text": candidate.get("stem", ""),
+                "scopeKey": whole_scope_key,
+                "reviewStatus": "pending_review",
+            },
         }
     ]
     order = 1
-    for subquestion in candidate.get("subquestions", []):
+    for block_candidate in normalized["blockCandidates"]:
+        if block_candidate["type"] != "subquestion":
+            continue
         blocks.append(
             {
                 "type": "subquestion",
                 "order": order,
                 "sourceRegionId": str(question_region_id),
                 "content": {
-                    "label": subquestion.get("subquestion_number", ""),
-                    "text": subquestion.get("stem_summary", ""),
+                    "stableKey": block_candidate["stableKey"],
+                    "scopeKey": block_candidate["scopeKey"],
+                    "questionBlockId": block_candidate["questionBlockId"],
+                    "label": block_candidate["label"],
+                    "text": block_candidate["text"],
                     "reviewStatus": "pending_review",
+                    "productionEligible": False,
                 },
             }
         )
@@ -333,11 +361,32 @@ def build_blocks(candidate: dict[str, Any], question_region_id: uuid.UUID, answe
             "content": {
                 "value": candidate.get("answer", ""),
                 "solution": candidate.get("solution", ""),
+                "scopeKey": whole_scope_key,
                 "reviewStatus": "pending_review",
             },
         }
     )
     order += 1
+    for block_candidate in normalized["blockCandidates"]:
+        if block_candidate["type"] != "scoring_point":
+            continue
+        blocks.append(
+            {
+                "type": "scoring_point",
+                "order": order,
+                "sourceRegionId": str(answer_region_id),
+                "content": {
+                    "stableKey": block_candidate["stableKey"],
+                    "scopeKey": block_candidate["scopeKey"],
+                    "questionBlockId": block_candidate["questionBlockId"],
+                    "label": block_candidate["label"],
+                    "text": block_candidate["text"],
+                    "reviewStatus": "pending_review",
+                    "productionEligible": False,
+                },
+            }
+        )
+        order += 1
     text = str(candidate.get("stem", ""))
     if is_table_candidate(text):
         blocks.append(
@@ -345,7 +394,12 @@ def build_blocks(candidate: dict[str, Any], question_region_id: uuid.UUID, answe
                 "type": "table",
                 "order": order,
                 "sourceRegionId": str(question_region_id),
-                "content": {"status": "candidate", "reviewStatus": "pending_review", "sourceText": text},
+                "content": {
+                    "status": "candidate",
+                    "scopeKey": whole_scope_key,
+                    "reviewStatus": "pending_review",
+                    "sourceText": text,
+                },
             }
         )
         order += 1
@@ -355,7 +409,12 @@ def build_blocks(candidate: dict[str, Any], question_region_id: uuid.UUID, answe
                 "type": "formula",
                 "order": order,
                 "sourceRegionId": str(question_region_id),
-                "content": {"status": "candidate", "reviewStatus": "pending_review", "sourceText": text},
+                "content": {
+                    "status": "candidate",
+                    "scopeKey": whole_scope_key,
+                    "reviewStatus": "pending_review",
+                    "sourceText": text,
+                },
             }
         )
     return blocks

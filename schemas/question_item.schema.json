@@ -29,7 +29,10 @@
       "type": "string"
     },
     "blocks": {
-      "type": "array"
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/question_block"
+      }
     },
     "answer": {
       "type": [
@@ -56,6 +59,51 @@
     },
     "custom_fields": {
       "type": "object"
+    }
+  },
+  "$defs": {
+    "question_block": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "sourceRegionId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "content": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "stableKey": {
+              "type": "string",
+              "minLength": 1
+            },
+            "scopeKey": {
+              "type": "string",
+              "pattern": "^question-scope:v1:"
+            },
+            "questionBlockId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "reviewStatus": {
+              "type": "string"
+            },
+            "productionEligible": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
     }
   }
 }
