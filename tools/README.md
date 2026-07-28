@@ -1668,6 +1668,29 @@ model, writes a database or SourceRegion, creates knowledge mappings, or changes
 C002 active. Verbatim rule output remains Git-ignored; the committed CEK-07
 report contains only counts, hashes, routing results, and governance evidence.
 
+CEK-08 curriculum requirement-to-knowledge candidate crosswalk:
+
+```powershell
+python -m unittest tests.workers.test_curriculum_knowledge_crosswalk
+pwsh -NoProfile -ExecutionPolicy Bypass -File tools\run-curriculum-knowledge-crosswalk.ps1
+```
+
+The crosswalk reads the Git-ignored CEK-07 facet candidate and the repository
+`C002_JUNIOR_PHYSICS_V1` snapshot. It only accepts normalized exact or
+containment matches against stable knowledge titles and aliases. Exact matches
+produce `equivalent`; explicit containment direction produces a review-only
+`broader` or `narrower` candidate. It does not use fuzzy similarity or infer
+prerequisites. The latter remain knowledge edges or question-knowledge roles,
+outside `DomainAssetMapping`.
+
+Unmatched facets create non-production knowledge candidates rather than active
+nodes. One-to-many, many-to-one, low-confidence, directional, and high-impact
+items are routed to human review with a rollback requirement. Verbatim and
+source-derived values stay under Git-ignored `tmp/cek008`; the committed report
+contains only counts, hashes, governance, and compatibility results. The
+wrapper performs no database read/write, model call, mapping persistence, or
+C002 active switch.
+
 Backup:
 
 ```powershell

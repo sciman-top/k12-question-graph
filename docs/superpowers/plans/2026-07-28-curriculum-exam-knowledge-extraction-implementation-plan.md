@@ -1,7 +1,7 @@
 # 课程标准与中考真题多层证据提炼实施计划
 
 - 日期：2026-07-28
-- 状态：实施中；CEK-01..06 与 Checkpoint B1 已完成，CEK-07 待执行
+- 状态：实施中；CEK-01..08 与 Checkpoint B1 已完成，CEK-09 待执行
 - 设计依据：`docs/superpowers/specs/2026-07-28-curriculum-exam-knowledge-extraction-design.md`
 - 当前范围：初中物理、2022 年版 2025 年修订课程标准、广州 2015-2025 中考真题/答案/年报
 - 计划性质：现有知识资产治理和广州真题闭环的下级专题计划，不新增顶层路线图
@@ -246,9 +246,9 @@ flowchart TD
 
 **验收：**
 
-- [ ] 课程要求到知识资产只用 `equivalent/broader/narrower` 表达语义范围；前置知识不混入 DomainAssetMapping 枚举。
-- [ ] 未匹配内容只生成 `knowledge candidate`，不得新增 active KnowledgeNode。
-- [ ] 一拆多、多合一、多对多、低置信度和高影响项均标记人工审核与 rollback requirement。
+- [x] 课程要求到知识资产只用 `equivalent/broader/narrower` 表达语义范围；前置知识不混入 DomainAssetMapping 枚举。
+- [x] 未匹配内容只生成 `knowledge candidate`，不得新增 active KnowledgeNode。
+- [x] 一拆多、多合一、多对多、低置信度和高影响项均标记人工审核与 rollback requirement。
 
 **验证：** `python -m unittest tests.workers.test_curriculum_knowledge_crosswalk`；`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-curriculum-knowledge-crosswalk.ps1`。
 
@@ -257,6 +257,8 @@ flowchart TD
 **预计写集：** `tools/curriculum_knowledge_crosswalk.py`、`tools/run-curriculum-knowledge-crosswalk.ps1`、`tests/workers/test_curriculum_knowledge_crosswalk.py`、`schemas/ai/knowledge_mapping.schema.json`、`configs/knowledge/c002-asset-mapping-template.csv`。
 
 **证据 / 回滚：** `docs/evidence/cek008-curriculum-knowledge-crosswalk.json`；丢弃 crosswalk candidate 和兼容导出。
+
+**实施真值：** 基于 Git 忽略的 CEK-07 184 个 facet 和仓库 `C002_JUNIOR_PHYSICS_V1` 57 个稳定节点，以标准化 title/alias 等值或包含关系生成 71 条确定性候选映射（8 equivalent、39 broader、24 narrower）及 137 个未匹配 knowledge candidate。208 个审核项中 207 个 high；全部映射 `pending_review/auto_apply_allowed=false/rollback_required=true`。真实文本与兼容 CSV 仅存在 `tmp/cek008`；模型调用、数据库读写、KnowledgeNode/DomainAssetMapping/C002 active 写入均为 0。
 
 **规模：** M，5 个仓库文件。
 
