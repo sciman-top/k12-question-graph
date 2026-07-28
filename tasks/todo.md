@@ -16,3 +16,11 @@
 - [ ] T10 完整门禁、恢复演练、状态文档和证据收口
 
 当前边界：只推进本机 PostgreSQL/FileStore/API/Worker/Web；隔离机、学校网络、真实教师签字与最终发布继续保持开放。
+
+## 后续专题：课程标准与真题多层证据提炼
+
+- [ ] 用户确认详细实施计划后再开始 CEK-01
+  - 设计：`docs/superpowers/specs/2026-07-28-curriculum-exam-knowledge-extraction-design.md`
+  - 计划：`docs/superpowers/plans/2026-07-28-curriculum-exam-knowledge-extraction-implementation-plan.md`
+  - 清单：`tasks/curriculum-exam-knowledge-extraction-todo.md`
+  - 当前：CEK-01..35 全部未开始；不影响上方 T7d-T10 的既有状态。

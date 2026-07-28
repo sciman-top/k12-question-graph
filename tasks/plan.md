@@ -322,3 +322,12 @@ Task 1 来源 inventory/迁移工具
 ## Open Questions
 
 当前实施无需新的产品选择。出现无法从资料、代码或现有契约判断的版权授权、生产 active 切换或责任签字问题时，保持 fail-closed 并记录为外部阻断，不阻塞其余本机闭环工作。
+
+## 已确认设计的后续专题计划
+
+课程标准与广州真题“多层证据模型”设计已于 2026-07-28 确认。为避免覆盖本文件仍在执行的 T7d-T10，后续实施使用独立的下级专题计划：
+
+- 详细实施计划：`docs/superpowers/plans/2026-07-28-curriculum-exam-knowledge-extraction-implementation-plan.md`
+- 专题任务清单：`tasks/curriculum-exam-knowledge-extraction-todo.md`
+- 当前状态：实施计划待用户确认，CEK-01..35 尚未开工。
+- 关系边界：不改写 `tasks/backlog.csv`，不替代 P001 -> P006 live-pilot 顺序，不改变 `REAL005=not_closed`。
