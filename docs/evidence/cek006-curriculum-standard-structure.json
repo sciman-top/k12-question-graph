@@ -1,0 +1,250 @@
+{
+  "schemaVersion": "cek006-curriculum-standard-structure.v1",
+  "status": "pass",
+  "checkedAt": "2026-07-28T21:42:47.249158+08:00",
+  "source": {
+    "path": "D:\\KQG_Data\\source_materials\\imported\\curriculum_standards\\physics\\junior_middle_school\\2022-2025-revision\\raw\\《义务教育物理课程标准·日常修订版》(2022年版2025年修订).pdf",
+    "sha256": "e00a5665e7e17ea6bdd6236d9366c51c63bbe6cc0eabf83ac3d0a529c487dd8c",
+    "sizeBytes": 1689021,
+    "pageCount": 67,
+    "textCharacterCount": 37615,
+    "nonEmptyPageCount": 67,
+    "extractor": "pypdf==6.14.2"
+  },
+  "extractor": "pypdf==6.14.2",
+  "goldenFixture": {
+    "schemaVersion": "curriculum-standard-structure-fixture.v1",
+    "representativePages": [
+      {
+        "role": "table_of_contents",
+        "pdfPageNumber": 2,
+        "printedPageNumber": 1,
+        "textCharacterCount": 214,
+        "normalizedTextSha256": "77d40e5f6160113382ab0d3bc0a261718fa67755d2ee80908c6c39c357323322",
+        "markerPass": true,
+        "status": "pass"
+      },
+      {
+        "role": "curriculum_content",
+        "pdfPageNumber": 12,
+        "printedPageNumber": 9,
+        "textCharacterCount": 519,
+        "normalizedTextSha256": "0ab47291c06bc0fb896bfdde53453c6abd35747586bf1e5b3f6058afc830a947",
+        "markerPass": true,
+        "status": "pass"
+      },
+      {
+        "role": "academic_quality",
+        "pdfPageNumber": 42,
+        "printedPageNumber": 39,
+        "textCharacterCount": 417,
+        "normalizedTextSha256": "93be9e32e923d25ed611844c560ba47c7dcc3d4e44dc1fd9f9464ac3efcfb120",
+        "markerPass": true,
+        "status": "pass"
+      },
+      {
+        "role": "item_development",
+        "pdfPageNumber": 51,
+        "printedPageNumber": 48,
+        "textCharacterCount": 712,
+        "normalizedTextSha256": "03adec1850cfa5c5beb6c78317473fee5f3d3c4f157abe9d379df1ace4e0105e",
+        "markerPass": true,
+        "status": "pass"
+      }
+    ]
+  },
+  "structure": {
+    "primaryThemeCount": 5,
+    "secondaryThemeCount": 18,
+    "officialRequirementCount": 89,
+    "uniqueOfficialItemCodeCount": 89,
+    "requirementSetSha256": "095f8446b8b0800c0f1d1bb2622e3e982c4b953c09def7a285109fbcda3cfdbb",
+    "multiPageRequirementCodes": [
+      "1.3.2",
+      "2.2.7",
+      "3.5.1",
+      "5.3.2"
+    ],
+    "primaryThemes": [
+      {
+        "code": "1",
+        "title": "物质",
+        "pdfPageNumber": 11,
+        "secondaryThemeCount": 3,
+        "officialRequirementCount": 12
+      },
+      {
+        "code": "2",
+        "title": "运动和相互作用",
+        "pdfPageNumber": 17,
+        "secondaryThemeCount": 4,
+        "officialRequirementCount": 24
+      },
+      {
+        "code": "3",
+        "title": "能量",
+        "pdfPageNumber": 24,
+        "secondaryThemeCount": 6,
+        "officialRequirementCount": 23
+      },
+      {
+        "code": "4",
+        "title": "实验探究",
+        "pdfPageNumber": 31,
+        "secondaryThemeCount": 2,
+        "officialRequirementCount": 21
+      },
+      {
+        "code": "5",
+        "title": "跨学科实践",
+        "pdfPageNumber": 36,
+        "secondaryThemeCount": 3,
+        "officialRequirementCount": 9
+      }
+    ]
+  },
+  "extraction": {
+    "adapter": "pypdf_text_layer",
+    "extractor": "pypdf==6.14.2",
+    "status": "pass",
+    "manual_takeover_required": false,
+    "issues": []
+  },
+  "candidateOutput": {
+    "path": "D:\\CODE\\k12-question-graph\\tmp\\cek006\\curriculum-standard-structure.candidate.json",
+    "containsVerbatimSourceText": true,
+    "mustRemainLocalAndGitIgnored": true,
+    "sha256": "2eb1605b128f5f153362ddbe2f14ad1a10939ac5461196a3f804d8727755816c"
+  },
+  "governance": {
+    "status": "candidate",
+    "review_status": "pending_review",
+    "production_eligible": false,
+    "ai_run": false,
+    "database_write": false,
+    "source_region_write": false,
+    "knowledge_asset_write": false,
+    "c002_active_write": false
+  },
+  "verification": {
+    "goldenSourceAndHierarchy": "pass",
+    "curriculumRequirementSchema": {
+      "status": "pass",
+      "validCount": 89,
+      "invalidCount": 0,
+      "schema": "schemas/curriculum_requirement.schema.json"
+    },
+    "visualReview": {
+      "status": "pass",
+      "assertion": "operator inspected rendered pages for legibility, reading order, clipping, overlap, and missing glyphs",
+      "renderer": "Poppler pdftoppm 26.05.0",
+      "pages": [
+        {
+          "pdfPageNumber": 2,
+          "path": "tmp/pdfs/cek006/page-02.png",
+          "sizeBytes": 302749
+        },
+        {
+          "pdfPageNumber": 12,
+          "path": "tmp/pdfs/cek006/page-12.png",
+          "sizeBytes": 312118
+        },
+        {
+          "pdfPageNumber": 42,
+          "path": "tmp/pdfs/cek006/page-42.png",
+          "sizeBytes": 277786
+        },
+        {
+          "pdfPageNumber": 51,
+          "path": "tmp/pdfs/cek006/page-51.png",
+          "sizeBytes": 443390
+        }
+      ],
+      "defects": []
+    },
+    "candidateGovernance": {
+      "status": "pass",
+      "candidateCount": 89,
+      "lifecycle": "candidate",
+      "reviewStatus": "pending_review",
+      "productionEligible": false,
+      "facetCount": 0,
+      "semanticArraysEmpty": true
+    },
+    "copyrightBoundary": {
+      "status": "pass",
+      "verbatimCandidatePath": "tmp/cek006/curriculum-standard-structure.candidate.json",
+      "candidateGitIgnored": true,
+      "committedReportContainsVerbatimSourceText": false
+    },
+    "supplyChain": {
+      "status": "pass",
+      "newDependenciesAdded": false,
+      "python": [
+        "pypdf==6.14.2",
+        "pdfplumber==0.11.10"
+      ],
+      "visualRenderer": "Poppler pdftoppm 26.05.0",
+      "dependencyLock": "workers/document/requirements.txt"
+    },
+    "fixedOrderGates": {
+      "order": "build -> test -> contract/invariant -> hotspot",
+      "build": {
+        "status": "pass",
+        "command": "dotnet build apps/api/K12QuestionGraph.Api.csproj -c Release",
+        "errors": 0,
+        "warnings": 2,
+        "knownWarning": "Microsoft.OpenApi 2.0.0 NU1903 high-severity advisory remains; CEK-06 changes no dependency"
+      },
+      "test": {
+        "status": "pass",
+        "curriculumStructure": {
+          "command": "python -m unittest tests.workers.test_curriculum_standard_structure",
+          "passed": 8,
+          "failed": 0
+        },
+        "api": {
+          "command": "dotnet test tests/api/K12QuestionGraph.Api.Tests/K12QuestionGraph.Api.Tests.csproj -c Release",
+          "passed": 27,
+          "failed": 0,
+          "skipped": 0
+        }
+      },
+      "contractInvariant": {
+        "status": "pass",
+        "curriculumRequirementContract": "pass: 5 positive and 27 negative cases",
+        "curriculumStructureContract": "pass: 5 primary, 18 secondary, 89 unique official items, 89/89 schema-valid",
+        "requirementSetSha256": "095f8446b8b0800c0f1d1bb2622e3e982c4b953c09def7a285109fbcda3cfdbb",
+        "roadmapGuard": "pass: C002 completed and REAL005 not_closed"
+      },
+      "hotspot": {
+        "status": "pass",
+        "checks": [
+          "ruff and Python bytecode compilation",
+          "PowerShell AST parse",
+          "JSON structure and candidate lifecycle invariants",
+          "Git-ignore and no-verbatim-report boundary",
+          "no database, AI, or active-write markers",
+          "five-axis correctness, readability, architecture, security, and performance review"
+        ],
+        "criticalFindings": 0,
+        "requiredFindings": 0
+      }
+    }
+  },
+  "fullGate": {
+    "status": "gate_na",
+    "reason": "tools/run-gates.ps1 may affect PostgreSQL and API processes and is reserved for the separately authorized CEK-34 gate",
+    "alternative_verification": "unit tests, CEK-05 JSON schema validation, golden source/hash/page checks, roadmap guard, and static hotspot review",
+    "evidence_link": "docs/evidence/cek006-curriculum-standard-structure.json",
+    "expires_at": "CEK-34",
+    "recovery_condition": "obtain current-task confirmation for PostgreSQL/API process impact and run tools/run-gates.ps1"
+  },
+  "rollback": "Delete the ignored local candidate/cache and revert only the CEK-06 parser, fixture, tests, wrapper, documentation, and evidence files. The source PDF, SourceDocument, database, and C002 active remain unchanged.",
+  "completionBoundary": "CEK-06 proves deterministic structure and EvidenceAnchor candidates only. It does not create requirement facets or knowledge mappings, write SourceRegion or domain assets, apply CEK-04, switch C002 active, close REAL005, or establish teacher/live acceptance.",
+  "databaseWrite": false,
+  "sourceRegionWrite": false,
+  "knowledgeAssetWrite": false,
+  "c002ActiveWrite": false,
+  "aiRun": false
+}

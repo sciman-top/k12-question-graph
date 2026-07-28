@@ -1620,6 +1620,31 @@ bind every anchor to a materialized UUID SourceRegion.
 The contract uses the built-in PowerShell JSON Schema validator, runs no AI,
 writes no database or SourceRegion data, and never switches C002 active.
 
+CEK-06 curriculum standard structure extraction:
+
+```powershell
+python -m unittest tests.workers.test_curriculum_standard_structure
+pwsh -NoProfile -ExecutionPolicy Bypass -File tools\run-curriculum-standard-structure.ps1
+```
+
+The extractor validates the fixed 67-page PDF and four representative page
+hashes before reading only the `内容要求` section of each primary theme. It
+produces 5 primary themes, 18 secondary themes, and 89 unique official
+requirements. Examples and activity suggestions are excluded; cross-page
+requirements receive one EvidenceAnchor per page fragment. Every requirement
+is validated against the CEK-05 schema and remains
+`candidate/pending_review/production_eligible=false`, with facets and semantic
+mapping arrays empty.
+
+Verbatim source text is written only to the Git-ignored
+`tmp/cek006/curriculum-standard-structure.candidate.json`. The committed report
+contains counts, page numbers, and hashes but no requirement text. Any source,
+page, heading, count, code, or selected block-hash drift reports
+`manual_takeover_required` and emits no hierarchy or requirement candidates.
+After visually inspecting rendered PDF pages 2, 12, 42, and 51 under
+`tmp/pdfs/cek006`, rerun with `-VisualReviewPassed` to record the operator
+assertion in the evidence report.
+
 Backup:
 
 ```powershell

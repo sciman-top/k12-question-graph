@@ -1,7 +1,7 @@
 # 课程标准与中考真题多层证据提炼实施计划
 
 - 日期：2026-07-28
-- 状态：实施中；CEK-01..05 已完成，CEK-06 待执行
+- 状态：实施中；CEK-01..06 与 Checkpoint B1 已完成，CEK-07 待执行
 - 设计依据：`docs/superpowers/specs/2026-07-28-curriculum-exam-knowledge-extraction-design.md`
 - 当前范围：初中物理、2022 年版 2025 年修订课程标准、广州 2015-2025 中考真题/答案/年报
 - 计划性质：现有知识资产治理和广州真题闭环的下级专题计划，不新增顶层路线图
@@ -194,9 +194,9 @@ flowchart TD
 
 **验收：**
 
-- [ ] 五个一级主题存在，官方条目号唯一，父子结构无环，目录/正文锚点可回看。
-- [ ] 目录、课程内容、学业质量和命题建议代表页均通过文本非空与阅读顺序 fixture。
-- [ ] 解析不完整时报告 `manual_takeover_required`，不生成缺证据正式条目。
+- [x] 五个一级主题存在，官方条目号唯一，父子结构无环，目录/正文锚点可回看。
+- [x] 目录、课程内容、学业质量和命题建议代表页均通过文本非空与阅读顺序 fixture。
+- [x] 解析不完整时报告 `manual_takeover_required`，不生成缺证据正式条目。
 
 **验证：** `python -m unittest tests.workers.test_curriculum_standard_structure`；`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-curriculum-standard-structure.ps1`。
 
@@ -210,9 +210,9 @@ flowchart TD
 
 ## Checkpoint B1：课标结构可靠
 
-- [ ] CEK-04..06 通过，所有结构节点有可回看的 EvidenceAnchor。
-- [ ] 未安装新依赖；若 fixture 未达标，只输出工具评估需求，不直接系统级安装。
-- [ ] 尚未生成正式分面或知识映射。
+- [x] CEK-04..06 通过，所有结构节点有可回看的 EvidenceAnchor。
+- [x] 未安装新依赖；当前锁定的 `pypdf==6.14.2` 已满足真实 fixture。
+- [x] 尚未生成正式分面或知识映射。
 
 ### CEK-07：要求分面候选与 AI schema/eval
 
