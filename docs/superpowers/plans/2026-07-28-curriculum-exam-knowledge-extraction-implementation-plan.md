@@ -1,7 +1,7 @@
 # 课程标准与中考真题多层证据提炼实施计划
 
 - 日期：2026-07-28
-- 状态：实施中；CEK-01..04 已完成，CEK-05 待执行
+- 状态：实施中；CEK-01..05 已完成，CEK-06 待执行
 - 设计依据：`docs/superpowers/specs/2026-07-28-curriculum-exam-knowledge-extraction-design.md`
 - 当前范围：初中物理、2022 年版 2025 年修订课程标准、广州 2015-2025 中考真题/答案/年报
 - 计划性质：现有知识资产治理和广州真题闭环的下级专题计划，不新增顶层路线图
@@ -172,9 +172,9 @@ flowchart TD
 
 **验收：**
 
-- [ ] `source_text`、standard version、official code、requirement type 和 evidence anchors 为必填且不可由摘要替代。
-- [ ] facet 必须指向一个父 requirement，不能脱离父条目成为知识节点。
-- [ ] 缺 confidence/review status/production eligibility 或出现未知枚举时 fail-closed。
+- [x] `source_text`、standard version、official code、requirement type 和 evidence anchors 为必填且不可由摘要替代。
+- [x] facet 必须指向一个父 requirement，不能脱离父条目成为知识节点。
+- [x] 缺 confidence/review status/production eligibility 或出现未知枚举时 fail-closed。
 
 **验证：** `pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-curriculum-requirement-contract.ps1`；JSON parse 和负例 fixture。
 

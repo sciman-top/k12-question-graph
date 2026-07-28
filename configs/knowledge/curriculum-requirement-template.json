@@ -1,0 +1,72 @@
+{
+  "schema_version": "curriculum-requirement.v1",
+  "record_type": "curriculum_requirement",
+  "stable_id": "CR-PHY-JM-2022R2025-REPLACE_WITH_OFFICIAL_ITEM_CODE",
+  "parent_stable_id": "CR-PHY-JM-2022R2025-REPLACE_WITH_PARENT_ITEM_OR_SECTION",
+  "standard_version": "2022-2025-revision",
+  "official_item_code": "REPLACE_WITH_OFFICIAL_ITEM_CODE",
+  "requirement_type": "content_requirement",
+  "source_text": "REPLACE_WITH_VERIFIED_SOURCE_TEXT",
+  "behavior_verbs": [],
+  "cognitive_demands": [],
+  "ability_dimensions": [],
+  "knowledge_stable_ids": [],
+  "evidence_anchors": [
+    {
+      "source_document_id": "ec5db25f-4336-4dc7-9d34-870e76ea0c8a",
+      "source_region_id": null,
+      "source_document_version": "2022-2025-revision",
+      "source_document_sha256": "e00a5665e7e17ea6bdd6236d9366c51c63bbe6cc0eabf83ac3d0a529c487dd8c",
+      "pdf_page_number": 1,
+      "printed_page_number": null,
+      "section_path": [
+        "REPLACE_WITH_VERIFIED_SECTION_PATH"
+      ],
+      "official_item_code": "REPLACE_WITH_OFFICIAL_ITEM_CODE",
+      "text_block_sha256": "e86535286c8603ded70a3d976fefac2ac9219c72d389450bde3862cf6112c0c9",
+      "evidence_role": "curriculum_requirement_source"
+    }
+  ],
+  "confidence": 0,
+  "status": "candidate",
+  "review_status": "pending_review",
+  "production_eligible": false,
+  "facets": [
+    {
+      "record_type": "requirement_facet",
+      "stable_id": "CR-PHY-JM-2022R2025-REPLACE_WITH_OFFICIAL_ITEM_CODE-F01",
+      "parent_requirement_stable_id": "CR-PHY-JM-2022R2025-REPLACE_WITH_OFFICIAL_ITEM_CODE",
+      "standard_version": "2022-2025-revision",
+      "official_item_code": "REPLACE_WITH_OFFICIAL_ITEM_CODE",
+      "requirement_type": "content_requirement",
+      "source_text": "REPLACE_WITH_VERIFIED_FACET_SOURCE_TEXT",
+      "facet_statement": "REPLACE_WITH_REVIEWABLE_BEHAVIOR_OBJECT_CONDITION_STATEMENT",
+      "behavior_verb": "REPLACE_WITH_VERIFIED_BEHAVIOR_VERB",
+      "content_object": "REPLACE_WITH_VERIFIED_CONTENT_OBJECT",
+      "condition_or_performance": null,
+      "cognitive_demands": [],
+      "ability_dimensions": [],
+      "knowledge_stable_ids": [],
+      "evidence_anchors": [
+        {
+          "source_document_id": "ec5db25f-4336-4dc7-9d34-870e76ea0c8a",
+          "source_region_id": null,
+          "source_document_version": "2022-2025-revision",
+          "source_document_sha256": "e00a5665e7e17ea6bdd6236d9366c51c63bbe6cc0eabf83ac3d0a529c487dd8c",
+          "pdf_page_number": 1,
+          "printed_page_number": null,
+          "section_path": [
+            "REPLACE_WITH_VERIFIED_SECTION_PATH"
+          ],
+          "official_item_code": "REPLACE_WITH_OFFICIAL_ITEM_CODE",
+          "text_block_sha256": "d5265c5e0b8168fb92c6f1689333bc8274da872056938ecdf83b291297ec348b",
+          "evidence_role": "curriculum_facet_source"
+        }
+      ],
+      "confidence": 0,
+      "status": "candidate",
+      "review_status": "pending_review",
+      "production_eligible": false
+    }
+  ]
+}

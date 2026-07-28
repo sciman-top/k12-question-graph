@@ -1,0 +1,271 @@
+{
+  "schemaVersion": "cek005-curriculum-requirement-contract.v1",
+  "status": "pass",
+  "checkedAt": "2026-07-28T13:01:50.5482111Z",
+  "taskId": "CEK-05",
+  "validator": {
+    "engine": "PowerShell Test-Json",
+    "powerShellVersion": "7.6.3",
+    "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",
+    "addedDependency": false
+  },
+  "inputHashes": {
+    "normalization": "UTF-8 text normalized to LF without BOM",
+    "evidenceAnchorSchemaSha256": "9f1a5439d931e6470290c3f918656bc91870ad6a1acf37d87e6e37c888a850ef",
+    "curriculumRequirementSchemaSha256": "8aab4e5367a0c903a0b377a2219c22982ac4cbb43474f93bc9692caebef8a255",
+    "candidateTemplateSha256": "423b5f562240cf32cdac5ea6f6ad6e8d8182f403281876210ef729388b91ab4b",
+    "contractScriptSha256": "360c3e170e1b323d1d58b84e624932005564a86e6cc4908cb933bdce70efdf6d"
+  },
+  "contracts": {
+    "evidenceAnchorSchema": "schemas/evidence_anchor.schema.json",
+    "curriculumRequirementSchema": "schemas/curriculum_requirement.schema.json",
+    "candidateTemplate": "configs/knowledge/curriculum-requirement-template.json",
+    "sourceRegionMetadataProjection": {
+      "source_region_id": "SourceRegion.Id",
+      "source_document_id": "SourceRegion.SourceDocumentId",
+      "pdf_page_number": "SourceRegion.PageNumber",
+      "printed_page_number": "SourceRegion.Metadata.printedPageNumber",
+      "section_path": "SourceRegion.Metadata.sectionPath",
+      "official_item_code": "SourceRegion.Metadata.officialItemCode",
+      "text_block_sha256": "SourceRegion.Metadata.textBlockSha256",
+      "evidence_role": "SourceRegion.Metadata.evidenceRole"
+    }
+  },
+  "positiveCases": {
+    "evidenceAnchor": "pass",
+    "curriculumRequirement": "pass",
+    "facetParentInvariant": "pass",
+    "activeLifecycle": "pass",
+    "templateTextBlockHashes": "pass"
+  },
+  "negativeCaseCount": 27,
+  "negativeCases": [
+    {
+      "id": "missing_source_text",
+      "expectedRejection": "schema",
+      "actualRejection": "schema",
+      "rejected": true,
+      "parentInvariantErrors": []
+    },
+    {
+      "id": "source_summary_cannot_replace_source_text",
+      "expectedRejection": "schema",
+      "actualRejection": "schema",
+      "rejected": true,
+      "parentInvariantErrors": []
+    },
+    {
+      "id": "missing_standard_version",
+      "expectedRejection": "schema",
+      "actualRejection": "schema",
+      "rejected": true,
+      "parentInvariantErrors": []
+    },
+    {
+      "id": "missing_official_item_code",
+      "expectedRejection": "schema",
+      "actualRejection": "schema",
+      "rejected": true,
+      "parentInvariantErrors": []
+    },
+    {
+      "id": "missing_requirement_type",
+      "expectedRejection": "schema",
+      "actualRejection": "schema",
+      "rejected": true,
+      "parentInvariantErrors": []
+    },
+    {
+      "id": "missing_evidence_anchors",
+      "expectedRejection": "schema",
+      "actualRejection": "schema",
+      "rejected": true,
+      "parentInvariantErrors": []
+    },
+    {
+      "id": "missing_confidence",
+      "expectedRejection": "schema",
+      "actualRejection": "schema",
+      "rejected": true,
+      "parentInvariantErrors": []
+    },
+    {
+      "id": "missing_review_status",
+      "expectedRejection": "schema",
+      "actualRejection": "schema",
+      "rejected": true,
+      "parentInvariantErrors": []
+    },
+    {
+      "id": "missing_production_eligible",
+      "expectedRejection": "schema",
+      "actualRejection": "schema",
+      "rejected": true,
+      "parentInvariantErrors": []
+    },
+    {
+      "id": "unknown_requirement_type",
+      "expectedRejection": "schema",
+      "actualRejection": "schema",
+      "rejected": true,
+      "parentInvariantErrors": []
+    },
+    {
+      "id": "unknown_lifecycle_status",
+      "expectedRejection": "schema",
+      "actualRejection": "schema",
+      "rejected": true,
+      "parentInvariantErrors": []
+    },
+    {
+      "id": "unknown_review_status",
+      "expectedRejection": "schema",
+      "actualRejection": "schema",
+      "rejected": true,
+      "parentInvariantErrors": []
+    },
+    {
+      "id": "unknown_evidence_role",
+      "expectedRejection": "schema",
+      "actualRejection": "schema",
+      "rejected": true,
+      "parentInvariantErrors": []
+    },
+    {
+      "id": "facet_missing_parent",
+      "expectedRejection": "schema",
+      "actualRejection": "schema",
+      "rejected": true,
+      "parentInvariantErrors": [
+        "facet CR-PHY-JM-2022R2025-REPLACE_WITH_OFFICIAL_ITEM_CODE-F01 has no parent_requirement_stable_id"
+      ]
+    },
+    {
+      "id": "facet_missing_source_text",
+      "expectedRejection": "schema",
+      "actualRejection": "schema",
+      "rejected": true,
+      "parentInvariantErrors": []
+    },
+    {
+      "id": "facet_missing_evidence_anchors",
+      "expectedRejection": "schema",
+      "actualRejection": "schema",
+      "rejected": true,
+      "parentInvariantErrors": []
+    },
+    {
+      "id": "facet_missing_confidence",
+      "expectedRejection": "schema",
+      "actualRejection": "schema",
+      "rejected": true,
+      "parentInvariantErrors": []
+    },
+    {
+      "id": "facet_missing_review_status",
+      "expectedRejection": "schema",
+      "actualRejection": "schema",
+      "rejected": true,
+      "parentInvariantErrors": []
+    },
+    {
+      "id": "facet_missing_production_eligible",
+      "expectedRejection": "schema",
+      "actualRejection": "schema",
+      "rejected": true,
+      "parentInvariantErrors": []
+    },
+    {
+      "id": "facet_detached_from_parent",
+      "expectedRejection": "parent_invariant",
+      "actualRejection": "parent_invariant",
+      "rejected": true,
+      "parentInvariantErrors": [
+        "facet CR-PHY-JM-2022R2025-REPLACE_WITH_OFFICIAL_ITEM_CODE-F01 points outside parent requirement CR-PHY-JM-2022R2025-REPLACE_WITH_OFFICIAL_ITEM_CODE"
+      ]
+    },
+    {
+      "id": "candidate_cannot_be_approved",
+      "expectedRejection": "schema",
+      "actualRejection": "schema",
+      "rejected": true,
+      "parentInvariantErrors": []
+    },
+    {
+      "id": "candidate_cannot_be_production_eligible",
+      "expectedRejection": "schema",
+      "actualRejection": "schema",
+      "rejected": true,
+      "parentInvariantErrors": []
+    },
+    {
+      "id": "facet_candidate_cannot_be_approved",
+      "expectedRejection": "schema",
+      "actualRejection": "schema",
+      "rejected": true,
+      "parentInvariantErrors": []
+    },
+    {
+      "id": "facet_candidate_cannot_be_production_eligible",
+      "expectedRejection": "schema",
+      "actualRejection": "schema",
+      "rejected": true,
+      "parentInvariantErrors": []
+    },
+    {
+      "id": "active_cannot_be_pending_review",
+      "expectedRejection": "schema",
+      "actualRejection": "schema",
+      "rejected": true,
+      "parentInvariantErrors": []
+    },
+    {
+      "id": "active_must_be_production_eligible",
+      "expectedRejection": "schema",
+      "actualRejection": "schema",
+      "rejected": true,
+      "parentInvariantErrors": []
+    },
+    {
+      "id": "active_requires_materialized_source_region",
+      "expectedRejection": "schema",
+      "actualRejection": "schema",
+      "rejected": true,
+      "parentInvariantErrors": []
+    }
+  ],
+  "safeDefaults": {
+    "requirement": {
+      "status": "candidate",
+      "reviewStatus": "pending_review",
+      "productionEligible": false
+    },
+    "facet": {
+      "status": "candidate",
+      "reviewStatus": "pending_review",
+      "productionEligible": false
+    }
+  },
+  "executionBoundary": {
+    "aiRun": false,
+    "databaseWrite": false,
+    "sourceRegionWrite": false,
+    "knowledgeAssetWrite": false,
+    "c002ActiveWrite": false
+  },
+  "productionInvariant": {
+    "activeRequiresApprovedReview": true,
+    "activeRequiresProductionEligibility": true,
+    "activeRequiresMaterializedSourceRegion": true
+  },
+  "fullGate": {
+    "status": "gate_na",
+    "reason": "tools/run-gates.ps1 may affect PostgreSQL and API processes and is reserved for the separately authorized CEK-34 gate",
+    "alternative_verification": "JSON Schema positive and negative fixtures, Release build, roadmap guard, and static scope review",
+    "evidence_link": "docs/evidence/cek005-curriculum-requirement-contract.json",
+    "expires_at": "CEK-34",
+    "recovery_condition": "obtain current-task confirmation for PostgreSQL/API process impact and run tools/run-gates.ps1"
+  },
+  "rollback": "remove only the CEK-05 schemas, template, contract, documentation, and evidence; no data restore is required",
+  "completionBoundary": "CEK-05 defines candidate contracts only. It does not extract curriculum text, write SourceRegion metadata, create or activate domain assets, switch C002 active, close REAL005, or establish live acceptance."
+}

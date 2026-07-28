@@ -1603,6 +1603,23 @@ Add `-Apply -StartApi -VerifyIdempotency -BackupManifest '<verified-manifest>'`
 only after the dry-run passes. Registration creates no knowledge assets, runs
 no AI, and never switches C002 active.
 
+CEK-05 curriculum requirement contract:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File tools\run-curriculum-requirement-contract.ps1
+```
+
+This validates the Draft 2020-12 `EvidenceAnchor`, `CurriculumRequirement`, and
+`RequirementFacet` contracts plus the candidate template. Positive and negative
+fixtures require source text, standard version, official item code, requirement
+type, evidence anchors, confidence, review status, and production eligibility.
+Detached facets and unknown enums fail closed. Candidate requirements and facets
+must remain `candidate`, `pending_review`, and `production_eligible=false`.
+Candidate anchors may defer `source_region_id`; an active production record must
+bind every anchor to a materialized UUID SourceRegion.
+The contract uses the built-in PowerShell JSON Schema validator, runs no AI,
+writes no database or SourceRegion data, and never switches C002 active.
+
 Backup:
 
 ```powershell
