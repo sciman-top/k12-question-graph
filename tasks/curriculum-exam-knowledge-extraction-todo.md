@@ -1,6 +1,6 @@
 # 课程标准与中考真题多层证据提炼任务清单
 
-- 状态：实施中；CEK-01..02 已完成，CEK-03 待执行
+- 状态：实施中；Checkpoint A（CEK-01..03）已完成，CEK-04 待执行
 - 设计：`docs/superpowers/specs/2026-07-28-curriculum-exam-knowledge-extraction-design.md`
 - 详细计划：`docs/superpowers/plans/2026-07-28-curriculum-exam-knowledge-extraction-implementation-plan.md`
 - 范围：初中物理、2022 年版 2025 年修订课标、广州 2015-2025 真题/答案/年报
@@ -11,8 +11,8 @@
 
 - [x] CEK-01 课程标准来源 inventory 与可逆迁移工具
 - [x] CEK-02 执行版本目录迁移并更新本地 manifest
-- [ ] CEK-03 来源准入和 SourceDocument 幂等登记
-- [ ] Checkpoint A：来源可追溯，C002 active 指纹不变
+- [x] CEK-03 来源准入和 SourceDocument 幂等登记
+- [x] Checkpoint A：来源可追溯，C002 active 指纹不变
 
 ## Phase B：课程要求、要求分面与知识映射
 

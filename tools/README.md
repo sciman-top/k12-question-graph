@@ -1576,6 +1576,33 @@ C002 source material admission guard:
 This validates the source material manifest template and ensures real textbook,
 curriculum standard, and local exam files stay outside git.
 
+The guard also accepts the fixed single-file curriculum profile. For a real
+local manifest it verifies the external path, SHA-256, size, PDF magic, 67-page
+OCR text layer, authority/version/scope/license/PII fields, and the curriculum
+use boundary `knowledge=true`, `examPoint=false`, `trend=false`.
+
+```powershell
+.\tools\run-c002-source-material-guard.ps1 `
+  -ManifestPath 'configs\knowledge\source-material-manifest.local.json'
+```
+
+Use the admitted manifest to create a deterministic import plan. Apply requires
+a verified backup manifest; `-VerifyIdempotency` uploads the same material twice
+and requires the same FileAsset and SourceDocument IDs. The report compares
+knowledge counts and the active domain-asset fingerprint before and after.
+
+```powershell
+.\tools\import-c002-source-materials.ps1 `
+  -SourceRoot 'D:\KQG_Data\source_materials\imported\curriculum_standards\physics\junior_middle_school\2022-2025-revision\raw' `
+  -ManifestPath 'configs\knowledge\source-material-manifest.local.json' `
+  -MaterialBatchKey 'curriculum-physics-junior-2022-2025-revision' `
+  -ReportPath 'docs\evidence\cek003-curriculum-source-admission.json'
+```
+
+Add `-Apply -StartApi -VerifyIdempotency -BackupManifest '<verified-manifest>'`
+only after the dry-run passes. Registration creates no knowledge assets, runs
+no AI, and never switches C002 active.
+
 Backup:
 
 ```powershell

@@ -59,6 +59,42 @@ public class SourceDocumentMetadataPolicyTests
         Assert.False(SourceDocumentMetadataPolicy.ComputeExternalAiAllowed(pendingReview));
     }
 
+    [Fact]
+    public void Normalize_CurriculumStandard_DisablesExamPointAndTrendUseWithoutGrantingKnowledgeUse()
+    {
+        var normalized = SourceDocumentMetadataPolicy.Normalize(new SourceDocumentMetadata(
+            SourceType: "curriculum-standard",
+            SourceTitle: "Junior physics curriculum standard",
+            Region: "China",
+            Year: 2025,
+            GradeOrScope: "junior-middle-school",
+            EditionOrVersion: "2022-2025-revision",
+            MaterialBatchKey: "curriculum-physics-junior-2022-2025-revision",
+            OwnerScope: "school",
+            LicenseOrPermission: "user_authorized_local_knowledge_extraction",
+            SharingAllowed: false,
+            ContainsStudentPii: false,
+            AnonymizationStatus: "not-applicable",
+            MayUseForKnowledgeExtraction: false,
+            MayUseForExamPointExtraction: true,
+            MayUseForTrendAnalysis: true));
+
+        Assert.Equal("curriculum_standard", normalized.SourceType);
+        Assert.Equal("curriculum_physics_junior_2022_2025_revision", normalized.MaterialBatchKey);
+        Assert.False(normalized.MayUseForKnowledgeExtraction);
+        Assert.False(normalized.MayUseForExamPointExtraction);
+        Assert.False(normalized.MayUseForTrendAnalysis);
+        Assert.False(SourceDocumentMetadataPolicy.ComputeExternalAiAllowed(normalized));
+
+        var knowledgeAuthorized = SourceDocumentMetadataPolicy.Normalize(normalized with
+        {
+            MayUseForKnowledgeExtraction = true
+        });
+        Assert.True(knowledgeAuthorized.MayUseForKnowledgeExtraction);
+        Assert.False(knowledgeAuthorized.MayUseForExamPointExtraction);
+        Assert.False(knowledgeAuthorized.MayUseForTrendAnalysis);
+    }
+
     [Theory]
     [InlineData("2021广州中考-参考答案.pdf", "answer_or_solution")]
     [InlineData("2024广州中考（解析版）.pdf", "answer_or_solution")]

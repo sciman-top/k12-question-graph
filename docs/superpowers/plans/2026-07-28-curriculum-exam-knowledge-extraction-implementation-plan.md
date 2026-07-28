@@ -1,7 +1,7 @@
 # 课程标准与中考真题多层证据提炼实施计划
 
 - 日期：2026-07-28
-- 状态：实施中；CEK-01..02 已完成，CEK-03 待执行
+- 状态：实施中；Checkpoint A（CEK-01..03）已完成，CEK-04 待执行
 - 设计依据：`docs/superpowers/specs/2026-07-28-curriculum-exam-knowledge-extraction-design.md`
 - 当前范围：初中物理、2022 年版 2025 年修订课程标准、广州 2015-2025 中考真题/答案/年报
 - 计划性质：现有知识资产治理和广州真题闭环的下级专题计划，不新增顶层路线图
@@ -128,9 +128,9 @@ flowchart TD
 
 **依赖：** CEK-02。
 
-**预计写集：** `configs/knowledge/source-material-manifest.example.json`、`tools/run-c002-source-material-guard.ps1`、`tools/import-c002-source-materials.ps1`、`tests/api/K12QuestionGraph.Api.Tests/SourceDocumentMetadataPolicyTests.cs`。
+**预计写集：** `apps/api/FileStore/SourceDocumentMetadataPolicy.cs`、`configs/knowledge/source-material-manifest.example.json`、`tools/run-c002-source-material-guard.ps1`、`tools/import-c002-source-materials.ps1`、`tests/api/K12QuestionGraph.Api.Tests/SourceDocumentMetadataPolicyTests.cs`、`tools/README.md`。
 
-**证据 / 回滚：** `docs/evidence/cek003-curriculum-source-admission.json`；事务回滚或从写前 backup 恢复本次 SourceDocument/FileAsset。
+**证据 / 回滚：** `docs/evidence/cek003-curriculum-source-admission.json`；导入失败即停止，数据回退使用写前 backup 恢复 database/FileStore，不以 Git 回滚代替数据恢复。
 
 **规模：** M，4 个仓库文件。
 

@@ -8,8 +8,11 @@ param(
     [string] $DatabaseHost = '127.0.0.1',
     [int] $DatabasePort = 5432,
     [string] $DatabasePassword = $env:PGPASSWORD,
+    [string] $PgBin = 'C:\Program Files\PostgreSQL\17\bin',
     [string] $FileStoreRoot = 'D:\KQG_Data\file_store',
     [string] $MaterialBatchKey = 'guangzhou_physics_2016_2025',
+    [string] $ManifestPath = '',
+    [switch] $VerifyIdempotency,
     [string] $ReportPath = 'docs\evidence\c002-source-material-import-report.json',
     [string] $BackupManifest = ''
 )
@@ -22,6 +25,11 @@ $resolvedSourceRoot = (Resolve-Path -LiteralPath $SourceRoot).Path
 $reportFullPath = Join-Path $repoRoot $ReportPath
 $requestedMaterialBatchKey = $MaterialBatchKey
 $MaterialBatchKey = $MaterialBatchKey.Trim().ToLowerInvariant().Replace('-', '_').Replace(' ', '_')
+$resolvedManifestPath = ''
+$manifestGuard = $null
+$apiProcess = $null
+$previousConnectionString = $env:KQG_CONNECTION_STRING
+$previousFileStoreRoot = $env:KqgPaths__FileStoreRoot
 
 function Get-FreeTcpPort {
     $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Parse('127.0.0.1'), 0)
@@ -139,6 +147,33 @@ function Get-SourceMetadata([System.IO.FileInfo] $File, [string] $SourceType) {
     }
 }
 
+function Get-AdmissionDatabaseSnapshot {
+    $psql = Join-Path $PgBin 'psql.exe'
+    if (-not (Test-Path -LiteralPath $psql)) {
+        throw "psql not found: $psql"
+    }
+    $sql = @"
+select json_build_object(
+  'sourceDocumentCount', (select count(*) from source_documents),
+  'fileAssetCount', (select count(*) from file_assets),
+  'knowledgeNodeCount', (select count(*) from knowledge_nodes),
+  'domainAssetVersionCount', (select count(*) from domain_asset_versions),
+  'knowledgeMappingCount', (select count(*) from knowledge_mappings),
+  'activeDomainAssetCount', (select count(*) from domain_asset_versions where status = 'active'),
+  'activeDomainAssetFingerprint', (
+    select md5(coalesce(string_agg(id::text, ',' order by id), ''))
+    from domain_asset_versions
+    where status = 'active'
+  )
+)::text;
+"@
+    $output = & $psql -h $DatabaseHost -p $DatabasePort -U $DatabaseUser -d $DatabaseName -v ON_ERROR_STOP=1 -At -c $sql
+    if ($LASTEXITCODE -ne 0) {
+        throw "source admission database snapshot failed with exit code $LASTEXITCODE"
+    }
+    return $output | ConvertFrom-Json
+}
+
 function Get-SourceTypes([System.IO.FileInfo] $File) {
     $relativePath = [System.IO.Path]::GetRelativePath($resolvedSourceRoot, $File.FullName) -replace '\\', '/'
     $name = $File.Name
@@ -164,6 +199,50 @@ function Get-SourceTypes([System.IO.FileInfo] $File) {
     }
 
     return @('unknown')
+}
+
+function Get-ManifestSourcePlan([string] $Path) {
+    $manifest = Get-Content -LiteralPath $Path -Raw | ConvertFrom-Json
+    $plan = @($manifest.materials | ForEach-Object {
+        $material = $_
+        $file = Get-Item -LiteralPath $material.localPath
+        $relativePath = [System.IO.Path]::GetRelativePath($resolvedSourceRoot, $file.FullName)
+        if ([System.IO.Path]::IsPathRooted($relativePath) -or
+            $relativePath -eq '..' -or
+            $relativePath.StartsWith("..$([System.IO.Path]::DirectorySeparatorChar)")) {
+            throw "Manifest material $($material.materialId) is outside SourceRoot: $($file.FullName)"
+        }
+
+        [ordered]@{
+            materialId = $material.materialId
+            path = $file.FullName
+            relativePath = $relativePath -replace '\\', '/'
+            sourceType = $material.sourceType
+            sourceTitle = $material.title
+            publisherOrAuthority = $material.publisherOrAuthority
+            region = $material.region
+            year = $material.year
+            gradeOrScope = $material.gradeOrScope
+            editionOrVersion = $material.editionOrVersion
+            materialBatchKey = $MaterialBatchKey
+            ownerScope = 'school'
+            licenseOrPermission = $material.licenseOrPermission
+            sharingAllowed = [bool]$material.sharingAllowed
+            containsStudentPii = [bool]$material.containsStudentPii
+            anonymizationStatus = $material.anonymizationStatus
+            mayUseForKnowledgeExtraction = [bool]$material.mayUseForKnowledgeExtraction
+            mayUseForExamPointExtraction = [bool]$material.mayUseForExamPointExtraction
+            mayUseForTrendAnalysis = [bool]$material.mayUseForTrendAnalysis
+            expectedSha256 = ([string]$material.sha256).ToLowerInvariant()
+            expectedSizeBytes = if ($material.PSObject.Properties.Name -contains 'sizeBytes') { [long]$material.sizeBytes } else { $file.Length }
+            pageCount = if ($material.PSObject.Properties.Name -contains 'pageCount') { [int]$material.pageCount } else { $null }
+            textLayer = if ($material.PSObject.Properties.Name -contains 'textLayer') { $material.textLayer } else { $null }
+        }
+    })
+    if ($plan.Count -lt 1) {
+        throw 'Manifest source plan is empty'
+    }
+    return $plan
 }
 
 function ConvertTo-CurlBool([bool] $Value) {
@@ -206,28 +285,44 @@ function Upload-SourceMaterial([string] $BaseUrl, [object] $Metadata) {
 
 Push-Location $repoRoot
 try {
-    $files = @(Get-ChildItem -LiteralPath $resolvedSourceRoot -Recurse -File -Filter '*.pdf' | Sort-Object FullName)
-    if ($files.Count -lt 1) {
-        throw "No PDF files found under $resolvedSourceRoot"
+    if (-not [string]::IsNullOrWhiteSpace($ManifestPath)) {
+        $manifestCandidate = if ([System.IO.Path]::IsPathRooted($ManifestPath)) { $ManifestPath } else { Join-Path $repoRoot $ManifestPath }
+        $resolvedManifestPath = (Resolve-Path -LiteralPath $manifestCandidate).Path
+        $guardOutput = & (Join-Path $PSScriptRoot 'run-c002-source-material-guard.ps1') -ManifestPath $resolvedManifestPath
+        if ($LASTEXITCODE -ne 0) {
+            throw "Source material manifest guard failed with exit code $LASTEXITCODE"
+        }
+        $manifestGuard = $guardOutput | ConvertFrom-Json
+        if ($manifestGuard.status -ne 'pass' -or $manifestGuard.verifiedFileCount -lt 1) {
+            throw 'Source material manifest did not pass real-file admission'
+        }
+        $plan = @(Get-ManifestSourcePlan -Path $resolvedManifestPath)
+        $files = @($plan | ForEach-Object { Get-Item -LiteralPath $_.path } | Sort-Object FullName -Unique)
     }
-
-    $plan = @($files | ForEach-Object {
-        $file = $_
-        Get-SourceTypes -File $file | ForEach-Object { Get-SourceMetadata -File $file -SourceType $_ }
-    })
+    else {
+        $files = @(Get-ChildItem -LiteralPath $resolvedSourceRoot -Recurse -File -Filter '*.pdf' | Sort-Object FullName)
+        if ($files.Count -lt 1) {
+            throw "No PDF files found under $resolvedSourceRoot"
+        }
+        $plan = @($files | ForEach-Object {
+            $file = $_
+            Get-SourceTypes -File $file | ForEach-Object { Get-SourceMetadata -File $file -SourceType $_ }
+        })
+    }
     if (@($plan | Where-Object { $_.sourceType -eq 'unknown' }).Count -gt 0) {
         throw 'Source plan contains unknown source types'
     }
-    $apiProcess = $null
-    $previousConnectionString = $env:KQG_CONNECTION_STRING
-    $previousFileStoreRoot = $env:KqgPaths__FileStoreRoot
     $baseUrl = $ApiUrl.TrimEnd('/')
 
+    $backupVerified = $false
+    $databaseSnapshotBefore = $null
+    $databaseSnapshotAfter = $null
     if ($Apply) {
         if ([string]::IsNullOrWhiteSpace($BackupManifest)) {
             throw 'BackupManifest is required when applying source material import'
         }
         & (Join-Path $PSScriptRoot 'verify-backup.ps1') -ManifestPath $BackupManifest | Out-Null
+        $backupVerified = $true
     }
 
     if ($Apply -and $StartApi) {
@@ -254,14 +349,42 @@ try {
         throw "Use -ApiUrl or -StartApi with -Apply"
     }
 
+    if ($Apply) {
+        $databaseSnapshotBefore = Get-AdmissionDatabaseSnapshot
+    }
+
     $uploaded = New-Object System.Collections.Generic.List[object]
+    $idempotencyChecks = New-Object System.Collections.Generic.List[object]
     if ($Apply) {
         foreach ($item in $plan) {
             $response = Upload-SourceMaterial -BaseUrl $baseUrl -Metadata $item
             if ($response.sourceDocument.materialBatchKey -ne $MaterialBatchKey) {
                 throw "API persisted an unexpected material batch key for $($item.path)"
             }
+            if ($item.expectedSha256 -and $response.sha256 -ne $item.expectedSha256) {
+                throw "API persisted an unexpected SHA-256 for $($item.path)"
+            }
+            if ($response.sourceDocument.sourceType -ne $item.sourceType -or
+                $response.sourceDocument.sourceTitle -ne $item.sourceTitle -or
+                $response.sourceDocument.region -ne $item.region -or
+                $response.sourceDocument.year -ne $item.year -or
+                $response.sourceDocument.gradeOrScope -ne $item.gradeOrScope -or
+                $response.sourceDocument.editionOrVersion -ne $item.editionOrVersion -or
+                $response.sourceDocument.ownerScope -ne $item.ownerScope -or
+                $response.sourceDocument.licenseOrPermission -ne $item.licenseOrPermission -or
+                $response.sourceDocument.sharingAllowed -ne $item.sharingAllowed -or
+                $response.sourceDocument.containsStudentPii -ne $item.containsStudentPii -or
+                $response.sourceDocument.anonymizationStatus -ne $item.anonymizationStatus -or
+                $response.sourceDocument.mayUseForKnowledgeExtraction -ne $item.mayUseForKnowledgeExtraction -or
+                $response.sourceDocument.mayUseForExamPointExtraction -ne $item.mayUseForExamPointExtraction -or
+                $response.sourceDocument.mayUseForTrendAnalysis -ne $item.mayUseForTrendAnalysis) {
+                throw "API persisted unexpected source metadata or use permissions for $($item.path)"
+            }
+            if ($item.sourceType -eq 'curriculum_standard' -and $response.sourceDocument.externalAiAllowed -ne $false) {
+                throw "API unexpectedly allowed external AI for curriculum material $($item.path)"
+            }
             $uploaded.Add([ordered]@{
+                materialId = $item.materialId
                 path = $item.path
                 sourceType = $response.sourceDocument.sourceType
                 sourceDocumentId = $response.sourceDocument.id
@@ -271,6 +394,30 @@ try {
                 materialBatchKey = $response.sourceDocument.materialBatchKey
                 isDuplicate = $response.isDuplicate
             })
+
+            if ($VerifyIdempotency) {
+                $repeated = Upload-SourceMaterial -BaseUrl $baseUrl -Metadata $item
+                if ($repeated.id -ne $response.id -or
+                    $repeated.sourceDocument.id -ne $response.sourceDocument.id -or
+                    $repeated.isDuplicate -ne $true) {
+                    throw "SourceDocument/FileAsset idempotency failed for $($item.path)"
+                }
+                $idempotencyChecks.Add([ordered]@{
+                    materialId = $item.materialId
+                    fileAssetId = $response.id
+                    sourceDocumentId = $response.sourceDocument.id
+                    repeatedFileAssetId = $repeated.id
+                    repeatedSourceDocumentId = $repeated.sourceDocument.id
+                    repeatedIsDuplicate = $repeated.isDuplicate
+                    pass = $true
+                })
+            }
+        }
+        $databaseSnapshotAfter = Get-AdmissionDatabaseSnapshot
+        foreach ($field in @('knowledgeNodeCount', 'domainAssetVersionCount', 'knowledgeMappingCount', 'activeDomainAssetCount', 'activeDomainAssetFingerprint')) {
+            if ($databaseSnapshotAfter.$field -ne $databaseSnapshotBefore.$field) {
+                throw "Source admission unexpectedly changed knowledge or active field: $field"
+            }
         }
     }
 
@@ -279,10 +426,33 @@ try {
         sourceRoot = $resolvedSourceRoot
         requestedMaterialBatchKey = $requestedMaterialBatchKey
         materialBatchKey = $MaterialBatchKey
+        manifestPath = $resolvedManifestPath
+        manifestAdmissionProfile = if ($null -ne $manifestGuard) { $manifestGuard.admissionProfile } else { '' }
+        manifestVerifiedFileCount = if ($null -ne $manifestGuard) { $manifestGuard.verifiedFileCount } else { 0 }
         apiUrl = $baseUrl
         backupManifest = if ($Apply) { $BackupManifest } else { '' }
+        backupVerified = $backupVerified
         restoreCommand = if ($Apply) { "pwsh -NoProfile -ExecutionPolicy Bypass -File tools\restore.ps1 -ManifestPath '$BackupManifest' -ApplyDatabase -ApplyFileStore -DryRun:`$false" } else { '' }
+        databaseSnapshotBefore = $databaseSnapshotBefore
+        databaseSnapshotAfter = $databaseSnapshotAfter
         c002ActiveWrite = $false
+        c002ActiveFingerprintUnchanged = if ($Apply) { $databaseSnapshotAfter.activeDomainAssetFingerprint -eq $databaseSnapshotBefore.activeDomainAssetFingerprint } else { $true }
+        knowledgeAssetWrite = $false
+        knowledgeAssetCountsUnchanged = if ($Apply) {
+            $databaseSnapshotAfter.knowledgeNodeCount -eq $databaseSnapshotBefore.knowledgeNodeCount -and
+            $databaseSnapshotAfter.domainAssetVersionCount -eq $databaseSnapshotBefore.domainAssetVersionCount -and
+            $databaseSnapshotAfter.knowledgeMappingCount -eq $databaseSnapshotBefore.knowledgeMappingCount
+        }
+        else { $true }
+        aiRun = $false
+        sourceDocumentWrite = $Apply.IsPresent
+        fileStoreWrite = $Apply.IsPresent
+        sourceDocumentWriteAttempted = $Apply.IsPresent
+        fileStoreWriteAttempted = $Apply.IsPresent
+        sourceDocumentCountDelta = if ($Apply) { [long]$databaseSnapshotAfter.sourceDocumentCount - [long]$databaseSnapshotBefore.sourceDocumentCount } else { 0 }
+        fileAssetCountDelta = if ($Apply) { [long]$databaseSnapshotAfter.fileAssetCount - [long]$databaseSnapshotBefore.fileAssetCount } else { 0 }
+        idempotencyRequested = $VerifyIdempotency.IsPresent
+        idempotencyVerified = $Apply.IsPresent -and $VerifyIdempotency.IsPresent -and $idempotencyChecks.Count -eq $plan.Count
         fileCount = $files.Count
         physicalFileCount = $files.Count
         logicalSourceCount = $plan.Count
@@ -291,6 +461,7 @@ try {
         })
         plan = $plan
         uploaded = $uploaded
+        idempotencyChecks = $idempotencyChecks
     }
 
     New-Item -ItemType Directory -Path (Split-Path -Parent $reportFullPath) -Force | Out-Null

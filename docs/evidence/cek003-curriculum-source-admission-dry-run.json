@@ -1,0 +1,71 @@
+{
+  "status": "dry_run",
+  "sourceRoot": "D:\\KQG_Data\\source_materials\\imported\\curriculum_standards\\physics\\junior_middle_school\\2022-2025-revision\\raw",
+  "requestedMaterialBatchKey": "curriculum-physics-junior-2022-2025-revision",
+  "materialBatchKey": "curriculum_physics_junior_2022_2025_revision",
+  "manifestPath": "D:\\CODE\\k12-question-graph\\configs\\knowledge\\source-material-manifest.local.json",
+  "manifestAdmissionProfile": "single_curriculum_standard",
+  "manifestVerifiedFileCount": 1,
+  "apiUrl": "",
+  "backupManifest": "",
+  "backupVerified": false,
+  "restoreCommand": "",
+  "databaseSnapshotBefore": null,
+  "databaseSnapshotAfter": null,
+  "c002ActiveWrite": false,
+  "c002ActiveFingerprintUnchanged": true,
+  "knowledgeAssetWrite": false,
+  "knowledgeAssetCountsUnchanged": true,
+  "aiRun": false,
+  "sourceDocumentWrite": false,
+  "fileStoreWrite": false,
+  "sourceDocumentWriteAttempted": false,
+  "fileStoreWriteAttempted": false,
+  "sourceDocumentCountDelta": 0,
+  "fileAssetCountDelta": 0,
+  "idempotencyRequested": false,
+  "idempotencyVerified": false,
+  "fileCount": 1,
+  "physicalFileCount": 1,
+  "logicalSourceCount": 1,
+  "bySourceType": [
+    {
+      "sourceType": "curriculum_standard",
+      "count": 1
+    }
+  ],
+  "plan": [
+    {
+      "materialId": "curriculum-physics-junior-2022-2025-revision",
+      "path": "D:\\KQG_Data\\source_materials\\imported\\curriculum_standards\\physics\\junior_middle_school\\2022-2025-revision\\raw\\《义务教育物理课程标准·日常修订版》(2022年版2025年修订).pdf",
+      "relativePath": "《义务教育物理课程标准·日常修订版》(2022年版2025年修订).pdf",
+      "sourceType": "curriculum_standard",
+      "sourceTitle": "义务教育物理课程标准 日常修订版",
+      "publisherOrAuthority": "中华人民共和国教育部",
+      "region": "China",
+      "year": 2025,
+      "gradeOrScope": "junior_middle_school",
+      "editionOrVersion": "2022_2025_revision",
+      "materialBatchKey": "curriculum_physics_junior_2022_2025_revision",
+      "ownerScope": "school",
+      "licenseOrPermission": "user_authorized_local_knowledge_extraction",
+      "sharingAllowed": false,
+      "containsStudentPii": false,
+      "anonymizationStatus": "not_applicable",
+      "mayUseForKnowledgeExtraction": true,
+      "mayUseForExamPointExtraction": false,
+      "mayUseForTrendAnalysis": false,
+      "expectedSha256": "e00a5665e7e17ea6bdd6236d9366c51c63bbe6cc0eabf83ac3d0a529c487dd8c",
+      "expectedSizeBytes": 1689021,
+      "pageCount": 67,
+      "textLayer": {
+        "present": true,
+        "nonEmptyPageCount": 67,
+        "characterCount": 37615,
+        "extractor": "pypdf==6.14.2"
+      }
+    }
+  ],
+  "uploaded": [],
+  "idempotencyChecks": []
+}

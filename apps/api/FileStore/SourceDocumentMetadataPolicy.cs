@@ -33,6 +33,14 @@ public static class SourceDocumentMetadataPolicy
             sharingAllowed = false;
         }
 
+        var mayUseForExamPointExtraction = metadata.MayUseForExamPointExtraction;
+        var mayUseForTrendAnalysis = metadata.MayUseForTrendAnalysis;
+        if (string.Equals(sourceType, "curriculum_standard", StringComparison.OrdinalIgnoreCase))
+        {
+            mayUseForExamPointExtraction = false;
+            mayUseForTrendAnalysis = false;
+        }
+
         return metadata with
         {
             SourceType = sourceType,
@@ -44,7 +52,9 @@ public static class SourceDocumentMetadataPolicy
             OwnerScope = ownerScope,
             LicenseOrPermission = license,
             SharingAllowed = sharingAllowed,
-            AnonymizationStatus = anonymizationStatus
+            AnonymizationStatus = anonymizationStatus,
+            MayUseForExamPointExtraction = mayUseForExamPointExtraction,
+            MayUseForTrendAnalysis = mayUseForTrendAnalysis
         };
     }
 

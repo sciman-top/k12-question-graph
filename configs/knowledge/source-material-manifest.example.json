@@ -27,24 +27,33 @@
       "notes": "Textbook files stay outside git."
     },
     {
-      "materialId": "curriculum-001",
+      "materialId": "curriculum-physics-junior-2022-2025-revision",
       "sourceType": "curriculum_standard",
-      "title": "REPLACE_WITH_STANDARD_TITLE",
-      "publisherOrAuthority": "REPLACE_WITH_AUTHORITY",
-      "editionOrVersion": "REPLACE_WITH_VERSION",
-      "year": 2026,
-      "region": "REPLACE_WITH_PROVINCE_OR_CITY",
+      "title": "义务教育物理课程标准 日常修订版",
+      "publisherOrAuthority": "中华人民共和国教育部",
+      "editionOrVersion": "2022_2025_revision",
+      "year": 2025,
+      "region": "China",
       "gradeOrScope": "junior_middle_school",
-      "localPath": "D:/KQG_Data/source_materials/curriculum-001.pdf",
+      "localPath": "D:/KQG_Data/source_materials/imported/curriculum_standards/physics/junior_middle_school/2022-2025-revision/raw/REPLACE_WITH_CURRICULUM_STANDARD.pdf",
       "sha256": "REPLACE_WITH_64_HEX_SHA256",
-      "licenseOrPermission": "REPLACE_WITH_PUBLIC_OR_AUTHORIZED_STATUS",
+      "sizeBytes": 1689021,
+      "modifiedAtUtc": "2026-07-27T17:24:48.282099+00:00",
+      "pageCount": 67,
+      "textLayer": {
+        "present": true,
+        "nonEmptyPageCount": 67,
+        "characterCount": 37615,
+        "extractor": "pypdf==6.14.2"
+      },
+      "licenseOrPermission": "user_authorized_local_knowledge_extraction",
       "sharingAllowed": false,
       "containsStudentPii": false,
       "anonymizationStatus": "not_applicable",
       "mayUseForKnowledgeExtraction": true,
       "mayUseForExamPointExtraction": false,
       "mayUseForTrendAnalysis": false,
-      "notes": "Curriculum standard is a mapping source, not the ontology trunk."
+      "notes": "Curriculum standard is a mapping source, not the ontology trunk; machine output stays candidate pending review."
     },
     {
       "materialId": "local-exam-001",
