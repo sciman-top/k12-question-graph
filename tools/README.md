@@ -970,6 +970,28 @@ then applies the reviewed question, answer, year-report, source, and quality
 issue evidence tables. It does not write the database and does not activate
 C002.
 
+Junior-physics curriculum standard source staging:
+
+```powershell
+.\tools\run-curriculum-standard-source-batch-stage.ps1
+```
+
+The default dry-run handles exactly the fixed material
+`curriculum-physics-junior-2022-2025-revision`. It verifies the exact source
+name, length, modification time, SHA-256, PDF magic, 67 pages, and the complete
+OCR text layer before writing a JSON/CSV inventory. It does not scan other
+files, move the PDF, update the database/FileStore, or change C002 active.
+
+Apply moves only that PDF into the versioned curriculum-standard directory and
+atomically adds its local-only manifest entry. Validate rollback before using
+the rollback command. The manifest and rollback state remain outside Git.
+
+```powershell
+.\tools\run-curriculum-standard-source-batch-stage.ps1 -Apply
+.\tools\run-curriculum-standard-source-batch-stage.ps1 -ValidateRollback
+.\tools\run-curriculum-standard-source-batch-stage.ps1 -Rollback
+```
+
 Guangzhou physics 2015-2025 source batch staging:
 
 ```powershell
