@@ -1,0 +1,64 @@
+{
+  "version": "guangzhou-layout-golden.v1",
+  "materialBatchKey": "guangzhou_physics_2015_2025_20260726_v2",
+  "cases": [
+    {
+      "caseId": "complete-stem-and-options",
+      "year": 2015,
+      "questionNumber": 1,
+      "assertions": {
+        "requiredText": [
+          "咸鱼放在冰箱冷冻室里一晚",
+          "温度越低，分子运动越慢"
+        ],
+        "optionLabels": ["A", "B", "C", "D"]
+      }
+    },
+    {
+      "caseId": "figure-owned-by-question",
+      "year": 2015,
+      "questionNumber": 2,
+      "assertions": {
+        "requiredBlockTypes": ["image"],
+        "assetOwnedByQuestion": true
+      }
+    },
+    {
+      "caseId": "structured-table",
+      "year": 2024,
+      "questionNumber": 2,
+      "assertions": {
+        "requiredBlockTypes": ["table"],
+        "tableCells": ["声音的频率/Hz", "5000", "800", "声音强弱的等级/dB", "30", "60"]
+      }
+    },
+    {
+      "caseId": "formula-fidelity",
+      "year": 2018,
+      "questionNumber": 16,
+      "assertions": {
+        "requiredBlockTypes": ["formula"],
+        "formulaText": ["ρ=", "g/cm3"]
+      }
+    },
+    {
+      "caseId": "cross-page-reading-order-and-subquestions",
+      "year": 2016,
+      "questionNumber": 13,
+      "assertions": {
+        "requiredPages": [3, 4],
+        "originalQuestionNumber": 13,
+        "subquestionLabels": ["1", "①", "②", "2"]
+      }
+    },
+    {
+      "caseId": "header-footer-neighbor-isolation",
+      "year": 2024,
+      "questionNumber": 3,
+      "assertions": {
+        "forbiddenContentText": ["第1页/共8页", "学科网（北京）股份有限公司"],
+        "optionLabels": ["A", "B", "C", "D"]
+      }
+    }
+  ]
+}
