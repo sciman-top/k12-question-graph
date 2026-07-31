@@ -28,6 +28,7 @@ def invoke_initializer(source: Path, runtime: Path) -> subprocess.CompletedProce
         capture_output=True,
         check=False,
         encoding="utf-8",
+        errors="replace",
     )
 
 
@@ -92,6 +93,7 @@ class Real005BRuntimeRootsTests(unittest.TestCase):
                     check=False,
                     capture_output=True,
                     encoding="utf-8",
+                    errors="replace",
                 )
 
 

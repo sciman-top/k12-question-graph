@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ObservedPerformanceEvidence",
+  "description": "Candidate-only observed statistics from an examination report. Estimated difficulty is intentionally out of scope.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "evidence_id",
+    "assessment_target_id",
+    "question_scope",
+    "maximum_score",
+    "average_score",
+    "score_rate",
+    "difficulty_observed",
+    "discrimination",
+    "option_distribution",
+    "status",
+    "review_status",
+    "production_eligible"
+  ],
+  "properties": {
+    "schema_version": { "const": "observed-performance-evidence.v1" },
+    "evidence_id": { "type": "string", "format": "uuid" },
+    "assessment_target_id": { "type": "string", "format": "uuid" },
+    "question_scope": { "$ref": "#/$defs/question_scope" },
+    "maximum_score": { "$ref": "#/$defs/nullable_point_metric" },
+    "average_score": { "$ref": "#/$defs/nullable_point_metric" },
+    "score_rate": { "$ref": "#/$defs/nullable_rate_metric" },
+    "difficulty_observed": { "$ref": "#/$defs/nullable_difficulty_metric" },
+    "discrimination": { "$ref": "#/$defs/nullable_ratio_metric" },
+    "option_distribution": { "$ref": "#/$defs/nullable_option_distribution" },
+    "status": { "const": "candidate" },
+    "review_status": { "const": "pending_review" },
+    "production_eligible": { "const": false }
+  },
+  "$defs": {
+    "question_scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scope_key", "scope_type", "question_item_id", "question_block_id"],
+      "properties": {
+        "scope_key": { "type": "string", "pattern": "^question-scope:v1:" },
+        "scope_type": { "enum": ["whole_question", "subquestion", "scoring_point"] },
+        "question_item_id": { "type": "string", "format": "uuid" },
+        "question_block_id": { "type": ["string", "null"], "format": "uuid" }
+      }
+    },
+    "evidence_anchor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_document_id", "source_region_id", "source_document_version", "source_document_sha256", "pdf_page_number", "printed_page_number", "section_path", "official_item_code", "text_block_sha256", "evidence_role"],
+      "properties": {
+        "source_document_id": { "type": "string", "format": "uuid" },
+        "source_region_id": { "type": ["string", "null"], "format": "uuid" },
+        "source_document_version": { "type": "string", "minLength": 1 },
+        "source_document_sha256": { "type": "string", "pattern": "^[A-Fa-f0-9]{64}$" },
+        "pdf_page_number": { "type": "integer", "minimum": 1 },
+        "printed_page_number": { "type": ["integer", "string", "null"] },
+        "section_path": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+        "official_item_code": { "type": ["string", "null"], "minLength": 1 },
+        "text_block_sha256": { "type": "string", "pattern": "^[A-Fa-f0-9]{64}$" },
+        "evidence_role": { "const": "performance_statistic_source" }
+      }
+    },
+    "metric_base": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["raw_value", "parsed_value", "unit", "scale_direction", "sample_scope", "sample_size", "anchor"],
+      "properties": {
+        "raw_value": { "type": "string", "minLength": 1 },
+        "parsed_value": { "type": "number" },
+        "unit": { "enum": ["points", "ratio", "percent"] },
+        "scale_direction": { "enum": ["higher_is_easier", "higher_is_harder", "not_applicable"] },
+        "sample_scope": { "type": "string", "minLength": 1 },
+        "sample_size": { "type": ["integer", "null"], "minimum": 1 },
+        "anchor": { "$ref": "#/$defs/evidence_anchor" }
+      }
+    },
+    "point_metric": {
+      "allOf": [
+        { "$ref": "#/$defs/metric_base" },
+        { "properties": { "unit": { "const": "points" }, "parsed_value": { "type": "number", "minimum": 0 }, "scale_direction": { "const": "not_applicable" } } }
+      ]
+    },
+    "rate_metric": {
+      "oneOf": [
+        { "allOf": [{ "$ref": "#/$defs/metric_base" }, { "properties": { "unit": { "const": "ratio" }, "parsed_value": { "type": "number", "minimum": 0, "maximum": 1 }, "scale_direction": { "const": "higher_is_easier" } } }] },
+        { "allOf": [{ "$ref": "#/$defs/metric_base" }, { "properties": { "unit": { "const": "percent" }, "parsed_value": { "type": "number", "minimum": 0, "maximum": 100 }, "scale_direction": { "const": "higher_is_easier" } } }] }
+      ]
+    },
+    "difficulty_metric": {
+      "allOf": [
+        { "$ref": "#/$defs/metric_base" },
+        { "properties": { "unit": { "const": "ratio" }, "parsed_value": { "type": "number", "minimum": 0, "maximum": 1 }, "scale_direction": { "const": "higher_is_easier" } } }
+      ]
+    },
+    "ratio_metric": {
+      "allOf": [
+        { "$ref": "#/$defs/metric_base" },
+        { "properties": { "unit": { "const": "ratio" }, "parsed_value": { "type": "number", "minimum": -1, "maximum": 1 }, "scale_direction": { "const": "higher_is_easier" } } }
+      ]
+    },
+    "option_value": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "raw_value", "parsed_value", "unit"],
+      "properties": {
+        "label": { "type": "string", "minLength": 1 },
+        "raw_value": { "type": "string", "minLength": 1 },
+        "parsed_value": { "type": "number", "minimum": 0 },
+        "unit": { "enum": ["count", "ratio", "percent"] }
+      },
+      "allOf": [
+        { "if": { "properties": { "unit": { "const": "ratio" } } }, "then": { "properties": { "parsed_value": { "maximum": 1 } } } },
+        { "if": { "properties": { "unit": { "const": "percent" } } }, "then": { "properties": { "parsed_value": { "maximum": 100 } } } }
+      ]
+    },
+    "option_distribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["values", "sample_scope", "sample_size", "anchor"],
+      "properties": {
+        "values": { "type": "array", "minItems": 2, "items": { "$ref": "#/$defs/option_value" } },
+        "sample_scope": { "type": "string", "minLength": 1 },
+        "sample_size": { "type": ["integer", "null"], "minimum": 1 },
+        "anchor": { "$ref": "#/$defs/evidence_anchor" }
+      }
+    },
+    "nullable_point_metric": { "oneOf": [{ "$ref": "#/$defs/point_metric" }, { "type": "null" }] },
+    "nullable_rate_metric": { "oneOf": [{ "$ref": "#/$defs/rate_metric" }, { "type": "null" }] },
+    "nullable_difficulty_metric": { "oneOf": [{ "$ref": "#/$defs/difficulty_metric" }, { "type": "null" }] },
+    "nullable_ratio_metric": { "oneOf": [{ "$ref": "#/$defs/ratio_metric" }, { "type": "null" }] },
+    "nullable_option_distribution": { "oneOf": [{ "$ref": "#/$defs/option_distribution" }, { "type": "null" }] }
+  }
+}

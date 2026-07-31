@@ -3,7 +3,7 @@
     "scoring_point": 0,
     "subquestion": 210
   },
-  "checkedAt": "2026-07-28T23:40:03.069459+08:00",
+  "checkedAt": "2026-07-29T12:13:26.732284+08:00",
   "completionBoundary": "CEK-10 proves repo-side scope normalization candidates only; it does not approve question content, create AssessmentTarget records, close REAL005, permit release, or establish teacher/live acceptance.",
   "governance": {
     "activeWrite": false,
@@ -30,7 +30,7 @@
   },
   "manifest": {
     "questions": 234,
-    "sha256": "0d028d3d3ba1a9df4c7da07ed7137d277293bfacb16b62cbe855318afbba8fc4"
+    "sha256": "1083bf9b37bf5f39dc574ea4c5150691d752cf18981c862fdbc12e19b4586a35"
   },
   "schemaVersion": "cek010-question-scope-normalization.v1",
   "scopeCounts": {

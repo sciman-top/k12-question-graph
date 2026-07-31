@@ -18,6 +18,7 @@ import {
 } from '@ant-design/icons'
 import { Alert, Button, Input, Space, Tag, Typography } from 'antd'
 import { AiRoutingControlPanel } from './AiRoutingControlPanel'
+import { CurriculumEvidenceReviewPanel } from './CurriculumEvidenceReviewPanel'
 import { ServiceControlPanel } from './ServiceControlPanel'
 import { teacherLabelFor } from './teacherLabels'
 
@@ -233,6 +234,7 @@ export function AdminGovernancePanels() {
     <>
       <ServiceControlPanel />
       <AiRoutingControlPanel />
+      <CurriculumEvidenceReviewPanel />
 
       <section className="admin-knowledge-panel" aria-label="知识治理高级工作台" data-flow="admin-knowledge-governance" data-contract="advanced-admin-only">
         <div className="revision-intake-panel" data-flow="c002r-teacher-revision-ux" data-contract="teacher-revision-low-friction" data-active-version="junior-physics-guangzhou-source-derived-v1">

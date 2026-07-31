@@ -54,6 +54,9 @@ try {
     Assert-Condition ([string]$e003.knowledgeStatus -eq 'draft') 'NS605 must stay on draft dynamic assets'
 
     $app = Read-Text 'apps/web/src/App.tsx'
+    $paperWorkbench = Read-Text 'apps/web/src/ui/PaperWorkbenchPanels.tsx'
+    $workbenchData = Read-Text 'apps/web/src/ui/workbenchData.tsx'
+    $uiSource = $app + "`n" + $paperWorkbench + "`n" + $workbenchData
     foreach ($marker in @(
         'data-flow="paper-question-replacement"',
         'data-action="replace-question"',
@@ -62,12 +65,13 @@ try {
         'data-contract="replacement-undo-snapshot"',
         'data-contract="replacement-productionEligible=false"',
         'data-contract="replacement-audit-trail"',
-        'kept primary knowledge constraint',
-        'kept question type constraint',
-        'kept score constraint',
-        'kept draft_test non-production boundary'
+        '同知识点',
+        '同题型',
+        '难度相近',
+        '分值一致',
+        'draft_test'
     )) {
-        Assert-Condition ($app.Contains($marker)) "NS605 UI marker missing: $marker"
+        Assert-Condition ($uiSource.Contains($marker)) "NS605 UI marker missing: $marker"
     }
 
     $program = Read-Text 'apps/api/Program.cs'

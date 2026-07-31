@@ -1,7 +1,7 @@
 # Reference Basis Guard
 
 - status: pass
-- checked_at: 2026-07-28T01:39:06
+- checked_at: 2026-07-28T23:58:04
 - validation_mode: Local
 - policy_path: tasks/reference-basis-policy.json
 - requirements_path: tasks/reference-basis-requirements.csv

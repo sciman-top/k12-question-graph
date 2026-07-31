@@ -16,7 +16,8 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
-$logRoot = Join-Path $repoRoot 'logs\dev-api'
+$baseLogRoot = Join-Path $repoRoot 'logs\dev-api'
+$logRoot = if ($Port -eq 5275) { $baseLogRoot } else { Join-Path $baseLogRoot ([string] $Port) }
 $pidPath = Join-Path $logRoot 'api.pid'
 $stdoutPath = Join-Path $logRoot 'api.out.log'
 $stderrPath = Join-Path $logRoot 'api.err.log'
@@ -76,7 +77,12 @@ function Stop-ApiServer {
         Start-Sleep -Milliseconds 500
     }
 
-    $repoProcesses = Get-RepoApiProcesses | Where-Object { $null -ne $_ }
+    $repoProcesses = if ($Port -eq 5275) {
+        @(Get-RepoApiProcesses | Where-Object { $null -ne $_ })
+    }
+    else {
+        @()
+    }
     foreach ($process in $repoProcesses) {
         if ($null -ne $listener -and $process.Id -eq $listener.Id) {
             continue

@@ -36,6 +36,7 @@ import {
   getQuestionSources,
   getReviewQueueItems,
   previewItemScoreMappings,
+  previewScoreEvidenceAnalysis,
   reopenReviewQueueItem,
   replacePaperQuestion,
   resolveReviewQueueItem,
@@ -46,15 +47,13 @@ import {
 } from './api/client'
 import type {
   QuestionDetailContract,
-  QuestionCardContract,
-  QuestionSearchParams,
+  QuestionEvidenceCardContract,
   QuestionSourceRegionContract,
   ReviewQueueItemContract,
 } from './api/contracts'
 import {
   useCutCandidatesQuery,
   useImportJobQuery,
-  useQuestionSearchQuery,
   useReadyHealthQuery,
   useSourceMaterialsQuery,
   useSourcePreviewQuery,
@@ -65,6 +64,8 @@ import { RealExamReviewWorkbench } from './ui/RealExamReviewWorkbench'
 import { ScoreWorkbenchPanelContent } from './ui/ScoreWorkbenchPanelContent'
 import { TeacherHomePanelContent } from './ui/TeacherHomePanelContent'
 import { teacherDifficultyLabelFor, teacherLabelFor } from './ui/teacherLabels'
+import { useActionLog } from './ui/useActionLog'
+import { useQuestionEvidenceWorkbench } from './ui/useQuestionEvidenceWorkbench'
 import {
   formatRegionKind,
   guangzhou2015EvidencePreview,
@@ -74,11 +75,12 @@ import {
   initialPaperDraft,
   initialPaperRequest,
   initialPaperUnderstanding,
+  initialScoreEvidenceAnalysis,
   initialSegments,
   importWizardSteps,
   isQuestionAssetRegion,
   jobStates,
-  questionSearchParamsFor,
+  paperDraftQuestionFor,
   renderMathAwareText,
   sharedAssets,
   sourceRegionRank,
@@ -278,7 +280,7 @@ function App() {
   const [segments, setSegments] = useState(initialSegments)
   const [selectedIds, setSelectedIds] = useState<string[]>(['q-02', 'q-03'])
   const [selectedAsset, setSelectedAsset] = useState(sharedAssets[0])
-  const [actionLog, setActionLog] = useState<string[]>([])
+  const { actionLog, appendLog, replaceLatestWithUndoLog } = useActionLog()
   const [savedQuestionSourceSummary, setSavedQuestionSourceSummary] = useState('尚未保存题目')
   const [savedQuestionSourceRegions, setSavedQuestionSourceRegions] = useState<QuestionSourceRegionContract[]>([])
   const [paperRequest, setPaperRequest] = useState(initialPaperRequest)
@@ -293,14 +295,9 @@ function App() {
   const [scoreMappingMessage, setScoreMappingMessage] = useState(initialItemScoreMappingPreview.teacherMessage)
   const [itemScoreMappingPreview, setItemScoreMappingPreview] = useState(initialItemScoreMappingPreview)
   const [commentaryReportPreview, setCommentaryReportPreview] = useState(initialCommentaryReportPreview)
+  const [scoreEvidenceAnalysis, setScoreEvidenceAnalysis] = useState(initialScoreEvidenceAnalysis)
   const [scoreWorkflowBusy, setScoreWorkflowBusy] = useState(false)
   const [analysisMessage, setAnalysisMessage] = useState('点击查看摘要后，会聚焦当前讲评建议和导出状态。')
-  const [activeQuestionFilter, setActiveQuestionFilter] = useState('all-real')
-  const [questionSearchParams, setQuestionSearchParams] = useState<QuestionSearchParams>({
-    status: 'pending_review',
-  })
-  const [selectedQuestionId, setSelectedQuestionId] = useState('')
-  const [questionInteractionMessage, setQuestionInteractionMessage] = useState('选择题目后，可用于组卷、换题或来源回看。')
   const [importStartedAt] = useState<Date>(() => new Date())
   const [nowMs, setNowMs] = useState<number>(() => Date.now())
   const [importActionCount, setImportActionCount] = useState(0)
@@ -329,9 +326,7 @@ function App() {
     selectedSourceDocumentId,
     selectedSourceDocumentId.length > 0,
   )
-  const questionSearchQuery = useQuestionSearchQuery(questionSearchParams)
   const cutCandidates = cutCandidatesQuery.data?.ok ? cutCandidatesQuery.data.data : undefined
-  const questionSearch = questionSearchQuery.data?.ok ? questionSearchQuery.data.data : undefined
   const sourcePreview = previewQuery.data?.ok ? previewQuery.data.data : undefined
   const importJob = importJobQuery.data?.ok ? importJobQuery.data.data : undefined
   const selectedRealExamReview = realExamQueue.find((item) => item.id === selectedRealExamReviewId)
@@ -418,9 +413,20 @@ function App() {
     return () => window.clearInterval(timer)
   }, [])
 
-  const appendLog = (message: string) => {
-    setActionLog((current) => [message, ...current].slice(0, 5))
-  }
+  const {
+    activeEvidenceFilter,
+    applyEvidenceFilter,
+    changeQuestionEvidenceMode,
+    clearEvidenceFilters,
+    openQuestionEvidenceSource,
+    questionEvidenceMode,
+    questionEvidenceSearch,
+    questionEvidenceSearchQuery,
+    questionInteractionMessage,
+    returnToQuestionBasket,
+    selectQuestionEvidenceCard,
+    selectedEvidenceQuestionId,
+  } = useQuestionEvidenceWorkbench(appendLog)
 
   const nextLocalId = (prefix: string) => {
     localIdRef.current += 1
@@ -663,7 +669,7 @@ function App() {
     setSegments(initialSegments)
     setSelectedIds(['q-02', 'q-03'])
     trackImportAction()
-    setActionLog((current) => [`已撤销：${current[0] ?? '最近操作'}`, ...current.slice(1)])
+    replaceLatestWithUndoLog()
   }
 
   const runCutCandidateGeneration = async () => {
@@ -854,7 +860,7 @@ function App() {
       setCropDraft(null)
     }
     appendLog(`已载入 ${payload.year} 年真卷第 ${payload.questionNo || '?'} 题`)
-  }, [])
+  }, [appendLog])
 
   const loadRealExamReviewQueue = useCallback(async () => {
     setRealExamQueueBusy(true)
@@ -1170,7 +1176,7 @@ function App() {
     const assessmentId = (overrideAssessmentId ?? scoreMappingAssessmentId).trim()
     if (!assessmentId) {
       setScoreMappingMessage('请先输入成绩批次 ID，再预览小题映射。')
-      return
+      return null
     }
 
     const result = await previewItemScoreMappings({
@@ -1182,7 +1188,7 @@ function App() {
     })
     if (!result.ok) {
       setScoreMappingMessage(`映射预览失败：${result.error.message}`)
-      return
+      return null
     }
 
     setScoreMappingMessage(result.data.teacherMessage)
@@ -1207,6 +1213,7 @@ function App() {
         issueCodes: row.issueCodes,
       })),
     })
+    return result.data
   }
 
   const generateScoreAnalysis = async () => {
@@ -1220,9 +1227,27 @@ function App() {
       return
     }
 
-    await previewScoreMappings(assessmentId)
-    setAnalysisMessage('已基于当前成绩批次刷新薄弱点摘要，可继续导出讲评报告草稿。')
-    appendLog('已生成成绩分析预览')
+    const mappingPreview = await previewScoreMappings(assessmentId)
+    if (!mappingPreview) {
+      return
+    }
+    const result = await previewScoreEvidenceAnalysis({
+      assessmentId,
+      containsStudentPii: false,
+      mappings: mappingPreview.rows.map((row) => ({
+        questionNo: row.questionNo,
+        questionItemId: row.questionItemId,
+      })),
+    })
+    if (!result.ok) {
+      setScoreEvidenceAnalysis(initialScoreEvidenceAnalysis)
+      setAnalysisMessage(`证据分析失败：${result.error.message}`)
+      return
+    }
+
+    setScoreEvidenceAnalysis(result.data)
+    setAnalysisMessage(result.data.teacherMessage)
+    appendLog(result.data.status === 'ready' ? '已生成成绩证据分析预览' : '成绩证据分析已按门禁阻断')
   }
 
   const exportScoreReport = async () => {
@@ -1283,43 +1308,19 @@ function App() {
     setAnalysisMessage(
       commentaryReportPreview.status === 'ready'
         ? `讲评摘要已生成：${commentaryReportPreview.sections.map((section) => section.title).join('、')}`
-        : '当前是示例分析摘要；导入成绩并导出报告后会显示真实草稿路径。',
+        : scoreEvidenceAnalysis.teacherMessage,
     )
     appendLog('已打开讲评摘要')
   }
 
-  const applyQuestionFilter = (filter: string, label: string) => {
-    setActiveQuestionFilter(filter)
-    setQuestionSearchParams(questionSearchParamsFor(filter))
-    setQuestionInteractionMessage(`已应用筛选：${label}`)
-    appendLog(`已应用题库筛选：${label}`)
-  }
-
-  const selectQuestionCard = (card: QuestionCardContract) => {
-    setSelectedQuestionId(card.id)
+  const addEvidenceQuestionToPaperDraft = (card: QuestionEvidenceCardContract) => {
     setPaperDraft((current) => ({
       ...current,
-      currentQuestion: {
-        id: card.id,
-        stemPreview: card.preview,
-        questionType: card.questionType,
-        score: card.defaultScore ?? 0,
-        difficultyEstimated: card.difficultyEstimated ?? 0.5,
-        primaryKnowledgeId: card.primaryKnowledge?.id ?? '',
-        primaryKnowledgeTitle:
-          card.primaryKnowledge?.title ??
-          (card.candidateTags?.primaryKnowledge?.label
-            ? `${card.candidateTags.primaryKnowledge.label}（候选）`
-            : '知识点待确认'),
-        sourceType: card.sources.types[0] ?? 'unknown',
-        recentUseStatus: 'not_recently_used',
-      },
+      currentQuestion: paperDraftQuestionFor(card),
       replacementQuestion: null,
       undoSnapshot: null,
       auditTrail: [],
     }))
-    setQuestionInteractionMessage(`已选择题目：${card.preview || card.id}`)
-    appendLog('已选择题目，可加入组卷流程')
   }
 
   const runStarterDemo = (step: StarterDemoStep) => {
@@ -1834,6 +1835,7 @@ function App() {
           <section className="analysis-panel" aria-label="讲评分析" data-flow="teacher-analysis-workbench">
             <AnalysisPanelContent
               analysisMessage={analysisMessage}
+              analysis={scoreEvidenceAnalysis}
               onOpenAnalysisSummary={openAnalysisSummary}
             />
           </section>
@@ -1847,18 +1849,23 @@ function App() {
             paperRequest={paperRequest}
             paperUnderstanding={paperUnderstanding}
             paperDraft={paperDraft}
-            questionSearch={questionSearch}
-            questionSearchError={questionSearchQuery.data?.ok === false}
-            questionSearchFetching={questionSearchQuery.isFetching}
-            activeQuestionFilter={activeQuestionFilter}
+            questionEvidenceSearch={questionEvidenceSearch}
+            questionEvidenceSearchError={questionEvidenceSearchQuery.data?.ok === false}
+            questionEvidenceSearchFetching={questionEvidenceSearchQuery.isFetching}
+            questionEvidenceMode={questionEvidenceMode}
+            activeEvidenceFilter={activeEvidenceFilter}
             questionInteractionMessage={questionInteractionMessage}
-            selectedQuestionId={selectedQuestionId}
+            selectedEvidenceQuestionId={selectedEvidenceQuestionId}
             onPaperRequestChange={setPaperRequest}
             onParsePaperRequest={parsePaperRequest}
             onConfirmPaperBlueprint={confirmPaperBlueprint}
-            onRefreshQuestionSearch={() => questionSearchQuery.refetch()}
-            onApplyQuestionFilter={applyQuestionFilter}
-            onSelectQuestionCard={selectQuestionCard}
+            onRefreshQuestionEvidence={() => questionEvidenceSearchQuery.refetch()}
+            onEvidenceModeChange={changeQuestionEvidenceMode}
+            onApplyEvidenceFilter={applyEvidenceFilter}
+            onClearEvidenceFilters={clearEvidenceFilters}
+            onSelectEvidenceQuestion={(card) => selectQuestionEvidenceCard(card, addEvidenceQuestionToPaperDraft)}
+            onOpenQuestionSource={(card, sourceKind) => void openQuestionEvidenceSource(card, sourceKind)}
+            onReturnToBasket={() => returnToQuestionBasket(Boolean(paperBasketId))}
             onReplacePaperQuestion={() => void replacePaperQuestionFromApi()}
             onUndoPaperReplacement={undoPaperReplacement}
             onExportPaper={exportPaper}
@@ -2033,7 +2040,7 @@ function App() {
                   {actionLog.length === 0 ? (
                     <Typography.Text>暂无修正</Typography.Text>
                   ) : (
-                    actionLog.map((item) => <Typography.Text key={item}>{item}</Typography.Text>)
+                    actionLog.map((item) => <Typography.Text key={item.id}>{item.message}</Typography.Text>)
                   )}
                 </div>
 

@@ -36,6 +36,8 @@ try {
     Assert-Condition (@($i003.shortcutActions) -contains 'undo') 'NS403 undo action missing'
 
     $app = Get-Content -LiteralPath 'apps/web/src/App.tsx' -Raw
+    $realExamReview = Get-Content -LiteralPath 'apps/web/src/ui/RealExamReviewWorkbench.tsx' -Raw
+    $uiSource = $app + "`n" + $realExamReview
     foreach ($marker in @(
         'runWorkbenchAction(',
         "action: 'merge' | 'split' | 'skip' | 'rerun' | 'associate' | 'undo' | 'save_question'",
@@ -44,7 +46,7 @@ try {
         'revision,',
         'data-contract="real-exam-teacher-revision"'
     )) {
-        Assert-Condition ($app.Contains($marker)) "NS403 UI workflow marker missing: $marker"
+        Assert-Condition ($uiSource.Contains($marker)) "NS403 UI workflow marker missing: $marker"
     }
 
     $report = [ordered]@{

@@ -1,18 +1,20 @@
 {
   "status": "pass",
   "taskId": "NS1301",
-  "checkedAt": "2026-07-28T01:39:18",
+  "checkedAt": "2026-07-31T20:13:12",
   "mode": "static_architecture_inventory_and_app_slimming_guard",
   "productionEligible": false,
   "app": {
     "path": "apps/web/src/App.tsx",
-    "lineCount": 1987,
+    "lineCount": 1994,
     "extractedComponents": [
       "TeacherHomePanelContent",
       "ScoreWorkbenchPanelContent",
       "AnalysisPanelContent",
       "PaperWorkbenchPanels",
-      "RealExamReviewWorkbench"
+      "RealExamReviewWorkbench",
+      "useActionLog",
+      "useQuestionEvidenceWorkbench"
     ],
     "extractedDataModule": "apps/web/src/ui/workbenchData.tsx"
   },

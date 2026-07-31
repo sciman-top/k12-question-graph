@@ -19,6 +19,15 @@ class CurriculumImportError(RuntimeError):
     pass
 
 
+def validate_apply_authority(database_name: str, allow_main_candidate_write: bool) -> None:
+    normalized = database_name.casefold()
+    if "cek009" in normalized:
+        return
+    if normalized == "k12_question_graph" and allow_main_candidate_write:
+        return
+    raise CurriculumImportError("apply requires an isolated CEK009 database or explicit main candidate-write authority")
+
+
 def stable_json(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
 
@@ -38,6 +47,33 @@ def _safe(envelope: dict[str, Any], name: str) -> None:
         raise CurriculumImportError(f"{name} is not a safe candidate envelope")
 
 
+def _normalize_anchor(anchor: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "sourceDocumentId": anchor.get("source_document_id"),
+        "sourceRegionId": anchor.get("source_region_id"),
+        "sourceDocumentVersion": anchor.get("source_document_version"),
+        "sourceDocumentSha256": anchor.get("source_document_sha256"),
+        "pdfPageNumber": anchor.get("pdf_page_number"),
+        "printedPageNumber": anchor.get("printed_page_number"),
+        "sectionPath": list(anchor.get("section_path", [])),
+        "officialItemCode": anchor.get("official_item_code"),
+        "textBlockSha256": anchor.get("text_block_sha256"),
+        "evidenceRole": anchor.get("evidence_role"),
+    }
+
+
+def _deduplicate_anchors(anchors: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    result: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for anchor in anchors:
+        normalized = _normalize_anchor(anchor)
+        key = stable_json(normalized)
+        if key not in seen:
+            result.append(normalized)
+            seen.add(key)
+    return result
+
+
 def build_package(requirements: dict[str, Any], crosswalk: dict[str, Any]) -> dict[str, Any]:
     _safe(requirements, "requirements")
     _safe(crosswalk, "crosswalk")
@@ -48,6 +84,13 @@ def build_package(requirements: dict[str, Any], crosswalk: dict[str, Any]) -> di
         anchors = list(item.get("source_anchor_sha256s", []))
         if not anchors:
             raise CurriculumImportError(f"requirement lacks anchors: {parent_id}")
+        parent_evidence_anchors = _deduplicate_anchors([
+            anchor
+            for wrapper in item.get("facets", [])
+            for anchor in wrapper.get("facet", {}).get("evidence_anchors", [])
+        ])
+        if not parent_evidence_anchors:
+            raise CurriculumImportError(f"requirement lacks full evidence anchors: {parent_id}")
         assets.append(
             {
                 "asset_type": "curriculum_requirement",
@@ -60,6 +103,7 @@ def build_package(requirements: dict[str, Any], crosswalk: dict[str, Any]) -> di
                 "source_evidence": {
                     "importKey": IMPORT_KEY,
                     "anchorSha256s": anchors,
+                    "evidenceAnchors": parent_evidence_anchors,
                     "sourceTextSha256": item["source_text_sha256"],
                     "reviewStatus": "pending_review",
                     "productionEligible": False,
@@ -80,6 +124,7 @@ def build_package(requirements: dict[str, Any], crosswalk: dict[str, Any]) -> di
             facet_anchors = [a["text_block_sha256"] for a in facet.get("evidence_anchors", [])]
             if not facet_anchors:
                 raise CurriculumImportError(f"facet lacks anchors: {facet_id}")
+            facet_evidence_anchors = _deduplicate_anchors(facet.get("evidence_anchors", []))
             assets.append(
                 {
                     "asset_type": "requirement_facet",
@@ -92,6 +137,7 @@ def build_package(requirements: dict[str, Any], crosswalk: dict[str, Any]) -> di
                     "source_evidence": {
                         "importKey": IMPORT_KEY,
                         "anchorSha256s": facet_anchors,
+                        "evidenceAnchors": facet_evidence_anchors,
                         "reviewStatus": "pending_review",
                         "productionEligible": False,
                     },
@@ -229,12 +275,13 @@ def main() -> int:
     parser.add_argument("--backup-verified", action="store_true")
     parser.add_argument("--report", type=Path, required=True)
     parser.add_argument("--apply", action="store_true")
+    parser.add_argument("--allow-main-candidate-write", action="store_true")
     args = parser.parse_args()
     requirements = json.loads(args.requirements.read_text(encoding="utf-8"))
     crosswalk = json.loads(args.crosswalk.read_text(encoding="utf-8"))
     package = build_package(requirements, crosswalk)
-    if args.apply and "cek009" not in args.database_name.casefold():
-        raise CurriculumImportError("apply requires an isolated CEK009 database")
+    if args.apply:
+        validate_apply_authority(args.database_name, args.allow_main_candidate_write)
     if args.apply and (not args.backup_manifest or not Path(args.backup_manifest).is_file()):
         raise CurriculumImportError("apply requires an existing verified backup manifest")
     if args.apply and not args.backup_verified:

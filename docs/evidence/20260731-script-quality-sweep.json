@@ -1,0 +1,12 @@
+{
+  "status": "pass",
+  "checkedAt": "2026-07-31T20:11:44",
+  "powershell": {
+    "scriptCount": 325,
+    "errors": []
+  },
+  "python": {
+    "scriptCount": 59,
+    "errors": []
+  }
+}

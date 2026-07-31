@@ -1,19 +1,28 @@
-import { Alert, Button, Space, Tag, Typography, Input } from 'antd'
+import { Alert, Button, Input, Segmented, Select, Space, Spin, Tag, Typography } from 'antd'
 import {
+  ArrowUpOutlined,
   CheckCircleOutlined,
+  ClearOutlined,
   FileSearchOutlined,
   FileTextOutlined,
+  LinkOutlined,
+  ReloadOutlined,
   SearchOutlined,
+  ShoppingCartOutlined,
   SwapOutlined,
   UndoOutlined,
 } from '@ant-design/icons'
-import type { QuestionCardContract, QuestionSearchContract } from '../api/contracts'
+import type {
+  QuestionEvidenceCardContract,
+  QuestionEvidenceMode,
+  QuestionEvidenceSearchContract,
+} from '../api/contracts'
 import {
   initialPaperDraft,
   initialPaperUnderstanding,
   paperWorkbenchSteps,
   paperWorkbenchSummaryCards,
-  questionSearchFilterChips,
+  questionEvidenceFilterOptions,
   replacementAuditTags,
   labelFor,
 } from './workbenchData'
@@ -28,18 +37,23 @@ type PaperWorkbenchPanelsProps = {
   paperRequest: string
   paperUnderstanding: typeof initialPaperUnderstanding
   paperDraft: typeof initialPaperDraft
-  questionSearch?: QuestionSearchContract
-  questionSearchError: boolean
-  questionSearchFetching: boolean
-  activeQuestionFilter: string
+  questionEvidenceSearch?: QuestionEvidenceSearchContract
+  questionEvidenceSearchError: boolean
+  questionEvidenceSearchFetching: boolean
+  questionEvidenceMode: QuestionEvidenceMode
+  activeEvidenceFilter: string
   questionInteractionMessage: string
-  selectedQuestionId: string
+  selectedEvidenceQuestionId: string
   onPaperRequestChange: (value: string) => void
   onParsePaperRequest: () => void
   onConfirmPaperBlueprint: () => void
-  onRefreshQuestionSearch: () => void
-  onApplyQuestionFilter: (filter: string, label: string) => void
-  onSelectQuestionCard: (card: QuestionCardContract) => void
+  onRefreshQuestionEvidence: () => void
+  onEvidenceModeChange: (mode: QuestionEvidenceMode) => void
+  onApplyEvidenceFilter: (filter: string, label: string) => void
+  onClearEvidenceFilters: () => void
+  onSelectEvidenceQuestion: (card: QuestionEvidenceCardContract) => void
+  onOpenQuestionSource: (card: QuestionEvidenceCardContract, sourceKind: 'question' | 'answer') => void
+  onReturnToBasket: () => void
   onReplacePaperQuestion: () => void
   onUndoPaperReplacement: () => void
   onExportPaper: (format: 'docx' | 'pdf') => void
@@ -54,18 +68,23 @@ export function PaperWorkbenchPanels({
   paperRequest,
   paperUnderstanding,
   paperDraft,
-  questionSearch,
-  questionSearchError,
-  questionSearchFetching,
-  activeQuestionFilter,
+  questionEvidenceSearch,
+  questionEvidenceSearchError,
+  questionEvidenceSearchFetching,
+  questionEvidenceMode,
+  activeEvidenceFilter,
   questionInteractionMessage,
-  selectedQuestionId,
+  selectedEvidenceQuestionId,
   onPaperRequestChange,
   onParsePaperRequest,
   onConfirmPaperBlueprint,
-  onRefreshQuestionSearch,
-  onApplyQuestionFilter,
-  onSelectQuestionCard,
+  onRefreshQuestionEvidence,
+  onEvidenceModeChange,
+  onApplyEvidenceFilter,
+  onClearEvidenceFilters,
+  onSelectEvidenceQuestion,
+  onOpenQuestionSource,
+  onReturnToBasket,
   onReplacePaperQuestion,
   onUndoPaperReplacement,
   onExportPaper,
@@ -141,145 +160,205 @@ export function PaperWorkbenchPanels({
         </div>
       </section>
 
-      <section className="question-panel" aria-label="题库检索" data-flow="question-search">
+      <section className="question-panel" aria-label="证据题库检索" data-flow="question-evidence-search">
         <div className="panel-heading">
           <div>
-            <Typography.Title level={2}>题库检索</Typography.Title>
-            <Typography.Text type="secondary">
-              默认使用当前校本题库，保留来源、版本、难度和题图公式状态。
+            <Typography.Title level={2}>证据题库</Typography.Title>
+            <Typography.Text type="secondary" data-action="question-interaction-message">
+              {questionInteractionMessage}
             </Typography.Text>
           </div>
           <Space size="small" wrap>
-            <Tag data-contract="s008b-active-version">
-              {questionSearch
-                ? `${teacherLabelFor(questionSearch.knowledgeStatus)} v${questionSearch.knowledgeVersion ?? '-'}`
-                : '校本题库'}
+            <Tag color={questionEvidenceMode === 'active' ? 'green' : 'gold'}>
+              {questionEvidenceMode === 'active' ? '正式题库' : '预览结果'}
             </Tag>
-            <Button
-              icon={<SearchOutlined />}
-              loading={questionSearchFetching}
-              onClick={onRefreshQuestionSearch}
-              data-action="question-search-refresh"
-            >
-              检索
+            <Button icon={<ArrowUpOutlined />} onClick={onReturnToBasket} data-action="return-to-basket">
+              返回题篮
             </Button>
           </Space>
         </div>
 
-        <div className="filter-row" aria-label="筛选条件">
-          {questionSearchFilterChips.map((item) => (
-            <button
-              className={
-                activeQuestionFilter === item.filter
-                  ? 'filter-chip active'
-                  : 'filter-chip'
-              }
-              data-filter={item.filter}
-              key={item.filter}
-              type="button"
-              onClick={() => onApplyQuestionFilter(item.filter, item.label)}
-            >
-              {item.label}
-            </button>
-          ))}
+        <div className="evidence-search-controls" aria-label="证据筛选">
+          <Segmented
+            block
+            value={questionEvidenceMode}
+            options={[
+              { label: '正式题库', value: 'active' },
+              { label: '已审核预览', value: 'reviewed' },
+              { label: '候选预览', value: 'candidate' },
+            ]}
+            onChange={(value) => onEvidenceModeChange(value as QuestionEvidenceMode)}
+          />
+          <Select
+            aria-label="证据筛选条件"
+            value={activeEvidenceFilter}
+            options={questionEvidenceFilterOptions.map(({ value, label }) => ({ value, label }))}
+            onChange={(value) => {
+              const selected = questionEvidenceFilterOptions.find((item) => item.value === value)
+              onApplyEvidenceFilter(value, selected?.label ?? value)
+            }}
+          />
+          <Button icon={<ClearOutlined />} onClick={onClearEvidenceFilters} data-action="clear-evidence-filters">
+            清空
+          </Button>
+          <Button
+            type="primary"
+            icon={<SearchOutlined />}
+            loading={questionEvidenceSearchFetching}
+            onClick={onRefreshQuestionEvidence}
+            data-action="question-evidence-search-refresh"
+          >
+            检索
+          </Button>
         </div>
-        <Typography.Text type="secondary" data-action="question-interaction-message">
-          {questionInteractionMessage}
-        </Typography.Text>
 
-        <div
-          className="question-card-list"
-          aria-label="题目卡片"
-          data-contract="s008b-real-api-question-cards"
-        >
-          {questionSearchError ? (
+        {questionEvidenceMode !== 'active' ? (
+          <Alert
+            showIcon
+            type="warning"
+            title={questionEvidenceMode === 'candidate' ? '候选预览' : '已审核预览'}
+            description="预览结果不会进入正式题篮。"
+            data-state="question-evidence-preview-boundary"
+          />
+        ) : null}
+
+        <div className="question-card-list" aria-label="证据题目卡片" data-contract="cek030-evidence-cards">
+          {questionEvidenceSearchFetching && !questionEvidenceSearch ? (
+            <div className="question-search-loading" data-state="question-evidence-loading">
+              <Spin size="small" />
+              <Typography.Text type="secondary">正在读取题库</Typography.Text>
+            </div>
+          ) : null}
+          {questionEvidenceSearchError ? (
             <Alert
               showIcon
               type="warning"
               title="题库暂时无法连接"
-              description="可先继续组卷草稿，稍后重新检索。"
-              data-state="question-search-error"
+              description="当前筛选已保留。"
+              action={(
+                <Button icon={<ReloadOutlined />} onClick={onRefreshQuestionEvidence}>
+                  重试
+                </Button>
+              )}
+              data-state="question-evidence-error"
             />
           ) : null}
-          {questionSearch && questionSearch.items.length === 0 ? (
+          {!questionEvidenceSearchError && questionEvidenceSearch?.items.length === 0 ? (
             <Alert
               showIcon
               type="info"
-              title="暂无可用题目"
-              description="完成导入和确认后，题目会出现在这里。"
-              data-state="question-search-empty"
+              title="当前范围暂无题目"
+              description={questionEvidenceMode === 'active' ? '正式题库尚无已激活证据题目。' : '当前预览范围无匹配题目。'}
+              data-state="question-evidence-empty"
             />
           ) : null}
-          {questionSearch?.items.map((card) => (
-            <button
-              className={
-                selectedQuestionId === card.id
-                  ? 'question-card active'
-                  : 'question-card'
-              }
-              data-card="question-card"
-              key={card.id}
-              type="button"
-              onClick={() => onSelectQuestionCard(card)}
-            >
-              <span>
-                <strong>
-                  {card.questionNo ? `第 ${card.questionNo} 题 · ` : ''}
-                  {card.preview || '未命名题目'}
-                </strong>
-                <small>
-                  {card.primaryKnowledge?.title ??
-                    (card.candidateTags?.primaryKnowledge?.label
-                      ? `${card.candidateTags.primaryKnowledge.label}（候选）`
-                      : '待补知识点')} ·{' '}
-                  {card.sources.titles[0] ?? '来源待补'}
-                </small>
-              </span>
-              <span className="question-meta">
-                <Tag>{teacherLabelFor(card.questionType)}</Tag>
-                <Tag>
-                  {teacherDifficultyLabelFor(card.difficultyEstimated ?? 0)}
-                </Tag>
-                <Tag>
-                  {card.primaryKnowledge
-                    ? `v${card.primaryKnowledge.version}`
-                    : card.candidateTags?.primaryKnowledge
-                      ? '候选标签'
-                      : '待定版本'}
-                </Tag>
-                {card.candidateTags?.primaryExamPoint ? (
-                  <Tag color="blue">
-                    考点候选：{card.candidateTags.primaryExamPoint.label}
-                  </Tag>
-                ) : null}
-                <Tag>
-                  {card.sources.types[0]
-                    ? teacherLabelFor(card.sources.types[0])
-                    : '来源待补'}
-                </Tag>
-                <Tag color={card.sources.permissions.length > 0 ? 'green' : 'orange'}>
-                  {card.sources.permissions[0]
-                    ? teacherLabelFor(card.sources.permissions[0])
-                    : '授权待确认'}
-                </Tag>
-                <Tag color={card.sources.sharingAllowed ? 'green' : 'gold'}>
-                  {card.sources.sharingAllowed ? '可校内共享' : '共享受限'}
-                </Tag>
-                {card.sources.containsStudentPii ? (
-                  <Tag color="red">含学生信息</Tag>
-                ) : (
-                  <Tag>无学生信息</Tag>
-                )}
-                {card.hasImage ? <Tag color="green">题图</Tag> : <Tag>无题图</Tag>}
-                {!card.hasImage && card.sources.screenshotCount > 0 ? (
-                  <Tag color="gold">有来源截图</Tag>
-                ) : null}
-                {card.hasFormula ? <Tag color="blue">公式</Tag> : null}
-                {card.hasTable ? <Tag color="cyan">表格</Tag> : null}
-                <Tag color="green">{teacherLabelFor(card.status)}</Tag>
-              </span>
-            </button>
-          ))}
+          {questionEvidenceSearch?.items.map((card) => {
+            const target = card.assessmentTargets.find((item) => item.isPrimaryTarget) ?? card.assessmentTargets[0]
+            const knowledge = target?.knowledge.find((item) => item.role === 'primary') ?? target?.knowledge[0]
+            const requirement = target?.requirements[0]
+            const observed = target?.observedDifficulty[0]
+            const profile = target?.profiles[0]
+            const mayAddToBasket = questionEvidenceMode === 'active' && card.productionEligible
+            return (
+              <article
+                className={selectedEvidenceQuestionId === card.questionId ? 'question-card active' : 'question-card'}
+                data-card="question-evidence-card"
+                data-evidence-mode={questionEvidenceMode}
+                key={card.questionId}
+              >
+                <div className="question-evidence-main">
+                  <div className="question-evidence-title">
+                    <strong>
+                      {card.questionNo ? `第 ${card.questionNo} 题 · ` : ''}
+                      {target?.targetStatement || '考查目标待确认'}
+                    </strong>
+                    <Space size="small" wrap>
+                      <Tag>{teacherLabelFor(card.questionType ?? 'pending_review')}</Tag>
+                      <Tag color={card.productionEligible ? 'green' : 'gold'}>
+                        {card.productionEligible ? '可用于正式题篮' : teacherLabelFor(target?.reviewStatus ?? card.status)}
+                      </Tag>
+                    </Space>
+                  </div>
+
+                  <div className="question-evidence-grid">
+                    <span>
+                      <small>课标要求</small>
+                      <b>{requirement?.displayName ?? '待补课标对齐'}</b>
+                      {requirement ? (
+                        <Tag color={requirement.originalBasis ? 'green' : 'gold'}>
+                          {requirement.originalBasis ? '原命题依据' : '后设对齐'}
+                        </Tag>
+                      ) : null}
+                    </span>
+                    <span>
+                      <small>考查目标</small>
+                      <b>{target?.abilityDimensions.join('、') || '能力待确认'}</b>
+                      <em>{knowledge?.displayName ?? '主知识待确认'}</em>
+                    </span>
+                    <span>
+                      <small>广州画像</small>
+                      <b>{profile?.displayName ?? '暂无匹配画像'}</b>
+                      <em>{profile?.trendStatus ? teacherLabelFor(profile.trendStatus) : '趋势待补'}</em>
+                    </span>
+                    <span>
+                      <small>难度</small>
+                      <b>实测：{observed ? observed.value.toFixed(2) : '暂无'}</b>
+                      <em>估计：{card.estimatedDifficulty === null ? '暂无' : card.estimatedDifficulty.toFixed(2)}</em>
+                    </span>
+                  </div>
+
+                  <Space size="small" wrap className="question-evidence-tags">
+                    {target?.cognitiveDemands.map((item) => <Tag key={`cognitive-${item}`}>{teacherLabelFor(item)}</Tag>)}
+                    {target?.contextType ? <Tag>{teacherLabelFor(target.contextType)}</Tag> : null}
+                    {target?.representationTypes.map((item) => <Tag key={`representation-${item}`}>{teacherLabelFor(item)}</Tag>)}
+                    <Button
+                      type="link"
+                      size="small"
+                      icon={<LinkOutlined />}
+                      onClick={() => onOpenQuestionSource(card, 'question')}
+                    >
+                      试卷原页
+                    </Button>
+                    <Button
+                      type="link"
+                      size="small"
+                      icon={<LinkOutlined />}
+                      onClick={() => onOpenQuestionSource(card, 'answer')}
+                    >
+                      答案原页
+                    </Button>
+                    {requirement?.curriculumSourceDocumentId && requirement.curriculumSourcePageNumber ? (
+                      <a
+                        href={`/source-documents/${encodeURIComponent(requirement.curriculumSourceDocumentId)}/pages/${requirement.curriculumSourcePageNumber}/screenshot`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <LinkOutlined /> 课标原页
+                      </a>
+                    ) : null}
+                    {observed?.sourceRegionId ? (
+                      <a
+                        href={`/source-regions/${encodeURIComponent(observed.sourceRegionId)}/page-screenshot`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <LinkOutlined /> 年报原页
+                      </a>
+                    ) : null}
+                  </Space>
+                </div>
+                <Button
+                  type="primary"
+                  icon={<ShoppingCartOutlined />}
+                  disabled={!mayAddToBasket}
+                  onClick={() => onSelectEvidenceQuestion(card)}
+                  data-action="add-evidence-question-to-basket"
+                >
+                  {mayAddToBasket ? '加入题篮' : '仅预览'}
+                </Button>
+              </article>
+            )
+          })}
         </div>
       </section>
 

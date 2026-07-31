@@ -211,9 +211,35 @@ def load_2015_candidates(conn: psycopg.Connection[Any]) -> tuple[dict[tuple[int,
     return result, ids
 
 
-def question_id(year: int, number: int, source_file: str, existing_2015: dict[int, uuid.UUID]) -> uuid.UUID:
-    if year == 2015:
-        return existing_2015[number]
+def load_existing_question_ids(conn: psycopg.Connection[Any]) -> dict[tuple[int, int], uuid.UUID]:
+    existing: dict[tuple[int, int], uuid.UUID] = {}
+    for row in rows(
+        conn,
+        """
+        select id, (custom_fields->>'year')::integer as year,
+               (custom_fields->>'questionNo')::integer as question_number
+        from question_items
+        where custom_fields->>'sourceWorkflowKey' = %s
+        order by year, question_number, id
+        """,
+        (WORKFLOW_KEY,),
+    ):
+        key = (int(row["year"]), int(row["question_number"]))
+        if key in existing:
+            raise ValueError(f"duplicate_existing_question_identity:{key[0]}:{key[1]}")
+        existing[key] = uuid.UUID(str(row["id"]))
+    return existing
+
+
+def question_id(
+    year: int,
+    number: int,
+    source_file: str,
+    existing_ids: dict[tuple[int, int], uuid.UUID],
+) -> uuid.UUID:
+    existing = existing_ids.get((year, number))
+    if existing is not None:
+        return existing
     return uuid.uuid5(uuid.NAMESPACE_URL, f"real005b:{year}:{number}:{source_file}")
 
 
@@ -286,6 +312,17 @@ def load_forced_ocr_page_texts(repo_root: Path, path: Path) -> list[str]:
     return texts
 
 
+def answer_minimum_page(
+    year: int,
+    plan: YearRegionPlan,
+    paper_doc: dict[str, Any],
+    answer_doc: dict[str, Any],
+) -> int:
+    if year != 2020 or answer_doc["file_asset_id"] != paper_doc["file_asset_id"]:
+        return 1
+    return plan.questions[max(plan.questions)][-1].page_number + 1
+
+
 def clear_materialized_children(conn: psycopg.Connection[Any], target_ids: list[uuid.UUID]) -> None:
     with conn.cursor() as cursor:
         cursor.execute(
@@ -294,7 +331,6 @@ def clear_materialized_children(conn: psycopg.Connection[Any], target_ids: list[
         )
         cursor.execute("delete from cut_candidates where suggested_question_item_id = any(%s)", (target_ids,))
         cursor.execute("delete from question_assets where question_item_id = any(%s)", (target_ids,))
-        cursor.execute("delete from question_blocks where question_item_id = any(%s)", (target_ids,))
 
 
 def ensure_answer_regions(
@@ -367,7 +403,24 @@ def upsert_question(
     answer_regions: list[uuid.UUID],
     answer_mode: str,
 ) -> None:
-    blocks = build_blocks(candidate, question_regions[0], answer_regions[0], qid)
+    materialized_blocks = rows(
+        conn,
+        """
+        select id, block_type, sort_order, content
+        from question_blocks
+        where question_item_id = %s
+          and block_type in ('subquestion','scoring_point')
+        order by block_type, sort_order, id
+        """,
+        (qid,),
+    )
+    blocks = build_blocks(
+        candidate,
+        question_regions[0],
+        answer_regions[0],
+        qid,
+        materialized_blocks=materialized_blocks,
+    )
     custom_fields = {
         "sourceWorkflowKey": WORKFLOW_KEY,
         "materialBatchKey": BATCH_KEY,
@@ -437,14 +490,50 @@ def upsert_question(
                 json.dumps(quality_signals, ensure_ascii=False),
             ),
         )
+        prepared_blocks: list[tuple[uuid.UUID, dict[str, Any]]] = []
         for block in blocks:
             question_block_id = block["content"].get("questionBlockId") or stable_id(
                 "question-block", qid, block["order"], block["type"]
             )
+            prepared_blocks.append((uuid.UUID(str(question_block_id)), block))
+
+        generated_block_ids = [question_block_id for question_block_id, _ in prepared_blocks]
+        referenced_stale_blocks = cursor.execute(
+            """
+            select qb.id
+            from question_blocks qb
+            where qb.question_item_id = %s
+              and not (qb.id = any(%s::uuid[]))
+              and exists (select 1 from assessment_targets at where at.question_block_id = qb.id)
+            order by qb.id
+            """,
+            (qid, generated_block_ids),
+        ).fetchall()
+        if referenced_stale_blocks:
+            raise ValueError(
+                "referenced_question_blocks_missing_from_refresh:"
+                + ",".join(str(row[0]) for row in referenced_stale_blocks)
+            )
+        cursor.execute(
+            """
+            delete from question_blocks
+            where question_item_id = %s
+              and not (id = any(%s::uuid[]))
+            """,
+            (qid, generated_block_ids),
+        )
+
+        for question_block_id, block in prepared_blocks:
             cursor.execute(
                 """
                 insert into question_blocks (id, question_item_id, block_type, sort_order, content, source_region_id, created_at)
                 values (%s, %s, %s, %s, %s::jsonb, %s, now())
+                on conflict (id) do update set
+                    question_item_id = excluded.question_item_id,
+                    block_type = excluded.block_type,
+                    sort_order = excluded.sort_order,
+                    content = excluded.content,
+                    source_region_id = excluded.source_region_id
                 """,
                 (
                     question_block_id,
@@ -587,11 +676,14 @@ def main() -> int:
         candidates = load_c003_candidates(csv_root)
         candidates_2015, existing_2015_ids = load_2015_candidates(conn)
         candidates.update(candidates_2015)
+        existing_question_ids = load_existing_question_ids(conn)
+        for number, candidate_id in existing_2015_ids.items():
+            existing_question_ids.setdefault((2015, number), candidate_id)
         validate_candidate_coverage(candidates)
         validate_candidate_content(candidates)
 
         target_ids = [
-            question_id(year, number, plans[year].source_file, existing_2015_ids)
+            question_id(year, number, plans[year].source_file, existing_question_ids)
             for year in YEARS
             for number in range(1, EXPECTED_COUNTS[year] + 1)
         ]
@@ -610,7 +702,8 @@ def main() -> int:
         extracted_answer_counts: dict[int, int] = {}
         for year in YEARS:
             answer_doc = sources[(year, "answer_or_solution")]
-            minimum_page = plans[year].questions[max(plans[year].questions)][-1].page_number + 1 if year == 2020 else 1
+            paper_doc = sources[(year, "local_exam_paper")]
+            minimum_page = answer_minimum_page(year, plans[year], paper_doc, answer_doc)
             page_texts, adapter = load_answer_page_texts(repo_root, file_root, answer_doc)
             sections = extract_numbered_answer_sections(page_texts, EXPECTED_COUNTS[year], minimum_page)
             extracted_count = 0
@@ -670,7 +763,7 @@ def main() -> int:
             modes: dict[str, int] = {}
             for number in range(1, EXPECTED_COUNTS[year] + 1):
                 candidate = candidates[(year, number)]
-                qid = question_id(year, number, plan.source_file, existing_2015_ids)
+                qid = question_id(year, number, plan.source_file, existing_question_ids)
                 question_regions = ensure_question_regions(conn, year, number, plan)
                 page_numbers = answer_page_map[year][number]
                 answer_regions = ensure_answer_regions(conn, year, answer_doc, page_numbers)

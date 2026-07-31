@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "cek015-assessment-target-migration.v1",
+  "status": "pass",
+  "checkedAt": "2026-07-29T03:59:30Z",
+  "taskId": "CEK-15",
+  "migrationId": "20260729035809_AddAssessmentTargetEvidenceModelForCEK015",
+  "backupManifest": "D:\\KQG_Backups\\20260729-000414\\manifest.json",
+  "backupVerified": true,
+  "build": {
+    "configuration": "Debug",
+    "errors": 0,
+    "knownWarning": "Microsoft.OpenApi 2.0.0 NU1903 GHSA-v5pm-xwqc-g5wc"
+  },
+  "idempotentSql": {
+    "path": "tmp/cek015/assessment-target-migration.sql",
+    "assessmentTargets": true,
+    "knowledgeMappings": true,
+    "curriculumAlignments": true,
+    "scopeConstraint": true,
+    "primaryKnowledgeUniqueIndex": true,
+    "alignmentTypeConstraint": true,
+    "productionGuard": true
+  },
+  "database": {
+    "migrationApplied": 1,
+    "assessmentTargetsBeforeImport": 0,
+    "knowledgeMappingsBeforeImport": 0,
+    "curriculumAlignmentsBeforeImport": 0,
+    "questionItemsV2": 234,
+    "activeDomainAssets": 452
+  },
+  "rollback": "Run migration Down before dependent candidate writes, or restore D:\\KQG_Backups\\20260729-000414\\manifest.json after preserving later evidence.",
+  "completionBoundary": "CEK-15 adds candidate-safe storage only; it does not approve or activate assessment targets, curriculum alignments, or knowledge mappings."
+}

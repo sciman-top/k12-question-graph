@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS203",
-  "checkedAt": "2026-07-28T01:41:00",
+  "checkedAt": "2026-07-31T20:15:12",
   "mode": "tracked_text_privacy_license_scan",
   "productionEligible": false,
   "scanScope": {
@@ -18,13 +18,13 @@
       "README.md",
       "ALL_IN_ONE_EXECUTIVE_SPEC.md"
     ],
-    "trackedFileCount": 1703,
+    "trackedFileCount": 1836,
     "policyPath": "docs/102_NonSiteFixturePrivacyPolicy.md",
     "fixturePolicyPath": "tests/golden-import/privacy_and_license.md",
     "rawIgnorePath": "sources/raw/.gitignore"
   },
   "counts": {
-    "secretLikeHits": 162,
+    "secretLikeHits": 166,
     "blockingSecretHits": 0,
     "piiValueHits": 0,
     "blockingPiiHits": 0,
@@ -32,7 +32,7 @@
     "blockingTrackedBinaryFiles": 0,
     "trackedRawSourceBlockers": 0,
     "localRawSourceFiles": 0,
-    "policyMentionCount": 818,
+    "policyMentionCount": 861,
     "copyrightRawPathMarkers": 0,
     "excludedGeneratedScanReports": 1
   },
@@ -369,7 +369,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/web/src/api/contracts.ts",
-        "line": 1080,
+        "line": 1452,
         "excerpt": "undoToken: readStringField(undo, 'undoToken') ?? '',",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -377,7 +377,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/web/src/api/contracts.ts",
-        "line": 1194,
+        "line": 1637,
         "excerpt": "maskedSecret: readStringField(value, 'maskedSecret') ?? '',",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -385,7 +385,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/web/src/api/contracts.ts",
-        "line": 1196,
+        "line": 1639,
         "excerpt": "maskedImageSecret: readStringField(value, 'maskedImageSecret') ?? '',",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -393,7 +393,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/web/src/api/contracts.ts",
-        "line": 1198,
+        "line": 1641,
         "excerpt": "imageUsesPrimarySecret: readBooleanField(value, 'imageUsesPrimarySecret'),",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -401,7 +401,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/web/src/api/contracts.ts",
-        "line": 1207,
+        "line": 1650,
         "excerpt": "maskedFallbackSecret: readStringField(value, 'maskedFallbackSecret') ?? '',",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -409,7 +409,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/web/src/api/contracts.ts",
-        "line": 1209,
+        "line": 1652,
         "excerpt": "maskedFallbackImageSecret: readStringField(value, 'maskedFallbackImageSecret') ?? '',",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -417,7 +417,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/web/src/api/contracts.ts",
-        "line": 1211,
+        "line": 1654,
         "excerpt": "fallbackImageUsesPrimarySecret: readBooleanField(value, 'fallbackImageUsesPrimarySecret'),",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -425,7 +425,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/web/src/api/contracts.ts",
-        "line": 1226,
+        "line": 1669,
         "excerpt": "maskedSecret: readStringField(value, 'maskedSecret') ?? '',",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -433,7 +433,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/web/src/api/contracts.ts",
-        "line": 1228,
+        "line": 1671,
         "excerpt": "maskedImageSecret: readStringField(value, 'maskedImageSecret') ?? '',",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -441,7 +441,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/web/src/api/contracts.ts",
-        "line": 1230,
+        "line": 1673,
         "excerpt": "imageUsesTextSecret: readBooleanField(value, 'imageUsesTextSecret'),",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -449,7 +449,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/web/src/api/contracts.ts",
-        "line": 1243,
+        "line": 1686,
         "excerpt": "maskedSecret: readStringField(value, 'maskedSecret') ?? '',",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -457,7 +457,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/web/src/api/contracts.ts",
-        "line": 1245,
+        "line": 1688,
         "excerpt": "maskedImageSecret: readStringField(value, 'maskedImageSecret') ?? '',",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -465,7 +465,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/web/src/api/contracts.ts",
-        "line": 1246,
+        "line": 1689,
         "excerpt": "imageUsesPrimarySecret: readBooleanField(value, 'imageUsesPrimarySecret'),",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -473,7 +473,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/web/src/api/contracts.ts",
-        "line": 1248,
+        "line": 1691,
         "excerpt": "maskedFallbackSecret: readStringField(value, 'maskedFallbackSecret') ?? '',",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -481,7 +481,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/web/src/api/contracts.ts",
-        "line": 1250,
+        "line": 1693,
         "excerpt": "maskedFallbackImageSecret: readStringField(value, 'maskedFallbackImageSecret') ?? '',",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -489,7 +489,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/web/src/api/contracts.ts",
-        "line": 1251,
+        "line": 1694,
         "excerpt": "fallbackImageUsesPrimarySecret: readBooleanField(value, 'fallbackImageUsesPrimarySecret'),",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -497,7 +497,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/web/src/App.tsx",
-        "line": 1129,
+        "line": 1135,
         "excerpt": "undoToken: result.data.undo.undoToken,",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -537,7 +537,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "tests/workers/test_guangzhou_v2_materialize.py",
-        "line": 20,
+        "line": 23,
         "excerpt": "without_password = reviewed_materialize.build_connection_kwargs(",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -545,7 +545,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "tests/workers/test_guangzhou_v2_materialize.py",
-        "line": 23,
+        "line": 26,
         "excerpt": "with_password = reviewed_materialize.build_connection_kwargs(",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -609,7 +609,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "tools/import-c002-source-materials.ps1",
-        "line": 20,
+        "line": 23,
         "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -617,7 +617,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "tools/real005b_reviewed_question_materialize.py",
-        "line": 567,
+        "line": 659,
         "excerpt": "password = os.environ.get(\"PGPASSWORD\", \"\")",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -679,7 +679,7 @@
         "reason": "placeholder/test contract value or header constant"
       }
     ],
-    "allowedCredentialLikeHitCount": 162,
+    "allowedCredentialLikeHitCount": 166,
     "allowedCredentialLikeHitSampleLimit": 80,
     "allowedTrackedBinaryFiles": [
       {
@@ -773,6 +773,10 @@
         "term": "授权"
       },
       {
+        "path": "apps/web/src/App.tsx",
+        "term": "containsStudentPii"
+      },
+      {
         "path": "apps/web/src/ui/AdminGovernancePanels.tsx",
         "term": "真实学生"
       },
@@ -785,16 +789,12 @@
         "term": "学号"
       },
       {
-        "path": "apps/web/src/ui/PaperWorkbenchPanels.tsx",
-        "term": "授权"
-      },
-      {
-        "path": "apps/web/src/ui/PaperWorkbenchPanels.tsx",
-        "term": "containsStudentPii"
-      },
-      {
         "path": "apps/web/src/ui/ScoreWorkbenchPanelContent.tsx",
         "term": "真实学生"
+      },
+      {
+        "path": "apps/web/src/ui/workbenchData.tsx",
+        "term": "realStudentDataUsed"
       },
       {
         "path": "configs/knowledge/source-material-manifest.example.json",

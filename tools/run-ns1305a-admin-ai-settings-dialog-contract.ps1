@@ -140,7 +140,8 @@ try {
 
     foreach ($viteMarker in @(
         "'/api/admin'",
-        "target: 'http://127.0.0.1:5275'"
+        'VITE_KQG_API_PROXY_TARGET',
+        "?? 'http://127.0.0.1:5275'"
     )) {
         Assert-Condition ($viteConfig.Contains($viteMarker)) "NS1305A vite proxy marker missing: $viteMarker"
     }

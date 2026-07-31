@@ -171,6 +171,54 @@ public sealed record ItemScoreMappingIssueResponse(
     }
 }
 
+public sealed record ScoreEvidenceAnalysisPreviewRequest(
+    bool ContainsStudentPii = false,
+    IReadOnlyList<ItemScoreMappingRequest>? Mappings = null);
+
+public sealed record ScoreEvidenceAnalysisPreviewResponse(
+    string Status,
+    string Mode,
+    bool ProductionEligible,
+    bool RealStudentDataUsed,
+    bool WritesProductionHistory,
+    Guid AssessmentId,
+    string AssessmentTitle,
+    IReadOnlyList<ScoreDerivedPerformanceItem> ScoreDerivedPerformance,
+    IReadOnlyList<ScoreEvidenceDimensionSummary> KnowledgeMastery,
+    IReadOnlyList<ScoreEvidenceDimensionSummary> AbilityPerformance,
+    IReadOnlyList<ScoreEvidenceDimensionSummary> CognitivePerformance,
+    IReadOnlyList<ScoreEvidenceObservedContext> ObservedContexts,
+    IReadOnlyList<ScoreEvidenceErrorAssociation> ErrorPatternAssociations,
+    IReadOnlyList<ScoreEvidenceTeachingRecommendation> TeachingRecommendations,
+    IReadOnlyList<ScoreEvidenceTeacherDiagnosis> TeacherConfirmedDiagnoses,
+    string DiagnosisStatus,
+    IReadOnlyList<ScoreEvidenceAnalysisIssue> BlockingIssues,
+    string TeacherMessage,
+    IReadOnlyList<string> AuditTrail)
+{
+    public static ScoreEvidenceAnalysisPreviewResponse From(ScoreEvidenceAnalysisServiceResult result) =>
+        new(
+            result.Status,
+            result.Mode,
+            result.ProductionEligible,
+            result.RealStudentDataUsed,
+            result.WritesProductionHistory,
+            result.AssessmentId,
+            result.AssessmentTitle,
+            result.ScoreDerivedPerformance,
+            result.KnowledgeMastery,
+            result.AbilityPerformance,
+            result.CognitivePerformance,
+            result.ObservedContexts,
+            result.ErrorPatternAssociations,
+            result.TeachingRecommendations,
+            result.TeacherConfirmedDiagnoses,
+            result.DiagnosisStatus,
+            result.BlockingIssues,
+            result.TeacherMessage,
+            result.AuditTrail);
+}
+
 public sealed record CommentaryReportExportRequest(
     string Format,
     bool AllowAiDraftText,

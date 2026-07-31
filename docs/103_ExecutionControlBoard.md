@@ -1,6 +1,6 @@
 # 103 · 执行总控板
 
-日期：2026-06-23。状态证据核对到 2026-06-23。
+日期：2026-07-31。状态证据核对到 2026-07-31。
 
 ## 1. 判断
 
@@ -35,6 +35,8 @@ AI 推荐：当前唯一主目标不是继续扩能力面，而是把 `P001 -> P
 | `REAL005` truthful boundary | 保持真卷闭环口径诚实，不让非现场或局部 smoke 提前改成“已闭环” | 只有逐年逐题 criteria 全部满足后才允许从 `not_closed` 改口径 | 题库/导入负责人 |
 | `P001` readiness | 把非现场闭环变成现场前置包，而不是聊天判断 | 只剩隔离机、现场教师、打印、权限域、真实网络阻断项 | 发布负责人 + 试点支持负责人 |
 | `P005/P006` 发布裁决 | 形成可签字的 go / no-go 卡，而不是只有 preflight | `P005` 反馈分流完成，`P006` 发布卡留痕，回滚和 tag candidate 策略明确 | 产品负责人 + 发布负责人 + 数据责任方代表 |
+
+2026-07-31 CEK 专题状态：CEK-01..35 本机 repo-side 已收口，fresh 授权版 CEK-34 suite 为 `status=pass/cek34Complete=true`，并通过完整 full gate、隔离 DB/FileStore 恢复、migration Down/Up 和供应链扫描。234 题证据链、课程/考点/知识/年报候选及教师审核、检索、组卷、分析入口已落盘；所有自动结果仍为 `candidate/pending_review/productionEligible=false`，production active 未切换。该状态不改变下表和发布卡的 `REAL005=not_closed`、P001/P003/P005/P006 未关闭与 release No-Go。
 
 2026-06-23 最新 repo-side 刷新结果：`full gate`、`reference-basis guard`、`live pilot closeout plan guard`、`live pilot closeout repo-side audit`、`NS905 status sync audit`、`PQR gate group` 和 `repo preflight -Mode Ci` 继续保持 `pass`。它们共同证明高风险任务参考基线、closeout 计划、completion dashboard、P/Q/R preflight 和 release No-Go 口径没有继续漂移；同时也明确 `release_ready_count = 0`，`REAL005 = not_closed`，`REAL005A/B/C/D 的 repo-side closeout 已完成`，`REAL005` 的 repo-side next open slice 已收口为 `none`，当前仅剩 `P001/P003/P005/P006` 没有被现场证据关闭。`live-pilot closeout plan guard` 与 `live-pilot closeout repo-side audit` 最新证据为 `docs/evidence/20260623-live-pilot-closeout-plan-guard.json` / `.md` 与 `docs/evidence/20260623-live-pilot-closeout-repo-side-audit.json` / `.md`；后者已记录 2026-06-23 完整 `full gate` 通过与 `tmp/full-gate-pqr/` 刷新产物。它们只能证明 closeout 计划、backlog、入口文档和 truth boundary 同步，不替代任何现场事实。
 

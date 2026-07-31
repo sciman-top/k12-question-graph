@@ -8,6 +8,8 @@
 
 2026-06-23 状态刷新补充：最新完整 `full gate` 已在 2026-06-23 通过；同日又刷新了 `live-pilot closeout plan guard`、`live-pilot closeout repo-side audit`、`REAL005` closure standard 以及相关 PQR 守卫。`REAL005A/B/C/D 的 repo-side closeout 已完成`，但 `REAL005` 仍保持 `not_closed`、`fullClosureAllowed = false`，`REAL005` 的 repo-side next open 已收口为 `none`，`P001/P003/P005/P006 = 待办`。因此路线图的最新真实边界仍不是“继续扩大功能面”，而是继续把高风险改动放在 `reference-basis` 与 truthful closeout 约束下推进。
 
+2026-07-31 状态刷新补充：CEK-01..35 课程标准与真题多层证据专题已完成本机 repo-side 收口，fresh 授权版 CEK-34 full gate 与隔离恢复/迁移/供应链验证通过。该专题建立了 234 题的课程要求、考查目标、知识映射、地区画像、年报观察、教师检索/审核/组卷/分析候选链，但全部自动结果仍为 `candidate/pending_review/productionEligible=false`，production active 未切换；路线图下一阻断仍是 `REAL005=not_closed` 与 P001/P003/P005/P006 外部验收/发布裁决。
+
 ## 总体判断
 
 AI 推荐保留当前 P0-P6 大方向，但调整顺序和验收口径：

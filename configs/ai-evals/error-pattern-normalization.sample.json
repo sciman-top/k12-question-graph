@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "error-pattern-normalization-eval.v1",
+  "mode": "draft_test",
+  "allowRealModelCalls": false,
+  "inputKinds": [
+    "verbatim_observation",
+    "summary_candidate"
+  ],
+  "outputKind": "normalized_pattern_candidate",
+  "requiredProvenance": [
+    "assessment_target_id",
+    "question_scope",
+    "source_document_id",
+    "pdf_page_number",
+    "text_block_sha256"
+  ],
+  "failClosedRules": [
+    "missing_page_anchor",
+    "unsupported_source_summary",
+    "cross_question_generalization",
+    "misconception_claim_without_multi_item_evidence"
+  ],
+  "governance": {
+    "status": "candidate",
+    "reviewStatus": "pending_review",
+    "productionEligible": false,
+    "databaseWrite": false,
+    "activeWrite": false
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "guangzhou-exam-source-role-map.v1",
+  "materialBatchKey": "guangzhou_physics_2015_2025_20260726_v2",
+  "questionWorkflowKey": "guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1",
+  "expectedYears": [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
+  "expectedQuestionCount": 234,
+  "expectedQuestionCountsByYear": {
+    "2015": 24,
+    "2016": 24,
+    "2017": 24,
+    "2018": 24,
+    "2019": 24,
+    "2020": 24,
+    "2021": 18,
+    "2022": 18,
+    "2023": 18,
+    "2024": 18,
+    "2025": 18
+  },
+  "roles": {
+    "paper": "local_exam_paper",
+    "answer": "answer_or_solution",
+    "report": "exam_analysis_report"
+  },
+  "joinAuthority": ["question_item_id", "question_block_id", "source_region_id", "source_document_id"],
+  "displayOnlyFields": ["source_title", "relative_path"],
+  "sharedFileRoleRequirements": [
+    { "year": 2020, "roles": ["paper", "answer"], "requireSameFileAssetId": true }
+  ]
+}

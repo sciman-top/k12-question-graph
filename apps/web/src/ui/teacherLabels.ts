@@ -17,6 +17,7 @@ const teacherText: Record<string, string> = {
   running: '处理中',
   failed: '失败',
   textbook: '教材',
+  unknown: '待确认',
   curriculum_standard: '课程标准',
   local_exam_paper: '当地真题',
   exam_analysis_report: '考情年报',

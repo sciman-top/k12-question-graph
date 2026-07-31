@@ -26,6 +26,7 @@ MULTI_QUESTION_HEADING_PATTERN = re.compile(r"\d{1,2}\s*[、,，]\s*\d{1,2}\s*�
 SECTION_BOUNDARY_PATTERN = re.compile(
     r"^\s*(?:第[一二三四五六七八九十]+部分|[一二三四五六七八九十]+[、.．]\s*(?:选择题|填空|作图|解析题|实验|探究题)|解析题应写出)"
 )
+PAGE_NUMBER_ONLY_PATTERN = re.compile(r"^\s*第\s*\d+\s*页\s*$")
 
 
 @dataclass(frozen=True)
@@ -186,6 +187,12 @@ def is_section_boundary_segment(text: str) -> bool:
     return bool(SECTION_BOUNDARY_PATTERN.search(text.replace("\n", " ")))
 
 
+def is_trailing_page_number_only(page: pdfplumber.page.Page) -> bool:
+    text = str(page.extract_text() or "")
+    has_visual_content = bool(page.images or page.rects or page.curves or page.lines)
+    return not has_visual_content and bool(PAGE_NUMBER_ONLY_PATTERN.fullmatch(text))
+
+
 def crop_percent(source: Path, target: Path, left: float, top: float, right: float, bottom: float) -> dict[str, Any]:
     with Image.open(source) as image:
         width, height = image.size
@@ -203,10 +210,32 @@ def crop_percent(source: Path, target: Path, left: float, top: float, right: flo
 
 
 def page_screenshot_index(screenshot_report: dict[str, Any], year: int) -> dict[int, str]:
-    year_row = next((row for row in screenshot_report["years"] if int(row["year"]) == year), None)
-    if year_row is None:
+    if "years" in screenshot_report:
+        year_row = next((row for row in screenshot_report["years"] if int(row["year"]) == year), None)
+        if year_row is None:
+            return {}
+        return {int(row["pageNumber"]): str(row["relativePath"]) for row in year_row["renderedPages"]}
+
+    document = next(
+        (
+            row
+            for row in screenshot_report.get("documents", [])
+            if int(row.get("year") or 0) == year and row.get("sourceType") == "local_exam_paper"
+        ),
+        None,
+    )
+    if document is None:
         return {}
-    return {int(row["pageNumber"]): str(row["relativePath"]) for row in year_row["renderedPages"]}
+    return {int(row["pageNumber"]): str(row["relativePath"]) for row in document.get("pages", [])}
+
+
+def source_page_report_matches_batch(screenshot_report: dict[str, Any], material_batch_key: str) -> bool:
+    if screenshot_report.get("status") != "pass":
+        return False
+    if screenshot_report.get("materialBatchKey") == material_batch_key:
+        return True
+    documents = screenshot_report.get("documents", [])
+    return bool(documents) and all(row.get("materialBatchKey") == material_batch_key for row in documents)
 
 
 def build_question_regions(
@@ -226,6 +255,12 @@ def build_question_regions(
         last_selected = selected.get(expected_count)
         following_sequence = following_question_sequence_start(anchors, last_selected) if last_selected else None
         question_end_page = following_sequence.page_number - 1 if following_sequence else len(pdf.pages)
+        if last_selected and not following_sequence:
+            while (
+                question_end_page > last_selected.page_number
+                and is_trailing_page_number_only(pdf.pages[question_end_page - 1])
+            ):
+                question_end_page -= 1
         if last_selected and question_end_page < last_selected.page_number:
             blockers.append("question_section_boundary_before_last_question")
             question_end_page = last_selected.page_number
@@ -379,7 +414,7 @@ def main() -> int:
     file_root = Path(args.file_root)
     counts = expected_counts(read_csv(repo_root / args.csv_root / "c003-question-item-full.csv"))
     screenshot_report = json.loads(Path(args.source_page_report).read_text(encoding="utf-8"))
-    if screenshot_report.get("materialBatchKey") != args.material_batch_key or screenshot_report.get("status") != "pass":
+    if not source_page_report_matches_batch(screenshot_report, args.material_batch_key):
         raise RuntimeError("source-page report must be a passing report for the requested material batch")
     connection = f"host={args.host} port={args.port} dbname={args.database} user={args.user} password={args.password}"
     sources = read_paper_sources(connection, args.material_batch_key)

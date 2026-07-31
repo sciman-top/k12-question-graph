@@ -1,0 +1,1371 @@
+{
+  "schemaVersion": "curriculum-exam-c002r-plan.v1",
+  "planId": "CEK024-CURRICULUM-EXAM-C002R-2026",
+  "mode": "dry_run",
+  "status": "candidate",
+  "reviewStatus": "pending_review",
+  "productionEligible": false,
+  "noActiveWrite": true,
+  "activeBaseline": {
+    "status": "active",
+    "activeImportKey": "c002_candidate_import_guangzhou_physics_2016_2025_v1",
+    "activeVersionLabel": "junior-physics-guangzhou-source-derived-v1",
+    "activeAssetCount": 452,
+    "fingerprint": "df81705c5627395864cff01bb3d2f2a2"
+  },
+  "sourceGroups": [
+    {
+      "taskId": "CEK-09",
+      "importKey": "cek009_curriculum_requirements_2022_2025_v1",
+      "candidateCount": 273,
+      "mappingCount": 94,
+      "status": "candidate"
+    },
+    {
+      "taskId": "CEK-20",
+      "importKey": null,
+      "candidateCount": 0,
+      "status": "blocked_no_persisted_candidates",
+      "requiresC002RImpactReport": true
+    },
+    {
+      "taskId": "CEK-23",
+      "importKey": "cek023_regional_exam_profile_candidate_v1",
+      "candidateCount": 24,
+      "status": "candidate"
+    }
+  ],
+  "candidateVersion": {
+    "revisionKey": "cek024_curriculum_exam_candidate_v1",
+    "status": "candidate",
+    "reviewStatus": "pending_review",
+    "productionEligible": false,
+    "basedOnActiveVersion": "junior-physics-guangzhou-source-derived-v1",
+    "basedOnActiveImportKey": "c002_candidate_import_guangzhou_physics_2016_2025_v1",
+    "assetCount": 297,
+    "noInPlaceActiveEdit": true,
+    "requiredEvidenceFields": [
+      "sourceEvidence",
+      "mappingEvidence",
+      "impactReport",
+      "reviewDecision",
+      "rollbackSnapshotKey"
+    ]
+  },
+  "mappingPlan": {
+    "planId": "CEK024-MAPPINGS",
+    "mappings": [
+      {
+        "mappingId": "02416ae1-7042-4948-b3bb-67c98f7b5a0b",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-2.1.3-F01",
+        "toStableId": "KPHY-C003-021",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "04f931f6-6dc6-48f7-bf68-7793affd26d7",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-1.3.1-F01",
+        "toStableId": "KPHY-C003-001",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "0ac77260-bc91-428c-b5ff-eb715807c438",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-1.1.3-F01",
+        "toStableId": "KPHY-CAND-006",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "1267bb3b-d69e-4772-b9d7-101576acd3a8",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.1.3-F02",
+        "toStableId": "KPHY-C003-050",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "1426597d-cb10-4193-a6aa-81724cd796ed",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.2.1-F03",
+        "toStableId": "KPHY-C003-054",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "18515d1d-017b-4cb9-9820-014e3a74aad4",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-2.4.2-F01",
+        "toStableId": "KPHY-C003-044",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "1b2b5a3c-1ac5-4d68-8672-6ff53041a726",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-1.1.1-F02",
+        "toStableId": "KPHY-CAND-001",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "1e08d895-f0fd-4830-9084-c1f3fb8a7279",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-4.1.7-F01",
+        "toStableId": "KPHY-C003-045",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "1ee140ae-60e3-4d92-8c2f-f36e1ff420e7",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.2.1-F03",
+        "toStableId": "KPHY-C003-050",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "1f3b8963-714a-4a22-b1b8-51d0c7d81d8f",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-2.3.4-F03",
+        "toStableId": "KPHY-C003-039",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "21718c31-3df5-4039-bf4f-3575f3d2ae58",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-2.1.3-F02",
+        "toStableId": "KPHY-C003-001",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "225a9d15-c2db-4515-a464-cf6b669e7a7e",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-2.2.7-F01",
+        "toStableId": "KPHY-C003-032",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "2ae43bee-2e7b-433b-9f0e-bfc467dff3d3",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-1.1.1-F02",
+        "toStableId": "KPHY-C003-001",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "2dab4311-98c1-49a7-94be-3999ff8c4577",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-2.2.6-F01",
+        "toStableId": "KPHY-C003-031",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "2dc91e84-c614-4305-967a-4630f8de2de7",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-1.1.3-F01",
+        "toStableId": "KPHY-C003-080",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "31e7bd58-e00d-47ef-ab3c-a8adaf86836f",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-2.2.9-F04",
+        "toStableId": "KPHY-C003-034",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "34b0ff38-b927-4996-aecb-25e40621b834",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-2.4.2-F01",
+        "toStableId": "KPHY-C003-045",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "3d956551-0fda-4690-989a-488dec7b86a7",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-2.2.9-F01",
+        "toStableId": "KPHY-C003-034",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "4072d940-018c-4fae-bd4d-c67409523885",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-2.1.1-F01",
+        "toStableId": "KPHY-CAND-009",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "4382dcd2-62d1-45a8-826c-ae2d74d3572d",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.5.3-F01",
+        "toStableId": "KPHY-C003-050",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "450a7042-3187-436e-8c7c-e5818118b142",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.5.2-F01",
+        "toStableId": "KPHY-C003-057",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "49aee134-0a66-4310-b16b-f23926e47f23",
+        "mappingType": "equivalent",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.4.5-F01",
+        "toStableId": "KPHY-C003-067",
+        "confidence": 0.94,
+        "impactLevel": "low",
+        "requiresHumanReview": false,
+        "requiresReviewReason": false,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "4ca2a4b9-4529-4383-ac54-2cce88e60063",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-4.1.8-F01",
+        "toStableId": "KPHY-C003-064",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "4dc00b73-92cb-4658-8e1e-5348fc4a9bd4",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-1.2.3-F01",
+        "toStableId": "KPHY-C003-015",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "4ea0f079-6e0b-4c2f-ac05-ea7b5bc6ee58",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.5.1-F03",
+        "toStableId": "KPHY-CAND-003",
+        "confidence": 0.78,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "50bcdac8-4743-4433-9c28-d812dd3ed70c",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.5.1-F02",
+        "toStableId": "KPHY-C003-050",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "56c92d36-d85f-46d7-8874-a0f650f0fe79",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.5.1-F01",
+        "toStableId": "KPHY-C003-050",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "5dd1cba7-e05d-42e6-b494-451c187e62bf",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-1.2.3-F01",
+        "toStableId": "KPHY-CAND-007",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "5f84043c-f404-46cc-b0ab-0f9a64a31a39",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-1.1.4-F01",
+        "toStableId": "KPHY-CAND-006",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "5fd420d1-67e4-45b5-aa72-8c813c64a3d2",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.5.1-F03",
+        "toStableId": "KPHY-C003-050",
+        "confidence": 0.78,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "6337c001-8268-4e5c-ac3d-1d2fb2f6b916",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.1.3-F01",
+        "toStableId": "KPHY-C003-053",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "67bd5f60-4c41-4c32-af44-958aa38c0522",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.1.1-F02",
+        "toStableId": "KPHY-C003-050",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "73f93f00-6d16-4ad0-91c0-4ce8aa3ab75d",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-1.3.1-F01",
+        "toStableId": "KPHY-CAND-001",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "7d2c7f0d-fd89-4565-b85b-04bcef3323a9",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.4.6-F01",
+        "toStableId": "KPHY-C003-068",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "7e9f581c-c4b2-4ad2-860d-799bc0af74b6",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.2.2-F01",
+        "toStableId": "KPHY-C003-056",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "7fab5627-3dc3-4905-bedb-576840ecc565",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-1.2.1-F01",
+        "toStableId": "KPHY-CAND-001",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "7fd8b39e-98a7-4fc6-a0b7-417a1a24e388",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.5.2-F01",
+        "toStableId": "KPHY-C003-061",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "80a471cc-a9de-44bd-af72-99328157a9a2",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.1.2-F01",
+        "toStableId": "KPHY-C003-050",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "81b23706-d26c-4b7a-b5f5-eab0e0ea8c39",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-1.2.1-F01",
+        "toStableId": "KPHY-C003-010",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "830a542e-6464-470b-838e-036ae299ba6e",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-1.1.3-F03",
+        "toStableId": "KPHY-CAND-006",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "841eb3ab-a84b-4e2a-9a11-98c670b10fac",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.4.2-F03",
+        "toStableId": "KPHY-C003-066",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "84eed92b-254c-4915-8e3f-dbc8b3dddbf6",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-1.2.1-F02",
+        "toStableId": "KPHY-CAND-001",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "858901a0-bd45-4941-901e-7199c5602ef4",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-4.1.3-F01",
+        "toStableId": "KPHY-C003-004",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "8764429f-5edc-4f42-8a96-05aa331ae8a1",
+        "mappingType": "equivalent",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.2.3-F01",
+        "toStableId": "KPHY-C003-057",
+        "confidence": 0.95,
+        "impactLevel": "low",
+        "requiresHumanReview": false,
+        "requiresReviewReason": false,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "890e7824-9e06-4163-b5bd-782ef9158286",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.1.1-F02",
+        "toStableId": "KPHY-CAND-003",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "89708832-db05-4b9b-8056-56a8bbbcb0cf",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-1.1.3-F02",
+        "toStableId": "KPHY-C003-001",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "8aaaa8f1-4a11-44a3-bce0-13f1b31980c9",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-2.2.7-F01",
+        "toStableId": "KPHY-CAND-011",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "8d36b333-e7c5-4115-b0a0-d718999235bc",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-2.4.6-F01",
+        "toStableId": "KPHY-C003-049",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "8e98b27c-0930-4226-8903-151621a96dbb",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-1.1.3-F02",
+        "toStableId": "KPHY-CAND-001",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "8f55a987-b2eb-4392-ad21-2131a0f52b53",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-4.1.4-F02",
+        "toStableId": "KPHY-C003-025",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "97ca01b3-28bb-44ce-bce8-58b945caf54b",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-1.2.1-F01",
+        "toStableId": "KPHY-C003-001",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "9ad64904-cea3-4a30-a4b3-549051719c0c",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-2.1.2-F02",
+        "toStableId": "KPHY-C003-023",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "9e99b9d3-0650-4174-848b-0826e7b3da03",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-4.1.7-F01",
+        "toStableId": "KPHY-C003-064",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "a0148b80-1972-4288-8522-beadf6526b58",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-4.2.7-F01",
+        "toStableId": "KPHY-C003-039",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "a1d0b62a-90c3-499d-bb53-a5b34af61185",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-2.2.9-F01",
+        "toStableId": "KPHY-CAND-011",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "a2c9d6bd-51d2-4711-a881-887558626066",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-2.1.1-F01",
+        "toStableId": "KPHY-C003-022",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "a525e4cb-f6f7-4268-804e-fe3a7f102bcc",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-2.2.7-F01",
+        "toStableId": "KPHY-C003-033",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "a9cd34de-e2ea-4217-96f3-3e020da6d211",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-1.2.1-F01",
+        "toStableId": "KPHY-C003-013",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "ab44fa8e-46c6-41aa-9bbf-fa14aee67f11",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-2.3.4-F02",
+        "toStableId": "KPHY-C003-039",
+        "confidence": 0.82,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "adb93722-04ac-449d-9e8c-18899a508b30",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.5.2-F01",
+        "toStableId": "KPHY-C003-070",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "ae8ad4e2-159a-4b9a-804c-067b79496d9d",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.3.2-F01",
+        "toStableId": "KPHY-C003-060",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "b37e3bdd-8b4c-48f7-96b1-31e002c4c8ed",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.3.1-F01",
+        "toStableId": "KPHY-C003-058",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "b405b143-fa75-4020-9881-690f3ac1e328",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-2.2.6-F01",
+        "toStableId": "KPHY-CAND-015",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "b50391e1-9d97-49a6-9f67-5484afae7fbe",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.2.1-F03",
+        "toStableId": "KPHY-CAND-003",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "b508575d-41ea-4bb8-98b1-8d33700959d2",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.5.3-F01",
+        "toStableId": "KPHY-CAND-003",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "b92dd4fa-b778-414a-950f-34b97a87123a",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-2.1.1-F01",
+        "toStableId": "KPHY-C003-024",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "b97473f3-bedc-4419-bd57-3cb7d7e7a145",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.2.1-F01",
+        "toStableId": "KPHY-C003-054",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "be6a11c3-5a66-42f6-9cd6-be300cf51323",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-1.1.3-F01",
+        "toStableId": "KPHY-CAND-004",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "c2e6f235-c893-427b-92d3-47e610e0dd50",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.2.3-F02",
+        "toStableId": "KPHY-C003-057",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "c479d5dd-02aa-4489-877d-0affaa056dc6",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.1.1-F01",
+        "toStableId": "KPHY-C003-050",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "c6eb20b1-89df-47f3-a810-ebdee1090f32",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.4.2-F03",
+        "toStableId": "KPHY-CAND-017",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "c86df51f-5b7c-432f-9376-86ddb7d2eaa3",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.5.1-F01",
+        "toStableId": "KPHY-CAND-003",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "c8f0762b-3b4e-4fb3-a8f4-16772a7f504a",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-1.2.1-F02",
+        "toStableId": "KPHY-C003-001",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "d2621774-418e-4508-a06a-1ccd70fce0d7",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-1.2.4-F01",
+        "toStableId": "KPHY-CAND-001",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "d321d6a3-1389-4062-8656-7f08e5852419",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-2.4.1-F02",
+        "toStableId": "KPHY-C003-043",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "d5186e0d-6e4f-46b2-bef9-b2ac921eaeeb",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-1.2.4-F01",
+        "toStableId": "KPHY-C003-001",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "da038a86-3ef2-4a14-b8ef-e59a4f698a05",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.5.1-F02",
+        "toStableId": "KPHY-CAND-003",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "dab45e1f-09e1-45bb-acfd-7abf6384bc62",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-2.2.5-F01",
+        "toStableId": "KPHY-C003-030",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "e3e7f3bc-a7c6-45c3-a743-a31935c27792",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.2.2-F02",
+        "toStableId": "KPHY-C003-056",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "e498be92-6e3d-4907-9e0f-535a6676b0b9",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-4.1.4-F01",
+        "toStableId": "KPHY-C003-025",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "e6dc7381-4008-443a-861e-f90909df3292",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.4.5-F02",
+        "toStableId": "KPHY-C003-056",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "e6de0c83-02f2-439b-9695-c6ac49b24a61",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.1.3-F02",
+        "toStableId": "KPHY-CAND-003",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "e8bc9515-7c6b-4851-a887-c6bea31b5dea",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-2.1.3-F02",
+        "toStableId": "KPHY-CAND-001",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "e9be6017-a727-484d-bbaf-df81d4c0af11",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.3.3-F02",
+        "toStableId": "KPHY-C003-058",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "ec81878c-d38d-446d-a29a-e59714da3121",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.1.2-F01",
+        "toStableId": "KPHY-CAND-003",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "f222382a-ed49-4467-ac2e-89407b1017aa",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-1.3.4-F01",
+        "toStableId": "KPHY-CAND-001",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "f3c43576-3079-493a-9a98-bb0433f317a1",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-2.4.2-F02",
+        "toStableId": "KPHY-C003-044",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "f51e0cfb-87ea-4dcf-8670-4702cea90ca1",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-4.1.9-F01",
+        "toStableId": "KPHY-C003-064",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "f66149f3-7b52-4562-b16c-026d2999f906",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-1.3.4-F01",
+        "toStableId": "KPHY-C003-001",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "f7a77685-380f-4195-b357-e4aeb582d061",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-2.2.3-F02",
+        "toStableId": "KPHY-C003-028",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "f7d6f48e-eddf-466d-8c46-3891f43cede6",
+        "mappingType": "narrower",
+        "fromStableId": "CR-PHY-JM-2022R2025-2.4.2-F01",
+        "toStableId": "KPHY-C003-047",
+        "confidence": 0.84,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "f9289a1a-fb3e-4333-a106-fe2edc3b6554",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.1.1-F01",
+        "toStableId": "KPHY-CAND-003",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "f9982f8b-a211-4852-a9be-17f1fbe3b29a",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-2.3.4-F01",
+        "toStableId": "KPHY-C003-039",
+        "confidence": 0.82,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      },
+      {
+        "mappingId": "fad6c133-feee-435d-baaf-f2165fc74915",
+        "mappingType": "broader",
+        "fromStableId": "CR-PHY-JM-2022R2025-3.4.5-F01",
+        "toStableId": "KPHY-C003-056",
+        "confidence": 0.88,
+        "impactLevel": "high",
+        "requiresHumanReview": true,
+        "requiresReviewReason": true,
+        "noDirectActiveApply": true
+      }
+    ]
+  },
+  "profilePlan": {
+    "profiles": [
+      {
+        "stableId": "EPHY-GUANGZHOU-074E4C66013F8AE6",
+        "regimeType": "transition",
+        "trendStatus": "insufficient_evidence"
+      },
+      {
+        "stableId": "EPHY-GUANGZHOU-0859F2D54499587E",
+        "regimeType": "single_standard",
+        "trendStatus": "insufficient_evidence"
+      },
+      {
+        "stableId": "EPHY-GUANGZHOU-1DAADB297B951495",
+        "regimeType": "single_standard",
+        "trendStatus": "insufficient_evidence"
+      },
+      {
+        "stableId": "EPHY-GUANGZHOU-1ED19FDEF8FB0FE8",
+        "regimeType": "single_standard",
+        "trendStatus": "stable"
+      },
+      {
+        "stableId": "EPHY-GUANGZHOU-20AF1BE32DA5591D",
+        "regimeType": "transition",
+        "trendStatus": "insufficient_evidence"
+      },
+      {
+        "stableId": "EPHY-GUANGZHOU-275214EA12ACA5E2",
+        "regimeType": "single_standard",
+        "trendStatus": "stable"
+      },
+      {
+        "stableId": "EPHY-GUANGZHOU-2B2005584CB7B3B3",
+        "regimeType": "single_standard",
+        "trendStatus": "insufficient_evidence"
+      },
+      {
+        "stableId": "EPHY-GUANGZHOU-324A918EE447AB18",
+        "regimeType": "transition",
+        "trendStatus": "insufficient_evidence"
+      },
+      {
+        "stableId": "EPHY-GUANGZHOU-3B50FC8B74797E17",
+        "regimeType": "transition",
+        "trendStatus": "insufficient_evidence"
+      },
+      {
+        "stableId": "EPHY-GUANGZHOU-43F25F33F35C1653",
+        "regimeType": "transition",
+        "trendStatus": "insufficient_evidence"
+      },
+      {
+        "stableId": "EPHY-GUANGZHOU-636CEB8CD5D9FA5B",
+        "regimeType": "transition",
+        "trendStatus": "insufficient_evidence"
+      },
+      {
+        "stableId": "EPHY-GUANGZHOU-699E04FE962A6848",
+        "regimeType": "transition",
+        "trendStatus": "insufficient_evidence"
+      },
+      {
+        "stableId": "EPHY-GUANGZHOU-6CEC894854C3561B",
+        "regimeType": "single_standard",
+        "trendStatus": "insufficient_evidence"
+      },
+      {
+        "stableId": "EPHY-GUANGZHOU-7156D2975CC92C18",
+        "regimeType": "single_standard",
+        "trendStatus": "insufficient_evidence"
+      },
+      {
+        "stableId": "EPHY-GUANGZHOU-74EFA78CB096FA28",
+        "regimeType": "transition",
+        "trendStatus": "insufficient_evidence"
+      },
+      {
+        "stableId": "EPHY-GUANGZHOU-7E1C269B33600800",
+        "regimeType": "transition",
+        "trendStatus": "insufficient_evidence"
+      },
+      {
+        "stableId": "EPHY-GUANGZHOU-8324EB9C92DBAC60",
+        "regimeType": "transition",
+        "trendStatus": "insufficient_evidence"
+      },
+      {
+        "stableId": "EPHY-GUANGZHOU-8D48E4F3953DAE17",
+        "regimeType": "single_standard",
+        "trendStatus": "insufficient_evidence"
+      },
+      {
+        "stableId": "EPHY-GUANGZHOU-A095FF9FD6819498",
+        "regimeType": "transition",
+        "trendStatus": "insufficient_evidence"
+      },
+      {
+        "stableId": "EPHY-GUANGZHOU-BD155BD9B09C8439",
+        "regimeType": "transition",
+        "trendStatus": "insufficient_evidence"
+      },
+      {
+        "stableId": "EPHY-GUANGZHOU-C6227008A2AAA2AD",
+        "regimeType": "single_standard",
+        "trendStatus": "rising"
+      },
+      {
+        "stableId": "EPHY-GUANGZHOU-CC97E041796BB22A",
+        "regimeType": "transition",
+        "trendStatus": "insufficient_evidence"
+      },
+      {
+        "stableId": "EPHY-GUANGZHOU-D8D9B81B9B3B2D33",
+        "regimeType": "single_standard",
+        "trendStatus": "insufficient_evidence"
+      },
+      {
+        "stableId": "EPHY-GUANGZHOU-E1C02849A8AD419B",
+        "regimeType": "transition",
+        "trendStatus": "insufficient_evidence"
+      }
+    ],
+    "crossRegimeProfiles": 14,
+    "allRequireHumanReview": true
+  },
+  "errorPatternPlan": {
+    "status": "blocked_no_persisted_candidates",
+    "candidateCount": 0,
+    "promotionContractPassed": true,
+    "autoApplyAllowed": false
+  },
+  "reviewGroups": [
+    {
+      "groupId": "complex_mappings",
+      "status": "pending_review",
+      "itemCount": 92,
+      "reason": "split_merge_or_non_equivalent_mapping"
+    },
+    {
+      "groupId": "low_confidence_mappings",
+      "status": "pending_review",
+      "itemCount": 40,
+      "reason": "confidence_below_0.85"
+    },
+    {
+      "groupId": "regional_profiles",
+      "status": "pending_review",
+      "itemCount": 24,
+      "crossRegimeItemCount": 14,
+      "reason": "teacher_review_required_for_regional_profile"
+    },
+    {
+      "groupId": "error_patterns",
+      "status": "blocked_no_persisted_candidates",
+      "itemCount": 0,
+      "reason": "CEK-20 contract has no persisted candidates"
+    },
+    {
+      "groupId": "high_impact_consumers",
+      "status": "pending_review",
+      "itemCount": 5,
+      "reason": "historical_or_user_workflow_impact"
+    }
+  ],
+  "impactReport": {
+    "reportId": "CEK024-IMPACT",
+    "impacts": [
+      {
+        "impactType": "question_binding",
+        "affectedCount": 234,
+        "action": "update_after_review",
+        "requiresHumanReview": true,
+        "requiresRollbackSnapshot": true,
+        "rollbackKey": "cek024:question_binding:df81705c5627"
+      },
+      {
+        "impactType": "paper_blueprint",
+        "affectedCount": 503,
+        "action": "preserve_version_binding",
+        "requiresHumanReview": true,
+        "requiresRollbackSnapshot": true,
+        "rollbackKey": "cek024:paper_blueprint:df81705c5627"
+      },
+      {
+        "impactType": "search_index",
+        "affectedCount": 452,
+        "action": "rebuild_derived_index",
+        "requiresHumanReview": false,
+        "requiresRollbackSnapshot": true,
+        "rollbackKey": "cek024:search_index:df81705c5627"
+      },
+      {
+        "impactType": "analysis_metric",
+        "affectedCount": 1405,
+        "action": "freeze_historical_snapshot",
+        "requiresHumanReview": true,
+        "requiresRollbackSnapshot": true,
+        "rollbackKey": "cek024:analysis_metric:df81705c5627"
+      },
+      {
+        "impactType": "export_template",
+        "affectedCount": 1354,
+        "action": "preserve_version_binding",
+        "requiresHumanReview": true,
+        "requiresRollbackSnapshot": true,
+        "rollbackKey": "cek024:export_template:df81705c5627"
+      },
+      {
+        "impactType": "score_import_template",
+        "affectedCount": 1437,
+        "action": "hold_for_review",
+        "requiresHumanReview": true,
+        "requiresRollbackSnapshot": true,
+        "rollbackKey": "cek024:score_import_template:df81705c5627"
+      }
+    ]
+  },
+  "historicalReferencePolicy": {
+    "silentRewriteAllowed": false,
+    "questionListAction": "preserve_version_binding",
+    "analysisAction": "freeze_historical_snapshot",
+    "exportAction": "preserve_version_binding"
+  },
+  "reviewWorkflow": {
+    "initialStatus": "pending_review",
+    "requiresReviewReason": true,
+    "requiresRollbackSnapshotBeforeApproval": true,
+    "activeSwitchRole": "administrator",
+    "teacherCanApplyActive": false
+  },
+  "rollbackRequirements": [
+    {
+      "impactType": "question_binding",
+      "rollbackKey": "cek024:question_binding:df81705c5627",
+      "snapshotRequired": true
+    },
+    {
+      "impactType": "paper_blueprint",
+      "rollbackKey": "cek024:paper_blueprint:df81705c5627",
+      "snapshotRequired": true
+    },
+    {
+      "impactType": "search_index",
+      "rollbackKey": "cek024:search_index:df81705c5627",
+      "snapshotRequired": true
+    },
+    {
+      "impactType": "analysis_metric",
+      "rollbackKey": "cek024:analysis_metric:df81705c5627",
+      "snapshotRequired": true
+    },
+    {
+      "impactType": "export_template",
+      "rollbackKey": "cek024:export_template:df81705c5627",
+      "snapshotRequired": true
+    },
+    {
+      "impactType": "score_import_template",
+      "rollbackKey": "cek024:score_import_template:df81705c5627",
+      "snapshotRequired": true
+    }
+  ],
+  "rollbackDrill": {
+    "requiredSteps": [
+      "restore_active_version",
+      "restore_mapping_edges",
+      "restore_impact_targets",
+      "verify_historical_analysis"
+    ],
+    "verifyAfterRollback": true
+  },
+  "inputEvidence": {
+    "cek20Status": "pass",
+    "cek23Status": "pass",
+    "questionFingerprint": "52612be423d7c0a9c44608590447501e"
+  }
+}

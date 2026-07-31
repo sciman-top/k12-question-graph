@@ -1,0 +1,114 @@
+{
+  "schema_version": "observed-exam-evidence-package.v1",
+  "mode": "draft_test",
+  "observed_performance": [
+    {
+      "schema_version": "observed-performance-evidence.v1",
+      "evidence_id": "00000000-0000-4000-8000-000000000171",
+      "assessment_target_id": "00000000-0000-4000-8000-000000000161",
+      "question_scope": {
+        "scope_key": "question-scope:v1:sample:1",
+        "scope_type": "whole_question",
+        "question_item_id": "00000000-0000-4000-8000-000000000151",
+        "question_block_id": null
+      },
+      "maximum_score": null,
+      "average_score": null,
+      "score_rate": null,
+      "difficulty_observed": {
+        "raw_value": "0.72",
+        "parsed_value": 0.72,
+        "unit": "ratio",
+        "scale_direction": "higher_is_easier",
+        "sample_scope": "report-defined examination cohort",
+        "sample_size": null,
+        "anchor": {
+          "source_document_id": "00000000-0000-4000-8000-000000000121",
+          "source_region_id": "00000000-0000-4000-8000-000000000131",
+          "source_document_version": "sha256:aaaaaaaaaaaa",
+          "source_document_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "pdf_page_number": 1,
+          "printed_page_number": null,
+          "section_path": ["试题分析", "第1题"],
+          "official_item_code": "QPHY-SAMPLE-01",
+          "text_block_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "evidence_role": "performance_statistic_source"
+        }
+      },
+      "discrimination": null,
+      "option_distribution": null,
+      "status": "candidate",
+      "review_status": "pending_review",
+      "production_eligible": false
+    }
+  ],
+  "observed_errors": [
+    {
+      "schema_version": "observed-error-evidence.v1",
+      "evidence_id": "00000000-0000-4000-8000-000000000172",
+      "assessment_target_id": "00000000-0000-4000-8000-000000000161",
+      "question_scope": {
+        "scope_key": "question-scope:v1:sample:1",
+        "scope_type": "whole_question",
+        "question_item_id": "00000000-0000-4000-8000-000000000151",
+        "question_block_id": null
+      },
+      "record_kind": "verbatim_observation",
+      "content": "年报原文错误表现占位样例",
+      "generation_method": "source_quote",
+      "confidence": 1.0,
+      "anchor": {
+        "source_document_id": "00000000-0000-4000-8000-000000000121",
+        "source_region_id": "00000000-0000-4000-8000-000000000132",
+        "source_document_version": "sha256:bbbbbbbbbbbb",
+        "source_document_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "pdf_page_number": 1,
+        "printed_page_number": null,
+        "section_path": ["试题分析", "第1题"],
+        "official_item_code": "QPHY-SAMPLE-01",
+        "text_block_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "evidence_role": "error_observation_source"
+      },
+      "status": "candidate",
+      "review_status": "pending_review",
+      "production_eligible": false
+    }
+  ],
+  "teaching_recommendations": [
+    {
+      "schema_version": "teaching-recommendation.v1",
+      "recommendation_id": "00000000-0000-4000-8000-000000000173",
+      "assessment_target_id": "00000000-0000-4000-8000-000000000161",
+      "question_scope": {
+        "scope_key": "question-scope:v1:sample:1",
+        "scope_type": "whole_question",
+        "question_item_id": "00000000-0000-4000-8000-000000000151",
+        "question_block_id": null
+      },
+      "content": "年报原文教学建议占位样例",
+      "author_kind": "report_author",
+      "generation_method": "source_quote",
+      "confidence": 1.0,
+      "anchor": {
+        "source_document_id": "00000000-0000-4000-8000-000000000121",
+        "source_region_id": "00000000-0000-4000-8000-000000000133",
+        "source_document_version": "sha256:cccccccccccc",
+        "source_document_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "pdf_page_number": 1,
+        "printed_page_number": null,
+        "section_path": ["试题分析", "第1题"],
+        "official_item_code": "QPHY-SAMPLE-01",
+        "text_block_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "evidence_role": "teaching_recommendation_source"
+      },
+      "status": "candidate",
+      "review_status": "pending_review",
+      "production_eligible": false
+    }
+  ],
+  "governance": {
+    "database_write": false,
+    "active_write": false,
+    "external_model_calls": 0
+  }
+}

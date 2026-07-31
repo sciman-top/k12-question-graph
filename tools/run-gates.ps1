@@ -998,6 +998,21 @@ try {
     }
 
     Invoke-GateStep 'o007 ef migration bundle and upgrade drill contract' {
+        # A host startup path can restore the default API during this long gate.
+        # Recheck immediately before O007's second Release build to avoid DLL locks.
+        $lateRepoApiProcesses = @(Get-RepoApiProcesses)
+        foreach ($repoProcess in $lateRepoApiProcesses) {
+            Stop-Process -Id $repoProcess.ProcessId -Force -ErrorAction SilentlyContinue
+        }
+        if ($lateRepoApiProcesses.Count -gt 0) {
+            Start-Sleep -Milliseconds 500
+            foreach ($repoProcess in $lateRepoApiProcesses) {
+                if ($null -ne (Get-Process -Id $repoProcess.ProcessId -ErrorAction SilentlyContinue)) {
+                    throw "failed to pause late repo-local API process $($repoProcess.ProcessId) before O007"
+                }
+            }
+            $script:resumeDefaultLocalApi = $true
+        }
         .\tools\run-o007-ef-migration-bundle-upgrade-contract.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin | Write-Host
     }
 

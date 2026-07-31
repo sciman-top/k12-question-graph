@@ -381,6 +381,217 @@ namespace K12QuestionGraph.Api.Data.Migrations
                         });
                 });
 
+            modelBuilder.Entity("K12QuestionGraph.Api.Domain.AssessmentTarget", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<string>("BatchKey")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("batch_key");
+
+                    b.Property<decimal>("Confidence")
+                        .HasColumnType("numeric")
+                        .HasColumnName("confidence");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<bool>("IsPrimaryTarget")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_primary_target");
+
+                    b.Property<string>("Metadata")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("metadata")
+                        .HasDefaultValueSql("'{}'::jsonb");
+
+                    b.Property<bool>("ProductionEligible")
+                        .HasColumnType("boolean")
+                        .HasColumnName("production_eligible");
+
+                    b.Property<Guid?>("QuestionBlockId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("question_block_id");
+
+                    b.Property<Guid>("QuestionItemId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("question_item_id");
+
+                    b.Property<string>("ReviewStatus")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasDefaultValue("pending_review")
+                        .HasColumnName("review_status");
+
+                    b.Property<string>("ScopeType")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasDefaultValue("whole_question")
+                        .HasColumnName("scope_type");
+
+                    b.Property<string>("StableKey")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("stable_key");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasDefaultValue("candidate")
+                        .HasColumnName("status");
+
+                    b.Property<string>("TargetStatement")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)")
+                        .HasColumnName("target_statement");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_assessment_targets");
+
+                    b.HasIndex("BatchKey")
+                        .HasDatabaseName("ix_assessment_targets_batch_key");
+
+                    b.HasIndex("QuestionBlockId")
+                        .HasDatabaseName("ix_assessment_targets_question_block_id");
+
+                    b.HasIndex("ReviewStatus")
+                        .HasDatabaseName("ix_assessment_targets_review_status");
+
+                    b.HasIndex("StableKey")
+                        .IsUnique()
+                        .HasDatabaseName("ix_assessment_targets_stable_key");
+
+                    b.HasIndex("QuestionItemId", "ScopeType")
+                        .HasDatabaseName("ix_assessment_targets_question_item_id_scope_type");
+
+                    b.ToTable("assessment_targets", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_assessment_targets_confidence", "confidence >= 0 and confidence <= 1");
+
+                            t.HasCheckConstraint("ck_assessment_targets_production_guard", "production_eligible = false or (status = 'active' and review_status = 'approved')");
+
+                            t.HasCheckConstraint("ck_assessment_targets_review_status", "review_status in ('pending_review','approved','rejected')");
+
+                            t.HasCheckConstraint("ck_assessment_targets_scope_block", "(scope_type = 'whole_question' and question_block_id is null) or (scope_type in ('subquestion','scoring_point') and question_block_id is not null)");
+
+                            t.HasCheckConstraint("ck_assessment_targets_scope_type", "scope_type in ('whole_question','subquestion','scoring_point')");
+
+                            t.HasCheckConstraint("ck_assessment_targets_status", "status in ('candidate','reviewed','active','rejected')");
+                        });
+                });
+
+            modelBuilder.Entity("K12QuestionGraph.Api.Domain.AssessmentTargetKnowledgeMapping", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<Guid>("AssessmentTargetId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("assessment_target_id");
+
+                    b.Property<decimal>("Confidence")
+                        .HasColumnType("numeric")
+                        .HasColumnName("confidence");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("DomainAssetVersionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("domain_asset_version_id");
+
+                    b.Property<string>("Evidence")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("evidence")
+                        .HasDefaultValueSql("'{}'::jsonb");
+
+                    b.Property<bool>("ProductionEligible")
+                        .HasColumnType("boolean")
+                        .HasColumnName("production_eligible");
+
+                    b.Property<string>("ReviewStatus")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasDefaultValue("pending_review")
+                        .HasColumnName("review_status");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasDefaultValue("primary")
+                        .HasColumnName("role");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasDefaultValue("candidate")
+                        .HasColumnName("status");
+
+                    b.HasKey("Id")
+                        .HasName("pk_assessment_target_knowledge_mappings");
+
+                    b.HasIndex("AssessmentTargetId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_assessment_target_knowledge_mappings_assessment_target_id")
+                        .HasFilter("role = 'primary'");
+
+                    b.HasIndex("DomainAssetVersionId")
+                        .HasDatabaseName("ix_assessment_target_knowledge_mappings_domain_asset_version_id");
+
+                    b.HasIndex("ReviewStatus")
+                        .HasDatabaseName("ix_assessment_target_knowledge_mappings_review_status");
+
+                    b.HasIndex("AssessmentTargetId", "DomainAssetVersionId", "Role")
+                        .IsUnique()
+                        .HasDatabaseName("ix_assessment_target_knowledge_mappings_assessment_target_id_d");
+
+                    b.ToTable("assessment_target_knowledge_mappings", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_assessment_target_knowledge_confidence", "confidence >= 0 and confidence <= 1");
+
+                            t.HasCheckConstraint("ck_assessment_target_knowledge_production_guard", "production_eligible = false or (status = 'active' and review_status = 'approved')");
+
+                            t.HasCheckConstraint("ck_assessment_target_knowledge_review_status", "review_status in ('pending_review','approved','rejected')");
+
+                            t.HasCheckConstraint("ck_assessment_target_knowledge_role", "role in ('primary','secondary','prerequisite')");
+
+                            t.HasCheckConstraint("ck_assessment_target_knowledge_status", "status in ('candidate','reviewed','active','rejected')");
+                        });
+                });
+
             modelBuilder.Entity("K12QuestionGraph.Api.Domain.BackupJob", b =>
                 {
                     b.Property<Guid>("Id")
@@ -527,6 +738,127 @@ namespace K12QuestionGraph.Api.Data.Migrations
                             t.HasCheckConstraint("ck_class_groups_anonymization_status", "anonymization_status in ('none','anonymized','synthetic')");
 
                             t.HasCheckConstraint("ck_class_groups_pii_guard", "(contains_student_pii = false) or (anonymization_status in ('anonymized','synthetic'))");
+                        });
+                });
+
+            modelBuilder.Entity("K12QuestionGraph.Api.Domain.CurriculumAlignment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<string>("AlignmentType")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(48)
+                        .HasColumnType("character varying(48)")
+                        .HasDefaultValue("retrospective_crosswalk")
+                        .HasColumnName("alignment_type");
+
+                    b.Property<Guid>("AssessmentTargetId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("assessment_target_id");
+
+                    b.Property<decimal>("Confidence")
+                        .HasColumnType("numeric")
+                        .HasColumnName("confidence");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CurriculumAssetVersionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("curriculum_asset_version_id");
+
+                    b.Property<string>("Evidence")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("evidence")
+                        .HasDefaultValueSql("'{}'::jsonb");
+
+                    b.Property<bool>("OriginalBasis")
+                        .HasColumnType("boolean")
+                        .HasColumnName("original_basis");
+
+                    b.Property<bool>("ProductionEligible")
+                        .HasColumnType("boolean")
+                        .HasColumnName("production_eligible");
+
+                    b.Property<string>("ReviewStatus")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasDefaultValue("pending_review")
+                        .HasColumnName("review_status");
+
+                    b.Property<Guid>("SourceDocumentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("source_document_id");
+
+                    b.Property<Guid?>("SourceRegionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("source_region_id");
+
+                    b.Property<string>("StableKey")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("stable_key");
+
+                    b.Property<string>("StandardVersion")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("standard_version");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasDefaultValue("candidate")
+                        .HasColumnName("status");
+
+                    b.HasKey("Id")
+                        .HasName("pk_curriculum_alignments");
+
+                    b.HasIndex("AssessmentTargetId")
+                        .HasDatabaseName("ix_curriculum_alignments_assessment_target_id");
+
+                    b.HasIndex("CurriculumAssetVersionId")
+                        .HasDatabaseName("ix_curriculum_alignments_curriculum_asset_version_id");
+
+                    b.HasIndex("ReviewStatus")
+                        .HasDatabaseName("ix_curriculum_alignments_review_status");
+
+                    b.HasIndex("SourceDocumentId")
+                        .HasDatabaseName("ix_curriculum_alignments_source_document_id");
+
+                    b.HasIndex("SourceRegionId")
+                        .HasDatabaseName("ix_curriculum_alignments_source_region_id");
+
+                    b.HasIndex("StableKey")
+                        .IsUnique()
+                        .HasDatabaseName("ix_curriculum_alignments_stable_key");
+
+                    b.ToTable("curriculum_alignments", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_curriculum_alignments_confidence", "confidence >= 0 and confidence <= 1");
+
+                            t.HasCheckConstraint("ck_curriculum_alignments_original_basis", "original_basis = false or alignment_type = 'source_cited'");
+
+                            t.HasCheckConstraint("ck_curriculum_alignments_production_guard", "production_eligible = false or (status = 'active' and review_status = 'approved')");
+
+                            t.HasCheckConstraint("ck_curriculum_alignments_review_status", "review_status in ('pending_review','approved','rejected')");
+
+                            t.HasCheckConstraint("ck_curriculum_alignments_status", "status in ('candidate','reviewed','active','rejected')");
+
+                            t.HasCheckConstraint("ck_curriculum_alignments_type", "alignment_type in ('source_cited','contemporaneous_inferred','retrospective_crosswalk')");
                         });
                 });
 
@@ -1474,6 +1806,287 @@ namespace K12QuestionGraph.Api.Data.Migrations
                             t.HasCheckConstraint("ck_knowledge_nodes_status", "status in ('draft','candidate','reviewed','active','deprecated','merged','superseded')");
 
                             t.HasCheckConstraint("ck_knowledge_nodes_version", "version >= 1");
+                        });
+                });
+
+            modelBuilder.Entity("K12QuestionGraph.Api.Domain.ObservedErrorEvidence", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<Guid>("AssessmentTargetId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("assessment_target_id");
+
+                    b.Property<string>("BatchKey")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("batch_key");
+
+                    b.Property<decimal>("Confidence")
+                        .HasColumnType("numeric")
+                        .HasColumnName("confidence");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("content");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Evidence")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("evidence")
+                        .HasDefaultValueSql("'{}'::jsonb");
+
+                    b.Property<string>("GenerationMethod")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasDefaultValue("rules")
+                        .HasColumnName("generation_method");
+
+                    b.Property<bool>("ProductionEligible")
+                        .HasColumnType("boolean")
+                        .HasColumnName("production_eligible");
+
+                    b.Property<string>("RecordKind")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(48)
+                        .HasColumnType("character varying(48)")
+                        .HasDefaultValue("summary_candidate")
+                        .HasColumnName("record_kind");
+
+                    b.Property<string>("ReviewStatus")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasDefaultValue("pending_review")
+                        .HasColumnName("review_status");
+
+                    b.Property<Guid>("SourceRegionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("source_region_id");
+
+                    b.Property<string>("StableKey")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("stable_key");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasDefaultValue("candidate")
+                        .HasColumnName("status");
+
+                    b.HasKey("Id")
+                        .HasName("pk_observed_error_evidence");
+
+                    b.HasIndex("AssessmentTargetId")
+                        .HasDatabaseName("ix_observed_error_evidence_assessment_target_id");
+
+                    b.HasIndex("BatchKey")
+                        .HasDatabaseName("ix_observed_error_evidence_batch_key");
+
+                    b.HasIndex("ReviewStatus")
+                        .HasDatabaseName("ix_observed_error_evidence_review_status");
+
+                    b.HasIndex("SourceRegionId")
+                        .HasDatabaseName("ix_observed_error_evidence_source_region_id");
+
+                    b.HasIndex("StableKey")
+                        .IsUnique()
+                        .HasDatabaseName("ix_observed_error_evidence_stable_key");
+
+                    b.ToTable("observed_error_evidence", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_observed_error_confidence", "confidence >= 0 and confidence <= 1");
+
+                            t.HasCheckConstraint("ck_observed_error_generation", "generation_method in ('source_quote','rules','ai','human')");
+
+                            t.HasCheckConstraint("ck_observed_error_kind", "record_kind in ('verbatim_observation','summary_candidate','normalized_pattern_candidate')");
+
+                            t.HasCheckConstraint("ck_observed_error_normalized_generation", "record_kind <> 'normalized_pattern_candidate' or generation_method in ('rules','ai','human')");
+
+                            t.HasCheckConstraint("ck_observed_error_production_guard", "production_eligible = false or (status = 'active' and review_status = 'approved')");
+
+                            t.HasCheckConstraint("ck_observed_error_review_status", "review_status in ('pending_review','approved','rejected')");
+
+                            t.HasCheckConstraint("ck_observed_error_status", "status in ('candidate','reviewed','active','rejected')");
+
+                            t.HasCheckConstraint("ck_observed_error_verbatim_generation", "record_kind <> 'verbatim_observation' or generation_method = 'source_quote'");
+                        });
+                });
+
+            modelBuilder.Entity("K12QuestionGraph.Api.Domain.ObservedPerformanceEvidence", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<Guid>("AssessmentTargetId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("assessment_target_id");
+
+                    b.Property<decimal?>("AverageScore")
+                        .HasColumnType("numeric")
+                        .HasColumnName("average_score");
+
+                    b.Property<string>("BatchKey")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("batch_key");
+
+                    b.Property<decimal>("Confidence")
+                        .HasColumnType("numeric")
+                        .HasColumnName("confidence");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("DifficultyDirection")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasDefaultValue("higher_is_easier")
+                        .HasColumnName("difficulty_direction");
+
+                    b.Property<decimal?>("DifficultyObserved")
+                        .HasColumnType("numeric")
+                        .HasColumnName("difficulty_observed");
+
+                    b.Property<decimal?>("Discrimination")
+                        .HasColumnType("numeric")
+                        .HasColumnName("discrimination");
+
+                    b.Property<string>("Evidence")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("evidence")
+                        .HasDefaultValueSql("'{}'::jsonb");
+
+                    b.Property<decimal?>("MaximumScore")
+                        .HasColumnType("numeric")
+                        .HasColumnName("maximum_score");
+
+                    b.Property<string>("OptionDistribution")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("option_distribution")
+                        .HasDefaultValueSql("'null'::jsonb");
+
+                    b.Property<bool>("ProductionEligible")
+                        .HasColumnType("boolean")
+                        .HasColumnName("production_eligible");
+
+                    b.Property<string>("RawStatistics")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("raw_statistics")
+                        .HasDefaultValueSql("'{}'::jsonb");
+
+                    b.Property<string>("ReviewStatus")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasDefaultValue("pending_review")
+                        .HasColumnName("review_status");
+
+                    b.Property<string>("SampleScope")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("sample_scope");
+
+                    b.Property<int?>("SampleSize")
+                        .HasColumnType("integer")
+                        .HasColumnName("sample_size");
+
+                    b.Property<decimal?>("ScoreRate")
+                        .HasColumnType("numeric")
+                        .HasColumnName("score_rate");
+
+                    b.Property<Guid>("SourceRegionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("source_region_id");
+
+                    b.Property<string>("StableKey")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("stable_key");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasDefaultValue("candidate")
+                        .HasColumnName("status");
+
+                    b.HasKey("Id")
+                        .HasName("pk_observed_performance_evidence");
+
+                    b.HasIndex("AssessmentTargetId")
+                        .HasDatabaseName("ix_observed_performance_evidence_assessment_target_id");
+
+                    b.HasIndex("BatchKey")
+                        .HasDatabaseName("ix_observed_performance_evidence_batch_key");
+
+                    b.HasIndex("ReviewStatus")
+                        .HasDatabaseName("ix_observed_performance_evidence_review_status");
+
+                    b.HasIndex("SourceRegionId")
+                        .HasDatabaseName("ix_observed_performance_evidence_source_region_id");
+
+                    b.HasIndex("StableKey")
+                        .IsUnique()
+                        .HasDatabaseName("ix_observed_performance_evidence_stable_key");
+
+                    b.ToTable("observed_performance_evidence", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_observed_performance_confidence", "confidence >= 0 and confidence <= 1");
+
+                            t.HasCheckConstraint("ck_observed_performance_direction", "difficulty_direction = 'higher_is_easier'");
+
+                            t.HasCheckConstraint("ck_observed_performance_discrimination", "discrimination is null or (discrimination >= -1 and discrimination <= 1)");
+
+                            t.HasCheckConstraint("ck_observed_performance_has_metric", "maximum_score is not null or average_score is not null or score_rate is not null or difficulty_observed is not null or discrimination is not null or option_distribution <> 'null'::jsonb");
+
+                            t.HasCheckConstraint("ck_observed_performance_production_guard", "production_eligible = false or (status = 'active' and review_status = 'approved')");
+
+                            t.HasCheckConstraint("ck_observed_performance_rates", "(score_rate is null or (score_rate >= 0 and score_rate <= 1)) and (difficulty_observed is null or (difficulty_observed >= 0 and difficulty_observed <= 1))");
+
+                            t.HasCheckConstraint("ck_observed_performance_review_status", "review_status in ('pending_review','approved','rejected')");
+
+                            t.HasCheckConstraint("ck_observed_performance_sample_size", "sample_size is null or sample_size > 0");
+
+                            t.HasCheckConstraint("ck_observed_performance_scores", "(maximum_score is null or maximum_score >= 0) and (average_score is null or average_score >= 0)");
+
+                            t.HasCheckConstraint("ck_observed_performance_status", "status in ('candidate','reviewed','active','rejected')");
                         });
                 });
 
@@ -2673,6 +3286,129 @@ namespace K12QuestionGraph.Api.Data.Migrations
                     b.ToTable("teacher_preferences", (string)null);
                 });
 
+            modelBuilder.Entity("K12QuestionGraph.Api.Domain.TeachingRecommendation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<Guid>("AssessmentTargetId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("assessment_target_id");
+
+                    b.Property<string>("AuthorKind")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasDefaultValue("legacy_candidate")
+                        .HasColumnName("author_kind");
+
+                    b.Property<string>("BatchKey")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("batch_key");
+
+                    b.Property<decimal>("Confidence")
+                        .HasColumnType("numeric")
+                        .HasColumnName("confidence");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("content");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Evidence")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("evidence")
+                        .HasDefaultValueSql("'{}'::jsonb");
+
+                    b.Property<string>("GenerationMethod")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasDefaultValue("rules")
+                        .HasColumnName("generation_method");
+
+                    b.Property<bool>("ProductionEligible")
+                        .HasColumnType("boolean")
+                        .HasColumnName("production_eligible");
+
+                    b.Property<string>("ReviewStatus")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasDefaultValue("pending_review")
+                        .HasColumnName("review_status");
+
+                    b.Property<Guid>("SourceRegionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("source_region_id");
+
+                    b.Property<string>("StableKey")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("stable_key");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasDefaultValue("candidate")
+                        .HasColumnName("status");
+
+                    b.HasKey("Id")
+                        .HasName("pk_teaching_recommendations");
+
+                    b.HasIndex("AssessmentTargetId")
+                        .HasDatabaseName("ix_teaching_recommendations_assessment_target_id");
+
+                    b.HasIndex("BatchKey")
+                        .HasDatabaseName("ix_teaching_recommendations_batch_key");
+
+                    b.HasIndex("ReviewStatus")
+                        .HasDatabaseName("ix_teaching_recommendations_review_status");
+
+                    b.HasIndex("SourceRegionId")
+                        .HasDatabaseName("ix_teaching_recommendations_source_region_id");
+
+                    b.HasIndex("StableKey")
+                        .IsUnique()
+                        .HasDatabaseName("ix_teaching_recommendations_stable_key");
+
+                    b.ToTable("teaching_recommendations", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_teaching_recommendations_ai_generation", "author_kind <> 'ai_candidate' or generation_method = 'ai'");
+
+                            t.HasCheckConstraint("ck_teaching_recommendations_author", "author_kind in ('report_author','teacher','ai_candidate','legacy_candidate')");
+
+                            t.HasCheckConstraint("ck_teaching_recommendations_confidence", "confidence >= 0 and confidence <= 1");
+
+                            t.HasCheckConstraint("ck_teaching_recommendations_generation", "generation_method in ('source_quote','rules','ai','human')");
+
+                            t.HasCheckConstraint("ck_teaching_recommendations_production_guard", "production_eligible = false or (status = 'active' and review_status = 'approved')");
+
+                            t.HasCheckConstraint("ck_teaching_recommendations_report_author_generation", "author_kind <> 'report_author' or generation_method = 'source_quote'");
+
+                            t.HasCheckConstraint("ck_teaching_recommendations_review_status", "review_status in ('pending_review','approved','rejected')");
+
+                            t.HasCheckConstraint("ck_teaching_recommendations_status", "status in ('candidate','reviewed','active','rejected')");
+                        });
+                });
+
             modelBuilder.Entity("K12QuestionGraph.Api.Domain.AssessmentEnrollment", b =>
                 {
                     b.HasOne("K12QuestionGraph.Api.Domain.Assessment", null)
@@ -2695,6 +3431,69 @@ namespace K12QuestionGraph.Api.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_assessment_enrollments_students_student_id");
+                });
+
+            modelBuilder.Entity("K12QuestionGraph.Api.Domain.AssessmentTarget", b =>
+                {
+                    b.HasOne("K12QuestionGraph.Api.Domain.QuestionBlock", null)
+                        .WithMany()
+                        .HasForeignKey("QuestionBlockId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_assessment_targets_question_blocks_question_block_id");
+
+                    b.HasOne("K12QuestionGraph.Api.Domain.QuestionItem", null)
+                        .WithMany()
+                        .HasForeignKey("QuestionItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_assessment_targets_question_items_question_item_id");
+                });
+
+            modelBuilder.Entity("K12QuestionGraph.Api.Domain.AssessmentTargetKnowledgeMapping", b =>
+                {
+                    b.HasOne("K12QuestionGraph.Api.Domain.AssessmentTarget", null)
+                        .WithMany()
+                        .HasForeignKey("AssessmentTargetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_assessment_target_knowledge_mappings_assessment_targets_ass");
+
+                    b.HasOne("K12QuestionGraph.Api.Domain.DomainAssetVersion", null)
+                        .WithMany()
+                        .HasForeignKey("DomainAssetVersionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_assessment_target_knowledge_mappings_domain_asset_versions_");
+                });
+
+            modelBuilder.Entity("K12QuestionGraph.Api.Domain.CurriculumAlignment", b =>
+                {
+                    b.HasOne("K12QuestionGraph.Api.Domain.AssessmentTarget", null)
+                        .WithMany()
+                        .HasForeignKey("AssessmentTargetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_curriculum_alignments_assessment_targets_assessment_target_");
+
+                    b.HasOne("K12QuestionGraph.Api.Domain.DomainAssetVersion", null)
+                        .WithMany()
+                        .HasForeignKey("CurriculumAssetVersionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_curriculum_alignments_domain_asset_versions_curriculum_asse");
+
+                    b.HasOne("K12QuestionGraph.Api.Domain.SourceDocument", null)
+                        .WithMany()
+                        .HasForeignKey("SourceDocumentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_curriculum_alignments_source_documents_source_document_id");
+
+                    b.HasOne("K12QuestionGraph.Api.Domain.SourceRegion", null)
+                        .WithMany()
+                        .HasForeignKey("SourceRegionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_curriculum_alignments_source_regions_source_region_id");
                 });
 
             modelBuilder.Entity("K12QuestionGraph.Api.Domain.CutCandidate", b =>
@@ -2829,6 +3628,40 @@ namespace K12QuestionGraph.Api.Data.Migrations
                         .HasConstraintName("fk_knowledge_nodes_knowledge_nodes_parent_id");
                 });
 
+            modelBuilder.Entity("K12QuestionGraph.Api.Domain.ObservedErrorEvidence", b =>
+                {
+                    b.HasOne("K12QuestionGraph.Api.Domain.AssessmentTarget", null)
+                        .WithMany()
+                        .HasForeignKey("AssessmentTargetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_observed_error_evidence_assessment_targets_assessment_targe");
+
+                    b.HasOne("K12QuestionGraph.Api.Domain.SourceRegion", null)
+                        .WithMany()
+                        .HasForeignKey("SourceRegionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_observed_error_evidence_source_regions_source_region_id");
+                });
+
+            modelBuilder.Entity("K12QuestionGraph.Api.Domain.ObservedPerformanceEvidence", b =>
+                {
+                    b.HasOne("K12QuestionGraph.Api.Domain.AssessmentTarget", null)
+                        .WithMany()
+                        .HasForeignKey("AssessmentTargetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_observed_performance_evidence_assessment_targets_assessment");
+
+                    b.HasOne("K12QuestionGraph.Api.Domain.SourceRegion", null)
+                        .WithMany()
+                        .HasForeignKey("SourceRegionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_observed_performance_evidence_source_regions_source_region_");
+                });
+
             modelBuilder.Entity("K12QuestionGraph.Api.Domain.PaperBasketItem", b =>
                 {
                     b.HasOne("K12QuestionGraph.Api.Domain.PaperBasket", null)
@@ -2961,6 +3794,23 @@ namespace K12QuestionGraph.Api.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_source_regions_source_documents_source_document_id");
+                });
+
+            modelBuilder.Entity("K12QuestionGraph.Api.Domain.TeachingRecommendation", b =>
+                {
+                    b.HasOne("K12QuestionGraph.Api.Domain.AssessmentTarget", null)
+                        .WithMany()
+                        .HasForeignKey("AssessmentTargetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_teaching_recommendations_assessment_targets_assessment_targ");
+
+                    b.HasOne("K12QuestionGraph.Api.Domain.SourceRegion", null)
+                        .WithMany()
+                        .HasForeignKey("SourceRegionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_teaching_recommendations_source_regions_source_region_id");
                 });
 #pragma warning restore 612, 618
         }

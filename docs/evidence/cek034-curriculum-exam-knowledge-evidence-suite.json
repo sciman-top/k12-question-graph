@@ -1,0 +1,285 @@
+{
+  "schemaVersion": 1,
+  "taskId": "CEK-34",
+  "generatedAt": "2026-07-31T12:43:59.8758637Z",
+  "status": "pass",
+  "cek34Complete": true,
+  "fullGateAuthorized": true,
+  "failure": null,
+  "fixedOrder": [
+    "build",
+    "test/full",
+    "contract/invariant",
+    "hotspot"
+  ],
+  "steps": [
+    {
+      "name": "api-build",
+      "phase": "build",
+      "status": "pass",
+      "command": "dotnet restore/build apps/api/K12QuestionGraph.Api.csproj",
+      "startedAt": "2026-07-31T12:09:19.0346804Z",
+      "durationMs": 3722,
+      "detail": {
+        "project": "apps/api/K12QuestionGraph.Api.csproj",
+        "warnings": 0,
+        "errors": 0
+      }
+    },
+    {
+      "name": "web-build",
+      "phase": "build",
+      "status": "pass",
+      "command": "npm run build (apps/web)",
+      "startedAt": "2026-07-31T12:09:22.7722951Z",
+      "durationMs": 9263,
+      "detail": {
+        "project": "apps/web",
+        "build": "pass"
+      }
+    },
+    {
+      "name": "api-tests",
+      "phase": "test",
+      "status": "pass",
+      "command": "dotnet test tests/api/K12QuestionGraph.Api.Tests/K12QuestionGraph.Api.Tests.csproj",
+      "startedAt": "2026-07-31T12:09:32.0835831Z",
+      "durationMs": 5048,
+      "detail": {
+        "suite": "api",
+        "total": 78,
+        "failed": 0
+      }
+    },
+    {
+      "name": "worker-tests",
+      "phase": "test",
+      "status": "pass",
+      "command": "python -m pytest -q tests/workers",
+      "startedAt": "2026-07-31T12:09:37.1427684Z",
+      "durationMs": 10011,
+      "detail": {
+        "suite": "workers",
+        "total": 182,
+        "failed": 0
+      }
+    },
+    {
+      "name": "web-tests-and-lint",
+      "phase": "test",
+      "status": "pass",
+      "command": "npm test; npm run lint (apps/web)",
+      "startedAt": "2026-07-31T12:09:47.1664743Z",
+      "durationMs": 49546,
+      "detail": {
+        "suite": "web",
+        "total": 38,
+        "failed": 0,
+        "lint": "pass"
+      }
+    },
+    {
+      "name": "repository-full-gate",
+      "phase": "test/full",
+      "status": "pass",
+      "command": "pwsh -File tools/run-gates.ps1",
+      "startedAt": "2026-07-31T12:10:36.7163568Z",
+      "durationMs": 1885021,
+      "detail": {
+        "authorization": "explicit_switch",
+        "result": "pass"
+      }
+    },
+    {
+      "name": "schema-and-evidence-contracts",
+      "phase": "contract/invariant",
+      "status": "pass",
+      "command": "parse CEK schemas/configs and verify CEK-01..33 evidence references",
+      "startedAt": "2026-07-31T12:42:01.7402397Z",
+      "durationMs": 110,
+      "detail": {
+        "jsonContracts": 10,
+        "referencedEvidence": 19,
+        "missing": []
+      }
+    },
+    {
+      "name": "roadmap-guard",
+      "phase": "contract/invariant",
+      "status": "pass",
+      "command": "pwsh -File tools/run-roadmap-guard.ps1",
+      "startedAt": "2026-07-31T12:42:01.8532243Z",
+      "durationMs": 2223,
+      "detail": {
+        "guard": "roadmap",
+        "result": "pass"
+      }
+    },
+    {
+      "name": "reference-basis-guard",
+      "phase": "contract/invariant",
+      "status": "pass",
+      "command": "pwsh -File tools/run-reference-basis-guard.ps1",
+      "startedAt": "2026-07-31T12:42:04.0785200Z",
+      "durationMs": 1768,
+      "detail": {
+        "guard": "reference-basis",
+        "result": "pass"
+      }
+    },
+    {
+      "name": "isolated-backup-restore-and-migrations",
+      "phase": "contract/invariant",
+      "status": "pass",
+      "command": "verify manifest; restore unique DB/FileStore; CEK-15/19 Down/Up; verify hashes; cleanup",
+      "startedAt": "2026-07-31T12:42:05.8625291Z",
+      "durationMs": 92695,
+      "detail": {
+        "sourceManifest": "D:\\KQG_Backups\\20260730-232646\\manifest.json",
+        "sourceDatabase": "k12_question_graph",
+        "temporaryDatabase": "kqg_cek034_f2bc6e8c99af",
+        "databaseDumpSha256": "9775fd2712200757686da4149743650723974b0cdd21d2fbb4fabc7c97b7df9e",
+        "restoredFileCount": 4571,
+        "restoredFileBytes": 395953878.0,
+        "restoredHashesVerified": true,
+        "migrationDownTarget": "20260728122942_AddEvidenceAnchorMetadataForCEK004",
+        "migrationUpTargets": [
+          "20260729035809_AddAssessmentTargetEvidenceModelForCEK015",
+          "20260729142258_AddObservedExamEvidenceModelForCEK019"
+        ],
+        "migrationHead": "20260729142258_AddObservedExamEvidenceModelForCEK019",
+        "productionBoundaryBefore": {
+          "activeAssets": 452,
+          "eligibleTargets": 0,
+          "eligibleObserved": 0,
+          "pendingTargets": 444
+        },
+        "productionBoundaryAfter": {
+          "activeAssets": 452,
+          "eligibleTargets": 0,
+          "eligibleObserved": 0,
+          "pendingTargets": 444
+        },
+        "activeWrite": false,
+        "productionEligible": false
+      }
+    },
+    {
+      "name": "supply-chain",
+      "phase": "contract/invariant",
+      "status": "pass",
+      "command": "dotnet list --vulnerable (API/tests); npm audit --omit=dev; verify Microsoft.OpenApi package metadata",
+      "startedAt": "2026-07-31T12:43:38.5622625Z",
+      "durationMs": 19175,
+      "detail": {
+        "dependencyChange": true,
+        "package": "Microsoft.OpenApi",
+        "previousResolvedVersion": "2.0.0",
+        "resolvedVersion": "2.7.5",
+        "advisory": "GHSA-v5pm-xwqc-g5wc",
+        "apiVulnerabilities": 0,
+        "testVulnerabilities": 0,
+        "npmProductionVulnerabilities": 0,
+        "license": "MIT",
+        "windowsCompatibility": "API build, 78+ API tests, and isolated Windows runtime OpenAPI probe are required evidence; suite build/tests passed.",
+        "offline": {
+          "cachePresent": true,
+          "nuspec": "C:\\Users\\sciman\\.nuget\\packages\\microsoft.openapi\\2.7.5\\microsoft.openapi.nuspec"
+        },
+        "rollback": "Remove the explicit Microsoft.OpenApi PackageReference only after a patched compatible transitive version is resolved, then restore/build/test and rerun vulnerability scans."
+      }
+    },
+    {
+      "name": "hotspot-manual-boundary",
+      "phase": "hotspot",
+      "status": "pass_with_open_external_acceptance",
+      "reviewed": [
+        "CEK-33 desktop/mobile browser evidence",
+        "candidate preview cannot enter active paper basket",
+        "review undo returns candidates to pending_review",
+        "source page links and analysis fail-closed states"
+      ],
+      "open": [
+        "real teacher sign-off",
+        "identity authorization",
+        "school network",
+        "isolated machine",
+        "production active switch",
+        "REAL005 closure"
+      ]
+    }
+  ],
+  "evidenceInventory": {
+    "jsonContracts": 10,
+    "referencedEvidence": 19,
+    "missing": []
+  },
+  "isolatedDrill": {
+    "sourceManifest": "D:\\KQG_Backups\\20260730-232646\\manifest.json",
+    "sourceDatabase": "k12_question_graph",
+    "temporaryDatabase": "kqg_cek034_f2bc6e8c99af",
+    "databaseDumpSha256": "9775fd2712200757686da4149743650723974b0cdd21d2fbb4fabc7c97b7df9e",
+    "restoredFileCount": 4571,
+    "restoredFileBytes": 395953878.0,
+    "restoredHashesVerified": true,
+    "migrationDownTarget": "20260728122942_AddEvidenceAnchorMetadataForCEK004",
+    "migrationUpTargets": [
+      "20260729035809_AddAssessmentTargetEvidenceModelForCEK015",
+      "20260729142258_AddObservedExamEvidenceModelForCEK019"
+    ],
+    "migrationHead": "20260729142258_AddObservedExamEvidenceModelForCEK019",
+    "productionBoundaryBefore": {
+      "activeAssets": 452,
+      "eligibleTargets": 0,
+      "eligibleObserved": 0,
+      "pendingTargets": 444
+    },
+    "productionBoundaryAfter": {
+      "activeAssets": 452,
+      "eligibleTargets": 0,
+      "eligibleObserved": 0,
+      "pendingTargets": 444
+    },
+    "activeWrite": false,
+    "productionEligible": false
+  },
+  "supplyChain": {
+    "dependencyChange": true,
+    "package": "Microsoft.OpenApi",
+    "previousResolvedVersion": "2.0.0",
+    "resolvedVersion": "2.7.5",
+    "advisory": "GHSA-v5pm-xwqc-g5wc",
+    "apiVulnerabilities": 0,
+    "testVulnerabilities": 0,
+    "npmProductionVulnerabilities": 0,
+    "license": "MIT",
+    "windowsCompatibility": "API build, 78+ API tests, and isolated Windows runtime OpenAPI probe are required evidence; suite build/tests passed.",
+    "offline": {
+      "cachePresent": true,
+      "nuspec": "C:\\Users\\sciman\\.nuget\\packages\\microsoft.openapi\\2.7.5\\microsoft.openapi.nuspec"
+    },
+    "rollback": "Remove the explicit Microsoft.OpenApi PackageReference only after a patched compatible transitive version is resolved, then restore/build/test and rerun vulnerability scans."
+  },
+  "cleanup": {
+    "database": "kqg_cek034_f2bc6e8c99af",
+    "databaseDropped": true,
+    "temporaryRoot": "D:\\CODE\\k12-question-graph\\tmp\\cek034-f2bc6e8c99af467bbd26eaf3db703121",
+    "temporaryRootDeleted": true
+  },
+  "truthBoundary": {
+    "candidateStatus": "pending_review",
+    "productionEligible": false,
+    "productionActiveSwitched": false,
+    "realTeacherSignoff": false,
+    "identityAuthorization": false,
+    "isolatedMachineAccepted": false,
+    "schoolNetworkAccepted": false,
+    "real005": "not_closed",
+    "release": "No-Go"
+  },
+  "next": "CEK-35 may synchronize status documents without changing external acceptance boundaries.",
+  "rollback": {
+    "code": "Revert only the CEK-34 suite and explicit dependency override after restoring a secure compatible dependency graph.",
+    "data": "The unique temporary database and FileStore root are deleted in finally; production data is not a rollback target for this suite."
+  }
+}

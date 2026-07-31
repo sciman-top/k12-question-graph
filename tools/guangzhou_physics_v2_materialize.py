@@ -11,7 +11,11 @@ from typing import Any, Iterable
 
 from pypdf import PdfReader
 
-from question_scope_normalization import build_scope_key, normalize_question_scopes
+from question_scope_normalization import (
+    bind_materialized_block_ids,
+    build_scope_key,
+    normalize_question_scopes,
+)
 
 
 BATCH_KEY = "guangzhou_physics_2015_2025_20260726_v2"
@@ -312,6 +316,7 @@ def build_blocks(
     question_region_id: uuid.UUID,
     answer_region_id: uuid.UUID,
     question_id: str | uuid.UUID | None = None,
+    materialized_blocks: Iterable[dict[str, Any]] = (),
 ) -> list[dict[str, Any]]:
     question_key = str(question_id or candidate.get("legacyQuestionId") or "").strip()
     normalized = normalize_question_scopes(
@@ -319,6 +324,9 @@ def build_blocks(
         candidate.get("subquestions", []),
         candidate.get("scoringRows", []),
     )
+    existing_blocks = list(materialized_blocks)
+    if existing_blocks:
+        bind_materialized_block_ids(normalized, existing_blocks)
     whole_scope_key = build_scope_key(question_key, "whole_question")
     blocks: list[dict[str, Any]] = [
         {

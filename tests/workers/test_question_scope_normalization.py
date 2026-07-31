@@ -114,6 +114,33 @@ class QuestionScopeNormalizationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "duplicate_question_block_stable_key"):
             scopes.normalize_question_scopes("QPHY-C003-2016-13", [duplicate, duplicate], [])
 
+    def test_scope_binding_reuses_materialized_question_block_id(self) -> None:
+        normalized = scopes.normalize_question_scopes(
+            "11111111-1111-1111-1111-111111111111",
+            [{"subquestion_id": "S1", "subquestion_number": "1", "stem_summary": "第一小问"}],
+            [],
+        )
+        materialized_id = "22222222-2222-2222-2222-222222222222"
+
+        scopes.bind_materialized_block_ids(normalized, [{
+            "id": materialized_id,
+            "block_type": "subquestion",
+            "sort_order": 1,
+            "content": {"label": "1"},
+        }])
+
+        self.assertEqual(normalized["blockCandidates"][0]["questionBlockId"], materialized_id)
+        self.assertTrue(normalized["scopes"][1]["questionBlockRef"]["materialized"])
+
+    def test_scope_binding_rejects_materialized_count_drift(self) -> None:
+        normalized = scopes.normalize_question_scopes(
+            "11111111-1111-1111-1111-111111111111",
+            [{"subquestion_id": "S1", "subquestion_number": "1", "stem_summary": "第一小问"}],
+            [],
+        )
+        with self.assertRaisesRegex(ValueError, "materialized_question_block_count_mismatch"):
+            scopes.bind_materialized_block_ids(normalized, [])
+
     def test_materializer_skips_whole_marker_and_keeps_summary_on_whole_scope(self) -> None:
         candidate = {
             "legacyQuestionId": "QPHY-C003-2016-01",

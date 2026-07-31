@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS404",
-  "checkedAt": "2026-07-26T00:47:01",
+  "checkedAt": "2026-07-31T20:18:32",
   "mode": "real008_question_asset_wrapper_plus_api_ui_contract_markers",
   "productionEligible": false,
   "dependency": {
@@ -9,9 +9,9 @@
     "real008": "docs/evidence/20260530-ns404-real008-source-report.json"
   },
   "questionAsset": {
-    "questionId": "dbcc576b-5b66-418a-a9a3-1b5b53f77e87",
+    "questionId": "a93c99cb-42e6-4f00-8af2-c811f041f5ca",
     "sourceDocumentId": "e7fc9823-9c7b-45af-831a-eea5ab4b2908",
-    "assetSourceRegionId": "a64153c6-ae93-4819-8a98-1cf7747c7933",
+    "assetSourceRegionId": "982ec7c3-9958-4fb1-ab74-2f60301dd4cd",
     "beforeAssociation": {
       "hasImage": false,
       "assetCount": 0,
@@ -30,13 +30,13 @@
     "detailAssetCountAfterReassociate": 1,
     "detailAssetType": "image",
     "detailPurpose": "question_figure",
-    "sourceRegionScreenshotUrl": "/source-regions/a64153c6-ae93-4819-8a98-1cf7747c7933/screenshot",
+    "sourceRegionScreenshotUrl": "/source-regions/982ec7c3-9958-4fb1-ab74-2f60301dd4cd/screenshot",
     "screenshotStatusCode": 200
   },
   "auditIds": {
-    "associate": "ba567085-416b-4c31-a0fa-2d8ae7b02de7",
-    "unlink": "b99de24f-dcbd-4c17-a102-445c4e7fea2b",
-    "reassociate": "3609c4bb-194d-4a8e-ba5f-45f349561f7c"
+    "associate": "3e8950d7-8321-4ba8-9a1f-aec052d1a0f4",
+    "unlink": "66b438ea-213e-420d-a555-c66dbd17be19",
+    "reassociate": "78b28d89-30bb-4bb9-b38c-1bc6a1dc1640"
   },
   "acceptance": {
     "cardDoesNotInferImageFromSourceScreenshot": true,

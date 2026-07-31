@@ -1,21 +1,21 @@
 {
   "status": "pass",
   "task": "REAL009",
-  "checkedAt": "2026-07-26T00:47:08",
-  "requestedApiPort": 1447,
-  "resolvedApiPort": 1447,
+  "checkedAt": "2026-07-31T20:18:41",
+  "requestedApiPort": 6136,
+  "resolvedApiPort": 6136,
   "portFallbackApplied": false,
-  "questionId": "8e229c46-e6cf-4c12-bf88-7f0c0b2088df",
+  "questionId": "3b6e5f28-5b9f-46a2-8d5e-da0274fde7a2",
   "sourceDocumentId": "0b36490a-a2d1-4a3f-8cd5-8bb2bf7736f6",
-  "tableBlockId": "b1346d3d-1bae-4437-a2c2-8c1c59b81af6",
-  "tableSourceRegionId": "7321956e-c3d7-4a08-9b88-50714001b1f5",
+  "tableBlockId": "d4ca4dbc-e07c-4cca-a89d-4f41b483868e",
+  "tableSourceRegionId": "bcf8591c-8bb5-408d-a8a7-a66a8a7d8d38",
   "tableStructure": {
     "caption": "REAL009 实验数据表",
     "columnCount": 3,
     "rowCount": 2,
     "confidence": 0.62,
     "reviewStatus": "pending_review",
-    "sourceRegionId": "7321956e-c3d7-4a08-9b88-50714001b1f5"
+    "sourceRegionId": "bcf8591c-8bb5-408d-a8a7-a66a8a7d8d38"
   },
   "cardProbe": {
     "hasTable": true,
@@ -25,16 +25,16 @@
   "sourceProbe": {
     "sourceRegionCount": 2,
     "tableRegionType": "question_table",
-    "tableScreenshotUrl": "/source-regions/7321956e-c3d7-4a08-9b88-50714001b1f5/screenshot",
+    "tableScreenshotUrl": "/source-regions/bcf8591c-8bb5-408d-a8a7-a66a8a7d8d38/screenshot",
     "tableScreenshotStatusCode": 200
   },
   "reviewQueueProbe": {
     "reviewType": "question_table_block_review",
-    "queueItemId": "54b19d9c-87ec-43d4-824a-0d93331b0a72",
+    "queueItemId": "32b2bad4-bbd8-4981-b009-086b5a35cf44",
     "requiredAction": "review_table_structure",
     "reason": "table_block_low_confidence_or_pending_review",
     "confidence": 0.62
   },
-  "rollback": "delete from review_queue_items where payload->>'questionItemId' = '8e229c46-e6cf-4c12-bf88-7f0c0b2088df'; delete from question_blocks where question_item_id = '8e229c46-e6cf-4c12-bf88-7f0c0b2088df'; delete from question_items where id = '8e229c46-e6cf-4c12-bf88-7f0c0b2088df';",
+  "rollback": "delete from review_queue_items where payload->>'questionItemId' = '3b6e5f28-5b9f-46a2-8d5e-da0274fde7a2'; delete from question_blocks where question_item_id = '3b6e5f28-5b9f-46a2-8d5e-da0274fde7a2'; delete from question_items where id = '3b6e5f28-5b9f-46a2-8d5e-da0274fde7a2';",
   "summaryChinese": "表格已作为 QuestionBlock table 结构化保存，保留来源截图，低置信度进入人工审核队列，且不会被当成题图资产。"
 }

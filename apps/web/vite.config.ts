@@ -2,7 +2,7 @@ import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 
 const localApiProxy = {
-  target: 'http://127.0.0.1:5275',
+  target: process.env.VITE_KQG_API_PROXY_TARGET ?? 'http://127.0.0.1:5275',
   changeOrigin: true,
 }
 
@@ -54,6 +54,7 @@ export default defineConfig({
     proxy: {
       '/api/admin': localApiProxy,
       '/health': localApiProxy,
+      '/knowledge-evidence': localApiProxy,
       '/imports': localApiProxy,
       '/source-documents': localApiProxy,
       '/source-regions': localApiProxy,

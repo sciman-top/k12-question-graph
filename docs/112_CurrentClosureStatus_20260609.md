@@ -1,10 +1,17 @@
 # 112 · 当前闭环状态总览
 
-日期：2026-07-25。状态证据核对到 2026-07-25。文件名保留 `20260609` 作为稳定入口。
+日期：2026-07-29。状态证据核对到 2026-07-29。文件名保留 `20260609` 作为稳定入口。
 
 ## 1. 当前结论
 
 截至最新已验证证据，本仓的真实状态是：
+
+- 2026-07-29 广州真题 v2 主库真值：234 题、2015-2025 共 11 年；234 题均为 `pending_review`，`primaryKnowledgeId=null`、`productionEligible=false`，并各有知识点/考点/难度候选。
+- CEK-01..16 与 Checkpoint C2 已完成 repo-side candidate 闭环：273 个课程要求/分面候选、444 个 AssessmentTarget 候选、88 个主知识映射、133 条 CurriculumAlignment、444 个 open review item；全部 `candidate/pending_review/productionEligible=false`。
+- CEK-12 真实只读索引覆盖 234 题和 11 年 paper/answer/report 文档；paper/answer 必需锚点无 blocker，234 个年报逐题区域锚点缺口如实进入待复核。
+- CEK-15 migration `20260729035809_AddAssessmentTargetEvidenceModelForCEK015` 已应用；CEK-16 两次导入幂等，active 领域资产仍为 452。
+- 2026-07-29 新增代码后的 full gate 已执行全部步骤并生成最终备份 `D:\KQG_Backups\20260729-133004\manifest.json`；所有子步骤报告均为 pass，stderr 为空。Windows 外层调用在恢复常驻 API 后未返回 EOF，因此这一次没有可引用的最终 exit code，不能写成 `RUN_GATES_EXIT=0`。
+- 新 CEK 定向门禁、roadmap guard、live closeout guard、reference-basis guard、API tests 和真实数据库 smoke 均 fresh pass。
 
 - 最新一次完整 `full gate` 已在 2026-07-26 通过，且 `RUN_GATES_EXIT=0`。
 - 2026-07-26 又刷新了 repo-side 真值守卫与预检：
@@ -21,6 +28,8 @@
 当前最准确的对外口径是：
 
 > 仓库内代码、脚本、非现场工作流、参考基线和发布前置口径已经进一步收口；2026-07-26 的完整 `full gate`、closeout/status 守卫与 REAL005 repo-side 切片证据均通过。`REAL005A/B/C/D 的 repo-side closeout 已完成`，但整体仍保持 `REAL005 = not_closed`；现场 / 隔离机 / 签收级闭环当前只剩 `P001/P003/P005/P006` 阻断。
+
+2026-07-29 补充口径：原真题入库、切题、标签候选、来源回看、组卷、分析和本地浏览器路径已闭环到 repo-side；课程/真题多层证据专题只完成 CEK-01..16，CEK-17..35 仍是实质待办。任何候选数量都不代表教师最终确认。
 
 2026-07-25 至 2026-07-26 恢复执行证据：`docs/evidence/20260725-p001-autonomous-resume-attempt.md`。该证据证明 repo-side full gate、readiness 与最新执行包完整性，不替代隔离机现场事实。
 

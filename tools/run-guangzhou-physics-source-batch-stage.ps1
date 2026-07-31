@@ -5,7 +5,8 @@ param(
     [string] $InventoryCsvPath = 'docs\evidence\20260726-guangzhou-physics-source-batch-inventory.csv',
     [switch] $Apply,
     [switch] $Rollback,
-    [switch] $ValidateRollback
+    [switch] $ValidateRollback,
+    [switch] $RefreshInventory
 )
 
 $ErrorActionPreference = 'Stop'
@@ -13,9 +14,9 @@ $env:PYTHONIOENCODING = 'utf-8'
 [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 
-$selectedModes = @($Apply.IsPresent, $Rollback.IsPresent, $ValidateRollback.IsPresent)
+$selectedModes = @($Apply.IsPresent, $Rollback.IsPresent, $ValidateRollback.IsPresent, $RefreshInventory.IsPresent)
 if (@($selectedModes | Where-Object { $_ }).Count -gt 1) {
-    throw '-Apply, -Rollback, and -ValidateRollback are mutually exclusive'
+    throw '-Apply, -Rollback, -ValidateRollback, and -RefreshInventory are mutually exclusive'
 }
 
 Push-Location $repoRoot
@@ -36,6 +37,9 @@ try {
     elseif ($ValidateRollback) {
         $arguments += '--validate-rollback'
     }
+    elseif ($RefreshInventory) {
+        $arguments += '--refresh-inventory'
+    }
 
     & python @arguments
     if ($LASTEXITCODE -ne 0) {
@@ -43,8 +47,8 @@ try {
     }
 
     $report = Get-Content -LiteralPath $ReportPath -Raw | ConvertFrom-Json
-    if ($report.status -ne 'pass' -or $report.physicalFileCount -ne 32 -or $report.logicalSourceCount -ne 33) {
-        throw 'Source batch report did not satisfy the 32 physical / 33 logical source contract'
+    if ($report.status -ne 'pass' -or $report.physicalFileCount -ne 33 -or $report.logicalSourceCount -ne 33) {
+        throw 'Source batch report did not satisfy the 33 physical / 33 logical source contract'
     }
     if ($report.pdfIntegrityPass -ne $true -or $report.yearsCovered.Count -ne 11) {
         throw 'Source batch report did not satisfy PDF integrity or 2015-2025 coverage'

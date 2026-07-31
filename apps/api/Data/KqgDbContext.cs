@@ -53,6 +53,18 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
 
     public DbSet<DomainAssetMigration> DomainAssetMigrations => Set<DomainAssetMigration>();
 
+    public DbSet<AssessmentTarget> AssessmentTargets => Set<AssessmentTarget>();
+
+    public DbSet<AssessmentTargetKnowledgeMapping> AssessmentTargetKnowledgeMappings => Set<AssessmentTargetKnowledgeMapping>();
+
+    public DbSet<CurriculumAlignment> CurriculumAlignments => Set<CurriculumAlignment>();
+
+    public DbSet<ObservedPerformanceEvidence> ObservedPerformanceEvidence => Set<ObservedPerformanceEvidence>();
+
+    public DbSet<ObservedErrorEvidence> ObservedErrorEvidence => Set<ObservedErrorEvidence>();
+
+    public DbSet<TeachingRecommendation> TeachingRecommendations => Set<TeachingRecommendation>();
+
     public DbSet<QuestionBlock> QuestionBlocks => Set<QuestionBlock>();
 
     public DbSet<QuestionAsset> QuestionAssets => Set<QuestionAsset>();
@@ -93,6 +105,12 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
         ConfigureDomainAssetVersion(modelBuilder.Entity<DomainAssetVersion>());
         ConfigureDomainAssetMapping(modelBuilder.Entity<DomainAssetMapping>());
         ConfigureDomainAssetMigration(modelBuilder.Entity<DomainAssetMigration>());
+        ConfigureAssessmentTarget(modelBuilder.Entity<AssessmentTarget>());
+        ConfigureAssessmentTargetKnowledgeMapping(modelBuilder.Entity<AssessmentTargetKnowledgeMapping>());
+        ConfigureCurriculumAlignment(modelBuilder.Entity<CurriculumAlignment>());
+        ConfigureObservedPerformanceEvidence(modelBuilder.Entity<ObservedPerformanceEvidence>());
+        ConfigureObservedErrorEvidence(modelBuilder.Entity<ObservedErrorEvidence>());
+        ConfigureTeachingRecommendation(modelBuilder.Entity<TeachingRecommendation>());
         ConfigureQuestionBlock(modelBuilder.Entity<QuestionBlock>());
         ConfigureQuestionAsset(modelBuilder.Entity<QuestionAsset>());
         ConfigurePaperBasket(modelBuilder.Entity<PaperBasket>());
@@ -590,6 +608,195 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
         {
             x.HasCheckConstraint("ck_domain_asset_migrations_status", "status in ('draft','dry_run','pending_review','applied','rolled_back','rejected')");
             x.HasCheckConstraint("ck_domain_asset_migrations_not_self", "from_asset_version_id is null or to_asset_version_id is null or from_asset_version_id <> to_asset_version_id");
+        });
+    }
+
+    private static void ConfigureAssessmentTarget(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<AssessmentTarget> entity)
+    {
+        entity.ToTable("assessment_targets");
+        entity.HasKey(x => x.Id);
+        entity.HasIndex(x => x.StableKey).IsUnique();
+        entity.HasIndex(x => x.BatchKey);
+        entity.HasIndex(x => new { x.QuestionItemId, x.ScopeType });
+        entity.HasIndex(x => x.QuestionBlockId);
+        entity.HasIndex(x => x.ReviewStatus);
+        entity.Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
+        entity.Property(x => x.StableKey).HasMaxLength(160).IsRequired();
+        entity.Property(x => x.BatchKey).HasMaxLength(160).IsRequired();
+        entity.Property(x => x.ScopeType).HasMaxLength(32).HasDefaultValue("whole_question");
+        entity.Property(x => x.TargetStatement).HasMaxLength(2048).IsRequired();
+        entity.Property(x => x.Status).HasMaxLength(32).HasDefaultValue("candidate");
+        entity.Property(x => x.ReviewStatus).HasMaxLength(32).HasDefaultValue("pending_review");
+        entity.Property(x => x.Metadata).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.HasOne<QuestionItem>().WithMany().HasForeignKey(x => x.QuestionItemId).OnDelete(DeleteBehavior.Cascade);
+        entity.HasOne<QuestionBlock>().WithMany().HasForeignKey(x => x.QuestionBlockId).OnDelete(DeleteBehavior.Restrict);
+        entity.ToTable(x =>
+        {
+            x.HasCheckConstraint("ck_assessment_targets_scope_type", "scope_type in ('whole_question','subquestion','scoring_point')");
+            x.HasCheckConstraint("ck_assessment_targets_scope_block", "(scope_type = 'whole_question' and question_block_id is null) or (scope_type in ('subquestion','scoring_point') and question_block_id is not null)");
+            x.HasCheckConstraint("ck_assessment_targets_confidence", "confidence >= 0 and confidence <= 1");
+            x.HasCheckConstraint("ck_assessment_targets_status", "status in ('candidate','reviewed','active','rejected')");
+            x.HasCheckConstraint("ck_assessment_targets_review_status", "review_status in ('pending_review','approved','rejected')");
+            x.HasCheckConstraint("ck_assessment_targets_production_guard", "production_eligible = false or (status = 'active' and review_status = 'approved')");
+        });
+    }
+
+    private static void ConfigureAssessmentTargetKnowledgeMapping(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<AssessmentTargetKnowledgeMapping> entity)
+    {
+        entity.ToTable("assessment_target_knowledge_mappings");
+        entity.HasKey(x => x.Id);
+        entity.HasIndex(x => new { x.AssessmentTargetId, x.DomainAssetVersionId, x.Role }).IsUnique();
+        entity.HasIndex(x => x.AssessmentTargetId).IsUnique().HasFilter("role = 'primary'");
+        entity.HasIndex(x => x.DomainAssetVersionId);
+        entity.HasIndex(x => x.ReviewStatus);
+        entity.Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
+        entity.Property(x => x.Role).HasMaxLength(32).HasDefaultValue("primary");
+        entity.Property(x => x.Status).HasMaxLength(32).HasDefaultValue("candidate");
+        entity.Property(x => x.ReviewStatus).HasMaxLength(32).HasDefaultValue("pending_review");
+        entity.Property(x => x.Evidence).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.HasOne<AssessmentTarget>().WithMany().HasForeignKey(x => x.AssessmentTargetId).OnDelete(DeleteBehavior.Cascade);
+        entity.HasOne<DomainAssetVersion>().WithMany().HasForeignKey(x => x.DomainAssetVersionId).OnDelete(DeleteBehavior.Restrict);
+        entity.ToTable(x =>
+        {
+            x.HasCheckConstraint("ck_assessment_target_knowledge_role", "role in ('primary','secondary','prerequisite')");
+            x.HasCheckConstraint("ck_assessment_target_knowledge_confidence", "confidence >= 0 and confidence <= 1");
+            x.HasCheckConstraint("ck_assessment_target_knowledge_status", "status in ('candidate','reviewed','active','rejected')");
+            x.HasCheckConstraint("ck_assessment_target_knowledge_review_status", "review_status in ('pending_review','approved','rejected')");
+            x.HasCheckConstraint("ck_assessment_target_knowledge_production_guard", "production_eligible = false or (status = 'active' and review_status = 'approved')");
+        });
+    }
+
+    private static void ConfigureCurriculumAlignment(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<CurriculumAlignment> entity)
+    {
+        entity.ToTable("curriculum_alignments");
+        entity.HasKey(x => x.Id);
+        entity.HasIndex(x => x.StableKey).IsUnique();
+        entity.HasIndex(x => x.AssessmentTargetId);
+        entity.HasIndex(x => x.CurriculumAssetVersionId);
+        entity.HasIndex(x => x.SourceDocumentId);
+        entity.HasIndex(x => x.SourceRegionId);
+        entity.HasIndex(x => x.ReviewStatus);
+        entity.Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
+        entity.Property(x => x.StableKey).HasMaxLength(160).IsRequired();
+        entity.Property(x => x.AlignmentType).HasMaxLength(48).HasDefaultValue("retrospective_crosswalk");
+        entity.Property(x => x.StandardVersion).HasMaxLength(128).IsRequired();
+        entity.Property(x => x.Status).HasMaxLength(32).HasDefaultValue("candidate");
+        entity.Property(x => x.ReviewStatus).HasMaxLength(32).HasDefaultValue("pending_review");
+        entity.Property(x => x.Evidence).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.HasOne<AssessmentTarget>().WithMany().HasForeignKey(x => x.AssessmentTargetId).OnDelete(DeleteBehavior.Cascade);
+        entity.HasOne<DomainAssetVersion>().WithMany().HasForeignKey(x => x.CurriculumAssetVersionId).OnDelete(DeleteBehavior.Restrict);
+        entity.HasOne<SourceDocument>().WithMany().HasForeignKey(x => x.SourceDocumentId).OnDelete(DeleteBehavior.Restrict);
+        entity.HasOne<SourceRegion>().WithMany().HasForeignKey(x => x.SourceRegionId).OnDelete(DeleteBehavior.Restrict);
+        entity.ToTable(x =>
+        {
+            x.HasCheckConstraint("ck_curriculum_alignments_type", "alignment_type in ('source_cited','contemporaneous_inferred','retrospective_crosswalk')");
+            x.HasCheckConstraint("ck_curriculum_alignments_original_basis", "original_basis = false or alignment_type = 'source_cited'");
+            x.HasCheckConstraint("ck_curriculum_alignments_confidence", "confidence >= 0 and confidence <= 1");
+            x.HasCheckConstraint("ck_curriculum_alignments_status", "status in ('candidate','reviewed','active','rejected')");
+            x.HasCheckConstraint("ck_curriculum_alignments_review_status", "review_status in ('pending_review','approved','rejected')");
+            x.HasCheckConstraint("ck_curriculum_alignments_production_guard", "production_eligible = false or (status = 'active' and review_status = 'approved')");
+        });
+    }
+
+    private static void ConfigureObservedPerformanceEvidence(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<ObservedPerformanceEvidence> entity)
+    {
+        entity.ToTable("observed_performance_evidence");
+        entity.HasKey(x => x.Id);
+        entity.HasIndex(x => x.StableKey).IsUnique();
+        entity.HasIndex(x => x.BatchKey);
+        entity.HasIndex(x => x.AssessmentTargetId);
+        entity.HasIndex(x => x.SourceRegionId);
+        entity.HasIndex(x => x.ReviewStatus);
+        entity.Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
+        entity.Property(x => x.StableKey).HasMaxLength(160).IsRequired();
+        entity.Property(x => x.BatchKey).HasMaxLength(160).IsRequired();
+        entity.Property(x => x.DifficultyDirection).HasMaxLength(32).HasDefaultValue("higher_is_easier");
+        entity.Property(x => x.SampleScope).HasMaxLength(256).IsRequired();
+        entity.Property(x => x.OptionDistribution).HasColumnType("jsonb").HasDefaultValueSql("'null'::jsonb");
+        entity.Property(x => x.RawStatistics).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.Property(x => x.Status).HasMaxLength(32).HasDefaultValue("candidate");
+        entity.Property(x => x.ReviewStatus).HasMaxLength(32).HasDefaultValue("pending_review");
+        entity.Property(x => x.Evidence).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.HasOne<AssessmentTarget>().WithMany().HasForeignKey(x => x.AssessmentTargetId).OnDelete(DeleteBehavior.Cascade);
+        entity.HasOne<SourceRegion>().WithMany().HasForeignKey(x => x.SourceRegionId).OnDelete(DeleteBehavior.Restrict);
+        entity.ToTable(x =>
+        {
+            x.HasCheckConstraint("ck_observed_performance_has_metric", "maximum_score is not null or average_score is not null or score_rate is not null or difficulty_observed is not null or discrimination is not null or option_distribution <> 'null'::jsonb");
+            x.HasCheckConstraint("ck_observed_performance_scores", "(maximum_score is null or maximum_score >= 0) and (average_score is null or average_score >= 0)");
+            x.HasCheckConstraint("ck_observed_performance_rates", "(score_rate is null or (score_rate >= 0 and score_rate <= 1)) and (difficulty_observed is null or (difficulty_observed >= 0 and difficulty_observed <= 1))");
+            x.HasCheckConstraint("ck_observed_performance_discrimination", "discrimination is null or (discrimination >= -1 and discrimination <= 1)");
+            x.HasCheckConstraint("ck_observed_performance_direction", "difficulty_direction = 'higher_is_easier'");
+            x.HasCheckConstraint("ck_observed_performance_sample_size", "sample_size is null or sample_size > 0");
+            x.HasCheckConstraint("ck_observed_performance_confidence", "confidence >= 0 and confidence <= 1");
+            x.HasCheckConstraint("ck_observed_performance_status", "status in ('candidate','reviewed','active','rejected')");
+            x.HasCheckConstraint("ck_observed_performance_review_status", "review_status in ('pending_review','approved','rejected')");
+            x.HasCheckConstraint("ck_observed_performance_production_guard", "production_eligible = false or (status = 'active' and review_status = 'approved')");
+        });
+    }
+
+    private static void ConfigureObservedErrorEvidence(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<ObservedErrorEvidence> entity)
+    {
+        entity.ToTable("observed_error_evidence");
+        entity.HasKey(x => x.Id);
+        entity.HasIndex(x => x.StableKey).IsUnique();
+        entity.HasIndex(x => x.BatchKey);
+        entity.HasIndex(x => x.AssessmentTargetId);
+        entity.HasIndex(x => x.SourceRegionId);
+        entity.HasIndex(x => x.ReviewStatus);
+        entity.Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
+        entity.Property(x => x.StableKey).HasMaxLength(160).IsRequired();
+        entity.Property(x => x.BatchKey).HasMaxLength(160).IsRequired();
+        entity.Property(x => x.RecordKind).HasMaxLength(48).HasDefaultValue("summary_candidate");
+        entity.Property(x => x.Content).HasColumnType("text").IsRequired();
+        entity.Property(x => x.GenerationMethod).HasMaxLength(32).HasDefaultValue("rules");
+        entity.Property(x => x.Status).HasMaxLength(32).HasDefaultValue("candidate");
+        entity.Property(x => x.ReviewStatus).HasMaxLength(32).HasDefaultValue("pending_review");
+        entity.Property(x => x.Evidence).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.HasOne<AssessmentTarget>().WithMany().HasForeignKey(x => x.AssessmentTargetId).OnDelete(DeleteBehavior.Cascade);
+        entity.HasOne<SourceRegion>().WithMany().HasForeignKey(x => x.SourceRegionId).OnDelete(DeleteBehavior.Restrict);
+        entity.ToTable(x =>
+        {
+            x.HasCheckConstraint("ck_observed_error_kind", "record_kind in ('verbatim_observation','summary_candidate','normalized_pattern_candidate')");
+            x.HasCheckConstraint("ck_observed_error_generation", "generation_method in ('source_quote','rules','ai','human')");
+            x.HasCheckConstraint("ck_observed_error_verbatim_generation", "record_kind <> 'verbatim_observation' or generation_method = 'source_quote'");
+            x.HasCheckConstraint("ck_observed_error_normalized_generation", "record_kind <> 'normalized_pattern_candidate' or generation_method in ('rules','ai','human')");
+            x.HasCheckConstraint("ck_observed_error_confidence", "confidence >= 0 and confidence <= 1");
+            x.HasCheckConstraint("ck_observed_error_status", "status in ('candidate','reviewed','active','rejected')");
+            x.HasCheckConstraint("ck_observed_error_review_status", "review_status in ('pending_review','approved','rejected')");
+            x.HasCheckConstraint("ck_observed_error_production_guard", "production_eligible = false or (status = 'active' and review_status = 'approved')");
+        });
+    }
+
+    private static void ConfigureTeachingRecommendation(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TeachingRecommendation> entity)
+    {
+        entity.ToTable("teaching_recommendations");
+        entity.HasKey(x => x.Id);
+        entity.HasIndex(x => x.StableKey).IsUnique();
+        entity.HasIndex(x => x.BatchKey);
+        entity.HasIndex(x => x.AssessmentTargetId);
+        entity.HasIndex(x => x.SourceRegionId);
+        entity.HasIndex(x => x.ReviewStatus);
+        entity.Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
+        entity.Property(x => x.StableKey).HasMaxLength(160).IsRequired();
+        entity.Property(x => x.BatchKey).HasMaxLength(160).IsRequired();
+        entity.Property(x => x.Content).HasColumnType("text").IsRequired();
+        entity.Property(x => x.AuthorKind).HasMaxLength(32).HasDefaultValue("legacy_candidate");
+        entity.Property(x => x.GenerationMethod).HasMaxLength(32).HasDefaultValue("rules");
+        entity.Property(x => x.Status).HasMaxLength(32).HasDefaultValue("candidate");
+        entity.Property(x => x.ReviewStatus).HasMaxLength(32).HasDefaultValue("pending_review");
+        entity.Property(x => x.Evidence).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.HasOne<AssessmentTarget>().WithMany().HasForeignKey(x => x.AssessmentTargetId).OnDelete(DeleteBehavior.Cascade);
+        entity.HasOne<SourceRegion>().WithMany().HasForeignKey(x => x.SourceRegionId).OnDelete(DeleteBehavior.Restrict);
+        entity.ToTable(x =>
+        {
+            x.HasCheckConstraint("ck_teaching_recommendations_author", "author_kind in ('report_author','teacher','ai_candidate','legacy_candidate')");
+            x.HasCheckConstraint("ck_teaching_recommendations_generation", "generation_method in ('source_quote','rules','ai','human')");
+            x.HasCheckConstraint("ck_teaching_recommendations_report_author_generation", "author_kind <> 'report_author' or generation_method = 'source_quote'");
+            x.HasCheckConstraint("ck_teaching_recommendations_ai_generation", "author_kind <> 'ai_candidate' or generation_method = 'ai'");
+            x.HasCheckConstraint("ck_teaching_recommendations_confidence", "confidence >= 0 and confidence <= 1");
+            x.HasCheckConstraint("ck_teaching_recommendations_status", "status in ('candidate','reviewed','active','rejected')");
+            x.HasCheckConstraint("ck_teaching_recommendations_review_status", "review_status in ('pending_review','approved','rejected')");
+            x.HasCheckConstraint("ck_teaching_recommendations_production_guard", "production_eligible = false or (status = 'active' and review_status = 'approved')");
         });
     }
 

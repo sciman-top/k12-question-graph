@@ -4,13 +4,15 @@
 
 ## 当前状态入口
 
-如果你想知道“现在到底闭环到哪了”，先看 `docs/112_CurrentClosureStatus_20260609.md`、`docs/103_ExecutionControlBoard.md`、`docs/109_ReleaseGoNoGoCard.md` 和 `tasks/completion-state-dashboard.csv`。如果你想知道“本地 Web/API 现在应该怎么跑、怎么看活着没”，先看 `docs/113_LocalRuntimeOperations_20260609.md`。这些入口已在 2026-06-23 按当前最新 repo-side 证据刷新；README 这里只保留稳定背景、常用启动命令和少量历史摘要。
+如果你想知道“现在到底闭环到哪了”，先看 `docs/112_CurrentClosureStatus_20260609.md`、`docs/103_ExecutionControlBoard.md`、`docs/109_ReleaseGoNoGoCard.md` 和 `tasks/completion-state-dashboard.csv`；课程标准与真题多层证据专题看 `tasks/curriculum-exam-knowledge-extraction-todo.md`。如果你想知道“本地 Web/API 现在应该怎么跑、怎么看活着没”，先看 `docs/113_LocalRuntimeOperations_20260609.md`。README 这里只保留稳定背景、常用启动命令和少量状态摘要。
 
 ## 当前仓库状态
 
 本仓已从**编码前设计包**进入可运行实现阶段：已有产品、架构、schema、配置、runbook、任务清单、ASP.NET Core API、React/Vite/Ant Design 前端、PostgreSQL/EF Core migration、Python Worker 占位、FileStore、ImportJob、health、backup 和统一 gate。
 
 2026-06-23 文档刷新口径：最新完整 `full gate` 已在 2026-06-23 通过，`tools/run-live-pilot-closeout-repo-side-audit.ps1` 也已记录 `exit_code = 0` 与 `tmp/full-gate-pqr/` 刷新产物。最新 repo-side 守卫与状态同步同样推进到 2026-06-23，其中 `tools/run-reference-basis-guard.ps1` 通过（20 个受管任务、13 个模块、`snapshot_parity = match`），`tools/run-live-pilot-closeout-plan-guard.ps1` 通过（26 行 closeout 计划、`REAL005 = not_closed`、`REAL005A/B/C/D 的 repo-side closeout 已完成`、`REAL005` 的 repo-side next open slice = `none`、当前仅剩 `P001A/P003A/P005A/P006A` 为 next open），`tools/run-live-pilot-closeout-repo-side-audit.ps1` 也通过并再次确认 `release_ready_claimed = false` 与 truth boundary 未被现场事实消掉。`REAL005` 最新 closure report 仍明确 `fullClosureAllowed = false`，因此即使 `REAL005A/B/C/D 的 repo-side closeout 已完成`，整体口径仍只能保持 `not_closed`，不能提前改成已闭环。`release_ready_count = 0`、`P001/P003/P005/P006` 仍为 `待办`。这意味着仓库侧 closeout、参考基线和状态口径已进一步收口，但没有把现场 / 隔离机 / 签字级闭环“提前算完成”。
+
+2026-07-31 课程标准与真题多层证据专题（CEK-01..35）已完成本机 repo-side 收口。fresh 授权版 CEK-34 suite 记录 `status=pass/cek34Complete=true`：API 78、Worker 182、Web 38、lint 和完整 full gate 通过；2015-2025 共 234 题的题干、答案、试卷/答案锚点与题级年报锚点已进入 PostgreSQL 候选链，4,571 个 FileStore 文件隔离恢复后 hash 一致。自动提炼结果仍为 `candidate/pending_review/productionEligible=false`，生产 active 未切换；真实教师签字、身份授权、学校网络、隔离机、`REAL005=not_closed` 和 release No-Go 均保持开放。
 
 2026-05-02 外部资料复核后的判断：最高原则、默认技术栈、模块化单体架构和 P0/P1 纵切路线保持正确；需要在进入编码前先完成 P0 准入预检，锁定 SDK/runtime、PostgreSQL 版本、数据目录、Windows Service/content root 约束、BackgroundService job lease/retry 规则、学生数据/合规辖区边界和文档门禁。
 

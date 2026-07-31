@@ -38,7 +38,7 @@ $manifest = Get-Content -LiteralPath $manifestItem.FullName -Raw | ConvertFrom-J
 $databaseDump = Join-Path $backupDir ([string] $manifest.database.dump)
 $stageReportPath = Join-Path $repoRoot $StageReport
 $stage = Get-Content -LiteralPath $stageReportPath -Raw | ConvertFrom-Json
-if ($stage.status -ne 'pass' -or $stage.mode -notin @('dry_run', 'apply') -or $stage.physicalFileCount -ne 32) {
+if ($stage.status -ne 'pass' -or $stage.mode -notin @('dry_run', 'apply', 'refresh_inventory') -or $stage.physicalFileCount -ne 33) {
     throw 'T1 source stage evidence is missing or invalid'
 }
 

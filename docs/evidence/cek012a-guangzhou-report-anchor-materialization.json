@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "cek012a-guangzhou-report-anchor-materialization.v1",
+  "status": "pass",
+  "checkedAt": "2026-07-29T14:43:16.943200+00:00",
+  "mode": "apply",
+  "importKey": "cek012a_guangzhou_report_question_anchors_v1",
+  "questions": 234,
+  "anchors": 268,
+  "extraMetricPageAnchors": 34,
+  "years": {
+    "2015": 24,
+    "2016": 24,
+    "2017": 24,
+    "2018": 24,
+    "2019": 24,
+    "2020": 24,
+    "2021": 18,
+    "2022": 18,
+    "2023": 18,
+    "2024": 18,
+    "2025": 18
+  },
+  "localizationMethods": {
+    "c003_page_verified_observation": 210,
+    "heading_and_stem_similarity": 24
+  },
+  "database": {
+    "regionsBefore": 234,
+    "blocksBefore": 234,
+    "regionsAfter": 268,
+    "blocksAfter": 268
+  },
+  "backupManifest": "D:\\KQG_Backups\\20260729-221134\\manifest.json",
+  "activeWrite": false,
+  "productionEligible": false,
+  "rollback": "delete question_blocks/source_regions where JSON importKey = cek012a_guangzhou_report_question_anchors_v1, or restore D:\\KQG_Backups\\20260729-221134\\manifest.json",
+  "planSha256": "7bfee58634cebb708ed0012c448caed940b9fc86282bd68c8d4694b4d18545e9",
+  "completionBoundary": "Candidate report-page anchors only; full-page regions and 2015 heuristic localization require teacher review."
+}

@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "assessment-target-extraction-eval.v1",
+  "suiteId": "cek014-assessment-target-extraction-golden",
+  "allowRealModelCalls": false,
+  "cases": [
+    {
+      "caseId": "synthetic-semantic-candidate",
+      "inputScopeKey": "question-scope:v1:11111111-1111-1111-1111-111111111111:whole_question",
+      "expected": {
+        "generationMethod": "ai",
+        "sourceFactsMutable": false,
+        "reviewStatus": "pending_review",
+        "productionEligible": false,
+        "externalModelCalls": 0
+      }
+    }
+  ]
+}

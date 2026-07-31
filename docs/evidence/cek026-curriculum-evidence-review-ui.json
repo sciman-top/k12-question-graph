@@ -1,0 +1,72 @@
+{
+  "status": "pass",
+  "task": "CEK-26",
+  "mode": "ui_contract",
+  "checkedAt": "2026-07-31T10:42:25.1939094Z",
+  "reviewGroups": [
+    "complex_mappings",
+    "low_confidence_mappings",
+    "curriculum_requirements",
+    "assessment_targets",
+    "regional_profiles"
+  ],
+  "teacherActions": [
+    "approve",
+    "return",
+    "change_mapping",
+    "keep_pending",
+    "undo"
+  ],
+  "reasonRequired": true,
+  "pagination": true,
+  "networkRetryState": true,
+  "retrospectiveCrosswalkDisclosed": true,
+  "sourcePageLinks": true,
+  "knowledgeRoles": [
+    "primary",
+    "secondary"
+  ],
+  "difficultySourcesDistinguished": [
+    "question_estimated",
+    "annual_report_observed"
+  ],
+  "interactionTests": 5,
+  "replacementOptionsAllowlisted": true,
+  "responsiveBreakpoint": "860px",
+  "failClosedDefaults": true,
+  "adminOnlyTechnicalFieldsHidden": true,
+  "activeApplyAllowed": false,
+  "productionEligible": false,
+  "browserVerification": {
+    "status": "not_requested",
+    "evidencePath": null,
+    "checkedAt": null,
+    "desktop": null,
+    "mobile": null,
+    "interactions": null,
+    "consoleErrorCount": null,
+    "failedRequestCount": null
+  },
+  "liveApiProbe": {
+    "status": "not_requested",
+    "apiPort": null,
+    "complexMappingTotal": null,
+    "replacementOptionCount": null,
+    "productionEligible": false
+  },
+  "boundary": "This contract proves the CEK-26 source, client, fail-closed normalization, and responsive UI markers. It does not approve candidates, switch C002 active assets, prove identity authentication, or replace live browser and teacher acceptance.",
+  "evidence": {
+    "panel": "apps/web/src/ui/CurriculumEvidenceReviewPanel.tsx",
+    "tests": "apps/web/src/ui/CurriculumEvidenceReviewPanel.test.tsx",
+    "adminMount": "apps/web/src/ui/AdminGovernancePanels.tsx",
+    "client": "apps/web/src/api/client.ts",
+    "contracts": "apps/web/src/api/contracts.ts",
+    "style": "apps/web/src/App.css",
+    "proxy": "apps/web/vite.config.ts",
+    "report": "docs/evidence/cek026-curriculum-evidence-review-ui.json"
+  },
+  "rollback": {
+    "code": "revert only the CEK-26 web, test, contract, and plan slice",
+    "data": "no database, review decision, active asset, or production state is changed by this contract"
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "schemaVersion": "cek025-curriculum-evidence-review-api.v1",
+  "status": "pass",
+  "checkedAt": "2026-07-31T04:38:30.1058134+00:00",
+  "taskId": "CEK-25",
+  "backup": {
+    "manifest": "D:\\KQG_Backups\\20260730-223504\\manifest.json",
+    "verified": true
+  },
+  "api": {
+    "ready": true,
+    "configuration": "Cek025",
+    "pagination": {
+      "page": 1,
+      "pageSize": 10,
+      "totalCount": 968,
+      "sort": "impact_desc,confidence_asc,stable_key_asc"
+    },
+    "reviewGroups": {
+      "complexMappings": 92,
+      "curriculumRequirements": 273,
+      "assessmentTargets": 444,
+      "regionalProfiles": 24,
+      "errorPatterns": 0
+    },
+    "targetEvidenceSummary": {
+      "primaryKnowledgeTargets": 234,
+      "estimatedDifficultyTargets": 444,
+      "sourceAnchoredObservedDifficultyEntries": 148
+    },
+    "decisions": [
+      {
+        "decision": "approve",
+        "decisionId": "4e9cf417-ce85-4990-98a3-49299f96ca7e",
+        "undoClosed": true
+      },
+      {
+        "decision": "return",
+        "decisionId": "1a509d13-43b8-4f78-a62e-35adb0c9d8e5",
+        "undoClosed": true
+      },
+      {
+        "decision": "keep_pending",
+        "decisionId": "0b51be86-8c7e-44d1-9160-a3de8262fbb6",
+        "undoClosed": true
+      }
+    ],
+    "batchApproval": {
+      "approved": 1,
+      "undoClosed": true
+    },
+    "mappingRevision": {
+      "stayedPending": true,
+      "undoClosed": true
+    },
+    "teacherActiveApplyRejected": true,
+    "targetMappingChangeRejected": true,
+    "activeAssetIdBypassRejected": true,
+    "activeReplacementBypassRejected": true,
+    "staleUndoRejected": true,
+    "staleUndoChainRestored": true
+  },
+  "readiness": {
+    "pendingCount": 968,
+    "approvedCount": 0,
+    "rejectedCount": 0,
+    "reviewComplete": false,
+    "errorPatternStatus": "blocked_no_persisted_candidates",
+    "activeApplyAllowed": false
+  },
+  "compatibility": {
+    "activeAssetCount": 452,
+    "activeFingerprintUnchanged": true,
+    "profileCount": 24,
+    "profileFingerprintUnchanged": true,
+    "questionCount": 234,
+    "historicalQuestionFingerprintUnchanged": true,
+    "targetAlignmentMappingRestored": true
+  },
+  "governance": {
+    "sameReviewQueue": true,
+    "decisionAuditCountAdded": 7,
+    "productionEligible": false,
+    "activeWrite": false,
+    "errorPatternFailClosed": true,
+    "retrospectiveAlignmentTypePreserved": true
+  },
+  "rollback": {
+    "interruptedDecisionsRecovered": [],
+    "decisionsUndone": 7,
+    "baselineFingerprintsRestored": true,
+    "fallbackManifest": "D:\\KQG_Backups\\20260730-223504\\manifest.json"
+  },
+  "fullGate": {
+    "status": "gate_na",
+    "reason": "tools/run-gates.ps1 may affect PostgreSQL and API processes and is reserved for CEK-34 current confirmation",
+    "alternative_verification": "CEK-25 backup verification, API build, targeted red-green tests, live decision/undo smoke, database fingerprint parity, roadmap/reference guards, and static hotspot audit",
+    "evidence_link": "docs/evidence/cek025-curriculum-evidence-review-api.json",
+    "expires_at": "CEK-34",
+    "recovery_condition": "obtain the planned current confirmation and run tools/run-gates.ps1 at CEK-34"
+  },
+  "identityBoundary": "reviewer and actorRole are request audit fields in the current local API; authenticated identity and authorization are not proven by CEK-25.",
+  "completionBoundary": "CEK-25 proves local candidate review, audit, batch admission, readiness, stale-undo rejection, and undo only. C002R migration/active switch, authenticated identity/authorization, CEK-20 persistence, teacher UI acceptance, and REAL005 remain open."
+}

@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "cek019a-observed-exam-evidence-api-smoke.v1",
+  "status": "pass",
+  "checkedAt": "2026-07-30T12:25:39.7489015+00:00",
+  "taskId": "CEK-19A",
+  "backup": {
+    "manifest": "D:\\KQG_Backups\\20260729-235951\\manifest.json",
+    "verified": true
+  },
+  "import": {
+    "first": "applied",
+    "second": "applied",
+    "idempotent": true,
+    "counts": {
+      "observedPerformance": 157,
+      "observedErrors": 35,
+      "teachingRecommendations": 25,
+      "nonCandidateEvidence": 0,
+      "reviewItems": 234,
+      "activeAssets": 452,
+      "questionCount": 234,
+      "questionFingerprint": "4d8a1db09afab73394e1beecc0123071"
+    }
+  },
+  "api": {
+    "ready": true,
+    "performanceReturned": 157,
+    "errorsReturned": 35,
+    "teachingRecommendationsReturned": 25,
+    "targetFilterVerified": true,
+    "readOnly": true
+  },
+  "compatibility": {
+    "questionFingerprintBefore": "4d8a1db09afab73394e1beecc0123071",
+    "questionFingerprintAfter": "4d8a1db09afab73394e1beecc0123071",
+    "legacyQuestionFieldsUnchanged": true,
+    "activeAssetCount": 452,
+    "activeUnchanged": true
+  },
+  "governance": {
+    "candidateOnly": true,
+    "pendingReview": true,
+    "productionEligible": false,
+    "reviewItems": 234
+  },
+  "rollback": "delete review_queue_items by payload importKey cek019a_guangzhou_observed_exam_evidence_v1 and evidence rows by batch_key cek019a_guangzhou_observed_exam_evidence_v1, or restore D:\\KQG_Backups\\20260729-235951\\manifest.json",
+  "completionBoundary": "CEK-19A proves idempotent candidate import and read-only API query only; no evidence is teacher-approved or active, and REAL005 remains not_closed."
+}

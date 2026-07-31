@@ -6,7 +6,13 @@ import {
   FileSearchOutlined,
   FileTextOutlined,
 } from '@ant-design/icons'
-import type { QuestionSearchParams, QuestionSourceRegionContract } from '../api/contracts'
+import type {
+  QuestionEvidenceSearchParams,
+  QuestionEvidenceCardContract,
+  QuestionSearchParams,
+  QuestionSourceRegionContract,
+  ScoreEvidenceAnalysisContract,
+} from '../api/contracts'
 import {
   teacherDifficultyRangeLabelFor,
   teacherLabelFor,
@@ -29,6 +35,28 @@ export type RealExamPreviewRow = {
   primaryKnowledgeLabel: string
   knowledgeTags: string[]
   sourceLabel: string
+}
+
+export const initialScoreEvidenceAnalysis: ScoreEvidenceAnalysisContract = {
+  status: 'blocked',
+  mode: 'draft_test',
+  productionEligible: false,
+  realStudentDataUsed: false,
+  writesProductionHistory: false,
+  assessmentId: '',
+  assessmentTitle: '',
+  scoreDerivedPerformance: [],
+  knowledgeMastery: [],
+  abilityPerformance: [],
+  cognitivePerformance: [],
+  observedContexts: [],
+  errorPatternAssociations: [],
+  teachingRecommendations: [],
+  teacherConfirmedDiagnoses: [],
+  diagnosisStatus: 'pending_teacher_confirmation',
+  blockingIssues: [],
+  teacherMessage: '请先导入成绩并完成小题映射。',
+  auditTrail: [],
 }
 
 export const inlineMathPattern = /(\\\[[\s\S]+?\\\]|\\\([\s\S]+?\\\)|\$\$[\s\S]+?\$\$|\$[^$\n]+?\$)/g
@@ -103,6 +131,10 @@ export function sourceRegionRank(regionType: string) {
     return 2
   }
   return 3
+}
+
+export function resolveSourcePreviewUrl(sourceUrl: string, origin: string) {
+  return new URL(sourceUrl, origin).toString()
 }
 
 export function hasRenderableImage(region: {
@@ -374,6 +406,49 @@ export const questionSearchFilterChips = [
 
 export const questionSearchParamsFor = (filter: string): QuestionSearchParams =>
   questionSearchFilterChips.find((item) => item.filter === filter)?.params ?? { status: 'pending_review' }
+
+export const questionEvidenceFilterOptions = [
+  { value: 'all', label: '全部证据题目', params: {} },
+  { value: 'requirement', label: '课标要求：4.1.4', params: { requirementId: 'CR-PHY-JM-2022R2025-4.1.4-F01' } },
+  { value: 'ability', label: '能力：科学推理', params: { ability: '科学推理' } },
+  { value: 'cognitive', label: '认知：分析', params: { cognitiveDemand: 'analyze' } },
+  { value: 'method', label: '方法：实验探究', params: { methodOrExperiment: 'experiment' } },
+  { value: 'context', label: '情境：实验', params: { context: 'experimental' } },
+  { value: 'representation', label: '表征：图像/示意图', params: { representation: 'diagram' } },
+  { value: 'profile', label: '广州考查画像', params: { profileId: 'EPHY-GUANGZHOU-074E4C66013F8AE6' } },
+  {
+    value: 'observed-difficulty',
+    label: '实测难度：0.5-1.0',
+    params: { observedDifficultyMin: 0.5, observedDifficultyMax: 1 },
+  },
+] satisfies Array<{ value: string; label: string; params: QuestionEvidenceSearchParams }>
+
+export const questionEvidenceParamsFor = (
+  filter: string,
+  mode: QuestionEvidenceSearchParams['evidenceMode'],
+): QuestionEvidenceSearchParams => ({
+  ...(questionEvidenceFilterOptions.find((item) => item.value === filter)?.params ?? {}),
+  evidenceMode: mode ?? 'active',
+  previewMode: mode === 'candidate' || mode === 'reviewed',
+  page: 1,
+  pageSize: 20,
+})
+
+export function paperDraftQuestionFor(card: QuestionEvidenceCardContract) {
+  const target = card.assessmentTargets.find((item) => item.isPrimaryTarget) ?? card.assessmentTargets[0]
+  const knowledge = target?.knowledge.find((item) => item.role === 'primary') ?? target?.knowledge[0]
+  return {
+    id: card.questionId,
+    stemPreview: target?.targetStatement ?? `第 ${card.questionNo ?? '-'} 题`,
+    questionType: card.questionType ?? 'unknown',
+    score: 0,
+    difficultyEstimated: card.estimatedDifficulty ?? 0.5,
+    primaryKnowledgeId: knowledge?.stableId ?? '',
+    primaryKnowledgeTitle: knowledge?.displayName ?? '知识点待确认',
+    sourceType: 'evidence_search',
+    recentUseStatus: 'not_recently_used',
+  }
+}
 
 export const realExamDifficultyOptions = [
   { value: 30 / 100, label: '难度偏基础' },

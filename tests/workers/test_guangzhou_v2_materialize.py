@@ -3,7 +3,9 @@ from __future__ import annotations
 import sys
 import tempfile
 import unittest
+import uuid
 from pathlib import Path
+from types import SimpleNamespace
 
 from pypdf import PdfWriter
 
@@ -12,6 +14,7 @@ TOOLS_ROOT = Path(__file__).resolve().parents[2] / "tools"
 sys.path.insert(0, str(TOOLS_ROOT))
 
 import guangzhou_physics_v2_materialize as materialize  # noqa: E402
+import guangzhou_physics_v2_question_regions as question_regions  # noqa: E402
 import real005b_reviewed_question_materialize as reviewed_materialize  # noqa: E402
 
 
@@ -102,6 +105,105 @@ class GuangzhouV2MaterializeTests(unittest.TestCase):
             "question_anchor_page_candidate",
             materialize.answer_region_mode((2,), 3),
         )
+
+    def test_2020_split_answer_starts_at_its_first_page(self) -> None:
+        plan = SimpleNamespace(questions={24: [SimpleNamespace(page_number=8)]})
+        paper = {"file_asset_id": "paper"}
+
+        self.assertEqual(
+            1,
+            reviewed_materialize.answer_minimum_page(
+                2020, plan, paper, {"file_asset_id": "answer"}
+            ),
+        )
+        self.assertEqual(
+            9,
+            reviewed_materialize.answer_minimum_page(
+                2020, plan, paper, {"file_asset_id": "paper"}
+            ),
+        )
+
+    def test_page_number_only_detection_requires_no_visual_content(self) -> None:
+        page_number_only = SimpleNamespace(
+            extract_text=lambda: "第 9 页", images=[], rects=[], curves=[], lines=[]
+        )
+        page_with_image = SimpleNamespace(
+            extract_text=lambda: "第 9 页", images=[{}], rects=[], curves=[], lines=[]
+        )
+
+        self.assertTrue(question_regions.is_trailing_page_number_only(page_number_only))
+        self.assertFalse(question_regions.is_trailing_page_number_only(page_with_image))
+
+    def test_source_page_report_batch_supports_legacy_and_generic_reports(self) -> None:
+        batch_key = "guangzhou_physics_2015_2025_20260726_v2"
+
+        self.assertTrue(question_regions.source_page_report_matches_batch(
+            {"status": "pass", "materialBatchKey": batch_key}, batch_key
+        ))
+        self.assertTrue(question_regions.source_page_report_matches_batch(
+            {
+                "status": "pass",
+                "documents": [
+                    {"materialBatchKey": batch_key},
+                    {"materialBatchKey": batch_key},
+                ],
+            },
+            batch_key,
+        ))
+        self.assertFalse(question_regions.source_page_report_matches_batch(
+            {
+                "status": "pass",
+                "documents": [
+                    {"materialBatchKey": batch_key},
+                    {"materialBatchKey": "other_batch"},
+                ],
+            },
+            batch_key,
+        ))
+
+    def test_block_refresh_reuses_materialized_subquestion_id(self) -> None:
+        question_id = "11111111-1111-1111-1111-111111111111"
+        materialized_block_id = "22222222-2222-2222-2222-222222222222"
+        blocks = materialize.build_blocks(
+            {
+                "legacyQuestionId": "QPHY-C003-2016-13",
+                "stem": "题干",
+                "subquestions": [
+                    {
+                        "subquestion_id": "QPHY-C003-2016-13-S01",
+                        "subquestion_number": "1",
+                        "stem_summary": "第一小问",
+                    }
+                ],
+                "scoringRows": [],
+            },
+            uuid.UUID("33333333-3333-3333-3333-333333333333"),
+            uuid.UUID("44444444-4444-4444-4444-444444444444"),
+            question_id,
+            materialized_blocks=[
+                {
+                    "id": materialized_block_id,
+                    "block_type": "subquestion",
+                    "sort_order": 1,
+                    "content": {},
+                }
+            ],
+        )
+
+        subquestion = next(block for block in blocks if block["type"] == "subquestion")
+        self.assertEqual(subquestion["content"]["questionBlockId"], materialized_block_id)
+
+    def test_question_refresh_reuses_identity_when_source_file_is_renamed(self) -> None:
+        existing_id = uuid.UUID("55555555-5555-5555-5555-555555555555")
+
+        refreshed_id = reviewed_materialize.question_id(
+            2020,
+            1,
+            "renamed-2020-paper.pdf",
+            {(2020, 1): existing_id},
+        )
+
+        self.assertEqual(refreshed_id, existing_id)
 
     def test_candidate_detectors_keep_legacy_row_contract(self) -> None:
         row = {"question_type": "analysis_calculation", "stem_summary": "根据表1计算", "notes": ""}

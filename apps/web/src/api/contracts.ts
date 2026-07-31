@@ -151,6 +151,58 @@ export interface ReviewQueueListContract {
   totalCount: number
 }
 
+export interface CurriculumEvidenceReviewItemContract {
+  candidateType: 'requirement' | 'target' | 'alignment' | 'error_pattern' | 'profile' | 'unknown'
+  candidateId: string
+  stableKey: string
+  groupId: string
+  reviewStatus: string
+  confidence: number
+  impactLevel: 'high' | 'medium' | 'low' | 'unknown'
+  mappingType: string | null
+  alignmentType: string | null
+  originalBasis: boolean
+  productionEligible: boolean
+  reversible: boolean
+  batchApprovalEligible: boolean
+  summary: Record<string, unknown>
+  evidence: Record<string, unknown>
+}
+
+export interface CurriculumEvidenceReviewListContract {
+  items: CurriculumEvidenceReviewItemContract[]
+  page: number
+  pageSize: number
+  totalCount: number
+  totalPages: number
+  sort: string
+  productionEligible: boolean
+  completionBoundary: string
+}
+
+export interface CurriculumEvidenceReplacementOptionContract {
+  assetVersionId: string
+  stableKey: string
+  displayName: string
+}
+
+export interface CurriculumEvidenceReplacementOptionsContract {
+  items: CurriculumEvidenceReplacementOptionContract[]
+  productionEligible: boolean
+  completionBoundary: string
+}
+
+export interface CurriculumEvidenceDecisionContract {
+  decisionId: string
+  candidateType: string
+  candidateId: string
+  decision: string
+  reviewStatus: string
+  productionEligible: boolean
+  activeApply: boolean
+  audit: Record<string, unknown>
+}
+
 export interface QuestionSourceRegionContract {
   id: string
   sourceDocumentId: string
@@ -262,6 +314,114 @@ export interface QuestionSearchParams {
   difficultyMin?: number
   difficultyMax?: number
   hasImage?: boolean
+}
+
+export type QuestionEvidenceMode = 'active' | 'reviewed' | 'candidate'
+
+export interface QuestionEvidenceSearchParams {
+  evidenceMode?: QuestionEvidenceMode
+  previewMode?: boolean
+  requirementId?: string
+  facetId?: string
+  ability?: string
+  cognitiveDemand?: string
+  methodOrExperiment?: string
+  context?: string
+  representation?: string
+  profileId?: string
+  observedDifficultyMin?: number
+  observedDifficultyMax?: number
+  estimatedDifficultyMin?: number
+  estimatedDifficultyMax?: number
+  sourceType?: string
+  page?: number
+  pageSize?: number
+}
+
+export interface QuestionEvidenceKnowledgeContract {
+  stableId: string
+  displayName: string
+  role: string
+  confidence: number
+  status: string
+  reviewStatus: string
+}
+
+export interface QuestionEvidenceRequirementContract {
+  stableId: string
+  displayName: string
+  alignmentType: string
+  originalBasis: boolean
+  provenance: string
+  sourceDocumentId: string
+  sourceRegionId: string | null
+  confidence: number
+  curriculumSourceDocumentId: string | null
+  curriculumSourceRegionId: string | null
+  curriculumSourcePageNumber: number | null
+}
+
+export interface QuestionObservedDifficultyContract {
+  value: number
+  direction: string
+  sampleScope: string
+  sourceRegionId: string
+  status: string
+  reviewStatus: string
+}
+
+export interface QuestionEvidenceProfileContract {
+  stableId: string
+  displayName: string
+  status: string
+  trendStatus: string | null
+}
+
+export interface QuestionAssessmentTargetEvidenceContract {
+  id: string
+  stableKey: string
+  scopeType: string
+  targetStatement: string
+  isPrimaryTarget: boolean
+  confidence: number
+  status: string
+  reviewStatus: string
+  productionEligible: boolean
+  abilityDimensions: string[]
+  cognitiveDemands: string[]
+  methodOrExperimentIds: string[]
+  contextType: string | null
+  representationTypes: string[]
+  knowledge: QuestionEvidenceKnowledgeContract[]
+  requirements: QuestionEvidenceRequirementContract[]
+  observedDifficulty: QuestionObservedDifficultyContract[]
+  profiles: QuestionEvidenceProfileContract[]
+}
+
+export interface QuestionEvidenceCardContract {
+  questionId: string
+  questionNo: number | null
+  subject: string
+  stage: string
+  grade: string | null
+  questionType: string | null
+  status: string
+  estimatedDifficulty: number | null
+  estimatedDifficultySource: string
+  assessmentTargets: QuestionAssessmentTargetEvidenceContract[]
+  productionEligible: boolean
+}
+
+export interface QuestionEvidenceSearchContract {
+  evidenceMode: QuestionEvidenceMode | 'unknown'
+  previewMode: boolean
+  productionEligible: boolean
+  total: number
+  page: number
+  pageSize: number
+  items: QuestionEvidenceCardContract[]
+  sort: string
+  completionBoundary: string
 }
 
 export interface PaperBlueprintRowContract {
@@ -406,6 +566,73 @@ export interface ItemScoreMappingPreviewContract {
   issues: Array<{ questionNo: string; codes: string[] }>
   teacherMessage: string
   auditTrail: string[]
+}
+
+export interface ScoreEvidenceAnalysisContract {
+  status: string
+  mode: string
+  productionEligible: boolean
+  realStudentDataUsed: boolean
+  writesProductionHistory: boolean
+  assessmentId: string
+  assessmentTitle: string
+  scoreDerivedPerformance: Array<{
+    questionNo: string
+    assessmentTargetStableKey: string
+    targetStatement: string
+    scoreRecordCount: number
+    averageScoreRate: number
+    abilityDimensions: string[]
+    cognitiveDemands: string[]
+    evidenceRole: string
+  }>
+  knowledgeMastery: ScoreEvidenceDimensionContract[]
+  abilityPerformance: ScoreEvidenceDimensionContract[]
+  cognitivePerformance: ScoreEvidenceDimensionContract[]
+  observedContexts: Array<{
+    evidenceId: string
+    difficultyObserved: number | null
+    scoreRate: number | null
+    sampleScope: string
+    sourceRegionId: string
+    contextRole: string
+  }>
+  errorPatternAssociations: Array<{
+    evidenceId: string
+    kind: string
+    content: string
+    sourceRegionId: string | null
+    relation: string
+    diagnosisStatus: string
+  }>
+  teachingRecommendations: Array<{
+    recommendationId: string
+    content: string
+    authorKind: string
+    generationMethod: string
+    sourceRegionId: string
+    factRole: string
+  }>
+  teacherConfirmedDiagnoses: Array<{
+    assessmentTargetId: string
+    diagnosis: string
+    confirmedBy: string
+    confirmedAt: string
+  }>
+  diagnosisStatus: string
+  blockingIssues: Array<{ scope: string; codes: string[] }>
+  teacherMessage: string
+  auditTrail: string[]
+}
+
+export interface ScoreEvidenceDimensionContract {
+  stableId: string
+  displayName: string
+  scoreRate: number
+  scoreRecordCount: number
+  questionNos: string[]
+  version: number | null
+  evidenceRole: string
 }
 
 export interface CommentaryReportExportContract {
@@ -843,6 +1070,66 @@ export function normalizeReviewQueueListResponse(value: unknown): ReviewQueueLis
   }
 }
 
+export function normalizeCurriculumEvidenceReviewListResponse(
+  value: unknown,
+): CurriculumEvidenceReviewListContract {
+  return {
+    items: readArrayField(value, 'items').map((item) => ({
+      candidateType: (readStringField(item, 'candidateType') ?? 'unknown') as CurriculumEvidenceReviewItemContract['candidateType'],
+      candidateId: readStringField(item, 'candidateId') ?? '',
+      stableKey: readStringField(item, 'stableKey') ?? '',
+      groupId: readStringField(item, 'groupId') ?? '',
+      reviewStatus: readStringField(item, 'reviewStatus') ?? 'pending_review',
+      confidence: readNumberField(item, 'confidence'),
+      impactLevel: (readStringField(item, 'impactLevel') ?? 'unknown') as CurriculumEvidenceReviewItemContract['impactLevel'],
+      mappingType: readNullableStringField(item, 'mappingType'),
+      alignmentType: readNullableStringField(item, 'alignmentType'),
+      originalBasis: readBooleanField(item, 'originalBasis'),
+      productionEligible: readBooleanField(item, 'productionEligible'),
+      reversible: readBooleanField(item, 'reversible'),
+      batchApprovalEligible: readBooleanField(item, 'batchApprovalEligible'),
+      summary: readObjectField(item, 'summary') ?? {},
+      evidence: readObjectField(item, 'evidence') ?? {},
+    })),
+    page: readNumberField(value, 'page'),
+    pageSize: readNumberField(value, 'pageSize'),
+    totalCount: readNumberField(value, 'totalCount'),
+    totalPages: readNumberField(value, 'totalPages'),
+    sort: readStringField(value, 'sort') ?? '',
+    productionEligible: readBooleanField(value, 'productionEligible'),
+    completionBoundary: readStringField(value, 'completionBoundary') ?? '',
+  }
+}
+
+export function normalizeCurriculumEvidenceDecisionResponse(
+  value: unknown,
+): CurriculumEvidenceDecisionContract {
+  return {
+    decisionId: readStringField(value, 'decisionId') ?? '',
+    candidateType: readStringField(value, 'candidateType') ?? 'unknown',
+    candidateId: readStringField(value, 'candidateId') ?? '',
+    decision: readStringField(value, 'decision') ?? '',
+    reviewStatus: readStringField(value, 'reviewStatus') ?? 'pending_review',
+    productionEligible: readBooleanField(value, 'productionEligible'),
+    activeApply: readBooleanField(value, 'activeApply'),
+    audit: readObjectField(value, 'audit') ?? {},
+  }
+}
+
+export function normalizeCurriculumEvidenceReplacementOptionsResponse(
+  value: unknown,
+): CurriculumEvidenceReplacementOptionsContract {
+  return {
+    items: readArrayField(value, 'items').map((item) => ({
+      assetVersionId: readStringField(item, 'assetVersionId') ?? '',
+      stableKey: readStringField(item, 'stableKey') ?? '',
+      displayName: readStringField(item, 'displayName') ?? '',
+    })).filter((item) => item.assetVersionId && item.stableKey),
+    productionEligible: readBooleanField(value, 'productionEligible'),
+    completionBoundary: readStringField(value, 'completionBoundary') ?? '',
+  }
+}
+
 export function normalizeQuestionSourceReviewResponse(
   value: unknown,
 ): QuestionSourceReviewContract {
@@ -910,6 +1197,91 @@ export function normalizeSourceRegionRevisionResponse(value: unknown): SourceReg
       pageScreenshotUrl: readNullableStringField(region, 'pageScreenshotUrl'),
     },
     auditId: readStringField(value, 'auditId') ?? '',
+  }
+}
+
+function normalizeQuestionEvidenceMode(value: unknown): QuestionEvidenceSearchContract['evidenceMode'] {
+  const mode = readStringField(value, 'evidenceMode')
+  return mode === 'active' || mode === 'reviewed' || mode === 'candidate' ? mode : 'unknown'
+}
+
+function normalizeQuestionEvidenceTarget(value: unknown): QuestionAssessmentTargetEvidenceContract {
+  return {
+    id: readStringField(value, 'id') ?? '',
+    stableKey: readStringField(value, 'stableKey') ?? '',
+    scopeType: readStringField(value, 'scopeType') ?? 'unknown',
+    targetStatement: readStringField(value, 'targetStatement') ?? '',
+    isPrimaryTarget: readBooleanField(value, 'isPrimaryTarget'),
+    confidence: readNumberField(value, 'confidence'),
+    status: readStringField(value, 'status') ?? 'unknown',
+    reviewStatus: readStringField(value, 'reviewStatus') ?? 'pending_review',
+    productionEligible: readBooleanField(value, 'productionEligible'),
+    abilityDimensions: readArrayField(value, 'abilityDimensions').map(String),
+    cognitiveDemands: readArrayField(value, 'cognitiveDemands').map(String),
+    methodOrExperimentIds: readArrayField(value, 'methodOrExperimentIds').map(String),
+    contextType: readNullableStringField(value, 'contextType'),
+    representationTypes: readArrayField(value, 'representationTypes').map(String),
+    knowledge: readArrayField(value, 'knowledge').map((item) => ({
+      stableId: readStringField(item, 'stableId') ?? '',
+      displayName: readStringField(item, 'displayName') ?? '',
+      role: readStringField(item, 'role') ?? 'unknown',
+      confidence: readNumberField(item, 'confidence'),
+      status: readStringField(item, 'status') ?? 'unknown',
+      reviewStatus: readStringField(item, 'reviewStatus') ?? 'pending_review',
+    })),
+    requirements: readArrayField(value, 'requirements').map((item) => ({
+      stableId: readStringField(item, 'stableId') ?? '',
+      displayName: readStringField(item, 'displayName') ?? '',
+      alignmentType: readStringField(item, 'alignmentType') ?? 'unknown',
+      originalBasis: readBooleanField(item, 'originalBasis'),
+      provenance: readStringField(item, 'provenance') ?? 'unknown',
+      sourceDocumentId: readStringField(item, 'sourceDocumentId') ?? '',
+      sourceRegionId: readNullableStringField(item, 'sourceRegionId'),
+      confidence: readNumberField(item, 'confidence'),
+      curriculumSourceDocumentId: readNullableStringField(item, 'curriculumSourceDocumentId'),
+      curriculumSourceRegionId: readNullableStringField(item, 'curriculumSourceRegionId'),
+      curriculumSourcePageNumber: readNullableNumberField(item, 'curriculumSourcePageNumber'),
+    })),
+    observedDifficulty: readArrayField(value, 'observedDifficulty').map((item) => ({
+      value: readNumberField(item, 'value'),
+      direction: readStringField(item, 'direction') ?? 'unknown',
+      sampleScope: readStringField(item, 'sampleScope') ?? 'unknown',
+      sourceRegionId: readStringField(item, 'sourceRegionId') ?? '',
+      status: readStringField(item, 'status') ?? 'unknown',
+      reviewStatus: readStringField(item, 'reviewStatus') ?? 'pending_review',
+    })),
+    profiles: readArrayField(value, 'profiles').map((item) => ({
+      stableId: readStringField(item, 'stableId') ?? '',
+      displayName: readStringField(item, 'displayName') ?? '',
+      status: readStringField(item, 'status') ?? 'unknown',
+      trendStatus: readNullableStringField(item, 'trendStatus'),
+    })),
+  }
+}
+
+export function normalizeQuestionEvidenceSearchResponse(value: unknown): QuestionEvidenceSearchContract {
+  return {
+    evidenceMode: normalizeQuestionEvidenceMode(value),
+    previewMode: readBooleanField(value, 'previewMode'),
+    productionEligible: readBooleanField(value, 'productionEligible'),
+    total: readNumberField(value, 'total'),
+    page: readNumberField(value, 'page'),
+    pageSize: readNumberField(value, 'pageSize'),
+    items: readArrayField(value, 'items').map((item) => ({
+      questionId: readStringField(item, 'questionId') ?? '',
+      questionNo: readNullableNumberField(item, 'questionNo'),
+      subject: readStringField(item, 'subject') ?? 'unknown',
+      stage: readStringField(item, 'stage') ?? 'unknown',
+      grade: readNullableStringField(item, 'grade'),
+      questionType: readNullableStringField(item, 'questionType'),
+      status: readStringField(item, 'status') ?? 'unknown',
+      estimatedDifficulty: readNullableNumberField(item, 'estimatedDifficulty'),
+      estimatedDifficultySource: readStringField(item, 'estimatedDifficultySource') ?? 'unknown',
+      assessmentTargets: readArrayField(item, 'assessmentTargets').map(normalizeQuestionEvidenceTarget),
+      productionEligible: readBooleanField(item, 'productionEligible'),
+    })),
+    sort: readStringField(value, 'sort') ?? 'unknown',
+    completionBoundary: readStringField(value, 'completionBoundary') ?? '',
   }
 }
 
@@ -1132,6 +1504,77 @@ export function normalizeItemScoreMappingPreviewResponse(
     }),
     issues: issues.map((issue) => ({
       questionNo: readStringField(issue, 'questionNo') ?? '',
+      codes: readArrayField(issue, 'codes').map(String),
+    })),
+    teacherMessage: readStringField(value, 'teacherMessage') ?? '',
+    auditTrail: readArrayField(value, 'auditTrail').map(String),
+  }
+}
+
+export function normalizeScoreEvidenceAnalysisResponse(value: unknown): ScoreEvidenceAnalysisContract {
+  const normalizeDimension = (dimension: unknown): ScoreEvidenceDimensionContract => ({
+    stableId: readStringField(dimension, 'stableId') ?? '',
+    displayName: readStringField(dimension, 'displayName') ?? '',
+    scoreRate: readNumberField(dimension, 'scoreRate'),
+    scoreRecordCount: readNumberField(dimension, 'scoreRecordCount'),
+    questionNos: readArrayField(dimension, 'questionNos').map(String),
+    version: readNullableNumberField(dimension, 'version'),
+    evidenceRole: readStringField(dimension, 'evidenceRole') ?? 'unknown',
+  })
+  return {
+    status: readStringField(value, 'status') ?? 'blocked',
+    mode: readStringField(value, 'mode') ?? 'unknown',
+    productionEligible: readBooleanField(value, 'productionEligible'),
+    realStudentDataUsed: readBooleanField(value, 'realStudentDataUsed'),
+    writesProductionHistory: readBooleanField(value, 'writesProductionHistory'),
+    assessmentId: readStringField(value, 'assessmentId') ?? '',
+    assessmentTitle: readStringField(value, 'assessmentTitle') ?? '',
+    scoreDerivedPerformance: readArrayField(value, 'scoreDerivedPerformance').map((item) => ({
+      questionNo: readStringField(item, 'questionNo') ?? '',
+      assessmentTargetStableKey: readStringField(item, 'assessmentTargetStableKey') ?? '',
+      targetStatement: readStringField(item, 'targetStatement') ?? '',
+      scoreRecordCount: readNumberField(item, 'scoreRecordCount'),
+      averageScoreRate: readNumberField(item, 'averageScoreRate'),
+      abilityDimensions: readArrayField(item, 'abilityDimensions').map(String),
+      cognitiveDemands: readArrayField(item, 'cognitiveDemands').map(String),
+      evidenceRole: readStringField(item, 'evidenceRole') ?? 'unknown',
+    })),
+    knowledgeMastery: readArrayField(value, 'knowledgeMastery').map(normalizeDimension),
+    abilityPerformance: readArrayField(value, 'abilityPerformance').map(normalizeDimension),
+    cognitivePerformance: readArrayField(value, 'cognitivePerformance').map(normalizeDimension),
+    observedContexts: readArrayField(value, 'observedContexts').map((context) => ({
+      evidenceId: readStringField(context, 'evidenceId') ?? '',
+      difficultyObserved: readNullableNumberField(context, 'difficultyObserved'),
+      scoreRate: readNullableNumberField(context, 'scoreRate'),
+      sampleScope: readStringField(context, 'sampleScope') ?? '',
+      sourceRegionId: readStringField(context, 'sourceRegionId') ?? '',
+      contextRole: readStringField(context, 'contextRole') ?? 'unknown',
+    })),
+    errorPatternAssociations: readArrayField(value, 'errorPatternAssociations').map((error) => ({
+      evidenceId: readStringField(error, 'evidenceId') ?? '',
+      kind: readStringField(error, 'kind') ?? 'unknown',
+      content: readStringField(error, 'content') ?? '',
+      sourceRegionId: readNullableStringField(error, 'sourceRegionId'),
+      relation: readStringField(error, 'relation') ?? 'association_not_cause',
+      diagnosisStatus: readStringField(error, 'diagnosisStatus') ?? 'pending_teacher_confirmation',
+    })),
+    teachingRecommendations: readArrayField(value, 'teachingRecommendations').map((recommendation) => ({
+      recommendationId: readStringField(recommendation, 'recommendationId') ?? '',
+      content: readStringField(recommendation, 'content') ?? '',
+      authorKind: readStringField(recommendation, 'authorKind') ?? 'unknown',
+      generationMethod: readStringField(recommendation, 'generationMethod') ?? 'unknown',
+      sourceRegionId: readStringField(recommendation, 'sourceRegionId') ?? '',
+      factRole: readStringField(recommendation, 'factRole') ?? 'not_curriculum_fact',
+    })),
+    teacherConfirmedDiagnoses: readArrayField(value, 'teacherConfirmedDiagnoses').map((diagnosis) => ({
+      assessmentTargetId: readStringField(diagnosis, 'assessmentTargetId') ?? '',
+      diagnosis: readStringField(diagnosis, 'diagnosis') ?? '',
+      confirmedBy: readStringField(diagnosis, 'confirmedBy') ?? '',
+      confirmedAt: readStringField(diagnosis, 'confirmedAt') ?? '',
+    })),
+    diagnosisStatus: readStringField(value, 'diagnosisStatus') ?? 'pending_teacher_confirmation',
+    blockingIssues: readArrayField(value, 'blockingIssues').map((issue) => ({
+      scope: readStringField(issue, 'scope') ?? 'assessment',
       codes: readArrayField(issue, 'codes').map(String),
     })),
     teacherMessage: readStringField(value, 'teacherMessage') ?? '',

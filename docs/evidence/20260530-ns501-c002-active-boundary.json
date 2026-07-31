@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS501",
-  "checkedAt": "2026-07-26T00:47:20",
+  "checkedAt": "2026-07-31T20:19:00",
   "mode": "k001_active_c002_reference_boundary_plus_no_active_write_guard",
   "productionEligible": false,
   "queryReferenceProductionEligible": true,
