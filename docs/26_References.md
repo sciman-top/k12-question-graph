@@ -1,6 +1,6 @@
 # 26 · 官方文档、社区项目与最佳实践参考
 
-本文件只记录会影响本项目架构、路线图和实现顺序的资料。可复制的 URL 清单见 `sources/references.md`。最近一次外部参考库整理：2026-06-09；最新 repo-side `reference-basis` / parity 核对：2026-06-14。
+本文件只记录会影响本项目架构、路线图和实现顺序的资料。可复制的 URL 清单见 `sources/references.md`。最近一次外部参考库整理：2026-08-01；最新 repo-side `reference-basis` / parity 核对以当日 guard 证据为准。
 
 复核口径：优先使用官方文档或项目一手资料。社区文章只作为发现候选，不作为本仓规则依据。
 
@@ -18,7 +18,7 @@ D:\CODE\external\k12-question-graph-references
 机器可读清单：`D:\CODE\external\k12-question-graph-references\references.manifest.json`。
 仓内只读快照：`sources/reference-shelf.manifest.snapshot.json`。
 
-2026-06-09 已将本地参考库同步到最新 HEAD，并按当前项目主线做了一轮增删：补入 `PowerShell-Docs`、`playwright`、`react-router`、`paperless-ngx`，移除本地 `openedx-platform` 镜像；各仓当前验证提交号以 `references.manifest.json` 为准。仓内快照则通过 `tools/sync-reference-shelf-snapshot.ps1` 从外部 manifest 同步，避免 CI 因 snapshot 漂移误判。后续增补策略保持克制：优先补当前高风险主线所缺的本地官方语义锚点，例如 `postgresql-docs`；像 1EdTech、OWASP AISVS、NIST AI RMF、教育隐私/合规这类低频但权威的来源，继续保留在线锚点和仓内摘要，不为“覆盖完整”强行本地镜像。
+2026-08-01 在既有 Docling、RapidOCR、PaddleOCR、OCRmyPDF 和 PaddleX 基础上，仅新增 `MinerU` optional 浅克隆，作为 PaddleX golden-set 的阅读顺序、结构化 JSON、独立视觉资产与版面可视化对照；没有安装 MinerU 运行时、下载模型或改变默认 OCR 路由。各仓当前验证提交号以 `references.manifest.json` 为准。仓内快照通过 `tools/sync-reference-shelf-snapshot.ps1` 从外部 manifest 同步，避免 CI 因 snapshot 漂移误判。后续增补策略保持克制：优先补当前高风险主线所缺的本地官方语义锚点；像 1EdTech、OWASP AISVS、NIST AI RMF、教育隐私/合规这类低频但权威的来源，继续保留在线锚点和仓内摘要，不为“覆盖完整”强行本地镜像。
 
 更新入口：
 
@@ -69,12 +69,14 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File tools/sync-reference-shelf-snapsho
 | 文档/OCR/AI | `document-ocr-ai/PaddleOCR` | https://github.com/PaddlePaddle/PaddleOCR |
 | 文档/OCR/AI | `document-ocr-ai/OCRmyPDF` | https://github.com/ocrmypdf/OCRmyPDF |
 | 文档/OCR/AI | `document-ocr-ai/RapidOCR` | https://github.com/RapidAI/RapidOCR |
+| 文档/OCR/AI（optional） | `document-ocr-ai/PaddleX` | https://github.com/PaddlePaddle/PaddleX |
+| 文档/OCR/AI（optional） | `document-ocr-ai/MinerU` | https://github.com/opendatalab/MinerU |
 | 文档工作流 | `document-workflows/paperless-ngx` | https://github.com/paperless-ngx/paperless-ngx |
 | 数据/检索 | `data-search/pgvector` | https://github.com/pgvector/pgvector |
 
 OpenAI Cookbook 作为在线参考保留：`https://github.com/openai/openai-cookbook`。该仓库当前包含 Windows 无法 checkout 的尾随空格路径，本机不强行克隆，避免留下异常工作树；AI routing / structured output / eval 的代码级本地官方锚点由 `official-docs/openai-dotnet` 和 `official-docs/openai-python` 补足。
 
-使用边界：本地浅克隆用于 `rg` 检索、结构阅读和技术决策复核；官方语义仍以官网/当前版本文档为准。默认只更新 `core` 参考集；`dotnet-eShop`、`OpenOLAT`、`moodle`、`TAO`、`react-router`、`paperless-ngx`、`pgvector` 和 `postgresql-docs` 作为 `optional`，只在明确研究对应方向时更新。仓库分组、上游 URL、用途说明、最近一次验证提交号和补充说明都以外部 `references.manifest.json` 为单一真相入口。`dotnet-eShop` 只保留为低频官方样例，不作为当前 Windows/LAN-first 主线的默认架构裁决依据。`paperless-ngx` 继续保留为本地服务/归档/OCR 运维的社区辅助锚点，但不承担教师工作流或 Windows-first 主语义。Moodle、OpenOLAT、TAO 等教育平台只提炼题库、测评、课程资产、权限、审计、QTI/assessment 治理边界和迁移做法，不复制其完整 LMS 或评测平台路线。
+使用边界：本地浅克隆用于 `rg` 检索、结构阅读和技术决策复核；官方语义仍以官网/当前版本文档为准。默认只更新 `core` 参考集；`dotnet-eShop`、`OpenOLAT`、`moodle`、`TAO`、`react-router`、`paperless-ngx`、`pgvector`、`postgresql-docs`、`PaddleX` 和 `MinerU` 作为 `optional`，只在明确研究对应方向时更新。仓库分组、上游 URL、用途说明、最近一次验证提交号和补充说明都以外部 `references.manifest.json` 为单一真相入口。`MinerU` 仅作为 PaddleX golden-set 的复杂版面、阅读顺序、结构化 JSON 和视觉资产对照，不安装为当前运行时、不复制源码、不改变默认 OCR 路由；若未来进入运行评估，必须重新复核其自定义许可证、模型供应链、资源成本和在线服务标识义务。`dotnet-eShop` 只保留为低频官方样例，不作为当前 Windows/LAN-first 主线的默认架构裁决依据。`paperless-ngx` 继续保留为本地服务/归档/OCR 运维的社区辅助锚点，但不承担教师工作流或 Windows-first 主语义。Moodle、OpenOLAT、TAO 等教育平台只提炼题库、测评、课程资产、权限、审计、QTI/assessment 治理边界和迁移做法，不复制其完整 LMS 或评测平台路线。
 
 自 2026-06-09 起，部分高风险任务不再只“建议”查参考，而是受 `tasks/reference-basis-requirements.csv` + `tasks/reference-basis-module-map.csv` + `tasks/reference-basis-policy.json` + `tools/run-reference-basis-guard.ps1` 约束：缺少官方来源或本地参考库锚点时，主 gate 直接失败。当前首批强制覆盖 `S004`、`S010`、`S011`、`REAL010`、`NS1301-NS1308`、`O008`、`P001`、`P003`、`P005`、`P006`、`R001`、`R002`、`R007`，并把 API/Web/export/score-analysis/AI routing/OCR/Windows Service/release pack/search/queue/interop 这些板块映射成机器可读 module map；守卫在本机有外部参考库时还会额外核对 `sources/reference-shelf.manifest.snapshot.json` 与外部 `references.manifest.json` 是否同构，避免“本地能过、CI 假挂”。
 
@@ -107,6 +109,8 @@ OpenAI Cookbook 作为在线参考保留：`https://github.com/openai/openai-coo
 
 - Docling：适合 PDF/DOCX 等文档转换、版面、表格、OCR 相关实验。
 - PaddleOCR / PP-Structure：适合 OCR、版面分析、表格和公式识别能力评估。
+- PaddleX / PP-StructureV3：当前复杂版面 golden-set 的优先评估实现；必须通过题干、选项、题图、表格、公式、阅读顺序和成本门禁后才能改变默认路由。
+- MinerU：只用于对照阅读顺序、结构化 JSON、独立图片/表格/公式资产和版面可视化做法；不能替代原题号、多图归属、子题关系和人工审核合同。
 - Open XML SDK / OfficeMath：Word 导入导出、OMML 公式处理的主要 .NET 路径。
 - Pandoc、KaTeX、MathJax、OCRmyPDF 等作为工具候选，不直接成为领域模型。
 - 决策影响：所有外部工具必须经 Adapter 转为内部稳定 JSON，记录工具版本、输入 hash、输出 hash 和 diagnostics。

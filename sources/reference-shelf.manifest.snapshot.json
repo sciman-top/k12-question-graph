@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "capturedAt": "2026-06-15T21:32:53+08:00",
+  "capturedAt": "2026-08-01T01:06:12+08:00",
   "source": "D:\\CODE\\external\\k12-question-graph-references\\references.manifest.json",
   "entries": [
     {
@@ -160,6 +160,26 @@
       "upstream": "https://github.com/PaddlePaddle/PaddleOCR",
       "lastVerifiedCommit": "1e5aa0a",
       "notes": "Core default. Official reference for PP-Structure and formula/OCR profile options.",
+      "mandatoryOnUse": null,
+      "mandatoryOnUseTaskIds": null
+    },
+    {
+      "group": "optional",
+      "category": "document-ocr-ai",
+      "relativePath": "document-ocr-ai/PaddleX",
+      "upstream": "https://github.com/PaddlePaddle/PaddleX",
+      "lastVerifiedCommit": "ffb6490",
+      "notes": "Apache-2.0 official evaluation reference. Use only through an adapter and golden-set comparison; it does not change the current OCR default.",
+      "mandatoryOnUse": null,
+      "mandatoryOnUseTaskIds": null
+    },
+    {
+      "group": "optional",
+      "category": "document-ocr-ai",
+      "relativePath": "document-ocr-ai/MinerU",
+      "upstream": "https://github.com/opendatalab/MinerU",
+      "lastVerifiedCommit": "79d6d8d",
+      "notes": "Reference-only comparison for the PaddleX golden-set path; no code copying, runtime installation, model admission or default-route change. MinerU Open Source License adds commercial thresholds and online-service attribution to Apache-2.0.",
       "mandatoryOnUse": null,
       "mandatoryOnUseTaskIds": null
     },

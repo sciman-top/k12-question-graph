@@ -22,7 +22,7 @@ from guangzhou_physics_2016_2025_source_region_screenshots import image_quality
 YEARS = list(range(2016, 2026))
 DEFAULT_MATERIAL_BATCH_KEY = "guangzhou_physics_2015_2025_20260726_v2"
 ANCHOR_PATTERN = re.compile(r"(?:^|[^0-9])(\d{1,2})[.．、](?=[^0-9]|$)")
-MULTI_QUESTION_HEADING_PATTERN = re.compile(r"\d{1,2}\s*[、,，]\s*\d{1,2}\s*题")
+MULTI_QUESTION_HEADING_PATTERN = re.compile(r"(\d{1,2})\s*[、,，]\s*(\d{1,2})\s*题")
 SECTION_BOUNDARY_PATTERN = re.compile(
     r"^\s*(?:第[一二三四五六七八九十]+部分|[一二三四五六七八九十]+[、.．]\s*(?:选择题|填空|作图|解析题|实验|探究题)|解析题应写出)"
 )
@@ -40,6 +40,41 @@ class Anchor:
     @property
     def position(self) -> tuple[int, float]:
         return self.page_number, self.top
+
+
+@dataclass(frozen=True)
+class CropSpec:
+    page_number: int
+    order: int
+    left: float
+    top: float
+    right: float
+    bottom: float
+
+
+# These verified source-layout exceptions keep the teacher-facing visual card
+# intact when a later question's referenced diagram is printed above its number.
+# The source SHA binds each exception to exactly one immutable paper revision.
+MANUAL_VISUAL_CROP_SPECS: dict[tuple[str, int], tuple[CropSpec, ...]] = {
+    (
+        "534d8eee3b99446d514af736aaf4cd8e36f2803154f7778c0f656f1832b7510c",
+        18,
+    ): (
+        CropSpec(5, 1, 5.0, 54.26, 95.0, 59.5),
+        CropSpec(5, 2, 5.0, 70.0, 42.0, 79.0),
+    ),
+    (
+        "534d8eee3b99446d514af736aaf4cd8e36f2803154f7778c0f656f1832b7510c",
+        19,
+    ): (
+        CropSpec(5, 1, 5.0, 79.0, 95.0, 87.0),
+        CropSpec(5, 2, 45.0, 60.0, 95.0, 79.0),
+    ),
+}
+
+
+def manual_visual_crop_specs(source_sha256: str, question_number: int) -> tuple[CropSpec, ...]:
+    return MANUAL_VISUAL_CROP_SPECS.get((source_sha256.lower(), question_number), ())
 
 
 def read_csv(path: Path) -> list[dict[str, str]]:
@@ -92,6 +127,57 @@ def anchor_numbers(text: str) -> list[int]:
     if MULTI_QUESTION_HEADING_PATTERN.search(text):
         return []
     return [int(match.group(1)) for match in ANCHOR_PATTERN.finditer(text)]
+
+
+def extract_shared_prompt_anchors(pdf: pdfplumber.PDF, expected_count: int) -> list[Anchor]:
+    prompts: list[Anchor] = []
+    for page_number, page in enumerate(pdf.pages, start=1):
+        lines = page.extract_text_lines(strip=True, return_chars=False)
+        for index, line in enumerate(lines):
+            text = str(line.get("text") or "")
+            match = MULTI_QUESTION_HEADING_PATTERN.search(text)
+            if not match:
+                continue
+            first_question = int(match.group(1))
+            if not 1 <= first_question <= expected_count:
+                continue
+
+            prompt_index = index
+            while prompt_index > 0:
+                previous = lines[prompt_index - 1]
+                vertical_gap = float(lines[prompt_index]["top"]) - float(previous["top"])
+                previous_text = str(previous.get("text") or "")
+                if vertical_gap > 24 or anchor_numbers(previous_text) or is_section_boundary_segment(previous_text):
+                    break
+                prompt_index -= 1
+
+            prompt = lines[prompt_index]
+            prompts.append(
+                Anchor(
+                    question_number=first_question,
+                    page_number=page_number,
+                    top=float(prompt["top"]),
+                    x0=float(prompt["x0"]),
+                    text=f"shared_prompt:{text}",
+                )
+            )
+    return prompts
+
+
+def apply_shared_prompt_starts(
+    selected: dict[int, Anchor],
+    shared_prompts: list[Anchor],
+) -> dict[int, Anchor]:
+    starts = dict(selected)
+    for prompt in shared_prompts:
+        current = starts.get(prompt.question_number)
+        previous = starts.get(prompt.question_number - 1)
+        if current is None or prompt.position >= current.position:
+            continue
+        if previous is not None and prompt.position <= previous.position:
+            continue
+        starts[prompt.question_number] = prompt
+    return starts
 
 
 def extract_anchors(pdf: pdfplumber.PDF, expected_count: int) -> tuple[list[Anchor], dict[int, float]]:
@@ -252,6 +338,10 @@ def build_question_regions(
     with pdfplumber.open(pdf_path) as pdf:
         anchors, section_tops = extract_anchors(pdf, expected_count)
         selected, takeovers = select_question_anchors(anchors, section_tops, expected_count)
+        visual_starts = apply_shared_prompt_starts(
+            selected,
+            extract_shared_prompt_anchors(pdf, expected_count),
+        )
         last_selected = selected.get(expected_count)
         following_sequence = following_question_sequence_start(anchors, last_selected) if last_selected else None
         question_end_page = following_sequence.page_number - 1 if following_sequence else len(pdf.pages)
@@ -265,48 +355,66 @@ def build_question_regions(
             blockers.append("question_section_boundary_before_last_question")
             question_end_page = last_selected.page_number
         questions: list[dict[str, Any]] = []
+        manual_visual_overrides: list[dict[str, Any]] = []
         namespace = material_batch_key.replace("_", "-")
         for question_number in range(1, expected_count + 1):
-            start = selected.get(question_number)
+            start = visual_starts.get(question_number)
             if start is None:
                 blockers.append(f"question_anchor_missing:{question_number}")
                 questions.append({"questionNumber": question_number, "status": "blocked", "regions": []})
                 continue
-            next_anchor = selected.get(question_number + 1)
+            next_anchor = visual_starts.get(question_number + 1)
             last_page = next_anchor.page_number if next_anchor else question_end_page
             regions: list[dict[str, Any]] = []
             skipped_blank_segments: list[int] = []
             skipped_section_segments: list[int] = []
-            for page_number in range(start.page_number, last_page + 1):
+            manual_specs = manual_visual_crop_specs(str(source["sha256"]), question_number)
+            crop_specs = list(manual_specs)
+            if manual_specs:
+                manual_visual_overrides.append(
+                    {
+                        "questionNumber": question_number,
+                        "reason": "cross_question_figure_layout",
+                        "sourceSha256": str(source["sha256"]),
+                        "regionCount": len(manual_specs),
+                    }
+                )
+            else:
+                for page_number in range(start.page_number, last_page + 1):
+                    page_height = float(pdf.pages[page_number - 1].height)
+                    anchor_padding = 0.5 if question_number == 1 and not start.text.startswith("inferred_") else 1.5
+                    top = max(3.0, (start.top / page_height * 100) - anchor_padding) if page_number == start.page_number else 3.0
+                    bottom = (
+                        min(97.0, (next_anchor.top / page_height * 100) - 0.8)
+                        if next_anchor and page_number == next_anchor.page_number
+                        else 97.0
+                    )
+                    if page_number != start.page_number and next_anchor and page_number == next_anchor.page_number:
+                        page = pdf.pages[page_number - 1]
+                        segment_text = page.crop((0, page.height * top / 100, page.width, page.height * bottom / 100)).extract_text() or ""
+                        if is_section_boundary_segment(segment_text):
+                            skipped_section_segments.append(page_number)
+                            continue
+                    crop_specs.append(CropSpec(page_number, len(crop_specs) + 1, 5.0, top, 95.0, bottom))
+
+            for spec in crop_specs:
+                page_number = spec.page_number
                 screenshot_relative_path = page_images.get(page_number)
                 if not screenshot_relative_path:
                     blockers.append(f"source_page_screenshot_missing:q{question_number}:p{page_number}")
                     continue
-                page_height = float(pdf.pages[page_number - 1].height)
-                anchor_padding = 0.5 if question_number == 1 and not start.text.startswith("inferred_") else 1.5
-                top = max(3.0, (start.top / page_height * 100) - anchor_padding) if page_number == start.page_number else 3.0
-                bottom = (
-                    min(97.0, (next_anchor.top / page_height * 100) - 0.8)
-                    if next_anchor and page_number == next_anchor.page_number
-                    else 97.0
-                )
-                if page_number != start.page_number and next_anchor and page_number == next_anchor.page_number:
-                    page = pdf.pages[page_number - 1]
-                    segment_text = page.crop((0, page.height * top / 100, page.width, page.height * bottom / 100)).extract_text() or ""
-                    if is_section_boundary_segment(segment_text):
-                        skipped_section_segments.append(page_number)
-                        continue
+                suffix = f"-r{spec.order:02d}" if manual_specs else ""
                 target_relative_path = (
                     f"generated/{namespace}/question-regions/{year}/{source['source_document_id']}/"
-                    f"q{question_number:02d}-p{page_number:03d}.png"
+                    f"q{question_number:02d}-p{page_number:03d}{suffix}.png"
                 )
                 quality = crop_percent(
                     file_root / Path(screenshot_relative_path),
                     file_root / Path(target_relative_path),
-                    5.0,
-                    top,
-                    95.0,
-                    bottom,
+                    spec.left,
+                    spec.top,
+                    spec.right,
+                    spec.bottom,
                 )
                 if not quality["nonBlank"]:
                     skipped_blank_segments.append(page_number)
@@ -315,7 +423,12 @@ def build_question_regions(
                     regions.append(
                         {
                             "pageNumber": page_number,
-                            "bboxPercent": [5.0, round(top, 4), 90.0, round(bottom - top, 4)],
+                            "bboxPercent": [
+                                spec.left,
+                                round(spec.top, 4),
+                                round(spec.right - spec.left, 4),
+                                round(spec.bottom - spec.top, 4),
+                            ],
                             "relativePath": target_relative_path,
                             "imageQuality": quality,
                         }
@@ -330,7 +443,13 @@ def build_question_regions(
                         "pageNumber": start.page_number,
                         "top": round(start.top, 3),
                         "text": start.text,
-                        "mode": "inferred" if start.text.startswith("inferred_") else "pdf_text_anchor",
+                        "mode": (
+                            "inferred"
+                            if start.text.startswith("inferred_")
+                            else "shared_prompt"
+                            if start.text.startswith("shared_prompt:")
+                            else "pdf_text_anchor"
+                        ),
                     },
                     "regions": regions,
                     "skippedBlankPageSegments": skipped_blank_segments,
@@ -347,6 +466,7 @@ def build_question_regions(
         "selectedAnchorCount": len(selected),
         "regionCount": sum(len(question["regions"]) for question in questions),
         "manualTakeoverCandidates": takeovers,
+        "manualVisualOverrides": manual_visual_overrides,
         "questionSectionBoundary": {
             "endPageNumber": question_end_page,
             "mode": "following_question_sequence" if following_sequence else "document_end",
@@ -375,6 +495,7 @@ def write_markdown(report: dict[str, Any], path: Path) -> None:
         f"- question_candidates: {report['totals']['questionCandidates']}",
         f"- region_candidates: {report['totals']['regionCandidates']}",
         f"- manual_takeovers: {report['totals']['manualTakeovers']}",
+        f"- manual_visual_overrides: {report['totals']['manualVisualOverrides']}",
         "",
         "## Years",
     ]
@@ -382,7 +503,8 @@ def write_markdown(report: dict[str, Any], path: Path) -> None:
         lines.append(
             f"- {year['year']}: status={year['status']}; questions={year['expectedQuestionCount']}; "
             f"anchors={year['selectedAnchorCount']}; regions={year['regionCount']}; "
-            f"takeovers={len(year['manualTakeoverCandidates'])}; blockers={' | '.join(year['blockers']) or 'none'}"
+            f"takeovers={len(year['manualTakeoverCandidates'])}; "
+            f"visual_overrides={len(year['manualVisualOverrides'])}; blockers={' | '.join(year['blockers']) or 'none'}"
         )
     lines.extend(
         [
@@ -437,6 +559,7 @@ def main() -> int:
             "questionCandidates": sum(year["expectedQuestionCount"] for year in years),
             "regionCandidates": sum(year["regionCount"] for year in years),
             "manualTakeovers": sum(len(year["manualTakeoverCandidates"]) for year in years),
+            "manualVisualOverrides": sum(len(year["manualVisualOverrides"]) for year in years),
             "blockedItems": len(blockers),
         },
         "blockers": blockers,

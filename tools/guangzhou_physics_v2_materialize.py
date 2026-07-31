@@ -341,6 +341,26 @@ def build_blocks(
         }
     ]
     order = 1
+    for option in candidate.get("options", []):
+        label = str(option.get("label") or "").strip().upper()
+        text = str(option.get("text") or "").strip()
+        if label not in {"A", "B", "C", "D"} or not text:
+            raise ValueError(f"invalid_structured_choice_option:{question_key}:{label}")
+        blocks.append(
+            {
+                "type": "option",
+                "order": order,
+                "sourceRegionId": str(question_region_id),
+                "content": {
+                    "label": label,
+                    "text": text,
+                    "scopeKey": whole_scope_key,
+                    "reviewStatus": "pending_review",
+                    "productionEligible": False,
+                },
+            }
+        )
+        order += 1
     for block_candidate in normalized["blockCandidates"]:
         if block_candidate["type"] != "subquestion":
             continue

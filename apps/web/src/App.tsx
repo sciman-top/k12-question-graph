@@ -8,6 +8,7 @@ import {
   Input,
   Layout,
   Progress,
+  Select,
   Space,
   Tag,
   Typography,
@@ -62,6 +63,7 @@ import { AnalysisPanelContent } from './ui/AnalysisPanelContent'
 import { PaperWorkbenchPanels } from './ui/PaperWorkbenchPanels'
 import { RealExamReviewWorkbench } from './ui/RealExamReviewWorkbench'
 import { ScoreWorkbenchPanelContent } from './ui/ScoreWorkbenchPanelContent'
+import { TeacherQuestionExtractionPanel, type TeacherQuestionExtractionDraft } from './ui/TeacherQuestionExtractionPanel'
 import { TeacherHomePanelContent } from './ui/TeacherHomePanelContent'
 import { teacherDifficultyLabelFor, teacherLabelFor } from './ui/teacherLabels'
 import { useActionLog } from './ui/useActionLog'
@@ -81,6 +83,8 @@ import {
   isQuestionAssetRegion,
   jobStates,
   paperDraftQuestionFor,
+  realExamPaperKey,
+  realExamPaperTitle,
   renderMathAwareText,
   sharedAssets,
   sourceRegionRank,
@@ -258,8 +262,10 @@ function App() {
   const [realExamQueue, setRealExamQueue] = useState<ReviewQueueItemContract[]>([])
   const [realExamQueueTotal, setRealExamQueueTotal] = useState(0)
   const [realExamQueueBusy, setRealExamQueueBusy] = useState(false)
+  const [realExamExtractionSaving, setRealExamExtractionSaving] = useState(false)
   const [realExamQueueMessage, setRealExamQueueMessage] = useState('尚未查询 2015-2025 真卷复核队列')
   const [realExamReviewYear, setRealExamReviewYear] = useState(2015)
+  const [selectedRealExamPaperId, setSelectedRealExamPaperId] = useState('')
   const [selectedRealExamReviewId, setSelectedRealExamReviewId] = useState('')
   const [loadedRealExamQuestion, setLoadedRealExamQuestion] = useState<QuestionDetailContract | null>(null)
   const [lastReviewedRealExamItem, setLastReviewedRealExamItem] = useState<ReviewQueueItemContract | null>(null)
@@ -330,13 +336,37 @@ function App() {
   const sourcePreview = previewQuery.data?.ok ? previewQuery.data.data : undefined
   const importJob = importJobQuery.data?.ok ? importJobQuery.data.data : undefined
   const selectedRealExamReview = realExamQueue.find((item) => item.id === selectedRealExamReviewId)
+  const realExamYearOptions = useMemo(() => {
+    const years = [...new Set(realExamQueue.map((item) => item.payload.year).filter(Boolean))].sort()
+    return (years.length > 0 ? years : Array.from({ length: 11 }, (_, index) => 2015 + index))
+      .map((year) => ({ value: year, label: `${year} 年` }))
+  }, [realExamQueue])
+  const realExamPaperOptions = useMemo(() => {
+    const options = new Map<string, string>()
+    realExamQueue
+      .filter((item) => item.payload.year === realExamReviewYear)
+      .forEach((item) => options.set(realExamPaperKey(item), realExamPaperTitle(item)))
+    if (options.size === 0) {
+      options.set(`${realExamReviewYear}:primary-paper`, `${realExamReviewYear} 广州中考物理试卷`)
+    }
+    return [...options].map(([value, label]) => ({ value, label }))
+  }, [realExamQueue, realExamReviewYear])
+  const activeRealExamPaperId = selectedRealExamPaperId || realExamPaperOptions[0]?.value || ''
   const visibleRealExamQueue = useMemo(
-    () => realExamQueue.filter((item) => item.payload.year === realExamReviewYear),
-    [realExamQueue, realExamReviewYear],
+    () => realExamQueue.filter(
+      (item) => item.payload.year === realExamReviewYear && realExamPaperKey(item) === activeRealExamPaperId,
+    ),
+    [activeRealExamPaperId, realExamQueue, realExamReviewYear],
+  )
+  const realExamQuestionOptions = useMemo(
+    () => [...visibleRealExamQueue]
+      .sort((left, right) => left.payload.questionNo - right.payload.questionNo)
+      .map((item) => ({ value: item.id, label: `第 ${item.payload.questionNo} 题` })),
+    [visibleRealExamQueue],
   )
   const realExamPreviewRows = useMemo(() => {
     if (realExamQueue.length === 0) {
-      return guangzhou2015EvidencePreview
+      return realExamReviewYear === 2015 ? guangzhou2015EvidencePreview : []
     }
 
     return [...visibleRealExamQueue]
@@ -349,7 +379,7 @@ function App() {
         knowledgeTags: item.payload.knowledgeTags,
         sourceLabel: item.payload.sourceDocumentId ? '来自数据库复核队列' : '来源待回看',
       }))
-  }, [realExamQueue.length, visibleRealExamQueue])
+  }, [realExamQueue.length, realExamReviewYear, visibleRealExamQueue])
   const selectedEvidenceQuestion =
     guangzhou2015EvidencePreview.find((item) => item.questionNo === selectedEvidenceQuestionNo) ??
     guangzhou2015EvidencePreview[0]
@@ -787,6 +817,8 @@ function App() {
   const loadRealExamReviewItem = useCallback(async (item: ReviewQueueItemContract) => {
     const payload = item.payload
     const requestId = ++realExamLoadRequestRef.current
+    setRealExamReviewYear(payload.year)
+    setSelectedRealExamPaperId(realExamPaperKey(item))
     setSelectedRealExamReviewId(item.id)
     setLoadedRealExamQuestion(null)
     setSavedQuestionSourceRegions([])
@@ -881,7 +913,9 @@ function App() {
     setRealExamQueue(result.data.items)
     setRealExamQueueTotal(result.data.totalCount)
     setRealExamQueueMessage(`已加载 ${result.data.items.length}/${result.data.totalCount} 条 2015-2025 真卷待复核题目`)
-    const selectedStillOpen = result.data.items.find((item) => item.id === selectedRealExamReviewId)
+    const selectedStillOpen = result.data.items.find(
+      (item) => item.id === selectedRealExamReviewId && item.payload.year === realExamReviewYear,
+    )
     const firstInYear = result.data.items.find((item) => item.payload.year === realExamReviewYear)
     const next = selectedStillOpen ?? firstInYear ?? result.data.items[0]
     if (next) {
@@ -923,6 +957,88 @@ function App() {
     setRealExamQueueMessage(`已保存 ${item.payload.year} 年第 ${item.payload.questionNo} 题修订，审计 ${result.data.auditId}`)
     appendLog(`${item.payload.year} 年第 ${item.payload.questionNo} 题修订已保存`)
     return true
+  }
+
+  const saveTeacherQuestionExtraction = async (draft: TeacherQuestionExtractionDraft) => {
+    if (!loadedRealExamQuestion || !selectedRealExamReview) {
+      setRealExamQueueMessage('题目详情尚未加载，未执行识别结果保存')
+      return
+    }
+
+    const stem = loadedRealExamQuestion.blocks.find((block) => block.blockType === 'stem')
+    if (!stem) {
+      setRealExamQueueMessage('当前题目缺少题干块，未执行保存')
+      return
+    }
+    const existingOptions = new Map(
+      loadedRealExamQuestion.blocks
+        .filter((block) => block.blockType === 'option')
+        .map((block) => [String(block.content.label ?? '').toUpperCase(), block]),
+    )
+    const existingImageReview = loadedRealExamQuestion.blocks.find(
+      (block) => block.blockType === 'image' && block.content.status === 'needs_separate_crop',
+    )
+    const answerBlock = loadedRealExamQuestion.blocks.find((block) => block.blockType === 'answer')
+    const optionPatches = (['A', 'B', 'C', 'D'] as const)
+      .filter((label) => draft.options[label].trim())
+      .map((label, index) => {
+        const existing = existingOptions.get(label)
+        return {
+          ...(existing ? { id: existing.id } : {}),
+          blockType: 'option',
+          sortOrder: stem.sortOrder + index + 1,
+          sourceRegionId: existing?.sourceRegionId ?? stem.sourceRegionId,
+          content: {
+            ...(existing?.content ?? {}),
+            label,
+            text: draft.options[label].trim(),
+            reviewStatus: 'pending_review',
+          },
+        }
+      })
+    const blocks = [
+      {
+        id: stem.id,
+        blockType: 'stem',
+        sortOrder: stem.sortOrder,
+        sourceRegionId: stem.sourceRegionId,
+        content: { ...stem.content, text: draft.stem.trim(), reviewStatus: 'pending_review' },
+      },
+      ...optionPatches,
+      ...(answerBlock && optionPatches.length > 0 ? [{
+        id: answerBlock.id,
+        sortOrder: stem.sortOrder + optionPatches.length + 1,
+      }] : []),
+      ...(draft.visualNeedsSeparateCrop
+        ? [{
+          ...(existingImageReview ? { id: existingImageReview.id } : {}),
+          blockType: 'image',
+          sortOrder: existingImageReview?.sortOrder ?? stem.sortOrder + 10,
+          sourceRegionId: existingImageReview?.sourceRegionId ?? stem.sourceRegionId,
+          content: {
+            ...(existingImageReview?.content ?? {}),
+            status: 'needs_separate_crop',
+            reviewStatus: 'pending_review',
+          },
+        }]
+        : []),
+    ]
+
+    setRealExamExtractionSaving(true)
+    const result = await updateQuestion(loadedRealExamQuestion.id, {
+      reviewedBy: 'teacher-question-extraction',
+      reason: 'teacher_checked_extracted_text_options_and_visual_status',
+      blocks,
+    })
+    setRealExamExtractionSaving(false)
+    if (!result.ok) {
+      setRealExamQueueMessage(`识别结果保存失败：${result.error.message}，当前输入仍保留`)
+      return
+    }
+
+    setLoadedRealExamQuestion(result.data.question)
+    setRealExamQueueMessage(`已保存第 ${selectedRealExamReview.payload.questionNo} 题识别结果，仍在待复核队列中`)
+    appendLog(`${selectedRealExamReview.payload.year} 年真卷第 ${selectedRealExamReview.payload.questionNo} 题识别结果已保存为待复核`)
   }
 
   const finishRealExamReviewItem = async (
@@ -1416,53 +1532,118 @@ function App() {
               <div className="real-exam-hero-head">
                 <div>
                   <Typography.Text type="secondary">2015-2025 广州中考物理</Typography.Text>
-                  <Typography.Title level={2}>真卷复核</Typography.Title>
+                  <Typography.Title level={2}>真题浏览与复核</Typography.Title>
                 </div>
                 <Space size="small" wrap>
                   <Tag color={realExamQueue.length > 0 ? 'green' : 'orange'}>
-                    {realExamQueue.length > 0 ? '数据库队列' : '本地证据预览'}
+                    {realExamQueue.length > 0 ? '题目已载入' : '正在载入题目'}
                   </Tag>
-                  <Tag>{realExamQueue.length > 0 ? `${realExamQueueTotal} 题待复核` : 'REAL001 证据'}</Tag>
+                  <Tag>{realExamQueue.length > 0 ? `${realExamQueueTotal} 题` : '本地预览'}</Tag>
                 </Space>
+              </div>
+
+              <div className="real-exam-navigation" aria-label="真卷选择">
+                <label>
+                  <span>年份</span>
+                  <Select
+                    aria-label="真卷年份"
+                    value={realExamReviewYear}
+                    options={realExamYearOptions}
+                    onChange={(year) => {
+                      setRealExamReviewYear(year)
+                      const next = realExamQueue.find((item) => item.payload.year === year)
+                      setSelectedRealExamPaperId(next ? realExamPaperKey(next) : `${year}:primary-paper`)
+                      if (next) void loadRealExamReviewItem(next)
+                    }}
+                  />
+                </label>
+                <label>
+                  <span>试卷</span>
+                  <Select
+                    aria-label="真卷试卷"
+                    value={activeRealExamPaperId}
+                    options={realExamPaperOptions}
+                    onChange={(paperId) => {
+                      setSelectedRealExamPaperId(paperId)
+                      const next = realExamQueue.find(
+                        (item) => item.payload.year === realExamReviewYear && realExamPaperKey(item) === paperId,
+                      )
+                      if (next) void loadRealExamReviewItem(next)
+                    }}
+                  />
+                </label>
+                <label>
+                  <span>题号</span>
+                  <Select
+                    aria-label="真卷题号"
+                    value={selectedRealExamReview?.id}
+                    options={realExamQuestionOptions}
+                    placeholder="选择题号"
+                    onChange={(reviewId) => {
+                      const next = visibleRealExamQueue.find((item) => item.id === reviewId)
+                      if (next) void loadRealExamReviewItem(next)
+                    }}
+                  />
+                </label>
               </div>
 
               <div className="real-exam-focus">
                 <div className="real-exam-question">
                   <span className="real-exam-number">第 {selectedRealExamPreview.questionNo || '?'} 题</span>
-                  <div className="question-text" aria-label="题干">
-                    {splitQuestionText(selectedRealExamPreview.textPreview).map((line, index) => (
-                      <p key={`${selectedRealExamPreview.questionNo}-${index}`}>
-                        {renderMathAwareText(line)}
-                      </p>
-                    ))}
-                  </div>
                   {selectedQuestionAssetRegions.length > 0 ? (
-                    <div className="real-exam-inline-assets" aria-label="题图" data-contract="question-stem-asset-fusion">
+                    <div className="real-exam-original-question" aria-label="完整原题" data-contract="question-visual-source-of-truth">
                       {selectedQuestionAssetRegions.map((region) => (
                         <a
                           key={region.id}
-                          className="real-exam-inline-asset"
+                          className="real-exam-question-page"
                           href={region.screenshotUrl ?? undefined}
                           target="_blank"
                           rel="noreferrer"
                         >
                           <img
                             src={region.screenshotUrl ?? undefined}
-                            alt={`第 ${selectedRealExamPreview.questionNo || '?'} 题题图，第 ${region.pageNumber} 页`}
-                            loading="lazy"
+                            alt={`第 ${selectedRealExamPreview.questionNo || '?'} 题完整原题，第 ${region.pageNumber} 页`}
+                            loading="eager"
                           />
                         </a>
                       ))}
                     </div>
-                  ) : null}
+                  ) : (
+                    <Alert
+                      type="warning"
+                      showIcon
+                      title="完整原题正在载入"
+                      description="题目裁图可用后会在这里显示。"
+                    />
+                  )}
+                  <TeacherQuestionExtractionPanel
+                    question={loadedRealExamQuestion}
+                    sourceRegions={savedQuestionSourceRegions}
+                    saving={realExamExtractionSaving}
+                    onSave={(draft) => void saveTeacherQuestionExtraction(draft)}
+                  />
+                  <details className="real-exam-search-text">
+                    <summary>原始辅助文本（仅供对照）</summary>
+                    <div className="question-text" aria-label="辅助题干文本">
+                      {splitQuestionText(selectedRealExamPreview.textPreview).map((line, index) => (
+                        <p key={`${selectedRealExamPreview.questionNo}-${index}`}>
+                          {renderMathAwareText(line)}
+                        </p>
+                      ))}
+                    </div>
+                  </details>
+                  <div className="real-exam-answer">
+                    <Typography.Text type="secondary">参考答案</Typography.Text>
+                    <strong>{selectedRealExamPreview.answer || '待核对'}</strong>
+                  </div>
                   <div className="real-exam-tags">
-                    <Tag color="green">答案：{selectedRealExamPreview.answer || '-'}</Tag>
                     <Tag color="blue">{selectedRealExamPreview.primaryKnowledgeLabel || '标签待确认'}</Tag>
                     {selectedRealExamPreview.knowledgeTags.map((tag) => (
                       <Tag key={tag}>{tag}</Tag>
                     ))}
                   </div>
                 </div>
+                {adminWorkspaceVisible ? (
                 <div className="real-exam-source-preview" aria-label="题图与来源区域">
                   <div className="source-preview-head">
                     <strong>来源回看</strong>
@@ -1517,39 +1698,40 @@ function App() {
                   </div>
                   <Typography.Text type="secondary">{savedQuestionSourceSummary}</Typography.Text>
                 </div>
+                ) : null}
                 <div className="real-exam-actions">
                   <Button
-                    type="primary"
                     icon={<FileSearchOutlined />}
                     onClick={loadRealExamReviewQueue}
                     loading={realExamQueueBusy}
                     data-action="load-real-guangzhou-2015-review-queue-primary"
                   >
-                    加载数据库队列
+                    刷新题目
                   </Button>
                   <Button
-                    icon={<SearchOutlined />}
-                    onClick={() =>
-                      selectedRealExamReview
-                        ? void loadRealExamReviewItem(selectedRealExamReview)
-                        : setRealExamQueueMessage('当前是本地证据预览；请先加载数据库队列再写入审核。')
-                    }
-                    disabled={!selectedRealExamReview}
-                    data-action="load-real-guangzhou-2015-review-item-primary"
-                  >
-                    载入当前题
-                  </Button>
-                  <Button
+                    type="primary"
                     icon={<EditOutlined />}
                     onClick={() =>
                       selectedRealExamReview
                         ? void finishRealExamReviewItem(selectedRealExamReview, 'resolved')
-                        : setRealExamQueueMessage('当前是本地证据预览；请先加载数据库队列再确认。')
+                        : setRealExamQueueMessage('题目尚未载入，请稍后刷新。')
                     }
                     disabled={!selectedRealExamReview}
                     data-action="confirm-real-guangzhou-2015-review-item-primary"
                   >
-                    确认当前题
+                    确认无误
+                  </Button>
+                  <Button
+                    icon={<UndoOutlined />}
+                    onClick={() =>
+                      selectedRealExamReview
+                        ? void finishRealExamReviewItem(selectedRealExamReview, 'dismissed')
+                        : setRealExamQueueMessage('题目尚未载入，请稍后刷新。')
+                    }
+                    disabled={!selectedRealExamReview}
+                    data-action="dismiss-real-guangzhou-2015-review-item-primary"
+                  >
+                    退回修正
                   </Button>
                   <Typography.Text type="secondary">{realExamQueueMessage}</Typography.Text>
                 </div>
@@ -1560,7 +1742,7 @@ function App() {
                   const active = selectedRealExamReview
                     ? selectedRealExamReview.payload.questionNo === item.questionNo
                     : selectedEvidenceQuestionNo === item.questionNo
-                  const liveItem = realExamQueue.find((row) => row.payload.questionNo === item.questionNo)
+                  const liveItem = visibleRealExamQueue.find((row) => row.payload.questionNo === item.questionNo)
                   return (
                     <button
                       key={`${item.questionNo}-${item.answer}`}
@@ -1619,6 +1801,8 @@ function App() {
               </span>
             </button>
 
+            {adminWorkspaceVisible ? (
+            <>
             <div className="score-field-mapping" data-contract="s003b-source-materials-query">
               <Typography.Text type="secondary">来源资料（真实 API）</Typography.Text>
               <Space size="small" wrap>
@@ -1766,6 +1950,8 @@ function App() {
                 </span>
               </div>
             </div>
+            </>
+            ) : null}
 
             <div className="job-list">
               {jobStates.map((state) => (
@@ -1782,6 +1968,7 @@ function App() {
               ))}
             </div>
 
+            {adminWorkspaceVisible ? (
             <div className="score-analysis-summary" data-contract="s003d-import-efficiency">
               <Typography.Text type="secondary">导入效率摘要</Typography.Text>
               <div className="analysis-summary-grid compact">
@@ -1801,6 +1988,7 @@ function App() {
               <Typography.Text type="secondary">证据摘要（S003D）</Typography.Text>
               <pre aria-label="s003d-evidence-summary">{s003dEvidenceSummary}</pre>
             </div>
+            ) : null}
           </section>
 
           <section className="score-panel" aria-label="成绩导入" data-flow="score-import-workbench">
@@ -1871,6 +2059,7 @@ function App() {
             onExportPaper={exportPaper}
           />
 
+          {adminWorkspaceVisible ? (
           <section
             className="review-panel"
             aria-label="导入确认"
@@ -2094,6 +2283,7 @@ function App() {
               </div>
             </div>
           </section>
+          ) : null}
 
         </main>
         {adminWorkspaceVisible ? (

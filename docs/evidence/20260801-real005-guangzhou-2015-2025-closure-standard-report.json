@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "task": "REAL005",
-  "checkedAt": "2026-07-31T23:38:50",
+  "checkedAt": "2026-08-01T01:14:02",
   "closureStatus": "not_closed",
   "criteriaPath": "tasks/real-guangzhou-closure-criteria.csv",
   "criteriaCount": 16,
@@ -125,8 +125,8 @@
           "note": "REAL003 sourceHashes include a combined paper+answer local_exam_paper anchor such as 含答案/解析版."
         }
       ],
-      "blockedYears": [],
       "status": "pass",
+      "blockedYears": [],
       "evidencePaths": [
         "docs/evidence/20260514-real003-guangzhou-physics-year-batch-ingest-report.json",
         "docs/evidence/20260731-guangzhou-2015-real-ingest-slice-report.json"
@@ -269,8 +269,8 @@
           "note": "REAL005 yearly adapter diagnostics include adapter name/version, input/output hashes, warnings/errors, and durationMs for paper and answer anchors."
         }
       ],
-      "blockedYears": [],
       "status": "pass",
+      "blockedYears": [],
       "evidencePaths": [
         "docs/evidence/20260620-real005-yearly-adapter-diagnostics.json"
       ]
@@ -278,20 +278,21 @@
   },
   "sliceCoverage": {
     "REAL005A": {
+      "blockers": [],
       "evidencePaths": [
         "docs/evidence/20260514-real003-guangzhou-physics-year-batch-ingest-report.json",
         "docs/evidence/20260620-real005-yearly-adapter-diagnostics.json",
         "docs/evidence/20260731-guangzhou-2015-real-ingest-slice-report.json"
       ],
-      "next": "REAL005A evidence is ready for manual closeout review.",
-      "blockers": [],
       "status": "pass",
+      "next": "REAL005A evidence is ready for manual closeout review.",
       "criteriaIds": [
         "RG001",
         "RG002"
       ]
     },
     "REAL005B": {
+      "nextDetailedSlice": "none",
       "criteriaIds": [
         "RG003",
         "RG004",
@@ -301,18 +302,7 @@
         "RG008",
         "RG009"
       ],
-      "blockers": [],
       "next": "REAL005B repo-side evidence is complete; advance REAL005C with real question search/export/analysis and rollback/privacy coverage.",
-      "criteriaStatus": {
-        "RG003": "pass",
-        "RG004": "pass",
-        "RG005": "pass",
-        "RG006": "pass",
-        "RG007": "pass",
-        "RG008": "pass",
-        "RG009": "pass"
-      },
-      "nextDetailedSliceReady": false,
       "detailedSliceCoverage": {
         "REAL005B1": {
           "parentSlice": "REAL005B",
@@ -437,6 +427,8 @@
           "ownerRole": "题库/导入负责人"
         }
       },
+      "status": "pass",
+      "blockers": [],
       "evidencePaths": [
         "docs/evidence/20260505-l004-knowledge-tagging-suggestion-pilot.md",
         "docs/evidence/20260506-s006c-source-review-closure-smoke-report.json",
@@ -470,10 +462,19 @@
         "guangzhou-physics-full-research-package-2016-2025/quality-review-complete-csv-package/c003-quality-issue-review-evidence.csv",
         "guangzhou-physics-full-research-package-2016-2025/quality-review-complete-csv-package/c003-question-item-full.csv"
       ],
-      "status": "pass",
-      "nextDetailedSlice": "none"
+      "nextDetailedSliceReady": false,
+      "criteriaStatus": {
+        "RG003": "pass",
+        "RG004": "pass",
+        "RG005": "pass",
+        "RG006": "pass",
+        "RG007": "pass",
+        "RG008": "pass",
+        "RG009": "pass"
+      }
     },
     "REAL005C": {
+      "nextDetailedSlice": "none",
       "criteriaIds": [
         "RG010",
         "RG011",
@@ -483,27 +484,7 @@
         "RG015",
         "RG016"
       ],
-      "blockers": null,
       "next": "REAL005C repo-side evidence is complete; REAL005D repo-side truthful wording is refreshed while keeping REAL005 not_closed until the dashboard area state and onsite/live evidence truly change.",
-      "evidencePaths": [
-        "docs/evidence/20260516-real007-guangzhou-2015-layout-quality-report.json",
-        "docs/evidence/20260518-real012-production-flow-quality-report.json",
-        "docs/evidence/20260617-real005c4-layout-formula-table-report.json",
-        "docs/evidence/20260617-real005c5-edit-recrop-audit-smoke.json",
-        "docs/evidence/20260728-real005c3-rollback-privacy-no-active-write-report.json",
-        "docs/evidence/20260731-real005c1-real-question-search-paper-export-smoke.json",
-        "docs/evidence/20260731-real005c2-real-question-analysis-reference-smoke.json"
-      ],
-      "criteriaStatus": {
-        "RG010": "pass",
-        "RG011": "pass",
-        "RG012": "pass",
-        "RG013": "pass",
-        "RG014": "pass",
-        "RG015": "pass",
-        "RG016": "pass"
-      },
-      "nextDetailedSliceReady": false,
       "detailedSliceCoverage": {
         "REAL005C1": {
           "parentSlice": "REAL005C",
@@ -610,8 +591,27 @@
           "ownerRole": "题库/导入负责人"
         }
       },
-      "nextDetailedSlice": "none",
-      "status": "pass"
+      "status": "pass",
+      "blockers": null,
+      "evidencePaths": [
+        "docs/evidence/20260516-real007-guangzhou-2015-layout-quality-report.json",
+        "docs/evidence/20260518-real012-production-flow-quality-report.json",
+        "docs/evidence/20260617-real005c4-layout-formula-table-report.json",
+        "docs/evidence/20260617-real005c5-edit-recrop-audit-smoke.json",
+        "docs/evidence/20260728-real005c3-rollback-privacy-no-active-write-report.json",
+        "docs/evidence/20260731-real005c1-real-question-search-paper-export-smoke.json",
+        "docs/evidence/20260731-real005c2-real-question-analysis-reference-smoke.json"
+      ],
+      "nextDetailedSliceReady": false,
+      "criteriaStatus": {
+        "RG010": "pass",
+        "RG011": "pass",
+        "RG012": "pass",
+        "RG013": "pass",
+        "RG014": "pass",
+        "RG015": "pass",
+        "RG016": "pass"
+      }
     },
     "REAL005D": {
       "criteriaIds": [
@@ -620,8 +620,9 @@
         "GO_NO_GO_CARD",
         "DASHBOARD"
       ],
-      "blockers": [],
       "next": "REAL005D repo-side truthful wording is refreshed. Keep REAL005 not_closed until the dashboard area state and onsite/live evidence truly change.",
+      "status": "pass",
+      "blockers": [],
       "evidencePaths": [
         "docs/112_CurrentClosureStatus_20260609.md",
         "docs/109_ReleaseGoNoGoCard.md",
@@ -645,8 +646,7 @@
           "path": "tasks/completion-state-dashboard.csv",
           "ok": true
         }
-      },
-      "status": "pass"
+      }
     }
   },
   "nextDetailedOpen": {

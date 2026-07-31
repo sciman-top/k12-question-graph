@@ -1,7 +1,7 @@
 # REAL005B Guangzhou v2 candidate materialize
 
-- status: pass
-- mode: apply
+- status: dry_run_pass
+- mode: transaction_rollback_dry_run
 - workflow_key: guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1
 - planned_questions: 234
 - question_regions: 272

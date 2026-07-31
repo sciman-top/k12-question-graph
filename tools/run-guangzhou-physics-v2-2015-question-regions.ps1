@@ -47,6 +47,9 @@ try {
     if ($report.status -ne 'pass' -or $report.totals.blockedItems -ne 0 -or $report.totals.manualTakeovers -ne 0) {
         throw 'v2 2015 question-region report has a blocker or unexpected manual takeover'
     }
+    if ($report.totals.manualVisualOverrides -ne 2) {
+        throw 'v2 2015 question-region report must preserve the two verified cross-question figure layout overrides'
+    }
     if ($report.activeWrite -ne $false -or $report.externalAiCalls -ne 0 -or $report.realStudentDataUsed -ne $false) {
         throw 'v2 2015 question-region generation must remain read-only'
     }

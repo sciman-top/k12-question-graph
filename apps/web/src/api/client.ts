@@ -504,7 +504,7 @@ export async function updateQuestion(
     reason: string
     difficultyEstimated?: number
     blocks?: Array<{
-      id: string
+      id?: string
       blockType?: string
       sortOrder?: number
       content?: Record<string, unknown>

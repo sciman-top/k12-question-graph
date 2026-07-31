@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  isQuestionAssetRegion,
   questionEvidenceFilterOptions,
   questionEvidenceParamsFor,
   resolveSourcePreviewUrl,
@@ -8,7 +9,29 @@ import {
   realExamDifficultyOptions,
 } from './workbenchData'
 
+import type { QuestionSourceRegionContract } from '../api/contracts'
+
 describe('question search presets', () => {
+  it('treats the Guangzhou v2 question crop as the complete teacher-facing question image', () => {
+    const region: QuestionSourceRegionContract = {
+      id: 'region-1',
+      sourceDocumentId: 'paper-1',
+      sourceTitle: '2020广州中考',
+      pageNumber: 1,
+      x: 5,
+      y: 10,
+      width: 90,
+      height: 20,
+      coordinateUnit: 'percent',
+      regionType: 'guangzhou_v2_question_candidate',
+      screenshotRelativePath: 'generated/question-regions/2020/q01.png',
+      screenshotUrl: '/source-regions/region-1/screenshot',
+      pageScreenshotUrl: '/source-regions/region-1/page-screenshot',
+    }
+
+    expect(isQuestionAssetRegion(region)).toBe(true)
+  })
+
   it('resolves source previews against the app origin before navigating a blank tab', () => {
     expect(resolveSourcePreviewUrl('/source-regions/region-1/page-screenshot', 'http://127.0.0.1:5175')).toBe(
       'http://127.0.0.1:5175/source-regions/region-1/page-screenshot',

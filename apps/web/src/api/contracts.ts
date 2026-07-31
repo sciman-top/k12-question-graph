@@ -104,6 +104,7 @@ export interface ReviewQueuePayloadContract {
   year: number
   questionNo: number
   sourceDocumentId: string
+  sourceTitle: string
   answerSourceDocumentId: string
   sourceRegionId: string
   answerRegionId: string
@@ -229,6 +230,7 @@ export interface QuestionBlockContract {
 
 export interface QuestionDetailContract {
   id: string
+  questionType: string | null
   questionNo: number
   status: string
   difficultyEstimated: number | null
@@ -1005,6 +1007,7 @@ function normalizeReviewQueuePayload(value: unknown): ReviewQueuePayloadContract
     year: readNumberField(value, 'year'),
     questionNo: readNumberField(value, 'questionNo'),
     sourceDocumentId: readStringField(value, 'sourceDocumentId') ?? '',
+    sourceTitle: readStringField(value, 'sourceTitle') ?? '',
     answerSourceDocumentId: readStringField(value, 'answerSourceDocumentId') ?? '',
     sourceRegionId: readStringField(value, 'sourceRegionId') ?? '',
     answerRegionId: readStringField(value, 'answerRegionId') ?? '',
@@ -1157,6 +1160,7 @@ export function normalizeQuestionSourceReviewResponse(
 export function normalizeQuestionDetailResponse(value: unknown): QuestionDetailContract {
   return {
     id: readStringField(value, 'id') ?? '',
+    questionType: readNullableStringField(value, 'questionType'),
     questionNo: readNumberField(value, 'questionNo'),
     status: readStringField(value, 'status') ?? 'pending_review',
     difficultyEstimated: readNullableNumberField(value, 'difficultyEstimated'),

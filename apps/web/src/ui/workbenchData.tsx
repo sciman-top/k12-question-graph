@@ -9,6 +9,7 @@ import {
 import type {
   QuestionEvidenceSearchParams,
   QuestionEvidenceCardContract,
+  ReviewQueueItemContract,
   QuestionSearchParams,
   QuestionSourceRegionContract,
   ScoreEvidenceAnalysisContract,
@@ -149,7 +150,19 @@ export function hasRenderableImage(region: {
 }
 
 export function isQuestionAssetRegion(region: QuestionSourceRegionContract) {
-  return hasRenderableImage(region) && region.regionType.includes('asset')
+  return hasRenderableImage(region) && (
+    region.regionType.includes('asset') ||
+    region.regionType.includes('visual') ||
+    region.regionType.includes('question_candidate')
+  )
+}
+
+export function realExamPaperKey(item: ReviewQueueItemContract) {
+  return item.payload.sourceDocumentId || `${item.payload.year}:primary-paper`
+}
+
+export function realExamPaperTitle(item: ReviewQueueItemContract) {
+  return item.payload.sourceTitle || `${item.payload.year} 广州中考物理试卷`
 }
 
 export const teacherActions = [

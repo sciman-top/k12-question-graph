@@ -1,11 +1,11 @@
 {
-  "status": "pass",
+  "status": "dry_run_pass",
   "taskId": "GUANGZHOU_PHYSICS_V2_CANDIDATE_MATERIALIZE",
-  "checkedAt": "2026-07-31T15:00:58.727584+00:00",
-  "mode": "apply",
+  "checkedAt": "2026-07-31T14:57:40.443644+00:00",
+  "mode": "transaction_rollback_dry_run",
   "workflowKey": "guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1",
   "materialBatchKey": "guangzhou_physics_2015_2025_20260726_v2",
-  "backupManifest": "D:\\KQG_Backups\\20260731-225802\\manifest.json",
+  "backupManifest": null,
   "activeWrite": false,
   "externalAiCalls": 0,
   "realStudentDataUsed": false,
@@ -153,7 +153,7 @@
     "persistedBeforeRun": 234,
     "persistedAfterRun": 234,
     "stateFingerprintBefore": "2ab47372fe90fbb9cb83f13c672d130b",
-    "stateFingerprintAfter": "6162cc4251e2d460e6412070af1fab2e"
+    "stateFingerprintAfter": "2ab47372fe90fbb9cb83f13c672d130b"
   },
   "invariants": {
     "allQuestionsPendingReview": true,
@@ -163,12 +163,12 @@
     "c002ActiveCountBefore": 452,
     "c002ActiveCountAfter": 452,
     "c002ActiveCountUnchanged": true,
-    "dryRunRolledBack": null
+    "dryRunRolledBack": true
   },
   "rollback": {
-    "primary": "restore database from D:\\KQG_Backups\\20260731-225802\\manifest.json",
+    "primary": "transaction rollback completed",
     "targetedWorkflowKey": "guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1",
-    "restoreCommand": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/restore.ps1 -ManifestPath 'D:\\KQG_Backups\\20260731-225802\\manifest.json' -ApplyDatabase -ApplyFileStore -DryRun:$false"
+    "restoreCommand": null
   },
   "boundary": "Candidate materialization only. All 234 questions and reviews remain pending/open; answer full-document fallbacks require teacher validation. No C002 active switch, teacher acceptance, onsite closure, or REAL005 closure is claimed."
 }

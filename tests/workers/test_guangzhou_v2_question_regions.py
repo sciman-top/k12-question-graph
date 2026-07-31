@@ -19,6 +19,33 @@ class GuangzhouV2QuestionRegionTests(unittest.TestCase):
         self.assertEqual(regions.anchor_numbers("16、17题结合题目要求"), [])
         self.assertEqual(regions.anchor_numbers("②16. 图a所示"), [16])
 
+    def test_multi_question_heading_becomes_the_first_question_visual_start(self) -> None:
+        heading = regions.Anchor(14, 4, 520, 42, "14、15题结合手指投影灯回答")
+        selected = {
+            13: regions.Anchor(13, 4, 403, 40, "13."),
+            14: regions.Anchor(14, 4, 571, 40, "14.(1)"),
+            15: regions.Anchor(15, 4, 698, 40, "15."),
+        }
+
+        starts = regions.apply_shared_prompt_starts(selected, [heading])
+
+        self.assertEqual(starts[13].top, 403)
+        self.assertEqual(starts[14].top, 520)
+        self.assertEqual(starts[15].top, 698)
+
+    def test_2015_cross_question_figure_layout_uses_auditable_split_regions(self) -> None:
+        paper_sha256 = "534d8eee3b99446d514af736aaf4cd8e36f2803154f7778c0f656f1832b7510c"
+
+        q18 = regions.manual_visual_crop_specs(paper_sha256, 18)
+        q19 = regions.manual_visual_crop_specs(paper_sha256, 19)
+
+        self.assertEqual([(spec.page_number, spec.order) for spec in q18], [(5, 1), (5, 2)])
+        self.assertEqual([(spec.page_number, spec.order) for spec in q19], [(5, 1), (5, 2)])
+        self.assertLess(q18[0].bottom, q18[1].top)
+        self.assertEqual(q18[1].right, 42.0)
+        self.assertEqual(q19[1].left, 45.0)
+        self.assertLess(q19[0].bottom, 90.0)
+
     def test_select_question_anchors_skips_exam_instructions_before_choice_section(self) -> None:
         anchors = [
             regions.Anchor(1, 1, 100, 50, "1.答题前"),

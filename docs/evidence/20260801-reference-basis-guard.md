@@ -1,7 +1,7 @@
 # Reference Basis Guard
 
 - status: pass
-- checked_at: 2026-07-31T23:38:51
+- checked_at: 2026-08-01T01:14:05
 - validation_mode: Local
 - policy_path: tasks/reference-basis-policy.json
 - requirements_path: tasks/reference-basis-requirements.csv
@@ -11,8 +11,8 @@
 - module_row_count: 13
 - community_task_count: 11
 - effective_manifest_source: external
-- snapshot_entry_count: 26
-- external_entry_count: 26
+- snapshot_entry_count: 27
+- external_entry_count: 27
 - snapshot_parity: match
 - physical_external_check: True
 - changed_path_count: 0

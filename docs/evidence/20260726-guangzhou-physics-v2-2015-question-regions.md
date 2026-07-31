@@ -4,8 +4,9 @@
 - material_batch_key: `guangzhou_physics_2015_2025_20260726_v2`
 - source_pages: 8
 - question_candidates: 24
-- region_candidates: 25
+- region_candidates: 27
 - manual_takeovers: 0
+- manual_visual_overrides: 2
 
 ## Boundary
 

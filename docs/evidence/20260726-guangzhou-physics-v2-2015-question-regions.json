@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "GUANGZHOU_PHYSICS_V2_2015_QUESTION_REGIONS",
-  "checkedAt": "2026-07-27T12:56:10.835422+00:00",
+  "checkedAt": "2026-07-31T15:09:21.461684+00:00",
   "materialBatchKey": "guangzhou_physics_2015_2025_20260726_v2",
   "fileRoot": "D:\\KQG_Data\\file_store",
   "activeWrite": false,
@@ -9,8 +9,9 @@
   "realStudentDataUsed": false,
   "totals": {
     "questionCandidates": 24,
-    "regionCandidates": 25,
+    "regionCandidates": 27,
     "manualTakeovers": 0,
+    "manualVisualOverrides": 2,
     "blockedItems": 0,
     "sourcePages": 8
   },
@@ -121,8 +122,22 @@
     "sourceSha256": "534d8eee3b99446d514af736aaf4cd8e36f2803154f7778c0f656f1832b7510c",
     "expectedQuestionCount": 24,
     "selectedAnchorCount": 24,
-    "regionCount": 25,
+    "regionCount": 27,
     "manualTakeoverCandidates": [],
+    "manualVisualOverrides": [
+      {
+        "questionNumber": 18,
+        "reason": "cross_question_figure_layout",
+        "sourceSha256": "534d8eee3b99446d514af736aaf4cd8e36f2803154f7778c0f656f1832b7510c",
+        "regionCount": 2
+      },
+      {
+        "questionNumber": 19,
+        "reason": "cross_question_figure_layout",
+        "sourceSha256": "534d8eee3b99446d514af736aaf4cd8e36f2803154f7778c0f656f1832b7510c",
+        "regionCount": 2
+      }
+    ],
     "questionSectionBoundary": {
       "endPageNumber": 8,
       "mode": "document_end",
@@ -524,14 +539,14 @@
               5.0,
               46.3559,
               90.0,
-              20.6844
+              16.8788
             ],
             "relativePath": "generated/guangzhou-physics-2015-2025-20260726-v2/question-regions/2015/1b22c6d1-8abb-4f7a-9b29-825c6a12990e/q13-p004.png",
             "imageQuality": {
               "width": 1340,
-              "height": 436,
-              "sizeBytes": 100653,
-              "nonWhitePixelRatio": 0.066913,
+              "height": 356,
+              "sizeBytes": 68568,
+              "nonWhitePixelRatio": 0.056842,
               "nonBlank": true
             }
           }
@@ -544,25 +559,25 @@
         "status": "candidate",
         "anchor": {
           "pageNumber": 4,
-          "top": 571.16,
-          "text": "14.(1)在图",
-          "mode": "pdf_text_anchor"
+          "top": 539.12,
+          "text": "shared_prompt:15所示清晰的喜羊羊图像. 完成14、15题.",
+          "mode": "shared_prompt"
         },
         "regions": [
           {
             "pageNumber": 4,
             "bboxPercent": [
               5.0,
-              66.3402,
+              62.5346,
               90.0,
-              15.7332
+              19.5388
             ],
             "relativePath": "generated/guangzhou-physics-2015-2025-20260726-v2/question-regions/2015/1b22c6d1-8abb-4f7a-9b29-825c6a12990e/q14-p004.png",
             "imageQuality": {
               "width": 1340,
-              "height": 331,
-              "sizeBytes": 75049,
-              "nonWhitePixelRatio": 0.061273,
+              "height": 411,
+              "sizeBytes": 100492,
+              "nonWhitePixelRatio": 0.066583,
               "nonBlank": true
             }
           }
@@ -679,16 +694,33 @@
             "pageNumber": 5,
             "bboxPercent": [
               5.0,
-              54.2687,
+              54.26,
               90.0,
-              24.8092
+              5.24
             ],
-            "relativePath": "generated/guangzhou-physics-2015-2025-20260726-v2/question-regions/2015/1b22c6d1-8abb-4f7a-9b29-825c6a12990e/q18-p005.png",
+            "relativePath": "generated/guangzhou-physics-2015-2025-20260726-v2/question-regions/2015/1b22c6d1-8abb-4f7a-9b29-825c6a12990e/q18-p005-r01.png",
             "imageQuality": {
               "width": 1340,
-              "height": 522,
-              "sizeBytes": 52313,
-              "nonWhitePixelRatio": 0.035814,
+              "height": 110,
+              "sizeBytes": 31063,
+              "nonWhitePixelRatio": 0.076642,
+              "nonBlank": true
+            }
+          },
+          {
+            "pageNumber": 5,
+            "bboxPercent": [
+              5.0,
+              70.0,
+              37.0,
+              9.0
+            ],
+            "relativePath": "generated/guangzhou-physics-2015-2025-20260726-v2/question-regions/2015/1b22c6d1-8abb-4f7a-9b29-825c6a12990e/q18-p005-r02.png",
+            "imageQuality": {
+              "width": 551,
+              "height": 189,
+              "sizeBytes": 2880,
+              "nonWhitePixelRatio": 0.020146,
               "nonBlank": true
             }
           }
@@ -710,24 +742,39 @@
             "pageNumber": 5,
             "bboxPercent": [
               5.0,
-              78.3779,
+              79.0,
               90.0,
-              18.6221
+              8.0
             ],
-            "relativePath": "generated/guangzhou-physics-2015-2025-20260726-v2/question-regions/2015/1b22c6d1-8abb-4f7a-9b29-825c6a12990e/q19-p005.png",
+            "relativePath": "generated/guangzhou-physics-2015-2025-20260726-v2/question-regions/2015/1b22c6d1-8abb-4f7a-9b29-825c6a12990e/q19-p005-r01.png",
             "imageQuality": {
               "width": 1340,
-              "height": 392,
-              "sizeBytes": 48616,
-              "nonWhitePixelRatio": 0.029733,
+              "height": 169,
+              "sizeBytes": 40039,
+              "nonWhitePixelRatio": 0.059494,
+              "nonBlank": true
+            }
+          },
+          {
+            "pageNumber": 5,
+            "bboxPercent": [
+              45.0,
+              60.0,
+              50.0,
+              19.0
+            ],
+            "relativePath": "generated/guangzhou-physics-2015-2025-20260726-v2/question-regions/2015/1b22c6d1-8abb-4f7a-9b29-825c6a12990e/q19-p005-r02.png",
+            "imageQuality": {
+              "width": 744,
+              "height": 399,
+              "sizeBytes": 16965,
+              "nonWhitePixelRatio": 0.039265,
               "nonBlank": true
             }
           }
         ],
         "skippedBlankPageSegments": [],
-        "skippedSectionBoundarySegments": [
-          6
-        ]
+        "skippedSectionBoundarySegments": []
       },
       {
         "questionNumber": 20,

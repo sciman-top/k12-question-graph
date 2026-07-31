@@ -46,6 +46,8 @@
 - Docling DocumentConverter: https://docling-project.github.io/docling/reference/document_converter/
 - Docling OCR/table example: https://docling-project.github.io/docling/examples/full_page_ocr/
 - PaddleOCR: https://github.com/PaddlePaddle/PaddleOCR
+- PaddleX: https://github.com/PaddlePaddle/PaddleX
+- MinerU: https://github.com/opendatalab/MinerU
 - OCRmyPDF GitHub: https://github.com/ocrmypdf/OCRmyPDF
 - PaddleOCR PP-Structure: https://paddlepaddle.github.io/PaddleOCR/main/en/version3.x/algorithm/PP-StructureV3/PP-StructureV3.html
 - PaddleOCR installation and Docker/pip options: https://www.paddleocr.ai/latest/en/version3.x/installation.html

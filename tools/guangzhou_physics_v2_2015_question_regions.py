@@ -158,6 +158,7 @@ def main() -> int:
             "questionCandidates": EXPECTED_QUESTION_COUNT,
             "regionCandidates": year_report["regionCount"],
             "manualTakeovers": len(year_report["manualTakeoverCandidates"]),
+            "manualVisualOverrides": len(year_report["manualVisualOverrides"]),
             "blockedItems": len(year_report["blockers"]),
             "sourcePages": len(source_page_report["years"][0]["renderedPages"]),
         },
@@ -175,7 +176,8 @@ def main() -> int:
         f"- source_pages: {report['totals']['sourcePages']}\n"
         f"- question_candidates: {report['totals']['questionCandidates']}\n"
         f"- region_candidates: {report['totals']['regionCandidates']}\n"
-        f"- manual_takeovers: {report['totals']['manualTakeovers']}\n\n"
+        f"- manual_takeovers: {report['totals']['manualTakeovers']}\n"
+        f"- manual_visual_overrides: {report['totals']['manualVisualOverrides']}\n\n"
         "## Boundary\n\n"
         "These are machine-generated v2 2015 question-region candidates. They do not replace teacher review, write database rows, or change C002 active assets.\n",
         encoding="utf-8",

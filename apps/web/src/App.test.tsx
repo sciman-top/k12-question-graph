@@ -29,4 +29,25 @@ describe('App navigation smoke', () => {
       expect(appHeading).toBeInTheDocument()
     }
   }, 15_000)
+
+  it('keeps exam navigation teacher-facing and hides internal diagnostics by default', () => {
+    vi.stubGlobal('ResizeObserver', class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    })
+
+    render(
+      <QueryClientProvider client={createAppQueryClient()}>
+        <App />
+      </QueryClientProvider>,
+    )
+
+    expect(screen.getByLabelText('真卷年份')).toBeInTheDocument()
+    expect(screen.getByLabelText('真卷试卷')).toBeInTheDocument()
+    expect(screen.getByLabelText('真卷题号')).toBeInTheDocument()
+    expect(screen.queryByText('证据摘要（S003D）')).not.toBeInTheDocument()
+    expect(screen.queryByText('B004')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('重裁 x')).not.toBeInTheDocument()
+  })
 })

@@ -35,6 +35,10 @@ from guangzhou_physics_v2_materialize import (
     validate_candidate_coverage,
     validate_candidate_content,
 )
+from guangzhou_physics_v2_structured_extraction import (
+    extract_single_choice_drafts,
+    parse_pdf_text_layer,
+)
 from repair_c003_question_stems_from_regions import extract_question_stem_from_region_text
 
 
@@ -104,7 +108,7 @@ def load_source_documents(conn: psycopg.Connection[Any], file_root: Path) -> dic
         conn,
         """
         select sd.id, sd.year, sd.source_type, sd.source_title, sd.file_asset_id,
-               fa.relative_path, fa.sha256
+               fa.original_file_name, fa.relative_path, fa.sha256
         from source_documents sd
         join file_assets fa on fa.id = sd.file_asset_id
         where sd.material_batch_key = %s
@@ -129,6 +133,23 @@ def load_source_documents(conn: psycopg.Connection[Any], file_root: Path) -> dic
     if missing:
         raise ValueError(f"v2_source_documents_missing:{missing}")
     return result
+
+
+def source_title_for_document(source_document: dict[str, Any]) -> str:
+    """Use the current source-document record as the teacher-facing paper title."""
+    title = str(source_document.get("source_title") or "").strip()
+    if title:
+        return title
+    file_name = str(source_document.get("original_file_name") or "").strip()
+    return file_name.removesuffix(".pdf")
+
+
+def source_file_for_document(source_document: dict[str, Any]) -> str:
+    file_name = str(source_document.get("original_file_name") or "").strip()
+    if file_name:
+        return file_name
+    title = source_title_for_document(source_document)
+    return title if title.lower().endswith(".pdf") else f"{title}.pdf"
 
 
 def select_2015_candidate_rows(candidate_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -229,6 +250,39 @@ def load_existing_question_ids(conn: psycopg.Connection[Any]) -> dict[tuple[int,
             raise ValueError(f"duplicate_existing_question_identity:{key[0]}:{key[1]}")
         existing[key] = uuid.UUID(str(row["id"]))
     return existing
+
+
+def enrich_choice_candidates_from_pdf_text_layer(
+    candidates: dict[tuple[int, int], dict[str, Any]],
+    sources: dict[tuple[int, str], dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Replace only fail-closed, complete choice text with the current paper PDF text layer."""
+    reports: list[dict[str, Any]] = []
+    for year in YEARS:
+        question_types = {
+            number: str(candidates[(year, number)].get("questionType") or "")
+            for number in range(1, EXPECTED_COUNTS[year] + 1)
+        }
+        result = extract_single_choice_drafts(
+            parse_pdf_text_layer(Path(sources[(year, "local_exam_paper")]["path"])),
+            question_types,
+        )
+        for number, draft in result.drafts.items():
+            candidate = candidates[(year, number)]
+            candidate["stem"] = draft["stem"]
+            candidate["options"] = draft["options"]
+            candidate["structuredExtraction"] = draft["structuredExtraction"]
+        reports.append(
+            {
+                "year": year,
+                "eligibleChoiceQuestions": sorted(result.drafts),
+                "eligibleChoiceQuestionCount": len(result.drafts),
+                "blockers": {str(number): reason for number, reason in result.blockers.items()},
+                "adapter": "pdftotext_layout",
+                "reviewStatus": "pending_review",
+            }
+        )
+    return reports
 
 
 def question_id(
@@ -398,11 +452,14 @@ def upsert_question(
     number: int,
     candidate: dict[str, Any],
     plan: YearRegionPlan,
+    paper_doc: dict[str, Any],
     question_regions: list[uuid.UUID],
     answer_doc: dict[str, Any],
     answer_regions: list[uuid.UUID],
     answer_mode: str,
 ) -> None:
+    if plan.source_document_id != paper_doc["id"]:
+        raise ValueError(f"question_region_source_document_mismatch:{year}:{number}")
     materialized_blocks = rows(
         conn,
         """
@@ -426,7 +483,7 @@ def upsert_question(
         "materialBatchKey": BATCH_KEY,
         "year": year,
         "questionNo": number,
-        "sourceFile": plan.source_file,
+        "sourceFile": source_file_for_document(paper_doc),
         "sourceDocumentId": str(plan.source_document_id),
         "questionSourceRegionIds": [str(value) for value in question_regions],
         "answerSourceDocumentId": str(answer_doc["id"]),
@@ -450,6 +507,7 @@ def upsert_question(
         "answerEvidenceLocation": candidate.get("answerEvidenceLocation", ""),
         "officialExamPointSummary": candidate.get("officialExamPointSummary", ""),
         "legacyQuestionId": candidate.get("legacyQuestionId", ""),
+        "structuredExtraction": candidate.get("structuredExtraction", {}),
     }
     quality_signals = {
         "reviewStatus": "pending_review",
@@ -459,6 +517,7 @@ def upsert_question(
         "realStudentDataUsed": False,
         "candidateConfidence": candidate.get("confidence", 0.0),
         "discriminationObservedCandidate": candidate.get("discriminationObserved"),
+        "structuredChoiceOptionCount": len(candidate.get("options", [])),
     }
     with conn.cursor() as cursor:
         cursor.execute(
@@ -599,6 +658,12 @@ def upsert_question(
                         "questionItemId": str(qid),
                         "year": year,
                         "questionNo": number,
+                        "sourceDocumentId": str(plan.source_document_id),
+                        "sourceTitle": source_title_for_document(paper_doc),
+                        "textPreview": candidate.get("stem", ""),
+                        "answer": candidate.get("answer", ""),
+                        "primaryKnowledgeLabel": candidate.get("primaryKnowledgeLabel", ""),
+                        "knowledgeTags": candidate.get("knowledgeCandidateIds", []),
                         "answerSourceMode": answer_mode,
                         "requiredActions": ["review_question_crop", "review_answer_source", "review_tags", "review_difficulty"],
                         "teacherValidationRequired": True,
@@ -631,6 +696,7 @@ def write_reports(report: dict[str, Any], json_path: Path, markdown_path: Path) 
     for item in report["years"]:
         lines.append(
             f"- {item['year']}: questions={item['questions']}; question_regions={item['questionRegions']}; "
+            f"choice_text={item['choiceTextExtraction']['eligibleChoiceQuestionCount']}; "
             f"answer_modes={json.dumps(item['answerModes'], ensure_ascii=False, sort_keys=True)}"
         )
     lines.extend(["", "## Boundary", report["boundary"]])
@@ -681,6 +747,10 @@ def main() -> int:
             existing_question_ids.setdefault((2015, number), candidate_id)
         validate_candidate_coverage(candidates)
         validate_candidate_content(candidates)
+        choice_extraction_by_year = {
+            int(item["year"]): item
+            for item in enrich_choice_candidates_from_pdf_text_layer(candidates, sources)
+        }
 
         target_ids = [
             question_id(year, number, plans[year].source_file, existing_question_ids)
@@ -759,6 +829,7 @@ def main() -> int:
         answer_region_ids: set[uuid.UUID] = set()
         for year in YEARS:
             plan = plans[year]
+            paper_doc = sources[(year, "local_exam_paper")]
             answer_doc = sources[(year, "answer_or_solution")]
             modes: dict[str, int] = {}
             for number in range(1, EXPECTED_COUNTS[year] + 1):
@@ -770,7 +841,19 @@ def main() -> int:
                 answer_region_ids.update(answer_regions)
                 mode = answer_region_mode(page_numbers, answer_page_counts[year])
                 modes[mode] = modes.get(mode, 0) + 1
-                upsert_question(conn, qid, year, number, candidate, plan, question_regions, answer_doc, answer_regions, mode)
+                upsert_question(
+                    conn,
+                    qid,
+                    year,
+                    number,
+                    candidate,
+                    plan,
+                    paper_doc,
+                    question_regions,
+                    answer_doc,
+                    answer_regions,
+                    mode,
+                )
             year_reports.append(
                 {
                     "year": year,
@@ -780,6 +863,7 @@ def main() -> int:
                     "answerModes": modes,
                     "answerTextAdapter": answer_text_adapters[year],
                     "extractedAnswerCandidateCount": extracted_answer_counts[year],
+                    "choiceTextExtraction": choice_extraction_by_year[year],
                 }
             )
 

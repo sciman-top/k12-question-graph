@@ -2186,6 +2186,29 @@
   color: var(--ink);
 }
 
+.real-exam-navigation {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.55fr) minmax(240px, 1.45fr) minmax(140px, 0.7fr);
+  gap: 10px;
+  min-width: 0;
+  border-block: 1px solid var(--line);
+  padding-block: 12px;
+}
+
+.real-exam-navigation label {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.real-exam-navigation .ant-select {
+  width: 100%;
+  min-width: 0;
+}
+
 .real-exam-focus {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -2249,6 +2272,153 @@
   max-height: 280px;
   height: auto;
   object-fit: contain;
+}
+
+.real-exam-original-question {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.real-exam-question-page {
+  display: block;
+  min-width: 0;
+  border: 1px solid rgba(35, 112, 90, 0.28);
+  border-radius: 4px;
+  background: #fff;
+}
+
+.real-exam-question-page img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.real-exam-search-text {
+  min-width: 0;
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+}
+
+.real-exam-search-text summary {
+  width: fit-content;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.real-exam-search-text[open] summary {
+  margin-bottom: 8px;
+}
+
+.teacher-question-extraction {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  border: 1px solid #bfd7cd;
+  border-radius: 10px;
+  background: #fbfffd;
+  padding: 14px;
+}
+
+.teacher-question-extraction-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.teacher-question-extraction-head .ant-typography {
+  margin: 0;
+}
+
+.teacher-question-extraction-result {
+  display: grid;
+  gap: 10px;
+}
+
+.teacher-question-extraction-result p {
+  margin: 4px 0 0;
+  line-height: 1.75;
+  overflow-wrap: anywhere;
+}
+
+.teacher-question-options,
+.teacher-question-option-editor {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.teacher-question-options > span,
+.teacher-question-option-editor > label {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  padding: 8px 10px;
+  min-width: 0;
+}
+
+.teacher-question-options strong,
+.teacher-question-option-editor strong {
+  color: var(--primary);
+}
+
+.teacher-question-options em {
+  font-style: normal;
+  overflow-wrap: anywhere;
+}
+
+.teacher-question-options .missing {
+  border-style: dashed;
+  color: var(--muted);
+}
+
+.teacher-question-extraction-editor {
+  display: grid;
+  gap: 12px;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+
+.teacher-question-extraction-editor > div:first-child {
+  display: grid;
+  gap: 5px;
+}
+
+.teacher-question-visual-flag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+}
+
+.teacher-question-extraction-editor > .ant-typography {
+  line-height: 1.55;
+}
+
+.real-exam-answer {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 8px 12px;
+  min-width: 0;
+  border-left: 3px solid var(--accent);
+  background: #fff;
+  padding: 10px 12px;
+}
+
+.real-exam-answer strong,
+.real-exam-actions .ant-typography,
+.real-exam-tags .ant-tag {
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .math-inline .katex {
@@ -2618,6 +2788,7 @@
   .real-exam-detail,
   .real-exam-revision,
   .real-exam-list,
+  .real-exam-navigation,
   .page-preview {
     grid-template-columns: 1fr;
   }
@@ -2724,6 +2895,13 @@
   .real-exam-strip,
   .review-summary {
     grid-template-columns: 1fr;
+  }
+
+  .real-exam-actions,
+  .real-exam-answer,
+  .teacher-question-options,
+  .teacher-question-option-editor {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .action-grid,
