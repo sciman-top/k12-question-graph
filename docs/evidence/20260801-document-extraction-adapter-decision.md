@@ -45,6 +45,12 @@ Relevant official local source:
 
 The adapter may become a default only after a fixed golden set proves complete question text, correct A/B/C/D order, independent figure assets, structured tables, formula fidelity, stable cross-page reading order, acceptable CPU/memory/runtime cost, and no regression against the full original crop. Until then, results stay `pending_review`, `productionEligible=false`, and `REAL005=not_closed`.
 
+## Fixed Guangzhou layout baseline
+
+The repository now has a minimal internal layout contract rather than another OCR route. Each block carries `paper/year/questionNumber/sourceRegionId/pageNumber/bbox/blockType/readingOrder/assetReference`; `sourceRegionId` and the full-question crop path reuse the current materializer identities. The fixed real-paper manifest covers complete stems, ordered A/B/C/D options, figure ownership, structured tables, formula text, cross-page order, header/footer isolation, original numbering, and subquestion relationships.
+
+Fresh baseline evidence is `docs/evidence/20260801-guangzhou-physics-v2-layout-golden-eval.json`: 6 real questions, 13 assertions, 13 passed, 0 failed. This admits the narrow contract and evaluator only. It made 0 database writes, does not install or admit PaddleX/MinerU, and does not change the current `pending_review`, `productionEligible=false`, or `REAL005=not_closed` boundary. Full-corpus extraction accuracy, runtime/resource comparison, teacher review, and any provider-default decision remain open.
+
 ## Rollback
 
 - Code rollback: revert only the structured/region extraction modules and their materializer integration.

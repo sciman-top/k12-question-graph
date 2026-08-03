@@ -1,0 +1,53 @@
+{
+  "status": "pass",
+  "checkedAt": "2026-07-31T18:10:08.9643938Z",
+  "contractVersion": "guangzhou-physics-2015-runtime-verification.v1",
+  "apiBaseUrl": "http://127.0.0.1:5275",
+  "webUrl": "http://127.0.0.1:5173/",
+  "api": {
+    "healthReady": "ok",
+    "q23": {
+      "questionItemId": "8ec7e00b-d86d-49ab-9df1-1486fb909d65",
+      "subquestionCount": 6,
+      "tableColumnCount": 6,
+      "tableRowCount": 3,
+      "tableBlankCellCount": 3,
+      "questionSourcePages": [7, 8],
+      "answer": "（1）连线见参考答案；（2）1.7V，0.24A，亮；（3）2；（4）不是断路，因为电流表有读数；（5）电路图见参考答案；（6）灯不亮，电压表有偏转。",
+      "productionEligible": false
+    }
+  },
+  "browser": {
+    "loadedReviewItems": "234/234",
+    "q1": {
+      "stemVisible": true,
+      "optionLabels": ["A", "B", "C", "D"],
+      "textStatus": "题干与 4 个选项已提取，仍待校对。"
+    },
+    "q9": {
+      "visualOptionLabels": ["A", "B", "C", "D"],
+      "visualOptionTexts": ["图9选项A", "图9选项B", "图9选项C", "图9选项D"],
+      "visualStatus": "题图：已拆分为独立题图，仍待校对归属。"
+    },
+    "q11": {
+      "optionB": "F1=(s2/s1)F2",
+      "figureExtracted": true
+    },
+    "q15": {
+      "answer": "实像；倒立。",
+      "originalQuestionLinks": 2,
+      "sharedFigureAvailable": true
+    },
+    "q23": {
+      "originalQuestionLinks": 2,
+      "crossPageCropAvailable": true
+    },
+    "consoleWarnings": 0,
+    "consoleErrors": 0
+  },
+  "databaseWrites": 24,
+  "reviewStatus": "pending_review",
+  "productionEligible": false,
+  "real005": "not_closed",
+  "boundary": "The 2015 candidate extraction and review path is verified. Teacher sign-off and the remaining 2016-2025 papers are not closed."
+}

@@ -1,0 +1,38 @@
+{
+  "status": "pass",
+  "taskId": "GUANGZHOU_PHYSICS_2015_COMPLETE_MATERIALIZE",
+  "checkedAt": "2026-07-31T18:06:25.232947+00:00",
+  "mode": "apply",
+  "contractVersion": "guangzhou-physics-2015-complete-extraction.v1",
+  "backupManifest": "D:\\KQG_Backups\\20260801-015719\\manifest.json",
+  "extractionEvidence": "docs/evidence/20260801-guangzhou-physics-2015-complete-extraction.json",
+  "totals": {
+    "questions": 24,
+    "pending": 24,
+    "production_eligible": 0,
+    "contracted": 24,
+    "stems": 24,
+    "options": 48,
+    "subquestions": 24,
+    "tables": 1,
+    "formulas": 27,
+    "images": 30,
+    "structureBlocks": 156,
+    "figureAssets": 30
+  },
+  "database": {
+    "fingerprintBefore": "f8b6ea9b6b938349591fb3e734c26d87",
+    "fingerprintAfter": "e6db81be612d0e4efbcaacc8040653f0",
+    "dryRunRolledBack": null
+  },
+  "databaseWrites": 24,
+  "activeWrite": false,
+  "productionEligible": false,
+  "reviewStatus": "pending_review",
+  "real005": "not_closed",
+  "rollback": {
+    "primary": "restore database from D:\\KQG_Backups\\20260801-015719\\manifest.json",
+    "restoreCommand": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/restore.ps1 -ManifestPath 'D:\\KQG_Backups\\20260801-015719\\manifest.json' -ApplyDatabase -ApplyFileStore -DryRun:$false"
+  },
+  "boundary": "2015 candidate structures were materialized for teacher review only; no approval or active switch occurred."
+}
