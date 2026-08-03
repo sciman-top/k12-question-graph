@@ -100,6 +100,9 @@ if ($legacyGateScript -notmatch '\$env:KqgPaths__FileStoreRoot\s*=\s*\$FileStore
 if ($legacyGateScript -notmatch "ns906 visual surrogate review[\s\S]*?run-real007-guangzhou-2015-layout-quality\.ps1[\s\S]*?run-ns906-visual-surrogate-review\.ps1") {
     throw 'NS906 must explicitly prepare current isolated visual source regions before review'
 }
+if ($legacyGateScript -notmatch 'GetRelativePath\(\$repoRoot,\s*\$ns906Report\)[\s\S]*?-NS906ReportPath\s+\$ns906ReportRelative') {
+    throw 'NS1307 must receive the isolated NS906 evidence as a repository-relative path'
+}
 $ns906Script = Get-Content -LiteralPath (Join-Path $repoRoot 'tools/run-ns906-visual-surrogate-review.ps1') -Raw
 if ($ns906Script -notmatch 'IsPathRooted\(\$RelativePath\)') {
     throw 'NS906 evidence reader must accept absolute scratch report paths'

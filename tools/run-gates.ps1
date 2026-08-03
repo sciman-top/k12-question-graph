@@ -768,12 +768,13 @@ try {
     $ns906LayoutJson = Join-Path $GateScratchRoot 'ns906-real007-layout.json'
     $ns906LayoutMarkdown = Join-Path $GateScratchRoot 'ns906-real007-layout.md'
     $ns906Report = Join-Path $GateScratchRoot 'ns906-visual-surrogate-review.json'
+    $ns906ReportRelative = [System.IO.Path]::GetRelativePath($repoRoot, $ns906Report)
     Invoke-GateStep 'ns906 visual surrogate review' {
         .\tools\run-real007-guangzhou-2015-layout-quality.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -FileStoreRoot $FileStoreRoot -JsonReportPath $ns906LayoutJson -MarkdownReportPath $ns906LayoutMarkdown | Write-Host
         .\tools\run-ns906-visual-surrogate-review.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin -FileStoreRoot $FileStoreRoot -LayoutReportPath $ns906LayoutJson -ReportPath $ns906Report | Write-Host
     }
     Invoke-GateStep 'ns1307 golden visual llm security gate' {
-        .\tools\run-ns1307-golden-visual-llm-security-gate.ps1 -NS906ReportPath $ns906Report -ReportPath ('docs/evidence/{0}-ns1307-golden-visual-llm-security.json' -f $p0LiveRunDate) | Write-Host
+        .\tools\run-ns1307-golden-visual-llm-security-gate.ps1 -NS906ReportPath $ns906ReportRelative -ReportPath ('docs/evidence/{0}-ns1307-golden-visual-llm-security.json' -f $p0LiveRunDate) | Write-Host
     }
     Invoke-GateStep 'ns903 completion dashboard refresh' {
         .\tools\run-ns903-completion-dashboard.ps1 -SkipS001Refresh | Write-Host
