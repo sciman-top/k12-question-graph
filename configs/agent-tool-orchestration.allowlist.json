@@ -33,55 +33,16 @@
       ]
     },
     {
-      "id": "pqr_preflight_pack",
-      "path": "tools/run-pqr-preflight-pack-contract.ps1",
-      "category": "preflight_dashboard",
+      "id": "future_scope_freeze",
+      "path": "tools/run-scope-freeze-guard.ps1",
+      "category": "boundary_guard",
       "mode": "boundary_guard",
       "writesProductionData": false,
       "handlesRealStudentData": false,
       "allowActiveWrite": false,
       "allowExternalAiCalls": false,
       "evidencePaths": [
-        "docs/evidence/20260505-pqr-preflight-pack-report.json"
-      ]
-    },
-    {
-      "id": "pqr_preflight_freshness",
-      "path": "tools/run-pqr-preflight-freshness-guard.ps1",
-      "category": "preflight_dashboard",
-      "mode": "boundary_guard",
-      "writesProductionData": false,
-      "handlesRealStudentData": false,
-      "allowActiveWrite": false,
-      "allowExternalAiCalls": false,
-      "evidencePaths": [
-        "docs/evidence/20260505-pqr-preflight-freshness-report.json"
-      ]
-    },
-    {
-      "id": "pqr_preflight_dashboard",
-      "path": "tools/run-pqr-preflight-dashboard-contract.ps1",
-      "category": "preflight_dashboard",
-      "mode": "read_only_report",
-      "writesProductionData": false,
-      "handlesRealStudentData": false,
-      "allowActiveWrite": false,
-      "allowExternalAiCalls": false,
-      "evidencePaths": [
-        "docs/evidence/20260505-pqr-preflight-dashboard.json"
-      ]
-    },
-    {
-      "id": "pqr_orchestration_consistency",
-      "path": "tools/run-pqr-orchestration-consistency-guard.ps1",
-      "category": "status_sync",
-      "mode": "boundary_guard",
-      "writesProductionData": false,
-      "handlesRealStudentData": false,
-      "allowActiveWrite": false,
-      "allowExternalAiCalls": false,
-      "evidencePaths": [
-        "docs/evidence/20260505-pqr-orchestration-consistency-report.json"
+        "configs/verification/scope-freeze.rules.json"
       ]
     },
     {

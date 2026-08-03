@@ -461,14 +461,14 @@ Live pilot closeout repo-side audit:
 
 This summarizes the non-onsite repo-side closeout state from existing reports:
 P003/P004 structured templates and import validators, P001-P006 preflight-only
-reports, PQR preflight/orchestration checks, NS905 status sync, REAL005
+reports, the single future scope-freeze check, NS905 status sync, REAL005
 `not_closed`, the current REAL005 next-open slice, and CI repo preflight. It
 writes JSON/Markdown evidence under
 `docs/evidence/<yyyyMMdd>-live-pilot-closeout-repo-side-audit.*`. Pass
 `-FullGateAttemptStatus inconclusive -FullGateAttemptNote '<reason>'` when a
 local `run-gates.ps1` attempt timed out or otherwise lacks a final exit code.
 The audit is read-only for project state: it must not close P001-P006, must not
-claim release-ready, and must not advance formal Q/R execution.
+claim release-ready, and must not advance frozen Q/R execution.
 
 REAL005 transient report-lock contract:
 
@@ -497,9 +497,8 @@ to `pass` only when their repo-side evidence is really closed, and then
 requires `REAL005D` to pass once repo-side truthful wording is refreshed, while
 `closureStatus` still stays `not_closed`. It also requires the report to expose
 `REAL005B1-B6` / `REAL005C1-C5` detailed slice coverage plus a machine-readable
-`nextDetailedOpen` seam. It is run from temp outputs by default and inside both
-`run-gate-group.ps1 -Group pqr` and the full gate so historical evidence is not
-rewritten during local verification.
+`nextDetailedOpen` seam. Release verification runs it against temporary outputs
+so historical evidence is not rewritten during local verification.
 
 REAL005B question structure diagnostics:
 
@@ -515,8 +514,8 @@ from the 2016-2025 candidate CSV package, keeps RG005 partial with only the
 2016-2025 screenshot-level source-region gap remaining, and keeps RG006-RG009
 blocked on structured-field, tagging, terminal review, and source-review
 save/detail evidence. It must not write database rows, close review items, call
-external AI, or use student data. The `pqr` gate-group and full gate run it
-against temp outputs.
+external AI, or use student data. Release verification runs it against temp
+outputs.
 
 REAL005 detailed slice plan guard:
 
@@ -529,8 +528,8 @@ refinement of `REAL005B` and `REAL005C`. It checks row order, criterion linkage,
 dependency order, and linkage to `docs/115_REAL005_DetailedSliceTree.md`, while
 explicitly preserving the top-level `tasks/live-pilot-closeout-plan.csv` truth.
 It must not weaken `REAL005 = not_closed`; it only makes the next execution
-seams smaller and more verifiable. The `pqr` gate-group and full gate run it
-against temp outputs.
+seams smaller and more verifiable. Release verification runs it against temp
+outputs.
 
 Live pilot closeout import contract:
 
@@ -569,86 +568,17 @@ events, summary, and signoff fields. The expected JSON shape is anchored at
 `docs/templates/p004-onsite-pilot-round1-evidence-template.json`. It does not
 itself close `P004` or move `P005`.
 
-PQR gate-group temp outputs:
+Future scope-freeze guard:
 
 ```powershell
-.\tools\run-gate-group.ps1 -Group pqr
+.\tools\run-scope-freeze-guard.ps1
 ```
 
-The `pqr` gate-group now writes its generated pack/freshness/dashboard/
-orchestration summaries under `tmp/gate-group-pqr/` instead of mutating the
-historical `docs/evidence/20260505-*` anchors. This keeps lightweight
-verification and orchestration checks from dirtying long-lived evidence files
-when you only want a local repo-side sanity run. It also generates a temporary
-REAL005 closure-standard report there before validating slice coverage.
-
-PQR full-gate temp output contract:
-
-```powershell
-.\tools\run-pqr-full-gate-path-contract.ps1
-```
-
-This statically verifies that `tools/run-gates.ps1` sends the PQR
-self-reporting steps and the temporary REAL005 slice-coverage report to
-`tmp/full-gate-pqr/` instead of mutating the historical
-`docs/evidence/20260505-*` files during a full gate run.
-
-NS1101 second-subject candidate boundary pack:
-
-```powershell
-.\tools\run-ns1101-second-subject-candidate-boundary.ps1
-```
-
-This verifies the Q001 second-subject candidate admission boundary after the
-NS905 status sync. It keeps `P006` and `Q001` as `待办`, keeps NS1001-NS1005
-as `blocked_by_onsite`, requires `closeTaskAllowed=false`, and writes
-`docs/evidence/<run-date>-ns1101-second-subject-candidate.json` with
-`productionEligible=false`, `activeAssetMutation=false`, and
-`secondSubjectAdmissionExecuted=false`. It is a boundary/preflight pack only:
-no source package import, candidate manifest creation, or active asset switch.
-
-NS1102 second-subject teacher review template boundary pack:
-
-```powershell
-.\tools\run-ns1102-second-subject-review-template-boundary.ps1
-```
-
-This verifies the Q002 teacher review template boundary after NS1101. It keeps
-`Q001`, `Q002`, and `Q003` as `待办`, requires `closeTaskAllowed=false`, and
-writes `docs/evidence/<run-date>-ns1102-second-subject-review-template.json`
-with `teacherReviewExecuted=false`, `realCandidateAssetsReviewed=false`,
-`productionEligible=false`, and `q003CanAdvance=false`. It is a template
-boundary/preflight pack only: no real teacher review execution, no real
-candidate asset review, no Q003 active drill, and no active asset switch.
-
-NS1103 second-subject active dry-run boundary pack:
-
-```powershell
-.\tools\run-ns1103-second-subject-active-dry-run-boundary.ps1
-```
-
-This verifies the Q003 second-subject active dry-run boundary after NS1102. It
-keeps `Q002`, `Q003`, and `Q004` as `待办`, requires `closeTaskAllowed=false`,
-and writes `docs/evidence/<run-date>-ns1103-second-subject-active-dry-run.json`
-with `activeDryRunExecuted=false`, `activeSwitchPerformed=false`,
-`rollbackSnapshotRecorded=false`, `productionEligible=false`, and
-`q004CanAdvance=false`. It is an activation boundary/preflight pack only: no
-active dry-run execution, no active asset switch, no rollback snapshot write,
-and no Q004 cross-subject advancement.
-
-NS1104 cross-subject UI boundary pack:
-
-```powershell
-.\tools\run-ns1104-cross-subject-ui-boundary.ps1
-```
-
-This verifies the Q004/Q005 cross-subject diff and multi-subject UI
-simplification boundary after NS1103. It keeps `Q003`, `Q004`, and `Q005` as
-`待办`, requires both Q004 and Q005 reports to remain `preflight_only`, and
-writes `docs/evidence/<run-date>-ns1104-cross-subject-ui.json` with the ordinary
-teacher surface still limited to four high-frequency entries. It is a
-boundary/preflight pack only: no real cross-subject diff report, no subject
-switching UI, no UI smoke execution, and no Q004/Q005 closure.
+This is the single fail-closed boundary for `Q001-Q005` and `R001-R007` while
+`P006` remains open. It requires one backlog marker, rejects prebuilt future
+automation/scripts/templates/ADRs/evidence, and writes only a disposable report
+under `tmp/verification/`. Future task design starts from fresh evidence after
+P006; it is not continuously simulated before activation.
 
 NS0-NS2 runtime closure pack:
 
@@ -664,93 +594,6 @@ the NS004/105/106/201/202/203/204 guards. It writes
 `docs/evidence/20260531-ns0-ns2-runtime-closure.json` and remains a
 non-production closure pack only: no real student data, no external AI, no
 active switch, and no production-history write.
-
-NS1201 search and semantic retrieval admission boundary pack:
-
-```powershell
-.\tools\run-ns1201-search-eval.ps1
-```
-
-This verifies the R001 search/semantic retrieval upgrade boundary after the
-NS1005 release decision remains blocked by onsite evidence. It keeps `P006`
-and `R001` as `待办`, keeps PostgreSQL FTS/`pg_trgm` as the default route, and
-writes `docs/evidence/<run-date>-ns1201-search-eval.json` with pgvector,
-embedding generation, and external search still blocked until real FTS
-insufficiency evidence exists. It is an admission boundary pack only: no field
-benchmark, no pgvector migration, no embedding route, no external search setup,
-and no teacher-facing search route change.
-
-NS1202 queue and worker scale admission boundary pack:
-
-```powershell
-.\tools\run-ns1202-queue-eval.ps1
-```
-
-This verifies the R002 queue/worker scale boundary after the NS1005 release
-decision remains blocked by onsite evidence. It keeps `P006` and `R002` as
-`待办`, keeps PostgreSQL job store + `BackgroundService` as the default route,
-and writes `docs/evidence/<run-date>-ns1202-queue-eval.json` with Hangfire,
-RabbitMQ, broker setup, and distributed worker routing still blocked until real
-throughput or reliability evidence exists. It is an admission boundary pack
-only: no field throughput benchmark, no package install, no broker setup, and
-no default worker route change.
-
-NS1203 interoperability profile map boundary pack:
-
-```powershell
-.\tools\run-ns1203-interop-profile-map.ps1
-```
-
-This verifies the R007 profile-map boundary after the NS1005 release decision
-remains blocked by onsite evidence. It keeps `P006`, `R003`, and `R007` as
-`待办`, verifies the QuestionItem/Paper/KnowledgeNode/ScoreRecord/AnalysisEvent
-profile map to QTI/CASE/OneRoster/Caliper, and writes
-`docs/evidence/<run-date>-ns1203-interop-profile-map.json`. It is an admission
-boundary pack only: no QTI/CASE/OneRoster/Caliper import/export, no SIS sync,
-no Caliper event stream, and no schema mutation.
-
-NS1204 advanced analysis admission boundary pack:
-
-```powershell
-.\tools\run-ns1204-advanced-analysis-admission.ps1
-```
-
-This verifies the R004 advanced-analysis boundary after NS704 commentary report
-evidence. It keeps `R004` as `待办`, keeps basic CTT/commentary as draft/test,
-and writes `docs/evidence/<run-date>-ns1204-advanced-analysis-admission.json`
-with IRT, form equating, and longitudinal growth still blocked until sample,
-owner, explanation, and rollback evidence exists. It is an admission boundary
-pack only: no real student data, no IRT/equating/growth computation, no
-advanced-analysis UI route, and no formal history write.
-
-NS1205 public/multischool deployment admission boundary pack:
-
-```powershell
-.\tools\run-ns1205-multischool-admission.ps1
-```
-
-This verifies the R005 public/multischool deployment boundary after the NS1005
-release decision remains blocked by onsite evidence. It keeps `P001`, `P006`,
-and `R005` as `待办`, keeps single-school LAN as the only preferred future
-route, and writes `docs/evidence/<run-date>-ns1205-multischool-admission.json`
-with public internet exposure, multi-school shared deployment, and multi-tenant
-SaaS still blocked. It is an admission boundary pack only: no network exposure,
-no tenant schema/config, no reverse proxy/Kubernetes default, and no release
-state change.
-
-NS1206 tech-debt cadence boundary pack:
-
-```powershell
-.\tools\run-ns1206-techdebt-cadence.ps1
-```
-
-This verifies the R006 long-term maintenance cadence boundary after the NS1005
-release decision remains blocked by onsite evidence. It keeps `P001`, `P006`,
-and `R006` as `待办`, keeps dependency refresh as report-only, blocks
-performance work until a baseline exists, and writes
-`docs/evidence/<run-date>-ns1206-techdebt-cadence.json`. It is an admission
-boundary pack only: no dependency upgrade, no model download, no performance
-mutation, no experiment deletion, and no production cleanup.
 
 NS1301 architecture slimming guard:
 

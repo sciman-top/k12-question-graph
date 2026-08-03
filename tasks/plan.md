@@ -8,7 +8,7 @@
 
 - VGOV-001..010 均为 `已完成`；没有剩余 repo-side VGOV task。
 - 日常 AI 编码只使用 `Quick` 或 task/changed-path `Slice`。
-- 235 个 legacy steps 已完整映射：Quick=7、Release=228、unmapped=0；该数字只描述 legacy inventory，不再描述默认 Release coverage。
+- legacy inventory 当前 208 steps 已完整映射：Quick=7、Release=201、unmapped=0；历史基线 235 中的未来治理节点已退役，该数字不描述默认 Release coverage。
 - 历史授权 legacy Release 用时 1456402 ms，并写入 FileStore 159 个文件、9024094 bytes；默认 Release 已因此改为 3 阶段 focused core，legacy 仅显式审计。
 - 默认 Release 报告和 isolated backup/restore 工件只进 `tmp/verification/`，要求 migration/database shape/shared FileStore/process reconciliation 通过；数据库 row-level 等值仍不作无证据声明。
 - 稳定证据为 `docs/evidence/verification-governance-release-reconciliation.json`；隔离工作区日期化 evidence 不回拷主仓。

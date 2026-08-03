@@ -13,13 +13,12 @@ param(
     [string] $P004ReportPath = '',
     [string] $P005ReportPath = '',
     [string] $P006ReportPath = '',
-    [string] $PqrPreflightPackReportPath = 'tmp/gate-group-pqr/pqr-preflight-pack-report.json',
-    [string] $PqrOrchestrationReportPath = 'tmp/gate-group-pqr/pqr-orchestration-consistency-report.json',
+    [string] $ScopeFreezeReportPath = 'tmp/verification/scope-freeze.json',
     [string] $P0LivePreflightRefreshReportPath = 'tmp/live-pilot-template-check/p0-live-preflight-refresh-report.json',
     [ValidateSet('not_run', 'pass', 'fail', 'inconclusive')]
     [string] $FullGateAttemptStatus = 'not_run',
     [string] $FullGateAttemptNote = '',
-    [string] $FullGateObservedOutputRoot = 'tmp/full-gate-pqr'
+    [string] $FullGateObservedOutputRoot = 'tmp/full-gate-closure'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -268,15 +267,10 @@ try {
         Assert-Condition (Test-Path -LiteralPath (Resolve-InRepoPath $scriptPath)) "missing import validator script: $scriptPath"
     }
 
-    $pqrPack = Read-Json $PqrPreflightPackReportPath
-    Assert-Condition ([string] $pqrPack.status -eq 'pass') 'PQR preflight pack report must pass'
-    Assert-Condition ([int] $pqrPack.targetCount -eq 18) 'PQR preflight pack target count must remain 18'
-    Assert-Condition ([int] $pqrPack.todoCount -eq 18) 'PQR preflight pack must keep all P/Q/R targets todo'
-    Assert-Condition ([string] $pqrPack.templateAnchors.p003AdmissionCard -eq 'docs/templates/p003-onsite-pilot-admission-card-template.json') 'PQR pack must anchor P003 structured template'
-    Assert-Condition ([string] $pqrPack.templateAnchors.p004TeacherPilotEvidence -eq 'docs/templates/p004-onsite-pilot-round1-evidence-template.json') 'PQR pack must anchor P004 structured template'
-
-    $pqrOrchestration = Read-Json $PqrOrchestrationReportPath
-    Assert-Condition ([string] $pqrOrchestration.status -eq 'pass') 'PQR orchestration consistency report must pass'
+    $scopeFreeze = Read-Json $ScopeFreezeReportPath
+    Assert-Condition ([string] $scopeFreeze.status -eq 'pass') 'future scope-freeze report must pass'
+    Assert-Condition ([bool] $scopeFreeze.freezeActive) 'future scope must remain frozen before P006 closes'
+    Assert-Condition ([int] $scopeFreeze.frozenTaskCount -eq 12) 'scope freeze must cover Q001-Q005 and R001-R007'
 
     $p0Refresh = Read-Json $P0LivePreflightRefreshReportPath
     Assert-Condition ([string] $p0Refresh.status -eq 'pass') 'P0-live preflight refresh must pass'
@@ -316,8 +310,7 @@ try {
             p003ImportValidator = $true
             p004ImportValidator = $true
             p0LivePreflightRefresh = 'pass'
-            pqrPreflightPack = 'pass'
-            pqrOrchestration = 'pass'
+            futureScopeFreeze = 'pass'
             repoPreflightCi = 'pass'
         }
         truthBoundary = [ordered]@{
@@ -351,8 +344,7 @@ try {
             statusSyncReport = $StatusSyncReportPath
             repoPreflightCiSummary = $RepoPreflightCiSummaryPath
             p0LivePreflightRefresh = $P0LivePreflightRefreshReportPath
-            pqrPreflightPack = $PqrPreflightPackReportPath
-            pqrOrchestration = $PqrOrchestrationReportPath
+            futureScopeFreeze = $ScopeFreezeReportPath
             p001 = $P001ReportPath
             p002 = $P002ReportPath
             p003 = $P003ReportPath
@@ -375,8 +367,7 @@ try {
     $lines.Add("- checked_at: $checkedAt")
     $lines.Add("- repo_preflight_ci: pass")
     $lines.Add("- p0_live_preflight_refresh: pass")
-    $lines.Add("- pqr_preflight_pack: pass")
-    $lines.Add("- pqr_orchestration: pass")
+    $lines.Add("- future_scope_freeze: pass")
     $lines.Add("- full_gate_attempt: $FullGateAttemptStatus")
     if (-not [string]::IsNullOrWhiteSpace($FullGateAttemptNote)) {
         $lines.Add("- full_gate_note: $FullGateAttemptNote")
@@ -386,7 +377,7 @@ try {
     $lines.Add('- P003 structured admission-card template and import validator are present and passing.')
     $lines.Add('- P004 structured teacher-pilot evidence template and import validator are present and passing.')
     $lines.Add('- P001-P006 preflight reports passed as preflight-only contracts.')
-    $lines.Add('- PQR preflight pack and orchestration reports passed with all 18 P/Q/R targets still todo.')
+    $lines.Add('- The single scope-freeze guard passed with Q001-Q005 and R001-R007 still todo and without prebuilt future assets.')
     $lines.Add('- CI repo preflight passed without claiming to replace the full local gate.')
     $lines.Add('')
     $lines.Add('## Truth Boundary')

@@ -10,7 +10,7 @@
 
 本仓已从**编码前设计包**进入可运行实现阶段：已有产品、架构、schema、配置、runbook、任务清单、ASP.NET Core API、React/Vite/Ant Design 前端、PostgreSQL/EF Core migration、Python Worker 占位、FileStore、ImportJob、health、backup 和统一 gate。
 
-2026-06-23 文档刷新口径：最新完整 `full gate` 已在 2026-06-23 通过，`tools/run-live-pilot-closeout-repo-side-audit.ps1` 也已记录 `exit_code = 0` 与 `tmp/full-gate-pqr/` 刷新产物。最新 repo-side 守卫与状态同步同样推进到 2026-06-23，其中 `tools/run-reference-basis-guard.ps1` 通过（20 个受管任务、13 个模块、`snapshot_parity = match`），`tools/run-live-pilot-closeout-plan-guard.ps1` 通过（26 行 closeout 计划、`REAL005 = not_closed`、`REAL005A/B/C/D 的 repo-side closeout 已完成`、`REAL005` 的 repo-side next open slice = `none`、当前仅剩 `P001A/P003A/P005A/P006A` 为 next open），`tools/run-live-pilot-closeout-repo-side-audit.ps1` 也通过并再次确认 `release_ready_claimed = false` 与 truth boundary 未被现场事实消掉。`REAL005` 最新 closure report 仍明确 `fullClosureAllowed = false`，因此即使 `REAL005A/B/C/D 的 repo-side closeout 已完成`，整体口径仍只能保持 `not_closed`，不能提前改成已闭环。`release_ready_count = 0`、`P001/P003/P005/P006` 仍为 `待办`。这意味着仓库侧 closeout、参考基线和状态口径已进一步收口，但没有把现场 / 隔离机 / 签字级闭环“提前算完成”。
+2026-06-23 文档刷新口径：最新完整 `full gate` 已在 2026-06-23 通过，`tools/run-live-pilot-closeout-repo-side-audit.ps1` 也已记录 `exit_code = 0` 与 `tmp/full-gate-closure/` 刷新产物。最新 repo-side 守卫与状态同步同样推进到 2026-06-23，其中 `tools/run-reference-basis-guard.ps1` 通过（17 个受管任务、10 个模块、`snapshot_parity = match`），`tools/run-live-pilot-closeout-plan-guard.ps1` 通过（26 行 closeout 计划、`REAL005 = not_closed`、`REAL005A/B/C/D 的 repo-side closeout 已完成`、`REAL005` 的 repo-side next open slice = `none`、当前仅剩 `P001A/P003A/P005A/P006A` 为 next open），`tools/run-live-pilot-closeout-repo-side-audit.ps1` 也通过并再次确认 `release_ready_claimed = false` 与 truth boundary 未被现场事实消掉。`REAL005` 最新 closure report 仍明确 `fullClosureAllowed = false`，因此即使 `REAL005A/B/C/D 的 repo-side closeout 已完成`，整体口径仍只能保持 `not_closed`，不能提前改成已闭环。`release_ready_count = 0`、`P001/P003/P005/P006` 仍为 `待办`。这意味着仓库侧 closeout、参考基线和状态口径已进一步收口，但没有把现场 / 隔离机 / 签字级闭环“提前算完成”。
 
 2026-07-31 课程标准与真题多层证据专题（CEK-01..35）已完成本机 repo-side 收口。fresh 授权版 CEK-34 suite 记录 `status=pass/cek34Complete=true`：API 78、Worker 182、Web 38、lint 和完整 full gate 通过；2015-2025 共 234 题的题干、答案、试卷/答案锚点与题级年报锚点已进入 PostgreSQL 候选链，4,571 个 FileStore 文件隔离恢复后 hash 一致。自动提炼结果仍为 `candidate/pending_review/productionEligible=false`，生产 active 未切换；真实教师签字、身份授权、学校网络、隔离机、`REAL005=not_closed` 和 release No-Go 均保持开放。
 
@@ -89,7 +89,7 @@ Web:
 .\tools\run-verification.ps1 -Profile Slice -TaskId <TASK_ID>
 ```
 
-`Quick` 是约 1 分钟级的全栈无状态基线；`Slice` 不隐式重跑 Quick，只执行 task/changed paths 命中的 API、Web、Worker 或治理最小链，空选择和未知路径 fail-closed。两者都不访问 PostgreSQL、不停止常驻进程、不写 FileStore 或 tracked evidence。发布前明确授权运行 `tools/run-verification.ps1 -Profile Release -AuthorizeStateful`：默认执行 Quick + 3 个风险聚焦阶段 + 状态对账，报告和恢复工件只进 `tmp/verification/`。`tools/run-gates.ps1` 不在默认 Release 中；只有追加 `-IncludeLegacyCompatibility` 才执行 235-step legacy audit。
+`Quick` 是约 1 分钟级的全栈无状态基线；`Slice` 不隐式重跑 Quick，只执行 task/changed paths 命中的 API、Web、Worker 或治理最小链，空选择和未知路径 fail-closed。两者都不访问 PostgreSQL、不停止常驻进程、不写 FileStore 或 tracked evidence。发布前明确授权运行 `tools/run-verification.ps1 -Profile Release -AuthorizeStateful`：默认执行 Quick + 3 个风险聚焦阶段 + 状态对账，报告和恢复工件只进 `tmp/verification/`。`tools/run-gates.ps1` 不在默认 Release 中；只有追加 `-IncludeLegacyCompatibility` 才执行 legacy compatibility audit（当前 inventory 208 steps）。
 
 无数据库密码时的 C002 动态资产 dry-run:
 
@@ -258,7 +258,7 @@ tests/      自动化测试与黄金样本
 - `apps/web`: 已提供 `npm run dev --prefix apps/web`。
 - `workers/document`: 提供 worker smoke entry。
 - `tools/run-verification.ps1`: Quick/Slice/Release/Onsite 统一 profile 入口；普通编码默认 Quick/Slice。
-- `tools/run-gates.ps1`: legacy 235-step stateful compatibility audit，仅由 `-IncludeLegacyCompatibility` 显式调用，不属于默认 Release。
+- `tools/run-gates.ps1`: legacy stateful compatibility audit（当前 inventory 208 steps），仅由 `-IncludeLegacyCompatibility` 显式调用，不属于默认 Release。
 - `tools/run-automation-first-feature-contract-guard.ps1`: 功能实现 automation-first 合同守卫，确保待办任务先声明规则、脚本、专用功能和 evidence，再限定 AI/agent 使用范围。
 - `tools/run-reference-basis-guard.ps1`: 高风险任务参考依据守卫，要求架构、Windows Service、PowerShell 运维、OCR/toolchain、export、score-analysis、AI routing、搜索、互操作以及 `P001/P003/P005/P006` 这类 live pilot / release closeout 任务先在 `tasks/reference-basis-requirements.csv` 中登记官方来源与本地参考库锚点；本机若挂载了外部参考库，还会同时核对仓内 snapshot 与外部 manifest 是否同构。
 - `tools/run-repo-preflight.ps1`: 兼容预检入口，内部路由到新的 verification profiles。

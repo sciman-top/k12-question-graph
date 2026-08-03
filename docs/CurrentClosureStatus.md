@@ -9,7 +9,7 @@
 - CEK-01..35 已完成 repo-side 候选链和相关验证收口；自动提炼仍为 `candidate/pending_review/productionEligible=false`。
 - VGOV-001..010 已完成：inventory、canonical truth、Quick/Slice、UI 行为迁移、evidence lifecycle、授权 Release reconciliation、endpoint seam 和 hotspot budget。
 - 历史 235-step Release 已在隔离工作区 exit 0，但产生 159 个 FileStore 文件、9024094 bytes 写入；该事实证明旧默认 Release 过重，不能作为当前默认语义。
-- 当前默认 Release 已收缩为 Quick + 3 个风险聚焦阶段 + 状态对账，不运行 legacy monolith，不刷新日期化 tracked evidence，且要求共享 FileStore 无写入；235-step 仅保留显式 compatibility audit。
+- 当前默认 Release 已收缩为 Quick + 3 个风险聚焦阶段 + 状态对账，不运行 legacy monolith，不刷新日期化 tracked evidence，且要求共享 FileStore 无写入；历史 235-step 基线清退未来治理节点后，当前 208-step inventory 仅保留显式 compatibility audit。
 
 ## Not closed
 

@@ -1,6 +1,6 @@
 area_id,area,user_visible,current_state,usable_today,evidence_basis,blocking_gap,next_task,risk_level
 core-runtime,本机运行骨架,false,db_backed_done,部分可用,"API health PostgreSQL FileStore migration backup gates pass","不是教师业务闭环 只是运行底座",S002,medium
-verification-governance,验证与证据治理,false,contract_done,可用,"VGOV001-VGOV010 repo-side complete; Quick Slice UI behavior evidence lifecycle hotspot budgets and focused Release core implemented","无剩余repo-side VGOV任务；235-step legacy仅显式可选审计 默认Release不能替代现场验收",P001,medium
+verification-governance,验证与证据治理,false,contract_done,可用,"VGOV001-VGOV010 repo-side complete; Quick Slice UI behavior evidence lifecycle hotspot budgets and focused Release core implemented","无剩余repo-side VGOV任务；legacy compatibility audit仅显式可选 默认Release不能替代现场验收",P001,medium
 teacher-shell,教师四入口外壳,true,teacher_validated,非现场可用,"I001-I010 UI contract and teacher simplification gates S012A-S012C full gate evidence","现场网络 打印与权限需在 P001 preflight 逐项复核",P001,high
 source-materials,来源资料与 C002 active,false,db_backed_done,管理员可用,"C002J-C002T K001 evidence active C002 query","普通教师题库工作流尚未产品化接入",S008,medium
 question-upload,试题文件上传与 ImportJob,true,teacher_validated,非现场可用,"/files /imports ImportJob FileAsset SourceDocument contracts S012B non-site E2E rehearsal","现场文件权限与大文件吞吐仍需 P001 preflight 复核",P001,high
@@ -22,5 +22,5 @@ backup-restore,备份恢复与升级,false,teacher_validated,管理员非现场�
 deployment-install,安装部署与 Windows Service,false,contract_done,不可发布使用,"O001 O002 O005 contracts","隔离机器真实安装与 smoke 仍未执行",P001,high
 auth-audit,权限角色审计,false,contract_done,部分可用,"O004 O004B fail closed role audit gates","需要随真实工作流验证每个高风险动作",S012,medium
 live-pilot,教师代理和现场试点,true,contract_done,不可使用,"P001-P006 preflight only","S012 已完成 但现场与发布仍由 P001 preflight 阻断",P001,high
-multi-subject,多学科扩展,true,contract_done,不可使用,"Q001-Q005 preflight templates","v0.1 单学科产品化未完成 不能扩科",Q001,medium
-advanced-platform,搜索队列互操作高级分析,false,contract_done,不可使用,"R001-R007 preflight templates","只有真实瓶颈和发布后证据才触发",R001,low
+multi-subject,多学科扩展,false,not_started,不可使用,"Q001-Q005 frozen until P006","v0.1 单学科产品化未完成 不预建扩科实现或治理资产",Q001,medium
+advanced-platform,搜索队列互操作高级分析,false,not_started,不可使用,"R001-R007 frozen until P006","只有真实瓶颈和发布后证据才触发 且触发后重新设计",R001,low

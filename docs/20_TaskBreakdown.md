@@ -49,7 +49,7 @@ production active write、restore apply、release decision 和真实学生数据
 
 ## 6. 当前任务族
 
-- VGOV-001..010：验证治理减负，repo-side 已完成；日常入口为 Quick/Slice，默认 Release 为 focused core，legacy 235-step 仅保留为 `-IncludeLegacyCompatibility` 显式审计。
+- VGOV-001..010：验证治理减负，repo-side 已完成；日常入口为 Quick/Slice，默认 Release 为 focused core，legacy monolith 仅保留为 `-IncludeLegacyCompatibility` 显式审计。
 - P001..P006：真实现场与发布闭环。
 - Q001..Q005、R001..R007：P006 后触发式 Later。
 

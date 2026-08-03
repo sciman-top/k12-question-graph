@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "sourceScript": "tools/run-gates.ps1",
-  "expectedStepCount": 235,
+  "expectedStepCount": 208,
   "allowedProfiles": ["Quick", "Slice", "Release", "Onsite"],
   "quickStepNames": [
     "backend build",

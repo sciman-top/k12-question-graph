@@ -11,6 +11,7 @@ param(
     [string] $ProductizationRoadmapPath = 'tasks/productization-roadmap.csv',
     [string] $PrdPath = 'docs/01_PRD.md',
     [string] $ReadmePath = 'README.md',
+    [string] $ScopeFreezePolicyPath = 'configs/verification/scope-freeze.rules.json',
     [string] $JsonReportPath = 'docs/evidence/20260508-automation-first-feature-contract-report.json'
 )
 
@@ -50,6 +51,12 @@ foreach ($path in @(
 $contractRows = @(Import-Csv -LiteralPath $contractFullPath -Encoding UTF8)
 $backlogRows = @(Import-Csv -LiteralPath $backlogFullPath -Encoding UTF8)
 $s0Rows = @(Import-Csv -LiteralPath $s0PlanFullPath -Encoding UTF8)
+$scopeFreezePolicy = Get-Content -LiteralPath (Resolve-RepoPath $ScopeFreezePolicyPath) -Raw -Encoding UTF8 | ConvertFrom-Json
+$activationTask = @($backlogRows | Where-Object id -eq $scopeFreezePolicy.activationTaskId)
+Assert-True ($activationTask.Count -eq 1) 'scope-freeze activation task must exist exactly once'
+$freezeActive = [string]$activationTask[0].status -ne '已完成'
+$frozenTaskIds = @{}
+foreach ($taskId in @($scopeFreezePolicy.frozenTaskIds)) { $frozenTaskIds[[string]$taskId] = $true }
 
 Assert-True ($contractRows.Count -gt 0) 'automation-first contract must not be empty'
 
@@ -86,9 +93,19 @@ foreach ($row in $contractRows) {
 
 Assert-True ($contractById.ContainsKey('GLOBAL')) 'automation-first contract must include GLOBAL policy row'
 
-$openBacklogRows = @($backlogRows | Where-Object { $_.status -ne '已完成' })
+$stillFrozenRows = @($backlogRows | Where-Object {
+    $frozenTaskIds.ContainsKey($_.id) -and
+    [string]$_.verification -eq [string]$scopeFreezePolicy.backlogVerificationMarker
+})
+$stillFrozenTaskIds = @{}
+foreach ($row in $stillFrozenRows) { $stillFrozenTaskIds[[string]$row.id] = $true }
+$openBacklogRows = @($backlogRows | Where-Object { $_.status -ne '已完成' -and -not $stillFrozenTaskIds.ContainsKey($_.id) })
 $missingBacklogCoverage = @($openBacklogRows | Where-Object { -not $contractById.ContainsKey($_.id) })
 Assert-True ($missingBacklogCoverage.Count -eq 0) ("automation-first contract missing open backlog tasks: " + (($missingBacklogCoverage | Select-Object -ExpandProperty id) -join ','))
+if ($freezeActive) {
+    $prematureFrozenContracts = @($contractRows | Where-Object { $frozenTaskIds.ContainsKey($_.task_id) })
+    Assert-True ($prematureFrozenContracts.Count -eq 0) ('frozen future tasks must not have prebuilt automation contracts: ' + (($prematureFrozenContracts.task_id) -join ','))
+}
 
 $openS0Rows = @($s0Rows | Where-Object { $_.status -ne '已完成' })
 $missingS0Coverage = @($openS0Rows | Where-Object { -not $contractById.ContainsKey($_.id) })
@@ -134,11 +151,12 @@ $report = [ordered]@{
     contractPath = $ContractPath
     contractRows = $contractRows.Count
     openBacklogTasksChecked = @($openBacklogRows).Count
+    frozenFutureTasksExcluded = $stillFrozenRows.Count
     openS0SubtasksChecked = @($openS0Rows).Count
     policy = 'deterministic rules scripts dedicated surfaces first and AI agent only as bounded assistance'
     s004DocumentAdapterPolicy = 'OpenXML OMML first PDF text layout first Docling structure PaddleOCR OCR FormulaRecognition PP-FormulaNet and cloud fallback only after admission'
     requiredDocs = @($docRequirements | ForEach-Object { $_.Path })
-    conclusion = 'future feature implementation is blocked unless automation-first contract coverage and evidence commands are present'
+    conclusion = 'current open tasks require automation-first coverage; Q/R future tasks stay excluded and frozen until P006 closes'
 }
 
 New-Item -ItemType Directory -Path (Split-Path -Parent $jsonFullPath) -Force | Out-Null

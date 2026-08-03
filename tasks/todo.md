@@ -16,7 +16,7 @@
 ## Completed: verification governance
 
 - [x] VGOV001-VGOV003：spec、真源和单一执行入口。
-- [x] VGOV004：235-step AST inventory/profile 分类。
+- [x] VGOV004：legacy AST inventory/profile 分类（历史基线 235，未来治理节点退役后当前 208）。
 - [x] VGOV005-VGOV006：无副作用 Quick 与 task/changed-path Slice selector。
 - [x] VGOV007：UI behavior parity migration。
 - [x] VGOV008：current evidence index 与日常 artifact 分流。

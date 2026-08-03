@@ -146,10 +146,9 @@
 
 ### 变更来自互操作诉求时
 
-1. 先确认不改变内部 canonical model
-2. 先看 [docs/108_InteroperabilityProfileBoundary.md](/D:/CODE/k12-question-graph/docs/108_InteroperabilityProfileBoundary.md:1)
-3. 再进入 `R007`
-4. `R007` 只做 profile map，不反向改写知识资产主模型
+1. `P006` 未完成时保持 `R007` 冻结，不生成设计或实现资产
+2. `P006` 完成后先取得真实对接对象、授权样本和 owner
+3. 再按当时需求激活 `R007`，且不反向改写内部 canonical model
 
 ## 4. 常见误区
 
@@ -165,14 +164,14 @@
 
 不是。`K006` 只是巡检与 triage 入口，不能替代 `C002B/C/C/D/S/T` 的治理链。
 
-### 误区 4：互操作 profile map 可以倒逼内部主模型
+### 误区 4：假设中的互操作需求可以倒逼内部主模型
 
-不允许。`R007` 只表达外部标准映射，不允许为了标准方便而反向污染内部 canonical model。
+不允许。`R007` 在真实需求出现前保持冻结；激活后也不得为外部标准方便而反向污染内部 canonical model。
 
 ## 5. 与现有文档的关系
 
 - 稳定模型定义：看 [docs/05_DomainModel.md](/D:/CODE/k12-question-graph/docs/05_DomainModel.md:1)
-- 互操作承诺边界：看 [docs/108_InteroperabilityProfileBoundary.md](/D:/CODE/k12-question-graph/docs/108_InteroperabilityProfileBoundary.md:1)
+- 未来互操作任务：看 `tasks/backlog.csv` 中冻结的 `R007`
 - 任务真源：看 `tasks/backlog.csv`
 - 当前执行主线：看 [docs/103_ExecutionControlBoard.md](/D:/CODE/k12-question-graph/docs/103_ExecutionControlBoard.md:1)
 

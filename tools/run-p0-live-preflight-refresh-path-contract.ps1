@@ -41,8 +41,8 @@ $skipRunnerText = Get-Content -LiteralPath $skipRunnerPath -Raw
 Assert-True ($skipRunnerText.Contains('$runDate = Get-Date -Format ''yyyyMMdd''')) 'P0-live skip runner must derive the same date stamp as refresh/auto-advance'
 Assert-True ($skipRunnerText.Contains("('docs/evidence/{0}-p0-live-auto-advance-report.json' -f `$runDate)")) 'P0-live skip runner must link the current-date auto-advance report'
 Assert-True ($skipRunnerText.Contains("('docs/evidence/{0}-p0-live-preflight-refresh-report.json' -f `$runDate)")) 'P0-live skip runner must link the current-date preflight refresh report'
-Assert-True ($skipRunnerText.Contains('docs/evidence/20260505-pqr-preflight-dashboard-report.json')) 'P0-live skip runner must link the real PQR dashboard report path'
-Assert-True (-not $skipRunnerText.Contains('docs/evidence/20260505-pqr-preflight-dashboard.json')) 'P0-live skip runner must not link the stale dashboard path'
+Assert-True ($skipRunnerText.Contains('tmp/verification/scope-freeze.json')) 'P0-live skip runner must link the current scope-freeze report path'
+Assert-True (-not $skipRunnerText.Contains('pqr-preflight')) 'P0-live skip runner must not retain premature Q/R preflight dependencies'
 
 $fullGatePath = Join-Path $repoRoot 'tools\run-gates.ps1'
 Assert-True (Test-Path -LiteralPath $fullGatePath) 'full gate script is missing: tools\run-gates.ps1'
@@ -53,7 +53,7 @@ foreach ($template in $expectedReportTemplates) {
     Assert-True ($fullGateText.Contains($template)) "full gate missing date-scoped report template: $template"
 }
 
-foreach ($relativePath in @('tools\run-gate-group.ps1', 'tools\run-gates.ps1')) {
+foreach ($relativePath in @('tools\run-gates.ps1')) {
     $gatePath = Join-Path $repoRoot $relativePath
     Assert-True (Test-Path -LiteralPath $gatePath) "gate script is missing: $relativePath"
     $gateText = Get-Content -LiteralPath $gatePath -Raw

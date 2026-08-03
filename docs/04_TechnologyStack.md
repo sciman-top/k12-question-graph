@@ -185,18 +185,11 @@ P0 的最低实现要求是“可恢复的任务事实源”，不是“有队�
 - 所有工具调用记录版本、参数、输入 hash、输出 hash、耗时和错误。
 - 每次升级文档/OCR/导出工具前，必须用黄金样本比较输出差异、教师人工接管量和 AdapterDiagnostic，不以工具版本更高作为直接升级理由。
 
-## 9. 参考标准预留
+## 9. 互操作非目标
 
-| 标准 | v0.1 策略 |
-|---|---|
-| QTI | 数据模型预留 Item/Test/Result 映射，不完整实现 |
-| CASE | 知识点/课程标准映射预留，不完整实现 |
-| OneRoster | 学生/班级/成绩映射预留，不完整实现 |
-| Caliper | 学习活动事件预留，不完整实现 |
-
-标准互操作采用 profile map 优先：先把本仓 `QuestionItem`、`Paper`、`KnowledgeNode`、`ScoreRecord`、`AnalysisEvent` 映射到 QTI/CASE/OneRoster/Caliper 的最小 profile，再按真实系统对接需求做 import/export spike。没有真实对接需求前，不做完整标准实现。
-
-具体承诺边界见 `docs/108_InteroperabilityProfileBoundary.md`。
+v0.1 不承诺 QTI、CASE、OneRoster 或 Caliper，也不预建 profile map、adapter
+或字段占位。`R007` 在 `P006` 完成后仍需取得真实对接对象、授权样本和明确
+owner，届时再按当时需求做任务级设计；内部 canonical model 不为假设需求改造。
 
 ## 10. UI 技术裁决
 

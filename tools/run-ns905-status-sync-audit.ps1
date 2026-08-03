@@ -243,7 +243,7 @@ try {
     Assert-Condition ($realFull.current_state -eq 'contract_done' -and $realFull.next_task -eq 'REAL005') 'real full closure dashboard row must remain contract_done -> REAL005'
 
     $planIds = @($planRows | ForEach-Object { [string]$_.id })
-    foreach ($requiredId in @('NS903','NS904','NS905','NS1001','NS1005','NS1101')) {
+    foreach ($requiredId in @('NS903','NS904','NS905','NS1001','NS1005')) {
         Assert-Condition ($planIds -contains $requiredId) "non-site plan missing row: $requiredId"
     }
 

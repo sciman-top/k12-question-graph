@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "policy": "no speculative full rewrite; preserve existing business modules and block renewed growth",
+  "policy": "no speculative full rewrite; current maxima are ratchets that block renewed growth while allowing ordinary source shrinkage without cross-file maintenance",
   "files": [
     {
       "path": "apps/api/Program.cs",
@@ -52,13 +52,13 @@
     },
     {
       "path": "apps/api/Endpoints/AdminAiEndpoints.cs",
-      "maxLines": 80,
+      "maxLines": 42,
       "requiredMarkers": ["MapAdminAiEndpoints", "GetAdminAiProviderSettings", "TestAdminAiProviderSettings"],
       "boundary": "admin AI provider settings endpoints"
     },
     {
       "path": "apps/api/Endpoints/ScoreEndpoints.cs",
-      "maxLines": 160,
+      "maxLines": 125,
       "requiredMarkers": ["MapScoreEndpoints", "ImportScores", "ExportCommentaryReport"],
       "boundary": "score endpoints"
     }

@@ -14,7 +14,7 @@
 - `P005` 反馈分流未闭合。
 - `P006` 正式发布裁决未留痕。
 
-2026-06-23 最新 repo-side 刷新后，这个结论仍然不变：完整 `full gate`、reference-basis、closeout plan、repo-side audit、status sync、PQR gate group 和 CI preflight 的最新证据都只证明仓库侧口径更一致了，没有把现场事实阻断自动消掉。`REAL005A/B/C/D 的 repo-side closeout 已完成`，但 `REAL005` 仍然保持 `not_closed`，当前不再把 repo-side 文案收口留作 next open，而只剩现场 / 人工链路待关闭。
+2026-06-23 最新 repo-side 刷新后，这个结论仍然不变：完整 `full gate`、reference-basis、closeout plan、repo-side audit、status sync、future scope-freeze 和 CI preflight 的最新证据都只证明仓库侧口径更一致了，没有把现场事实阻断自动消掉。`REAL005A/B/C/D 的 repo-side closeout 已完成`，但 `REAL005` 仍然保持 `not_closed`，当前不再把 repo-side 文案收口留作 next open，而只剩现场 / 人工链路待关闭。
 
 2026-07-29 再次刷新后裁决仍为 `No-Go`：234 道广州真题和 CEK-01..16 已闭环到本机 candidate/review 层，但 234 题、444 个 AssessmentTarget 和 273 个课程要求/分面候选都未获教师批准，`productionEligible=false`。CEK-17..35、P001/P003/P005/P006、隔离机和正式发布签字继续开放。新增代码后的 full gate 已走完子步骤并产生最终备份，但外层 Windows 管道未交回最终 exit code，因此不能把本次运行写成新的 `RUN_GATES_EXIT=0` 基线。
 
@@ -42,7 +42,7 @@
 
 | 项目 | 通过标准 | 当前状态 |
 |---|---|---|
-| build / test / contract / hotspot | 全通过或有效 N/A | `开发机通过，但不足以构成发布结论`。2026-06-23 完整 `full gate` 已通过，2026-06-18 `repo preflight -Mode Ci` 已通过 16 步，`PQR gate group` 已通过 12 步；但仍缺现场链路、签字和发布裁决证据。 |
+| build / test / contract / hotspot | 全通过或有效 N/A | `开发机通过，但不足以构成发布结论`。2026-06-23 完整 `full gate` 已通过，2026-06-18 `repo preflight -Mode Ci` 已通过 16 步，`future scope-freeze` 已通过；但仍缺现场链路、签字和发布裁决证据。 |
 | reference basis | `P005/P006` 高风险变更已登记官方与本地参考锚点 | `repo-side 通过`。2026-06-15 最新 `reference-basis guard` 已覆盖 20 个受管任务、13 个模块，且 external/snapshot `parity = match`；缺少参考依据时不得改发布口径。 |
 | automation / visual surrogate preflight | 非现场客观检查尽量闭合 | `非现场通过`。`NS906`、`NS904`、`NS801-NS806` 已覆盖 route smoke、artifact、source screenshot、backup/restore、visual surrogate；但它们不能替代隔离机、打印、权限域、真实网络和签字。 |
 | backup | manifest 可验证 | `非现场通过`。`G001-G004`、`O003` 和 `NS801-NS806` 证据存在，但隔离机实跑未完成。 |
@@ -98,7 +98,7 @@
 | 字段 | 说明 |
 |---|---|
 | decision | `No-Go` |
-| rationale | 当前证据只证明“非现场能力和 preflight 包已较完整”，不能证明“现场可发布”。`NS13` 已完成并把仓内前置包收口到可执行状态；2026-06-23 的完整 `full gate` 与 repo-side 守卫刷新又证明文档、closeout 计划、PQR preflight 和状态看板没有继续漂移，但 `P001/P003/P005/P006` 均未关闭，且 `REAL005` 明确保持 `not_closed`。当前 `REAL005A/B/C/D 的 repo-side closeout 已完成`，它只证明对外文案已经 truthfully 收口，不代表真卷全流程已闭环。 |
+| rationale | 当前证据只证明“非现场能力和 preflight 包已较完整”，不能证明“现场可发布”。`NS13` 已完成并把仓内前置包收口到可执行状态；2026-06-23 的完整 `full gate` 与 repo-side 守卫刷新又证明文档、closeout 计划、future scope-freeze 和状态看板没有继续漂移，但 `P001/P003/P005/P006` 均未关闭，且 `REAL005` 明确保持 `not_closed`。当前 `REAL005A/B/C/D 的 repo-side closeout 已完成`，它只证明对外文案已经 truthfully 收口，不代表真卷全流程已闭环。 |
 | rollback window | 当前不进入发布执行，因此不进入现场回滚窗口；继续沿用既有 backup manifest、restore drill 和 disable-switch 证据作为预案。 |
 | tag candidate plan | `不创建`。只有在 `P005` 反馈分流完成、`P006` 裁决记录签字、并满足 release-ready 证据后才创建。 |
 | disable switch | 若现场前置演练中出现异常，优先禁用云 API/profile 切换、高风险 admin 写入、active switch 与真实数据链路，回退到离线优先和人工接管路径。 |

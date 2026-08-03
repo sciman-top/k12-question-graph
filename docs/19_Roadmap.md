@@ -26,7 +26,7 @@
 | H0.9 | VGOV-009 Release 覆盖对账 | stateful gate 无丢失，可退役重复默认执行 |
 | H0.10 | VGOV-010 产品热点收口 | 真实 endpoint seam 抽取，稳定模块受单一 hotspot budget 保护 |
 
-H0 已完成 repo-side 收口：日常入口为 Quick/Slice；默认 Release 已收缩为 3 个风险聚焦阶段与状态对账，不再执行 235-step monolith；legacy 仅保留为 `-IncludeLegacyCompatibility` 显式、stateful、隔离审计。151 个操作上无状态节点和 22 个 future-trigger-only 节点退出默认 Release。H0 不改变教师功能、数据库 schema、active 数据或 release 状态。
+H0 已完成 repo-side 收口：日常入口为 Quick/Slice；默认 Release 已收缩为 3 个风险聚焦阶段与状态对账，不再执行 legacy monolith；legacy 仅保留为 `-IncludeLegacyCompatibility` 显式、stateful、隔离审计。Q/R、NS11/NS12 与 PQR 编排共 27 个未来治理节点已从 legacy inventory 退役，当前 inventory 为 208。H0 不改变教师功能、数据库 schema、active 数据或 release 状态。
 
 ## 3. Horizon 1：v0.1 现场与发布闭环
 

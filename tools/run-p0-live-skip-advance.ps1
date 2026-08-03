@@ -50,16 +50,13 @@ $summary = [ordered]@{
         evidence_link = @(
             ('docs/evidence/{0}-p0-live-auto-advance-report.json' -f $runDate),
             ('docs/evidence/{0}-p0-live-preflight-refresh-report.json' -f $runDate),
-            'docs/evidence/20260505-pqr-preflight-pack-report.json',
-            'docs/evidence/20260505-pqr-preflight-freshness-report.json',
-            'docs/evidence/20260505-pqr-preflight-dashboard-report.json',
-            'docs/evidence/20260505-pqr-orchestration-consistency-report.json'
+            'tmp/verification/scope-freeze.json'
         )
         expires_at = $ExpiresAt
     }
     boundary = 'skip only applies to live/on-site execution evidence; backlog status remains unchanged'
     downstream = [ordered]@{
-        qr_preflight = 'kept active'
+        future_scope = 'frozen until P006 is complete'
         live_execution_required_for_closure = $true
     }
     autoAdvanceStatus = $autoAdvance.status

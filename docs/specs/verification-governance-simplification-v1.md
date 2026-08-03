@@ -95,7 +95,7 @@ blocker_routing:
 
 - 默认入口是 `tools/run-verification.ps1 -Profile Release -AuthorizeStateful`：先 Quick，再执行 `release-contracts`（migration/privacy/no-active-write/API/service boundary）、`release-upgrade-recovery`（NS806 的 migration bundle + isolated backup/restore）和 `release-closure-invariants`（reference/evidence/coverage/hotspot/UI/release-pack/REAL005/roadmap）。
 - 默认 Release 不调用 `tools/run-gates.ps1`，不刷新日期化 tracked evidence，不向共享 FileStore 写 fixture；报告与恢复工件写入 `tmp/verification/<run>/`，前后指纹必须证明 migration、数据库 shape、共享 FileStore 与进程未发生未声明变化。
-- `tools/run-verification.ps1 -Profile Release -AuthorizeStateful -IncludeLegacyCompatibility` 才运行 235-step legacy compatibility audit。它是显式、低频、stateful、隔离审计，不是默认发布阻断链；旧节点 inventory 仍可查询、可追溯、可按需审计。
+- `tools/run-verification.ps1 -Profile Release -AuthorizeStateful -IncludeLegacyCompatibility` 才运行 legacy compatibility audit（当前 inventory 208 steps）。它是显式、低频、stateful、隔离审计，不是默认发布阻断链；现存节点 inventory 仍可查询、可追溯、可按需审计。
 - 指纹相同不能替代数据库 row-level 等值证明；指纹变化不能被 pass 状态掩盖。`sharedFileStoreWriteExpected=false` 是默认 Release 的硬不变量。
 
 ### Onsite
@@ -145,17 +145,17 @@ blocker_routing:
 - PRD、scope 和 roadmap 不保存日期化当前状态。
 - Execution Control Board 只有一个 Now。
 - `tasks/backlog.csv` 登记 VGOV-001..010 的依赖、验收和 verifier。
-- 235 个旧 gate step 已由 AST inventory 完整分类；默认 Release 不执行 legacy monolith，235 个节点全部退出默认主路径，其中 151 个操作上无状态节点和 22 个 future-trigger-only 节点不再被默认 Release 重复执行；legacy audit 仍可显式运行。
+- 历史基线 235 个 gate step 已由 AST inventory 完整分类；默认 Release 不执行 legacy monolith。随后 Q/R、NS11/NS12 与 PQR 编排共 27 个未来治理节点被退役，当前 legacy inventory 为 208，仍仅可显式运行。
 - 默认 Release 由 Quick + 3 个聚焦阶段承接必要风险覆盖；Slice 只运行所选最小链；Quick/Slice 都不访问 DB、不停止进程、不产生 tracked diff。
 - Q001-Q005、R001-R007 不进入默认 Quick。
 - Release 继续保护 migration、backup/restore、active write、真实数据和发布证据。
-- coverage reconciliation 必须同时记录 legacy inventory（Quick=7、Release=228、unmapped=0）、default release-core coverage、optional legacy audit coverage、retired default execution count、future-trigger-only count；不得再把 228 个 legacy 节点写成默认 Release coverage。
+- coverage reconciliation 必须同时记录当前 legacy inventory（Quick=7、Release=201、unmapped=0）、default release-core coverage、optional legacy audit coverage、retired default execution count、future-trigger-only count；不得把 legacy 节点写成默认 Release coverage。
 - VGOV-010 只抽取真实 Score/Admin AI endpoint seam，并用一个 canonical hotspot budget 防止稳定模块重新增长；不为每项能力新增永久主门禁。
 - 本治理计划不能改变 `REAL005=not_closed` 或 release No-Go。
 
 ## 10. Completion decision
 
-VGOV-001..010 只有在 Release core 收缩和 Slice 真正按 changed path/task 聚焦后才算治理减负完成：日常验证入口为 Quick/Slice，默认 Release 为聚焦 core，legacy 235-step 仅在 `-IncludeLegacyCompatibility` 下作为显式审计；current evidence、任务状态、当前投影和历史记录分层，默认 Release 不产生共享 FileStore 或日期化 tracked evidence 副作用。
+VGOV-001..010 只有在 Release core 收缩和 Slice 真正按 changed path/task 聚焦后才算治理减负完成：日常验证入口为 Quick/Slice，默认 Release 为聚焦 core，legacy monolith 仅在 `-IncludeLegacyCompatibility` 下作为显式审计；current evidence、任务状态、当前投影和历史记录分层，默认 Release 不产生共享 FileStore 或日期化 tracked evidence 副作用。
 
 此完成裁决不等于项目发布：P001-P006、`REAL005=not_closed`、`fullClosureAllowed=false` 和 release No-Go 保持不变。
 

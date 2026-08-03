@@ -51,7 +51,7 @@ try {
     $allowedRunbooks = @($manifest.allowedRunbooks)
     $blockedScripts = @($manifest.blockedScripts | ForEach-Object { [string]$_ })
 
-    Assert-Condition ($allowedTools.Count -ge 12) 'NS1306 requires at least 12 allowlisted tools'
+    Assert-Condition ($allowedTools.Count -ge 9) 'NS1306 requires a bounded operational allowlist'
     Assert-Condition ($allowedRunbooks.Count -ge 6) 'NS1306 requires runbook/checklist inventory'
     Assert-Condition ($blockedScripts.Count -ge 5) 'NS1306 requires explicit blocked high-risk scripts'
 
@@ -83,7 +83,7 @@ try {
 
     foreach ($requiredCategory in @(
         'preflight_refresh',
-        'preflight_dashboard',
+        'boundary_guard',
         'status_sync',
         'environment_diagnostic',
         'report_generation',

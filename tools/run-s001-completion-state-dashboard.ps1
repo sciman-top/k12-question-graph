@@ -29,7 +29,7 @@ foreach ($column in $requiredColumns) {
     Assert-True ($rows.Count -gt 0 -and $rows[0].PSObject.Properties.Name -contains $column) "dashboard missing column: $column"
 }
 
-$allowedStates = @('contract_done','synthetic_done','db_backed_done','ui_productized','teacher_validated','release_ready')
+$allowedStates = @('not_started','contract_done','synthetic_done','db_backed_done','ui_productized','teacher_validated','release_ready')
 $allowedRisks = @('low','medium','high')
 $requiredAreas = @(
     'teacher-shell','question-upload','document-parsing','question-cutting','human-review','question-save',

@@ -66,9 +66,12 @@ $futureQuick.trigger_only = $true
 Assert-Throws 'future quick' { Test-LegacyGateInventory -Steps @($futureQuick) -ExpectedStepCount 1 }
 
 $inventory = Get-LegacyGateInventory -RepoRoot $repoRoot
-$real = Test-LegacyGateInventory -Steps $inventory.steps -ExpectedStepCount 235
+$real = Test-LegacyGateInventory -Steps $inventory.steps -ExpectedStepCount ([int]$inventory.rules.expectedStepCount)
 if ($real.profileCounts.Quick -ne 7) {
     throw "expected seven side-effect-free legacy Quick steps; got $($real.profileCounts.Quick)"
+}
+if (@($inventory.steps | Where-Object trigger_only).Count -ne 0) {
+    throw 'future-only Q/R/NS11/NS12 steps must be retired from the legacy executable gate'
 }
 
 $verificationScript = Get-Content -LiteralPath (Join-Path $repoRoot 'tools/run-verification.ps1') -Raw
@@ -88,6 +91,9 @@ if ($verificationScript -notmatch 'if \(\$IncludeLegacyCompatibility\)[\s\S]{0,9
 }
 if (($verificationScript | Select-String -Pattern "run-ui-behavior-contract-guard.ps1'\) -SkipTests" -AllMatches).Matches.Count -ne 2) {
     throw 'Slice and Release must reuse already executed frontend tests instead of rerunning them inside the UI behavior guard'
+}
+if ($verificationScript -notmatch '\$Profile\s+-in\s+@\(''Quick'', ''Slice'', ''Release''\)') {
+    throw 'all executable verification profiles must use the bounded process-settle window before side-effect comparison'
 }
 
 $defaultDryRun = & (Join-Path $repoRoot 'tools/run-verification.ps1') -Profile Release -DryRun -ReportRoot 'tmp/verification/tests/default-release' | ConvertFrom-Json

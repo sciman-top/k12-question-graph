@@ -149,6 +149,7 @@ function Invoke-ReleaseCoreProfile([AllowEmptyCollection()][System.Collections.G
                 -O007RecoveryReportPath (Join-Path $ReportRoot 'ns806-o003-recovery-drill.json') | Out-Null
         } },
         [pscustomobject]@{ id = 'release-closure-invariants'; action = {
+            & (Join-Path $PSScriptRoot 'run-scope-freeze-guard.ps1') -JsonReportPath (Join-Path $ReportRoot 'scope-freeze.json') | Out-Null
             & (Join-Path $PSScriptRoot 'run-reference-basis-guard.ps1') -ValidationMode Local -JsonReportPath (Join-Path $ReportRoot 'reference-basis.json') -MarkdownReportPath (Join-Path $ReportRoot 'reference-basis.md') | Out-Null
             & (Join-Path $PSScriptRoot 'run-evidence-index-guard.ps1') -JsonReportPath (Join-Path $ReportRoot 'evidence-index.json') | Out-Null
             & (Join-Path $PSScriptRoot 'run-release-coverage-reconciliation.ps1') -JsonReportPath (Join-Path $ReportRoot 'release-coverage.json') | Out-Null
@@ -228,6 +229,7 @@ function Invoke-SliceFocusedCommand {
         }
         'governance-contracts' {
             Invoke-SliceStep -Id 'slice-governance-contracts' -Results $Results -Action {
+                & (Join-Path $PSScriptRoot 'run-scope-freeze-guard.ps1') -JsonReportPath (Join-Path $ReportRoot 'scope-freeze.json') | Out-Null
                 & (Join-Path $PSScriptRoot 'run-automation-first-feature-contract-guard.ps1') -JsonReportPath (Join-Path $ReportRoot 'automation-first.json') | Out-Null
                 & (Join-Path $PSScriptRoot 'run-s001-completion-state-dashboard.ps1') -JsonReportPath (Join-Path $ReportRoot 'dashboard.json') -MarkdownReportPath (Join-Path $ReportRoot 'dashboard.md') | Out-Null
                 & (Join-Path $PSScriptRoot 'run-s0-execution-plan-guard.ps1') -JsonReportPath (Join-Path $ReportRoot 's0.json') | Out-Null
@@ -349,7 +351,7 @@ catch {
 
 $afterWorktree = Get-TrackedWorktreeSnapshot
 $afterProcesses = @(Get-RepoProcessSnapshot)
-if ($Profile -eq 'Release' -and -not $DryRun) {
+if ($Profile -in @('Quick', 'Slice', 'Release') -and -not $DryRun) {
     for ($attempt = 0; $attempt -lt 10 -and ((@($beforeProcesses) -join "`n") -ne (@($afterProcesses) -join "`n")); $attempt++) {
         Start-Sleep -Milliseconds 500
         $afterProcesses = @(Get-RepoProcessSnapshot)

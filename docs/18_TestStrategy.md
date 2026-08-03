@@ -29,9 +29,9 @@ build -> test -> contract/invariant -> hotspot
 
 ### Release
 
-适用于 release candidate 或明确授权的 stateful closeout。默认 Release = Quick + migration/privacy/API/no-active-write contracts + NS806 isolated backup/restore/upgrade + closure invariants + 状态指纹对账；不遍历 235-step legacy monolith，不刷新日期化 tracked evidence，不写共享 FileStore fixture。允许的 DB 影响必须提前声明。
+适用于 release candidate 或明确授权的 stateful closeout。默认 Release = Quick + migration/privacy/API/no-active-write contracts + NS806 isolated backup/restore/upgrade + closure invariants + 状态指纹对账；不遍历 legacy monolith，不刷新日期化 tracked evidence，不写共享 FileStore fixture。允许的 DB 影响必须提前声明。
 
-只有显式 `-IncludeLegacyCompatibility` 才运行 235-step legacy audit；它用于低频兼容审计，不是默认发布阻断链。
+只有显式 `-IncludeLegacyCompatibility` 才运行 legacy audit（当前 inventory 208 steps）；它用于低频兼容审计，不是默认发布阻断链。
 
 ### Onsite
 

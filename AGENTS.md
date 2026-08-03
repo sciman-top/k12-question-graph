@@ -32,7 +32,7 @@
 - fixed order：`build -> test -> contract/invariant -> hotspot`。
 - 日常切片：`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-verification.ps1 -Profile Slice -TaskId <TASK_ID>`；只运行 changed-path/task 命中的 build、test、contract/invariant、hotspot，空选择或未知路径 fail-closed。
 - 全栈无状态基线：`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-verification.ps1 -Profile Quick`；不得访问 PostgreSQL、停止进程、写 FileStore 或 tracked evidence。
-- 发布门禁：明确授权后运行 `pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-verification.ps1 -Profile Release -AuthorizeStateful`；旧 235 步 `tools/run-gates.ps1` 仅由 `-IncludeLegacyCompatibility` 显式进入，不是默认 test/full。
+- 发布门禁：明确授权后运行 `pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-verification.ps1 -Profile Release -AuthorizeStateful`；legacy `tools/run-gates.ps1` 仅由 `-IncludeLegacyCompatibility` 显式进入，不是默认 test/full。
 - contract/invariant 与 hotspot 由 Slice/Release 路由；单独复核可运行 `tools/run-roadmap-guard.ps1` 和 `tools/run-product-hotspot-budget-guard.ps1`。
 - 进程或 DB 授权缺失时 Release/legacy test 按完整 N/A 字段留痕，不能改写门禁顺序或伪称 full gate。
 - 证据放 `docs/evidence/`，区分 repo-side、onsite/manual、deployed 与 live accepted。

@@ -52,39 +52,18 @@ $steps.Add([ordered]@{
     report = (Get-ReportPathFromResult -Result $refresh)
 })
 
-$pack = Invoke-JsonScript -RelativeScriptPath 'tools/run-pqr-preflight-pack-contract.ps1'
+$scopeFreeze = Invoke-JsonScript -RelativeScriptPath 'tools/run-scope-freeze-guard.ps1'
 $steps.Add([ordered]@{
-    name = 'pqr preflight pack'
-    status = $pack.status
-    report = Get-ReportPathFromResult -Result $pack
-})
-
-$freshness = Invoke-JsonScript -RelativeScriptPath 'tools/run-pqr-preflight-freshness-guard.ps1'
-$steps.Add([ordered]@{
-    name = 'pqr preflight freshness'
-    status = $freshness.status
-    report = Get-ReportPathFromResult -Result $freshness
-})
-
-$dashboard = Invoke-JsonScript -RelativeScriptPath 'tools/run-pqr-preflight-dashboard-contract.ps1'
-$steps.Add([ordered]@{
-    name = 'pqr preflight dashboard'
-    status = $dashboard.status
-    report = (Get-ReportPathFromResult -Result $dashboard)
-})
-
-$orchestration = Invoke-JsonScript -RelativeScriptPath 'tools/run-pqr-orchestration-consistency-guard.ps1'
-$steps.Add([ordered]@{
-    name = 'pqr orchestration consistency'
-    status = $orchestration.status
-    report = Get-ReportPathFromResult -Result $orchestration
+    name = 'future scope freeze'
+    status = $scopeFreeze.status
+    report = Get-ReportPathFromResult -Result $scopeFreeze
 })
 
 if ([string]::IsNullOrWhiteSpace([string]$steps[0].report)) {
     $steps[0].report = 'docs/evidence/{0}-p0-live-preflight-refresh-report.json' -f (Get-Date -Format 'yyyyMMdd')
 }
-if ([string]::IsNullOrWhiteSpace([string]$steps[3].report)) {
-    $steps[3].report = 'docs/evidence/20260505-pqr-preflight-dashboard-report.json'
+if ([string]::IsNullOrWhiteSpace([string]$steps[1].report)) {
+    $steps[1].report = 'tmp/verification/scope-freeze.json'
 }
 
 $nonPassCount = @($steps | Where-Object { $_.status -ne 'pass' }).Count

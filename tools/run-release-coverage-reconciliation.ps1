@@ -7,7 +7,7 @@ $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 Import-Module (Join-Path $PSScriptRoot 'verification/VerificationProfile.psm1') -Force
 
 $inventory = Get-LegacyGateInventory -RepoRoot $repoRoot
-$validation = Test-LegacyGateInventory -Steps $inventory.steps -ExpectedStepCount 235
+$validation = Test-LegacyGateInventory -Steps $inventory.steps -ExpectedStepCount ([int]$inventory.rules.expectedStepCount)
 $quick = @($inventory.steps | Where-Object profile -eq 'Quick')
 $release = @($inventory.steps | Where-Object profile -eq 'Release')
 $onsite = @($inventory.steps | Where-Object profile -eq 'Onsite')

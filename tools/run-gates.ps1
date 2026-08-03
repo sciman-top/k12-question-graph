@@ -193,7 +193,7 @@ function Get-HostLocalFrontendDebrisPaths {
 
 Push-Location $repoRoot
 $p0LiveRunDate = Get-Date -Format 'yyyyMMdd'
-$pqrReportRoot = 'tmp/full-gate-pqr'
+$legacyTransientRoot = 'tmp/full-gate-closure'
 $resumeDefaultLocalApi = $false
 $defaultLocalApi = Get-DefaultLocalApiProcess
 $repoApiProcesses = @(Get-RepoApiProcesses)
@@ -235,7 +235,7 @@ if ($repoApiProcesses.Count -gt 0) {
 }
 
 try {
-    New-Item -ItemType Directory -Path (Join-Path $repoRoot $pqrReportRoot) -Force | Out-Null
+    New-Item -ItemType Directory -Path (Join-Path $repoRoot $legacyTransientRoot) -Force | Out-Null
 
     Invoke-GateStep 'backend build' {
         dotnet build apps\api\K12QuestionGraph.Api.csproj -c Release | Write-Host
@@ -1070,81 +1070,6 @@ try {
         .\tools\run-p006-release-decision-preflight-contract.ps1 -ReportPath ('docs/evidence/{0}-p006-release-decision-admission-report.json' -f $p0LiveRunDate) | Write-Host
     }
 
-    Invoke-GateStep 'q001 second-subject candidate admission preflight contract' {
-        .\tools\run-q001-second-subject-candidate-admission-preflight-contract.ps1 | Write-Host
-    }
-
-    Invoke-GateStep 'ns1101 second-subject candidate boundary pack' {
-        .\tools\run-ns1101-second-subject-candidate-boundary.ps1 -NS905ReportPath ('docs/evidence/{0}-ns905-status-sync.md' -f $p0LiveRunDate) -ReportPath ('docs/evidence/{0}-ns1101-second-subject-candidate.json' -f $p0LiveRunDate) | Write-Host
-    }
-
-    Invoke-GateStep 'q002 second-subject teacher review template preflight contract' {
-        .\tools\run-q002-second-subject-teacher-review-template-preflight-contract.ps1 | Write-Host
-    }
-
-    Invoke-GateStep 'ns1102 second-subject teacher review template boundary pack' {
-        .\tools\run-ns1102-second-subject-review-template-boundary.ps1 -ReportPath ('docs/evidence/{0}-ns1102-second-subject-review-template.json' -f $p0LiveRunDate) -NS1101ReportPath ('docs/evidence/{0}-ns1101-second-subject-candidate.json' -f $p0LiveRunDate) | Write-Host
-    }
-
-    Invoke-GateStep 'q003 second-subject active drill preflight contract' {
-        .\tools\run-q003-second-subject-active-drill-preflight-contract.ps1 | Write-Host
-    }
-
-    Invoke-GateStep 'ns1103 second-subject active dry-run boundary pack' {
-        .\tools\run-ns1103-second-subject-active-dry-run-boundary.ps1 -ReportPath ('docs/evidence/{0}-ns1103-second-subject-active-dry-run.json' -f $p0LiveRunDate) -NS1102ReportPath ('docs/evidence/{0}-ns1102-second-subject-review-template.json' -f $p0LiveRunDate) | Write-Host
-    }
-
-    Invoke-GateStep 'q004 cross-subject diff report preflight contract' {
-        .\tools\run-q004-cross-subject-diff-report-preflight-contract.ps1 | Write-Host
-    }
-
-    Invoke-GateStep 'q005 multi-subject ui simplification preflight contract' {
-        .\tools\run-q005-multi-subject-ui-simplification-preflight-contract.ps1 | Write-Host
-    }
-
-    Invoke-GateStep 'ns1104 cross-subject ui boundary pack' {
-        .\tools\run-ns1104-cross-subject-ui-boundary.ps1 -ReportPath ('docs/evidence/{0}-ns1104-cross-subject-ui.json' -f $p0LiveRunDate) -NS1103ReportPath ('docs/evidence/{0}-ns1103-second-subject-active-dry-run.json' -f $p0LiveRunDate) | Write-Host
-    }
-
-    Invoke-GateStep 'r001 search semantic retrieval eval preflight contract' {
-        .\tools\run-r001-search-semantic-retrieval-eval-preflight-contract.ps1 | Write-Host
-    }
-    Invoke-GateStep 'ns1201 search semantic retrieval boundary pack' {
-        .\tools\run-ns1201-search-eval.ps1 -ReportPath ('docs/evidence/{0}-ns1201-search-eval.json' -f $p0LiveRunDate) | Write-Host
-    }
-    Invoke-GateStep 'r002 queue worker scale eval preflight contract' {
-        .\tools\run-r002-queue-worker-scale-eval-preflight-contract.ps1 | Write-Host
-    }
-    Invoke-GateStep 'ns1202 queue worker scale boundary pack' {
-        .\tools\run-ns1202-queue-eval.ps1 -ReportPath ('docs/evidence/{0}-ns1202-queue-eval.json' -f $p0LiveRunDate) | Write-Host
-    }
-    Invoke-GateStep 'r003 interop eval preflight contract' {
-        .\tools\run-r003-interop-eval-preflight-contract.ps1 | Write-Host
-    }
-    Invoke-GateStep 'r004 advanced analysis eval preflight contract' {
-        .\tools\run-r004-advanced-analysis-eval-preflight-contract.ps1 | Write-Host
-    }
-    Invoke-GateStep 'ns1204 advanced analysis admission boundary pack' {
-        .\tools\run-ns1204-advanced-analysis-admission.ps1 -ReportPath ('docs/evidence/{0}-ns1204-advanced-analysis-admission.json' -f $p0LiveRunDate) | Write-Host
-    }
-    Invoke-GateStep 'r005 public multischool deploy eval preflight contract' {
-        .\tools\run-r005-public-multischool-deploy-eval-preflight-contract.ps1 | Write-Host
-    }
-    Invoke-GateStep 'ns1205 public multischool deploy admission boundary pack' {
-        .\tools\run-ns1205-multischool-admission.ps1 -ReportPath ('docs/evidence/{0}-ns1205-multischool-admission.json' -f $p0LiveRunDate) | Write-Host
-    }
-    Invoke-GateStep 'r006 techdebt cadence preflight contract' {
-        .\tools\run-r006-techdebt-cadence-preflight-contract.ps1 | Write-Host
-    }
-    Invoke-GateStep 'ns1206 techdebt cadence boundary pack' {
-        .\tools\run-ns1206-techdebt-cadence.ps1 -ReportPath ('docs/evidence/{0}-ns1206-techdebt-cadence.json' -f $p0LiveRunDate) | Write-Host
-    }
-    Invoke-GateStep 'r007 interoperability profile map preflight contract' {
-        .\tools\run-r007-interoperability-profile-map-preflight-contract.ps1 | Write-Host
-    }
-    Invoke-GateStep 'ns1203 interoperability profile map boundary pack' {
-        .\tools\run-ns1203-interop-profile-map.ps1 -ReportPath ('docs/evidence/{0}-ns1203-interop-profile-map.json' -f $p0LiveRunDate) | Write-Host
-    }
     Invoke-GateStep 'p0 live preflight refresh path contract' {
         .\tools\run-p0-live-preflight-refresh-path-contract.ps1 | Write-Host
     }
@@ -1158,8 +1083,8 @@ try {
         .\tools\run-real005-report-write-lock-contract.ps1 | Write-Host
     }
     Invoke-GateStep 'real005 slice coverage contract' {
-        $real005JsonPath = Join-Path $pqrReportRoot 'real005-closure-standard-report.json'
-        $real005MarkdownPath = Join-Path $pqrReportRoot 'real005-closure-standard-report.md'
+        $real005JsonPath = Join-Path $legacyTransientRoot 'real005-closure-standard-report.json'
+        $real005MarkdownPath = Join-Path $legacyTransientRoot 'real005-closure-standard-report.md'
         .\tools\run-real005-slice-coverage-contract.ps1 `
             -ReportPath $real005JsonPath `
             -MarkdownReportPath $real005MarkdownPath | Write-Host
@@ -1171,37 +1096,17 @@ try {
             -DatabaseHost $DatabaseHost `
             -DatabasePort $DatabasePort `
             -DatabasePassword $DatabasePassword `
-            -ReportPath (Join-Path $pqrReportRoot 'real005b-question-structure-diagnostics.json') `
-            -MarkdownReportPath (Join-Path $pqrReportRoot 'real005b-question-structure-diagnostics.md') | Write-Host
+            -ReportPath (Join-Path $legacyTransientRoot 'real005b-question-structure-diagnostics.json') `
+            -MarkdownReportPath (Join-Path $legacyTransientRoot 'real005b-question-structure-diagnostics.md') | Write-Host
     }
     Invoke-GateStep 'real005 detailed slice plan guard' {
         .\tools\run-real005-detailed-slice-plan-guard.ps1 `
-            -JsonReportPath (Join-Path $pqrReportRoot 'real005-detailed-slice-plan-guard.json') `
-            -MarkdownReportPath (Join-Path $pqrReportRoot 'real005-detailed-slice-plan-guard.md') | Write-Host
-    }
-    Invoke-GateStep 'pqr full gate path contract' {
-        .\tools\run-pqr-full-gate-path-contract.ps1 | Write-Host
-    }
-    Invoke-GateStep 'pqr preflight pack contract' {
-        .\tools\run-pqr-preflight-pack-contract.ps1 `
-            -ReportPath (Join-Path $pqrReportRoot 'pqr-preflight-pack-report.json') | Write-Host
-    }
-    Invoke-GateStep 'pqr preflight freshness guard' {
-        .\tools\run-pqr-preflight-freshness-guard.ps1 `
-            -ReportPath (Join-Path $pqrReportRoot 'pqr-preflight-freshness-report.json') | Write-Host
-    }
-    Invoke-GateStep 'pqr preflight dashboard contract' {
-        .\tools\run-pqr-preflight-dashboard-contract.ps1 `
-            -DashboardJsonPath (Join-Path $pqrReportRoot 'pqr-preflight-dashboard.json') `
-            -DashboardMarkdownPath (Join-Path $pqrReportRoot 'pqr-preflight-dashboard.md') | Write-Host
+            -JsonReportPath (Join-Path $legacyTransientRoot 'real005-detailed-slice-plan-guard.json') `
+            -MarkdownReportPath (Join-Path $legacyTransientRoot 'real005-detailed-slice-plan-guard.md') | Write-Host
     }
     Invoke-GateStep 'repo preflight local api detection contract' {
         .\tools\run-repo-preflight-local-api-detection-contract.ps1 `
-            -ReportPath (Join-Path $pqrReportRoot 'repo-preflight-local-api-detection-contract.json') | Write-Host
-    }
-    Invoke-GateStep 'pqr orchestration consistency guard' {
-        .\tools\run-pqr-orchestration-consistency-guard.ps1 `
-            -ReportPath (Join-Path $pqrReportRoot 'pqr-orchestration-consistency-report.json') | Write-Host
+            -ReportPath (Join-Path $legacyTransientRoot 'repo-preflight-local-api-detection-contract.json') | Write-Host
     }
     Invoke-GateStep 'ns1306 agent tool orchestration contract' {
         .\tools\run-ns1306-agent-tool-orchestration-contract.ps1 -ReportPath ('docs/evidence/{0}-ns1306-agent-tool-orchestration.json' -f $p0LiveRunDate) | Write-Host
