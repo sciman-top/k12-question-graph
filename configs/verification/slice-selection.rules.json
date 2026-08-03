@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "unknownPathPolicy": "fail",
   "commandCatalog": [
-    { "id": "backend-tests", "command": "dotnet test tests/api/K12QuestionGraph.Api.Tests/K12QuestionGraph.Api.Tests.csproj", "sideEffects": "ignored bin/obj only" },
-    { "id": "frontend-tests", "command": "npm --prefix apps/web run test", "sideEffects": "none" },
-    { "id": "worker-tests", "command": "python -m unittest discover -s tests/workers -p test_*.py", "sideEffects": "temporary test files only" },
+    { "id": "backend-tests", "command": "dotnet build API test project and referenced API then dotnet test --no-build", "sideEffects": "ignored bin/obj only" },
+    { "id": "frontend-tests", "command": "npm build, lint, then test for apps/web", "sideEffects": "ignored dist only" },
+    { "id": "worker-tests", "command": "python compileall workers then unittest tests/workers", "sideEffects": "ignored __pycache__ and temporary test files only" },
     { "id": "verification-governance", "command": "tools/run-verification-profile-inventory-guard.ps1 and parser/selector tests", "sideEffects": "tmp/verification only" },
     { "id": "governance-contracts", "command": "automation-first dashboard S0 and reference-basis guards with tmp reports", "sideEffects": "tmp/verification only" },
     { "id": "script-quality", "command": "tools/run-script-quality-sweep.ps1 with tmp report", "sideEffects": "tmp/verification only" },
@@ -38,7 +38,7 @@
     { "pattern": "AGENTS.md", "owner": "governance", "profile": "Slice", "commands": ["script-quality"], "reason": "repository execution contract changed" }
   ],
   "taskRules": [
-    { "pattern": "VGOV007", "commands": ["ui-behavior"], "reason": "UI static-to-behavior migration task" },
+    { "pattern": "VGOV007", "commands": ["frontend-tests", "ui-behavior"], "reason": "UI static-to-behavior migration task" },
     { "pattern": "VGOV008", "commands": ["evidence-index"], "reason": "evidence lifecycle task" },
     { "pattern": "VGOV010", "commands": ["hotspot-budget", "backend-tests", "frontend-tests"], "reason": "product hotspot boundary task" },
     { "pattern": "VGOV*", "commands": ["verification-governance", "governance-contracts", "script-quality"], "reason": "verification governance task" }

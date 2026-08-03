@@ -89,7 +89,7 @@ Web:
 .\tools\run-verification.ps1 -Profile Slice -TaskId <TASK_ID>
 ```
 
-`Quick/Slice` 不访问 PostgreSQL、不停止常驻进程、不写 FileStore 或 tracked evidence。发布前明确授权运行 `tools/run-verification.ps1 -Profile Release -AuthorizeStateful`：默认执行 Quick + 3 个风险聚焦阶段 + 状态对账，报告和恢复工件只进 `tmp/verification/`。`tools/run-gates.ps1` 不在默认 Release 中；只有追加 `-IncludeLegacyCompatibility` 才执行 235-step legacy audit。
+`Quick` 是约 1 分钟级的全栈无状态基线；`Slice` 不隐式重跑 Quick，只执行 task/changed paths 命中的 API、Web、Worker 或治理最小链，空选择和未知路径 fail-closed。两者都不访问 PostgreSQL、不停止常驻进程、不写 FileStore 或 tracked evidence。发布前明确授权运行 `tools/run-verification.ps1 -Profile Release -AuthorizeStateful`：默认执行 Quick + 3 个风险聚焦阶段 + 状态对账，报告和恢复工件只进 `tmp/verification/`。`tools/run-gates.ps1` 不在默认 Release 中；只有追加 `-IncludeLegacyCompatibility` 才执行 235-step legacy audit。
 
 无数据库密码时的 C002 动态资产 dry-run:
 

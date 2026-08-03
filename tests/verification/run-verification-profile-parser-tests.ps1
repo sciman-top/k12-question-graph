@@ -86,6 +86,9 @@ foreach ($required in @(
 if ($verificationScript -notmatch 'if \(\$IncludeLegacyCompatibility\)[\s\S]{0,900}run-gates\.ps1') {
     throw 'legacy run-gates entry must be guarded by IncludeLegacyCompatibility'
 }
+if (($verificationScript | Select-String -Pattern "run-ui-behavior-contract-guard.ps1'\) -SkipTests" -AllMatches).Matches.Count -ne 2) {
+    throw 'Slice and Release must reuse already executed frontend tests instead of rerunning them inside the UI behavior guard'
+}
 
 $defaultDryRun = & (Join-Path $repoRoot 'tools/run-verification.ps1') -Profile Release -DryRun -ReportRoot 'tmp/verification/tests/default-release' | ConvertFrom-Json
 if (-not [bool]$defaultDryRun.releaseCoreIncluded) { throw 'default Release must include release-core' }
@@ -93,6 +96,11 @@ if ([bool]$defaultDryRun.legacyCompatibilityIncluded) { throw 'default Release m
 if (@($defaultDryRun.steps.id) -contains 'legacy-compatibility-audit') { throw 'default Release selected legacy compatibility audit' }
 foreach ($requiredStep in @('release-contracts', 'release-upgrade-recovery', 'release-closure-invariants')) {
     if (@($defaultDryRun.steps.id) -notcontains $requiredStep) { throw "default Release missing step: $requiredStep" }
+}
+$quickOrder = @($defaultDryRun.steps.id | Where-Object { $_ -notlike 'release-*' })
+$expectedQuickOrder = @('profile-inventory', 'backend-build', 'frontend-build', 'frontend-lint', 'script-quality', 'backend-tests', 'frontend-tests', 'worker-tests')
+if (($quickOrder -join ',') -ne ($expectedQuickOrder -join ',')) {
+    throw "Quick must preserve build/static then test order; got: $($quickOrder -join ', ')"
 }
 
 $legacyDryRun = & (Join-Path $repoRoot 'tools/run-verification.ps1') -Profile Release -DryRun -IncludeLegacyCompatibility -ReportRoot 'tmp/verification/tests/legacy-release' | ConvertFrom-Json

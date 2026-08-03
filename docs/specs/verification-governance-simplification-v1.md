@@ -85,8 +85,10 @@ blocker_routing:
 
 ### Slice
 
-- 包含 Quick 和当前 task/changed paths 对应的 contract/invariant/hotspot。
+- 不隐式包含整套 Quick；只执行当前 task/changed paths 命中的最小 build/test/contract/invariant/hotspot 链。
+- API 切片运行 backend build/test，Web 切片运行 frontend build/lint/test，Worker 切片运行 compile/test；docs/governance 切片不得拉起无关产品栈。
 - unknown path 必须 fail-closed 或提升验证级别，不能静默跳过。
+- 无 changed path、无匹配 task 的空选择必须 fail-closed，不能产出零步骤 pass。
 - stateful step 必须在 task spec 中显式声明并单独授权。
 
 ### Release
@@ -144,7 +146,7 @@ blocker_routing:
 - Execution Control Board 只有一个 Now。
 - `tasks/backlog.csv` 登记 VGOV-001..010 的依赖、验收和 verifier。
 - 235 个旧 gate step 已由 AST inventory 完整分类；默认 Release 不执行 legacy monolith，235 个节点全部退出默认主路径，其中 151 个操作上无状态节点和 22 个 future-trigger-only 节点不再被默认 Release 重复执行；legacy audit 仍可显式运行。
-- 默认 Release 由 3 个聚焦阶段承接必要风险覆盖；Quick/Slice 不访问 DB、不停止进程、不产生 tracked diff。
+- 默认 Release 由 Quick + 3 个聚焦阶段承接必要风险覆盖；Slice 只运行所选最小链；Quick/Slice 都不访问 DB、不停止进程、不产生 tracked diff。
 - Q001-Q005、R001-R007 不进入默认 Quick。
 - Release 继续保护 migration、backup/restore、active write、真实数据和发布证据。
 - coverage reconciliation 必须同时记录 legacy inventory（Quick=7、Release=228、unmapped=0）、default release-core coverage、optional legacy audit coverage、retired default execution count、future-trigger-only count；不得再把 228 个 legacy 节点写成默认 Release coverage。
@@ -153,7 +155,7 @@ blocker_routing:
 
 ## 10. Completion decision
 
-VGOV-001..010 只有在 Release core 收缩完成后才算治理减负完成：日常验证入口为 Quick/Slice，默认 Release 为聚焦 core，legacy 235-step 仅在 `-IncludeLegacyCompatibility` 下作为显式审计；current evidence、任务状态、当前投影和历史记录分层，默认 Release 不产生共享 FileStore 或日期化 tracked evidence 副作用。
+VGOV-001..010 只有在 Release core 收缩和 Slice 真正按 changed path/task 聚焦后才算治理减负完成：日常验证入口为 Quick/Slice，默认 Release 为聚焦 core，legacy 235-step 仅在 `-IncludeLegacyCompatibility` 下作为显式审计；current evidence、任务状态、当前投影和历史记录分层，默认 Release 不产生共享 FileStore 或日期化 tracked evidence 副作用。
 
 此完成裁决不等于项目发布：P001-P006、`REAL005=not_closed`、`fullClosureAllowed=false` 和 release No-Go 保持不变。
 

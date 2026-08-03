@@ -74,12 +74,8 @@ function Invoke-QuickProfile([AllowEmptyCollection()][System.Collections.Generic
             & (Join-Path $PSScriptRoot 'run-verification-profile-inventory-guard.ps1') -JsonReportPath (Join-Path $ReportRoot 'profile-inventory.json') | Out-Null
         } },
         [pscustomobject]@{ id = 'backend-build'; action = {
-            & dotnet build apps/api/K12QuestionGraph.Api.csproj --no-restore
+            & dotnet build tests/api/K12QuestionGraph.Api.Tests/K12QuestionGraph.Api.Tests.csproj --no-restore
             if ($LASTEXITCODE -ne 0) { throw 'backend build failed' }
-        } },
-        [pscustomobject]@{ id = 'backend-tests'; action = {
-            & dotnet test tests/api/K12QuestionGraph.Api.Tests/K12QuestionGraph.Api.Tests.csproj --no-restore
-            if ($LASTEXITCODE -ne 0) { throw 'backend tests failed' }
         } },
         [pscustomobject]@{ id = 'frontend-build'; action = {
             & npm --prefix apps/web run build
@@ -89,6 +85,13 @@ function Invoke-QuickProfile([AllowEmptyCollection()][System.Collections.Generic
             & npm --prefix apps/web run lint
             if ($LASTEXITCODE -ne 0) { throw 'frontend lint failed' }
         } },
+        [pscustomobject]@{ id = 'script-quality'; action = {
+            & (Join-Path $PSScriptRoot 'run-script-quality-sweep.ps1') -JsonReportPath (Join-Path $ReportRoot 'script-quality.json') | Out-Null
+        } },
+        [pscustomobject]@{ id = 'backend-tests'; action = {
+            & dotnet test tests/api/K12QuestionGraph.Api.Tests/K12QuestionGraph.Api.Tests.csproj --no-restore --no-build
+            if ($LASTEXITCODE -ne 0) { throw 'backend tests failed' }
+        } },
         [pscustomobject]@{ id = 'frontend-tests'; action = {
             & npm --prefix apps/web run test
             if ($LASTEXITCODE -ne 0) { throw 'frontend tests failed' }
@@ -96,9 +99,6 @@ function Invoke-QuickProfile([AllowEmptyCollection()][System.Collections.Generic
         [pscustomobject]@{ id = 'worker-tests'; action = {
             & python -m unittest discover -s tests/workers -p 'test_*.py'
             if ($LASTEXITCODE -ne 0) { throw 'worker tests failed' }
-        } },
-        [pscustomobject]@{ id = 'script-quality'; action = {
-            & (Join-Path $PSScriptRoot 'run-script-quality-sweep.ps1') -JsonReportPath (Join-Path $ReportRoot 'script-quality.json') | Out-Null
         } }
     )
 
@@ -109,6 +109,21 @@ function Invoke-QuickProfile([AllowEmptyCollection()][System.Collections.Generic
         else {
             Invoke-VerifiedStep -Id $step.id -Action $step.action -Results $Results
         }
+    }
+}
+
+function Invoke-SliceStep {
+    param(
+        [Parameter(Mandatory = $true)][string] $Id,
+        [Parameter(Mandatory = $true)][scriptblock] $Action,
+        [Parameter(Mandatory = $true)][AllowEmptyCollection()][System.Collections.Generic.List[object]] $Results
+    )
+
+    if ($DryRun) {
+        $Results.Add([pscustomobject]@{ id = $Id; status = 'selected'; durationMs = 0; log = $null })
+    }
+    else {
+        Invoke-VerifiedStep -Id $Id -Action $Action -Results $Results
     }
 }
 
@@ -138,7 +153,7 @@ function Invoke-ReleaseCoreProfile([AllowEmptyCollection()][System.Collections.G
             & (Join-Path $PSScriptRoot 'run-evidence-index-guard.ps1') -JsonReportPath (Join-Path $ReportRoot 'evidence-index.json') | Out-Null
             & (Join-Path $PSScriptRoot 'run-release-coverage-reconciliation.ps1') -JsonReportPath (Join-Path $ReportRoot 'release-coverage.json') | Out-Null
             & (Join-Path $PSScriptRoot 'run-product-hotspot-budget-guard.ps1') -JsonReportPath (Join-Path $ReportRoot 'product-hotspot-budget.json') | Out-Null
-            & (Join-Path $PSScriptRoot 'run-ui-behavior-contract-guard.ps1') -JsonReportPath (Join-Path $ReportRoot 'ui-behavior-contract.json') | Out-Null
+            & (Join-Path $PSScriptRoot 'run-ui-behavior-contract-guard.ps1') -SkipTests -JsonReportPath (Join-Path $ReportRoot 'ui-behavior-contract.json') | Out-Null
             & (Join-Path $PSScriptRoot 'run-ns1308-release-evidence-pack-contract.ps1') -ReportPath (Join-Path $ReportRoot 'ns1308-release-evidence-pack.json') | Out-Null
             & (Join-Path $PSScriptRoot 'run-live-pilot-closeout-plan-guard.ps1') `
                 -Real005ReportPath $real005ReportPath `
@@ -164,42 +179,79 @@ function Invoke-SliceFocusedCommand {
         [Parameter(Mandatory = $true)][AllowEmptyCollection()][System.Collections.Generic.List[object]] $Results
     )
 
-    if ($Id -in @('backend-tests', 'frontend-tests', 'worker-tests', 'script-quality')) {
-        $Results.Add([pscustomobject]@{ id = "slice-$Id"; status = 'covered_by_quick'; durationMs = 0; log = $null })
-        return
-    }
-
-    $action = switch ($Id) {
-        'verification-governance' {{
-            & (Join-Path $repoRoot 'tests/verification/run-verification-profile-parser-tests.ps1') | Out-Null
-            & (Join-Path $repoRoot 'tests/verification/run-verification-slice-selector-tests.ps1') | Out-Null
-            & (Join-Path $PSScriptRoot 'run-verification-profile-inventory-guard.ps1') -JsonReportPath (Join-Path $ReportRoot 'slice-profile-inventory.json') | Out-Null
-        }}
-        'governance-contracts' {{
-            & (Join-Path $PSScriptRoot 'run-automation-first-feature-contract-guard.ps1') -JsonReportPath (Join-Path $ReportRoot 'automation-first.json') | Out-Null
-            & (Join-Path $PSScriptRoot 'run-s001-completion-state-dashboard.ps1') -JsonReportPath (Join-Path $ReportRoot 'dashboard.json') -MarkdownReportPath (Join-Path $ReportRoot 'dashboard.md') | Out-Null
-            & (Join-Path $PSScriptRoot 'run-s0-execution-plan-guard.ps1') -JsonReportPath (Join-Path $ReportRoot 's0.json') | Out-Null
-            & (Join-Path $PSScriptRoot 'run-reference-basis-guard.ps1') -ValidationMode Ci -JsonReportPath (Join-Path $ReportRoot 'reference.json') -MarkdownReportPath (Join-Path $ReportRoot 'reference.md') | Out-Null
-        }}
-        'evidence-index' {{
-            $guard = Join-Path $PSScriptRoot 'run-evidence-index-guard.ps1'
-            if (-not (Test-Path -LiteralPath $guard)) { throw 'evidence index guard is not installed' }
-            & $guard -JsonReportPath (Join-Path $ReportRoot 'evidence-index.json') | Out-Null
-        }}
-        'ui-behavior' {{
-            & (Join-Path $PSScriptRoot 'run-ui-behavior-contract-guard.ps1') -JsonReportPath (Join-Path $ReportRoot 'ui-behavior.json') | Out-Null
-        }}
-        'hotspot-budget' {{
-            & (Join-Path $PSScriptRoot 'run-product-hotspot-budget-guard.ps1') -JsonReportPath (Join-Path $ReportRoot 'hotspot-budget.json') | Out-Null
-        }}
+    switch ($Id) {
+        'backend-tests' {
+            Invoke-SliceStep -Id 'slice-backend-build' -Results $Results -Action {
+                & dotnet build tests/api/K12QuestionGraph.Api.Tests/K12QuestionGraph.Api.Tests.csproj --no-restore
+                if ($LASTEXITCODE -ne 0) { throw 'slice backend build failed' }
+            }
+            Invoke-SliceStep -Id 'slice-backend-tests' -Results $Results -Action {
+                & dotnet test tests/api/K12QuestionGraph.Api.Tests/K12QuestionGraph.Api.Tests.csproj --no-restore --no-build
+                if ($LASTEXITCODE -ne 0) { throw 'slice backend tests failed' }
+            }
+        }
+        'frontend-tests' {
+            Invoke-SliceStep -Id 'slice-frontend-build' -Results $Results -Action {
+                & npm --prefix apps/web run build
+                if ($LASTEXITCODE -ne 0) { throw 'slice frontend build failed' }
+            }
+            Invoke-SliceStep -Id 'slice-frontend-lint' -Results $Results -Action {
+                & npm --prefix apps/web run lint
+                if ($LASTEXITCODE -ne 0) { throw 'slice frontend lint failed' }
+            }
+            Invoke-SliceStep -Id 'slice-frontend-tests' -Results $Results -Action {
+                & npm --prefix apps/web run test
+                if ($LASTEXITCODE -ne 0) { throw 'slice frontend tests failed' }
+            }
+        }
+        'worker-tests' {
+            Invoke-SliceStep -Id 'slice-worker-compile' -Results $Results -Action {
+                & python -m compileall -q workers
+                if ($LASTEXITCODE -ne 0) { throw 'slice worker compile failed' }
+            }
+            Invoke-SliceStep -Id 'slice-worker-tests' -Results $Results -Action {
+                & python -m unittest discover -s tests/workers -p 'test_*.py'
+                if ($LASTEXITCODE -ne 0) { throw 'slice worker tests failed' }
+            }
+        }
+        'script-quality' {
+            Invoke-SliceStep -Id 'slice-script-quality' -Results $Results -Action {
+                & (Join-Path $PSScriptRoot 'run-script-quality-sweep.ps1') -JsonReportPath (Join-Path $ReportRoot 'slice-script-quality.json') | Out-Null
+            }
+        }
+        'verification-governance' {
+            Invoke-SliceStep -Id 'slice-verification-governance' -Results $Results -Action {
+                & (Join-Path $repoRoot 'tests/verification/run-verification-profile-parser-tests.ps1') | Out-Null
+                & (Join-Path $repoRoot 'tests/verification/run-verification-slice-selector-tests.ps1') | Out-Null
+                & (Join-Path $PSScriptRoot 'run-verification-profile-inventory-guard.ps1') -JsonReportPath (Join-Path $ReportRoot 'slice-profile-inventory.json') | Out-Null
+            }
+        }
+        'governance-contracts' {
+            Invoke-SliceStep -Id 'slice-governance-contracts' -Results $Results -Action {
+                & (Join-Path $PSScriptRoot 'run-automation-first-feature-contract-guard.ps1') -JsonReportPath (Join-Path $ReportRoot 'automation-first.json') | Out-Null
+                & (Join-Path $PSScriptRoot 'run-s001-completion-state-dashboard.ps1') -JsonReportPath (Join-Path $ReportRoot 'dashboard.json') -MarkdownReportPath (Join-Path $ReportRoot 'dashboard.md') | Out-Null
+                & (Join-Path $PSScriptRoot 'run-s0-execution-plan-guard.ps1') -JsonReportPath (Join-Path $ReportRoot 's0.json') | Out-Null
+                & (Join-Path $PSScriptRoot 'run-reference-basis-guard.ps1') -ValidationMode Ci -JsonReportPath (Join-Path $ReportRoot 'reference.json') -MarkdownReportPath (Join-Path $ReportRoot 'reference.md') | Out-Null
+            }
+        }
+        'evidence-index' {
+            Invoke-SliceStep -Id 'slice-evidence-index' -Results $Results -Action {
+                $guard = Join-Path $PSScriptRoot 'run-evidence-index-guard.ps1'
+                if (-not (Test-Path -LiteralPath $guard)) { throw 'evidence index guard is not installed' }
+                & $guard -JsonReportPath (Join-Path $ReportRoot 'evidence-index.json') | Out-Null
+            }
+        }
+        'ui-behavior' {
+            Invoke-SliceStep -Id 'slice-ui-behavior' -Results $Results -Action {
+                & (Join-Path $PSScriptRoot 'run-ui-behavior-contract-guard.ps1') -SkipTests -JsonReportPath (Join-Path $ReportRoot 'ui-behavior.json') | Out-Null
+            }
+        }
+        'hotspot-budget' {
+            Invoke-SliceStep -Id 'slice-hotspot-budget' -Results $Results -Action {
+                & (Join-Path $PSScriptRoot 'run-product-hotspot-budget-guard.ps1') -JsonReportPath (Join-Path $ReportRoot 'hotspot-budget.json') | Out-Null
+            }
+        }
         default { throw "unknown focused Slice command: $Id" }
-    }
-
-    if ($DryRun) {
-        $Results.Add([pscustomobject]@{ id = "slice-$Id"; status = 'selected'; durationMs = 0; log = $null })
-    }
-    else {
-        Invoke-VerifiedStep -Id "slice-$Id" -Action $action -Results $Results
     }
 }
 
@@ -229,9 +281,8 @@ try {
                 $selection = Get-VerificationSelection -RepoRoot $repoRoot -ChangedPaths $ChangedPaths -TaskId $TaskId
                 $selection | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $reportRootFullPath 'slice-selection.json') -Encoding UTF8
                 if ($selection.status -ne 'pass') {
-                    throw "Slice requires $($selection.escalatedProfile): unknown=$($selection.unknownPaths.Count) release=$($selection.releasePaths.Count)"
+                    throw "Slice selection blocked or requires $($selection.escalatedProfile): unknown=$($selection.unknownPaths.Count) release=$($selection.releasePaths.Count) empty=$($selection.noSelection)"
                 }
-                Invoke-QuickProfile -Results $results
                 foreach ($selected in $selection.selected) {
                     Invoke-SliceFocusedCommand -Id ([string]$selected.id) -Results $results
                 }

@@ -24,6 +24,9 @@ if ($migration.escalatedProfile -ne 'Release') { throw 'migration must escalate 
 $unknown = Assert-Selection 'unknown' @('mystery/new.file') 'blocked' @()
 if ($unknown.unknownPaths.Count -ne 1) { throw 'unknown path must be reported' }
 
+$empty = Get-VerificationSelection -RepoRoot $repoRoot -ChangedPaths @() -TaskId ''
+if ($empty.status -ne 'blocked') { throw 'empty Slice selection must fail closed' }
+
 $quotedBundle = Get-VerificationSelection `
     -RepoRoot $repoRoot `
     -ChangedPaths @("'apps/api/Program.cs','configs/verification/product-hotspot-budgets.json'") `
@@ -34,9 +37,49 @@ foreach ($command in @('backend-tests', 'hotspot-budget', 'verification-governan
     if (@($quotedBundle.selected.id) -notcontains $command) { throw "quoted bundle missing command: $command" }
 }
 
+$docsPlan = & (Join-Path $repoRoot 'tools/run-verification.ps1') `
+    -Profile Slice `
+    -ChangedPaths 'docs/18_TestStrategy.md' `
+    -DryRun `
+    -ReportRoot 'tmp/verification/tests/docs-slice-plan' | ConvertFrom-Json
+$docsStepIds = @($docsPlan.steps.id)
+if (($docsStepIds -join ',') -ne 'slice-governance-contracts') {
+    throw "docs-only Slice must select only governance contracts; got: $($docsStepIds -join ', ')"
+}
+
+$apiPlan = & (Join-Path $repoRoot 'tools/run-verification.ps1') `
+    -Profile Slice `
+    -ChangedPaths 'apps/api/Program.cs' `
+    -DryRun `
+    -ReportRoot 'tmp/verification/tests/api-slice-plan' | ConvertFrom-Json
+$apiStepIds = @($apiPlan.steps.id)
+if (($apiStepIds -join ',') -ne 'slice-backend-build,slice-backend-tests') {
+    throw "API-only Slice must select backend build/test only; got: $($apiStepIds -join ', ')"
+}
+
+$webPlan = & (Join-Path $repoRoot 'tools/run-verification.ps1') `
+    -Profile Slice `
+    -ChangedPaths 'apps/web/src/App.tsx' `
+    -DryRun `
+    -ReportRoot 'tmp/verification/tests/web-slice-plan' | ConvertFrom-Json
+$webStepIds = @($webPlan.steps.id)
+if (($webStepIds -join ',') -ne 'slice-frontend-build,slice-frontend-lint,slice-frontend-tests') {
+    throw "Web-only Slice must select frontend build/lint/test only; got: $($webStepIds -join ', ')"
+}
+
+$workerPlan = & (Join-Path $repoRoot 'tools/run-verification.ps1') `
+    -Profile Slice `
+    -ChangedPaths 'workers/document/worker.py' `
+    -DryRun `
+    -ReportRoot 'tmp/verification/tests/worker-slice-plan' | ConvertFrom-Json
+$workerStepIds = @($workerPlan.steps.id)
+if (($workerStepIds -join ',') -ne 'slice-worker-compile,slice-worker-tests') {
+    throw "Worker-only Slice must select compile/test only; got: $($workerStepIds -join ', ')"
+}
+
 [ordered]@{
     status = 'pass'
-    cases = @('api', 'web', 'worker', 'docs', 'export', 'ai', 'migration', 'unknown', 'quoted-comma-bundle')
+    cases = @('api', 'web', 'worker', 'docs', 'export', 'ai', 'migration', 'unknown', 'empty', 'quoted-comma-bundle', 'docs-execution-plan', 'api-execution-plan', 'web-execution-plan', 'worker-execution-plan')
     unknownPolicy = 'fail-closed'
     migrationProfile = 'Release'
 } | ConvertTo-Json -Depth 5

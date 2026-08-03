@@ -30,11 +30,11 @@
 
 ## C. 门禁、证据与回滚
 - fixed order：`build -> test -> contract/invariant -> hotspot`。
-- build：`dotnet build apps/api/K12QuestionGraph.Api.csproj`
-- test/full：获准 PostgreSQL 和进程影响后运行 `pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-gates.ps1`。
-- contract/invariant：`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-roadmap-guard.ps1`
-- hotspot：`gate_na`，`reason=无独立 hotspot 命令`、`alternative_verification=受影响 API/UI/worker/data/AI/export 合同与教师效率复核`、`evidence_link=docs/18_TestStrategy.md`、`expires_at=next_gate_change`、`recovery_condition=新增独立 hotspot 门禁`。
-- 进程或 DB 授权缺失时 test 按完整 N/A 字段留痕，不能改写门禁顺序或伪称 full gate。
+- 日常切片：`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-verification.ps1 -Profile Slice -TaskId <TASK_ID>`；只运行 changed-path/task 命中的 build、test、contract/invariant、hotspot，空选择或未知路径 fail-closed。
+- 全栈无状态基线：`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-verification.ps1 -Profile Quick`；不得访问 PostgreSQL、停止进程、写 FileStore 或 tracked evidence。
+- 发布门禁：明确授权后运行 `pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-verification.ps1 -Profile Release -AuthorizeStateful`；旧 235 步 `tools/run-gates.ps1` 仅由 `-IncludeLegacyCompatibility` 显式进入，不是默认 test/full。
+- contract/invariant 与 hotspot 由 Slice/Release 路由；单独复核可运行 `tools/run-roadmap-guard.ps1` 和 `tools/run-product-hotspot-budget-guard.ps1`。
+- 进程或 DB 授权缺失时 Release/legacy test 按完整 N/A 字段留痕，不能改写门禁顺序或伪称 full gate。
 - 证据放 `docs/evidence/`，区分 repo-side、onsite/manual、deployed 与 live accepted。
 - 回滚只撤销本任务；schema、data 或 active 变化必须附 migration down、snapshot/restore 与兼容读取证明。
 

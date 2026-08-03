@@ -96,6 +96,14 @@
       "authorityLevel": "release-side",
       "claimBoundary": "focused default Release core and optional legacy audit reconciliation only; not onsite, live acceptance, or a Go decision",
       "state": "current"
+    },
+    {
+      "id": "verification-governance-performance-audit",
+      "currentPath": "docs/evidence/verification-governance-performance-audit.json",
+      "supersededPaths": [],
+      "authorityLevel": "repo-side",
+      "claimBoundary": "local orchestration performance and governance entrypoint audit only; stateful Release was not rerun and no onsite or live acceptance is claimed",
+      "state": "current"
     }
   ]
 }

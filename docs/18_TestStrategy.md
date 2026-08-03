@@ -25,7 +25,7 @@ build -> test -> contract/invariant -> hotspot
 
 ### Slice
 
-适用于当前 task：包含 Quick，并根据 task ID、changed paths、风险和 owner module 选择 focused contract/invariant/hotspot。unknown path 必须 fail-closed 或提升 profile。
+适用于当前 task：不先跑整套 Quick，而是根据 task ID、changed paths、风险和 owner module 选择最小 build/test/contract/invariant/hotspot 链。API、Web、Worker 各自保留 build/test 闭环；docs/governance 不拉起无关产品栈。unknown path、空选择必须 fail-closed 或提升 profile。
 
 ### Release
 
@@ -101,7 +101,7 @@ Q001-Q005 和 R001-R007 在 P006 前不进入默认 Quick；仅在 changed paths
 
 当前迁移状态：
 
-- `tools/run-verification.ps1 -Profile Quick|Slice` 是普通切片入口，报告只进入 `tmp/verification/`；
+- `tools/run-verification.ps1 -Profile Quick|Slice` 是普通入口；Quick 是全栈无状态基线，Slice 是 task/path 聚焦链，报告只进入 `tmp/verification/`；
 - 默认 Release 通过 `tools/run-verification.ps1 -Profile Release -AuthorizeStateful` 执行聚焦 core；`tools/run-gates.ps1` 只能由 `-IncludeLegacyCompatibility` 显式进入；
 - 默认 Release 必须记录 DB/FileStore/进程前后指纹，`sharedFileStoreWriteExpected=false`；状态 pass 不得掩盖 FileStore 变化或数据库 row-level 未比较的边界；
 - Onsite 仍只接受真实环境、操作者、输入、时间与签字证据。

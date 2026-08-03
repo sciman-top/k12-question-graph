@@ -128,11 +128,10 @@ AI 推荐：应当先把除人工现场以外的能力全部落盘，并把它�
 最小验证组合：
 
 ```powershell
-dotnet build apps/api/K12QuestionGraph.Api.csproj
-pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-gates.ps1
-pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-roadmap-guard.ps1
-pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-automation-first-feature-contract-guard.ps1
+pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-verification.ps1 -Profile Slice -TaskId <TASK_ID>
 ```
+
+该入口按 task/changed paths 依次执行适用的 build、test、contract/invariant、hotspot；发布态或 migration/backup/restore 另行明确授权 `-Profile Release -AuthorizeStateful`。旧 `tools/run-gates.ps1` 仅保留为显式 legacy compatibility audit。
 
 纯规划或任务清单变更时，允许 `gate_na`，但必须执行替代验证：
 

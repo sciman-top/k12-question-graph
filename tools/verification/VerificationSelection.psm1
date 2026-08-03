@@ -79,10 +79,11 @@ function Get-VerificationSelection {
         }
     }
 
+    $noSelection = $selected.Count -eq 0 -and $unknownPaths.Count -eq 0 -and $releasePaths.Count -eq 0
     $escalatedProfile = if ($unknownPaths.Count -gt 0 -or $releasePaths.Count -gt 0) { 'Release' } else { 'Slice' }
     return [pscustomobject][ordered]@{
         schemaVersion = 1
-        status = if ($unknownPaths.Count -gt 0) { 'blocked' } elseif ($releasePaths.Count -gt 0) { 'escalated' } else { 'pass' }
+        status = if ($unknownPaths.Count -gt 0 -or $noSelection) { 'blocked' } elseif ($releasePaths.Count -gt 0) { 'escalated' } else { 'pass' }
         taskId = $TaskId
         changedPaths = @($ChangedPaths)
         selected = $selected.ToArray()
@@ -90,6 +91,7 @@ function Get-VerificationSelection {
         pathDecisions = $pathDecisions.ToArray()
         unknownPaths = $unknownPaths.ToArray()
         releasePaths = $releasePaths.ToArray()
+        noSelection = $noSelection
         escalatedProfile = $escalatedProfile
         sideEffectSummary = @($selected | ForEach-Object { "$($_.id): $($_.side_effects)" })
     }
