@@ -89,6 +89,17 @@ foreach ($required in @(
 if ($verificationScript -notmatch 'if \(\$IncludeLegacyCompatibility\)\s*\{[\s\S]*?run-gates\.ps1') {
     throw 'legacy run-gates entry must be guarded by IncludeLegacyCompatibility'
 }
+if ($verificationScript -notmatch 'Copy-DirectoryMirror[\s\S]*?legacy-evidence-snapshot[\s\S]*?finally\s*\{[\s\S]*?Copy-DirectoryMirror') {
+    throw 'legacy compatibility audit must restore its evidence workspace in finally'
+}
+$legacyGateScript = Get-Content -LiteralPath (Join-Path $repoRoot 'tools/run-gates.ps1') -Raw
+if ($legacyGateScript -notmatch '\$env:KqgPaths__FileStoreRoot\s*=\s*\$FileStoreRoot' -or
+    $legacyGateScript -notmatch '\$env:KqgPaths__FileStoreRoot\s*=\s*\$previousGateFileStoreRoot') {
+    throw 'legacy gate must bind and restore the caller-provided FileStore root'
+}
+if ($legacyGateScript -notmatch "ns906 visual surrogate review[\s\S]*?run-real007-guangzhou-2015-layout-quality\.ps1[\s\S]*?run-ns906-visual-surrogate-review\.ps1") {
+    throw 'NS906 must explicitly prepare current isolated visual source regions before review'
+}
 if (($verificationScript | Select-String -Pattern "run-ui-behavior-contract-guard.ps1'\) -SkipTests" -AllMatches).Matches.Count -ne 2) {
     throw 'Slice and Release must reuse already executed frontend tests instead of rerunning them inside the UI behavior guard'
 }

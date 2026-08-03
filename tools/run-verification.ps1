@@ -36,6 +36,15 @@ function Get-RepoProcessSnapshot {
     )
 }
 
+function Copy-DirectoryMirror([string] $Source, [string] $Destination) {
+    New-Item -ItemType Directory -Path $Destination -Force | Out-Null
+    & robocopy $Source $Destination /MIR /COPY:DAT /DCOPY:DAT /R:1 /W:1 /NFL /NDL /NJH /NJS /NP | Out-Null
+    $exitCode = $LASTEXITCODE
+    if ($exitCode -gt 7) {
+        throw "directory mirror failed from '$Source' to '$Destination' with robocopy exit code $exitCode"
+    }
+}
+
 function Invoke-VerifiedStep {
     param(
         [Parameter(Mandatory = $true)][string] $Id,
@@ -308,15 +317,26 @@ try {
                         else {
                             Invoke-VerifiedStep -Id 'legacy-compatibility-audit' -Results $results -Action {
                                 $legacyFileStoreRoot = Join-Path $reportRootFullPath 'legacy-file-store'
+                                $legacyEvidenceSnapshot = Join-Path $reportRootFullPath 'legacy-evidence-snapshot'
                                 if (Test-Path -LiteralPath $legacyFileStoreRoot) {
                                     throw "legacy FileStore scratch already exists: $legacyFileStoreRoot"
+                                }
+                                if (Test-Path -LiteralPath $legacyEvidenceSnapshot) {
+                                    throw "legacy evidence snapshot already exists: $legacyEvidenceSnapshot"
                                 }
                                 New-Item -ItemType Directory -Path $legacyFileStoreRoot | Out-Null
                                 Copy-Item -Path (Join-Path $FileStoreRoot '*') -Destination $legacyFileStoreRoot -Recurse -Force
                                 $legacyGateScratchRoot = Join-Path $legacyFileStoreRoot 'gate'
-                                & (Join-Path $PSScriptRoot 'run-gates.ps1') `
-                                    -FileStoreRoot $legacyFileStoreRoot `
-                                    -GateScratchRoot $legacyGateScratchRoot
+                                $evidenceRoot = Join-Path $repoRoot 'docs/evidence'
+                                Copy-DirectoryMirror -Source $evidenceRoot -Destination $legacyEvidenceSnapshot
+                                try {
+                                    & (Join-Path $PSScriptRoot 'run-gates.ps1') `
+                                        -FileStoreRoot $legacyFileStoreRoot `
+                                        -GateScratchRoot $legacyGateScratchRoot
+                                }
+                                finally {
+                                    Copy-DirectoryMirror -Source $legacyEvidenceSnapshot -Destination $evidenceRoot
+                                }
                             }
                         }
                     }

@@ -198,6 +198,7 @@ function Get-HostLocalFrontendDebrisPaths {
 Push-Location $repoRoot
 $p0LiveRunDate = Get-Date -Format 'yyyyMMdd'
 $legacyTransientRoot = 'tmp/full-gate-closure'
+$previousGateFileStoreRoot = $env:KqgPaths__FileStoreRoot
 $resumeDefaultLocalApi = $false
 $defaultLocalApi = Get-DefaultLocalApiProcess
 $repoApiProcesses = @(Get-RepoApiProcesses)
@@ -239,6 +240,10 @@ if ($repoApiProcesses.Count -gt 0) {
 }
 
 try {
+    # Some older smoke wrappers start the API without exposing a FileStore parameter.
+    # Bind the whole compatibility run to the caller-provided isolated root so uploads
+    # cannot fall back to the shared runtime FileStore.
+    $env:KqgPaths__FileStoreRoot = $FileStoreRoot
     New-Item -ItemType Directory -Path (Join-Path $repoRoot $legacyTransientRoot) -Force | Out-Null
 
     Invoke-GateStep 'backend build' {
@@ -760,11 +765,15 @@ try {
     Invoke-GateStep 'ns901 non-site scenario pack' {
         .\tools\run-ns901-non-site-scenario-pack.ps1 -SkipS012Refresh | Write-Host
     }
+    $ns906LayoutJson = Join-Path $GateScratchRoot 'ns906-real007-layout.json'
+    $ns906LayoutMarkdown = Join-Path $GateScratchRoot 'ns906-real007-layout.md'
+    $ns906Report = Join-Path $GateScratchRoot 'ns906-visual-surrogate-review.json'
     Invoke-GateStep 'ns906 visual surrogate review' {
-        .\tools\run-ns906-visual-surrogate-review.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin -FileStoreRoot $FileStoreRoot | Write-Host
+        .\tools\run-real007-guangzhou-2015-layout-quality.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -FileStoreRoot $FileStoreRoot -JsonReportPath $ns906LayoutJson -MarkdownReportPath $ns906LayoutMarkdown | Write-Host
+        .\tools\run-ns906-visual-surrogate-review.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin -FileStoreRoot $FileStoreRoot -LayoutReportPath $ns906LayoutJson -ReportPath $ns906Report | Write-Host
     }
     Invoke-GateStep 'ns1307 golden visual llm security gate' {
-        .\tools\run-ns1307-golden-visual-llm-security-gate.ps1 -ReportPath ('docs/evidence/{0}-ns1307-golden-visual-llm-security.json' -f $p0LiveRunDate) | Write-Host
+        .\tools\run-ns1307-golden-visual-llm-security-gate.ps1 -NS906ReportPath $ns906Report -ReportPath ('docs/evidence/{0}-ns1307-golden-visual-llm-security.json' -f $p0LiveRunDate) | Write-Host
     }
     Invoke-GateStep 'ns903 completion dashboard refresh' {
         .\tools\run-ns903-completion-dashboard.ps1 -SkipS001Refresh | Write-Host
@@ -1407,6 +1416,7 @@ try {
     exit 0
 }
 finally {
+    $env:KqgPaths__FileStoreRoot = $previousGateFileStoreRoot
     if ($resumeDefaultLocalApi) {
         try {
             .\tools\start-local-api.ps1 | Out-Null
