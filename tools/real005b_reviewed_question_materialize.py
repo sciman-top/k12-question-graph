@@ -178,7 +178,12 @@ def extract_2015_candidate_stem(blocks: list[dict[str, Any]], question_number: i
         (str(block.get("content", {}).get("text") or "") for block in blocks if block.get("type") == "stem"),
         "",
     )
-    return extract_question_stem_from_region_text(stem, question_number)
+    try:
+        return extract_question_stem_from_region_text(stem, question_number)
+    except ValueError as error:
+        if str(error) == f"question_anchor_missing:{question_number}" and stem.strip():
+            return stem.strip()
+        raise
 
 
 def load_2015_candidates(conn: psycopg.Connection[Any]) -> tuple[dict[tuple[int, int], dict[str, Any]], dict[int, uuid.UUID]]:

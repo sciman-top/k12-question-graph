@@ -16,6 +16,11 @@ import guangzhou_physics_2016_2025_source_region_screenshots as screenshots  # n
 
 
 class GuangzhouSourceRegionScreenshotTests(unittest.TestCase):
+    def test_combined_answer_filename_resolves_to_exam_filename(self) -> None:
+        source_file_names = screenshots.source_file_lookup_names("2020广州中考（含答案）.pdf")
+
+        self.assertEqual(source_file_names, ["2020广州中考（含答案）.pdf", "2020广州中考.pdf"])
+
     def test_select_paper_source_document_ignores_answer_role_for_combined_file(self) -> None:
         docs = [
             {"source_document_id": "answer", "source_type": "answer_or_solution"},

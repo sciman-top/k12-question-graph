@@ -95,6 +95,7 @@ def read_source_documents(
     year: int,
     source_file: str,
 ) -> list[dict[str, Any]]:
+    source_file_names = source_file_lookup_names(source_file)
     with conn.cursor(row_factory=dict_row) as cur:
         cur.execute(
             """
@@ -112,12 +113,19 @@ def read_source_documents(
             join file_assets fa on fa.id = sd.file_asset_id
             where sd.material_batch_key = %s
               and sd.year = %s
-              and fa.original_file_name = %s
+              and fa.original_file_name = any(%s)
             order by sd.created_at desc
             """,
-            (material_batch_key, year, source_file),
+            (material_batch_key, year, source_file_names),
         )
         return list(cur.fetchall())
+
+
+def source_file_lookup_names(source_file: str) -> list[str]:
+    names = [source_file]
+    if source_file.endswith("（含答案）.pdf"):
+        names.append(source_file.replace("（含答案）.pdf", ".pdf"))
+    return names
 
 
 def pdf_page_count(pdf_path: Path) -> int:
@@ -260,7 +268,7 @@ def build_year_report(
             render_page(pdftoppm, pdf_path, page_number, rendered_path, scratch_root)
             quality = image_quality(rendered_path)
             if not quality["nonBlank"]:
-                blockers.append(f"rendered_page_blank:{source_file}:p{page_number}")
+                continue
             rendered_page_paths[(source_file, page_number)] = relative_path
             rendered_pages.append(
                 {

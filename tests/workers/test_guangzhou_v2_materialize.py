@@ -170,6 +170,18 @@ class GuangzhouV2MaterializeTests(unittest.TestCase):
 
         self.assertEqual("19. 如图所示，物体保持静止。", stem)
 
+    def test_2015_candidate_stem_accepts_already_cleaned_materialization(self) -> None:
+        blocks = [
+            {
+                "type": "stem",
+                "content": {"text": "咸鱼放在冰箱冷冻室里一晚，冷冻室内有咸鱼味。"},
+            }
+        ]
+
+        stem = reviewed_materialize.extract_2015_candidate_stem(blocks, 1)
+
+        self.assertEqual("咸鱼放在冰箱冷冻室里一晚，冷冻室内有咸鱼味。", stem)
+
     def test_expected_question_total_is_234(self) -> None:
         self.assertEqual(234, sum(materialize.EXPECTED_COUNTS.values()))
         self.assertEqual(24, materialize.EXPECTED_COUNTS[2015])

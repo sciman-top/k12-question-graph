@@ -306,8 +306,8 @@ try {
                         }
                         else {
                             Invoke-VerifiedStep -Id 'legacy-compatibility-audit' -Results $results -Action {
-                                $legacyFileStoreRoot = Join-Path $reportRootFullPath 'legacy-file-store'
-                                & (Join-Path $PSScriptRoot 'run-gates.ps1') -FileStoreRoot $legacyFileStoreRoot
+                                $legacyGateScratchRoot = Join-Path $reportRootFullPath 'legacy-gate-scratch'
+                                & (Join-Path $PSScriptRoot 'run-gates.ps1') -GateScratchRoot $legacyGateScratchRoot
                             }
                         }
                     }

@@ -7,7 +7,8 @@ param(
     [int] $DatabasePort = 5432,
     [string] $DatabasePassword = $env:PGPASSWORD,
     [string] $PgBin = 'C:\Program Files\PostgreSQL\17\bin',
-    [string] $FileStoreRoot = 'D:\KQG_Data\file_store'
+    [string] $FileStoreRoot = 'D:\KQG_Data\file_store',
+    [string] $GateScratchRoot = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -15,6 +16,9 @@ $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 . (Join-Path $PSScriptRoot 'database-env.ps1')
 . (Join-Path $PSScriptRoot 'script-quality-helpers.ps1')
 $DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword
+if ([string]::IsNullOrWhiteSpace($GateScratchRoot)) {
+    $GateScratchRoot = $FileStoreRoot
+}
 $results = New-Object System.Collections.Generic.List[object]
 
 function Invoke-GateStep([string] $Name, [scriptblock] $Script) {
@@ -344,11 +348,11 @@ try {
     }
 
     Invoke-GateStep 'worker smoke' {
-        $workerDir = Join-Path $FileStoreRoot 'gate'
+        $workerDir = Join-Path $GateScratchRoot 'gate'
         New-Item -ItemType Directory -Path $workerDir -Force | Out-Null
         $workerFile = Join-Path $workerDir 'worker-smoke.txt'
         Set-Content -LiteralPath $workerFile -Value 'worker smoke' -Encoding UTF8
-        python workers\document\worker.py --job-id gate --relative-path gate/worker-smoke.txt --file-root $FileStoreRoot | Write-Host
+        python workers\document\worker.py --job-id gate --relative-path gate/worker-smoke.txt --file-root $GateScratchRoot | Write-Host
         if ($LASTEXITCODE -ne 0) { throw "worker smoke failed" }
     }
 
@@ -401,11 +405,11 @@ try {
     }
 
     Invoke-GateStep 'b002 adapter contract smoke' {
-        $workerDir = Join-Path $FileStoreRoot 'gate'
+        $workerDir = Join-Path $GateScratchRoot 'gate'
         New-Item -ItemType Directory -Path $workerDir -Force | Out-Null
         $workerFile = Join-Path $workerDir 'b002-adapter-contract.txt'
         Set-Content -LiteralPath $workerFile -Value 'adapter contract smoke' -Encoding UTF8
-        $json = python workers\document\worker.py --job-id b002-gate --relative-path gate/b002-adapter-contract.txt --file-root $FileStoreRoot | ConvertFrom-Json
+        $json = python workers\document\worker.py --job-id b002-gate --relative-path gate/b002-adapter-contract.txt --file-root $GateScratchRoot | ConvertFrom-Json
         if ($LASTEXITCODE -ne 0) { throw "b002 adapter contract worker failed" }
         if ($json.documentModel.schemaVersion -ne 'document-model.v0.1') { throw "missing DocumentModel schemaVersion" }
         if ($json.documentModel.pages.Count -lt 1) { throw "missing PageModel" }
