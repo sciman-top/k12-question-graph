@@ -86,7 +86,7 @@ foreach ($required in @(
 )) {
     if (-not $verificationScript.Contains($required)) { throw "release-core source contract missing: $required" }
 }
-if ($verificationScript -notmatch 'if \(\$IncludeLegacyCompatibility\)[\s\S]{0,900}run-gates\.ps1') {
+if ($verificationScript -notmatch 'if \(\$IncludeLegacyCompatibility\)\s*\{[\s\S]*?run-gates\.ps1') {
     throw 'legacy run-gates entry must be guarded by IncludeLegacyCompatibility'
 }
 if (($verificationScript | Select-String -Pattern "run-ui-behavior-contract-guard.ps1'\) -SkipTests" -AllMatches).Matches.Count -ne 2) {

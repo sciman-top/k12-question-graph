@@ -4,6 +4,7 @@ param(
     [string] $TaskId = '',
     [string[]] $ChangedPaths = @(),
     [string] $ReportRoot = 'tmp/verification/current',
+    [string] $FileStoreRoot = 'D:\KQG_Data\file_store',
     [switch] $DryRun,
     [switch] $AuthorizeStateful,
     [switch] $IncludeLegacyCompatibility
@@ -306,8 +307,16 @@ try {
                         }
                         else {
                             Invoke-VerifiedStep -Id 'legacy-compatibility-audit' -Results $results -Action {
-                                $legacyGateScratchRoot = Join-Path $reportRootFullPath 'legacy-gate-scratch'
-                                & (Join-Path $PSScriptRoot 'run-gates.ps1') -GateScratchRoot $legacyGateScratchRoot
+                                $legacyFileStoreRoot = Join-Path $reportRootFullPath 'legacy-file-store'
+                                if (Test-Path -LiteralPath $legacyFileStoreRoot) {
+                                    throw "legacy FileStore scratch already exists: $legacyFileStoreRoot"
+                                }
+                                New-Item -ItemType Directory -Path $legacyFileStoreRoot | Out-Null
+                                Copy-Item -Path (Join-Path $FileStoreRoot '*') -Destination $legacyFileStoreRoot -Recurse -Force
+                                $legacyGateScratchRoot = Join-Path $legacyFileStoreRoot 'gate'
+                                & (Join-Path $PSScriptRoot 'run-gates.ps1') `
+                                    -FileStoreRoot $legacyFileStoreRoot `
+                                    -GateScratchRoot $legacyGateScratchRoot
                             }
                         }
                     }
