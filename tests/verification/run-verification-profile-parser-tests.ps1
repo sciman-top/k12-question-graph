@@ -100,6 +100,13 @@ if ($legacyGateScript -notmatch '\$env:KqgPaths__FileStoreRoot\s*=\s*\$FileStore
 if ($legacyGateScript -notmatch "ns906 visual surrogate review[\s\S]*?run-real007-guangzhou-2015-layout-quality\.ps1[\s\S]*?run-ns906-visual-surrogate-review\.ps1") {
     throw 'NS906 must explicitly prepare current isolated visual source regions before review'
 }
+$ns906Script = Get-Content -LiteralPath (Join-Path $repoRoot 'tools/run-ns906-visual-surrogate-review.ps1') -Raw
+if ($ns906Script -notmatch 'IsPathRooted\(\$RelativePath\)') {
+    throw 'NS906 evidence reader must accept absolute scratch report paths'
+}
+if ($ns906Script -notmatch '\$reportFullPath\s*=\s*Resolve-RepoPath\s+\$ReportPath') {
+    throw 'NS906 report writer must accept an absolute scratch report path'
+}
 if (($verificationScript | Select-String -Pattern "run-ui-behavior-contract-guard.ps1'\) -SkipTests" -AllMatches).Matches.Count -ne 2) {
     throw 'Slice and Release must reuse already executed frontend tests instead of rerunning them inside the UI behavior guard'
 }

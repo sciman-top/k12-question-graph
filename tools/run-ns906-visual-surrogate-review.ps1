@@ -23,7 +23,12 @@ if ([string]::IsNullOrWhiteSpace($DatabasePassword)) {
 }
 
 function Read-JsonEvidence([string] $RelativePath) {
-    $fullPath = Join-Path $repoRoot $RelativePath
+    $fullPath = if ([System.IO.Path]::IsPathRooted($RelativePath)) {
+        $RelativePath
+    }
+    else {
+        Join-Path $repoRoot $RelativePath
+    }
     if (-not (Test-Path -LiteralPath $fullPath)) {
         throw "NS906 evidence missing: $RelativePath"
     }
@@ -341,7 +346,7 @@ $report = [ordered]@{
     }
 }
 
-$reportFullPath = Join-Path $repoRoot $ReportPath
+$reportFullPath = Resolve-RepoPath $ReportPath
 New-Item -ItemType Directory -Path (Split-Path -Parent $reportFullPath) -Force | Out-Null
 $report | ConvertTo-Json -Depth 16 | Set-Content -LiteralPath $reportFullPath -Encoding UTF8
 $report | ConvertTo-Json -Depth 16
