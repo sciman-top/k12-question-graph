@@ -41,7 +41,7 @@ $pureStateless = @($inventory.steps | Where-Object {
 foreach ($marker in @('Invoke-ReleaseCoreProfile', 'IncludeLegacyCompatibility', 'release-contracts', 'release-upgrade-recovery', 'release-closure-invariants')) {
     if (-not $runner.Contains($marker)) { throw "focused Release core missing marker: $marker" }
 }
-if ($runner -notmatch 'if \(\$IncludeLegacyCompatibility\)[\s\S]{0,900}run-gates\.ps1') {
+if ($runner -notmatch 'if \(\$IncludeLegacyCompatibility\)\s*\{[\s\S]*?run-gates\.ps1') {
     throw 'legacy compatibility audit must remain explicit opt-in'
 }
 
