@@ -37,6 +37,50 @@ function Assert-True {
     if (-not $Condition) { throw $Message }
 }
 
+function Invoke-Psql([string] $Sql) {
+    $psql = Join-Path $PgBin 'psql.exe'
+    & $psql -h $DatabaseHost -p $DatabasePort -U $DatabaseUser -d $DatabaseName -v ON_ERROR_STOP=1 -c $Sql | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw "REAL008 cleanup query failed: $Sql" }
+}
+
+function Remove-FileStoreFixture([string] $RelativePath) {
+    if ([string]::IsNullOrWhiteSpace($RelativePath)) { return }
+    $root = [System.IO.Path]::GetFullPath($FileStoreRoot).TrimEnd([System.IO.Path]::DirectorySeparatorChar)
+    $fullPath = [System.IO.Path]::GetFullPath((Join-Path $root ($RelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)))
+    Assert-True ($fullPath.StartsWith($root + [System.IO.Path]::DirectorySeparatorChar, [System.StringComparison]::OrdinalIgnoreCase)) "REAL008 refuses to remove a file outside FileStoreRoot: $fullPath"
+    Remove-Item -LiteralPath $fullPath -Force -ErrorAction SilentlyContinue
+}
+
+function Remove-Real008Fixtures {
+    param(
+        [string] $QuestionId,
+        [string] $SourceDocumentId,
+        [string] $FileAssetId,
+        [string[]] $SourceRegionIds,
+        [bool] $OwnsSourceDocument,
+        [string] $SeedKnowledgeId,
+        [string[]] $RelativePaths
+    )
+
+    if (-not [string]::IsNullOrWhiteSpace($QuestionId)) {
+        Invoke-Psql "delete from question_assets where question_item_id = '$QuestionId'; delete from question_blocks where question_item_id = '$QuestionId'; delete from question_items where id = '$QuestionId';"
+    }
+    $quotedRegionIds = @($SourceRegionIds | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | ForEach-Object { "'$_'" })
+    if ($quotedRegionIds.Count -gt 0) {
+        Invoke-Psql "delete from source_regions where id in ($($quotedRegionIds -join ','));"
+    }
+    if ($OwnsSourceDocument -and -not [string]::IsNullOrWhiteSpace($SourceDocumentId)) {
+        Invoke-Psql "delete from source_documents where id = '$SourceDocumentId';"
+    }
+    if ($OwnsSourceDocument -and -not [string]::IsNullOrWhiteSpace($FileAssetId)) {
+        Invoke-Psql "delete from file_assets where id = '$FileAssetId';"
+    }
+    if (-not [string]::IsNullOrWhiteSpace($SeedKnowledgeId)) {
+        Invoke-Psql "delete from knowledge_nodes where id = '$SeedKnowledgeId';"
+    }
+    foreach ($relativePath in $RelativePaths) { Remove-FileStoreFixture $relativePath }
+}
+
 $requestedApiPort = $ApiPort
 function Get-FreeTcpPort {
     $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, 0)
@@ -61,6 +105,18 @@ $env:KQG_CONNECTION_STRING = "Host=$DatabaseHost;Port=$DatabasePort;Database=$Da
 $env:KqgPaths__FileStoreRoot = $FileStoreRoot
 
 $process = $null
+$sampleFile = $null
+$questionId = ''
+$sourceDocumentId = ''
+$fileAssetId = ''
+$uploadedRelativePath = ''
+$seedKnowledgeId = ''
+$stemScreenshot = ''
+$assetScreenshot = ''
+$stemSourceRegionId = ''
+$assetSourceRegionId = ''
+$ownsSourceDocument = $false
+$cleanupComplete = $false
 try {
     Push-Location $repoRoot
     $process = Start-Process -FilePath dotnet -ArgumentList @(
@@ -91,7 +147,7 @@ try {
     if (-not $ready) { throw "API did not become ready on $apiUrl; see $logOut and $logErr" }
 
     $sampleFile = Join-Path $env:TEMP "kqg-real008-$([Guid]::NewGuid().ToString('N')).txt"
-    Set-Content -LiteralPath $sampleFile -Value 'REAL008 question figure source file' -Encoding UTF8
+    Set-Content -LiteralPath $sampleFile -Value "REAL008 question figure source file $([Guid]::NewGuid().ToString('N'))" -Encoding UTF8
     $upload = curl.exe -s `
         -F "file=@$sampleFile;filename=real008-question-asset.txt" `
         -F 'sourceType=school_paper' `
@@ -104,6 +160,10 @@ try {
         "$apiUrl/files" | ConvertFrom-Json
     Assert-True (-not [string]::IsNullOrWhiteSpace([string]$upload.id)) 'REAL008 upload did not return file asset id'
     Assert-True (-not [string]::IsNullOrWhiteSpace([string]$upload.sourceDocument.id)) 'REAL008 upload did not return source document id'
+    $fileAssetId = [string]$upload.id
+    $uploadedRelativePath = [string]$upload.relativePath
+    $sourceDocumentId = [string]$upload.sourceDocument.id
+    $ownsSourceDocument = -not [bool]$upload.isDuplicate
 
     $stemScreenshot = "real008/question-assets/$([Guid]::NewGuid())-stem.png"
     $assetScreenshot = "real008/question-assets/$([Guid]::NewGuid())-figure.png"
@@ -121,6 +181,7 @@ try {
         regionType = 'question_stem'
     } | ConvertTo-Json
     $stemRegion = Invoke-RestMethod -Method Post -Uri "$apiUrl/source-documents/$($upload.sourceDocument.id)/regions" -ContentType 'application/json' -Body $stemRegionBody -TimeoutSec 10
+    $stemSourceRegionId = [string]$stemRegion.id
 
     $assetRegionBody = [ordered]@{
         pageNumber = 1
@@ -133,6 +194,7 @@ try {
         regionType = 'question_asset'
     } | ConvertTo-Json
     $assetRegion = Invoke-RestMethod -Method Post -Uri "$apiUrl/source-documents/$($upload.sourceDocument.id)/regions" -ContentType 'application/json' -Body $assetRegionBody -TimeoutSec 10
+    $assetSourceRegionId = [string]$assetRegion.id
 
     $psql = Join-Path $PgBin 'psql.exe'
     $activeKnowledgeId = & $psql -h $DatabaseHost -p $DatabasePort -U $DatabaseUser -d $DatabaseName -t -A -v ON_ERROR_STOP=1 -c "select id from knowledge_nodes where status='active' and version=1 order by created_at asc limit 1;"
@@ -144,6 +206,7 @@ try {
         & $psql -h $DatabaseHost -p $DatabasePort -U $DatabaseUser -d $DatabaseName -t -A -v ON_ERROR_STOP=1 -c "insert into knowledge_nodes (id,subject,stage,code,title,node_type,level,status,version,metadata,created_at,updated_at) values ('$newId','physics','junior_middle_school','$newCode','REAL008 Active Seed','concept',2,'active',1,'{}',now(),now());"
         if ($LASTEXITCODE -ne 0) { throw 'REAL008 failed to seed active knowledge node' }
         $activeKnowledgeId = $newId
+        $seedKnowledgeId = $newId
     }
 
     $questionBody = [ordered]@{
@@ -168,6 +231,7 @@ try {
         solution = [ordered]@{ text = '先验证无题图，再关联、解除并重新关联题图。' }
     } | ConvertTo-Json -Depth 10
     $question = Invoke-RestMethod -Method Post -Uri "$apiUrl/questions" -ContentType 'application/json' -Body $questionBody -TimeoutSec 10
+    $questionId = [string]$question.id
 
     $searchWithoutAsset = Invoke-RestMethod -Uri "$apiUrl/questions?subject=physics&stage=junior_middle_school&sourceType=school_paper&page=1&limit=50" -TimeoutSec 10
     $cardWithoutAsset = @($searchWithoutAsset.items | Where-Object { $_.id -eq $question.id })[0]
@@ -222,6 +286,16 @@ try {
     $detailAfterReassociate = Invoke-RestMethod -Uri "$apiUrl/questions/$($question.id)" -TimeoutSec 10
     Assert-True ([int]$detailAfterReassociate.assets.Count -eq 1) 'REAL008 detail must expose one QuestionAsset after reassociation'
 
+    Remove-Real008Fixtures `
+        -QuestionId $questionId `
+        -SourceDocumentId $sourceDocumentId `
+        -FileAssetId $fileAssetId `
+        -SourceRegionIds @($stemSourceRegionId, $assetSourceRegionId) `
+        -OwnsSourceDocument $ownsSourceDocument `
+        -SeedKnowledgeId $seedKnowledgeId `
+        -RelativePaths @($(if ($ownsSourceDocument) { $uploadedRelativePath } else { '' }), $stemScreenshot, $assetScreenshot)
+    $cleanupComplete = $true
+
     $report = [ordered]@{
         status = 'pass'
         task = 'REAL008'
@@ -268,6 +342,12 @@ try {
             unlink = $unlink.auditId
             reassociate = $reassociated.auditId
         }
+        cleanup = [ordered]@{
+            databaseRowsRemoved = $true
+            uploadedFileRemoved = $true
+            screenshotFixturesRemoved = 2
+            sourceDocumentOwnedByRun = $ownsSourceDocument
+        }
         rollback = "delete from question_assets where question_item_id = '$($question.id)'; delete from question_blocks where question_item_id = '$($question.id)'; delete from question_items where id = '$($question.id)';"
         summaryChinese = '题库卡片 hasImage/assetCount、题目详情题图和来源回看均已证明来自真实 QuestionAsset；关联、解除关联和重新关联均有 audit。'
     }
@@ -282,5 +362,18 @@ finally {
     }
     $env:KQG_CONNECTION_STRING = $previousConnectionString
     $env:KqgPaths__FileStoreRoot = $previousFileStoreRoot
+    if (-not $cleanupComplete) {
+        Remove-Real008Fixtures `
+            -QuestionId $questionId `
+            -SourceDocumentId $sourceDocumentId `
+            -FileAssetId $fileAssetId `
+            -SourceRegionIds @($stemSourceRegionId, $assetSourceRegionId) `
+            -OwnsSourceDocument $ownsSourceDocument `
+            -SeedKnowledgeId $seedKnowledgeId `
+            -RelativePaths @($(if ($ownsSourceDocument) { $uploadedRelativePath } else { '' }), $stemScreenshot, $assetScreenshot)
+    }
+    if ($null -ne $sampleFile -and (Test-Path -LiteralPath $sampleFile)) {
+        Remove-Item -LiteralPath $sampleFile -Force -ErrorAction SilentlyContinue
+    }
     Pop-Location
 }

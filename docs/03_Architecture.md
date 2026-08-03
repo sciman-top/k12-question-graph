@@ -149,6 +149,7 @@ D:\KQG_Backups\
 | `apps/web/src/ui/ScoreWorkbenchPanelContent.tsx` | 成绩导入、字段映射、小题映射、报告导出展示 | 只消费 typed client/query 已归一化的数据 |
 | `apps/web/src/ui/AnalysisPanelContent.tsx` | 讲评摘要展示 | 不承载管理员治理面板 |
 | `apps/web/src/ui/PaperWorkbenchPanels.tsx` | 题库检索、自然语言组卷、换题、导出四段纸面工作台 | 只组织视图状态和按钮回调，业务约束仍由 API/service 决定 |
+| `apps/web/src/ui/RealExamHero.tsx` | 广州真卷主视图、来源锚点与题号条 | 只渲染 `App.tsx` 传入的队列/预览状态和回调，不持有审核或写入状态 |
 | `apps/web/src/ui/RealExamReviewWorkbench.tsx` | 广州真卷逐题复核、修订、来源重裁与撤销界面 | 只组织复核视图和回调，队列状态与 API 编排仍由 `App.tsx` 持有 |
 | `apps/web/src/ui/useActionLog.ts` | 教师工作台最近动作与撤销提示状态 | 只管理前端短期反馈，不写业务审计或生产数据 |
 | `apps/web/src/ui/useQuestionEvidenceWorkbench.ts` | 证据题库模式、筛选、query 和来源回看编排 | 只管理证据检索 feature 状态；正式题加入题篮仍由 `App.tsx` 跨工作流编排 |
