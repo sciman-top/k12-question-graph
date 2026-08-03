@@ -4,6 +4,9 @@ import type {
   AdminAiProviderSettingsTestContract,
   ApiResult,
   CommentaryReportExportContract,
+  CurriculumEvidenceDecisionContract,
+  CurriculumEvidenceReplacementOptionsContract,
+  CurriculumEvidenceReviewListContract,
   CutCandidateGenerationContract,
   CutCandidateListContract,
   ImportJobContract,
@@ -13,6 +16,8 @@ import type {
   PaperDraftQuestionContract,
   PaperQuestionReplacementContract,
   QuestionDetailContract,
+  QuestionEvidenceSearchContract,
+  QuestionEvidenceSearchParams,
   QuestionRevisionContract,
   QuestionSearchContract,
   QuestionSearchParams,
@@ -21,6 +26,7 @@ import type {
   ReviewQueueItemContract,
   ReviewQueueListContract,
   ReviewWorkbenchActionContract,
+  ScoreEvidenceAnalysisContract,
   ScoreImportContract,
   SourceDocumentPreviewContract,
   SourceMaterialListContract,
@@ -31,6 +37,9 @@ import {
   normalizeAdminAiProviderSettingsSaveResponse,
   normalizeAdminAiProviderSettingsTestResponse,
   normalizeCommentaryReportExportResponse,
+  normalizeCurriculumEvidenceDecisionResponse,
+  normalizeCurriculumEvidenceReplacementOptionsResponse,
+  normalizeCurriculumEvidenceReviewListResponse,
   normalizeCutCandidateGenerationResponse,
   normalizeCutCandidateListResponse,
   normalizeImportJobResponse,
@@ -39,6 +48,7 @@ import {
   normalizePaperBlueprintReviewResponse,
   normalizePaperQuestionReplacementResponse,
   normalizeQuestionDetailResponse,
+  normalizeQuestionEvidenceSearchResponse,
   normalizeQuestionRevisionResponse,
   normalizeQuestionSearchResponse,
   normalizeQuestionSourceReviewResponse,
@@ -46,6 +56,7 @@ import {
   normalizeReviewQueueItemResponse,
   normalizeReviewQueueListResponse,
   normalizeReviewWorkbenchActionResponse,
+  normalizeScoreEvidenceAnalysisResponse,
   normalizeScoreImportResponse,
   normalizeSourceDocumentPreviewResponse,
   normalizeSourceMaterialListResponse,
@@ -431,6 +442,57 @@ export async function reopenReviewQueueItem(
   )
 }
 
+export async function getCurriculumEvidenceReviews(params: {
+  groupId?: string
+  page?: number
+  pageSize?: number
+} = {}): Promise<ApiResult<CurriculumEvidenceReviewListContract>> {
+  const query = new URLSearchParams()
+  query.set('page', String(params.page ?? 1))
+  query.set('pageSize', String(params.pageSize ?? 20))
+  if (params.groupId) query.set('groupId', params.groupId)
+  return requestJson(
+    `/knowledge-evidence/reviews?${query.toString()}`,
+    normalizeCurriculumEvidenceReviewListResponse,
+  )
+}
+
+export async function decideCurriculumEvidence(request: {
+  candidateType: string
+  candidateId: string
+  decision: 'approve' | 'return' | 'change_mapping' | 'keep_pending'
+  reviewer: string
+  reason: string
+  actorRole?: 'teacher' | 'administrator'
+  replacementAssetVersionId?: string
+}): Promise<ApiResult<CurriculumEvidenceDecisionContract>> {
+  return postJson(
+    '/knowledge-evidence/reviews/decisions',
+    request,
+    normalizeCurriculumEvidenceDecisionResponse,
+  )
+}
+
+export async function getCurriculumEvidenceReplacementOptions(
+  candidateId: string,
+): Promise<ApiResult<CurriculumEvidenceReplacementOptionsContract>> {
+  return requestJson(
+    `/knowledge-evidence/reviews/${encodeURIComponent(candidateId)}/replacement-options`,
+    normalizeCurriculumEvidenceReplacementOptionsResponse,
+  )
+}
+
+export async function undoCurriculumEvidenceDecision(
+  decisionId: string,
+  request: { reviewer: string; reason: string; actorRole?: 'teacher' | 'administrator' },
+): Promise<ApiResult<CurriculumEvidenceDecisionContract>> {
+  return postJson(
+    `/knowledge-evidence/reviews/decisions/${encodeURIComponent(decisionId)}/undo`,
+    request,
+    normalizeCurriculumEvidenceDecisionResponse,
+  )
+}
+
 export async function getQuestion(questionId: string): Promise<ApiResult<QuestionDetailContract>> {
   return requestJson(`/questions/${encodeURIComponent(questionId)}`, normalizeQuestionDetailResponse)
 }
@@ -535,6 +597,47 @@ export async function searchQuestions(params: QuestionSearchParams = {}): Promis
   return requestJson(`/questions?${query.toString()}`, normalizeQuestionSearchResponse)
 }
 
+export async function searchQuestionEvidence(
+  params: QuestionEvidenceSearchParams = {},
+): Promise<ApiResult<QuestionEvidenceSearchContract>> {
+  const query = new URLSearchParams()
+  if (params.evidenceMode !== undefined) query.set('evidenceMode', params.evidenceMode)
+  if (params.previewMode !== undefined) query.set('previewMode', String(params.previewMode))
+
+  const stringFilters: Array<[string, string | undefined]> = [
+    ['requirementId', params.requirementId],
+    ['facetId', params.facetId],
+    ['ability', params.ability],
+    ['cognitiveDemand', params.cognitiveDemand],
+    ['methodOrExperiment', params.methodOrExperiment],
+    ['context', params.context],
+    ['representation', params.representation],
+    ['profileId', params.profileId],
+    ['sourceType', params.sourceType],
+  ]
+  for (const [name, value] of stringFilters) {
+    if (value !== undefined && value.trim().length > 0) query.set(name, value.trim())
+  }
+
+  const numberFilters: Array<[string, number | undefined]> = [
+    ['observedDifficultyMin', params.observedDifficultyMin],
+    ['observedDifficultyMax', params.observedDifficultyMax],
+    ['estimatedDifficultyMin', params.estimatedDifficultyMin],
+    ['estimatedDifficultyMax', params.estimatedDifficultyMax],
+    ['page', params.page],
+    ['pageSize', params.pageSize],
+  ]
+  for (const [name, value] of numberFilters) {
+    if (value !== undefined) query.set(name, String(value))
+  }
+
+  const suffix = query.toString()
+  return requestJson(
+    `/knowledge-evidence/questions${suffix ? `?${suffix}` : ''}`,
+    normalizeQuestionEvidenceSearchResponse,
+  )
+}
+
 export async function replacePaperQuestion(
   currentQuestion: PaperDraftQuestionContract,
 ): Promise<ApiResult<PaperQuestionReplacementContract>> {
@@ -571,6 +674,21 @@ export async function previewItemScoreMappings(request: {
     `/assessments/${encodeURIComponent(request.assessmentId)}/item-score-mappings/preview`,
     { mappings: request.mappings },
     normalizeItemScoreMappingPreviewResponse,
+  )
+}
+
+export async function previewScoreEvidenceAnalysis(request: {
+  assessmentId: string
+  containsStudentPii?: boolean
+  mappings: Array<{ questionNo: string; questionItemId: string | null }>
+}): Promise<ApiResult<ScoreEvidenceAnalysisContract>> {
+  return postJson(
+    `/assessments/${encodeURIComponent(request.assessmentId)}/score-evidence-analysis/preview`,
+    {
+      containsStudentPii: request.containsStudentPii ?? false,
+      mappings: request.mappings,
+    },
+    normalizeScoreEvidenceAnalysisResponse,
   )
 }
 

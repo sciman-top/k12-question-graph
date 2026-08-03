@@ -13,6 +13,7 @@ public interface IPaperWorkflowService
     Task<PaperBlueprintReviewServiceResult> CreateBlueprintReviewAsync(
         string teacherRequest,
         string? textbookVersion,
+        PaperEvidenceConstraintServiceRequest? evidenceConstraints,
         CancellationToken cancellationToken);
     Task<PaperBlueprintConfirmServiceResult?> ConfirmBlueprintReviewAsync(
         Guid blueprintReviewId,
@@ -27,7 +28,9 @@ public interface IPaperWorkflowService
     KnowledgeVersionExplanationServiceResult ResolveKnowledgeVersionExplanation(KnowledgeVersionExplanationServiceRequest request);
 }
 
-public sealed class PaperWorkflowService(KqgDbContext dbContext) : IPaperWorkflowService
+public sealed class PaperWorkflowService(
+    KqgDbContext dbContext,
+    IKnowledgeEvidenceWorkflowService knowledgeEvidenceWorkflowService) : IPaperWorkflowService
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
@@ -55,9 +58,13 @@ public sealed class PaperWorkflowService(KqgDbContext dbContext) : IPaperWorkflo
     public async Task<PaperBlueprintReviewServiceResult> CreateBlueprintReviewAsync(
         string teacherRequest,
         string? textbookVersion,
+        PaperEvidenceConstraintServiceRequest? evidenceConstraints,
         CancellationToken cancellationToken)
     {
         var parsed = ParsePaperRequest(teacherRequest, textbookVersion);
+        var evidenceSnapshot = evidenceConstraints is null
+            ? null
+            : await BuildEvidenceConstraintSnapshotAsync(parsed.Blueprint, evidenceConstraints, cancellationToken);
         var now = DateTimeOffset.UtcNow;
         var review = new PaperBlueprintReview
         {
@@ -77,7 +84,8 @@ public sealed class PaperWorkflowService(KqgDbContext dbContext) : IPaperWorkflo
                 parsed.Constraints.BlocksProductionPaper,
                 mustConfirmBeforeTakingQuestions = true,
                 opaqueGenerationAllowed = false,
-                allowRealModelCalls = parsed.AllowRealModelCalls
+                allowRealModelCalls = parsed.AllowRealModelCalls,
+                evidence = evidenceSnapshot
             }),
             ReviewQuestions = SerializeJson(parsed.ReviewQuestions),
             CreatedAt = now,
@@ -106,6 +114,13 @@ public sealed class PaperWorkflowService(KqgDbContext dbContext) : IPaperWorkflo
             MustConfirmBeforeTakingQuestions: true,
             OpaqueGenerationAllowed: false,
             ConfirmedPaperBasketId: null,
+            EvidenceMode: evidenceSnapshot?.EvidenceMode ?? "legacy",
+            PreviewMode: evidenceSnapshot?.PreviewMode ?? false,
+            DraftPreview: evidenceSnapshot?.PreviewMode ?? false,
+            EvidenceMatchedQuestionCount: evidenceSnapshot?.MatchedQuestionIds.Count ?? 0,
+            VersionReferences: evidenceSnapshot?.VersionReferences ?? [],
+            ConstraintExplanation: evidenceSnapshot?.Explanation ?? [],
+            ConstraintShortages: evidenceSnapshot?.Shortages ?? [],
             CreatedAt: review.CreatedAt,
             UpdatedAt: review.UpdatedAt);
     }
@@ -132,7 +147,10 @@ public sealed class PaperWorkflowService(KqgDbContext dbContext) : IPaperWorkflo
                 0,
                 "blueprint_already_closed",
                 "此细目表已经处理过，不能重复确认取题。",
-                ["no_duplicate_confirm"]);
+                ["no_duplicate_confirm"],
+                [],
+                [],
+                []);
         }
 
         var blueprint = DeserializeBlueprint(review.Blueprint);
@@ -147,21 +165,64 @@ public sealed class PaperWorkflowService(KqgDbContext dbContext) : IPaperWorkflo
                 0,
                 "blueprint_empty",
                 "细目表没有可取题数量。",
-                ["block_empty_blueprint"]);
+                ["block_empty_blueprint"],
+                [],
+                [],
+                []);
         }
 
-        var questions = await dbContext.QuestionItems
+        var evidenceSnapshot = DeserializeEvidenceConstraintSnapshot(review.Constraints);
+        if (evidenceSnapshot?.PreviewMode == true)
+        {
+            return new PaperBlueprintConfirmServiceResult(
+                review.Id,
+                review.Status,
+                false,
+                null,
+                0,
+                "preview_blueprint_cannot_create_formal_basket",
+                "候选或已审核预览不能创建正式题篮。",
+                ["explicit_preview_only", "no_candidate_in_formal_basket"],
+                evidenceSnapshot.VersionReferences,
+                evidenceSnapshot.Explanation,
+                evidenceSnapshot.Shortages);
+        }
+        if (evidenceSnapshot is not null && evidenceSnapshot.Shortages.Count > 0)
+        {
+            return new PaperBlueprintConfirmServiceResult(
+                review.Id,
+                review.Status,
+                false,
+                null,
+                evidenceSnapshot.MatchedQuestionIds.Count,
+                "evidence_constraints_insufficient",
+                "当前正式题库不足以满足已确认的证据约束。",
+                ["constraints_not_relaxed", "teacher_can_adjust_blueprint_or_review_more_questions"],
+                evidenceSnapshot.VersionReferences,
+                evidenceSnapshot.Explanation,
+                evidenceSnapshot.Shortages);
+        }
+
+        var questionQuery = dbContext.QuestionItems
             .AsNoTracking()
             .Where(x =>
                 x.Subject == review.Subject &&
                 x.Stage == review.Stage &&
                 (x.Status == QuestionStatuses.Draft ||
                  x.Status == QuestionStatuses.Usable ||
-                 x.Status == QuestionStatuses.Recommended))
+                 x.Status == QuestionStatuses.Recommended));
+        if (evidenceSnapshot is not null)
+        {
+            var matchedQuestionIds = evidenceSnapshot.MatchedQuestionIds.ToArray();
+            questionQuery = questionQuery.Where(x => matchedQuestionIds.Contains(x.Id));
+        }
+        var questionPool = await questionQuery
             .OrderBy(x => x.QuestionType)
             .ThenBy(x => x.CreatedAt)
-            .Take(requiredCount)
             .ToListAsync(cancellationToken);
+        var questions = evidenceSnapshot is null
+            ? questionPool.Take(requiredCount).ToList()
+            : SelectQuestionsForBlueprint(questionPool, blueprint);
 
         if (questions.Count < requiredCount)
         {
@@ -173,7 +234,10 @@ public sealed class PaperWorkflowService(KqgDbContext dbContext) : IPaperWorkflo
                 questions.Count,
                 "question_pool_insufficient",
                 "当前题库不足以按确认后的细目表取题。",
-                ["no_opaque_generation", "teacher_can_adjust_blueprint_or_import_more_questions"]);
+                ["no_opaque_generation", "teacher_can_adjust_blueprint_or_import_more_questions"],
+                evidenceSnapshot?.VersionReferences ?? [],
+                evidenceSnapshot?.Explanation ?? [],
+                evidenceSnapshot?.Shortages ?? []);
         }
 
         var now = DateTimeOffset.UtcNow;
@@ -195,7 +259,10 @@ public sealed class PaperWorkflowService(KqgDbContext dbContext) : IPaperWorkflo
                 confirmedBy = teacherConfirmedBy.Trim(),
                 confirmRequiredBeforeQuestionSelection = true,
                 opaqueGenerationAllowed = false,
-                source = "confirmed_blueprint_review"
+                source = "confirmed_blueprint_review",
+                evidenceMode = evidenceSnapshot?.EvidenceMode ?? "legacy",
+                evidenceVersionReferences = evidenceSnapshot?.VersionReferences ?? [],
+                evidenceConstraintExplanation = evidenceSnapshot?.Explanation ?? []
             }),
             CreatedAt = now,
             UpdatedAt = now
@@ -222,6 +289,8 @@ public sealed class PaperWorkflowService(KqgDbContext dbContext) : IPaperWorkflo
                 question.QuestionType,
                 question.DifficultyEstimated,
                 question.PrimaryKnowledgeId,
+                evidenceVersionReferences = evidenceSnapshot?.VersionReferences ?? [],
+                evidenceMode = evidenceSnapshot?.EvidenceMode ?? "legacy",
                 selectedAfterTeacherConfirmedBlueprint = true,
                 question.UpdatedAt
             }),
@@ -244,7 +313,305 @@ public sealed class PaperWorkflowService(KqgDbContext dbContext) : IPaperWorkflo
             basketItems.Length,
             null,
             "教师确认细目表后才创建题篮并取题。",
-            ["teacher_confirmed_blueprint", "created_draft_paper_basket", "no_opaque_generation"]);
+            ["teacher_confirmed_blueprint", "created_draft_paper_basket", "no_opaque_generation"],
+            evidenceSnapshot?.VersionReferences ?? [],
+            evidenceSnapshot?.Explanation ?? [],
+            evidenceSnapshot?.Shortages ?? []);
+    }
+
+    private async Task<PaperEvidenceConstraintSnapshot> BuildEvidenceConstraintSnapshotAsync(
+        IReadOnlyList<PaperBlueprintServiceItem> blueprint,
+        PaperEvidenceConstraintServiceRequest constraints,
+        CancellationToken cancellationToken)
+    {
+        var mode = KnowledgeEvidenceWorkflowService.NormalizeEvidenceMode(constraints.EvidenceMode);
+        KnowledgeEvidenceWorkflowService.ValidateQuestionEvidenceSearchRequest(new QuestionEvidenceSearchRequest(
+            EvidenceMode: mode,
+            PreviewMode: constraints.PreviewMode));
+
+        var knowledgeIds = NormalizeValues(constraints.KnowledgeStableIds);
+        var requirementIds = NormalizeValues(constraints.RequirementIds);
+        var abilities = NormalizeValues(constraints.AbilityDimensions);
+        var cognitiveDemands = NormalizeValues(constraints.CognitiveDemands);
+        var methods = NormalizeValues(constraints.MethodOrExperimentIds);
+        var contexts = NormalizeValues(constraints.ContextTypes);
+        var profiles = NormalizeValues(constraints.ProfileIds);
+
+        var firstPage = await knowledgeEvidenceWorkflowService.SearchQuestionsAsync(
+            new QuestionEvidenceSearchRequest(
+                EvidenceMode: mode,
+                PreviewMode: constraints.PreviewMode,
+                RequirementId: requirementIds.FirstOrDefault(),
+                Ability: abilities.FirstOrDefault(),
+                CognitiveDemand: cognitiveDemands.FirstOrDefault(),
+                MethodOrExperiment: methods.FirstOrDefault(),
+                Context: contexts.FirstOrDefault(),
+                ProfileId: profiles.FirstOrDefault(),
+                Page: 1,
+                PageSize: 50),
+            cancellationToken);
+        var cards = firstPage.Items.ToList();
+        var pageCount = (int)Math.Ceiling(firstPage.Total / 50d);
+        for (var page = 2; page <= pageCount; page++)
+        {
+            var nextPage = await knowledgeEvidenceWorkflowService.SearchQuestionsAsync(
+                new QuestionEvidenceSearchRequest(
+                    EvidenceMode: mode,
+                    PreviewMode: constraints.PreviewMode,
+                    RequirementId: requirementIds.FirstOrDefault(),
+                    Ability: abilities.FirstOrDefault(),
+                    CognitiveDemand: cognitiveDemands.FirstOrDefault(),
+                    MethodOrExperiment: methods.FirstOrDefault(),
+                    Context: contexts.FirstOrDefault(),
+                    ProfileId: profiles.FirstOrDefault(),
+                    Page: page,
+                    PageSize: 50),
+                cancellationToken);
+            cards.AddRange(nextPage.Items);
+        }
+
+        var matchedCards = cards
+            .Where(card => MatchesEvidenceConstraints(
+                card,
+                knowledgeIds,
+                requirementIds,
+                abilities,
+                cognitiveDemands,
+                methods,
+                contexts,
+                profiles))
+            .Where(card => mode != "active" || IsSelectableQuestionStatus(card.Status))
+            .DistinctBy(card => card.QuestionId)
+            .ToArray();
+
+        var versionReferences = await BuildVersionReferencesAsync(matchedCards, cancellationToken);
+        var explanation = BuildConstraintExplanation(
+            mode,
+            matchedCards,
+            knowledgeIds,
+            requirementIds,
+            abilities,
+            cognitiveDemands,
+            methods,
+            contexts,
+            profiles);
+        var shortages = BuildConstraintShortages(blueprint, matchedCards);
+        return new PaperEvidenceConstraintSnapshot(
+            mode,
+            PreviewMode: mode != "active",
+            matchedCards.Select(card => card.QuestionId).ToArray(),
+            versionReferences,
+            explanation,
+            shortages,
+            RetrospectiveAlignmentCount: matchedCards
+                .SelectMany(card => card.AssessmentTargets)
+                .SelectMany(target => target.Requirements)
+                .Count(requirement => !requirement.OriginalBasis));
+    }
+
+    private async Task<IReadOnlyList<PaperVersionReferenceServiceItem>> BuildVersionReferencesAsync(
+        IReadOnlyList<QuestionEvidenceCardDto> cards,
+        CancellationToken cancellationToken)
+    {
+        var stableIds = cards
+            .SelectMany(card => card.AssessmentTargets)
+            .SelectMany(target => target.Knowledge.Select(item => item.StableId)
+                .Concat(target.Requirements.Select(item => item.StableId))
+                .Concat(target.Profiles.Select(item => item.StableId)))
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+        var assets = await dbContext.DomainAssetVersions
+            .AsNoTracking()
+            .Where(asset => stableIds.Contains(asset.StableId))
+            .OrderBy(asset => asset.AssetType)
+            .ThenBy(asset => asset.StableId)
+            .ThenByDescending(asset => asset.Version)
+            .ToArrayAsync(cancellationToken);
+        var assetReferences = assets
+            .GroupBy(asset => asset.StableId, StringComparer.OrdinalIgnoreCase)
+            .Select(group => group.First())
+            .Select(asset => new PaperVersionReferenceServiceItem(
+                asset.AssetType,
+                asset.StableId,
+                asset.Version,
+                asset.Status,
+                ReadJsonString(asset.Metadata, "reviewStatus") ?? "unknown",
+                "frozen_domain_asset_version"));
+        var targetReferences = cards
+            .SelectMany(card => card.AssessmentTargets)
+            .DistinctBy(target => target.StableKey)
+            .Select(target => new PaperVersionReferenceServiceItem(
+                "assessment_target",
+                target.StableKey,
+                1,
+                target.Status,
+                target.ReviewStatus,
+                "frozen_assessment_target"));
+        var alignmentReferences = cards
+            .SelectMany(card => card.AssessmentTargets)
+            .SelectMany(target => target.Requirements)
+            .DistinctBy(requirement => $"{requirement.StableId}:{requirement.AlignmentType}:{requirement.OriginalBasis}")
+            .Select(requirement => new PaperVersionReferenceServiceItem(
+                "curriculum_alignment",
+                requirement.StableId,
+                1,
+                "linked",
+                "unknown",
+                requirement.OriginalBasis
+                    ? requirement.AlignmentType
+                    : $"{requirement.AlignmentType}:not_original_basis"));
+        return assetReferences.Concat(targetReferences).Concat(alignmentReferences).ToArray();
+    }
+
+    internal static bool MatchesEvidenceConstraints(
+        QuestionEvidenceCardDto card,
+        IReadOnlyList<string> knowledgeIds,
+        IReadOnlyList<string> requirementIds,
+        IReadOnlyList<string> abilities,
+        IReadOnlyList<string> cognitiveDemands,
+        IReadOnlyList<string> methods,
+        IReadOnlyList<string> contexts,
+        IReadOnlyList<string> profiles)
+    {
+        var targets = card.AssessmentTargets;
+        return AllValuesMatch(knowledgeIds, value => targets.Any(target => target.Knowledge.Any(item => Same(item.StableId, value))))
+            && AllValuesMatch(requirementIds, value => targets.Any(target => target.Requirements.Any(item => Same(item.StableId, value))))
+            && AllValuesMatch(abilities, value => targets.Any(target => target.AbilityDimensions.Any(item => Same(item, value))))
+            && AllValuesMatch(cognitiveDemands, value => targets.Any(target => target.CognitiveDemands.Any(item => Same(item, value))))
+            && AllValuesMatch(methods, value => targets.Any(target => target.MethodOrExperimentIds.Any(item => Same(item, value))))
+            && AllValuesMatch(contexts, value => targets.Any(target => Same(target.ContextType, value)))
+            && AllValuesMatch(profiles, value => targets.Any(target => target.Profiles.Any(item => Same(item.StableId, value))));
+    }
+
+    private static IReadOnlyList<PaperConstraintExplanationServiceItem> BuildConstraintExplanation(
+        string mode,
+        IReadOnlyList<QuestionEvidenceCardDto> cards,
+        IReadOnlyList<string> knowledgeIds,
+        IReadOnlyList<string> requirementIds,
+        IReadOnlyList<string> abilities,
+        IReadOnlyList<string> cognitiveDemands,
+        IReadOnlyList<string> methods,
+        IReadOnlyList<string> contexts,
+        IReadOnlyList<string> profiles)
+    {
+        var result = new List<PaperConstraintExplanationServiceItem>
+        {
+            new("evidence_mode", [mode], cards.Count, "applied", mode == "active" ? "active_only" : "explicit_draft_preview")
+        };
+        AddConstraintExplanation(result, "knowledge", knowledgeIds, cards.Count, "knowledge_asset_not_exam_profile");
+        AddConstraintExplanation(result, "curriculum_requirement", requirementIds, cards.Count, "retrospective_alignment_is_disclosed_not_original_basis");
+        AddConstraintExplanation(result, "ability", abilities, cards.Count, "assessment_target_dimension");
+        AddConstraintExplanation(result, "cognitive_demand", cognitiveDemands, cards.Count, "assessment_target_dimension");
+        AddConstraintExplanation(result, "method_or_experiment", methods, cards.Count, "assessment_target_dimension");
+        AddConstraintExplanation(result, "context", contexts, cards.Count, "assessment_target_dimension");
+        AddConstraintExplanation(result, "regional_profile", profiles, cards.Count, "profile_is_not_a_knowledge_node");
+        return result;
+    }
+
+    internal static IReadOnlyList<PaperConstraintShortageServiceItem> BuildConstraintShortages(
+        IReadOnlyList<PaperBlueprintServiceItem> blueprint,
+        IReadOnlyList<QuestionEvidenceCardDto> cards)
+    {
+        var shortages = new List<PaperConstraintShortageServiceItem>();
+        foreach (var row in blueprint.Where(row => row.Count > 0))
+        {
+            var available = cards.Count(card => Same(card.QuestionType, row.QuestionType));
+            if (available < row.Count)
+            {
+                shortages.Add(new PaperConstraintShortageServiceItem(
+                    $"question_type:{row.QuestionType}",
+                    row.Count,
+                    available,
+                    "constraints_not_relaxed"));
+            }
+        }
+        return shortages;
+    }
+
+    private static List<QuestionItem> SelectQuestionsForBlueprint(
+        IReadOnlyList<QuestionItem> questionPool,
+        IReadOnlyList<PaperBlueprintServiceItem> blueprint)
+    {
+        var selected = new List<QuestionItem>();
+        foreach (var row in blueprint.Where(row => row.Count > 0))
+        {
+            selected.AddRange(questionPool
+                .Where(question => Same(question.QuestionType, row.QuestionType))
+                .Where(question => selected.All(item => item.Id != question.Id))
+                .Take(row.Count));
+        }
+        return selected;
+    }
+
+    internal static PaperEvidenceConstraintSnapshot? DeserializeEvidenceConstraintSnapshot(string constraintsJson)
+    {
+        try
+        {
+            using var document = JsonDocument.Parse(constraintsJson);
+            if (!document.RootElement.TryGetProperty("evidence", out var evidence)
+                || evidence.ValueKind == JsonValueKind.Null)
+            {
+                return null;
+            }
+            return evidence.Deserialize<PaperEvidenceConstraintSnapshot>(JsonOptions);
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+    }
+
+    private static IReadOnlyList<string> NormalizeValues(IReadOnlyList<string>? values) =>
+        values?
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .Select(value => value.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray() ?? [];
+
+    private static bool AllValuesMatch(IReadOnlyList<string> values, Func<string, bool> predicate) =>
+        values.Count == 0 || values.All(predicate);
+
+    private static bool Same(string? left, string? right) =>
+        string.Equals(left?.Trim(), right?.Trim(), StringComparison.OrdinalIgnoreCase);
+
+    private static bool IsSelectableQuestionStatus(string status) =>
+        Same(status, QuestionStatuses.Draft)
+        || Same(status, QuestionStatuses.Usable)
+        || Same(status, QuestionStatuses.Recommended);
+
+    private static void AddConstraintExplanation(
+        ICollection<PaperConstraintExplanationServiceItem> result,
+        string dimension,
+        IReadOnlyList<string> values,
+        int matchedCount,
+        string disclosure)
+    {
+        if (values.Count > 0)
+        {
+            result.Add(new PaperConstraintExplanationServiceItem(
+                dimension,
+                values,
+                matchedCount,
+                matchedCount > 0 ? "satisfied" : "shortage",
+                disclosure));
+        }
+    }
+
+    private static string? ReadJsonString(string json, string propertyName)
+    {
+        try
+        {
+            using var document = JsonDocument.Parse(json);
+            return document.RootElement.TryGetProperty(propertyName, out var value)
+                && value.ValueKind == JsonValueKind.String
+                    ? value.GetString()
+                    : null;
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
     }
 
     public async Task<PaperExportPreflightServiceResult?> RunExportPreflightAsync(
@@ -722,6 +1089,47 @@ public sealed record PaperRequestConstraintsServiceItem(
     bool ReviewRequired,
     bool BlocksProductionPaper);
 
+public sealed record PaperEvidenceConstraintServiceRequest(
+    string EvidenceMode,
+    bool PreviewMode,
+    IReadOnlyList<string> KnowledgeStableIds,
+    IReadOnlyList<string> RequirementIds,
+    IReadOnlyList<string> AbilityDimensions,
+    IReadOnlyList<string> CognitiveDemands,
+    IReadOnlyList<string> MethodOrExperimentIds,
+    IReadOnlyList<string> ContextTypes,
+    IReadOnlyList<string> ProfileIds);
+
+public sealed record PaperVersionReferenceServiceItem(
+    string Kind,
+    string StableId,
+    int Version,
+    string Status,
+    string ReviewStatus,
+    string Provenance);
+
+public sealed record PaperConstraintExplanationServiceItem(
+    string Dimension,
+    IReadOnlyList<string> RequestedValues,
+    int MatchedQuestionCount,
+    string Status,
+    string Disclosure);
+
+public sealed record PaperConstraintShortageServiceItem(
+    string Dimension,
+    int Required,
+    int Available,
+    string Reason);
+
+public sealed record PaperEvidenceConstraintSnapshot(
+    string EvidenceMode,
+    bool PreviewMode,
+    IReadOnlyList<Guid> MatchedQuestionIds,
+    IReadOnlyList<PaperVersionReferenceServiceItem> VersionReferences,
+    IReadOnlyList<PaperConstraintExplanationServiceItem> Explanation,
+    IReadOnlyList<PaperConstraintShortageServiceItem> Shortages,
+    int RetrospectiveAlignmentCount);
+
 public sealed record PaperRequestParseServiceResult(
     string Mode,
     bool ProductionEligible,
@@ -760,6 +1168,13 @@ public sealed record PaperBlueprintReviewServiceResult(
     bool MustConfirmBeforeTakingQuestions,
     bool OpaqueGenerationAllowed,
     Guid? ConfirmedPaperBasketId,
+    string EvidenceMode,
+    bool PreviewMode,
+    bool DraftPreview,
+    int EvidenceMatchedQuestionCount,
+    IReadOnlyList<PaperVersionReferenceServiceItem> VersionReferences,
+    IReadOnlyList<PaperConstraintExplanationServiceItem> ConstraintExplanation,
+    IReadOnlyList<PaperConstraintShortageServiceItem> ConstraintShortages,
     DateTimeOffset CreatedAt,
     DateTimeOffset UpdatedAt);
 
@@ -771,7 +1186,10 @@ public sealed record PaperBlueprintConfirmServiceResult(
     int SelectedQuestionCount,
     string? ErrorCode,
     string TeacherMessage,
-    IReadOnlyList<string> AuditTrail);
+    IReadOnlyList<string> AuditTrail,
+    IReadOnlyList<PaperVersionReferenceServiceItem> VersionReferences,
+    IReadOnlyList<PaperConstraintExplanationServiceItem> ConstraintExplanation,
+    IReadOnlyList<PaperConstraintShortageServiceItem> ConstraintShortages);
 
 public sealed record PaperExportPreflightServiceResult(
     Guid PaperBasketId,

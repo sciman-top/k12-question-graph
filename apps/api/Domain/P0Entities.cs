@@ -794,6 +794,119 @@ public sealed class DomainAssetMigration
     public DateTimeOffset? RolledBackAt { get; set; }
 }
 
+public sealed class AssessmentTarget
+{
+    public Guid Id { get; set; }
+    public string StableKey { get; set; } = string.Empty;
+    public string BatchKey { get; set; } = string.Empty;
+    public Guid QuestionItemId { get; set; }
+    public Guid? QuestionBlockId { get; set; }
+    public string ScopeType { get; set; } = "whole_question";
+    public string TargetStatement { get; set; } = string.Empty;
+    public bool IsPrimaryTarget { get; set; } = true;
+    public decimal Confidence { get; set; }
+    public string Status { get; set; } = "candidate";
+    public string ReviewStatus { get; set; } = "pending_review";
+    public bool ProductionEligible { get; set; }
+    public string Metadata { get; set; } = "{}";
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class AssessmentTargetKnowledgeMapping
+{
+    public Guid Id { get; set; }
+    public Guid AssessmentTargetId { get; set; }
+    public Guid DomainAssetVersionId { get; set; }
+    public string Role { get; set; } = "primary";
+    public decimal Confidence { get; set; }
+    public string Status { get; set; } = "candidate";
+    public string ReviewStatus { get; set; } = "pending_review";
+    public bool ProductionEligible { get; set; }
+    public string Evidence { get; set; } = "{}";
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class CurriculumAlignment
+{
+    public Guid Id { get; set; }
+    public string StableKey { get; set; } = string.Empty;
+    public Guid AssessmentTargetId { get; set; }
+    public Guid CurriculumAssetVersionId { get; set; }
+    public Guid SourceDocumentId { get; set; }
+    public Guid? SourceRegionId { get; set; }
+    public string AlignmentType { get; set; } = "retrospective_crosswalk";
+    public string StandardVersion { get; set; } = string.Empty;
+    public decimal Confidence { get; set; }
+    public bool OriginalBasis { get; set; }
+    public string Status { get; set; } = "candidate";
+    public string ReviewStatus { get; set; } = "pending_review";
+    public bool ProductionEligible { get; set; }
+    public string Evidence { get; set; } = "{}";
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class ObservedPerformanceEvidence
+{
+    public Guid Id { get; set; }
+    public string StableKey { get; set; } = string.Empty;
+    public string BatchKey { get; set; } = string.Empty;
+    public Guid AssessmentTargetId { get; set; }
+    public Guid SourceRegionId { get; set; }
+    public decimal? MaximumScore { get; set; }
+    public decimal? AverageScore { get; set; }
+    public decimal? ScoreRate { get; set; }
+    public decimal? DifficultyObserved { get; set; }
+    public decimal? Discrimination { get; set; }
+    public string DifficultyDirection { get; set; } = "higher_is_easier";
+    public string SampleScope { get; set; } = string.Empty;
+    public int? SampleSize { get; set; }
+    public string OptionDistribution { get; set; } = "null";
+    public string RawStatistics { get; set; } = "{}";
+    public decimal Confidence { get; set; }
+    public string Status { get; set; } = "candidate";
+    public string ReviewStatus { get; set; } = "pending_review";
+    public bool ProductionEligible { get; set; }
+    public string Evidence { get; set; } = "{}";
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class ObservedErrorEvidence
+{
+    public Guid Id { get; set; }
+    public string StableKey { get; set; } = string.Empty;
+    public string BatchKey { get; set; } = string.Empty;
+    public Guid AssessmentTargetId { get; set; }
+    public Guid SourceRegionId { get; set; }
+    public string RecordKind { get; set; } = "summary_candidate";
+    public string Content { get; set; } = string.Empty;
+    public string GenerationMethod { get; set; } = "rules";
+    public decimal Confidence { get; set; }
+    public string Status { get; set; } = "candidate";
+    public string ReviewStatus { get; set; } = "pending_review";
+    public bool ProductionEligible { get; set; }
+    public string Evidence { get; set; } = "{}";
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class TeachingRecommendation
+{
+    public Guid Id { get; set; }
+    public string StableKey { get; set; } = string.Empty;
+    public string BatchKey { get; set; } = string.Empty;
+    public Guid AssessmentTargetId { get; set; }
+    public Guid SourceRegionId { get; set; }
+    public string Content { get; set; } = string.Empty;
+    public string AuthorKind { get; set; } = "legacy_candidate";
+    public string GenerationMethod { get; set; } = "rules";
+    public decimal Confidence { get; set; }
+    public string Status { get; set; } = "candidate";
+    public string ReviewStatus { get; set; } = "pending_review";
+    public bool ProductionEligible { get; set; }
+    public string Evidence { get; set; } = "{}";
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
 public sealed class QuestionBlock
 {
     public Guid Id { get; set; }

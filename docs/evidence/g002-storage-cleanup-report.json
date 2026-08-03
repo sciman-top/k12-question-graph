@@ -24,39 +24,39 @@
     "status": "ok",
     "mode": "draft_test",
     "productionEligible": false,
-    "cacheCleanupRoot": "D:\\CODE\\k12-question-graph\\tmp\\g002-storage\\data\\cache",
+    "cacheCleanupRoot": "C:\\Users\\sciman\\.codex\\worktrees\\a931\\k12-question-graph\\tmp\\g002-storage\\data\\cache",
     "areas": [
       {
         "name": "data_root",
-        "path": "D:\\CODE\\k12-question-graph\\tmp\\g002-storage\\data",
-        "bytes": 256359,
+        "path": "C:\\Users\\sciman\\.codex\\worktrees\\a931\\k12-question-graph\\tmp\\g002-storage\\data",
+        "bytes": 1236,
         "fileCount": 4,
         "cleanupAllowed": false
       },
       {
         "name": "file_store",
-        "path": "D:\\CODE\\k12-question-graph\\tmp\\g002-storage\\data\\file_store",
+        "path": "C:\\Users\\sciman\\.codex\\worktrees\\a931\\k12-question-graph\\tmp\\g002-storage\\data\\file_store",
         "bytes": 39,
         "fileCount": 1,
         "cleanupAllowed": false
       },
       {
         "name": "backup",
-        "path": "D:\\CODE\\k12-question-graph\\tmp\\g002-storage\\backups",
+        "path": "C:\\Users\\sciman\\.codex\\worktrees\\a931\\k12-question-graph\\tmp\\g002-storage\\backups",
         "bytes": 0,
         "fileCount": 0,
         "cleanupAllowed": false
       },
       {
         "name": "logs",
-        "path": "D:\\CODE\\k12-question-graph\\tmp\\g002-storage\\data\\logs",
-        "bytes": 256274,
+        "path": "C:\\Users\\sciman\\.codex\\worktrees\\a931\\k12-question-graph\\tmp\\g002-storage\\data\\logs",
+        "bytes": 1151,
         "fileCount": 1,
         "cleanupAllowed": false
       },
       {
         "name": "cache",
-        "path": "D:\\CODE\\k12-question-graph\\tmp\\g002-storage\\data\\cache",
+        "path": "C:\\Users\\sciman\\.codex\\worktrees\\a931\\k12-question-graph\\tmp\\g002-storage\\data\\cache",
         "bytes": 46,
         "fileCount": 2,
         "cleanupAllowed": true
@@ -68,7 +68,7 @@
     "mode": "draft_test",
     "productionEligible": false,
     "dryRun": true,
-    "cacheRoot": "D:\\CODE\\k12-question-graph\\tmp\\g002-storage\\data\\cache",
+    "cacheRoot": "C:\\Users\\sciman\\.codex\\worktrees\\a931\\k12-question-graph\\tmp\\g002-storage\\data\\cache",
     "olderThanDays": 7,
     "matchedFileCount": 1,
     "matchedBytes": 21,
@@ -78,7 +78,7 @@
       {
         "relativePath": "old-cache.bin",
         "sizeBytes": 21,
-        "lastWriteTimeUtc": "2026-06-25T16:55:11.0439215Z"
+        "lastWriteTimeUtc": "2026-07-01T14:06:41.4865231Z"
       }
     ]
   },
@@ -87,7 +87,7 @@
     "mode": "draft_test",
     "productionEligible": false,
     "dryRun": false,
-    "cacheRoot": "D:\\CODE\\k12-question-graph\\tmp\\g002-storage\\data\\cache",
+    "cacheRoot": "C:\\Users\\sciman\\.codex\\worktrees\\a931\\k12-question-graph\\tmp\\g002-storage\\data\\cache",
     "olderThanDays": 7,
     "matchedFileCount": 1,
     "matchedBytes": 21,
@@ -97,7 +97,7 @@
       {
         "relativePath": "old-cache.bin",
         "sizeBytes": 21,
-        "lastWriteTimeUtc": "2026-06-25T16:55:11.0439215Z"
+        "lastWriteTimeUtc": "2026-07-01T14:06:41.4865231Z"
       }
     ]
   },

@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "cek019-observed-evidence-migration.v1",
+  "status": "pass",
+  "checkedAt": "2026-07-29T22:24:27.4215785+08:00",
+  "taskId": "CEK-19",
+  "backup": {
+    "manifest": "D:\\KQG_Backups\\20260729-220733\\manifest.json",
+    "verified": true,
+    "databaseSha256": "f9f9af8c7b001685bb117c1e28f4021f2121014acd83d454d8ce092b5252b900",
+    "fileStoreFiles": 3466,
+    "configFiles": 3,
+    "templateFiles": 4,
+    "evidenceFiles": 6
+  },
+  "migration": {
+    "id": "20260729142258_AddObservedExamEvidenceModelForCEK019",
+    "applied": true,
+    "idempotentRerun": "no_op",
+    "idempotentSql": "tmp/cek019/cek019-idempotent.sql",
+    "upTables": [
+      "observed_performance_evidence",
+      "observed_error_evidence",
+      "teaching_recommendations"
+    ],
+    "downDropsOnlyAddedTables": true
+  },
+  "build": {
+    "configuration": "Debug",
+    "errors": 0,
+    "knownWarning": "Microsoft.OpenApi 2.0.0 NU1903 GHSA-v5pm-xwqc-g5wc"
+  },
+  "schema": {
+    "checkConstraints": 26,
+    "foreignKeys": 6,
+    "indexesIncludingPrimaryKeys": 18,
+    "jsonbColumns": 5,
+    "requiredAssessmentTargetAndSourceRegionColumns": 6,
+    "productionGuards": 3,
+    "schemaCrossFieldGuards": 4,
+    "difficultyDirection": "higher_is_easier",
+    "commonMetricsColumnized": true,
+    "optionDistributionAndRawStatisticsPreservedAsJsonb": true
+  },
+  "negativeDatabaseCases": {
+    "verbatimObservationWithAiRejected": true,
+    "normalizedPatternWithSourceQuoteRejected": true,
+    "reportAuthorWithRulesRejected": true,
+    "aiCandidateWithHumanRejected": true,
+    "persistedRows": 0
+  },
+  "databaseAtMigrationApply": {
+    "migrationCount": 17,
+    "observedPerformanceRows": 0,
+    "observedErrorRows": 0,
+    "teachingRecommendationRows": 0,
+    "assessmentTargets": 444,
+    "activeDomainAssets": 452
+  },
+  "compatibility": {
+    "v2QuestionCountBefore": 234,
+    "v2QuestionCountAfter": 234,
+    "v2DifficultyStatusFingerprintBefore": "3fb76f05386adcab761f9d6227b88c87",
+    "v2DifficultyStatusFingerprintAfter": "3fb76f05386adcab761f9d6227b88c87",
+    "v2PendingReviewAfter": 234,
+    "v2ProductionEligibleAfter": 0,
+    "v2PrimaryKnowledgeWritesAfter": 0,
+    "legacyQuestionDifficultyColumnAltered": false
+  },
+  "apiReadyAfterMigration": true,
+  "successorEvidence": "docs/evidence/cek019a-observed-exam-evidence-api-smoke.json",
+  "rollback": "Run migration Down while all three CEK-19 tables remain empty, or restore D:\\KQG_Backups\\20260729-220733\\manifest.json after preserving later evidence.",
+  "completionBoundary": "This CEK-19 migration slice added candidate-safe storage and verified all three tables were empty at migration apply time. The later CEK-19A evidence is the current live truth for imported candidate counts; no teacher approval, active write, ErrorPattern promotion, or REAL005 closure is claimed."
+}

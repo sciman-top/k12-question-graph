@@ -1,5 +1,6 @@
 using K12QuestionGraph.Api.Ai;
 using K12QuestionGraph.Api.Application.Workflows;
+using K12QuestionGraph.Api.Application.Workflows.Contracts;
 using K12QuestionGraph.Api.Configuration;
 using K12QuestionGraph.Api.Data;
 using K12QuestionGraph.Api.Domain;
@@ -40,6 +41,7 @@ builder.Services.AddScoped<IImportReviewWorkflowService, ImportReviewWorkflowSer
 builder.Services.AddScoped<ICutCandidateGenerationService, CutCandidateGenerationService>();
 builder.Services.AddScoped<IPaperWorkflowService, PaperWorkflowService>();
 builder.Services.AddScoped<IScoreAnalysisWorkflowService, ScoreAnalysisWorkflowService>();
+builder.Services.AddScoped<IKnowledgeEvidenceWorkflowService, KnowledgeEvidenceWorkflowService>();
 builder.Services.AddSingleton<IAiModelRouter, AiModelRouter>();
 builder.Services.AddSingleton<IAiProvider, StubAiProvider>();
 builder.Services.AddSingleton<IAiProviderSettingsStore, FileAiProviderSettingsStore>();
@@ -114,6 +116,255 @@ app.MapGet("/health/ready", async (
     return ready ? Results.Ok(response) : Results.Json(response, statusCode: StatusCodes.Status503ServiceUnavailable);
 })
 .WithName("ReadinessHealth");
+
+app.MapGet("/knowledge-evidence/assessment-targets", async Task<IResult> (
+    string? reviewStatus,
+    int? take,
+    IKnowledgeEvidenceWorkflowService workflowService,
+    CancellationToken cancellationToken) =>
+{
+    try
+    {
+        var result = await workflowService.ListAssessmentTargetsAsync(
+            new KnowledgeEvidenceListRequest(reviewStatus ?? "pending_review", take ?? 100),
+            cancellationToken);
+        return Results.Ok(result);
+    }
+    catch (ArgumentException exception) when (exception.Message.Contains("invalid_review_status", StringComparison.Ordinal))
+    {
+        return Results.BadRequest(new { error = "invalid_review_status" });
+    }
+})
+.WithName("ListKnowledgeEvidenceAssessmentTargets");
+
+app.MapGet("/knowledge-evidence/observed-exam-evidence", async Task<IResult> (
+    string? reviewStatus,
+    Guid? assessmentTargetId,
+    int? take,
+    IKnowledgeEvidenceWorkflowService workflowService,
+    CancellationToken cancellationToken) =>
+{
+    try
+    {
+        var result = await workflowService.ListObservedEvidenceAsync(
+            new ObservedEvidenceListRequest(reviewStatus ?? "pending_review", assessmentTargetId, take ?? 100),
+            cancellationToken);
+        return Results.Ok(result);
+    }
+    catch (ArgumentException exception) when (exception.Message.Contains("invalid_review_status", StringComparison.Ordinal))
+    {
+        return Results.BadRequest(new { error = "invalid_review_status" });
+    }
+})
+.WithName("ListObservedExamEvidence");
+
+app.MapGet("/knowledge-evidence/regional-exam-profiles/{stableId}", async Task<IResult> (
+    string stableId,
+    IKnowledgeEvidenceWorkflowService workflowService,
+    CancellationToken cancellationToken) =>
+{
+    var result = await workflowService.GetRegionalExamProfileAsync(stableId, cancellationToken);
+    return result is null
+        ? Results.NotFound(new { error = "regional_exam_profile_not_found" })
+        : Results.Ok(result);
+})
+.WithName("GetRegionalExamProfile");
+
+app.MapGet("/knowledge-evidence/questions", async Task<IResult> (
+    string? evidenceMode,
+    bool? previewMode,
+    string? requirementId,
+    string? facetId,
+    string? ability,
+    string? cognitiveDemand,
+    string? methodOrExperiment,
+    string? context,
+    string? representation,
+    string? profileId,
+    decimal? observedDifficultyMin,
+    decimal? observedDifficultyMax,
+    double? estimatedDifficultyMin,
+    double? estimatedDifficultyMax,
+    string? sourceType,
+    int? page,
+    int? pageSize,
+    IKnowledgeEvidenceWorkflowService workflowService,
+    CancellationToken cancellationToken) =>
+{
+    try
+    {
+        var result = await workflowService.SearchQuestionsAsync(
+            new QuestionEvidenceSearchRequest(
+                evidenceMode ?? "active",
+                previewMode ?? false,
+                requirementId,
+                facetId,
+                ability,
+                cognitiveDemand,
+                methodOrExperiment,
+                context,
+                representation,
+                profileId,
+                observedDifficultyMin,
+                observedDifficultyMax,
+                estimatedDifficultyMin,
+                estimatedDifficultyMax,
+                sourceType,
+                page ?? 1,
+                pageSize ?? 20),
+            cancellationToken);
+        return Results.Ok(result);
+    }
+    catch (ArgumentException exception) when (
+        exception.Message.Contains("invalid_evidence_mode", StringComparison.Ordinal)
+        || exception.Message.Contains("preview_mode_required", StringComparison.Ordinal)
+        || exception.Message.Contains("invalid_difficulty_range", StringComparison.Ordinal))
+    {
+        var error = exception.Message.Contains("preview_mode_required", StringComparison.Ordinal)
+            ? "preview_mode_required"
+            : exception.Message.Contains("invalid_difficulty_range", StringComparison.Ordinal)
+                ? "invalid_difficulty_range"
+                : "invalid_evidence_mode";
+        return Results.BadRequest(new { error });
+    }
+})
+.WithName("SearchQuestionEvidence");
+
+app.MapGet("/knowledge-evidence/review-queue", async (
+    int? take,
+    KqgDbContext dbContext,
+    CancellationToken cancellationToken) =>
+{
+    var takeCount = Math.Clamp(take ?? 100, 1, 500);
+    var rows = await dbContext.ReviewQueueItems
+        .AsNoTracking()
+        .Where(x => x.ReviewType == "assessment_target" && x.Status == "open")
+        .OrderBy(x => x.CreatedAt)
+        .Take(takeCount)
+        .Select(x => new { x.Id, x.ReviewType, x.Status, x.Payload, x.CreatedAt })
+        .ToArrayAsync(cancellationToken);
+    return Results.Ok(new
+    {
+        items = rows,
+        returned = rows.Length,
+        productionEligible = false,
+        completionBoundary = "Open assessment-target review items only; this endpoint cannot approve or activate candidates."
+    });
+})
+.WithName("ListKnowledgeEvidenceReviewQueue");
+
+app.MapGet("/knowledge-evidence/reviews", async Task<IResult> (
+    string? groupId,
+    int? page,
+    int? pageSize,
+    IKnowledgeEvidenceWorkflowService workflowService,
+    CancellationToken cancellationToken) =>
+{
+    var result = await workflowService.ListCurriculumEvidenceReviewsAsync(
+        new CurriculumEvidenceReviewListRequest(groupId, page ?? 1, pageSize ?? 50),
+        cancellationToken);
+    return Results.Ok(result);
+})
+.WithName("ListCurriculumEvidenceReviews");
+
+app.MapGet("/knowledge-evidence/reviews/{candidateId:guid}/replacement-options", async Task<IResult> (
+    Guid candidateId,
+    IKnowledgeEvidenceWorkflowService workflowService,
+    CancellationToken cancellationToken) =>
+{
+    var result = await workflowService.GetCurriculumEvidenceReplacementOptionsAsync(
+        candidateId,
+        cancellationToken);
+    return result is null
+        ? Results.NotFound(new { error = "curriculum_evidence_candidate_not_found" })
+        : Results.Ok(result);
+})
+.WithName("ListCurriculumEvidenceReplacementOptions");
+
+app.MapGet("/knowledge-evidence/reviews/readiness", async (
+    IKnowledgeEvidenceWorkflowService workflowService,
+    CancellationToken cancellationToken) =>
+{
+    var result = await workflowService.GetCurriculumEvidenceReadinessAsync(cancellationToken);
+    return Results.Ok(result);
+})
+.WithName("GetCurriculumEvidenceReviewReadiness");
+
+app.MapPost("/knowledge-evidence/reviews/decisions", async Task<IResult> (
+    CurriculumEvidenceDecisionRequest request,
+    IKnowledgeEvidenceWorkflowService workflowService,
+    CancellationToken cancellationToken) =>
+{
+    try
+    {
+        return Results.Ok(await workflowService.DecideCurriculumEvidenceAsync(request, cancellationToken));
+    }
+    catch (ArgumentException exception)
+    {
+        return Results.BadRequest(new { error = exception.Message.Split(' ')[0] });
+    }
+    catch (KeyNotFoundException exception)
+    {
+        return Results.NotFound(new { error = exception.Message });
+    }
+    catch (InvalidOperationException exception)
+    {
+        return Results.Conflict(new { error = exception.Message });
+    }
+})
+.WithName("DecideCurriculumEvidenceReview");
+
+app.MapPost("/knowledge-evidence/reviews/batch-approve", async Task<IResult> (
+    CurriculumEvidenceBatchDecisionRequest request,
+    IKnowledgeEvidenceWorkflowService workflowService,
+    CancellationToken cancellationToken) =>
+{
+    try
+    {
+        return Results.Ok(await workflowService.BatchApproveCurriculumEvidenceAsync(request, cancellationToken));
+    }
+    catch (ArgumentException exception)
+    {
+        return Results.BadRequest(new { error = exception.Message.Split(' ')[0] });
+    }
+    catch (KeyNotFoundException exception)
+    {
+        return Results.NotFound(new { error = exception.Message });
+    }
+    catch (InvalidOperationException exception)
+    {
+        return Results.Conflict(new { error = exception.Message });
+    }
+})
+.WithName("BatchApproveCurriculumEvidenceReviews");
+
+app.MapPost("/knowledge-evidence/reviews/decisions/{decisionId:guid}/undo", async Task<IResult> (
+    Guid decisionId,
+    CurriculumEvidenceUndoRequest request,
+    IKnowledgeEvidenceWorkflowService workflowService,
+    CancellationToken cancellationToken) =>
+{
+    try
+    {
+        return Results.Ok(await workflowService.UndoCurriculumEvidenceDecisionAsync(
+            decisionId,
+            request,
+            cancellationToken));
+    }
+    catch (ArgumentException exception)
+    {
+        return Results.BadRequest(new { error = exception.Message.Split(' ')[0] });
+    }
+    catch (KeyNotFoundException exception)
+    {
+        return Results.NotFound(new { error = exception.Message });
+    }
+    catch (InvalidOperationException exception)
+    {
+        return Results.Conflict(new { error = exception.Message });
+    }
+})
+.WithName("UndoCurriculumEvidenceReviewDecision");
 
 app.MapGet("/api/admin/storage/summary", (IConfiguration configuration) =>
 {
@@ -1299,8 +1550,30 @@ app.MapGet("/source-regions/{id:guid}/page-screenshot", async (
         return Results.NotFound(new { error = "source_region_not_found" });
     }
 
-    var relative = BuildSourcePageScreenshotRelativePath(region.SourceDocumentId, region.PageNumber);
     var paths = configuration.GetSection("KqgPaths").Get<KqgPathsOptions>() ?? new KqgPathsOptions();
+    var document = await dbContext.SourceDocuments
+        .AsNoTracking()
+        .FirstOrDefaultAsync(x => x.Id == region.SourceDocumentId, cancellationToken);
+    if (document is null)
+    {
+        return Results.Conflict(new { error = "source_region_document_missing", regionId = id });
+    }
+
+    var relative = SourcePageScreenshotPathResolver.ResolveExistingRelativePath(
+        paths.FileStoreRoot,
+        document,
+        region.PageNumber);
+    if (relative is null)
+    {
+        return Results.Conflict(new
+        {
+            error = "source_region_page_screenshot_missing",
+            regionId = id,
+            pageNumber = region.PageNumber,
+            candidateRelativePaths = SourcePageScreenshotPathResolver.GetCandidateRelativePaths(document, region.PageNumber)
+        });
+    }
+
     if (!TryResolveFileStorePath(paths.FileStoreRoot, relative, out var screenshotPath))
     {
         return Results.BadRequest(new { error = "invalid_page_screenshot_relative_path", regionId = id });
@@ -1320,6 +1593,43 @@ app.MapGet("/source-regions/{id:guid}/page-screenshot", async (
     return Results.File(screenshotPath, InferContentType(screenshotPath), enableRangeProcessing: true);
 })
 .WithName("GetSourceRegionPageScreenshot");
+
+app.MapGet("/source-documents/{id:guid}/pages/{pageNumber:int:min(1)}/screenshot", async (
+    Guid id,
+    int pageNumber,
+    KqgDbContext dbContext,
+    IConfiguration configuration,
+    CancellationToken cancellationToken) =>
+{
+    var document = await dbContext.SourceDocuments
+        .AsNoTracking()
+        .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+    if (document is null)
+    {
+        return Results.NotFound(new { error = "source_document_not_found" });
+    }
+
+    var paths = configuration.GetSection("KqgPaths").Get<KqgPathsOptions>() ?? new KqgPathsOptions();
+    var relative = SourcePageScreenshotPathResolver.ResolveExistingRelativePath(paths.FileStoreRoot, document, pageNumber);
+    if (relative is null)
+    {
+        return Results.Conflict(new
+        {
+            error = "source_document_page_screenshot_missing",
+            sourceDocumentId = id,
+            pageNumber,
+            candidateRelativePaths = SourcePageScreenshotPathResolver.GetCandidateRelativePaths(document, pageNumber)
+        });
+    }
+
+    if (!TryResolveFileStorePath(paths.FileStoreRoot, relative, out var screenshotPath))
+    {
+        return Results.BadRequest(new { error = "invalid_page_screenshot_relative_path", sourceDocumentId = id });
+    }
+
+    return Results.File(screenshotPath, InferContentType(screenshotPath), enableRangeProcessing: true);
+})
+.WithName("GetSourceDocumentPageScreenshot");
 
 app.MapPost("/source-documents/{id:guid}/cut-candidates/generate", async (
     Guid id,
@@ -2994,6 +3304,29 @@ app.MapPost("/assessments/{assessmentId:guid}/item-score-mappings/preview", asyn
 })
 .WithName("PreviewItemScoreMappings");
 
+app.MapPost("/assessments/{assessmentId:guid}/score-evidence-analysis/preview", async (
+    Guid assessmentId,
+    ScoreEvidenceAnalysisPreviewRequest request,
+    IScoreAnalysisWorkflowService workflowService,
+    CancellationToken cancellationToken) =>
+{
+    var result = await workflowService.PreviewScoreEvidenceAnalysisAsync(
+        assessmentId,
+        new ScoreEvidenceAnalysisServiceRequest(
+            request.ContainsStudentPii,
+            (request.Mappings ?? Array.Empty<ItemScoreMappingRequest>())
+                .Select(x => new ItemScoreMappingRequestItem(x.QuestionNo, x.QuestionItemId))
+                .ToArray()),
+        cancellationToken);
+    if (result is null)
+    {
+        return Results.NotFound(new { error = "assessment_not_found" });
+    }
+
+    return Results.Ok(ScoreEvidenceAnalysisPreviewResponse.From(result));
+})
+.WithName("PreviewScoreEvidenceAnalysis");
+
 app.MapPost("/assessments/{assessmentId:guid}/commentary-report/export", async (
     Guid assessmentId,
     CommentaryReportExportRequest request,
@@ -3079,12 +3412,39 @@ app.MapPost("/paper-blueprints", async (
         return Results.BadRequest(new { error = "teacher_request_required" });
     }
 
-    var result = await workflowService.CreateBlueprintReviewAsync(
-        request.TeacherRequest,
-        request.TextbookVersion,
-        cancellationToken);
+    try
+    {
+        var evidence = request.EvidenceConstraints;
+        var result = await workflowService.CreateBlueprintReviewAsync(
+            request.TeacherRequest,
+            request.TextbookVersion,
+            evidence is null
+                ? null
+                : new PaperEvidenceConstraintServiceRequest(
+                    evidence.EvidenceMode,
+                    evidence.PreviewMode,
+                    evidence.KnowledgeStableIds ?? [],
+                    evidence.RequirementIds ?? [],
+                    evidence.AbilityDimensions ?? [],
+                    evidence.CognitiveDemands ?? [],
+                    evidence.MethodOrExperimentIds ?? [],
+                    evidence.ContextTypes ?? [],
+                    evidence.ProfileIds ?? []),
+            cancellationToken);
 
-    return Results.Created($"/paper-blueprints/{result.Id}", PaperBlueprintReviewResponse.From(result));
+        return Results.Created($"/paper-blueprints/{result.Id}", PaperBlueprintReviewResponse.From(result));
+    }
+    catch (ArgumentException exception) when (
+        exception.Message.Contains("invalid_evidence_mode", StringComparison.Ordinal)
+        || exception.Message.Contains("preview_mode_required", StringComparison.Ordinal))
+    {
+        return Results.BadRequest(new
+        {
+            error = exception.Message.Contains("preview_mode_required", StringComparison.Ordinal)
+                ? "preview_mode_required"
+                : "invalid_evidence_mode"
+        });
+    }
 })
 .WithName("CreatePaperBlueprintReview");
 
@@ -3116,7 +3476,10 @@ app.MapPost("/paper-blueprints/{id:guid}/confirm", async (
             result.Status,
             result.SelectedQuestionCount,
             result.TeacherMessage,
-            result.AuditTrail
+            result.AuditTrail,
+            result.VersionReferences,
+            result.ConstraintExplanation,
+            result.ConstraintShortages
         });
     }
 
@@ -3694,11 +4057,6 @@ static bool TryResolveFileStorePath(string fileStoreRoot, string relativePath, o
 
     fullPath = candidate;
     return true;
-}
-
-static string BuildSourcePageScreenshotRelativePath(Guid sourceDocumentId, int pageNumber)
-{
-    return $"generated/guangzhou-2015/pages/{sourceDocumentId}-page-{pageNumber:000}.png";
 }
 
 static string InferContentType(string path)

@@ -16,6 +16,7 @@ from pypdf import PdfReader
 YEARS = tuple(range(2015, 2026))
 BATCH_KEY = "guangzhou-physics-2015-2025-20260726-v2"
 SCHEMA_VERSION = "1.0"
+EXPECTED_PHYSICAL_FILE_COUNT = 33
 INVENTORY_FIELDS = (
     "year",
     "fileName",
@@ -128,8 +129,10 @@ def discover_files(source_root: Path, destination_root: Path) -> list[SourceFile
 
 
 def validate_inventory(inventory: list[dict[str, object]]) -> None:
-    if len(inventory) != 32:
-        raise BatchStageError(f"expected 32 physical PDFs, found {len(inventory)}")
+    if len(inventory) != EXPECTED_PHYSICAL_FILE_COUNT:
+        raise BatchStageError(
+            f"expected {EXPECTED_PHYSICAL_FILE_COUNT} physical PDFs, found {len(inventory)}"
+        )
 
     logical_counts = {role: 0 for role in ("exam_paper", "answer_solution", "exam_year_report")}
     coverage = {year: set() for year in YEARS}
@@ -223,7 +226,11 @@ def run_stage(
     inventory = [inspect_pdf(item, source_root, destination_root) for item in discover_files(source_root, destination_root)]
     validate_inventory(inventory)
     before_digest = inventory_digest(inventory)
-    expected_location = "destination" if mode in {"rollback", "rollback_dry_run"} else "source"
+    expected_location = (
+        "destination"
+        if mode in {"rollback", "rollback_dry_run", "refresh_inventory"}
+        else "source"
+    )
     assert_locations(inventory, expected_location)
 
     moved_files: list[str] = []
@@ -265,7 +272,7 @@ def run_stage(
         "pdfIntegrityPass": True,
         "hashParityChecked": mode in {"apply", "rollback"},
         "hashParityPass": True if mode in {"apply", "rollback"} else None,
-        "inventoryState": "pre_operation",
+        "inventoryState": "current_destination" if mode == "refresh_inventory" else "pre_operation",
         "movedFiles": moved_files,
         "inventory": inventory,
         "rollback": (
@@ -275,7 +282,7 @@ def run_stage(
     }
     write_json(report, report_path)
     write_csv(inventory, inventory_csv_path)
-    if mode == "apply":
+    if mode in {"apply", "refresh_inventory"}:
         write_json(report, destination_root.parent / "source-batch-inventory.json")
     return report
 
@@ -290,6 +297,7 @@ def main() -> int:
     mode.add_argument("--apply", action="store_true")
     mode.add_argument("--rollback", action="store_true")
     mode.add_argument("--validate-rollback", action="store_true")
+    mode.add_argument("--refresh-inventory", action="store_true")
     args = parser.parse_args()
 
     selected_mode = (
@@ -299,6 +307,8 @@ def main() -> int:
         if args.rollback
         else "rollback_dry_run"
         if args.validate_rollback
+        else "refresh_inventory"
+        if args.refresh_inventory
         else "dry_run"
     )
     try:

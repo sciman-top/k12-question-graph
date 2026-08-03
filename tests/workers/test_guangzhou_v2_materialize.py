@@ -4,6 +4,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 
 from pypdf import PdfWriter
 
@@ -101,6 +102,23 @@ class GuangzhouV2MaterializeTests(unittest.TestCase):
         self.assertEqual(
             "question_anchor_page_candidate",
             materialize.answer_region_mode((2,), 3),
+        )
+
+    def test_2020_split_answer_starts_at_its_first_page(self) -> None:
+        plan = SimpleNamespace(questions={24: [SimpleNamespace(page_number=8)]})
+        paper = {"file_asset_id": "paper"}
+
+        self.assertEqual(
+            1,
+            reviewed_materialize.answer_minimum_page(
+                2020, plan, paper, {"file_asset_id": "answer"}
+            ),
+        )
+        self.assertEqual(
+            9,
+            reviewed_materialize.answer_minimum_page(
+                2020, plan, paper, {"file_asset_id": "paper"}
+            ),
         )
 
     def test_candidate_detectors_keep_legacy_row_contract(self) -> None:

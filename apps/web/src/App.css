@@ -714,7 +714,7 @@
 }
 
 .analysis-summary-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 }
 
 .analysis-summary-grid.compact {
@@ -727,6 +727,39 @@
   border-radius: 6px;
   background: #fff;
   padding: 14px;
+}
+
+.analysis-evidence-layers {
+  display: grid;
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.analysis-evidence-layers > section {
+  min-width: 0;
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
+
+.analysis-evidence-layers h3.ant-typography {
+  margin: 0 0 10px;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.analysis-evidence-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  padding: 8px 0;
+}
+
+.analysis-evidence-row > span:first-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
 }
 
 .revision-intake-panel {
@@ -816,6 +849,120 @@
   border-radius: 6px;
   background: #fff;
   padding: 16px;
+}
+
+.curriculum-evidence-review {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid #d7ddd9;
+  background: #fff;
+}
+
+.curriculum-evidence-review > * {
+  min-width: 0;
+}
+
+.curriculum-review-heading {
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.curriculum-evidence-review > .ant-segmented {
+  overflow-x: auto;
+}
+
+.curriculum-evidence-review .ant-segmented-group {
+  width: max-content;
+  min-width: 100%;
+}
+
+.curriculum-review-list {
+  display: grid;
+  gap: 8px;
+  min-height: 160px;
+}
+
+.curriculum-review-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.7fr);
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid #e7ebe8;
+}
+
+.curriculum-review-main,
+.curriculum-review-actions {
+  display: grid;
+  gap: 9px;
+  min-width: 0;
+}
+
+.curriculum-review-main > strong,
+.curriculum-review-main > small {
+  overflow-wrap: anywhere;
+}
+
+.curriculum-review-main > small {
+  color: #657169;
+}
+
+.curriculum-review-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  color: #5d6861;
+  font-size: 13px;
+}
+
+.curriculum-review-sources {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  min-height: 32px;
+}
+
+.curriculum-review-sources .ant-btn {
+  padding-inline: 0;
+}
+
+.curriculum-mapping-editor {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  gap: 8px;
+  min-width: 0;
+}
+
+.curriculum-review-pagination {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+@media (max-width: 860px) {
+  .curriculum-evidence-review {
+    padding: 14px;
+  }
+
+  .curriculum-evidence-review > .ant-segmented .ant-segmented-item {
+    flex: 0 0 auto;
+    min-width: 104px;
+  }
+
+  .curriculum-review-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .curriculum-mapping-editor {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .curriculum-review-pagination > li:not(:last-child) {
+    margin-inline-end: 4px;
+  }
 }
 
 .mapping-review-grid {
@@ -1126,6 +1273,22 @@
   background: #eef7f3;
 }
 
+.evidence-search-controls {
+  display: grid;
+  grid-template-columns: minmax(300px, 1fr) minmax(220px, 0.7fr) auto auto;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.evidence-search-controls > * {
+  min-width: 0;
+}
+
+.question-panel > .ant-alert {
+  margin-top: 12px;
+}
+
 .question-card-list {
   display: grid;
   gap: 10px;
@@ -1148,6 +1311,73 @@
   cursor: pointer;
   padding: 14px;
   text-align: left;
+}
+
+.question-evidence-main {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+  gap: 12px;
+}
+
+.question-evidence-title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+}
+
+.question-evidence-title > strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.question-evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.question-evidence-grid > span {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  min-width: 0;
+  border-left: 2px solid var(--line);
+  padding-left: 10px;
+}
+
+.question-evidence-grid small,
+.question-evidence-grid em {
+  color: var(--muted);
+  font-style: normal;
+  line-height: 1.4;
+}
+
+.question-evidence-grid b,
+.question-evidence-grid em {
+  overflow-wrap: anywhere;
+}
+
+.question-evidence-tags {
+  min-width: 0;
+}
+
+.question-evidence-tags a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.question-search-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 74px;
+  padding: 14px;
 }
 
 .question-card span:first-child {
@@ -2364,6 +2594,12 @@
     grid-template-columns: 1fr;
   }
 
+  .ai-routing-mode-grid,
+  .ai-provider-grid,
+  .ai-role-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .workspace > section:not(.primary-panel) {
     grid-column: 1;
   }
@@ -2400,6 +2636,17 @@
     grid-template-columns: 1fr;
   }
 
+  .evidence-search-controls,
+  .question-evidence-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .question-card,
+  .question-evidence-title {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
   .action-grid {
     grid-template-columns: 1fr;
   }
@@ -2427,6 +2674,53 @@
 }
 
 @media (max-width: 560px) {
+  .curriculum-evidence-review > .ant-segmented {
+    overflow: visible;
+  }
+
+  .curriculum-evidence-review .ant-segmented-group {
+    width: 100%;
+    min-width: 0;
+    flex-wrap: wrap;
+    gap: 2px;
+  }
+
+  .curriculum-evidence-review > .ant-segmented .ant-segmented-thumb {
+    display: none;
+  }
+
+  .curriculum-evidence-review > .ant-segmented .ant-segmented-item {
+    flex: 1 1 calc(33.333% - 2px);
+    min-width: 92px;
+  }
+
+  .curriculum-evidence-review > .ant-segmented .ant-segmented-item-selected {
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(21, 49, 39, 0.16);
+  }
+
+  .evidence-search-controls,
+  .question-evidence-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .evidence-search-controls > .ant-segmented {
+    overflow-x: auto;
+  }
+
+  .evidence-search-controls .ant-segmented-group {
+    width: max-content;
+    min-width: 100%;
+  }
+
+  .ai-provider-head {
+    flex-wrap: wrap;
+  }
+
+  .ai-provider-meta {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .real-exam-strip,
   .review-summary {
     grid-template-columns: 1fr;

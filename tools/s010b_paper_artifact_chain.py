@@ -123,6 +123,8 @@ def question_docx_body(data: dict[str, Any], variant: str) -> tuple[str, list[Pa
             lines.append(paragraph(f"{index}. {question.get('title', '题目')}"))
             lines.append(paragraph(f"答案：{text(question.get('answer'))}"))
             lines.append(paragraph(f"解析：{text(question.get('solution'))}"))
+            lines.append(paragraph(f"来源授权：{question.get('sourceAuthorizationStatus')}"))
+            lines.append(paragraph(f"版本引用：{question.get('knowledgeVersionStatus')} v{question.get('knowledgeVersion')}"))
             continue
 
         lines.append(paragraph(f"{index}. {question.get('title', '题目')}（{question.get('score')} 分）"))
@@ -155,6 +157,8 @@ def question_docx_body(data: dict[str, Any], variant: str) -> tuple[str, list[Pa
             image_paths.append(image_path)
             lines.append(image_xml(len(image_paths), image_path))
 
+        lines.append(paragraph(f"来源授权：{question.get('sourceAuthorizationStatus')}"))
+        lines.append(paragraph(f"版本引用：{question.get('knowledgeVersionStatus')} v{question.get('knowledgeVersion')}"))
         if variant == "teacher":
             lines.append(paragraph(f"答案：{text(question.get('answer'))}"))
             lines.append(paragraph(f"解析：{text(question.get('solution'))}"))
@@ -253,7 +257,7 @@ def verify_docx(path: Path, variant: str) -> dict[str, Any]:
         "hasFormulaText": "v=s/t" in document_xml,
         "hasFigureMedia": bool(media) if variant != "answer" else True,
         "hasTable": "<w:tbl>" in document_xml if variant != "answer" else True,
-        "hasSourceAuthorization": "来源授权：authorized" in document_xml if variant != "answer" else True,
+        "hasSourceAuthorization": "来源授权：authorized" in document_xml,
         "hasKnowledgeVersionReference": "版本引用：active v1" in document_xml,
         "hasAnswer": "答案：" in document_xml,
         "hasSolution": "解析：" in document_xml,
@@ -261,6 +265,10 @@ def verify_docx(path: Path, variant: str) -> dict[str, Any]:
         "mediaCount": len(media),
         "allMediaSubstantive": all(size > 1000 for size in media_sizes) if media else variant == "answer",
     }
+
+
+def minimum_substantive_text_length(expected_question_count: int) -> int:
+    return max(50, expected_question_count * 20)
 
 
 def verify_pdf(path: Path, expected_question_count: int) -> dict[str, Any]:
@@ -275,7 +283,7 @@ def verify_pdf(path: Path, expected_question_count: int) -> dict[str, Any]:
         "hasTaskMarker": "校本题谱" in extracted_text,
         "pageCountPositive": len(reader.pages) >= 1,
         "fileSizeSubstantive": len(payload) > 10_000,
-        "textLengthSubstantive": len(extracted_text.strip()) > max(200, expected_question_count * 20),
+        "textLengthSubstantive": len(extracted_text.strip()) > minimum_substantive_text_length(expected_question_count),
         "pageCount": len(reader.pages),
         "fileSizeBytes": len(payload),
         "extractedTextLength": len(extracted_text.strip()),
@@ -295,6 +303,8 @@ def variant_checks_pass(variant: str, checks: OrderedDict[str, Any], requirement
     common_docx = (
         docx["hasDocumentXml"]
         and docx["studentHidesAnswer"]
+        and docx["hasSourceAuthorization"]
+        and docx["hasKnowledgeVersionReference"]
     )
     if variant in {"student", "teacher"}:
         common_docx = (

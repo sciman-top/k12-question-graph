@@ -103,6 +103,8 @@ try {
     }
 
     $app = Get-Content -LiteralPath 'apps/web/src/App.tsx' -Raw
+    $realExamHero = Get-Content -LiteralPath 'apps/web/src/ui/RealExamHero.tsx' -Raw
+    $uiSource = $app + "`n" + $realExamHero
     foreach ($marker in @(
         "runWorkbenchAction('associate')",
         "data-action=`"associate`"",
@@ -110,7 +112,7 @@ try {
         '共用题图',
         '未关联题图'
     )) {
-        Assert-Condition ($app.Contains($marker)) "NS404 UI marker missing: $marker"
+        Assert-Condition ($uiSource.Contains($marker)) "NS404 UI marker missing: $marker"
     }
 
     $report = [ordered]@{

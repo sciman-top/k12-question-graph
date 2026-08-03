@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "cek012-guangzhou-exam-evidence-index-report.v1",
+  "status": "pass",
+  "checkedAt": "2026-07-29T14:46:05.615257+00:00",
+  "taskId": "CEK-12",
+  "questions": 234,
+  "blockers": [],
+  "readiness": {
+    "questionCorpusReady": true,
+    "assessmentTargetExtractionReady": true,
+    "reportEvidenceReady": true,
+    "allFieldExtractionReady": true,
+    "questionCount": 234,
+    "stemCount": 234,
+    "answerContentCount": 234,
+    "paperAnchorCount": 234,
+    "answerAnchorCount": 234,
+    "reportAnchorCount": 234,
+    "corpusBlockers": [],
+    "reportBlockers": []
+  },
+  "reviewItemCount": 0,
+  "manifestSha256": "3a148c05598974dbdad4e6bf877ab511efd048293679f056c85e493a5dbea37b",
+  "databaseWrite": false,
+  "activeWrite": false,
+  "completionBoundary": "The 2015-2025 question corpus is a candidate-only prerequisite. Assessment-target extraction may proceed only when questionCorpusReady=true; report-derived fields additionally require reportEvidenceReady=true. REAL005 remains not_closed."
+}

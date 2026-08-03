@@ -4,11 +4,12 @@ import {
   getCutCandidates,
   getImportJob,
   getReadyHealth,
+  searchQuestionEvidence,
   searchQuestions,
   getSourceDocumentPreview,
   getSourceMaterials,
 } from './client'
-import type { QuestionSearchParams } from './contracts'
+import type { QuestionEvidenceSearchParams, QuestionSearchParams } from './contracts'
 
 export const serverStateQueryKeys = {
   readyHealth: ['server-state', 'ready-health'] as const,
@@ -21,14 +22,22 @@ export const serverStateQueryKeys = {
     ['server-state', 'cut-candidates', sourceDocumentId] as const,
   questionSearch: (params: QuestionSearchParams) =>
     ['server-state', 'question-search', params] as const,
+  questionEvidenceSearch: (params: QuestionEvidenceSearchParams) =>
+    ['server-state', 'question-evidence-search', params] as const,
+} as const
+
+export const readyHealthQueryPolicy = {
+  retry: false,
+  staleTime: 30_000,
+  refetchInterval: 5_000,
+  refetchIntervalInBackground: false,
 } as const
 
 export function useReadyHealthQuery() {
   return useQuery({
     queryKey: serverStateQueryKeys.readyHealth,
     queryFn: getReadyHealth,
-    retry: false,
-    staleTime: 30_000,
+    ...readyHealthQueryPolicy,
   })
 }
 
@@ -85,6 +94,16 @@ export function useQuestionSearchQuery(params: QuestionSearchParams = {}) {
   return useQuery({
     queryKey: serverStateQueryKeys.questionSearch(resolvedParams),
     queryFn: () => searchQuestions({ ...resolvedParams, sortBy: 'question_no', order: 'asc' }),
+    retry: false,
+    staleTime: 15_000,
+  })
+}
+
+export function useQuestionEvidenceSearchQuery(params: QuestionEvidenceSearchParams = {}) {
+  const resolvedParams = { ...params, page: params.page ?? 1, pageSize: params.pageSize ?? 20 }
+  return useQuery({
+    queryKey: serverStateQueryKeys.questionEvidenceSearch(resolvedParams),
+    queryFn: () => searchQuestionEvidence(resolvedParams),
     retry: false,
     staleTime: 15_000,
   })

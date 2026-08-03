@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS503",
-  "checkedAt": "2026-07-26T00:47:30",
+  "checkedAt": "2026-07-31T21:54:07",
   "mode": "model_router_budget_cache_cost_fail_closed_contract",
   "productionEligible": false,
   "externalAiCalls": 0,
@@ -25,7 +25,7 @@
     "d002CachedTokens": 0
   },
   "aiJobCost": {
-    "jobId": "edc6669d-8a1e-4b54-8524-31350a180c83",
+    "jobId": "0afe79a4-057d-4a2e-b9fb-b4c4cc376ab1",
     "modelProvider": "stub_llm",
     "modelName": "stub",
     "promptVersion": "prompt.d001.draft-test.v1",

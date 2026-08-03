@@ -81,6 +81,14 @@ function Find-CodePatternHits([string[]] $RelativeRoots, [string[]] $Patterns) {
     return @($hits)
 }
 
+function Test-AnyCodePattern([string] $Text, [string[]] $Patterns) {
+    foreach ($pattern in $Patterns) {
+        if ($Text -match $pattern) { return $true }
+    }
+
+    return $false
+}
+
 Push-Location $repoRoot
 try {
     $planFullPath = Resolve-InRepoPath $NonSitePlanPath
@@ -169,16 +177,25 @@ try {
     Assert-Condition ($advancedPlatformArea.usable_today -eq '不可使用') 'advanced-platform must remain unavailable before real bottleneck evidence'
     Assert-Condition ($hostCapability.recommendedProfiles.searchProfile.status -eq 'postgresql_first') 'host capability search profile must stay PostgreSQL-first'
 
-    $codePatternHits = @(Find-CodePatternHits @('apps/api', 'apps/web/src') @(
+    $blockedCodePatterns = @(
         'pgvector',
         'CREATE\s+EXTENSION\s+.*vector',
         'embedding',
-        'semantic',
+        'semantic.{0,40}(search|retrieval|route|query)',
+        '(search|retrieval|route|query).{0,40}semantic',
         'ElasticSearch',
         'OpenSearch',
         'Meilisearch',
         'Typesense'
-    ))
+    )
+    foreach ($allowedSample in @('SemanticType', 'KnowledgeSemanticKind', 'semantic_version')) {
+        Assert-Condition (-not (Test-AnyCodePattern $allowedSample $blockedCodePatterns)) "NS1201 blocked-pattern self-test rejected a non-search semantic term: $allowedSample"
+    }
+    foreach ($blockedSample in @('SemanticSearchService', 'searchSemanticRoute', 'semantic retrieval', 'CREATE EXTENSION vector', 'EmbeddingModel', 'OpenSearchClient')) {
+        Assert-Condition (Test-AnyCodePattern $blockedSample $blockedCodePatterns) "NS1201 blocked-pattern self-test missed: $blockedSample"
+    }
+
+    $codePatternHits = @(Find-CodePatternHits @('apps/api', 'apps/web/src') $blockedCodePatterns)
     Assert-Condition (@($codePatternHits).Count -eq 0) 'NS1201 found product code that appears to enable semantic/vector/external search'
 
     $report = [ordered]@{
@@ -228,7 +245,8 @@ try {
         }
         codeScan = [ordered]@{
             searchedRoots = @('apps/api', 'apps/web/src')
-            blockedPatterns = @('pgvector', 'CREATE EXTENSION vector', 'embedding', 'semantic', 'ElasticSearch', 'OpenSearch', 'Meilisearch', 'Typesense')
+            blockedPatterns = @('pgvector', 'CREATE EXTENSION vector', 'embedding', 'semantic search/retrieval/route/query', 'ElasticSearch', 'OpenSearch', 'Meilisearch', 'Typesense')
+            patternSelfTestPassed = $true
             hitCount = [int]@($codePatternHits).Count
             noPgvectorMigration = $true
             noEmbeddingTableOrRoute = $true

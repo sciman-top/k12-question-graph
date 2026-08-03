@@ -1,6 +1,6 @@
 # 109 · 发布 Go / No-Go 卡
 
-日期：2026-06-23。状态证据核对到 2026-06-23。
+日期：2026-07-29。状态证据核对到 2026-07-29。
 
 ## 1. 当前默认结论
 
@@ -13,6 +13,8 @@
 - `P006` 正式发布裁决未留痕。
 
 2026-06-23 最新 repo-side 刷新后，这个结论仍然不变：完整 `full gate`、reference-basis、closeout plan、repo-side audit、status sync、PQR gate group 和 CI preflight 的最新证据都只证明仓库侧口径更一致了，没有把现场事实阻断自动消掉。`REAL005A/B/C/D 的 repo-side closeout 已完成`，但 `REAL005` 仍然保持 `not_closed`，当前不再把 repo-side 文案收口留作 next open，而只剩现场 / 人工链路待关闭。
+
+2026-07-29 再次刷新后裁决仍为 `No-Go`：234 道广州真题和 CEK-01..16 已闭环到本机 candidate/review 层，但 234 题、444 个 AssessmentTarget 和 273 个课程要求/分面候选都未获教师批准，`productionEligible=false`。CEK-17..35、P001/P003/P005/P006、隔离机和正式发布签字继续开放。新增代码后的 full gate 已走完子步骤并产生最终备份，但外层 Windows 管道未交回最终 exit code，因此不能把本次运行写成新的 `RUN_GATES_EXIT=0` 基线。
 
 ## 2. 用途
 

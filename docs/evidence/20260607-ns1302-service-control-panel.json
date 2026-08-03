@@ -1,13 +1,13 @@
 {
   "status": "pass",
   "taskId": "NS1302",
-  "checkedAt": "2026-07-28T01:39:27",
+  "checkedAt": "2026-07-31T21:49:11",
   "mode": "windows_service_and_service_control_panel_contract",
   "productionEligible": false,
   "dependency": {
-    "ns804": "docs/evidence/20260726-ns804-windows-service.json",
-    "ns805": "docs/evidence/20260726-ns805-health-dashboard.json",
-    "ns806": "docs/evidence/20260726-ns806-upgrade-bundle.json"
+    "ns804": "docs/evidence/20260730-ns804-windows-service.json",
+    "ns805": "docs/evidence/20260730-ns805-health-dashboard.json",
+    "ns806": "docs/evidence/20260730-ns806-upgrade-bundle.json"
   },
   "runtime": {
     "windowsServiceHost": true,
@@ -36,7 +36,7 @@
       "logs",
       "cache"
     ],
-    "backupManifest": "tmp/ns801-backups/20260726-004932/manifest.json",
+    "backupManifest": "tmp/ns801-backups/20260730-225013/manifest.json",
     "bundleExe": "tmp\\o007\\bundle\\efbundle.exe",
     "restoreDrillReport": "docs/evidence/o007-o003-recovery-drill-report.json"
   },

@@ -30,6 +30,7 @@ try {
         'apps/web/src/ui/ScoreWorkbenchPanelContent.tsx',
         'apps/web/src/ui/AnalysisPanelContent.tsx',
         'apps/web/src/ui/PaperWorkbenchPanels.tsx',
+        'apps/web/src/ui/RealExamHero.tsx',
         'apps/web/src/ui/RealExamReviewWorkbench.tsx'
     )
 
@@ -42,6 +43,7 @@ try {
         "from './ui/ScoreWorkbenchPanelContent'",
         "from './ui/AnalysisPanelContent'",
         "from './ui/PaperWorkbenchPanels'",
+        "from './ui/RealExamHero'",
         "from './ui/RealExamReviewWorkbench'",
         "from './ui/workbenchData'"
     )) {
@@ -53,6 +55,7 @@ try {
         '<ScoreWorkbenchPanelContent',
         '<AnalysisPanelContent',
         '<PaperWorkbenchPanels',
+        '<RealExamHero',
         '<RealExamReviewWorkbench'
     )) {
         Assert-Condition ($app.Contains($marker)) "NS1301 App.tsx missing extracted component usage: $marker"
@@ -77,6 +80,7 @@ try {
         'ScoreWorkbenchPanelContent.tsx',
         'AnalysisPanelContent.tsx',
         'PaperWorkbenchPanels.tsx',
+        'RealExamHero.tsx',
         'workbenchData.tsx',
         'Program.cs',
         'Application/Workflows/*.cs'
@@ -107,6 +111,7 @@ try {
                 'ScoreWorkbenchPanelContent',
                 'AnalysisPanelContent',
                 'PaperWorkbenchPanels',
+                'RealExamHero',
                 'RealExamReviewWorkbench'
             )
             extractedDataModule = 'apps/web/src/ui/workbenchData.tsx'

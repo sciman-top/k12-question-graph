@@ -15,8 +15,6 @@ import {
 import {
   CheckCircleOutlined,
   CloudUploadOutlined,
-  EditOutlined,
-  FileSearchOutlined,
   LinkOutlined,
   MergeCellsOutlined,
   SearchOutlined,
@@ -36,6 +34,7 @@ import {
   getQuestionSources,
   getReviewQueueItems,
   previewItemScoreMappings,
+  previewScoreEvidenceAnalysis,
   reopenReviewQueueItem,
   replacePaperQuestion,
   resolveReviewQueueItem,
@@ -46,29 +45,30 @@ import {
 } from './api/client'
 import type {
   QuestionDetailContract,
-  QuestionCardContract,
-  QuestionSearchParams,
+  QuestionEvidenceCardContract,
+  QuestionEvidenceMode,
+  QuestionEvidenceSearchParams,
   QuestionSourceRegionContract,
   ReviewQueueItemContract,
+  ScoreEvidenceAnalysisContract,
 } from './api/contracts'
 import {
   useCutCandidatesQuery,
   useImportJobQuery,
-  useQuestionSearchQuery,
+  useQuestionEvidenceSearchQuery,
   useReadyHealthQuery,
   useSourceMaterialsQuery,
   useSourcePreviewQuery,
 } from './api/queries'
 import { AnalysisPanelContent } from './ui/AnalysisPanelContent'
 import { PaperWorkbenchPanels } from './ui/PaperWorkbenchPanels'
+import { RealExamHero } from './ui/RealExamHero'
 import { RealExamReviewWorkbench } from './ui/RealExamReviewWorkbench'
 import { ScoreWorkbenchPanelContent } from './ui/ScoreWorkbenchPanelContent'
 import { TeacherHomePanelContent } from './ui/TeacherHomePanelContent'
 import { teacherDifficultyLabelFor, teacherLabelFor } from './ui/teacherLabels'
 import {
-  formatRegionKind,
   guangzhou2015EvidencePreview,
-  hasRenderableImage,
   initialCommentaryReportPreview,
   initialItemScoreMappingPreview,
   initialPaperDraft,
@@ -78,11 +78,10 @@ import {
   importWizardSteps,
   isQuestionAssetRegion,
   jobStates,
-  questionSearchParamsFor,
-  renderMathAwareText,
+  questionEvidenceParamsFor,
+  resolveSourcePreviewUrl,
   sharedAssets,
   sourceRegionRank,
-  splitQuestionText,
   type RealExamPreviewRow,
   type RealExamRevisionState,
   type StarterDemoStep,
@@ -241,6 +240,28 @@ data-contract="export-artifact-checks"
 data-contract="export-preview"
 */
 
+const initialScoreEvidenceAnalysis: ScoreEvidenceAnalysisContract = {
+  status: 'blocked',
+  mode: 'draft_test',
+  productionEligible: false,
+  realStudentDataUsed: false,
+  writesProductionHistory: false,
+  assessmentId: '',
+  assessmentTitle: '',
+  scoreDerivedPerformance: [],
+  knowledgeMastery: [],
+  abilityPerformance: [],
+  cognitivePerformance: [],
+  observedContexts: [],
+  errorPatternAssociations: [],
+  teachingRecommendations: [],
+  teacherConfirmedDiagnoses: [],
+  diagnosisStatus: 'pending_teacher_confirmation',
+  blockingIssues: [],
+  teacherMessage: '请先导入成绩并完成小题映射。',
+  auditTrail: [],
+}
+
 function App() {
   const readyHealthQuery = useReadyHealthQuery()
   const [adminWorkspaceVisible, setAdminWorkspaceVisible] = useState<boolean>(() => {
@@ -278,7 +299,8 @@ function App() {
   const [segments, setSegments] = useState(initialSegments)
   const [selectedIds, setSelectedIds] = useState<string[]>(['q-02', 'q-03'])
   const [selectedAsset, setSelectedAsset] = useState(sharedAssets[0])
-  const [actionLog, setActionLog] = useState<string[]>([])
+  const actionLogSequence = useRef(0)
+  const [actionLog, setActionLog] = useState<Array<{ id: number; message: string }>>([])
   const [savedQuestionSourceSummary, setSavedQuestionSourceSummary] = useState('尚未保存题目')
   const [savedQuestionSourceRegions, setSavedQuestionSourceRegions] = useState<QuestionSourceRegionContract[]>([])
   const [paperRequest, setPaperRequest] = useState(initialPaperRequest)
@@ -293,13 +315,15 @@ function App() {
   const [scoreMappingMessage, setScoreMappingMessage] = useState(initialItemScoreMappingPreview.teacherMessage)
   const [itemScoreMappingPreview, setItemScoreMappingPreview] = useState(initialItemScoreMappingPreview)
   const [commentaryReportPreview, setCommentaryReportPreview] = useState(initialCommentaryReportPreview)
+  const [scoreEvidenceAnalysis, setScoreEvidenceAnalysis] = useState(initialScoreEvidenceAnalysis)
   const [scoreWorkflowBusy, setScoreWorkflowBusy] = useState(false)
   const [analysisMessage, setAnalysisMessage] = useState('点击查看摘要后，会聚焦当前讲评建议和导出状态。')
-  const [activeQuestionFilter, setActiveQuestionFilter] = useState('all-real')
-  const [questionSearchParams, setQuestionSearchParams] = useState<QuestionSearchParams>({
-    status: 'pending_review',
-  })
-  const [selectedQuestionId, setSelectedQuestionId] = useState('')
+  const [questionEvidenceMode, setQuestionEvidenceMode] = useState<QuestionEvidenceMode>('active')
+  const [activeEvidenceFilter, setActiveEvidenceFilter] = useState('all')
+  const [questionEvidenceSearchParams, setQuestionEvidenceSearchParams] = useState<QuestionEvidenceSearchParams>(
+    () => questionEvidenceParamsFor('all', 'active'),
+  )
+  const [selectedEvidenceQuestionId, setSelectedEvidenceQuestionId] = useState('')
   const [questionInteractionMessage, setQuestionInteractionMessage] = useState('选择题目后，可用于组卷、换题或来源回看。')
   const [importStartedAt] = useState<Date>(() => new Date())
   const [nowMs, setNowMs] = useState<number>(() => Date.now())
@@ -329,9 +353,11 @@ function App() {
     selectedSourceDocumentId,
     selectedSourceDocumentId.length > 0,
   )
-  const questionSearchQuery = useQuestionSearchQuery(questionSearchParams)
+  const questionEvidenceSearchQuery = useQuestionEvidenceSearchQuery(questionEvidenceSearchParams)
   const cutCandidates = cutCandidatesQuery.data?.ok ? cutCandidatesQuery.data.data : undefined
-  const questionSearch = questionSearchQuery.data?.ok ? questionSearchQuery.data.data : undefined
+  const questionEvidenceSearch = questionEvidenceSearchQuery.data?.ok
+    ? questionEvidenceSearchQuery.data.data
+    : undefined
   const sourcePreview = previewQuery.data?.ok ? previewQuery.data.data : undefined
   const importJob = importJobQuery.data?.ok ? importJobQuery.data.data : undefined
   const selectedRealExamReview = realExamQueue.find((item) => item.id === selectedRealExamReviewId)
@@ -419,7 +445,9 @@ function App() {
   }, [])
 
   const appendLog = (message: string) => {
-    setActionLog((current) => [message, ...current].slice(0, 5))
+    actionLogSequence.current += 1
+    const entry = { id: actionLogSequence.current, message }
+    setActionLog((current) => [entry, ...current].slice(0, 5))
   }
 
   const nextLocalId = (prefix: string) => {
@@ -663,7 +691,16 @@ function App() {
     setSegments(initialSegments)
     setSelectedIds(['q-02', 'q-03'])
     trackImportAction()
-    setActionLog((current) => [`已撤销：${current[0] ?? '最近操作'}`, ...current.slice(1)])
+    setActionLog((current) => {
+      actionLogSequence.current += 1
+      return [
+        {
+          id: actionLogSequence.current,
+          message: `已撤销：${current[0]?.message ?? '最近操作'}`,
+        },
+        ...current.slice(1),
+      ]
+    })
   }
 
   const runCutCandidateGeneration = async () => {
@@ -1170,7 +1207,7 @@ function App() {
     const assessmentId = (overrideAssessmentId ?? scoreMappingAssessmentId).trim()
     if (!assessmentId) {
       setScoreMappingMessage('请先输入成绩批次 ID，再预览小题映射。')
-      return
+      return null
     }
 
     const result = await previewItemScoreMappings({
@@ -1182,7 +1219,7 @@ function App() {
     })
     if (!result.ok) {
       setScoreMappingMessage(`映射预览失败：${result.error.message}`)
-      return
+      return null
     }
 
     setScoreMappingMessage(result.data.teacherMessage)
@@ -1207,6 +1244,7 @@ function App() {
         issueCodes: row.issueCodes,
       })),
     })
+    return result.data
   }
 
   const generateScoreAnalysis = async () => {
@@ -1220,9 +1258,27 @@ function App() {
       return
     }
 
-    await previewScoreMappings(assessmentId)
-    setAnalysisMessage('已基于当前成绩批次刷新薄弱点摘要，可继续导出讲评报告草稿。')
-    appendLog('已生成成绩分析预览')
+    const mappingPreview = await previewScoreMappings(assessmentId)
+    if (!mappingPreview) {
+      return
+    }
+    const result = await previewScoreEvidenceAnalysis({
+      assessmentId,
+      containsStudentPii: false,
+      mappings: mappingPreview.rows.map((row) => ({
+        questionNo: row.questionNo,
+        questionItemId: row.questionItemId,
+      })),
+    })
+    if (!result.ok) {
+      setScoreEvidenceAnalysis(initialScoreEvidenceAnalysis)
+      setAnalysisMessage(`证据分析失败：${result.error.message}`)
+      return
+    }
+
+    setScoreEvidenceAnalysis(result.data)
+    setAnalysisMessage(result.data.teacherMessage)
+    appendLog(result.data.status === 'ready' ? '已生成成绩证据分析预览' : '成绩证据分析已按门禁阻断')
   }
 
   const exportScoreReport = async () => {
@@ -1283,43 +1339,97 @@ function App() {
     setAnalysisMessage(
       commentaryReportPreview.status === 'ready'
         ? `讲评摘要已生成：${commentaryReportPreview.sections.map((section) => section.title).join('、')}`
-        : '当前是示例分析摘要；导入成绩并导出报告后会显示真实草稿路径。',
+        : scoreEvidenceAnalysis.teacherMessage,
     )
     appendLog('已打开讲评摘要')
   }
 
-  const applyQuestionFilter = (filter: string, label: string) => {
-    setActiveQuestionFilter(filter)
-    setQuestionSearchParams(questionSearchParamsFor(filter))
+  const applyEvidenceFilter = (filter: string, label: string) => {
+    setActiveEvidenceFilter(filter)
+    setQuestionEvidenceSearchParams(questionEvidenceParamsFor(filter, questionEvidenceMode))
     setQuestionInteractionMessage(`已应用筛选：${label}`)
-    appendLog(`已应用题库筛选：${label}`)
+    appendLog(`已应用证据题库筛选：${label}`)
   }
 
-  const selectQuestionCard = (card: QuestionCardContract) => {
-    setSelectedQuestionId(card.id)
+  const changeQuestionEvidenceMode = (mode: QuestionEvidenceMode) => {
+    setQuestionEvidenceMode(mode)
+    setSelectedEvidenceQuestionId('')
+    setQuestionEvidenceSearchParams(questionEvidenceParamsFor(activeEvidenceFilter, mode))
+    setQuestionInteractionMessage(
+      mode === 'active' ? '已切换到正式题库。' : mode === 'reviewed' ? '已切换到已审核预览。' : '已切换到候选预览。',
+    )
+  }
+
+  const clearEvidenceFilters = () => {
+    setActiveEvidenceFilter('all')
+    setQuestionEvidenceSearchParams(questionEvidenceParamsFor('all', questionEvidenceMode))
+    setQuestionInteractionMessage('已清空证据筛选。')
+  }
+
+  const selectQuestionEvidenceCard = (card: QuestionEvidenceCardContract) => {
+    if (questionEvidenceMode !== 'active' || !card.productionEligible) {
+      setQuestionInteractionMessage('预览题目不能加入正式题篮。')
+      return
+    }
+
+    const target = card.assessmentTargets.find((item) => item.isPrimaryTarget) ?? card.assessmentTargets[0]
+    const knowledge = target?.knowledge.find((item) => item.role === 'primary') ?? target?.knowledge[0]
+    setSelectedEvidenceQuestionId(card.questionId)
     setPaperDraft((current) => ({
       ...current,
       currentQuestion: {
-        id: card.id,
-        stemPreview: card.preview,
-        questionType: card.questionType,
-        score: card.defaultScore ?? 0,
-        difficultyEstimated: card.difficultyEstimated ?? 0.5,
-        primaryKnowledgeId: card.primaryKnowledge?.id ?? '',
-        primaryKnowledgeTitle:
-          card.primaryKnowledge?.title ??
-          (card.candidateTags?.primaryKnowledge?.label
-            ? `${card.candidateTags.primaryKnowledge.label}（候选）`
-            : '知识点待确认'),
-        sourceType: card.sources.types[0] ?? 'unknown',
+        id: card.questionId,
+        stemPreview: target?.targetStatement ?? `第 ${card.questionNo ?? '-'} 题`,
+        questionType: card.questionType ?? 'unknown',
+        score: 0,
+        difficultyEstimated: card.estimatedDifficulty ?? 0.5,
+        primaryKnowledgeId: knowledge?.stableId ?? '',
+        primaryKnowledgeTitle: knowledge?.displayName ?? '知识点待确认',
+        sourceType: 'evidence_search',
         recentUseStatus: 'not_recently_used',
       },
       replacementQuestion: null,
       undoSnapshot: null,
       auditTrail: [],
     }))
-    setQuestionInteractionMessage(`已选择题目：${card.preview || card.id}`)
-    appendLog('已选择题目，可加入组卷流程')
+    setQuestionInteractionMessage(`已加入题篮：第 ${card.questionNo ?? '-'} 题`)
+    appendLog('已从证据题库加入正式题目')
+  }
+
+  const openQuestionEvidenceSource = async (
+    card: QuestionEvidenceCardContract,
+    sourceKind: 'question' | 'answer',
+  ) => {
+    const sourceWindow = window.open('about:blank', '_blank')
+    if (sourceWindow) sourceWindow.opener = null
+    const result = await getQuestionSources(card.questionId)
+    if (!result.ok) {
+      sourceWindow?.close()
+      setQuestionInteractionMessage(`来源回看失败：${result.error.message}`)
+      return
+    }
+
+    const isAnswer = (region: QuestionSourceRegionContract) => region.regionType.toLowerCase().includes('answer')
+    const source = result.data.sourceRegions.find((region) =>
+      sourceKind === 'answer' ? isAnswer(region) : !isAnswer(region),
+    )
+    const sourceUrl = source?.pageScreenshotUrl ?? source?.screenshotUrl
+    if (!sourceUrl) {
+      sourceWindow?.close()
+      setQuestionInteractionMessage(sourceKind === 'answer' ? '答案原页暂不可用。' : '试卷原页暂不可用。')
+      return
+    }
+
+    if (sourceWindow) sourceWindow.location.replace(resolveSourcePreviewUrl(sourceUrl, window.location.origin))
+    setQuestionInteractionMessage(sourceKind === 'answer' ? '已打开答案原页。' : '已打开试卷原页。')
+  }
+
+  const returnToQuestionBasket = () => {
+    document.querySelector('[data-contract="question-basket"]')?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+    })
+    setQuestionInteractionMessage(paperBasketId ? '已返回已保存题篮。' : '题篮尚未保存。')
   }
 
   const runStarterDemo = (step: StarterDemoStep) => {
@@ -1411,172 +1521,28 @@ function App() {
               }
             />
 
-            <div className="real-exam-hero" data-contract="real-guangzhou-2015-primary-workbench" data-workflow="guangzhou-physics-2015-2025-v2">
-              <div className="real-exam-hero-head">
-                <div>
-                  <Typography.Text type="secondary">2015-2025 广州中考物理</Typography.Text>
-                  <Typography.Title level={2}>真卷复核</Typography.Title>
-                </div>
-                <Space size="small" wrap>
-                  <Tag color={realExamQueue.length > 0 ? 'green' : 'orange'}>
-                    {realExamQueue.length > 0 ? '数据库队列' : '本地证据预览'}
-                  </Tag>
-                  <Tag>{realExamQueue.length > 0 ? `${realExamQueueTotal} 题待复核` : 'REAL001 证据'}</Tag>
-                </Space>
-              </div>
-
-              <div className="real-exam-focus">
-                <div className="real-exam-question">
-                  <span className="real-exam-number">第 {selectedRealExamPreview.questionNo || '?'} 题</span>
-                  <div className="question-text" aria-label="题干">
-                    {splitQuestionText(selectedRealExamPreview.textPreview).map((line, index) => (
-                      <p key={`${selectedRealExamPreview.questionNo}-${index}`}>
-                        {renderMathAwareText(line)}
-                      </p>
-                    ))}
-                  </div>
-                  {selectedQuestionAssetRegions.length > 0 ? (
-                    <div className="real-exam-inline-assets" aria-label="题图" data-contract="question-stem-asset-fusion">
-                      {selectedQuestionAssetRegions.map((region) => (
-                        <a
-                          key={region.id}
-                          className="real-exam-inline-asset"
-                          href={region.screenshotUrl ?? undefined}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <img
-                            src={region.screenshotUrl ?? undefined}
-                            alt={`第 ${selectedRealExamPreview.questionNo || '?'} 题题图，第 ${region.pageNumber} 页`}
-                            loading="lazy"
-                          />
-                        </a>
-                      ))}
-                    </div>
-                  ) : null}
-                  <div className="real-exam-tags">
-                    <Tag color="green">答案：{selectedRealExamPreview.answer || '-'}</Tag>
-                    <Tag color="blue">{selectedRealExamPreview.primaryKnowledgeLabel || '标签待确认'}</Tag>
-                    {selectedRealExamPreview.knowledgeTags.map((tag) => (
-                      <Tag key={tag}>{tag}</Tag>
-                    ))}
-                  </div>
-                </div>
-                <div className="real-exam-source-preview" aria-label="题图与来源区域">
-                  <div className="source-preview-head">
-                    <strong>来源回看</strong>
-                    <Tag color={savedQuestionSourceRegions.some(hasRenderableImage) ? 'green' : 'default'}>
-                      {savedQuestionSourceRegions.some(hasRenderableImage)
-                        ? '有来源图片'
-                        : '暂无可显示图片'}
-                    </Tag>
-                  </div>
-                  <div className="source-preview-list">
-                    {savedQuestionSourceRegions.length > 0 ? (
-                      [...savedQuestionSourceRegions]
-                        .sort((left, right) => sourceRegionRank(left.regionType) - sourceRegionRank(right.regionType))
-                        .map((region) => (
-                        <span key={region.id} className={hasRenderableImage(region) ? 'source-preview-card has-image' : 'source-preview-card'}>
-                          <strong>
-                            第 {region.pageNumber} 页 · {formatRegionKind(region.regionType)}
-                          </strong>
-                          {hasRenderableImage(region) ? (
-                            <span className="source-preview-image-frame">
-                              <img
-                                src={region.screenshotUrl ?? undefined}
-                                alt={`第 ${region.pageNumber} 页 ${formatRegionKind(region.regionType)}`}
-                                loading="lazy"
-                              />
-                            </span>
-                          ) : null}
-                          <span className="source-preview-actions">
-                            {region.screenshotUrl ? (
-                              <Button size="small" href={region.screenshotUrl} target="_blank" rel="noreferrer">
-                                打开裁图
-                              </Button>
-                            ) : null}
-                            {region.pageScreenshotUrl ? (
-                              <Button size="small" href={region.pageScreenshotUrl} target="_blank" rel="noreferrer">
-                                查看第 {region.pageNumber} 页
-                              </Button>
-                            ) : null}
-                          </span>
-                          <small>
-                            {region.sourceTitle ?? '来源文档'} · {region.regionType} ·{' '}
-                            {region.screenshotRelativePath ?? '未生成截图'}
-                          </small>
-                        </span>
-                      ))
-                    ) : (
-                      <span>
-                        <strong>未加载来源区域</strong>
-                        <small>点击“加载数据库队列”后显示题干和答案来源。</small>
-                      </span>
-                    )}
-                  </div>
-                  <Typography.Text type="secondary">{savedQuestionSourceSummary}</Typography.Text>
-                </div>
-                <div className="real-exam-actions">
-                  <Button
-                    type="primary"
-                    icon={<FileSearchOutlined />}
-                    onClick={loadRealExamReviewQueue}
-                    loading={realExamQueueBusy}
-                    data-action="load-real-guangzhou-2015-review-queue-primary"
-                  >
-                    加载数据库队列
-                  </Button>
-                  <Button
-                    icon={<SearchOutlined />}
-                    onClick={() =>
-                      selectedRealExamReview
-                        ? void loadRealExamReviewItem(selectedRealExamReview)
-                        : setRealExamQueueMessage('当前是本地证据预览；请先加载数据库队列再写入审核。')
-                    }
-                    disabled={!selectedRealExamReview}
-                    data-action="load-real-guangzhou-2015-review-item-primary"
-                  >
-                    载入当前题
-                  </Button>
-                  <Button
-                    icon={<EditOutlined />}
-                    onClick={() =>
-                      selectedRealExamReview
-                        ? void finishRealExamReviewItem(selectedRealExamReview, 'resolved')
-                        : setRealExamQueueMessage('当前是本地证据预览；请先加载数据库队列再确认。')
-                    }
-                    disabled={!selectedRealExamReview}
-                    data-action="confirm-real-guangzhou-2015-review-item-primary"
-                  >
-                    确认当前题
-                  </Button>
-                  <Typography.Text type="secondary">{realExamQueueMessage}</Typography.Text>
-                </div>
-              </div>
-
-              <div className="real-exam-strip" aria-label={`${realExamReviewYear} 年广州中考题目列表`}>
-                {realExamPreviewRows.slice(0, 24).map((item) => {
-                  const active = selectedRealExamReview
-                    ? selectedRealExamReview.payload.questionNo === item.questionNo
-                    : selectedEvidenceQuestionNo === item.questionNo
-                  const liveItem = realExamQueue.find((row) => row.payload.questionNo === item.questionNo)
-                  return (
-                    <button
-                      key={`${item.questionNo}-${item.answer}`}
-                      type="button"
-                      className={active ? 'real-exam-chip active' : 'real-exam-chip'}
-                      onClick={() =>
-                        liveItem ? void loadRealExamReviewItem(liveItem) : selectEvidenceQuestion(item)
-                      }
-                    >
-                      <strong>{item.questionNo}</strong>
-                      <span>{item.primaryKnowledgeLabel}</span>
-                      <small>答案 {item.answer || '-'}</small>
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
+            <RealExamHero
+              queue={realExamQueue}
+              queueTotal={realExamQueueTotal}
+              queueBusy={realExamQueueBusy}
+              queueMessage={realExamQueueMessage}
+              selectedReview={selectedRealExamReview}
+              selectedPreview={selectedRealExamPreview}
+              previewRows={realExamPreviewRows}
+              selectedEvidenceQuestionNo={selectedEvidenceQuestionNo}
+              questionAssetRegions={selectedQuestionAssetRegions}
+              sourceRegions={savedQuestionSourceRegions}
+              sourceSummary={savedQuestionSourceSummary}
+              onLoadQueue={() => void loadRealExamReviewQueue()}
+              onLoadSelected={() => {
+                if (selectedRealExamReview) void loadRealExamReviewItem(selectedRealExamReview)
+              }}
+              onConfirmSelected={() => {
+                if (selectedRealExamReview) void finishRealExamReviewItem(selectedRealExamReview, 'resolved')
+              }}
+              onSelectReview={(item) => void loadRealExamReviewItem(item)}
+              onSelectEvidence={selectEvidenceQuestion}
+            />
 
             <div className="import-wizard" data-flow="paper-import-wizard">
               {importWizardSteps.map(([title, detail], index) => (
@@ -1834,6 +1800,7 @@ function App() {
           <section className="analysis-panel" aria-label="讲评分析" data-flow="teacher-analysis-workbench">
             <AnalysisPanelContent
               analysisMessage={analysisMessage}
+              analysis={scoreEvidenceAnalysis}
               onOpenAnalysisSummary={openAnalysisSummary}
             />
           </section>
@@ -1847,18 +1814,23 @@ function App() {
             paperRequest={paperRequest}
             paperUnderstanding={paperUnderstanding}
             paperDraft={paperDraft}
-            questionSearch={questionSearch}
-            questionSearchError={questionSearchQuery.data?.ok === false}
-            questionSearchFetching={questionSearchQuery.isFetching}
-            activeQuestionFilter={activeQuestionFilter}
+            questionEvidenceSearch={questionEvidenceSearch}
+            questionEvidenceSearchError={questionEvidenceSearchQuery.data?.ok === false}
+            questionEvidenceSearchFetching={questionEvidenceSearchQuery.isFetching}
+            questionEvidenceMode={questionEvidenceMode}
+            activeEvidenceFilter={activeEvidenceFilter}
             questionInteractionMessage={questionInteractionMessage}
-            selectedQuestionId={selectedQuestionId}
+            selectedEvidenceQuestionId={selectedEvidenceQuestionId}
             onPaperRequestChange={setPaperRequest}
             onParsePaperRequest={parsePaperRequest}
             onConfirmPaperBlueprint={confirmPaperBlueprint}
-            onRefreshQuestionSearch={() => questionSearchQuery.refetch()}
-            onApplyQuestionFilter={applyQuestionFilter}
-            onSelectQuestionCard={selectQuestionCard}
+            onRefreshQuestionEvidence={() => questionEvidenceSearchQuery.refetch()}
+            onEvidenceModeChange={changeQuestionEvidenceMode}
+            onApplyEvidenceFilter={applyEvidenceFilter}
+            onClearEvidenceFilters={clearEvidenceFilters}
+            onSelectEvidenceQuestion={selectQuestionEvidenceCard}
+            onOpenQuestionSource={(card, sourceKind) => void openQuestionEvidenceSource(card, sourceKind)}
+            onReturnToBasket={returnToQuestionBasket}
             onReplacePaperQuestion={() => void replacePaperQuestionFromApi()}
             onUndoPaperReplacement={undoPaperReplacement}
             onExportPaper={exportPaper}
@@ -2033,7 +2005,7 @@ function App() {
                   {actionLog.length === 0 ? (
                     <Typography.Text>暂无修正</Typography.Text>
                   ) : (
-                    actionLog.map((item) => <Typography.Text key={item}>{item}</Typography.Text>)
+                    actionLog.map((item) => <Typography.Text key={item.id}>{item.message}</Typography.Text>)
                   )}
                 </div>
 

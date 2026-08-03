@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "cek029-question-evidence-web-contract.v1",
+  "status": "pass",
+  "taskId": "CEK-29",
+  "checkedAt": "2026-07-31T05:22:32.0254358Z",
+  "contracts": {
+    "typedSearchParams": true,
+    "allApiFiltersCovered": true,
+    "blankStringFiltersOmitted": true,
+    "zeroDifficultyPreserved": true,
+    "explicitPreviewModeSerialized": true,
+    "legacyPayloadSafeDefaults": true,
+    "unknownFieldsTolerated": true,
+    "queryStateSeparatedFromLegacySearch": true
+  },
+  "cardProjection": {
+    "curriculumAlignmentSeparated": true,
+    "regionalProfileSeparated": true,
+    "observedDifficultySeparated": true,
+    "estimatedDifficultySeparated": true,
+    "reviewStatusPreserved": true,
+    "retrospectiveAlignmentDisclosurePreserved": true,
+    "failClosedProductionDefault": true
+  },
+  "verification": {
+    "targetedCommand": "npm --prefix apps/web test -- --run src/api/client.test.ts src/api/queries.test.ts",
+    "targetedTestFiles": 2,
+    "targetedTestsPassed": 22,
+    "fullCommand": "npm --prefix apps/web test -- --run",
+    "fullTestFiles": 5,
+    "fullTestsPassed": 30,
+    "buildCommand": "npm --prefix apps/web run build",
+    "buildPassed": true
+  },
+  "activeWrite": false,
+  "productionEligible": false,
+  "completionBoundary": "CEK-29 proves the typed Web contract, fail-closed normalizer, query serialization, and server-state client boundary. It does not add the CEK-30 teacher search UI, review candidates, switch active assets, or close REAL005."
+}

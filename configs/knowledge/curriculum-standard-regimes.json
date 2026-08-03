@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "curriculum-standard-regimes.v1",
+  "subject": "junior_physics",
+  "regimes": [
+    {
+      "fromYear": 2015,
+      "toYear": 2024,
+      "sourceStatus": "historical_standard_source_missing",
+      "standardVersion": "unverified_historical_or_pre_revision_standard",
+      "allowedAlignmentType": "retrospective_crosswalk",
+      "originalBasisAllowed": false
+    },
+    {
+      "fromYear": 2025,
+      "toYear": 2025,
+      "sourceStatus": "registered_contemporaneous_source",
+      "standardVersion": "2022-2025-revision",
+      "sourceDocumentId": "ec5db25f-4336-4dc7-9d34-870e76ea0c8a",
+      "sourceDocumentSha256": "e00a5665e7e17ea6bdd6236d9366c51c63bbe6cc0eabf83ac3d0a529c487dd8c",
+      "allowedAlignmentType": "contemporaneous_inferred",
+      "originalBasisAllowed": false
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "schemaVersion": "error-pattern-taxonomy.v1",
+  "assetType": "error_pattern",
+  "subject": "junior_physics",
+  "normalizationMethod": "controlled_taxonomy_exact_code_v1",
+  "stability": {
+    "minimumEvidenceCount": 2,
+    "semanticMergeMode": "exact_code_only",
+    "repeatabilityRule": "distinct_question_count >= 2 OR distinct_exam_year_count >= 2",
+    "singleEvidenceStable": false,
+    "unknownCodeAction": "reject"
+  },
+  "governance": {
+    "status": "candidate",
+    "reviewerStatus": "pending_review",
+    "productionEligible": false,
+    "databaseWrite": false,
+    "activeWrite": false,
+    "misconceptionPromotion": {
+      "initialStatus": "pending_review",
+      "requiresHumanReview": true,
+      "requiresC002RImpactReport": true,
+      "requiresRollbackSnapshot": true,
+      "autoApplyAllowed": false
+    }
+  },
+  "categories": [
+    {
+      "code": "concept_confusion",
+      "displayName": "概念混淆",
+      "semanticType": "conceptual",
+      "misconceptionEligible": true
+    },
+    {
+      "code": "model_not_constructed",
+      "displayName": "物理模型未建构",
+      "semanticType": "conceptual",
+      "misconceptionEligible": true
+    },
+    {
+      "code": "unit_conversion",
+      "displayName": "单位换算错误",
+      "semanticType": "procedural",
+      "misconceptionEligible": false
+    },
+    {
+      "code": "graph_interpretation",
+      "displayName": "图像信息提取错误",
+      "semanticType": "representation",
+      "misconceptionEligible": false
+    },
+    {
+      "code": "experimental_operation",
+      "displayName": "实验操作错误",
+      "semanticType": "procedural",
+      "misconceptionEligible": false
+    },
+    {
+      "code": "data_processing",
+      "displayName": "数据处理错误",
+      "semanticType": "procedural",
+      "misconceptionEligible": false
+    },
+    {
+      "code": "expression_convention",
+      "displayName": "物理表达不规范",
+      "semanticType": "representation",
+      "misconceptionEligible": false
+    },
+    {
+      "code": "careless_omission",
+      "displayName": "粗心遗漏",
+      "semanticType": "careless",
+      "misconceptionEligible": false
+    }
+  ]
+}

@@ -1,0 +1,167 @@
+{
+  "schemaVersion": "cek024-curriculum-exam-c002r-plan.v1",
+  "status": "pass",
+  "checkedAt": "2026-07-30T23:22:18.038575+08:00",
+  "taskId": "CEK-24",
+  "planId": "CEK024-CURRICULUM-EXAM-C002R-2026",
+  "readOnly": true,
+  "databaseWrite": false,
+  "planningSnapshotUnchanged": true,
+  "snapshotHashBefore": "4c8df045a5d0d697a62c430f0bb65af232e81d9336de106a5c4f4c43f66dddef",
+  "snapshotHashAfter": "4c8df045a5d0d697a62c430f0bb65af232e81d9336de106a5c4f4c43f66dddef",
+  "activeBaseline": {
+    "status": "active",
+    "activeImportKey": "c002_candidate_import_guangzhou_physics_2016_2025_v1",
+    "activeVersionLabel": "junior-physics-guangzhou-source-derived-v1",
+    "activeAssetCount": 452,
+    "fingerprint": "df81705c5627395864cff01bb3d2f2a2"
+  },
+  "candidateCounts": 297,
+  "mappingCount": 94,
+  "profileCount": 24,
+  "reviewGroups": [
+    {
+      "groupId": "complex_mappings",
+      "status": "pending_review",
+      "itemCount": 92,
+      "reason": "split_merge_or_non_equivalent_mapping"
+    },
+    {
+      "groupId": "low_confidence_mappings",
+      "status": "pending_review",
+      "itemCount": 40,
+      "reason": "confidence_below_0.85"
+    },
+    {
+      "groupId": "regional_profiles",
+      "status": "pending_review",
+      "itemCount": 24,
+      "crossRegimeItemCount": 14,
+      "reason": "teacher_review_required_for_regional_profile"
+    },
+    {
+      "groupId": "error_patterns",
+      "status": "blocked_no_persisted_candidates",
+      "itemCount": 0,
+      "reason": "CEK-20 contract has no persisted candidates"
+    },
+    {
+      "groupId": "high_impact_consumers",
+      "status": "pending_review",
+      "itemCount": 5,
+      "reason": "historical_or_user_workflow_impact"
+    }
+  ],
+  "impacts": [
+    {
+      "impactType": "question_binding",
+      "affectedCount": 234,
+      "action": "update_after_review",
+      "requiresHumanReview": true,
+      "requiresRollbackSnapshot": true,
+      "rollbackKey": "cek024:question_binding:df81705c5627"
+    },
+    {
+      "impactType": "paper_blueprint",
+      "affectedCount": 503,
+      "action": "preserve_version_binding",
+      "requiresHumanReview": true,
+      "requiresRollbackSnapshot": true,
+      "rollbackKey": "cek024:paper_blueprint:df81705c5627"
+    },
+    {
+      "impactType": "search_index",
+      "affectedCount": 452,
+      "action": "rebuild_derived_index",
+      "requiresHumanReview": false,
+      "requiresRollbackSnapshot": true,
+      "rollbackKey": "cek024:search_index:df81705c5627"
+    },
+    {
+      "impactType": "analysis_metric",
+      "affectedCount": 1405,
+      "action": "freeze_historical_snapshot",
+      "requiresHumanReview": true,
+      "requiresRollbackSnapshot": true,
+      "rollbackKey": "cek024:analysis_metric:df81705c5627"
+    },
+    {
+      "impactType": "export_template",
+      "affectedCount": 1354,
+      "action": "preserve_version_binding",
+      "requiresHumanReview": true,
+      "requiresRollbackSnapshot": true,
+      "rollbackKey": "cek024:export_template:df81705c5627"
+    },
+    {
+      "impactType": "score_import_template",
+      "affectedCount": 1437,
+      "action": "hold_for_review",
+      "requiresHumanReview": true,
+      "requiresRollbackSnapshot": true,
+      "rollbackKey": "cek024:score_import_template:df81705c5627"
+    }
+  ],
+  "rollbackRequirements": [
+    {
+      "impactType": "question_binding",
+      "rollbackKey": "cek024:question_binding:df81705c5627",
+      "snapshotRequired": true
+    },
+    {
+      "impactType": "paper_blueprint",
+      "rollbackKey": "cek024:paper_blueprint:df81705c5627",
+      "snapshotRequired": true
+    },
+    {
+      "impactType": "search_index",
+      "rollbackKey": "cek024:search_index:df81705c5627",
+      "snapshotRequired": true
+    },
+    {
+      "impactType": "analysis_metric",
+      "rollbackKey": "cek024:analysis_metric:df81705c5627",
+      "snapshotRequired": true
+    },
+    {
+      "impactType": "export_template",
+      "rollbackKey": "cek024:export_template:df81705c5627",
+      "snapshotRequired": true
+    },
+    {
+      "impactType": "score_import_template",
+      "rollbackKey": "cek024:score_import_template:df81705c5627",
+      "snapshotRequired": true
+    }
+  ],
+  "errorPatternBoundary": {
+    "status": "blocked_no_persisted_candidates",
+    "candidateCount": 0,
+    "promotionContractPassed": true,
+    "autoApplyAllowed": false
+  },
+  "historicalReferencePolicy": {
+    "silentRewriteAllowed": false,
+    "questionListAction": "preserve_version_binding",
+    "analysisAction": "freeze_historical_snapshot",
+    "exportAction": "preserve_version_binding"
+  },
+  "planSha256": "9348b6191f7f397ed55abb9118c0d7b3ba2d22b73df88bd29124dca0f799179f",
+  "productionEligible": false,
+  "activeWrite": false,
+  "completionBoundary": "CEK-24 proves read-only parity only for the planning inputs captured by this report and produces a C002R candidate revision/impact plan; no candidate is reviewed, migrated, or activated, and REAL005 remains not_closed.",
+  "existingC002RContract": {
+    "status": "pass",
+    "planId": "C002R_JUNIOR_PHYSICS_ACTIVE_V1_REVISION_SAMPLE",
+    "report": "tmp/cek024/existing-c002r-contract.json"
+  },
+  "fullGate": {
+    "status": "gate_na",
+    "reason": "tools/run-gates.ps1 may affect PostgreSQL and API processes and is reserved for CEK-34 current confirmation",
+    "alternative_verification": "CEK-24 unit tests, read-only live planning-input snapshot parity, existing C002R contract, roadmap/reference guards, and static hotspot audit",
+    "evidence_link": "docs/evidence/cek024-curriculum-exam-c002r-plan.json",
+    "expires_at": "CEK-34",
+    "recovery_condition": "obtain the planned current confirmation and run tools/run-gates.ps1 at CEK-34"
+  },
+  "rollback": "Delete only the generated plan/report; CEK-24 performs no database, migration, candidate, question, or active write."
+}

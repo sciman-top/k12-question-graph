@@ -1,7 +1,7 @@
 {
   "status": "dry_run_blocked",
   "taskId": "REAL003",
-  "checkedAt": "2026-07-25T16:52:28.614331+00:00",
+  "checkedAt": "2026-07-31T14:02:43.414055+00:00",
   "materialBatchKey": "guangzhou_physics_2016_2025",
   "dryRunOnly": true,
   "activeWrite": false,
@@ -27,35 +27,7 @@
   },
   "blockers": [
     {
-      "year": 2016,
-      "blocker": "file_store_blob_missing"
-    },
-    {
-      "year": 2017,
-      "blocker": "file_store_blob_missing"
-    },
-    {
-      "year": 2018,
-      "blocker": "file_store_blob_missing"
-    },
-    {
-      "year": 2019,
-      "blocker": "file_store_blob_missing"
-    },
-    {
-      "year": 2020,
-      "blocker": "file_store_blob_missing"
-    },
-    {
-      "year": 2021,
-      "blocker": "file_store_blob_missing"
-    },
-    {
       "year": 2022,
-      "blocker": "file_store_blob_missing"
-    },
-    {
-      "year": 2023,
       "blocker": "file_store_blob_missing"
     },
     {
@@ -163,7 +135,7 @@
           "text_parseable_candidate"
         ],
         "dbFileHashCoveragePass": true,
-        "fileStoreExistencePass": false,
+        "fileStoreExistencePass": true,
         "workerProbe": "not_run_in_batch_dry_run; source hashes and structured candidate rows verified"
       },
       "manualTakeoverPoints": [
@@ -176,9 +148,7 @@
         "delete from cut_candidates where source_document_id in (select id from source_documents where material_batch_key = 'guangzhou_physics_2016_2025' and year = 2016);",
         "delete from question_items where import_key = 'guangzhou_2016_real_batch_v1';"
       ],
-      "blockers": [
-        "file_store_blob_missing"
-      ]
+      "blockers": []
     },
     {
       "year": 2017,
@@ -275,7 +245,7 @@
           "text_parseable_candidate"
         ],
         "dbFileHashCoveragePass": true,
-        "fileStoreExistencePass": false,
+        "fileStoreExistencePass": true,
         "workerProbe": "not_run_in_batch_dry_run; source hashes and structured candidate rows verified"
       },
       "manualTakeoverPoints": [
@@ -288,9 +258,7 @@
         "delete from cut_candidates where source_document_id in (select id from source_documents where material_batch_key = 'guangzhou_physics_2016_2025' and year = 2017);",
         "delete from question_items where import_key = 'guangzhou_2017_real_batch_v1';"
       ],
-      "blockers": [
-        "file_store_blob_missing"
-      ]
+      "blockers": []
     },
     {
       "year": 2018,
@@ -387,7 +355,7 @@
           "text_parseable_candidate"
         ],
         "dbFileHashCoveragePass": true,
-        "fileStoreExistencePass": false,
+        "fileStoreExistencePass": true,
         "workerProbe": "not_run_in_batch_dry_run; source hashes and structured candidate rows verified"
       },
       "manualTakeoverPoints": [
@@ -400,9 +368,7 @@
         "delete from cut_candidates where source_document_id in (select id from source_documents where material_batch_key = 'guangzhou_physics_2016_2025' and year = 2018);",
         "delete from question_items where import_key = 'guangzhou_2018_real_batch_v1';"
       ],
-      "blockers": [
-        "file_store_blob_missing"
-      ]
+      "blockers": []
     },
     {
       "year": 2019,
@@ -499,7 +465,7 @@
           "text_parseable_candidate"
         ],
         "dbFileHashCoveragePass": true,
-        "fileStoreExistencePass": false,
+        "fileStoreExistencePass": true,
         "workerProbe": "not_run_in_batch_dry_run; source hashes and structured candidate rows verified"
       },
       "manualTakeoverPoints": [
@@ -512,9 +478,7 @@
         "delete from cut_candidates where source_document_id in (select id from source_documents where material_batch_key = 'guangzhou_physics_2016_2025' and year = 2019);",
         "delete from question_items where import_key = 'guangzhou_2019_real_batch_v1';"
       ],
-      "blockers": [
-        "file_store_blob_missing"
-      ]
+      "blockers": []
     },
     {
       "year": 2020,
@@ -602,7 +566,7 @@
           "text_parseable_candidate"
         ],
         "dbFileHashCoveragePass": true,
-        "fileStoreExistencePass": false,
+        "fileStoreExistencePass": true,
         "workerProbe": "not_run_in_batch_dry_run; source hashes and structured candidate rows verified"
       },
       "manualTakeoverPoints": [
@@ -616,9 +580,7 @@
         "delete from cut_candidates where source_document_id in (select id from source_documents where material_batch_key = 'guangzhou_physics_2016_2025' and year = 2020);",
         "delete from question_items where import_key = 'guangzhou_2020_real_batch_v1';"
       ],
-      "blockers": [
-        "file_store_blob_missing"
-      ]
+      "blockers": []
     },
     {
       "year": 2021,
@@ -703,7 +665,7 @@
           "text_parseable_candidate"
         ],
         "dbFileHashCoveragePass": true,
-        "fileStoreExistencePass": false,
+        "fileStoreExistencePass": true,
         "workerProbe": "not_run_in_batch_dry_run; source hashes and structured candidate rows verified"
       },
       "manualTakeoverPoints": [
@@ -716,9 +678,7 @@
         "delete from cut_candidates where source_document_id in (select id from source_documents where material_batch_key = 'guangzhou_physics_2016_2025' and year = 2021);",
         "delete from question_items where import_key = 'guangzhou_2021_real_batch_v1';"
       ],
-      "blockers": [
-        "file_store_blob_missing"
-      ]
+      "blockers": []
     },
     {
       "year": 2022,
@@ -912,7 +872,7 @@
           "text_parseable_candidate"
         ],
         "dbFileHashCoveragePass": true,
-        "fileStoreExistencePass": false,
+        "fileStoreExistencePass": true,
         "workerProbe": "not_run_in_batch_dry_run; source hashes and structured candidate rows verified"
       },
       "manualTakeoverPoints": [
@@ -925,9 +885,7 @@
         "delete from cut_candidates where source_document_id in (select id from source_documents where material_batch_key = 'guangzhou_physics_2016_2025' and year = 2023);",
         "delete from question_items where import_key = 'guangzhou_2023_real_batch_v1';"
       ],
-      "blockers": [
-        "file_store_blob_missing"
-      ]
+      "blockers": []
     },
     {
       "year": 2024,

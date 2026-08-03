@@ -1,10 +1,10 @@
 {
   "status": "pass",
   "taskId": "NS401",
-  "checkedAt": "2026-07-26T00:46:39",
+  "checkedAt": "2026-07-31T21:53:00",
   "mode": "api_cut_candidate_generation_plus_db_probe",
   "productionEligible": false,
-  "sourceDocumentId": "6d376cb2-cf82-42e6-96cf-593a017939be",
+  "sourceDocumentId": "7c9be4cf-5955-4a5d-bef0-d39f5f5c0937",
   "generation": {
     "generatedCount": 2,
     "lowConfidenceReviewQueueCount": 1,
@@ -12,14 +12,14 @@
   },
   "candidates": [
     {
-      "sourceRegionId": "4ca15a54-e30a-44be-a13d-0015aab6044a",
+      "sourceRegionId": "3af079e7-6375-4af4-b424-e1f86195aa56",
       "confidence": 0.8,
       "failureReason": "low_confidence_requires_manual_takeover",
       "takeoverAction": "manual_review",
       "status": "pending_review"
     },
     {
-      "sourceRegionId": "17ed190b-2e94-4dab-89e7-fa71c15ab627",
+      "sourceRegionId": "14d2d49d-de08-49bc-9aae-08db55933651",
       "confidence": 0.88,
       "failureReason": "",
       "takeoverAction": "skip",

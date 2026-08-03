@@ -75,7 +75,8 @@ foreach ($pattern in @(
     'manualChunks',
     "'/health'",
     "'/review-queue'",
-    "target: 'http://127.0.0.1:5275'",
+    'VITE_KQG_API_PROXY_TARGET',
+    'http://127.0.0.1:5275',
     'react-vendor',
     'antd-vendor',
     'antd-icons-vendor',
@@ -111,7 +112,10 @@ $report = [ordered]@{
     tanstackQueryDependency = $packageJson.dependencies.'@tanstack/react-query'
     typedApiBoundary = $true
     openApiPath = '/openapi/v1.json'
-    devHealthProxy = 'http://127.0.0.1:5275'
+    devHealthProxy = [ordered]@{
+        envOverride = 'VITE_KQG_API_PROXY_TARGET'
+        defaultFallback = 'http://127.0.0.1:5275'
+    }
     apiBaseUrlOverride = 'VITE_KQG_API_BASE_URL'
     uiConsumesRawJson = $false
     teacherDraftStateInQuery = $false

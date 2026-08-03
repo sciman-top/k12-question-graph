@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "cek017-observed-exam-evidence-contract.v1",
+  "status": "pass",
+  "checkedAt": "2026-07-29T14:25:01.7126778+00:00",
+  "taskId": "CEK-17",
+  "contracts": {
+    "observedPerformance": "schemas\\observed_performance_evidence.schema.json",
+    "observedError": "schemas\\observed_error_evidence.schema.json",
+    "teachingRecommendation": "schemas\\teaching_recommendation.schema.json"
+  },
+  "positiveFixtures": 3,
+  "negativeFixturesRejected": 3,
+  "invariants": {
+    "missingValuesRemainNull": true,
+    "observedDifficultyDirection": "higher_is_easier",
+    "estimatedDifficultyExcluded": true,
+    "evidenceKindsSeparated": true,
+    "candidateOnly": true,
+    "databaseWrite": false,
+    "activeWrite": false,
+    "externalModelCalls": 0
+  },
+  "rollback": "remove the three CEK-17 schemas, template, contract runner, and generated evidence report",
+  "completionBoundary": "CEK-17 defines candidate evidence contracts only; it does not extract report facts, persist data, approve candidates, or change active assets."
+}

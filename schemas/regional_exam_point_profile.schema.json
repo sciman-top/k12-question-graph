@@ -1,0 +1,220 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RegionalExamPointProfile",
+  "description": "A versioned, evidence-backed description of how a region actually assesses a topic. Storage remains the legacy exam_point asset type.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "semantic_type",
+    "storage_asset_type",
+    "stable_id",
+    "region",
+    "subject",
+    "stage",
+    "year_range",
+    "standard_regime",
+    "knowledge_stable_ids",
+    "curriculum_alignments",
+    "ability_dimensions",
+    "cognitive_dimensions",
+    "common_task_types",
+    "common_context_types",
+    "common_representation_types",
+    "frequency_weight",
+    "score_weight",
+    "difficulty_distribution",
+    "trend",
+    "version",
+    "status",
+    "review_status",
+    "production_eligible"
+  ],
+  "properties": {
+    "schema_version": { "const": "regional-exam-point-profile.v1" },
+    "semantic_type": { "const": "RegionalExamPointProfile" },
+    "storage_asset_type": { "const": "exam_point" },
+    "stable_id": { "type": "string", "pattern": "^EPHY-" },
+    "region": { "type": "string", "minLength": 1 },
+    "subject": { "const": "physics" },
+    "stage": { "const": "junior_middle_school" },
+    "year_range": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start_year", "end_year", "comparable_exam_years"],
+      "properties": {
+        "start_year": { "type": "integer", "minimum": 2000, "maximum": 2100 },
+        "end_year": { "type": "integer", "minimum": 2000, "maximum": 2100 },
+        "comparable_exam_years": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "integer", "minimum": 2000, "maximum": 2100 }
+        }
+      }
+    },
+    "standard_regime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["regime_id", "regime_type", "standard_versions", "exam_years", "interpretation_guard"],
+      "properties": {
+        "regime_id": { "type": "string", "minLength": 1 },
+        "regime_type": { "enum": ["single_standard", "transition"] },
+        "standard_versions": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "exam_years": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "integer", "minimum": 2000, "maximum": 2100 }
+        },
+        "interpretation_guard": { "type": "string", "minLength": 1 }
+      }
+    },
+    "knowledge_stable_ids": { "$ref": "#/$defs/non_empty_string_array" },
+    "curriculum_alignments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["curriculum_asset_id", "standard_version", "alignment_type", "original_basis", "evidence_target_ids"],
+        "properties": {
+          "curriculum_asset_id": { "type": "string", "minLength": 1 },
+          "standard_version": { "type": "string", "minLength": 1 },
+          "alignment_type": { "enum": ["source_cited", "contemporaneous_inferred", "retrospective_crosswalk"] },
+          "original_basis": { "type": "boolean" },
+          "evidence_target_ids": { "$ref": "#/$defs/evidence_target_ids" }
+        }
+      }
+    },
+    "ability_dimensions": { "$ref": "#/$defs/non_empty_string_array" },
+    "cognitive_dimensions": { "$ref": "#/$defs/non_empty_string_array" },
+    "common_task_types": { "$ref": "#/$defs/non_empty_string_array" },
+    "common_context_types": { "$ref": "#/$defs/non_empty_string_array" },
+    "common_representation_types": { "$ref": "#/$defs/non_empty_string_array" },
+    "frequency_weight": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["numerator_occurrences", "denominator_comparable_exam_papers", "value", "comparable_exam_years", "evidence_target_ids"],
+      "properties": {
+        "numerator_occurrences": { "type": "integer", "minimum": 0 },
+        "denominator_comparable_exam_papers": { "type": "integer", "minimum": 1 },
+        "value": { "type": "number", "minimum": 0, "maximum": 1 },
+        "comparable_exam_years": { "$ref": "#/$defs/comparable_exam_years" },
+        "evidence_target_ids": { "$ref": "#/$defs/evidence_target_ids" }
+      }
+    },
+    "score_weight": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["numerator_profile_score", "denominator_total_exam_score", "value", "comparable_exam_years", "evidence_target_ids"],
+      "properties": {
+        "numerator_profile_score": { "type": "number", "minimum": 0 },
+        "denominator_total_exam_score": { "type": "number", "exclusiveMinimum": 0 },
+        "value": { "type": "number", "minimum": 0, "maximum": 1 },
+        "comparable_exam_years": { "$ref": "#/$defs/comparable_exam_years" },
+        "evidence_target_ids": { "$ref": "#/$defs/evidence_target_ids" }
+      }
+    },
+    "difficulty_distribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["direction", "denominator_observed_items", "buckets", "comparable_exam_years", "evidence_target_ids"],
+      "properties": {
+        "direction": { "const": "higher_is_easier" },
+        "denominator_observed_items": { "type": "integer", "minimum": 1 },
+        "buckets": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["label", "count", "minimum_inclusive", "maximum_exclusive"],
+            "properties": {
+              "label": { "type": "string", "minLength": 1 },
+              "count": { "type": "integer", "minimum": 0 },
+              "minimum_inclusive": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+              "maximum_exclusive": { "type": ["number", "null"], "minimum": 0, "maximum": 1 }
+            }
+          }
+        },
+        "comparable_exam_years": { "$ref": "#/$defs/comparable_exam_years" },
+        "evidence_target_ids": { "$ref": "#/$defs/evidence_target_ids" }
+      }
+    },
+    "trend": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "minimum_comparable_years", "comparable_exam_years", "evidence_target_ids"],
+      "properties": {
+        "status": { "enum": ["rising", "stable", "falling", "insufficient_evidence"] },
+        "minimum_comparable_years": { "const": 3 },
+        "comparable_exam_years": { "$ref": "#/$defs/comparable_exam_years" },
+        "evidence_target_ids": { "$ref": "#/$defs/evidence_target_ids" }
+      }
+    },
+    "version": { "type": "integer", "minimum": 1 },
+    "status": { "enum": ["candidate", "reviewed", "active", "rejected"] },
+    "review_status": { "enum": ["pending_review", "approved", "rejected"] },
+    "production_eligible": { "type": "boolean" }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "trend": {
+            "required": ["comparable_exam_years"],
+            "properties": { "comparable_exam_years": { "maxItems": 2 } }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "trend": { "properties": { "status": { "const": "insufficient_evidence" } } }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "status": { "const": "candidate" } } },
+      "then": {
+        "properties": {
+          "review_status": { "const": "pending_review" },
+          "production_eligible": { "const": false }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "production_eligible": { "const": true } } },
+      "then": {
+        "properties": {
+          "status": { "const": "active" },
+          "review_status": { "const": "approved" }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "non_empty_string_array": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "comparable_exam_years": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "integer", "minimum": 2000, "maximum": 2100 }
+    },
+    "evidence_target_ids": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "format": "uuid" }
+    }
+  }
+}

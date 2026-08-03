@@ -23,12 +23,19 @@ Local dev entrypoints:
 .\tools\start-local-web.ps1 -Status
 .\tools\start-local-api.ps1
 .\tools\start-local-api.ps1 -Status
+# Isolated CEK/UI preview without touching the default 5173/5275 processes:
+.\tools\start-local-api.ps1 -Port 5291 -Configuration Debug
+.\tools\start-local-web.ps1 -Port 5174 -ApiPort 5291
+.\tools\start-local-web.ps1 -Stop -Port 5174 -ApiPort 5291
+.\tools\start-local-api.ps1 -Stop -Port 5291 -Configuration Debug
 ```
 
 `start-local-web.ps1` keeps Vite on `http://127.0.0.1:5173/`.
 `start-local-api.ps1` keeps the ASP.NET Core backend on `http://127.0.0.1:5275`,
 reuses local `PGPASSWORD` / `KQG_CONNECTION_STRING`, and writes logs under
-`logs/dev-api/`.
+`logs/dev-api/`. Non-default ports use port-scoped PID and log directories, so
+the `5174 -> 5291` preview can be started, queried, and stopped independently
+without scanning or stopping the default repo services.
 
 Run gates:
 
@@ -998,11 +1005,12 @@ Guangzhou physics 2015-2025 source batch staging:
 .\tools\run-guangzhou-physics-source-batch-stage.ps1
 ```
 
-The default dry-run inventories the 32 PDFs under
+The default dry-run inventories the 33 PDFs under
 `D:\KQG_Data\guangzhou_physics_2015_2025`, validates PDF magic, page/text
 counts, SHA-256 hashes, and complete 2015-2025 paper/answer/year-report role
-coverage. The 2020 combined paper is one physical PDF with both paper and
-answer roles, so the contract is 32 physical files and 33 logical sources. The
+coverage. The current 2020 paper and reference answer are independent PDFs, so
+the contract is 33 physical files and 33 logical sources. Legacy combined
+paper/answer names remain classifiable for older inventory evidence. The
 PDF inspection dependency is pinned in `workers/document/requirements.txt`.
 
 After a verified database/FileStore backup, stage the batch into the immutable
@@ -1017,6 +1025,7 @@ every move.
   -ReportPath 'docs\evidence\20260726-guangzhou-physics-source-batch-rollback-dry-run.json' `
   -InventoryCsvPath 'docs\evidence\20260726-guangzhou-physics-source-batch-rollback-dry-run.csv'
 .\tools\run-guangzhou-physics-source-batch-stage.ps1 -Rollback
+.\tools\run-guangzhou-physics-source-batch-stage.ps1 -RefreshInventory
 ```
 
 Before `-Apply`, create and verify the database/FileStore backup plus the
@@ -1065,8 +1074,8 @@ plan and rolls back the transaction. Apply is idempotent, keeps all 234 question
 at `pending_review`, creates 234 open review items, leaves
 `productionEligible=false`, and does not change the 452 C002 active assets.
 
-Verify database identity, FileStore blob hashes, idempotency, 2020 dual-role
-sharing, and the no-active-write invariant:
+Verify database identity, FileStore blob hashes, idempotency, distinct 2020
+paper/answer assets, and the no-active-write invariant:
 
 ```powershell
 .\tools\run-guangzhou-physics-v2-source-import-invariants.ps1
@@ -1738,6 +1747,131 @@ QuestionBlock UUID. Alignment types are closed to `source_cited`,
 `contemporaneous_inferred`, and `retrospective_crosswalk`; only source-cited
 alignment may claim `original_basis=true`.
 
+CEK-12 Guangzhou paper/answer/report evidence index:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File tools\run-guangzhou-exam-evidence-index.ps1
+```
+
+The wrapper reads SourceDocument, QuestionItem, QuestionBlock, and SourceRegion
+IDs in a read-only transaction. It fails closed on missing years, duplicate
+year/question numbers, missing paper or answer anchors, source-role coverage
+drift, missing question-level annual-report anchors, and the 2020 shared
+paper/answer file invariant. The current 234-question baseline has paper,
+answer, and annual-report anchors for every question; all anchors remain
+candidate evidence and source titles are display-only. The detailed manifest
+is written under Git-ignored `tmp/cek012`, while the committed report contains
+counts, hashes, blocker state, and the no-write completion boundary.
+
+CEK-18 Guangzhou annual-report evidence extraction:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File tools\run-guangzhou-year-report-evidence-extraction.ps1
+```
+
+The wrapper reads all 11 annual-report PDFs, validates page-level anchors, and
+emits candidate-only performance, error, and teaching-recommendation packages
+under Git-ignored `tmp/cek018`. Missing report fields remain null and enter the
+review diagnostics; they are never inferred from another year. It performs no
+database write or external model call.
+
+CEK-19A observed evidence import and read-only API smoke:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File tools\run-observed-exam-evidence-api-smoke.ps1 `
+  -BackupManifest 'D:\KQG_Backups\<verified>\manifest.json'
+```
+
+The smoke verifies the backup, runs Python and API tests, applies the CEK-18
+package twice, checks idempotent counts and active/question fingerprint parity,
+then probes the read-only observed-evidence API with full-window and target
+filters. The import writes only `candidate/pending_review/productionEligible=false`
+rows to the three CEK-19 tables and `observed_exam_evidence` review items. The
+performance confidence column uses the explicit import default `0.9`; original
+metric values and all metric anchors remain in JSONB evidence. Roll back by
+deleting rows with batch/import key
+`cek019a_guangzhou_observed_exam_evidence_v1`, or restore the verified manifest.
+
+CEK-20 error-pattern normalization and misconception promotion guard:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File tools\run-error-pattern-promotion-guard.ps1
+```
+
+This validates the controlled error-pattern taxonomy and the API-level candidate
+builder. A stable `error_pattern` candidate needs at least two evidence rows with
+the same explicit taxonomy code plus either multiple questions or multiple exam
+years. Single evidence, one-question/one-year repetition, unknown codes, and
+semantic-code mismatches fail closed. Conceptual patterns may only create a
+`pending_review` misconception promotion decision that requires human review,
+a C002R impact report, and a rollback snapshot; auto-apply is forbidden. The
+guard runs no model, writes no database row, and does not change active assets.
+
+CEK-21 regional exam-point profile contract:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File tools\run-regional-exam-profile-contract.ps1
+```
+
+This validates the Draft 2020-12 `RegionalExamPointProfile` schema while keeping
+the persisted/API asset type `exam_point`. Frequency, score, observed-difficulty,
+and trend records must retain their denominators, comparable exam years, and
+evidence target IDs. Fewer than three comparable years can only produce
+`insufficient_evidence`; cross-standard periods retain an explicit regime and
+interpretation guard. The compatibility CSV preserves its original 19 columns
+in order and appends profile fields, so existing C002 import/tagging consumers
+can continue reading legacy values. The contract writes no database or active
+asset state.
+
+CEK-22 regional exam-point profile aggregation:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File tools\run-regional-exam-profile-aggregation.ps1
+```
+
+The guard reads the 2015-2025 Guangzhou assessment targets, question source
+anchors, and observed report evidence through the local read-only API. It
+verifies all 11 paper hashes and score denominators, then builds the full
+2015-2025 window plus the latest same-score/same-standard cohort. The current
+recent cohort is 2021-2024, so `recentComparableComplete=false` rather than
+silently mixing 2025 across the standard boundary. A profile is blocked when
+any contributing whole question lacks an explicit score numerator or when the
+topic has no observed difficulty evidence. Every emitted profile remains
+`candidate/pending_review/productionEligible=false`, validates against the
+CEK-21 schema, and traces target UUIDs back to paper, answer, and report
+anchors. The guard fingerprints the database before and after aggregation and
+writes no profile, question, or active asset row.
+
+CEK-23 regional profile candidate import and compatibility query smoke:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File tools\run-regional-exam-profile-query-smoke.ps1 `
+  -BackupManifest 'D:\KQG_Backups\<timestamp>\manifest.json'
+```
+
+The runner verifies the backup, executes a no-write dry-run, applies the CEK-22
+package twice to prove idempotency, and starts an isolated API process for the
+new profile detail query. It also verifies the existing `examPointCandidateId`
+question filter, active-asset count/content fingerprint, and the complete historical question
+fingerprint. Only 24 `exam_point` candidates, one pending migration, and one
+open regional-profile review item are written under import key
+`cek023_regional_exam_profile_candidate_v1`. The rollback delete criteria are
+executed inside a database transaction and rolled back; no profile is reviewed,
+production eligible, active, or written back to historical question tags.
+
+CEK-24 curriculum/exam C002R revision and impact plan:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File tools\run-curriculum-exam-c002r-plan.ps1
+```
+
+The runner reads the live active C002 baseline, CEK-09 curriculum candidates
+and mappings, CEK-20 promotion evidence, CEK-23 regional profiles, and current
+historical consumer counts. It emits a read-only candidate revision plan with
+review groups, six impact categories, snapshot requirements, and rollback keys.
+CEK-20 remains explicitly blocked until error-pattern candidates are persisted;
+the runner does not write a migration, candidate, question tag, or active asset.
+
 Backup:
 
 ```powershell
@@ -1868,3 +2002,188 @@ REAL005B reviewed-question visibility evidence:
 ```
 
 This defaults to the versioned `guangzhou_physics_2015_2025_20260726_v2` source batch, renders page-level screenshots for the Guangzhou 2016-2025 question candidates, and writes fresh read-only evidence under `docs/evidence/<yyyyMMdd>-real005b-source-region-screenshots.*`. Page counts come from `pypdf`; every generated PNG must have valid dimensions and a non-white pixel ratio of at least `0.001`.
+### CEK-25 curriculum evidence review API smoke
+
+The CEK-25 smoke verifies the paged requirement/target/alignment/error-pattern/profile review API, decision audit and undo behavior, low-risk batch admission, stale-undo rejection, mapping replacement scope, invalid decision/type rejection, and the no-active-write boundary. It requires a verified backup manifest because it writes review decisions and then restores every candidate snapshot. Use the isolated `Cek025` build configuration when the normal Debug/Release API is already running:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-curriculum-evidence-review-api-smoke.ps1 `
+  -BackupManifest 'D:\KQG_Backups\<timestamp>\manifest.json' `
+  -Configuration Cek025
+```
+
+The report is written to `docs/evidence/cek025-curriculum-evidence-review-api.json`. `reviewer` and `actorRole` are audit fields in the current local API; this smoke does not prove authenticated identity or authorization, and it never runs a C002R migration or active switch.
+
+### CEK-26 curriculum evidence review UI contract
+
+```powershell
+npm --prefix apps/web test -- --run
+npm --prefix apps/web run build
+pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-curriculum-evidence-review-ui-contract.ps1
+
+# Optional read-only live probe against an isolated local API:
+pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-curriculum-evidence-review-ui-contract.ps1 `
+  -ApiPort 5291
+```
+
+The contract checks the mounted teacher review panel, five review groups,
+pagination, reason-required approve/return/change-mapping/keep-pending/undo
+actions, retained input after API failure, source-page links, primary/secondary
+knowledge roles, distinct estimated/observed difficulty labels, responsive
+styles, and hidden administrator-only fields. The optional `-ApiPort` probe is
+read-only and confirms the complex-mapping queue plus same-family replacement
+allowlist. It does not approve candidates, prove authenticated identity, switch
+C002 active assets, or replace CEK-33 browser and teacher acceptance. Evidence
+is written to `docs/evidence/cek026-curriculum-evidence-review-ui.json`.
+
+### CEK-27 isolated curriculum/exam C002R active and rollback drill
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-curriculum-exam-c002r-isolated-drill.ps1 `
+  -BackupManifest 'D:\KQG_Backups\<verified>\manifest.json'
+```
+
+The wrapper re-verifies the backup, generates a database named only under the
+`kqg_cek027_*` allowlist, restores a matching FileStore under the marked
+`D:\KQG_Data\isolated\cek027-*` root, and fingerprints the production baseline.
+Inside the isolated clone it simulates a complete drill review, moves the 297
+curriculum/profile assets, 444 assessment targets, 133 alignments, 94 mappings,
+and two migrations through reviewed and active states, verifies historical
+consumer stability, then restores explicit temporary-table snapshots. Database
+and FileStore parity are required before the wrapper drops the temporary
+database and removes only the marked isolation directory. It fingerprints the
+production database again and fails if it changed.
+
+The generated decision is always production `NO-GO`: `cek027_drill_reviewer`
+does not prove teacher acceptance or authenticated authorization. CEK-20
+persistence, CEK-33 browser acceptance, CEK-34 full gate, `REAL005`, and a
+separately authorized production switch remain open. The evidence report is
+`docs/evidence/cek027-curriculum-exam-c002r-isolated-drill.json`; the operator
+decision checklist is `docs/templates/curriculum-exam-active-decision-template.md`.
+
+### CEK-28 question evidence search API
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-question-evidence-search-api.ps1
+```
+
+The smoke builds and starts an isolated `Cek028` API on a free local port,
+exercises the read-only `/knowledge-evidence/questions` endpoint, and stops the
+API in `finally`. The default mode is `active`; `candidate` and `reviewed`
+requests fail closed unless `previewMode=true`, and preview cards always report
+`productionEligible=false`. It verifies requirement/facet, ability, context,
+representation, regional-profile, observed-difficulty and estimated-difficulty
+filters, preserves retrospective alignment disclosure, and checks the legacy
+`/questions` response contract. A database fingerprint before and after the
+smoke must match. Evidence is written to
+`docs/evidence/cek028-question-evidence-search-api.json`; no review decision,
+active switch, or `REAL005` closeout is performed.
+
+### CEK-29 question evidence Web contract
+
+```powershell
+npm --prefix apps/web test -- --run src/api/client.test.ts src/api/queries.test.ts
+npm --prefix apps/web run build
+```
+
+The typed Web boundary exposes every CEK-28 filter through
+`QuestionEvidenceSearchParams`, omits blank string filters, preserves numeric
+zeroes and explicit preview booleans, and uses a query key separate from the
+legacy question search. Its recursive normalizer keeps curriculum alignments,
+regional profiles, observed difficulty, estimated difficulty, and review state
+distinct. Missing or legacy fields normalize to non-production-safe defaults;
+unknown fields are ignored. Evidence is written to
+`docs/evidence/cek029-question-evidence-web-contract.json`. The client is not
+mounted into the teacher UI until CEK-30.
+
+### CEK-30 teacher question evidence search UI contract
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-question-evidence-search-ui-contract.ps1
+```
+
+The contract validates the mounted segmented active/reviewed/candidate modes,
+teacher-facing evidence filter menu, distinct curriculum/assessment-target/
+regional-profile/observed-and-estimated-difficulty card fields, question/
+answer/curriculum/report source-page actions, and loading/empty/error/clear/
+retry/return-to-basket paths. Preview modes are isolated and blocked from the
+formal basket in both the panel and App handler. The contract runs the three
+affected test files, the full Web suite, and the production build, then writes
+`docs/evidence/cek030-question-evidence-search-ui.json`. It is repo-side
+evidence only; CEK-33 still owns real desktop/mobile browser and visual
+acceptance.
+
+### CEK-31 paper evidence constraint smoke
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-paper-evidence-constraint-smoke.ps1 `
+  -BackupManifest 'D:\KQG_Backups\<verified-backup>\manifest.json'
+```
+
+The smoke verifies the backup before it touches PostgreSQL, starts an isolated
+API on a free port, and exercises evidence-constrained blueprint creation. It
+requires explicit preview for reviewed/candidate evidence, blocks preview
+confirmation into a formal basket, reports active shortages without relaxing
+constraints, and preserves retrospective alignment as `not_original_basis`.
+Only temporary blueprint reviews are created; they are deleted by exact IDs,
+and the paper review/basket/item fingerprint must match before and after. The
+report is written to `docs/evidence/cek031-paper-evidence-constraint-smoke.json`.
+This is repo-side evidence only and does not approve candidates, switch active
+assets, close Checkpoint G2, or close `REAL005`.
+
+### CEK-32 score evidence analysis smoke
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-score-evidence-analysis-smoke.ps1
+```
+
+The smoke reuses a non-PII draft/test assessment and starts an isolated API on
+a free port. It verifies that missing item mappings and explicit PII both fail
+closed, that the response stays non-production and writes no analysis history,
+and that assessment/score/item-score fingerprints match before and after. The
+successful aggregation path is covered by `ScoreEvidenceAnalysisTests`, which
+keeps score-derived performance, historical year-report context, reviewed error
+associations, teacher-confirmed diagnoses, and source-authored teaching advice
+as distinct layers. Evidence is written to
+`docs/evidence/cek032-score-evidence-analysis-smoke.json`; this command cannot
+confirm a diagnosis, approve evidence, switch active assets, or close
+Checkpoint G2.
+
+### CEK-34 curriculum/exam knowledge evidence suite
+
+```powershell
+$env:PGPASSWORD='<local-password>'
+pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-curriculum-exam-knowledge-evidence-suite.ps1
+```
+
+The default command creates and verifies a fresh PostgreSQL/FileStore backup,
+records the current repo API PID/port and readiness state, and runs the CEK
+schema, worker/unit, targeted API, full Web, UI, historical-compatibility,
+no-active-write, and aggregate-count contracts. It restores the fresh backup
+to an allowlisted `kqg_cek034_*` database and a marked
+`D:\KQG_Data\isolated\cek034-*` FileStore, migrates the clone down to CEK-04,
+migrates it back through CEK-15/19, restores the database again, verifies
+database/FileStore parity, and removes only those marked isolation targets.
+
+After the topic checks, the suite runs the fixed order
+`build -> test/full -> contract/invariant -> hotspot`. The full gate receives
+the verified manifest and calls the suite in report-verification mode, so this
+integration cannot recurse. To run only the topic suite, for example while
+developing the script, pass `-RunFixedOrder:$false`. An already-created fresh
+manifest may be supplied with `-BackupManifest`; it is reverified and rejected
+when older than the configured freshness window.
+
+The report is
+`docs/evidence/cek034-curriculum-exam-knowledge-evidence-suite.json`; detailed
+stdout/stderr logs and hashes remain under its run-specific `tmp/cek034/`
+directory. Supply-chain checks include NuGet vulnerability discovery,
+`npm audit`, `pip check`, vulnerable-package licenses, Windows tool versions,
+and cached/offline execution boundaries. Known vulnerabilities are reported as
+release blockers, not silently ignored or relabeled as dependency changes.
+When no dependency manifest changed, the report records
+`dependencyChange=false`; CEK-34 installs no tool or package.
+
+Passing CEK-34 proves only repo-side evidence, reversible migration/restore,
+and gate execution. It does not complete real teacher review, authenticated
+authorization, production active switching, school-network or isolated-machine
+acceptance, `REAL005`, or release approval.

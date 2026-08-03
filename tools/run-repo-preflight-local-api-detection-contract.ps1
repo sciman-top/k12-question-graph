@@ -57,8 +57,15 @@ $requiredDetectionPatterns = @(
     "Stop-Process -Id `$repoProcess.ProcessId -Force -ErrorAction SilentlyContinue"
 )
 
+$requiredFullGateLatePausePatterns = @(
+    "`$lateRepoApiProcesses = @(Get-RepoApiProcesses)",
+    "failed to pause late repo-local API process",
+    "`$script:resumeDefaultLocalApi = `$true"
+)
+
 Assert-ContainsAll -ScriptPath $FullGateScriptPath -Text $fullGateText -Patterns $requiredDetectionPatterns
 Assert-ContainsAll -ScriptPath $PreflightScriptPath -Text $preflightText -Patterns $requiredDetectionPatterns
+Assert-ContainsAll -ScriptPath $FullGateScriptPath -Text $fullGateText -Patterns $requiredFullGateLatePausePatterns
 
 $requiredLauncherPatterns = @(
     "-FilePath 'dotnet'",

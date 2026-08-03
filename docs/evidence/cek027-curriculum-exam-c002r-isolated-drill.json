@@ -1,0 +1,213 @@
+{
+  "schemaVersion": "cek027-curriculum-exam-c002r-isolated-drill.v1",
+  "status": "pass",
+  "taskId": "CEK-27",
+  "checkedAt": "2026-07-31T12:57:23.629108+08:00",
+  "mode": "isolated_database_and_filestore",
+  "isolation": {
+    "databaseName": "kqg_cek027_20260731_045619_6268",
+    "fileStoreRoot": "D:\\KQG_Data\\isolated\\cek027-20260731_045619_6268\\file_store",
+    "productionDatabaseTouched": false
+  },
+  "backup": {
+    "manifest": "D:\\KQG_Backups\\20260730-232646\\manifest.json",
+    "verifiedByWrapper": true
+  },
+  "reviewSimulation": {
+    "reviewer": "cek027_drill_reviewer",
+    "reason": "CEK-27 isolated rollback rehearsal; not teacher acceptance",
+    "teacherAcceptance": false,
+    "authenticatedIdentityProven": false
+  },
+  "stages": {
+    "baseline": {
+      "curriculum_assets": 273,
+      "profile_assets": 24,
+      "candidate_assets": 297,
+      "reviewed_assets": 0,
+      "revision_active_assets": 0,
+      "all_active_assets": 452,
+      "mappings": 94,
+      "pending_mappings": 94,
+      "approved_mappings": 0,
+      "targets": 444,
+      "pending_targets": 444,
+      "reviewed_targets": 0,
+      "active_targets": 0,
+      "alignments": 133,
+      "pending_alignments": 133,
+      "reviewed_alignments": 0,
+      "active_alignments": 0,
+      "migrations": 2,
+      "pending_migrations": 2,
+      "dry_run_migrations": 0,
+      "applied_migrations": 0,
+      "open_revision_reviews": 445
+    },
+    "reviewed": {
+      "curriculum_assets": 273,
+      "profile_assets": 24,
+      "candidate_assets": 0,
+      "reviewed_assets": 297,
+      "revision_active_assets": 0,
+      "all_active_assets": 452,
+      "mappings": 94,
+      "pending_mappings": 0,
+      "approved_mappings": 94,
+      "targets": 444,
+      "pending_targets": 0,
+      "reviewed_targets": 444,
+      "active_targets": 0,
+      "alignments": 133,
+      "pending_alignments": 0,
+      "reviewed_alignments": 133,
+      "active_alignments": 0,
+      "migrations": 2,
+      "pending_migrations": 0,
+      "dry_run_migrations": 2,
+      "applied_migrations": 0,
+      "open_revision_reviews": 0
+    },
+    "active": {
+      "curriculum_assets": 273,
+      "profile_assets": 24,
+      "candidate_assets": 0,
+      "reviewed_assets": 0,
+      "revision_active_assets": 297,
+      "all_active_assets": 749,
+      "mappings": 94,
+      "pending_mappings": 0,
+      "approved_mappings": 94,
+      "targets": 444,
+      "pending_targets": 0,
+      "reviewed_targets": 0,
+      "active_targets": 444,
+      "alignments": 133,
+      "pending_alignments": 0,
+      "reviewed_alignments": 0,
+      "active_alignments": 133,
+      "migrations": 2,
+      "pending_migrations": 0,
+      "dry_run_migrations": 0,
+      "applied_migrations": 2,
+      "open_revision_reviews": 0
+    },
+    "rolledBack": {
+      "curriculum_assets": 273,
+      "profile_assets": 24,
+      "candidate_assets": 297,
+      "reviewed_assets": 0,
+      "revision_active_assets": 0,
+      "all_active_assets": 452,
+      "mappings": 94,
+      "pending_mappings": 94,
+      "approved_mappings": 0,
+      "targets": 444,
+      "pending_targets": 444,
+      "reviewed_targets": 0,
+      "active_targets": 0,
+      "alignments": 133,
+      "pending_alignments": 133,
+      "reviewed_alignments": 0,
+      "active_alignments": 0,
+      "migrations": 2,
+      "pending_migrations": 2,
+      "dry_run_migrations": 0,
+      "applied_migrations": 0,
+      "open_revision_reviews": 445
+    }
+  },
+  "fingerprints": {
+    "baseline": {
+      "revisionAssets": "352db30ceadae886d70fdfee8e5be8f345877add85fe753ab010b65cc772e2ab",
+      "allActiveAssets": "280e5bc6c87078603c9c7b5edee41c72bda104108680313c0934ea2744a7698c",
+      "revisionMappings": "63c1467744e04ee6fc86136b852f4fb4e21c17f9063ad1c955485dc06e7c6e01",
+      "assessmentTargets": "f9ba4cd566d9507603c4390c11a1b4558c03872894bbde999296e4a76d7d2f8b",
+      "curriculumAlignments": "abd09bd9284f12b9df1b8ce97a735f6f3dd1306bcba54affacbbb3dde2204355",
+      "revisionMigrations": "a697560d0fc8b4c3b70ff52fd4b3008f3168dc1a3b70ecf6189671a24ecb7f6c",
+      "reviewQueue": "affbe219691e5d56bebbb2e1f1b6d64694cefa2a5bb7b38d19d5a97c68b518a1",
+      "historicalConsumers": "40cb298fb0002e3b1f46dc1d360450e40f41abc92ab6a84a22ebdbeeafb81e73",
+      "combined": "65756d879aa7961ae57dc7c9f8113518c0156b435ee96ece721a17a55f1c1205"
+    },
+    "active": {
+      "revisionAssets": "371d9687e746c2738a1a7b7b233ff8289458c9bdd33d2a32b98f362b900a7fde",
+      "allActiveAssets": "1fde35387173ca982b5a5de58b64de09491308213aa748648d39ab89ba6fae8f",
+      "revisionMappings": "474724f2cbe24cd8f6be8a95350fe66327a5c59a017c76ed9fdb75cc1a8c4354",
+      "assessmentTargets": "dce6376b930d05f5ce3afc05f13da75069c288f8db3e11fc428936314a5ecaea",
+      "curriculumAlignments": "ca252dfa5a01f715cc11ae695724897e32ea2241b29c56c3eed46fb266104634",
+      "revisionMigrations": "61c91175d36d1f59857187c7728e9f889a40eab7a8e1ba769ab43c0083b87b05",
+      "reviewQueue": "c1e3cc4f14584c48f0100bfda3a620a1dbe4906d03e74afdba3deb9bb0c9af5a",
+      "historicalConsumers": "40cb298fb0002e3b1f46dc1d360450e40f41abc92ab6a84a22ebdbeeafb81e73",
+      "combined": "bcfcf32e7bfa55c624c64a41f6139ad35326bdd206e81af0dcaebd245220d4dc"
+    },
+    "rolledBack": {
+      "revisionAssets": "352db30ceadae886d70fdfee8e5be8f345877add85fe753ab010b65cc772e2ab",
+      "allActiveAssets": "280e5bc6c87078603c9c7b5edee41c72bda104108680313c0934ea2744a7698c",
+      "revisionMappings": "63c1467744e04ee6fc86136b852f4fb4e21c17f9063ad1c955485dc06e7c6e01",
+      "assessmentTargets": "f9ba4cd566d9507603c4390c11a1b4558c03872894bbde999296e4a76d7d2f8b",
+      "curriculumAlignments": "abd09bd9284f12b9df1b8ce97a735f6f3dd1306bcba54affacbbb3dde2204355",
+      "revisionMigrations": "a697560d0fc8b4c3b70ff52fd4b3008f3168dc1a3b70ecf6189671a24ecb7f6c",
+      "reviewQueue": "affbe219691e5d56bebbb2e1f1b6d64694cefa2a5bb7b38d19d5a97c68b518a1",
+      "historicalConsumers": "40cb298fb0002e3b1f46dc1d360450e40f41abc92ab6a84a22ebdbeeafb81e73",
+      "combined": "65756d879aa7961ae57dc7c9f8113518c0156b435ee96ece721a17a55f1c1205"
+    },
+    "snapshotTables": {
+      "cek027_snapshot_assets": "352db30ceadae886d70fdfee8e5be8f345877add85fe753ab010b65cc772e2ab",
+      "cek027_snapshot_mappings": "63c1467744e04ee6fc86136b852f4fb4e21c17f9063ad1c955485dc06e7c6e01",
+      "cek027_snapshot_targets": "f9ba4cd566d9507603c4390c11a1b4558c03872894bbde999296e4a76d7d2f8b",
+      "cek027_snapshot_alignments": "abd09bd9284f12b9df1b8ce97a735f6f3dd1306bcba54affacbbb3dde2204355",
+      "cek027_snapshot_migrations": "a697560d0fc8b4c3b70ff52fd4b3008f3168dc1a3b70ecf6189671a24ecb7f6c",
+      "cek027_snapshot_reviews": "9effd329e600341c4c1a970dc4c4ae031923dca57c358a251fbe2ea0cfb3d258"
+    },
+    "historicalUnchangedDuringActive": true,
+    "rollbackParity": true
+  },
+  "fileStore": {
+    "baseline": {
+      "fileCount": 4571,
+      "sha256": "e2efcf47e3efe5f9fa2a1df2b5af6f76ab36b7082ddc7cfa5d6967dc1f481f62"
+    },
+    "rolledBack": {
+      "fileCount": 4571,
+      "sha256": "e2efcf47e3efe5f9fa2a1df2b5af6f76ab36b7082ddc7cfa5d6967dc1f481f62"
+    },
+    "parity": true
+  },
+  "productionDecision": {
+    "decision": "no_go",
+    "productionActiveSwitchAllowed": false,
+    "blockers": [
+      "drill_review_is_simulated_not_teacher_acceptance",
+      "authenticated_identity_and_authorization_not_proven",
+      "cek20_error_patterns_not_persisted",
+      "enhanced_browser_acceptance_pending_cek33",
+      "full_gate_deferred_to_cek34",
+      "real005_not_closed"
+    ],
+    "nextAction": "obtain real teacher review and authenticated administrator approval, then complete CEK-33/34 before any separately authorized production switch"
+  },
+  "referencesReviewed": [
+    {
+      "anchor": "official-docs/EntityFramework.Docs",
+      "adoptionDecision": "use isolated real database tests and explicit transaction boundaries; do not emulate rollback with an in-memory provider"
+    },
+    {
+      "anchor": "official-docs/npgsql-doc",
+      "adoptionDecision": "use one explicit psycopg connection with committed reviewed/active stages and snapshot-based restoration"
+    },
+    {
+      "anchor": "official-docs/PowerShell-Docs",
+      "adoptionDecision": "validate exact LiteralPath targets and isolation markers before recursive cleanup"
+    }
+  ],
+  "completionBoundary": "This drill proves isolated reviewed-to-active-to-rollback mechanics only. It does not provide teacher acceptance, authenticated authorization, a production active switch, CEK-33 browser acceptance, CEK-34 full gate, REAL005 closure, or release approval.",
+  "isolationLifecycle": {
+    "generatedDatabase": "kqg_cek027_20260731_045619_6268",
+    "generatedDataRoot": "D:\\KQG_Data\\isolated\\cek027-20260731_045619_6268",
+    "databaseDropped": true,
+    "dataRootRemoved": true,
+    "productionFingerprintBefore": "d1d711065a75191b3c75fcd550a0d894",
+    "productionFingerprintAfter": "d1d711065a75191b3c75fcd550a0d894",
+    "productionFingerprintUnchanged": true
+  }
+}

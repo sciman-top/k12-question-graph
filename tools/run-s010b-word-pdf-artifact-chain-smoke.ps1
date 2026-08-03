@@ -59,9 +59,10 @@ try {
         if ($LASTEXITCODE -ne 0) { throw 'S010B active knowledge seed failed' }
     }
 
-    $sample = Join-Path $env:TEMP 'kqg-s010b-export-source.txt'
-    Set-Content -LiteralPath $sample -Value "S010B export source $([Guid]::NewGuid())" -Encoding UTF8
-    $upload = curl.exe -s -F "file=@$sample;filename=s010b-export-source.txt" -F "sourceType=school_paper" -F "sourceTitle=S010B Export Source" -F "ownerScope=school" -F "licenseOrPermission=internal_authorized" -F "sharingAllowed=true" -F "containsStudentPii=false" -F "anonymizationStatus=not_applicable" "$apiUrl/files" | ConvertFrom-Json
+    $sampleImage = Join-Path $repoRoot 'docs\evidence\20260512-real004-guangzhou-2015-review-ui.png'
+    Assert-True (Test-Path -LiteralPath $sampleImage -PathType Leaf) 'S010B PNG fixture is missing'
+    Assert-True ((Get-Item -LiteralPath $sampleImage).Length -gt 1000) 'S010B PNG fixture is empty or too small'
+    $upload = curl.exe -s -F "file=@$sampleImage;filename=s010b-question-figure.png" -F "sourceType=school_paper" -F "sourceTitle=S010B Export Source" -F "ownerScope=school" -F "licenseOrPermission=internal_authorized" -F "sharingAllowed=true" -F "containsStudentPii=false" -F "anonymizationStatus=not_applicable" "$apiUrl/files" | ConvertFrom-Json
     $sourceDocumentId = [string]$upload.sourceDocument.id
 
     $regionBody = @{
@@ -141,6 +142,7 @@ try {
                 title = '匀速直线运动速度计算'
                 blocks = $questionBlocks
                 hasImage = $true
+                imagePaths = @($sampleImage)
                 answer = $questionAnswer
                 solution = $questionSolution
                 sourceAuthorizationStatus = 'authorized'

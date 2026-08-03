@@ -310,6 +310,7 @@ select
   coalesce(qi.status,''),
   coalesce(qi.primary_knowledge_id::text,''),
   coalesce(qi.custom_fields::text,''),
+  qi.updated_at::text,
   coalesce(qi.custom_fields->>'questionNo',''),
   coalesce(qi.custom_fields->>'sourceDocumentId',''),
   coalesce(qi.custom_fields->'answer'->>'value',''),
@@ -320,18 +321,19 @@ order by nullif(qi.custom_fields->>'questionNo','')::int nulls last, qi.id;
 "@
     )
     foreach ($row in $questionSnapshotRows) {
-        $parts = $row -split '\|', 8
+        $parts = $row -split '\|', 9
         $questionId = [string] $parts[0]
         $questionSnapshots[$questionId] = [ordered]@{
             id = $questionId
             status = [string] $parts[1]
             primaryKnowledgeId = if ([string]::IsNullOrWhiteSpace([string] $parts[2])) { $null } else { [string] $parts[2] }
             customFieldsJson = [string] $parts[3]
-            questionNo = if ([string]::IsNullOrWhiteSpace([string] $parts[4])) { $null } else { [int] $parts[4] }
-            sourceDocumentId = [string] $parts[5]
+            updatedAt = [string] $parts[4]
+            questionNo = if ([string]::IsNullOrWhiteSpace([string] $parts[5])) { $null } else { [int] $parts[5] }
+            sourceDocumentId = [string] $parts[6]
             assetCount = 0
-            answerValue = [string] $parts[6]
-            solutionText = [string] $parts[7]
+            answerValue = [string] $parts[7]
+            solutionText = [string] $parts[8]
         }
     }
     Assert-True ($questionSnapshots.Count -eq $allSelectedQuestionIds.Count) "REAL005C1 question snapshot count mismatch: expected $($allSelectedQuestionIds.Count), actual $($questionSnapshots.Count)"
@@ -655,7 +657,7 @@ limit 1;
             "'" + [string] $snapshot.primaryKnowledgeId + "'"
         }
         $questionRollbackLines.Add(
-            "update question_items set status = $(ConvertTo-SqlStringLiteral -Value ([string] $snapshot.status)), primary_knowledge_id = $primaryKnowledgeSql, custom_fields = $(ConvertTo-SqlStringLiteral -Value ([string] $snapshot.customFieldsJson))::jsonb where id = '$questionId';"
+            "update question_items set status = $(ConvertTo-SqlStringLiteral -Value ([string] $snapshot.status)), primary_knowledge_id = $primaryKnowledgeSql, custom_fields = $(ConvertTo-SqlStringLiteral -Value ([string] $snapshot.customFieldsJson))::jsonb, updated_at = $(ConvertTo-SqlStringLiteral -Value ([string] $snapshot.updatedAt))::timestamptz where id = '$questionId';"
         ) | Out-Null
     }
 
@@ -871,7 +873,7 @@ finally {
         foreach ($questionId in $allSelectedQuestionIds) {
             $snapshot = $questionSnapshots[[string] $questionId]
             $primaryKnowledgeSql = if ([string]::IsNullOrWhiteSpace([string] $snapshot.primaryKnowledgeId)) { 'null' } else { "'$([string] $snapshot.primaryKnowledgeId)'" }
-            $emergencyLines.Add("update question_items set status=$(ConvertTo-SqlStringLiteral ([string] $snapshot.status)), primary_knowledge_id=$primaryKnowledgeSql, custom_fields=$(ConvertTo-SqlStringLiteral ([string] $snapshot.customFieldsJson))::jsonb where id='$questionId';") | Out-Null
+            $emergencyLines.Add("update question_items set status=$(ConvertTo-SqlStringLiteral ([string] $snapshot.status)), primary_knowledge_id=$primaryKnowledgeSql, custom_fields=$(ConvertTo-SqlStringLiteral ([string] $snapshot.customFieldsJson))::jsonb, updated_at=$(ConvertTo-SqlStringLiteral ([string] $snapshot.updatedAt))::timestamptz where id='$questionId';") | Out-Null
         }
         foreach ($sourceDocumentId in @($sourceSnapshots.Keys)) {
             $snapshot = $sourceSnapshots[[string] $sourceDocumentId]

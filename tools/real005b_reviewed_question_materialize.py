@@ -286,6 +286,17 @@ def load_forced_ocr_page_texts(repo_root: Path, path: Path) -> list[str]:
     return texts
 
 
+def answer_minimum_page(
+    year: int,
+    plan: YearRegionPlan,
+    paper_doc: dict[str, Any],
+    answer_doc: dict[str, Any],
+) -> int:
+    if year != 2020 or answer_doc["file_asset_id"] != paper_doc["file_asset_id"]:
+        return 1
+    return plan.questions[max(plan.questions)][-1].page_number + 1
+
+
 def clear_materialized_children(conn: psycopg.Connection[Any], target_ids: list[uuid.UUID]) -> None:
     with conn.cursor() as cursor:
         cursor.execute(
@@ -610,7 +621,8 @@ def main() -> int:
         extracted_answer_counts: dict[int, int] = {}
         for year in YEARS:
             answer_doc = sources[(year, "answer_or_solution")]
-            minimum_page = plans[year].questions[max(plans[year].questions)][-1].page_number + 1 if year == 2020 else 1
+            paper_doc = sources[(year, "local_exam_paper")]
+            minimum_page = answer_minimum_page(year, plans[year], paper_doc, answer_doc)
             page_texts, adapter = load_answer_page_texts(repo_root, file_root, answer_doc)
             sections = extract_numbered_answer_sections(page_texts, EXPECTED_COUNTS[year], minimum_page)
             extracted_count = 0

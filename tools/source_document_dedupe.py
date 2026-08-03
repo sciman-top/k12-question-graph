@@ -35,6 +35,13 @@ DEDUP_PARTITION_COLUMNS = [
     "may_use_for_trend_analysis",
 ]
 
+REFERENCE_COLUMNS = [
+    ("source_regions", "source_document_id", "sourceRegionsUpdated"),
+    ("cut_candidates", "source_document_id", "cutCandidatesUpdated"),
+    ("import_jobs", "source_document_id", "importJobsUpdated"),
+    ("curriculum_alignments", "source_document_id", "curriculumAlignmentsUpdated"),
+]
+
 
 def scalar(conn: psycopg.Connection[Any], sql: str, params: tuple[Any, ...] = ()) -> int:
     with conn.cursor() as cur:
@@ -159,16 +166,12 @@ def merge_duplicates(conn: psycopg.Connection[Any], mappings: list[dict[str, Any
         "sourceRegionsUpdated": 0,
         "cutCandidatesUpdated": 0,
         "importJobsUpdated": 0,
+        "curriculumAlignmentsUpdated": 0,
         "sourceDocumentsDeleted": 0,
     }
-    reference_columns = [
-        ("source_regions", "source_document_id", "sourceRegionsUpdated"),
-        ("cut_candidates", "source_document_id", "cutCandidatesUpdated"),
-        ("import_jobs", "source_document_id", "importJobsUpdated"),
-    ]
     available_reference_columns = [
         (table, column, key)
-        for table, column, key in reference_columns
+        for table, column, key in REFERENCE_COLUMNS
         if has_column(conn, table, column)
     ]
     with conn.cursor() as cur:

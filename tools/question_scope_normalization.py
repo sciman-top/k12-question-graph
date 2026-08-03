@@ -161,7 +161,53 @@ def load_materialized_question_index(connection_string: str) -> list[dict[str, A
                 """,
                 ("guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1",),
             ).fetchall()
-    return [dict(row) for row in rows]
+            blocks = connection.execute(
+                """
+                select qb.id::text as id, qb.question_item_id::text as question_id,
+                       qb.block_type, qb.sort_order, qb.content
+                from question_blocks qb
+                join question_items qi on qi.id = qb.question_item_id
+                where qi.custom_fields->>'sourceWorkflowKey' = %s
+                  and qb.block_type in ('subquestion','scoring_point')
+                order by qb.question_item_id, qb.block_type, qb.sort_order, qb.id
+                """,
+                ("guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1",),
+            ).fetchall()
+    blocks_by_question: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for block in blocks:
+        blocks_by_question[str(block["question_id"])].append(dict(block))
+    result = []
+    for row in rows:
+        item = dict(row)
+        item["materialized_blocks"] = blocks_by_question.get(str(row["question_id"]), [])
+        result.append(item)
+    return result
+
+
+def bind_materialized_block_ids(
+    normalized: dict[str, Any],
+    materialized_blocks: Iterable[Mapping[str, Any]],
+) -> None:
+    existing_by_type: dict[str, list[Mapping[str, Any]]] = defaultdict(list)
+    for block in materialized_blocks:
+        existing_by_type[str(block["block_type"])].append(block)
+    for block_type in ("subquestion", "scoring_point"):
+        candidates = [row for row in normalized["blockCandidates"] if row["type"] == block_type]
+        if not candidates:
+            continue
+        existing = sorted(existing_by_type.get(block_type, []), key=lambda row: (int(row["sort_order"]), str(row["id"])))
+        if len(existing) != len(candidates):
+            raise ValueError(
+                f"materialized_question_block_count_mismatch:{normalized['questionId']}:{block_type}:"
+                f"expected={len(candidates)}:actual={len(existing)}"
+            )
+        scope_by_key = {scope["scopeKey"]: scope for scope in normalized["scopes"]}
+        for candidate, block in zip(candidates, existing, strict=True):
+            materialized_id = str(block["id"])
+            candidate["questionBlockId"] = materialized_id
+            candidate["materialized"] = True
+            scope_by_key[candidate["scopeKey"]]["questionBlockRef"]["id"] = materialized_id
+            scope_by_key[candidate["scopeKey"]]["questionBlockRef"]["materialized"] = True
 
 
 def build_scope_manifest(question_index: Iterable[Mapping[str, Any]], csv_root: Path) -> dict[str, Any]:
@@ -185,6 +231,7 @@ def build_scope_manifest(question_index: Iterable[Mapping[str, Any]], csv_root: 
             subquestions_by_question.get(legacy_id, []),
             scoring_by_question.get(legacy_id, []),
         )
+        bind_materialized_block_ids(normalized, item.get("materialized_blocks") or [])
         normalized["year"] = int(item["year"])
         normalized["questionNumber"] = int(item["question_number"])
         normalized["legacyQuestionId"] = legacy_id

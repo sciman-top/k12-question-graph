@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "cek014-assessment-target-extraction-eval.v1",
+  "status": "pass",
+  "checkedAt": "2026-07-29T14:26:46.894087+00:00",
+  "taskId": "CEK-14",
+  "targetCandidates": 444,
+  "reviewItems": 444,
+  "withPrimaryKnowledgeCandidate": 234,
+  "semanticFieldCounts": {
+    "targetStatement": 444,
+    "abilityDimensions": 444,
+    "cognitiveDemands": 444,
+    "contextType": 444,
+    "representationTypes": 444,
+    "taskType": 444,
+    "scoreWeight": 122
+  },
+  "externalModelCalls": 0,
+  "databaseWrite": false,
+  "activeWrite": false,
+  "manifestSha256": "b0275d565e84d74b0e3ff352efc4f0fad5df638265e692c47ad719d5c3d82583",
+  "completionBoundary": "Deterministic semantic candidates projected from existing question facts; all target statements, cognitive/context/representation derivations, subquestion inheritance, and mappings remain pending teacher review."
+}

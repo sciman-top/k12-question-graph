@@ -1,6 +1,6 @@
 {
   "schemaVersion": "source-document-dedupe.v0.1",
-  "generatedAt": "2026-07-25T16:52:26.500454+00:00",
+  "generatedAt": "2026-07-31T14:02:41.130564+00:00",
   "mode": "dry_run",
   "status": "dry_run",
   "scope": {
@@ -33,20 +33,21 @@
     ]
   },
   "before": {
-    "sourceDocuments": 2475,
+    "sourceDocuments": 2671,
     "exactDuplicateGroups": 0,
-    "guangzhou2015SourceDocuments": 2
+    "guangzhou2015SourceDocuments": 4
   },
   "actions": {
-    "reclassified2015GuangzhouDocuments": 2,
-    "duplicateSourceDocumentsMapped": 0,
-    "sourceRegionsUpdated": 0,
-    "cutCandidatesUpdated": 0,
+    "reclassified2015GuangzhouDocuments": 4,
+    "duplicateSourceDocumentsMapped": 2,
+    "sourceRegionsUpdated": 96,
+    "cutCandidatesUpdated": 48,
     "importJobsUpdated": 0,
-    "sourceDocumentsDeleted": 0
+    "curriculumAlignmentsUpdated": 43,
+    "sourceDocumentsDeleted": 2
   },
   "after": {
-    "sourceDocuments": 2475,
+    "sourceDocuments": 2669,
     "exactDuplicateGroups": 0,
     "guangzhou2015SourceDocuments": 2,
     "guangzhou2015ByTitle": [

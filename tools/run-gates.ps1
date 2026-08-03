@@ -5,7 +5,8 @@ param(
     [int] $DatabasePort = 5432,
     [string] $DatabasePassword = $env:PGPASSWORD,
     [string] $PgBin = 'C:\Program Files\PostgreSQL\17\bin',
-    [string] $FileStoreRoot = 'D:\KQG_Data\file_store'
+    [string] $FileStoreRoot = 'D:\KQG_Data\file_store',
+    [string] $CurriculumExamBackupManifest = $env:KQG_CEK34_BACKUP_MANIFEST
 )
 
 $ErrorActionPreference = 'Stop'
@@ -241,7 +242,7 @@ try {
     }
 
     Invoke-GateStep 'backend tests' {
-        dotnet test tests\api\K12QuestionGraph.Api.Tests\K12QuestionGraph.Api.Tests.csproj -c Release --no-restore | Write-Host
+        dotnet test tests\api\K12QuestionGraph.Api.Tests\K12QuestionGraph.Api.Tests.csproj -c Release | Write-Host
         if ($LASTEXITCODE -ne 0) { throw "dotnet test failed" }
     }
 
@@ -274,6 +275,20 @@ try {
     Invoke-GateStep 'worker python tests' {
         python -m unittest discover -s tests\workers -p test_*.py | Write-Host
         if ($LASTEXITCODE -ne 0) { throw "worker python tests failed" }
+    }
+
+    Invoke-GateStep 'cek34 curriculum exam knowledge evidence suite' {
+        if ($env:KQG_CEK34_ORCHESTRATING_FULL_GATE -eq '1') {
+            .\tools\run-curriculum-exam-knowledge-evidence-suite.ps1 -VerifyExistingReport | Write-Host
+        }
+        elseif ([string]::IsNullOrWhiteSpace($CurriculumExamBackupManifest)) {
+            .\tools\run-curriculum-exam-knowledge-evidence-suite.ps1 -RunFixedOrder:$false | Write-Host
+        }
+        else {
+            .\tools\run-curriculum-exam-knowledge-evidence-suite.ps1 `
+                -BackupManifest $CurriculumExamBackupManifest `
+                -RunFixedOrder:$false | Write-Host
+        }
     }
 
     Invoke-GateStep 'i001 teacher home ui contract' {
@@ -998,6 +1013,21 @@ try {
     }
 
     Invoke-GateStep 'o007 ef migration bundle and upgrade drill contract' {
+        # A host startup path can restore the default API during this long gate.
+        # Recheck immediately before O007's second Release build to avoid DLL locks.
+        $lateRepoApiProcesses = @(Get-RepoApiProcesses)
+        foreach ($repoProcess in $lateRepoApiProcesses) {
+            Stop-Process -Id $repoProcess.ProcessId -Force -ErrorAction SilentlyContinue
+        }
+        if ($lateRepoApiProcesses.Count -gt 0) {
+            Start-Sleep -Milliseconds 500
+            foreach ($repoProcess in $lateRepoApiProcesses) {
+                if ($null -ne (Get-Process -Id $repoProcess.ProcessId -ErrorAction SilentlyContinue)) {
+                    throw "failed to pause late repo-local API process $($repoProcess.ProcessId) before O007"
+                }
+            }
+            $script:resumeDefaultLocalApi = $true
+        }
         .\tools\run-o007-ef-migration-bundle-upgrade-contract.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin | Write-Host
     }
 

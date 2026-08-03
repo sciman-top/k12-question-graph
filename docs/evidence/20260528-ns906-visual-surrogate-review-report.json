@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS906",
-  "checkedAt": "2026-07-26T00:52:10",
+  "checkedAt": "2026-07-31T22:02:22",
   "mode": "deterministic_visual_surrogate_review",
   "productionEligible": false,
   "realStudentDataUsed": false,
@@ -88,7 +88,26 @@
     "sampledImageCount": 8,
     "sampledImages": [
       {
-        "regionId": "077cd8e3-cef2-4447-9e76-ae5dbc24108f",
+        "regionId": "a3435298-dff1-401e-90e4-967096b49341",
+        "questionNo": 1,
+        "pageNumber": 1,
+        "bbox": {
+          "x": 12.0,
+          "y": 20.0,
+          "width": 76.0,
+          "height": 8.0
+        },
+        "screenshot": {
+          "path": "generated/guangzhou-2015/source-regions/a3435298-dff1-401e-90e4-967096b49341.png",
+          "exists": true,
+          "width": 1176,
+          "height": 218,
+          "nonBlankRatio": 0.0244,
+          "pass": true
+        }
+      },
+      {
+        "regionId": "dee36dd5-57a7-4581-b826-84a365781992",
         "questionNo": 1,
         "pageNumber": 1,
         "bbox": {
@@ -98,7 +117,7 @@
           "height": 10.0
         },
         "screenshot": {
-          "path": "generated/guangzhou-2015/source-regions/077cd8e3-cef2-4447-9e76-ae5dbc24108f.png",
+          "path": "generated/guangzhou-2015/source-regions/dee36dd5-57a7-4581-b826-84a365781992.png",
           "exists": true,
           "width": 1176,
           "height": 261,
@@ -107,45 +126,7 @@
         }
       },
       {
-        "regionId": "11064000-1254-43bf-8ed8-d55b6f680199",
-        "questionNo": 1,
-        "pageNumber": 1,
-        "bbox": {
-          "x": 12.0,
-          "y": 20.0,
-          "width": 76.0,
-          "height": 8.0
-        },
-        "screenshot": {
-          "path": "generated/guangzhou-2015/source-regions/11064000-1254-43bf-8ed8-d55b6f680199.png",
-          "exists": true,
-          "width": 1176,
-          "height": 218,
-          "nonBlankRatio": 0.0244,
-          "pass": true
-        }
-      },
-      {
-        "regionId": "7990e81a-2c50-4775-adc5-102a46a9a74a",
-        "questionNo": 2,
-        "pageNumber": 1,
-        "bbox": {
-          "x": 12.0,
-          "y": 67.0,
-          "width": 76.0,
-          "height": 26.0
-        },
-        "screenshot": {
-          "path": "generated/guangzhou-2015/source-regions/7990e81a-2c50-4775-adc5-102a46a9a74a.png",
-          "exists": true,
-          "width": 1176,
-          "height": 597,
-          "nonBlankRatio": 0.0273,
-          "pass": true
-        }
-      },
-      {
-        "regionId": "c1936a16-c326-45af-bdb1-a453f80a9f9d",
+        "regionId": "16b8c87a-9f68-4eed-b933-b5fcb1d3f9fe",
         "questionNo": 2,
         "pageNumber": 1,
         "bbox": {
@@ -155,7 +136,7 @@
           "height": 15.0
         },
         "screenshot": {
-          "path": "generated/guangzhou-2015/source-regions/c1936a16-c326-45af-bdb1-a453f80a9f9d.png",
+          "path": "generated/guangzhou-2015/source-regions/16b8c87a-9f68-4eed-b933-b5fcb1d3f9fe.png",
           "exists": true,
           "width": 908,
           "height": 366,
@@ -164,7 +145,7 @@
         }
       },
       {
-        "regionId": "de5dac81-5f03-4cd0-a2b7-d141281b5e51",
+        "regionId": "3e43de7a-b0b7-4b00-b732-d84bf00de763",
         "questionNo": 2,
         "pageNumber": 1,
         "bbox": {
@@ -174,7 +155,7 @@
           "height": 8.0
         },
         "screenshot": {
-          "path": "generated/guangzhou-2015/source-regions/de5dac81-5f03-4cd0-a2b7-d141281b5e51.png",
+          "path": "generated/guangzhou-2015/source-regions/3e43de7a-b0b7-4b00-b732-d84bf00de763.png",
           "exists": true,
           "width": 1176,
           "height": 218,
@@ -183,7 +164,26 @@
         }
       },
       {
-        "regionId": "47890c0c-99e1-4539-b8fc-8af2000dedce",
+        "regionId": "5ebb004b-6cf9-4c5b-b769-0a232768f0ac",
+        "questionNo": 2,
+        "pageNumber": 1,
+        "bbox": {
+          "x": 12.0,
+          "y": 67.0,
+          "width": 76.0,
+          "height": 26.0
+        },
+        "screenshot": {
+          "path": "generated/guangzhou-2015/source-regions/5ebb004b-6cf9-4c5b-b769-0a232768f0ac.png",
+          "exists": true,
+          "width": 1176,
+          "height": 597,
+          "nonBlankRatio": 0.0273,
+          "pass": true
+        }
+      },
+      {
+        "regionId": "e3126a71-7e48-47ab-87e7-777bc6ec68d0",
         "questionNo": 3,
         "pageNumber": 1,
         "bbox": {
@@ -193,7 +193,7 @@
           "height": 8.0
         },
         "screenshot": {
-          "path": "generated/guangzhou-2015/source-regions/47890c0c-99e1-4539-b8fc-8af2000dedce.png",
+          "path": "generated/guangzhou-2015/source-regions/e3126a71-7e48-47ab-87e7-777bc6ec68d0.png",
           "exists": true,
           "width": 1176,
           "height": 218,
@@ -202,7 +202,7 @@
         }
       },
       {
-        "regionId": "1d46fc86-c435-4eac-bd72-3f82b8d8c0b3",
+        "regionId": "05c8b12a-68c4-450c-96c0-0ade708d5409",
         "questionNo": 3,
         "pageNumber": 2,
         "bbox": {
@@ -212,7 +212,7 @@
           "height": 20.0
         },
         "screenshot": {
-          "path": "generated/guangzhou-2015/source-regions/1d46fc86-c435-4eac-bd72-3f82b8d8c0b3.png",
+          "path": "generated/guangzhou-2015/source-regions/05c8b12a-68c4-450c-96c0-0ade708d5409.png",
           "exists": true,
           "width": 1176,
           "height": 471,
@@ -221,7 +221,7 @@
         }
       },
       {
-        "regionId": "aecc3bc4-2dc0-4aec-972d-118a76bf4934",
+        "regionId": "75e28ae4-8a12-4a8d-9655-4bfb3491df8a",
         "questionNo": 3,
         "pageNumber": 2,
         "bbox": {
@@ -231,7 +231,7 @@
           "height": 15.0
         },
         "screenshot": {
-          "path": "generated/guangzhou-2015/source-regions/aecc3bc4-2dc0-4aec-972d-118a76bf4934.png",
+          "path": "generated/guangzhou-2015/source-regions/75e28ae4-8a12-4a8d-9655-4bfb3491df8a.png",
           "exists": true,
           "width": 580,
           "height": 366,
@@ -249,32 +249,39 @@
         "docx": {
           "exists": true,
           "hasDocumentXml": true,
-          "mediaCount": 3,
-          "sizeBytes": 3084
+          "mediaCount": 10,
+          "sizeBytes": 636062
         },
         "pdf": {
           "exists": true,
           "hasPdfHeader": true,
           "hasEof": true,
-          "sizeBytes": 679
+          "sizeBytes": 718057
         },
         "existingReportChecks": {
           "docx": {
             "hasDocumentXml": true,
             "hasFormulaText": false,
             "hasFigureMedia": true,
-            "hasTable": false,
+            "hasTable": true,
             "hasSourceAuthorization": true,
             "hasKnowledgeVersionReference": true,
             "hasAnswer": false,
             "hasSolution": false,
             "studentHidesAnswer": true,
-            "mediaCount": 3
+            "mediaCount": 10,
+            "allMediaSubstantive": true
           },
           "pdf": {
             "hasPdfHeader": true,
             "hasEof": true,
-            "hasTaskMarker": true
+            "hasTaskMarker": true,
+            "pageCountPositive": true,
+            "fileSizeSubstantive": true,
+            "textLengthSubstantive": true,
+            "pageCount": 3,
+            "fileSizeBytes": 718057,
+            "extractedTextLength": 938
           }
         }
       },
@@ -282,47 +289,14 @@
         "docx": {
           "exists": true,
           "hasDocumentXml": true,
-          "mediaCount": 3,
-          "sizeBytes": 3109
+          "mediaCount": 10,
+          "sizeBytes": 636174
         },
         "pdf": {
           "exists": true,
           "hasPdfHeader": true,
           "hasEof": true,
-          "sizeBytes": 679
-        },
-        "existingReportChecks": {
-          "docx": {
-            "hasDocumentXml": true,
-            "hasFormulaText": false,
-            "hasFigureMedia": true,
-            "hasTable": false,
-            "hasSourceAuthorization": true,
-            "hasKnowledgeVersionReference": true,
-            "hasAnswer": true,
-            "hasSolution": true,
-            "studentHidesAnswer": true,
-            "mediaCount": 3
-          },
-          "pdf": {
-            "hasPdfHeader": true,
-            "hasEof": true,
-            "hasTaskMarker": true
-          }
-        }
-      },
-      "answer": {
-        "docx": {
-          "exists": true,
-          "hasDocumentXml": true,
-          "mediaCount": 0,
-          "sizeBytes": 1513
-        },
-        "pdf": {
-          "exists": true,
-          "hasPdfHeader": true,
-          "hasEof": true,
-          "sizeBytes": 678
+          "sizeBytes": 789815
         },
         "existingReportChecks": {
           "docx": {
@@ -335,12 +309,59 @@
             "hasAnswer": true,
             "hasSolution": true,
             "studentHidesAnswer": true,
-            "mediaCount": 0
+            "mediaCount": 10,
+            "allMediaSubstantive": true
           },
           "pdf": {
             "hasPdfHeader": true,
             "hasEof": true,
-            "hasTaskMarker": true
+            "hasTaskMarker": true,
+            "pageCountPositive": true,
+            "fileSizeSubstantive": true,
+            "textLengthSubstantive": true,
+            "pageCount": 3,
+            "fileSizeBytes": 789815,
+            "extractedTextLength": 1134
+          }
+        }
+      },
+      "answer": {
+        "docx": {
+          "exists": true,
+          "hasDocumentXml": true,
+          "mediaCount": 0,
+          "sizeBytes": 1730
+        },
+        "pdf": {
+          "exists": true,
+          "hasPdfHeader": true,
+          "hasEof": true,
+          "sizeBytes": 217571
+        },
+        "existingReportChecks": {
+          "docx": {
+            "hasDocumentXml": true,
+            "hasFormulaText": false,
+            "hasFigureMedia": true,
+            "hasTable": true,
+            "hasSourceAuthorization": true,
+            "hasKnowledgeVersionReference": true,
+            "hasAnswer": true,
+            "hasSolution": true,
+            "studentHidesAnswer": true,
+            "mediaCount": 0,
+            "allMediaSubstantive": true
+          },
+          "pdf": {
+            "hasPdfHeader": true,
+            "hasEof": true,
+            "hasTaskMarker": true,
+            "pageCountPositive": true,
+            "fileSizeSubstantive": true,
+            "textLengthSubstantive": true,
+            "pageCount": 2,
+            "fileSizeBytes": 217571,
+            "extractedTextLength": 760
           }
         }
       }

@@ -6,6 +6,8 @@ import hashlib
 import json
 import pathlib
 import re
+import subprocess
+import uuid
 from collections import Counter, OrderedDict
 from datetime import datetime, timezone
 from typing import Any
@@ -25,6 +27,9 @@ ASSET_FILES = OrderedDict(
 )
 
 IMPORT_KEY = "c002_candidate_import_guangzhou_physics_2016_2025_v1"
+REGIONAL_PROFILE_IMPORT_KEY = "cek023_regional_exam_profile_candidate_v1"
+REGIONAL_PROFILE_REVIEW_TYPE = "regional_exam_profile"
+GUANGZHOU_V2_WORKFLOW_KEY = "guangzhou_physics_2015_2025_20260726_v2_candidate_materialize_v1"
 VERSION = 1
 
 
@@ -62,6 +67,136 @@ def stable_json(value: Any) -> str:
 
 def sha256_text(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
+
+
+def verify_backup_manifest(manifest_path: pathlib.Path) -> dict[str, Any]:
+    if not manifest_path.is_file():
+        raise ValueError(f"backup manifest missing:{manifest_path}")
+    repo_root = pathlib.Path(__file__).resolve().parents[1]
+    verifier = repo_root / "tools" / "verify-backup.ps1"
+    completed = subprocess.run(
+        [
+            "pwsh",
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(verifier),
+            "-ManifestPath",
+            str(manifest_path),
+        ],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        check=False,
+    )
+    if completed.returncode != 0:
+        detail = (completed.stderr or completed.stdout).strip()
+        raise ValueError(f"backup verification failed:{detail}")
+    for line in reversed(completed.stdout.splitlines()):
+        try:
+            result = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if result.get("status") != "ok":
+            break
+        return result
+    raise ValueError("backup verification failed:missing ok result")
+
+
+def build_regional_profile_assets(package: dict[str, Any]) -> list[dict[str, Any]]:
+    if package.get("status") != "pass" or package.get("taskId") != "CEK-22":
+        raise ValueError("CEK-22 passing profile package required")
+
+    assets: list[dict[str, Any]] = []
+    stable_ids: set[str] = set()
+    for item in package.get("profiles", []):
+        profile = dict(item.get("profile") or {})
+        diagnostics = dict(item.get("diagnostics") or {})
+        traceability = dict(item.get("traceability") or {})
+        stable_id = str(profile.get("stable_id", "")).strip()
+        if not stable_id or stable_id in stable_ids:
+            raise ValueError(f"regional profile stable_id missing or duplicated:{stable_id}")
+        stable_ids.add(stable_id)
+        if (
+            profile.get("semantic_type") != "RegionalExamPointProfile"
+            or profile.get("storage_asset_type") != "exam_point"
+            or profile.get("status") != "candidate"
+            or profile.get("review_status") != "pending_review"
+            or profile.get("production_eligible") is not False
+        ):
+            raise ValueError(f"regional profile must remain candidate-safe:{stable_id}")
+
+        anchor_roles = sorted({str(value) for value in traceability.get("anchorRoles", [])})
+        if not {"paper", "answer", "report"}.issubset(anchor_roles):
+            raise ValueError(f"regional profile traceability incomplete:{stable_id}")
+        actual_anchor_roles = {
+            str(anchor.get("role"))
+            for anchor in traceability.get("anchors", [])
+            if isinstance(anchor, dict)
+        }
+        if not {"paper", "answer", "report"}.issubset(actual_anchor_roles):
+            raise ValueError(f"regional profile traceability anchors incomplete:{stable_id}")
+        occurrence_years = sorted({int(value) for value in diagnostics.get("occurrenceYears", [])})
+        trend = dict(profile.get("trend") or {})
+        minimum_years = int(trend.get("minimum_comparable_years", 3))
+        if len(occurrence_years) < minimum_years and trend.get("status") != "insufficient_evidence":
+            raise ValueError(f"regional profile trend requires at least three occurrence years:{stable_id}")
+
+        evidence_target_ids = sorted({
+            str(value) for value in traceability.get("assessmentTargetIds", []) if str(value)
+        })
+        try:
+            if not evidence_target_ids:
+                raise ValueError
+            evidence_target_ids = sorted(str(uuid.UUID(value)) for value in evidence_target_ids)
+        except (ValueError, AttributeError) as exc:
+            raise ValueError(f"regional profile evidence target ids invalid:{stable_id}") from exc
+        metadata = {
+            **profile,
+            "diagnostics": diagnostics,
+            "candidateImportKey": REGIONAL_PROFILE_IMPORT_KEY,
+            "candidateOnly": True,
+            "externalAiWriteAllowed": False,
+        }
+        source_evidence = {
+            "importKey": REGIONAL_PROFILE_IMPORT_KEY,
+            "sourceTaskId": "CEK-22",
+            "sourceCheckedAt": package.get("checkedAt"),
+            "evidenceTargetIds": evidence_target_ids,
+            "traceability": traceability,
+            "candidateOnly": True,
+            "reviewStatus": "pending_review",
+            "productionEligible": False,
+        }
+        year_range = dict(profile.get("year_range") or {})
+        knowledge_ids = [str(value) for value in profile.get("knowledge_stable_ids", []) if str(value)]
+        display_subject = knowledge_ids[0] if knowledge_ids else stable_id
+        assets.append({
+            "asset_type": "exam_point",
+            "stable_id": stable_id,
+            "version": int(profile.get("version", VERSION)),
+            "display_name": (
+                f"Guangzhou physics regional profile {display_subject} "
+                f"({year_range.get('start_year')}-{year_range.get('end_year')})"
+            ),
+            "status": "candidate",
+            "authority": "source_derived",
+            "effective_scope": {
+                "subject": profile.get("subject"),
+                "stage": profile.get("stage"),
+                "region": profile.get("region"),
+                "yearRange": year_range,
+                "standardRegime": profile.get("standard_regime"),
+            },
+            "source_evidence": source_evidence,
+            "metadata": metadata,
+        })
+
+    if not assets:
+        raise ValueError("CEK-22 profile package contains no importable profiles")
+    return assets
 
 
 def load_manifest(input_root: pathlib.Path) -> dict[str, dict[str, Any]]:
@@ -268,7 +403,7 @@ def get_existing_assets(conn: psycopg.Connection, assets: list[dict[str, Any]]) 
     values = [(a["asset_type"], a["stable_id"], a["version"]) for a in assets]
     return conn.execute(
         """
-        select asset_type, stable_id, version, status
+        select asset_type, stable_id, version, status, source_evidence
         from domain_asset_versions
         where (asset_type, stable_id, version) in (
             select * from unnest(%s::text[], %s::text[], %s::int[])
@@ -278,7 +413,12 @@ def get_existing_assets(conn: psycopg.Connection, assets: list[dict[str, Any]]) 
     ).fetchall()
 
 
-def upsert_assets(conn: psycopg.Connection, assets: list[dict[str, Any]]) -> dict[tuple[str, str], str]:
+def upsert_assets(
+    conn: psycopg.Connection,
+    assets: list[dict[str, Any]],
+    *,
+    conflict_import_key: str | None = None,
+) -> dict[tuple[str, str], str]:
     ids: dict[tuple[str, str], str] = {}
     for asset in assets:
         row = conn.execute(
@@ -296,6 +436,10 @@ def upsert_assets(conn: psycopg.Connection, assets: list[dict[str, Any]]) -> dic
                 source_evidence = excluded.source_evidence,
                 metadata = excluded.metadata,
                 updated_at = now()
+            where %s::text is null or (
+                domain_asset_versions.status = 'candidate'
+                and domain_asset_versions.source_evidence->>'importKey' = %s
+            )
             returning id
             """,
             (
@@ -308,28 +452,46 @@ def upsert_assets(conn: psycopg.Connection, assets: list[dict[str, Any]]) -> dic
                 stable_json(asset["effective_scope"]),
                 stable_json(asset["source_evidence"]),
                 stable_json(asset["metadata"]),
+                conflict_import_key,
+                conflict_import_key,
             ),
         ).fetchone()
+        if row is None:
+            raise RuntimeError(
+                "asset conflict guard rejected overwrite:"
+                f"{asset['asset_type']}:{asset['stable_id']}:{asset['version']}"
+            )
         ids[(asset["asset_type"], asset["stable_id"])] = str(row["id"])
     return ids
 
 
-def upsert_migration(conn: psycopg.Connection, summary: dict[str, Any], backup_manifest: str) -> str:
+def upsert_migration(
+    conn: psycopg.Connection,
+    summary: dict[str, Any],
+    backup_manifest: str,
+    import_key: str = IMPORT_KEY,
+    created_by: str = "c002_candidate_import",
+    mode: str = "candidate_import",
+    impact_fields: dict[str, Any] | None = None,
+    rollback_mode: str = "delete_imported_candidate_batch_before_review",
+    delete_criteria: dict[str, Any] | None = None,
+) -> str:
     impact_report = {
-        "importKey": IMPORT_KEY,
-        "mode": "candidate_import",
+        "importKey": import_key,
+        "mode": mode,
         "productionActivationAllowed": False,
         "counts": summary,
         "reviewRequired": True,
     }
+    impact_report.update(impact_fields or {})
     rollback_snapshot = {
-        "importKey": IMPORT_KEY,
+        "importKey": import_key,
         "backupManifest": backup_manifest,
-        "rollbackMode": "delete_imported_candidate_batch_before_review",
-        "deleteCriteria": {
-            "domainAssetVersions": {"source_evidence.importKey": IMPORT_KEY, "status": "candidate"},
-            "domainAssetMappings": {"evidence.importKey": IMPORT_KEY, "reviewStatus": "pending_review"},
-            "reviewQueueItems": {"payload.importKey": IMPORT_KEY},
+        "rollbackMode": rollback_mode,
+        "deleteCriteria": delete_criteria or {
+            "domainAssetVersions": {"source_evidence.importKey": import_key, "status": "candidate"},
+            "domainAssetMappings": {"evidence.importKey": import_key, "reviewStatus": "pending_review"},
+            "reviewQueueItems": {"payload.importKey": import_key},
         },
     }
     row = conn.execute(
@@ -337,14 +499,14 @@ def upsert_migration(conn: psycopg.Connection, summary: dict[str, Any], backup_m
         insert into domain_asset_migrations (
             migration_key, status, impact_report, rollback_snapshot, created_by, created_at
         )
-        values (%s, 'pending_review', %s::jsonb, %s::jsonb, 'c002_candidate_import', now())
+        values (%s, 'pending_review', %s::jsonb, %s::jsonb, %s, now())
         on conflict (migration_key) do update set
             status = 'pending_review',
             impact_report = excluded.impact_report,
             rollback_snapshot = excluded.rollback_snapshot
         returning id
         """,
-        (IMPORT_KEY, stable_json(impact_report), stable_json(rollback_snapshot)),
+        (import_key, stable_json(impact_report), stable_json(rollback_snapshot), created_by),
     ).fetchone()
     return str(row["id"])
 
@@ -377,16 +539,21 @@ def upsert_mappings(conn: psycopg.Connection, mappings: list[dict[str, Any]], as
         )
 
 
-def upsert_review_item(conn: psycopg.Connection, payload: dict[str, Any]) -> str:
+def upsert_review_item(
+    conn: psycopg.Connection,
+    payload: dict[str, Any],
+    import_key: str = IMPORT_KEY,
+    review_type: str = "c002_candidate_import",
+) -> str:
     existing = conn.execute(
         """
         select id from review_queue_items
-        where review_type = 'c002_candidate_import'
+        where review_type = %s
           and payload->>'importKey' = %s
         order by created_at desc
         limit 1
         """,
-        (IMPORT_KEY,),
+        (review_type, import_key),
     ).fetchone()
     if existing:
         conn.execute(
@@ -402,10 +569,10 @@ def upsert_review_item(conn: psycopg.Connection, payload: dict[str, Any]) -> str
     row = conn.execute(
         """
         insert into review_queue_items (review_type, status, payload, created_at)
-        values ('c002_candidate_import', 'open', %s::jsonb, now())
+        values (%s, 'open', %s::jsonb, now())
         returning id
         """,
-        (stable_json(payload),),
+        (review_type, stable_json(payload)),
     ).fetchone()
     return str(row["id"])
 
@@ -420,9 +587,226 @@ def current_counts(conn: psycopg.Connection) -> dict[str, int]:
     }
 
 
+def get_existing_regional_profile_assets(
+    conn: psycopg.Connection,
+    assets: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    if not assets:
+        return []
+    values = [(asset["stable_id"], asset["version"]) for asset in assets]
+    return conn.execute(
+        """
+        select stable_id, version, status, source_evidence->>'importKey' as import_key
+        from domain_asset_versions
+        where asset_type = 'exam_point'
+          and (stable_id, version) in (
+              select * from unnest(%s::text[], %s::int[])
+          )
+        order by stable_id, version
+        """,
+        ([value[0] for value in values], [value[1] for value in values]),
+    ).fetchall()
+
+
+def regional_profile_state(conn: psycopg.Connection) -> dict[str, Any]:
+    return conn.execute(
+        """
+        select json_build_object(
+          'activeAssets', (select count(*) from domain_asset_versions where status = 'active'),
+          'activeAssetFingerprint', (
+            select md5(string_agg(concat_ws('|', id::text, asset_type, stable_id, version::text,
+              display_name, status, authority, effective_scope::text, source_evidence::text, metadata::text),
+              E'\n' order by id))
+            from domain_asset_versions where status = 'active'
+          ),
+          'profileCandidates', (
+            select count(*) from domain_asset_versions
+            where asset_type = 'exam_point'
+              and source_evidence->>'importKey' = %s
+          ),
+          'unsafeProfiles', (
+            select count(*) from domain_asset_versions
+            where asset_type = 'exam_point'
+              and source_evidence->>'importKey' = %s
+              and (status <> 'candidate'
+                or metadata->>'review_status' <> 'pending_review'
+                or coalesce((metadata->>'production_eligible')::boolean, true))
+          ),
+          'profileFingerprint', (
+            select md5(string_agg(concat_ws('|', id::text, stable_id, version::text,
+              status, effective_scope::text, source_evidence::text, metadata::text),
+              E'\n' order by stable_id, version))
+            from domain_asset_versions
+            where asset_type = 'exam_point'
+              and source_evidence->>'importKey' = %s
+          ),
+          'reviewItems', (
+            select count(*) from review_queue_items
+            where review_type = %s and payload->>'importKey' = %s
+          ),
+          'migrations', (
+            select count(*) from domain_asset_migrations where migration_key = %s
+          ),
+          'questionCount', (
+            select count(*) from question_items
+            where custom_fields->>'sourceWorkflowKey' = %s
+          ),
+          'questionFingerprint', (
+            select md5(string_agg(to_jsonb(q)::text, E'\n' order by id))
+            from question_items q
+            where q.custom_fields->>'sourceWorkflowKey' = %s
+          )
+        ) as value
+        """,
+        (
+            REGIONAL_PROFILE_IMPORT_KEY,
+            REGIONAL_PROFILE_IMPORT_KEY,
+            REGIONAL_PROFILE_IMPORT_KEY,
+            REGIONAL_PROFILE_REVIEW_TYPE,
+            REGIONAL_PROFILE_IMPORT_KEY,
+            REGIONAL_PROFILE_IMPORT_KEY,
+            GUANGZHOU_V2_WORKFLOW_KEY,
+            GUANGZHOU_V2_WORKFLOW_KEY,
+        ),
+    ).fetchone()["value"]
+
+
 def write_report(path: pathlib.Path, report: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def run_regional_profile_import(
+    conn: psycopg.Connection,
+    package_path: pathlib.Path,
+    report_path: pathlib.Path,
+    backup_manifest: str,
+    apply: bool,
+) -> None:
+    if not package_path.is_file():
+        raise ValueError(f"regional profile package missing:{package_path}")
+    package_bytes = package_path.read_bytes()
+    package = json.loads(package_bytes.decode("utf-8-sig"))
+    assets = build_regional_profile_assets(package)
+    package_sha256 = hashlib.sha256(package_bytes).hexdigest()
+    backup_verification = None
+    if apply:
+        if not backup_manifest:
+            raise ValueError("verified backup manifest required for apply")
+        backup_verification = verify_backup_manifest(pathlib.Path(backup_manifest))
+    existing = get_existing_regional_profile_assets(conn, assets)
+    protected_existing = [
+        row for row in existing
+        if row["status"] != "candidate" or row["import_key"] != REGIONAL_PROFILE_IMPORT_KEY
+    ]
+    before = regional_profile_state(conn)
+    if before["questionCount"] != 234:
+        raise ValueError("regional profile import requires the complete 234-question corpus")
+    summary = {
+        "profiles": len(assets),
+        "assetTypes": dict(Counter(asset["asset_type"] for asset in assets)),
+        "candidateAssets": sum(asset["status"] == "candidate" for asset in assets),
+        "productionEligibleAssets": sum(bool(asset["metadata"].get("production_eligible")) for asset in assets),
+        "windows": dict(Counter(
+            asset["metadata"]["diagnostics"].get("windowId", "unknown") for asset in assets
+        )),
+        "evidenceTargetIds": len({
+            target_id
+            for asset in assets
+            for target_id in asset["source_evidence"]["evidenceTargetIds"]
+        }),
+        "stableIds": [asset["stable_id"] for asset in assets],
+    }
+    report: dict[str, Any] = {
+        "schemaVersion": "cek023-regional-exam-profile-import.v1",
+        "status": "dry_run",
+        "checkedAt": datetime.now(timezone.utc).isoformat(),
+        "taskId": "CEK-23",
+        "importKey": REGIONAL_PROFILE_IMPORT_KEY,
+        "packagePath": str(package_path),
+        "packageSha256": package_sha256,
+        "apply": apply,
+        "backupManifest": backup_manifest,
+        "backupVerified": backup_verification is not None,
+        "backupVerification": backup_verification,
+        "summary": summary,
+        "before": before,
+        "after": before,
+        "protectedExistingAssets": protected_existing,
+        "candidateOnly": True,
+        "productionActivationAllowed": False,
+        "activeQuestionRewriteAllowed": False,
+        "reportHash": "",
+    }
+    if protected_existing:
+        report.update(status="blocked", error="would_overwrite_foreign_reviewed_or_active_profile")
+        write_report(report_path, report)
+        raise SystemExit(5)
+
+    if apply:
+        with conn.transaction():
+            upsert_assets(
+                conn,
+                assets,
+                conflict_import_key=REGIONAL_PROFILE_IMPORT_KEY,
+            )
+            migration_id = upsert_migration(
+                conn,
+                summary,
+                backup_manifest,
+                import_key=REGIONAL_PROFILE_IMPORT_KEY,
+                created_by="cek023_profile_import",
+                mode="regional_exam_profile_candidate_import",
+                impact_fields={
+                    "packageSha256": package_sha256,
+                    "activeQuestionRewriteAllowed": False,
+                },
+                rollback_mode="delete_profile_candidates_before_review_or_restore_backup",
+                delete_criteria={
+                    "domainAssetVersions": {
+                        "assetType": "exam_point",
+                        "sourceEvidence.importKey": REGIONAL_PROFILE_IMPORT_KEY,
+                        "status": "candidate",
+                    },
+                    "reviewQueueItems": {
+                        "reviewType": REGIONAL_PROFILE_REVIEW_TYPE,
+                        "payload.importKey": REGIONAL_PROFILE_IMPORT_KEY,
+                    },
+                    "domainAssetMigrations": {
+                        "migrationKey": REGIONAL_PROFILE_IMPORT_KEY,
+                    },
+                },
+            )
+            review_item_id = upsert_review_item(conn, {
+                "importKey": REGIONAL_PROFILE_IMPORT_KEY,
+                "taskId": "CEK-23",
+                "status": "pending_review",
+                "productionEligible": False,
+                "profileStableIds": summary["stableIds"],
+                "packageSha256": package_sha256,
+                "migrationId": migration_id,
+                "backupManifest": backup_manifest,
+            }, import_key=REGIONAL_PROFILE_IMPORT_KEY, review_type=REGIONAL_PROFILE_REVIEW_TYPE)
+            after = regional_profile_state(conn)
+            if (
+                after["activeAssets"] != before["activeAssets"]
+                or after["activeAssetFingerprint"] != before["activeAssetFingerprint"]
+                or after["questionCount"] != before["questionCount"]
+                or after["questionFingerprint"] != before["questionFingerprint"]
+            ):
+                raise RuntimeError("regional profile import changed active assets or historical questions")
+            if (
+                after["profileCandidates"] != len(assets)
+                or after["unsafeProfiles"] != 0
+                or after["reviewItems"] != 1
+                or after["migrations"] != 1
+            ):
+                raise RuntimeError("regional profile import postconditions failed")
+        report.update(status="applied", after=after, migrationId=migration_id, reviewQueueItemId=review_item_id)
+
+    report["reportHash"] = sha256_text(stable_json({k: v for k, v in report.items() if k != "reportHash"}))
+    write_report(report_path, report)
+    print(json.dumps(report, ensure_ascii=False, indent=2))
 
 
 def main() -> int:
@@ -432,11 +816,23 @@ def main() -> int:
     parser.add_argument("--report-path", default="docs/evidence/c002-candidate-import-report.json")
     parser.add_argument("--connection-string", required=True)
     parser.add_argument("--backup-manifest", default="")
+    parser.add_argument("--regional-profile-package", type=pathlib.Path)
     parser.add_argument("--apply", action="store_true")
     args = parser.parse_args()
 
     input_root = pathlib.Path(args.input_root)
     report_path = pathlib.Path(args.report_path)
+    if args.regional_profile_package:
+        with psycopg.connect(args.connection_string, row_factory=dict_row) as conn:
+            run_regional_profile_import(
+                conn,
+                args.regional_profile_package,
+                report_path,
+                args.backup_manifest,
+                args.apply,
+            )
+        return 0
+
     manifest = load_manifest(input_root)
 
     with psycopg.connect(args.connection_string, row_factory=dict_row) as conn:

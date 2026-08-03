@@ -1,0 +1,74 @@
+{
+  "schema_version": "regional-exam-point-profile.v1",
+  "semantic_type": "RegionalExamPointProfile",
+  "storage_asset_type": "exam_point",
+  "stable_id": "EPHY-GUANGZHOU-REPLACE_WITH_PROFILE_TOPIC",
+  "region": "guangzhou",
+  "subject": "physics",
+  "stage": "junior_middle_school",
+  "year_range": {
+    "start_year": 2024,
+    "end_year": 2024,
+    "comparable_exam_years": [2024]
+  },
+  "standard_regime": {
+    "regime_id": "guangzhou-junior-physics-2022-standard-transition",
+    "regime_type": "transition",
+    "standard_versions": ["2011", "2022-2025-revision"],
+    "exam_years": [2024],
+    "interpretation_guard": "Do not interpret a cross-standard difference as an exam trend without a reviewed comparability decision."
+  },
+  "knowledge_stable_ids": ["KPHY-REPLACE_WITH_REVIEWED_KNOWLEDGE_ID"],
+  "curriculum_alignments": [
+    {
+      "curriculum_asset_id": "CREQ-REPLACE_WITH_REVIEWED_REQUIREMENT_ID",
+      "standard_version": "2022-2025-revision",
+      "alignment_type": "retrospective_crosswalk",
+      "original_basis": false,
+      "evidence_target_ids": ["11111111-1111-1111-1111-111111111111"]
+    }
+  ],
+  "ability_dimensions": ["reasoning"],
+  "cognitive_dimensions": ["application"],
+  "common_task_types": ["calculation"],
+  "common_context_types": ["unclassified"],
+  "common_representation_types": ["text"],
+  "frequency_weight": {
+    "numerator_occurrences": 1,
+    "denominator_comparable_exam_papers": 1,
+    "value": 1.0,
+    "comparable_exam_years": [2024],
+    "evidence_target_ids": ["11111111-1111-1111-1111-111111111111"]
+  },
+  "score_weight": {
+    "numerator_profile_score": 4.0,
+    "denominator_total_exam_score": 100.0,
+    "value": 0.04,
+    "comparable_exam_years": [2024],
+    "evidence_target_ids": ["11111111-1111-1111-1111-111111111111"]
+  },
+  "difficulty_distribution": {
+    "direction": "higher_is_easier",
+    "denominator_observed_items": 1,
+    "buckets": [
+      {
+        "label": "medium",
+        "count": 1,
+        "minimum_inclusive": 0.5,
+        "maximum_exclusive": 0.8
+      }
+    ],
+    "comparable_exam_years": [2024],
+    "evidence_target_ids": ["11111111-1111-1111-1111-111111111111"]
+  },
+  "trend": {
+    "status": "insufficient_evidence",
+    "minimum_comparable_years": 3,
+    "comparable_exam_years": [2024],
+    "evidence_target_ids": ["11111111-1111-1111-1111-111111111111"]
+  },
+  "version": 1,
+  "status": "candidate",
+  "review_status": "pending_review",
+  "production_eligible": false
+}

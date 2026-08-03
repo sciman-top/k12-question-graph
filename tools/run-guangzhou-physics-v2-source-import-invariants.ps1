@@ -34,8 +34,8 @@ select json_build_object(
   'roleCounts', (select json_object_agg(source_type, count) from (select source_type, count(*) as count from source_documents where material_batch_key = '$MaterialBatchKey' group by source_type) roles),
   'yearCount', (select count(distinct year) from source_documents where material_batch_key = '$MaterialBatchKey'),
   'yearRoleCoveragePass', (select bool_and(role_count = 3) from (select year, count(distinct source_type) as role_count from source_documents where material_batch_key = '$MaterialBatchKey' group by year) years),
-  'combined2020DocumentCount', (select count(*) from source_documents where material_batch_key = '$MaterialBatchKey' and year = 2020 and source_type in ('local_exam_paper','answer_or_solution')),
-  'combined2020FileAssetCount', (select count(distinct file_asset_id) from source_documents where material_batch_key = '$MaterialBatchKey' and year = 2020 and source_type in ('local_exam_paper','answer_or_solution')),
+  'split2020DocumentCount', (select count(*) from source_documents where material_batch_key = '$MaterialBatchKey' and year = 2020 and source_type in ('local_exam_paper','answer_or_solution')),
+  'split2020FileAssetCount', (select count(distinct file_asset_id) from source_documents where material_batch_key = '$MaterialBatchKey' and year = 2020 and source_type in ('local_exam_paper','answer_or_solution')),
   'orphanDocumentCount', (select count(*) from source_documents sd left join file_assets fa on fa.id = sd.file_asset_id where sd.material_batch_key = '$MaterialBatchKey' and fa.id is null),
   'duplicateLogicalIdentityCount', (
     select count(*) from (
@@ -82,18 +82,18 @@ $sourceIds = @($import.uploaded.sourceDocumentId | Sort-Object -Unique)
 $fileAssetIds = @($import.uploaded.fileAssetId | Sort-Object -Unique)
 $checks = [ordered]@{
     batchDocumentCount = $database.batchDocumentCount -eq 33
-    batchFileAssetCount = $database.batchFileAssetCount -eq 32
+    batchFileAssetCount = $database.batchFileAssetCount -eq 33
     paperCount = $database.roleCounts.local_exam_paper -eq 11
     answerCount = $database.roleCounts.answer_or_solution -eq 11
     reportCount = $database.roleCounts.exam_analysis_report -eq 11
     yearCoverage = $database.yearCount -eq 11 -and $database.yearRoleCoveragePass -eq $true
-    combined2020SharedFile = $database.combined2020DocumentCount -eq 2 -and $database.combined2020FileAssetCount -eq 1
+    split2020DistinctFiles = $database.split2020DocumentCount -eq 2 -and $database.split2020FileAssetCount -eq 2
     noOrphanDocuments = $database.orphanDocumentCount -eq 0
     noDuplicateLogicalIdentities = $database.duplicateLogicalIdentityCount -eq 0
-    fileStoreHashes = $blobFailures.Count -eq 0 -and @($database.files).Count -eq 32
+    fileStoreHashes = $blobFailures.Count -eq 0 -and @($database.files).Count -eq 33
     inventoryHashCoverage = $hashCoveragePass
     idempotentSourceIds = $sourceIds.Count -eq 33 -and @($import.uploaded | Where-Object { $_.isDuplicate -ne $true }).Count -eq 0
-    idempotentFileAssetIds = $fileAssetIds.Count -eq 32
+    idempotentFileAssetIds = $fileAssetIds.Count -eq 33
     c002ActiveUnchanged = $database.activeDomainAssetCount -eq 452
     noC002ActiveWrite = $import.c002ActiveWrite -eq $false
 }

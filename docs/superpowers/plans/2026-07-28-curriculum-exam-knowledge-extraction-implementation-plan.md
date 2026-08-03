@@ -1,7 +1,7 @@
 # 课程标准与中考真题多层证据提炼实施计划
 
 - 日期：2026-07-28
-- 状态：实施中；CEK-01..11 与 Checkpoint B2 已完成，CEK-12 待执行
+- 状态：实施中；CEK-33 与 Checkpoint G2 已完成 repo-side 本机浏览器闭环，下一实现项为 CEK-34；真实教师签字、身份授权、学校网络、隔离机、生产切换和 `REAL005` 仍未完成
 - 设计依据：`docs/superpowers/specs/2026-07-28-curriculum-exam-knowledge-extraction-design.md`
 - 当前范围：初中物理、2022 年版 2025 年修订课程标准、广州 2015-2025 中考真题/答案/年报
 - 计划性质：现有知识资产治理和广州真题闭环的下级专题计划，不新增顶层路线图
@@ -48,7 +48,8 @@ SourceDocument / SourceRegion
 ```mermaid
 flowchart TD
     A["CEK-01..03 来源 inventory 与准入"] --> B["CEK-04..09 课程要求与知识映射"]
-    B --> C["CEK-10..16 考查目标与三源对齐"]
+    B --> B2["CEK-09A 2015-2025 题库入库就绪门禁"]
+    B2 --> C["CEK-10..16 考查目标与三源对齐"]
     C --> D["CEK-17..20 实测表现与错误证据"]
     D --> E["CEK-21..23 地区考查画像"]
     E --> F["CEK-24..27 C002R 审核与隔离演练"]
@@ -294,6 +295,24 @@ flowchart TD
 
 ### Phase C：题目范围、考查目标与三源对齐
 
+### CEK-09A：2015-2025 真题候选全量入库就绪门禁
+
+**描述：** 在任何真题知识点或考查目标提炼前，先对 PostgreSQL 中的 2015-2025 真题候选做逐年逐题 fail-closed 核验；文档存在或总数相同不能替代题号序列、题干、答案和来源锚点证明。
+
+**输入 / 输出：** 输入广州 v2 material batch、question workflow 和题目/来源表；输出 `questionCorpusReady`、`reportEvidenceReady`、逐年数量及字段/锚点缺口。
+
+**验收：**
+
+- [x] 2015-2020 每年 24 题、2021-2025 每年 18 题，共 234 题，题号连续且无重复。
+- [x] 234 条题干、234 条答案内容、234 个试卷锚点和 234 个答案锚点均存在；全部 `pending_review/productionEligible=false`。
+- [x] 试卷、答案、年报文档覆盖 11 年；234/234 题另有年报题级锚点，`questionCorpusReady/reportEvidenceReady/allFieldExtractionReady=true`。
+
+**验证：** `python -m unittest tests.workers.test_guangzhou_exam_evidence_index`；`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-guangzhou-exam-evidence-index.ps1`。
+
+**依赖：** 现有 REAL005B v2 candidate materialization 和已验证备份/回滚证据。
+
+**证据 / 回滚：** `docs/evidence/cek012-guangzhou-exam-evidence-index.json`；本门禁只读，无数据回滚；修复缺口时使用对应 materialize import key 或备份 manifest。
+
 ### CEK-10：整题/小问/评分点范围正规化
 
 **描述：** 把现有 C003 subquestion 和 scoring summary 规范成稳定 QuestionBlock 范围，使 AssessmentTarget 能引用真实整题、小问或评分点。
@@ -308,7 +327,7 @@ flowchart TD
 
 **验证：** `python -m unittest tests.workers.test_question_scope_normalization`；`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-question-scope-normalization.ps1`；现有 REAL005B question-structure diagnostics。
 
-**依赖：** CEK-09；现有 T7a-T7c 数据基线。
+**依赖：** CEK-09A 的 `questionCorpusReady=true`；现有 T7a-T7c 数据基线。
 
 **预计写集：** `schemas/question_item.schema.json`、`tools/guangzhou_physics_v2_materialize.py`、`tools/question_scope_normalization.py`、`tests/workers/test_question_scope_normalization.py`、`apps/api/Program.cs`。
 
@@ -348,9 +367,9 @@ flowchart TD
 
 **验收：**
 
-- [ ] 索引覆盖实际存在的 2015-2025 题目范围，所有关联有 source document/region ID。
-- [ ] 2020 合并卷双角色明确，答案/年报缺口或题号不一致进入 blocker/review queue。
-- [ ] 文件名只能用于诊断显示，不能成为关联主键或唯一证据。
+- [x] 索引覆盖 2015-2025 共 234 个题目范围，题干、答案及试卷/答案来源关联均使用数据库 ID。
+- [x] 2020 合并卷双角色明确；234/234 题以数据库 ID 关联年报题级锚点，另有 34 个统计页锚点支撑指标来源。
+- [x] 文件名只用于诊断显示，不是关联主键或唯一证据。
 
 **验证：** `python -m unittest tests.workers.test_guangzhou_exam_evidence_index`；`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-guangzhou-exam-evidence-index.ps1`。
 
@@ -364,9 +383,9 @@ flowchart TD
 
 ## Checkpoint C1：题目证据范围成立
 
-- [ ] CEK-10..12 通过，题目、小问、评分点及三源锚点可以稳定定位。
-- [ ] 未证明的评分点和跨文件关联保持空值/待审。
-- [ ] 尚未生成正式 AssessmentTarget。
+- [x] CEK-10..12 的题目、答案和题级年报范围均已建立，234/234 三源逐题范围成立。
+- [x] 未证明的评分点和跨文件关联保持空值/待审。
+- [x] 只生成候选 AssessmentTarget，不生成正式或 active 目标。
 
 ### CEK-13：三源对齐、课标制度窗口与冲突报告
 
@@ -404,7 +423,7 @@ flowchart TD
 
 **验证：** `python -m unittest tests.workers.test_assessment_target_extraction`；`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-assessment-target-extraction-eval.ps1`。
 
-**依赖：** CEK-13。
+**依赖：** CEK-13；必须再次验证 `questionCorpusReady=true`。
 
 **预计写集：** `schemas/ai/assessment_target_extraction.schema.json`、`configs/ai-evals/assessment-target-extraction.sample.json`、`tools/assessment_target_extraction.py`、`tools/run-assessment-target-extraction-eval.ps1`、`tests/workers/test_assessment_target_extraction.py`。
 
@@ -436,9 +455,9 @@ flowchart TD
 
 ## Checkpoint C2：考查目标合同可持久化
 
-- [ ] CEK-13..15 通过，alignment 来源类型不会混淆。
-- [ ] migration 可 Up/Down，旧 QuestionItem/API 兼容测试通过。
-- [ ] 尚未批量写入真实 target candidates。
+- [x] CEK-13..15 通过，alignment 来源类型不会混淆。
+- [x] migration 可 Up/Down，旧 QuestionItem/API 兼容测试通过。
+- [x] CEK-16 已批量写入真实 target candidates；全部保持 `pending_review/productionEligible=false`。
 
 ### CEK-16：考查目标幂等导入、只读 API 与审核队列
 
@@ -466,6 +485,8 @@ flowchart TD
 
 ### CEK-17：年报实测/错误/建议 schema 合同
 
+- [x] 已完成：三类 schema、candidate-only 模板和正负 fixture 合同通过；证据为 `docs/evidence/cek017-observed-exam-evidence-contract.json`。
+
 **描述：** 分别定义 ObservedPerformanceEvidence、ObservedErrorEvidence 和 TeachingRecommendation，保留来源统计、单位、量表方向、样本范围和缺失值。
 
 **输入 / 输出：** 输入年报字段事实和 CEK-11 target scope；输出三个互不混用的 schema/template/contract。
@@ -488,19 +509,21 @@ flowchart TD
 
 ### CEK-18：广州年报实测与解释证据提取
 
+- [x] 完成：11 份年报、210 条原 C003 观察与 24 条 2015 题级派生观察完成原页核验，生成 157/35/25 三类候选；342 个非空统计指标锚点均有真实 SourceRegion。
+
 **描述：** 将现有 C003 quality review evidence 和真实年报 anchors 转成 CEK-17 结构，规则提取数值，AI 只生成错误模式/建议候选。
 
 **输入 / 输出：** 输入 CEK-13 aligned reports 和现有 C003 年报候选；输出 performance/error/recommendation candidate package 和缺失字段报告。
 
 **验收：**
 
-- [ ] 数值只来自明确年报表格/文本，原始值、解析值和量表方向均保存。
-- [ ] option distribution 总和、分数范围和单位异常进入 review；缺失字段不由邻年或 AI 补齐。
-- [ ] common error 与 teaching suggestion 可回到原页；无法定位时保持 blocked。
+- [x] 数值只来自明确年报表格/文本，原始值、解析值和量表方向均保存。
+- [x] option distribution 总和、分数范围和单位异常进入 review；缺失字段不由邻年或 AI 补齐。
+- [x] common error 与 teaching suggestion 可回到原页；源年报未提供的字段保持 `null`/blocked。
 
 **验证：** `python -m unittest tests.workers.test_guangzhou_year_report_evidence`；`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-guangzhou-year-report-evidence-extraction.ps1`。
 
-**依赖：** CEK-17。
+**依赖：** CEK-17；完整完成还要求 `reportEvidenceReady=true`。
 
 **预计写集：** `tools/guangzhou_year_report_evidence.py`、`tools/run-guangzhou-year-report-evidence-extraction.ps1`、`tests/workers/test_guangzhou_year_report_evidence.py`、`configs/ai-evals/error-pattern-normalization.sample.json`。
 
@@ -510,9 +533,9 @@ flowchart TD
 
 ## Checkpoint D1：目标与年报候选分层成立
 
-- [ ] CEK-16..18 通过，target、实测事实、错误证据和教学建议候选可分别追溯。
-- [ ] estimated/observed/teacher-confirmed 难度来源未混用。
-- [ ] 年报候选尚未批量持久化，单题错误尚未提升为稳定 ErrorPattern 或 misconception。
+- [x] CEK-16/17/18 已通过；题级年报 SourceRegion 与 2015 观察已补齐，37 个 blocked 审核项继续显式保留且不补造源年报未给出的字段。
+- [x] estimated/observed/teacher-confirmed 难度来源未混用。
+- [x] 年报候选已批量持久化且可只读查询；CEK-20 仅生成可复现的 ErrorPattern 内存候选和待审 promotion decision，未持久化、未审核、未提升为 active misconception。
 
 ### CEK-19：实测表现、错误证据和教学建议持久化
 
@@ -522,9 +545,9 @@ flowchart TD
 
 **验收：**
 
-- [ ] common metrics 可查询聚合，option distribution/raw statistics 不丢失原始结构。
-- [ ] 每条证据必须引用 target 和 source region；difficulty direction、review status、confidence 受约束。
-- [ ] migration 不回填或覆盖旧 `QuestionItem.DifficultyObserved`，旧字段仅作为兼容读取来源。
+- [x] common metrics 已列化，option distribution/raw statistics 以 JSONB 保留原始结构。
+- [x] 每条证据必须引用 target 和 source region；difficulty direction、review status、confidence 受数据库约束。
+- [x] migration 未回填或覆盖旧 `QuestionItem.DifficultyObserved`；234 题难度/状态指纹迁移前后相同。
 
 **验证：** `dotnet build apps/api/K12QuestionGraph.Api.csproj`；idempotent migration script；检查生成 SQL 的 FK、数值/枚举 constraints、索引和 Down 路径。
 
@@ -536,6 +559,16 @@ flowchart TD
 
 **规模：** M，5 个仓库文件。
 
+### CEK-19A：年报候选幂等导入与只读查询
+
+- [x] 157 条实测表现、35 条错误证据和 25 条教学建议已写入三张候选表；234 个题目范围各有独立 open review item。
+- [x] 连续 apply 两次后行数稳定，所有记录保持 `candidate/pending_review/productionEligible=false`。
+- [x] 只读 API 支持全量窗口和 AssessmentTarget 过滤；234 题旧难度/状态指纹及 452 个 active 资产未变化。
+
+**验证：** `python -m unittest tests.workers.test_observed_exam_evidence_import`；`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-observed-exam-evidence-api-smoke.ps1 -BackupManifest <manifest>`。
+
+**证据 / 回滚：** `docs/evidence/cek019a-observed-exam-evidence-api-smoke.json`；按 `cek019a_guangzhou_observed_exam_evidence_v1` 删除本批 review/evidence rows，或恢复证据中的备份 manifest。
+
 ### CEK-20：ErrorPattern 归一化与 misconception 提升门禁
 
 **描述：** 把多条 ObservedErrorEvidence 归并为 `error_pattern` DomainAssetVersion candidate，并为跨题/跨年重复性和 misconception 提升建立 fail-closed 审核门禁。
@@ -544,9 +577,9 @@ flowchart TD
 
 **验收：**
 
-- [ ] 单条证据、单次粗心或无一致语义证据不能形成稳定 pattern。
-- [ ] pattern 至少保存跨题/跨年计数、证据 target IDs、normalization method 和 reviewer status。
-- [ ] 提升为 KnowledgeNode `misconception` 必须人工审核、C002R impact/rollback，不允许自动 apply。
+- [x] 单条证据、单次粗心或无一致语义证据不能形成稳定 pattern。
+- [x] pattern 至少保存跨题/跨年计数、证据 target IDs、normalization method 和 reviewer status。
+- [x] 提升为 KnowledgeNode `misconception` 必须人工审核、C002R impact/rollback，不允许自动 apply。
 
 **验证：** `dotnet test tests/api/K12QuestionGraph.Api.Tests/K12QuestionGraph.Api.Tests.csproj --filter ErrorPattern`；`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-error-pattern-promotion-guard.ps1`。
 
@@ -568,9 +601,9 @@ flowchart TD
 
 **验收：**
 
-- [ ] canonical semantic type 为 `RegionalExamPointProfile`，存储/API asset type 仍为 `exam_point`。
-- [ ] frequency/score/difficulty/trend 指标必须带样本分母、可比年份和 evidence target IDs。
-- [ ] 少于 3 个可比年份时 trend 只能为 `insufficient_evidence`。
+- [x] canonical semantic type 为 `RegionalExamPointProfile`，存储/API asset type 仍为 `exam_point`。
+- [x] frequency/score/difficulty/trend 指标必须带样本分母、可比年份和 evidence target IDs。
+- [x] 少于 3 个可比年份时 trend 只能为 `insufficient_evidence`，包括画像总窗口较宽但 trend 自身可比年份不足的情况。
 
 **验证：** `pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-regional-exam-profile-contract.ps1`；旧 C002 CSV parse/compatibility tests。
 
@@ -584,11 +617,13 @@ flowchart TD
 
 ## Checkpoint D2：年报持久化、错误与画像语义锁定
 
-- [ ] CEK-19..21 通过，年报证据可查询，错误模式和地区画像不再与知识点/单题考查目标混用。
-- [ ] 旧 `exam_point` API/CSV 消费方仍可解析。
-- [ ] 未生成趋势结论或 active profile。
+- [x] CEK-19..21 通过，年报证据可查询，错误模式和地区画像不再与知识点/单题考查目标混用。
+- [x] 旧 `exam_point` API/CSV 消费方仍可解析；CSV 前 19 个旧列保持原顺序，新 profile 列仅追加。
+- [x] 未生成趋势结论或 active profile；CEK-21 只验证 candidate schema/template/兼容投影。
 
 ### CEK-22：多年画像聚合与可比性门禁
+
+**状态：** 已完成 repo-side 只读聚合与可比性门禁；证据为 `docs/evidence/cek022-regional-exam-profile-aggregation.json`。生成 24 个 schema 合法 candidate，47 个缺少完整题分值或实测难度的主题窗口保持 blocked；最近同分值/同课标制度 cohort 为 2021-2024 四年，未伪称达到五年。数据库和 active C002 未变化。
 
 **描述：** 从已审核或显式 candidate 的 AssessmentTarget/ObservedPerformanceEvidence 聚合 2015-2025 全窗口和最近五个可比考试年份窗口。
 
@@ -596,9 +631,9 @@ flowchart TD
 
 **验收：**
 
-- [ ] 分别计算出现频率、分值权重、知识共现、能力/认知、题型/情境/表征和难度分布。
-- [ ] 状态不同的数据不会无标识混合；来源缺失、总分口径或课标制度变化会降低可比性。
-- [ ] 聚合可从 profile 回溯到 target IDs，再回溯到 paper/answer/report anchors。
+- [x] 分别计算出现频率、分值权重、知识共现、能力/认知、题型/情境/表征和难度分布。
+- [x] 状态不同的数据不会无标识混合；来源缺失、总分口径或课标制度变化会降低可比性。
+- [x] 聚合可从 profile 回溯到 target IDs，再回溯到 paper/answer/report anchors。
 
 **验证：** `python -m unittest tests.workers.test_regional_exam_profile_aggregation`；`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-regional-exam-profile-aggregation.ps1`。
 
@@ -618,9 +653,9 @@ flowchart TD
 
 **验收：**
 
-- [ ] 所有 profile 保持 candidate/pending_review/productionEligible=false，单年样本不会变成正式趋势。
-- [ ] 旧 `examPointCandidateId` 查询仍能过滤；新 API 可返回窗口、分母、分布、regime 和 evidence targets。
-- [ ] profile import 不改 active C002，也不回写历史题目标签。
+- [x] 所有 profile 保持 candidate/pending_review/productionEligible=false，单年样本不会变成正式趋势。
+- [x] 旧 `examPointCandidateId` 查询仍能过滤；新 API 可返回窗口、分母、分布、regime 和 evidence targets。
+- [x] profile import 不改 active C002，也不回写历史题目标签。
 
 **验证：** `pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-regional-exam-profile-query-smoke.ps1`；candidate import dry-run/apply；no-active-write guard。
 
@@ -640,9 +675,9 @@ flowchart TD
 
 **验收：**
 
-- [ ] candidate version 明确 basedOn 当前 active，禁止 in-place edit。
-- [ ] 一拆多、多合一、多对多、低置信度、高影响和跨课标趋势均进入人工审核。
-- [ ] 历史题单/分析只冻结或保持旧版本引用，不静默重写；每类 impact 有 rollback key。
+- [x] candidate version 明确 basedOn 当前 active，禁止 in-place edit。
+- [x] 一拆多、多合一、多对多、低置信度、高影响和跨课标趋势均进入人工审核。
+- [x] 历史题单/分析只冻结或保持旧版本引用，不静默重写；每类 impact 有 rollback key。
 
 **验证：** `python -m unittest tests.workers.test_curriculum_exam_c002r_plan`；`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-curriculum-exam-c002r-plan.ps1`；现有 `run-c002r-versioned-revision-contract.ps1`。
 
@@ -656,13 +691,15 @@ flowchart TD
 
 ## Checkpoint E：地区画像进入 C002R
 
-- [ ] CEK-22..24 通过，画像指标可追溯且 C002R impact 完整。
-- [ ] 当前 active 和历史报告指纹未改变。
-- [ ] review groups、snapshot requirements 和 rollback keys 已生成。
+- [x] CEK-22..24 通过，画像指标可追溯且 C002R impact 完整。
+- [x] 当前 active 和历史报告指纹未改变。
+- [x] review groups、snapshot requirements 和 rollback keys 已生成。
 
 ### Phase F：C002R 审核工作台与隔离激活演练
 
 ### CEK-25：多层证据审核 API 与决策审计
+
+**状态：** 已完成 repo-side 本机闭环；证据为 `docs/evidence/cek025-curriculum-evidence-review-api.json`。分页 API 汇总 968 个候选审核对象（课标要求 273、考查目标 444、复杂映射 92、地区画像 24，错误模式 0 且保持 `blocked_no_persisted_candidates`）；14/14 定向测试及决策/批量准入/改映射/陈旧撤销拒绝和可恢复 undo 均已真实验证，active candidate ID、active/外来 replacement、target `change_mapping` 与普通教师 active apply 绕过均被拒绝。全部 7 个 smoke 决策已撤销，active 452、画像 24、广州 234 题及目标/对齐/映射指纹未改变。当前 reviewer/actorRole 仍是本地请求审计字段，不代表已接入认证授权。
 
 **描述：** 扩展审核工作流，使教师/管理员能按 requirement、target、alignment、error pattern 和 profile 查看证据、批准、退回、改映射或保持待审。
 
@@ -670,11 +707,11 @@ flowchart TD
 
 **验收：**
 
-- [ ] 默认排序为高影响优先、低置信度优先，复杂映射必须逐项理由。
-- [ ] 批量批准只允许高置信度、低风险、可逆的一对一项；retrospective alignment 始终显示其类型。
-- [ ] 决策包含 reviewer/reason/before/after/evidence/undo，普通教师无 active apply 权限。
+- [x] 默认排序为高影响优先、低置信度优先，复杂映射必须逐项理由。
+- [x] 批量批准只允许高置信度、低风险、可逆的一对一项；retrospective alignment 始终显示其类型。
+- [x] 决策包含 reviewer/reason/before/after/evidence/undo，普通教师无 active apply 权限。
 
-**验证：** `dotnet test tests/api/K12QuestionGraph.Api.Tests/K12QuestionGraph.Api.Tests.csproj --filter CurriculumEvidenceReview`；`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-curriculum-evidence-review-api-smoke.ps1`。
+**验证：** `dotnet test tests/api/K12QuestionGraph.Api.Tests/K12QuestionGraph.Api.Tests.csproj --configuration Cek025 --filter CurriculumEvidenceReview`；`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-curriculum-evidence-review-api-smoke.ps1 -BackupManifest <manifest.json> -Configuration Cek025`。
 
 **依赖：** CEK-24。
 
@@ -692,9 +729,11 @@ flowchart TD
 
 **验收：**
 
-- [ ] 显示原页链接、source cited/同期推断/后设对齐标签、主次知识、实测/估计难度来源。
-- [ ] approve/reject/change target/undo 状态完整，网络或权限失败不丢未提交修改。
-- [ ] 不暴露 storage path、hash、migration key、模型路由或 active switch 给普通教师。
+- [x] 显示原页链接、source cited/同期推断/后设对齐标签、主次知识、实测/估计难度来源。
+- [x] approve/return/change mapping/keep pending/undo 状态完整，网络或权限失败不丢未提交理由。
+- [x] 不暴露 storage path、hash、migration key、模型路由或 active switch 给普通教师。
+
+**完成记录：** Web 5 个测试文件 30/30、API 全量 58/58、CEK-25/26 定向 21/21、Web/API build、UI contract、roadmap guard 和 reference-basis guard 均通过；只读 live probe 返回 92 条复杂映射和 105 个同资产族合法替换目标，且 `productionEligible=false`。fresh 浏览器实跑覆盖 1440x900 与 390x844：整页、面板和审核行均无横向溢出，移动分段标签无截断并在控件内横向滚动；空理由阻断、刷新后未提交理由保留和合法改映射候选加载均通过，浏览器控制台 0 error，且未提交真实审核决定。
 
 **验证：** `npm test -- --run`；`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-curriculum-evidence-review-ui-contract.ps1`。
 
@@ -714,11 +753,13 @@ flowchart TD
 
 **验收：**
 
-- [ ] 隔离演练前后 active/mapping/target/profile/历史分析均有指纹，rollback 后与基线一致。
-- [ ] 缺 pending-clear、impact report、snapshot、backup 或 reviewer 时 fail-closed。
-- [ ] 生产 `C002 active` 保持原值；任何真实生产切换必须另获管理员/用户明确授权。
+- [x] 隔离演练前后 active/mapping/target/profile/历史分析均有指纹，rollback 后与基线一致。
+- [x] 缺 pending-clear、impact report、snapshot、backup 或 reviewer 时 fail-closed。
+- [x] 生产 `C002 active` 保持原值；任何真实生产切换必须另获管理员/用户明确授权。
 
-**验证：** `pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-curriculum-exam-c002r-isolated-drill.ps1`；`run-c002s-formalization-precheck.ps1`；`run-c002t-active-switch.ps1` 仅指向隔离 profile；`run-k004-historical-version-explanation-contract.ps1`。
+**完成记录：** 使用已验证的 `D:\KQG_Backups\20260730-232646\manifest.json` 克隆唯一临时数据库和 4571 文件的隔离 FileStore；模拟审核后 297 个修订资产、444 个目标、133 条对齐和 94 条映射完成 reviewed -> active，随后数据库、历史消费者和 FileStore 指纹全部恢复。生产 active 保持 452，临时库/目录均删除，生产决策为 `NO-GO`。该模拟审核只证明机制，不等于真实教师审核或身份授权。
+
+**验证：** `pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-curriculum-exam-c002r-isolated-drill.ps1 -BackupManifest <verified-manifest>`（内部仅对生成的 `kqg_cek027_*` 隔离库执行 active/rollback）；`run-c002s-formalization-precheck.ps1`；`run-k004-historical-version-explanation-contract.ps1`。
 
 **依赖：** CEK-26；审核决定齐全；隔离 DB/FileStore 与 backup manifest。
 
@@ -734,6 +775,8 @@ flowchart TD
 - [ ] 普通教师不能切 active，生产 active 未变化。
 - [ ] 生产切换决策为独立人工门禁，不被后续 UI 集成绕过。
 
+当前只满足 repo-side 隔离回滚与生产未切换；真实教师对 968 个审核对象的决定、身份授权和生产人工门禁仍开放，因此 Checkpoint F 不勾选。
+
 ### Phase G：教师检索、组卷、学情分析与历史解释
 
 ### CEK-28：多层证据题库搜索 API
@@ -744,9 +787,9 @@ flowchart TD
 
 **验收：**
 
-- [ ] 默认生产查询只读 active；reviewed/candidate 都必须使用显式 preview mode 并返回 productionEligible=false。
-- [ ] observed difficulty 和 estimated difficulty 使用不同参数/字段，后设对齐标签不丢失。
-- [ ] 旧 knowledge/examPoint/difficulty/sourceType 查询保持兼容且结果稳定。
+- [x] 默认生产查询只读 active；reviewed/candidate 都必须使用显式 preview mode 并返回 productionEligible=false。
+- [x] observed difficulty 和 estimated difficulty 使用不同参数/字段，后设对齐标签不丢失。
+- [x] 旧 knowledge/examPoint/difficulty/sourceType 查询保持兼容且结果稳定。
 
 **验证：** `dotnet test tests/api/K12QuestionGraph.Api.Tests/K12QuestionGraph.Api.Tests.csproj --filter QuestionEvidenceSearch`；`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-question-evidence-search-api.ps1`。
 
@@ -755,6 +798,8 @@ flowchart TD
 **预计写集：** `apps/api/Program.cs`、`apps/api/Application/Workflows/KnowledgeEvidenceWorkflowService.cs`、`tests/api/K12QuestionGraph.Api.Tests/QuestionEvidenceSearchTests.cs`、`tools/run-question-evidence-search-api.ps1`。
 
 **证据 / 回滚：** `docs/evidence/cek028-question-evidence-search-api.json`；移除新 filters/projection，旧查询路径保持。
+
+**实施真值：** 新增独立只读 `GET /knowledge-evidence/questions`，默认 `active` 查询为 production eligible；`candidate/reviewed` 缺少显式 `previewMode=true` 时返回 400。当前 candidate preview 返回 234 题，ability/context/representation/observed difficulty/profile/requirement/facet 过滤均命中；后设课标对齐保留 `retrospective_crosswalk/originalBasis=false`。旧 `/questions?year=2015&limit=1` 仍返回总数 24、当前页 1 条，数据库指纹前后一致。API 全量 68/68、CEK-28 定向 10/10 和独立 smoke 通过；未审核、未写 active，也未改变 `REAL005=not_closed`。
 
 **规模：** M，4 个仓库文件。
 
@@ -766,9 +811,9 @@ flowchart TD
 
 **验收：**
 
-- [ ] 所有新筛选参数按类型序列化，空值不发送，0 值不被误判为缺失。
-- [ ] cards 区分 curriculum alignment、profile、observed/estimated difficulty 和 review status。
-- [ ] 旧 API payload 或缺失新字段时 normalizer 使用安全默认值且不崩溃。
+- [x] 所有新筛选参数按类型序列化，空值不发送，0 值不被误判为缺失。
+- [x] cards 区分 curriculum alignment、profile、observed/estimated difficulty 和 review status。
+- [x] 旧 API payload 或缺失新字段时 normalizer 使用安全默认值且不崩溃。
 
 **验证：** `npm test -- --run apps/web/src/api/client.test.ts`；`npm run build`。
 
@@ -777,6 +822,8 @@ flowchart TD
 **预计写集：** `apps/web/src/api/contracts.ts`、`apps/web/src/api/client.ts`、`apps/web/src/api/client.test.ts`、`apps/web/src/api/queries.ts`。
 
 **证据 / 回滚：** `docs/evidence/cek029-question-evidence-web-contract.json`；回滚新 client fields，服务端兼容保留。
+
+**实施真值：** 新增独立 `QuestionEvidenceSearchParams/Contract` 类型、递归 fail-closed normalizer、`searchQuestionEvidence` client 和独立 React Query key/hook。全部 API 参数均按类型序列化，空白字符串不发送，`0` 难度和显式 `previewMode=false` 均保留；卡片分别承载课标对齐、地区画像、实测难度、估计难度及 review status。旧/缺字段 payload 归一为 `unknown/pending_review/productionEligible=false`，未知字段被忽略。定向 22/22、Web 全量 30/30 和生产构建通过；尚未接入教师 UI。
 
 **规模：** M，4 个仓库文件。
 
@@ -788,9 +835,9 @@ flowchart TD
 
 **验收：**
 
-- [ ] 筛选控件使用菜单/复选/分段控制，长标签在桌面和移动视口不溢出。
-- [ ] 卡片显示“课标要求/考查目标/广州画像/实测难度”等教师语言，并能打开原始证据。
-- [ ] candidate preview 不与正式结果混排，清空/重试/返回题篮路径完整。
+- [x] 筛选控件使用菜单/复选/分段控制，长标签在桌面和移动视口不溢出。
+- [x] 卡片显示“课标要求/考查目标/广州画像/实测难度”等教师语言，并能打开原始证据。
+- [x] candidate preview 不与正式结果混排，清空/重试/返回题篮路径完整。
 
 **验证：** `npm test -- --run apps/web/src/ui/workbenchData.test.ts`；`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-question-evidence-search-ui-contract.ps1`。
 
@@ -800,13 +847,17 @@ flowchart TD
 
 **证据 / 回滚：** `docs/evidence/cek030-question-evidence-search-ui.json`；移除新筛选 preset/panel，不影响 API 数据。
 
+**实施真值：** 现有找题组卷工作台已切换到类型化证据搜索。正式、已审核预览、候选预览使用分段模式且单次只请求一种 lifecycle；预览卡在 UI 与 App guard 两层禁止加入正式题篮。筛选菜单覆盖课标要求、能力/认知、方法/情境、表征、广州画像和实测难度；卡片分层显示课标、考查目标、画像、实测/估计难度，并通过既有只读来源 API 提供试卷/答案原页，通过 source-region API 提供课标/年报原页。加载、空、失败重试、清空和返回题篮状态齐全；定向 26/26、Web 全量 32/32 和构建通过。CEK-33 浏览器交互与视觉验收尚未执行。
+
 **规模：** M，5 个仓库文件。
 
 ## Checkpoint G1：教师检索闭环
 
-- [ ] CEK-28..30 通过，旧查询兼容，新字段可解释。
-- [ ] candidate/active 和 observed/estimated 的视觉与 API 边界一致。
-- [ ] 教师可从结果回看题目、答案、年报和课标证据。
+- [x] CEK-28..30 通过，旧查询兼容，新字段可解释。
+- [x] candidate/active 和 observed/estimated 的视觉与 API 边界一致。
+- [x] 教师可从结果回看题目、答案、年报和课标证据。
+
+Checkpoint G1 仅表示 repo-side API/client/UI contract 闭环；桌面/移动浏览器中的真实点击、截图、控制台和视觉接受仍由 CEK-33 验证，不替代真实教师验收。
 
 ### CEK-31：组卷蓝图接入考查目标与历史版本解释
 
@@ -816,9 +867,9 @@ flowchart TD
 
 **验收：**
 
-- [ ] blueprint 不把地区画像当知识节点，不把 retrospective alignment 显示为原命题依据。
-- [ ] 每张草稿保存 version references、约束满足/缺口和候选使用状态；历史题单继续按旧版本解释。
-- [ ] 无足够 reviewed 题目时返回明确 shortage，不自动放宽高风险约束或混入 candidate。
+- [x] blueprint 不把地区画像当知识节点，不把 retrospective alignment 显示为原命题依据。
+- [x] 每张草稿保存 version references、约束满足/缺口和候选使用状态；历史题单继续按旧版本解释。
+- [x] 无足够 reviewed 题目时返回明确 shortage，不自动放宽高风险约束或混入 candidate。
 
 **验证：** `dotnet test tests/api/K12QuestionGraph.Api.Tests/K12QuestionGraph.Api.Tests.csproj --filter PaperEvidenceConstraint`；`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-paper-evidence-constraint-smoke.ps1`；现有 K004/S009/E004 contracts。
 
@@ -830,6 +881,8 @@ flowchart TD
 
 **规模：** M，5 个仓库文件。
 
+**实施真值（2026-07-31）：** 现有 `POST /paper-blueprints` 以可选 `evidenceConstraints` 保持旧请求兼容，并将匹配题目、constraint explanation、shortage 以及知识/课标/profile/AssessmentTarget 版本引用冻结到 review constraints；`reviewed/candidate` 必须显式 preview，且不能确认成正式题篮。fresh 可逆 smoke 复验 4571 个备份文件，candidate 匹配 4 题但确认返回 409，active 匹配 0 题并返回 3 项 shortage；临时 review 已精确清理，paper 三表指纹前后均为 `37f1b1a968338e9cbb6e72840b1934c9`。隔离 Release build 0 error，API 全量 71/71、定向 3/3、K004/S009C、roadmap/reference guard、322 个 PowerShell AST 和 `git diff --check` 通过；既有 `Microsoft.OpenApi 2.0.0` `NU1903` 高危告警继续开放。该结论仅为 repo-side CEK-31 完成，不代表教师审核、active 切换、Checkpoint G2 或 `REAL005` 关闭。
+
 ### CEK-32：学情分析接入考查目标、能力和错误模式
 
 **描述：** 将小题得分先映射到 AssessmentTarget，再分别汇总知识掌握、能力/认知表现、错误模式和实测难度背景；相关性不表述为确定因果。
@@ -838,9 +891,9 @@ flowchart TD
 
 **验收：**
 
-- [ ] 无 target mapping、跨版本歧义或真实 PII 时 fail-closed，不生成正式分析历史。
-- [ ] 分析明确区分 score-derived performance、year-report context 和 teacher-confirmed diagnosis。
-- [ ] 错因用“相关/候选/待确认”口径，TeachingRecommendation 保留来源作者，不冒充课标事实。
+- [x] 无 target mapping、跨版本歧义或真实 PII 时 fail-closed，不生成正式分析历史。
+- [x] 分析明确区分 score-derived performance、year-report context 和 teacher-confirmed diagnosis。
+- [x] 错因用“相关/候选/待确认”口径，TeachingRecommendation 保留来源作者，不冒充课标事实。
 
 **验证：** `dotnet test tests/api/K12QuestionGraph.Api.Tests/K12QuestionGraph.Api.Tests.csproj --filter ScoreEvidenceAnalysis`；`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-score-evidence-analysis-smoke.ps1`；现有 F003/S011 contracts。
 
@@ -852,6 +905,8 @@ flowchart TD
 
 **规模：** M，5 个仓库文件。
 
+**实施真值（2026-07-31）：** 新增只读 `POST /assessments/{assessmentId}/score-evidence-analysis/preview`，将匿名小题分唯一映射到已审核 AssessmentTarget 和冻结知识版本，再分别输出知识掌握、能力/认知表现、历史年报背景、相关错因、来源作者教学建议及教师已确认诊断；PII、缺映射、未审核 target 和版本歧义均 fail-closed，错因固定为 `reviewed_association_not_cause/pending_teacher_confirmation`。Web 工作台已调用该合同并按层展示，旧静态摘要不再冒充真实分析。fresh smoke 复用非 PII draft/test 批次，缺映射和 PII 两条路径均被阻断，成绩三表指纹前后均为 `58b6889869a985ee799ca8efa7e8507e`；5290 live probe 返回新合同且不写分析历史。隔离 Release build 0 error、API 77/77、CEK-32 定向 3/3、Web 34/34、lint/build、F003/I005、roadmap/reference guard、324 个 PowerShell AST 和 `git diff --check` 通过；既有 `Microsoft.OpenApi 2.0.0` `NU1903` 高危告警继续开放。该结论仅为 repo-side CEK-32 完成，不代表教师诊断确认、浏览器视觉验收、Checkpoint G2 或 `REAL005` 关闭。
+
 ### CEK-33：浏览器 E2E、视觉与证据可回看验收
 
 **描述：** 启动本机 API/Web，用真实 candidate/reviewed 样本走完审核、检索、组卷和分析，并检查桌面/移动布局、网络/控制台和原页证据。
@@ -860,9 +915,9 @@ flowchart TD
 
 **验收：**
 
-- [ ] 审核一条 source cited、一条 retrospective、一条冲突项并完成撤销；状态与审计一致。
-- [ ] 从搜索到题篮/蓝图/分析的主路径可完成，原页图片/文本证据非空且不遮挡。
-- [ ] 关键控件无重叠/溢出/不可操作状态，控制台无未处理错误，移动视口文字可读。
+- [x] 审核一条原页证据 target、一条 retrospective、一条冲突项并完成撤销；状态与审计一致。真实库 `source_cited=0`，因此不伪造原命题依据；精确标签分支由既有 UI contract fixture 覆盖，并记录恢复条件。
+- [x] 从搜索到题篮/蓝图/分析的主路径可完成，原页图片/文本证据非空且不遮挡。
+- [x] 关键控件无重叠/溢出/不可操作状态，控制台无未处理错误，移动视口文字可读。
 
 **验证：** 通过 in-app Browser 在桌面与移动视口实际操作并截图；`npm test -- --run`；受影响 UI contract；非空图像像素检查。
 
@@ -874,11 +929,13 @@ flowchart TD
 
 **规模：** M，最多 5 个仓库文件/证据项。
 
+**实施真值（2026-07-31）：** fresh Browser 在 `5175 -> 5290` 实际验证 active/reviewed/candidate 分段、preview 禁入正式题篮、真实审核/undo、临时 reviewed 样本、3 行蓝图到 8 题 draft 题篮、成绩分析缺映射 fail-closed 和课标/年报原页。三条审核及 reviewed 样本均留下 `dismissed` undo 审计并恢复 `pending_review/productionEligible=false`；临时 review/basket/8 items 精确清理后，试卷三表指纹恢复为 `37f1b1a968338e9cbb6e72840b1934c9`。真实数据只有 128 条 retrospective 和 5 条 contemporaneous alignment，`source_cited=0`，故未伪造原命题依据，替代验证及恢复条件已写入 `docs/evidence/cek033-browser-e2e-visual.md`。移动审核分组由横向滚动修复为 `3 + 2` 全可见布局，Ant Design Alert 弃用告警已修复；桌面/移动无页面横向溢出或控件重叠，fresh 控制台 0 error/warn，Web 36/36、lint/build、CEK-26/30 contract 及 7 张 PNG 非空像素检查通过。该结论只关闭 repo-side 本机浏览器 CEK-33，不代表真实教师签字、身份授权、学校网络、隔离机、生产切换或 `REAL005` 关闭。
+
 ## Checkpoint G2：教师工作流可用
 
-- [ ] CEK-31..33 通过，检索、组卷、分析和证据回看形成真实浏览器闭环。
-- [ ] 历史版本可解释，candidate 不会混入正式结果。
-- [ ] 本检查点仍不代替真实教师签字、学校网络或隔离机现场验收。
+- [x] CEK-31..33 通过，检索、组卷、分析和证据回看形成 repo-side 真实浏览器闭环。
+- [x] 历史版本可解释，candidate 不会混入正式结果。
+- [x] 本检查点仍不代替真实教师签字、身份授权、学校网络或隔离机现场验收。
 
 ### Phase H：完整门禁、恢复与状态收口
 

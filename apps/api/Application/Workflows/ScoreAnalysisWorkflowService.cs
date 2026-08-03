@@ -14,6 +14,7 @@ public interface IScoreAnalysisWorkflowService
     Task<AnalysisWorkflowDto> GetAnalysisSummaryAsync(Guid assessmentId, CancellationToken cancellationToken);
     Task<ScoreImportServiceResult> ImportScoresAsync(ScoreImportServiceRequest request, CancellationToken cancellationToken);
     Task<ItemScoreMappingPreviewServiceResult?> PreviewItemScoreMappingsAsync(Guid assessmentId, ItemScoreMappingPreviewServiceRequest request, CancellationToken cancellationToken);
+    Task<ScoreEvidenceAnalysisServiceResult?> PreviewScoreEvidenceAnalysisAsync(Guid assessmentId, ScoreEvidenceAnalysisServiceRequest request, CancellationToken cancellationToken);
     Task<CommentaryReportExportServiceResult?> ExportCommentaryReportAsync(Guid assessmentId, CommentaryReportExportServiceRequest request, CancellationToken cancellationToken);
 }
 
@@ -379,6 +380,202 @@ public sealed class ScoreAnalysisWorkflowService(KqgDbContext dbContext) : IScor
             ]);
     }
 
+    public async Task<ScoreEvidenceAnalysisServiceResult?> PreviewScoreEvidenceAnalysisAsync(
+        Guid assessmentId,
+        ScoreEvidenceAnalysisServiceRequest request,
+        CancellationToken cancellationToken)
+    {
+        var assessment = await dbContext.Assessments
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == assessmentId, cancellationToken);
+        if (assessment is null)
+        {
+            return null;
+        }
+
+        var scoreRows = await (
+            from scoreRecord in dbContext.ScoreRecords.AsNoTracking()
+            join itemScore in dbContext.ItemScores.AsNoTracking() on scoreRecord.Id equals itemScore.ScoreRecordId
+            where scoreRecord.AssessmentId == assessmentId
+            select new
+            {
+                itemScore.QuestionNo,
+                itemScore.Score,
+                itemScore.MaxScore,
+                scoreRecord.ContainsStudentPii
+            })
+            .ToListAsync(cancellationToken);
+
+        var requestedMappings = (request.Mappings ?? Array.Empty<ItemScoreMappingRequestItem>())
+            .Where(x => !string.IsNullOrWhiteSpace(x.QuestionNo))
+            .GroupBy(x => NormalizeQuestionNo(x.QuestionNo), StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(x => x.Key, x => x.ToArray(), StringComparer.OrdinalIgnoreCase);
+        var questionIds = requestedMappings.Values
+            .SelectMany(x => x)
+            .Where(x => x.QuestionItemId.HasValue && x.QuestionItemId != Guid.Empty)
+            .Select(x => x.QuestionItemId!.Value)
+            .Distinct()
+            .ToArray();
+        var questions = await dbContext.QuestionItems
+            .AsNoTracking()
+            .Where(x => questionIds.Contains(x.Id))
+            .ToDictionaryAsync(x => x.Id, cancellationToken);
+        var targets = await dbContext.AssessmentTargets
+            .AsNoTracking()
+            .Where(x => questionIds.Contains(x.QuestionItemId))
+            .ToListAsync(cancellationToken);
+        var targetIds = targets.Select(x => x.Id).Distinct().ToArray();
+        var targetKnowledgeRows = await (
+            from mapping in dbContext.AssessmentTargetKnowledgeMappings.AsNoTracking()
+            join asset in dbContext.DomainAssetVersions.AsNoTracking() on mapping.DomainAssetVersionId equals asset.Id
+            where targetIds.Contains(mapping.AssessmentTargetId)
+            select new ScoreEvidenceKnowledgeInput(
+                mapping.AssessmentTargetId,
+                asset.Id,
+                asset.StableId,
+                asset.DisplayName,
+                asset.Version,
+                asset.Status,
+                mapping.Role,
+                mapping.Status,
+                mapping.ReviewStatus))
+            .ToListAsync(cancellationToken);
+        var observedPerformance = await dbContext.ObservedPerformanceEvidence
+            .AsNoTracking()
+            .Where(x => targetIds.Contains(x.AssessmentTargetId))
+            .ToListAsync(cancellationToken);
+        var observedErrors = await dbContext.ObservedErrorEvidence
+            .AsNoTracking()
+            .Where(x => targetIds.Contains(x.AssessmentTargetId))
+            .ToListAsync(cancellationToken);
+        var recommendations = await dbContext.TeachingRecommendations
+            .AsNoTracking()
+            .Where(x => targetIds.Contains(x.AssessmentTargetId))
+            .ToListAsync(cancellationToken);
+        var reviewedErrorPatterns = (await dbContext.DomainAssetVersions
+                .AsNoTracking()
+                .Where(x => x.AssetType == "error_pattern"
+                    && (x.Status == DomainAssetStatuses.Reviewed || x.Status == DomainAssetStatuses.Active))
+                .ToListAsync(cancellationToken))
+            .Where(IsReviewedErrorPattern)
+            .SelectMany(asset => ReadGuidArray(asset.Metadata, "evidenceTargetIds")
+                .Select(targetId => new ScoreEvidenceErrorPatternInput(
+                    targetId,
+                    asset.Id,
+                    asset.StableId,
+                    asset.DisplayName,
+                    asset.Version,
+                    "reviewed_association_not_cause")))
+            .Where(x => targetIds.Contains(x.AssessmentTargetId))
+            .ToArray();
+
+        var itemInputs = new List<ScoreEvidenceAnalysisItemInput>();
+        foreach (var scoreGroup in scoreRows
+                     .GroupBy(x => NormalizeQuestionNo(x.QuestionNo), StringComparer.OrdinalIgnoreCase)
+                     .OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase))
+        {
+            requestedMappings.TryGetValue(scoreGroup.Key, out var mappingCandidates);
+            var mappedIds = (mappingCandidates ?? [])
+                .Where(x => x.QuestionItemId.HasValue && x.QuestionItemId != Guid.Empty)
+                .Select(x => x.QuestionItemId!.Value)
+                .Distinct()
+                .ToArray();
+            var mappedQuestionId = mappedIds.Length == 1 ? mappedIds[0] : (Guid?)null;
+            questions.TryGetValue(mappedQuestionId ?? Guid.Empty, out var question);
+            var itemTargets = question is null
+                ? []
+                : targets.Where(x => x.QuestionItemId == question.Id).ToArray();
+            var reviewedTargets = itemTargets
+                .Where(x => x.IsPrimaryTarget && IsReviewedEvidence(x.Status, x.ReviewStatus))
+                .ToArray();
+            var target = reviewedTargets.Length == 1 ? reviewedTargets[0] : null;
+            var knowledge = target is null
+                ? []
+                : targetKnowledgeRows
+                    .Where(x => x.AssessmentTargetId == target.Id
+                        && string.Equals(x.Role, "primary", StringComparison.Ordinal)
+                        && IsReviewedEvidence(x.MappingStatus, x.MappingReviewStatus)
+                        && x.AssetStatus is DomainAssetStatuses.Reviewed or DomainAssetStatuses.Active)
+                    .ToArray();
+            var issues = new List<string>();
+            if (mappingCandidates is null || mappedIds.Length == 0)
+            {
+                issues.Add("question_mapping_missing");
+            }
+            else if (mappedIds.Length > 1 || mappingCandidates.Length > 1)
+            {
+                issues.Add("question_mapping_ambiguous");
+            }
+            else if (question is null)
+            {
+                issues.Add("question_not_found");
+            }
+            else if (itemTargets.Length == 0)
+            {
+                issues.Add("assessment_target_mapping_missing");
+            }
+            else if (reviewedTargets.Length == 0)
+            {
+                issues.Add("assessment_target_not_reviewed");
+            }
+            else if (reviewedTargets.Length > 1)
+            {
+                issues.Add("assessment_target_ambiguous");
+            }
+            if (target is not null && knowledge.Length == 0)
+            {
+                issues.Add("knowledge_version_mapping_missing");
+            }
+            else if (knowledge.Length > 1)
+            {
+                issues.Add("knowledge_version_ambiguous");
+            }
+
+            var metadata = target is null ? default : ParseJson(target.Metadata);
+            itemInputs.Add(new ScoreEvidenceAnalysisItemInput(
+                scoreGroup.Key,
+                scoreGroup.Count(),
+                decimal.Round(scoreGroup.Sum(x => x.Score) / Math.Max(1, scoreGroup.Sum(x => x.MaxScore)), 4),
+                question?.Id,
+                target?.Id,
+                target?.StableKey,
+                target?.TargetStatement,
+                target is null ? [] : ReadStringArray(metadata, "abilityDimensions"),
+                target is null ? [] : ReadStringArray(metadata, "cognitiveDemands"),
+                knowledge.Length == 1 ? knowledge[0] : null,
+                target is null
+                    ? []
+                    : observedPerformance.Where(x => x.AssessmentTargetId == target.Id && IsReviewedEvidence(x.Status, x.ReviewStatus))
+                        .Select(x => new ScoreEvidenceObservedContextInput(
+                            x.Id, x.DifficultyObserved, x.ScoreRate, x.DifficultyDirection,
+                            x.SampleScope, x.SourceRegionId, "historical_year_report_context_not_current_cohort_measurement"))
+                        .ToArray(),
+                target is null
+                    ? []
+                    : observedErrors.Where(x => x.AssessmentTargetId == target.Id && IsReviewedEvidence(x.Status, x.ReviewStatus))
+                        .Select(x => new ScoreEvidenceErrorAssociationInput(
+                            x.Id, x.RecordKind, x.Content, x.SourceRegionId, "reviewed_association_not_cause"))
+                        .Concat(reviewedErrorPatterns.Where(x => x.AssessmentTargetId == target.Id)
+                            .Select(x => new ScoreEvidenceErrorAssociationInput(
+                                x.ErrorPatternId, x.StableId, x.DisplayName, null, x.Relation)))
+                        .ToArray(),
+                target is null
+                    ? []
+                    : recommendations.Where(x => x.AssessmentTargetId == target.Id && IsReviewedEvidence(x.Status, x.ReviewStatus))
+                        .Select(x => new ScoreEvidenceTeachingRecommendationInput(
+                            x.Id, x.Content, x.AuthorKind, x.GenerationMethod, x.SourceRegionId,
+                            "source_authored_recommendation_not_curriculum_fact"))
+                        .ToArray(),
+                issues));
+        }
+
+        return BuildScoreEvidenceAnalysis(new ScoreEvidenceAnalysisInput(
+            assessment.Id,
+            assessment.Title,
+            request.ContainsStudentPii || assessment.ContainsStudentPii || scoreRows.Any(x => x.ContainsStudentPii),
+            itemInputs));
+    }
+
     public async Task<CommentaryReportExportServiceResult?> ExportCommentaryReportAsync(
         Guid assessmentId,
         CommentaryReportExportServiceRequest request,
@@ -488,6 +685,220 @@ public sealed class ScoreAnalysisWorkflowService(KqgDbContext dbContext) : IScor
                 request.AllowAiDraftText ? "ai_draft_text_allowed_after_metrics" : "no_ai_runtime_dependency"
             ]);
     }
+
+    internal static ScoreEvidenceAnalysisServiceResult BuildScoreEvidenceAnalysis(ScoreEvidenceAnalysisInput input)
+    {
+        var blockingIssues = new List<ScoreEvidenceAnalysisIssue>();
+        if (input.ContainsStudentPii)
+        {
+            blockingIssues.Add(new ScoreEvidenceAnalysisIssue("assessment", ["student_pii_detected"]));
+        }
+        if (input.Items.Count == 0)
+        {
+            blockingIssues.Add(new ScoreEvidenceAnalysisIssue("assessment", ["score_rows_missing"]));
+        }
+        blockingIssues.AddRange(input.Items
+            .Where(x => x.IssueCodes.Count > 0)
+            .Select(x => new ScoreEvidenceAnalysisIssue(x.QuestionNo, x.IssueCodes)));
+
+        var usableItems = input.ContainsStudentPii
+            ? []
+            : input.Items.Where(x => x.IssueCodes.Count == 0 && x.AssessmentTargetId.HasValue).ToArray();
+        var performance = usableItems.Select(x => new ScoreDerivedPerformanceItem(
+            x.QuestionNo,
+            x.QuestionItemId!.Value,
+            x.AssessmentTargetId!.Value,
+            x.AssessmentTargetStableKey!,
+            x.TargetStatement!,
+            x.ScoreRecordCount,
+            x.AverageScoreRate,
+            x.AbilityDimensions,
+            x.CognitiveDemands,
+            "score_derived_performance"))
+            .ToArray();
+        var knowledge = usableItems
+            .Where(x => x.Knowledge is not null)
+            .GroupBy(x => new
+            {
+                x.Knowledge!.AssetId,
+                x.Knowledge.StableId,
+                x.Knowledge.DisplayName,
+                x.Knowledge.Version
+            })
+            .Select(group => new ScoreEvidenceDimensionSummary(
+                group.Key.StableId,
+                group.Key.DisplayName,
+                WeightedScoreRate(group),
+                group.Sum(x => x.ScoreRecordCount),
+                group.Select(x => x.QuestionNo).Distinct(StringComparer.OrdinalIgnoreCase).Order(StringComparer.OrdinalIgnoreCase).ToArray(),
+                group.Key.Version,
+                "score_derived_knowledge_mastery"))
+            .OrderBy(x => x.ScoreRate)
+            .ToArray();
+        var abilities = AggregateDimension(usableItems, x => x.AbilityDimensions, "score_derived_ability_performance");
+        var cognitive = AggregateDimension(usableItems, x => x.CognitiveDemands, "score_derived_cognitive_performance");
+        var contexts = usableItems
+            .SelectMany(x => x.ObservedContexts.Select(context => new ScoreEvidenceObservedContext(
+                context.Id,
+                x.AssessmentTargetId!.Value,
+                context.DifficultyObserved,
+                context.ScoreRate,
+                context.DifficultyDirection,
+                context.SampleScope,
+                context.SourceRegionId,
+                context.ContextRole)))
+            .GroupBy(x => x.EvidenceId)
+            .Select(x => x.First())
+            .ToArray();
+        var errorAssociations = usableItems
+            .SelectMany(x => x.ErrorAssociations.Select(error => new ScoreEvidenceErrorAssociation(
+                error.Id,
+                x.AssessmentTargetId!.Value,
+                error.Kind,
+                error.Content,
+                error.SourceRegionId,
+                error.Relation,
+                "pending_teacher_confirmation")))
+            .GroupBy(x => x.EvidenceId)
+            .Select(x => x.First())
+            .ToArray();
+        var teachingRecommendations = usableItems
+            .SelectMany(x => x.TeachingRecommendations.Select(recommendation => new ScoreEvidenceTeachingRecommendation(
+                recommendation.Id,
+                x.AssessmentTargetId!.Value,
+                recommendation.Content,
+                recommendation.AuthorKind,
+                recommendation.GenerationMethod,
+                recommendation.SourceRegionId,
+                recommendation.FactRole)))
+            .GroupBy(x => x.RecommendationId)
+            .Select(x => x.First())
+            .ToArray();
+        var blocked = blockingIssues.Count > 0;
+
+        return new ScoreEvidenceAnalysisServiceResult(
+            blocked ? "blocked" : "ready",
+            "draft_test",
+            ProductionEligible: false,
+            RealStudentDataUsed: input.ContainsStudentPii,
+            WritesProductionHistory: false,
+            input.AssessmentId,
+            input.AssessmentTitle,
+            performance,
+            knowledge,
+            abilities,
+            cognitive,
+            contexts,
+            errorAssociations,
+            teachingRecommendations,
+            TeacherConfirmedDiagnoses: [],
+            DiagnosisStatus: "pending_teacher_confirmation",
+            blockingIssues,
+            blocked
+                ? "证据分析被阻断：请先处理隐私、小题映射、考查目标审核或版本歧义。"
+                : "证据分析预览已生成；错因仅表示相关线索，需教师确认后才能形成诊断。",
+            [
+                "mapped_item_scores_to_reviewed_assessment_targets",
+                "separated_score_performance_from_year_report_context",
+                "error_patterns_are_associations_not_causal_diagnoses",
+                "preserved_teaching_recommendation_authorship",
+                input.ContainsStudentPii ? "pii_detected_analysis_blocked" : "no_real_student_data",
+                "no_production_history_write",
+                "no_ai_runtime_dependency"
+            ]);
+    }
+
+    private static IReadOnlyList<ScoreEvidenceDimensionSummary> AggregateDimension(
+        IReadOnlyList<ScoreEvidenceAnalysisItemInput> items,
+        Func<ScoreEvidenceAnalysisItemInput, IReadOnlyList<string>> selector,
+        string evidenceRole)
+    {
+        return items
+            .SelectMany(item => selector(item)
+                .Where(value => !string.IsNullOrWhiteSpace(value))
+                .Distinct(StringComparer.Ordinal)
+                .Select(value => new { Value = value.Trim(), Item = item }))
+            .GroupBy(x => x.Value, StringComparer.Ordinal)
+            .Select(group => new ScoreEvidenceDimensionSummary(
+                group.Key,
+                group.Key,
+                decimal.Round(
+                    group.Sum(x => x.Item.AverageScoreRate * x.Item.ScoreRecordCount)
+                    / Math.Max(1, group.Sum(x => x.Item.ScoreRecordCount)),
+                    4),
+                group.Sum(x => x.Item.ScoreRecordCount),
+                group.Select(x => x.Item.QuestionNo).Distinct(StringComparer.OrdinalIgnoreCase).Order(StringComparer.OrdinalIgnoreCase).ToArray(),
+                Version: null,
+                evidenceRole))
+            .OrderBy(x => x.ScoreRate)
+            .ToArray();
+    }
+
+    private static decimal WeightedScoreRate(IEnumerable<ScoreEvidenceAnalysisItemInput> items)
+    {
+        var rows = items.ToArray();
+        return decimal.Round(
+            rows.Sum(x => x.AverageScoreRate * x.ScoreRecordCount)
+            / Math.Max(1, rows.Sum(x => x.ScoreRecordCount)),
+            4);
+    }
+
+    private static bool IsReviewedEvidence(string status, string reviewStatus) =>
+        reviewStatus == DomainAssetReviewStatuses.Approved
+        && status is DomainAssetStatuses.Reviewed or DomainAssetStatuses.Active;
+
+    private static bool IsReviewedErrorPattern(DomainAssetVersion asset)
+    {
+        var metadata = ParseJson(asset.Metadata);
+        var reviewStatus = ReadString(metadata, "reviewerStatus") ?? ReadString(metadata, "review_status");
+        var productionEligible = ReadBoolean(metadata, "productionEligible") ?? ReadBoolean(metadata, "production_eligible");
+        return reviewStatus == DomainAssetReviewStatuses.Approved && productionEligible is false;
+    }
+
+    private static JsonElement ParseJson(string? value)
+    {
+        try
+        {
+            using var document = JsonDocument.Parse(string.IsNullOrWhiteSpace(value) ? "{}" : value);
+            return document.RootElement.Clone();
+        }
+        catch (JsonException)
+        {
+            return JsonSerializer.SerializeToElement(new { });
+        }
+    }
+
+    private static string? ReadString(JsonElement element, string propertyName) =>
+        element.ValueKind == JsonValueKind.Object
+        && element.TryGetProperty(propertyName, out var value)
+        && value.ValueKind == JsonValueKind.String
+            ? value.GetString()
+            : null;
+
+    private static bool? ReadBoolean(JsonElement element, string propertyName) =>
+        element.ValueKind == JsonValueKind.Object
+        && element.TryGetProperty(propertyName, out var value)
+        && value.ValueKind is JsonValueKind.True or JsonValueKind.False
+            ? value.GetBoolean()
+            : null;
+
+    private static IReadOnlyList<string> ReadStringArray(JsonElement element, string propertyName) =>
+        element.ValueKind == JsonValueKind.Object
+        && element.TryGetProperty(propertyName, out var value)
+        && value.ValueKind == JsonValueKind.Array
+            ? value.EnumerateArray()
+                .Where(x => x.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(x.GetString()))
+                .Select(x => x.GetString()!.Trim())
+                .Distinct(StringComparer.Ordinal)
+                .ToArray()
+            : [];
+
+    private static IReadOnlyList<Guid> ReadGuidArray(string json, string propertyName) =>
+        ReadStringArray(ParseJson(json), propertyName)
+            .Select(value => Guid.TryParse(value, out var parsed) ? parsed : Guid.Empty)
+            .Where(value => value != Guid.Empty)
+            .Distinct()
+            .ToArray();
 
     private static ScoreImportServiceResult Blocked(ScoreImportServiceRequest request, IReadOnlyList<ScoreImportRowError> errors)
     {
@@ -792,6 +1203,155 @@ public sealed record ItemScoreKnowledgePreview(
 public sealed record ItemScoreMappingIssue(
     string QuestionNo,
     IReadOnlyList<string> Codes);
+
+public sealed record ScoreEvidenceAnalysisServiceRequest(
+    bool ContainsStudentPii,
+    IReadOnlyList<ItemScoreMappingRequestItem>? Mappings);
+
+public sealed record ScoreEvidenceAnalysisServiceResult(
+    string Status,
+    string Mode,
+    bool ProductionEligible,
+    bool RealStudentDataUsed,
+    bool WritesProductionHistory,
+    Guid AssessmentId,
+    string AssessmentTitle,
+    IReadOnlyList<ScoreDerivedPerformanceItem> ScoreDerivedPerformance,
+    IReadOnlyList<ScoreEvidenceDimensionSummary> KnowledgeMastery,
+    IReadOnlyList<ScoreEvidenceDimensionSummary> AbilityPerformance,
+    IReadOnlyList<ScoreEvidenceDimensionSummary> CognitivePerformance,
+    IReadOnlyList<ScoreEvidenceObservedContext> ObservedContexts,
+    IReadOnlyList<ScoreEvidenceErrorAssociation> ErrorPatternAssociations,
+    IReadOnlyList<ScoreEvidenceTeachingRecommendation> TeachingRecommendations,
+    IReadOnlyList<ScoreEvidenceTeacherDiagnosis> TeacherConfirmedDiagnoses,
+    string DiagnosisStatus,
+    IReadOnlyList<ScoreEvidenceAnalysisIssue> BlockingIssues,
+    string TeacherMessage,
+    IReadOnlyList<string> AuditTrail);
+
+public sealed record ScoreDerivedPerformanceItem(
+    string QuestionNo,
+    Guid QuestionItemId,
+    Guid AssessmentTargetId,
+    string AssessmentTargetStableKey,
+    string TargetStatement,
+    int ScoreRecordCount,
+    decimal AverageScoreRate,
+    IReadOnlyList<string> AbilityDimensions,
+    IReadOnlyList<string> CognitiveDemands,
+    string EvidenceRole);
+
+public sealed record ScoreEvidenceDimensionSummary(
+    string StableId,
+    string DisplayName,
+    decimal ScoreRate,
+    int ScoreRecordCount,
+    IReadOnlyList<string> QuestionNos,
+    int? Version,
+    string EvidenceRole);
+
+public sealed record ScoreEvidenceObservedContext(
+    Guid EvidenceId,
+    Guid AssessmentTargetId,
+    decimal? DifficultyObserved,
+    decimal? ScoreRate,
+    string DifficultyDirection,
+    string SampleScope,
+    Guid SourceRegionId,
+    string ContextRole);
+
+public sealed record ScoreEvidenceErrorAssociation(
+    Guid EvidenceId,
+    Guid AssessmentTargetId,
+    string Kind,
+    string Content,
+    Guid? SourceRegionId,
+    string Relation,
+    string DiagnosisStatus);
+
+public sealed record ScoreEvidenceTeachingRecommendation(
+    Guid RecommendationId,
+    Guid AssessmentTargetId,
+    string Content,
+    string AuthorKind,
+    string GenerationMethod,
+    Guid SourceRegionId,
+    string FactRole);
+
+public sealed record ScoreEvidenceTeacherDiagnosis(
+    Guid AssessmentTargetId,
+    string Diagnosis,
+    string ConfirmedBy,
+    DateTimeOffset ConfirmedAt);
+
+public sealed record ScoreEvidenceAnalysisIssue(
+    string Scope,
+    IReadOnlyList<string> Codes);
+
+internal sealed record ScoreEvidenceAnalysisInput(
+    Guid AssessmentId,
+    string AssessmentTitle,
+    bool ContainsStudentPii,
+    IReadOnlyList<ScoreEvidenceAnalysisItemInput> Items);
+
+internal sealed record ScoreEvidenceAnalysisItemInput(
+    string QuestionNo,
+    int ScoreRecordCount,
+    decimal AverageScoreRate,
+    Guid? QuestionItemId,
+    Guid? AssessmentTargetId,
+    string? AssessmentTargetStableKey,
+    string? TargetStatement,
+    IReadOnlyList<string> AbilityDimensions,
+    IReadOnlyList<string> CognitiveDemands,
+    ScoreEvidenceKnowledgeInput? Knowledge,
+    IReadOnlyList<ScoreEvidenceObservedContextInput> ObservedContexts,
+    IReadOnlyList<ScoreEvidenceErrorAssociationInput> ErrorAssociations,
+    IReadOnlyList<ScoreEvidenceTeachingRecommendationInput> TeachingRecommendations,
+    IReadOnlyList<string> IssueCodes);
+
+internal sealed record ScoreEvidenceKnowledgeInput(
+    Guid AssessmentTargetId,
+    Guid AssetId,
+    string StableId,
+    string DisplayName,
+    int Version,
+    string AssetStatus,
+    string Role,
+    string MappingStatus,
+    string MappingReviewStatus);
+
+internal sealed record ScoreEvidenceObservedContextInput(
+    Guid Id,
+    decimal? DifficultyObserved,
+    decimal? ScoreRate,
+    string DifficultyDirection,
+    string SampleScope,
+    Guid SourceRegionId,
+    string ContextRole);
+
+internal sealed record ScoreEvidenceErrorAssociationInput(
+    Guid Id,
+    string Kind,
+    string Content,
+    Guid? SourceRegionId,
+    string Relation);
+
+internal sealed record ScoreEvidenceTeachingRecommendationInput(
+    Guid Id,
+    string Content,
+    string AuthorKind,
+    string GenerationMethod,
+    Guid SourceRegionId,
+    string FactRole);
+
+internal sealed record ScoreEvidenceErrorPatternInput(
+    Guid AssessmentTargetId,
+    Guid ErrorPatternId,
+    string StableId,
+    string DisplayName,
+    int Version,
+    string Relation);
 
 public sealed record CommentaryReportExportServiceRequest(
     string Format,

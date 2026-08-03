@@ -3,18 +3,20 @@ param(
     [switch] $Stop,
     [switch] $Status,
     [string] $HostName = '127.0.0.1',
-    [int] $Port = 5173
+    [int] $Port = 5173,
+    [string] $ApiProxyTarget = ''
 )
 
 $ErrorActionPreference = 'Stop'
 
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
 $webRoot = Join-Path $repoRoot 'apps\web'
-$logRoot = Join-Path $repoRoot 'logs\dev-web'
+$baseLogRoot = Join-Path $repoRoot 'logs\dev-web'
+$logRoot = if ($Port -eq 5173) { $baseLogRoot } else { Join-Path $baseLogRoot ([string] $Port) }
 $pidPath = Join-Path $logRoot 'vite.pid'
 $stdoutPath = Join-Path $logRoot 'vite.out.log'
 $stderrPath = Join-Path $logRoot 'vite.err.log'
-$viteShimPath = Join-Path $webRoot 'node_modules\.bin\vite.cmd'
+$viteEntryPath = Join-Path $webRoot 'node_modules\vite\bin\vite.js'
 
 . (Join-Path $PSScriptRoot 'dotenv.ps1')
 Import-KqgDotEnv -RepoRoot $repoRoot
@@ -61,7 +63,7 @@ function Stop-WebServer {
 }
 
 function Test-WebToolchainReady {
-    return (Test-Path -LiteralPath $viteShimPath)
+    return (Test-Path -LiteralPath $viteEntryPath) -and ($null -ne (Get-Command 'node.exe' -ErrorAction SilentlyContinue))
 }
 
 New-Item -ItemType Directory -Path $logRoot -Force | Out-Null
@@ -131,10 +133,12 @@ if (
 Set-Content -LiteralPath $stdoutPath -Value ''
 Set-Content -LiteralPath $stderrPath -Value ''
 
+if (-not [string]::IsNullOrWhiteSpace($ApiProxyTarget)) {
+    $env:VITE_KQG_API_PROXY_TARGET = $ApiProxyTarget.TrimEnd('/')
+}
+
 $arguments = @(
-    'run',
-    'dev',
-    '--',
+    $viteEntryPath,
     '--configLoader',
     'native',
     '--host',
@@ -145,7 +149,7 @@ $arguments = @(
 )
 
 $process = Start-Process `
-    -FilePath 'npm.cmd' `
+    -FilePath 'node.exe' `
     -ArgumentList $arguments `
     -WorkingDirectory $webRoot `
     -PassThru `

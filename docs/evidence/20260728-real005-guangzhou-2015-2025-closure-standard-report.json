@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "task": "REAL005",
-  "checkedAt": "2026-07-28T01:39:05",
+  "checkedAt": "2026-07-28T23:58:03",
   "closureStatus": "not_closed",
   "criteriaPath": "tasks/real-guangzhou-closure-criteria.csv",
   "criteriaCount": 16,
@@ -22,11 +22,11 @@
   "currentTruth": "S012/REAL001/REAL002/REAL003 dry-run/REAL004 review smoke evidence is not enough to claim 2015-2025 full workflow closure",
   "criteriaCoverage": {
     "RG001": {
-      "blockedYears": [],
       "evidencePaths": [
         "docs/evidence/20260514-real003-guangzhou-physics-year-batch-ingest-report.json",
-        "docs/evidence/20260727-guangzhou-2015-real-ingest-slice-report.json"
+        "docs/evidence/20260728-guangzhou-2015-real-ingest-slice-report.json"
       ],
+      "status": "pass",
       "coveredYears": [
         2015,
         2016,
@@ -40,14 +40,14 @@
         2024,
         2025
       ],
-      "status": "pass",
+      "blockedYears": [],
       "details": [
         {
           "year": 2015,
           "localExamSourceCount": 2,
           "hasDistinctPaperSource": true,
           "hasDistinctAnswerSource": true,
-          "evidencePath": "docs/evidence/20260727-guangzhou-2015-real-ingest-slice-report.json",
+          "evidencePath": "docs/evidence/20260728-guangzhou-2015-real-ingest-slice-report.json",
           "note": "REAL001 sourceDocuments provide distinct paper and answer files for 2015."
         },
         {
@@ -133,10 +133,10 @@
       ]
     },
     "RG002": {
-      "blockedYears": [],
       "evidencePaths": [
         "docs/evidence/20260620-real005-yearly-adapter-diagnostics.json"
       ],
+      "status": "pass",
       "coveredYears": [
         2015,
         2016,
@@ -150,7 +150,7 @@
         2024,
         2025
       ],
-      "status": "pass",
+      "blockedYears": [],
       "details": [
         {
           "year": 2015,
@@ -278,31 +278,21 @@
   },
   "sliceCoverage": {
     "REAL005A": {
+      "evidencePaths": [
+        "docs/evidence/20260514-real003-guangzhou-physics-year-batch-ingest-report.json",
+        "docs/evidence/20260620-real005-yearly-adapter-diagnostics.json",
+        "docs/evidence/20260728-guangzhou-2015-real-ingest-slice-report.json"
+      ],
       "criteriaIds": [
         "RG001",
         "RG002"
       ],
-      "evidencePaths": [
-        "docs/evidence/20260514-real003-guangzhou-physics-year-batch-ingest-report.json",
-        "docs/evidence/20260620-real005-yearly-adapter-diagnostics.json",
-        "docs/evidence/20260727-guangzhou-2015-real-ingest-slice-report.json"
-      ],
-      "next": "REAL005A evidence is ready for manual closeout review.",
+      "blockers": [],
       "status": "pass",
-      "blockers": []
+      "next": "REAL005A evidence is ready for manual closeout review."
     },
     "REAL005B": {
-      "next": "REAL005B repo-side evidence is complete; advance REAL005C with real question search/export/analysis and rollback/privacy coverage.",
-      "nextDetailedSliceReady": false,
-      "criteriaStatus": {
-        "RG003": "pass",
-        "RG004": "pass",
-        "RG005": "pass",
-        "RG006": "pass",
-        "RG007": "pass",
-        "RG008": "pass",
-        "RG009": "pass"
-      },
+      "status": "pass",
       "evidencePaths": [
         "docs/evidence/20260505-l004-knowledge-tagging-suggestion-pilot.md",
         "docs/evidence/20260506-s006c-source-review-closure-smoke-report.json",
@@ -335,6 +325,28 @@
         "guangzhou-physics-full-research-package-2016-2025/quality-review-complete-csv-package/c003-quality-issue-review-evidence.csv",
         "guangzhou-physics-full-research-package-2016-2025/quality-review-complete-csv-package/c003-question-item-full.csv"
       ],
+      "criteriaIds": [
+        "RG003",
+        "RG004",
+        "RG005",
+        "RG006",
+        "RG007",
+        "RG008",
+        "RG009"
+      ],
+      "blockers": [],
+      "next": "REAL005B repo-side evidence is complete; advance REAL005C with real question search/export/analysis and rollback/privacy coverage.",
+      "criteriaStatus": {
+        "RG003": "pass",
+        "RG004": "pass",
+        "RG005": "pass",
+        "RG006": "pass",
+        "RG007": "pass",
+        "RG008": "pass",
+        "RG009": "pass"
+      },
+      "nextDetailedSliceReady": false,
+      "nextDetailedSlice": "none",
       "detailedSliceCoverage": {
         "REAL005B1": {
           "parentSlice": "REAL005B",
@@ -458,32 +470,10 @@
           "evidenceAnchor": "docs/evidence/20260620-real005-detailed-slice-plan-guard.json",
           "ownerRole": "题库/导入负责人"
         }
-      },
-      "status": "pass",
-      "criteriaIds": [
-        "RG003",
-        "RG004",
-        "RG005",
-        "RG006",
-        "RG007",
-        "RG008",
-        "RG009"
-      ],
-      "blockers": [],
-      "nextDetailedSlice": "none"
+      }
     },
     "REAL005C": {
-      "next": "REAL005C repo-side evidence is complete; REAL005D repo-side truthful wording is refreshed while keeping REAL005 not_closed until the dashboard area state and onsite/live evidence truly change.",
-      "nextDetailedSliceReady": false,
-      "criteriaStatus": {
-        "RG010": "pass",
-        "RG011": "pass",
-        "RG012": "pass",
-        "RG013": "pass",
-        "RG014": "pass",
-        "RG015": "pass",
-        "RG016": "pass"
-      },
+      "status": "pass",
       "evidencePaths": [
         "docs/evidence/20260516-real007-guangzhou-2015-layout-quality-report.json",
         "docs/evidence/20260518-real012-production-flow-quality-report.json",
@@ -493,6 +483,28 @@
         "docs/evidence/20260728-real005c2-real-question-analysis-reference-smoke.json",
         "docs/evidence/20260728-real005c3-rollback-privacy-no-active-write-report.json"
       ],
+      "criteriaIds": [
+        "RG010",
+        "RG011",
+        "RG012",
+        "RG013",
+        "RG014",
+        "RG015",
+        "RG016"
+      ],
+      "blockers": null,
+      "next": "REAL005C repo-side evidence is complete; REAL005D repo-side truthful wording is refreshed while keeping REAL005 not_closed until the dashboard area state and onsite/live evidence truly change.",
+      "criteriaStatus": {
+        "RG010": "pass",
+        "RG011": "pass",
+        "RG012": "pass",
+        "RG013": "pass",
+        "RG014": "pass",
+        "RG015": "pass",
+        "RG016": "pass"
+      },
+      "nextDetailedSliceReady": false,
+      "nextDetailedSlice": "none",
       "detailedSliceCoverage": {
         "REAL005C1": {
           "parentSlice": "REAL005C",
@@ -598,29 +610,9 @@
           "evidenceAnchor": "docs/evidence/20260617-real005c5-edit-recrop-audit-smoke.json",
           "ownerRole": "题库/导入负责人"
         }
-      },
-      "status": "pass",
-      "criteriaIds": [
-        "RG010",
-        "RG011",
-        "RG012",
-        "RG013",
-        "RG014",
-        "RG015",
-        "RG016"
-      ],
-      "blockers": null,
-      "nextDetailedSlice": "none"
+      }
     },
     "REAL005D": {
-      "next": "REAL005D repo-side truthful wording is refreshed. Keep REAL005 not_closed until the dashboard area state and onsite/live evidence truly change.",
-      "evidencePaths": [
-        "docs/112_CurrentClosureStatus_20260609.md",
-        "docs/109_ReleaseGoNoGoCard.md",
-        "README.md",
-        "tasks/completion-state-dashboard.csv"
-      ],
-      "status": "pass",
       "checks": {
         "closureSummary": {
           "path": "docs/112_CurrentClosureStatus_20260609.md",
@@ -639,13 +631,21 @@
           "ok": true
         }
       },
+      "status": "pass",
+      "evidencePaths": [
+        "docs/112_CurrentClosureStatus_20260609.md",
+        "docs/109_ReleaseGoNoGoCard.md",
+        "README.md",
+        "tasks/completion-state-dashboard.csv"
+      ],
       "criteriaIds": [
         "DOCS",
         "README",
         "GO_NO_GO_CARD",
         "DASHBOARD"
       ],
-      "blockers": []
+      "blockers": [],
+      "next": "REAL005D repo-side truthful wording is refreshed. Keep REAL005 not_closed until the dashboard area state and onsite/live evidence truly change."
     }
   },
   "nextDetailedOpen": {

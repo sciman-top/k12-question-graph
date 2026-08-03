@@ -203,10 +203,23 @@ def crop_percent(source: Path, target: Path, left: float, top: float, right: flo
 
 
 def page_screenshot_index(screenshot_report: dict[str, Any], year: int) -> dict[int, str]:
-    year_row = next((row for row in screenshot_report["years"] if int(row["year"]) == year), None)
-    if year_row is None:
+    if "years" in screenshot_report:
+        year_row = next((row for row in screenshot_report["years"] if int(row["year"]) == year), None)
+        if year_row is None:
+            return {}
+        return {int(row["pageNumber"]): str(row["relativePath"]) for row in year_row["renderedPages"]}
+
+    document = next(
+        (
+            row
+            for row in screenshot_report.get("documents", [])
+            if int(row.get("year") or 0) == year and row.get("sourceType") == "local_exam_paper"
+        ),
+        None,
+    )
+    if document is None:
         return {}
-    return {int(row["pageNumber"]): str(row["relativePath"]) for row in year_row["renderedPages"]}
+    return {int(row["pageNumber"]): str(row["relativePath"]) for row in document.get("pages", [])}
 
 
 def build_question_regions(

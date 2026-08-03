@@ -226,9 +226,42 @@ public sealed record PaperRequestConstraints(
     bool ReviewRequired,
     bool BlocksProductionPaper);
 
+public sealed record PaperEvidenceConstraintRequest(
+    string EvidenceMode = "active",
+    bool PreviewMode = false,
+    IReadOnlyList<string>? KnowledgeStableIds = null,
+    IReadOnlyList<string>? RequirementIds = null,
+    IReadOnlyList<string>? AbilityDimensions = null,
+    IReadOnlyList<string>? CognitiveDemands = null,
+    IReadOnlyList<string>? MethodOrExperimentIds = null,
+    IReadOnlyList<string>? ContextTypes = null,
+    IReadOnlyList<string>? ProfileIds = null);
+
+public sealed record PaperVersionReference(
+    string Kind,
+    string StableId,
+    int Version,
+    string Status,
+    string ReviewStatus,
+    string Provenance);
+
+public sealed record PaperConstraintExplanation(
+    string Dimension,
+    IReadOnlyList<string> RequestedValues,
+    int MatchedQuestionCount,
+    string Status,
+    string Disclosure);
+
+public sealed record PaperConstraintShortage(
+    string Dimension,
+    int Required,
+    int Available,
+    string Reason);
+
 public sealed record PaperBlueprintReviewCreateRequest(
     string TeacherRequest,
-    string? TextbookVersion);
+    string? TextbookVersion,
+    PaperEvidenceConstraintRequest? EvidenceConstraints = null);
 
 public sealed record PaperBlueprintReviewResponse(
     Guid Id,
@@ -249,6 +282,13 @@ public sealed record PaperBlueprintReviewResponse(
     bool MustConfirmBeforeTakingQuestions,
     bool OpaqueGenerationAllowed,
     Guid? ConfirmedPaperBasketId,
+    string EvidenceMode,
+    bool PreviewMode,
+    bool DraftPreview,
+    int EvidenceMatchedQuestionCount,
+    IReadOnlyList<PaperVersionReference> VersionReferences,
+    IReadOnlyList<PaperConstraintExplanation> ConstraintExplanation,
+    IReadOnlyList<PaperConstraintShortage> ConstraintShortages,
     DateTimeOffset CreatedAt,
     DateTimeOffset UpdatedAt)
 {
@@ -277,6 +317,16 @@ public sealed record PaperBlueprintReviewResponse(
             result.MustConfirmBeforeTakingQuestions,
             result.OpaqueGenerationAllowed,
             result.ConfirmedPaperBasketId,
+            result.EvidenceMode,
+            result.PreviewMode,
+            result.DraftPreview,
+            result.EvidenceMatchedQuestionCount,
+            result.VersionReferences.Select(x => new PaperVersionReference(
+                x.Kind, x.StableId, x.Version, x.Status, x.ReviewStatus, x.Provenance)).ToArray(),
+            result.ConstraintExplanation.Select(x => new PaperConstraintExplanation(
+                x.Dimension, x.RequestedValues, x.MatchedQuestionCount, x.Status, x.Disclosure)).ToArray(),
+            result.ConstraintShortages.Select(x => new PaperConstraintShortage(
+                x.Dimension, x.Required, x.Available, x.Reason)).ToArray(),
             result.CreatedAt,
             result.UpdatedAt);
     }
@@ -291,7 +341,10 @@ public sealed record PaperBlueprintConfirmResponse(
     Guid? PaperBasketId,
     int SelectedQuestionCount,
     string TeacherMessage,
-    IReadOnlyList<string> AuditTrail)
+    IReadOnlyList<string> AuditTrail,
+    IReadOnlyList<PaperVersionReference> VersionReferences,
+    IReadOnlyList<PaperConstraintExplanation> ConstraintExplanation,
+    IReadOnlyList<PaperConstraintShortage> ConstraintShortages)
 {
     public static PaperBlueprintConfirmResponse From(PaperBlueprintConfirmServiceResult result)
     {
@@ -302,7 +355,13 @@ public sealed record PaperBlueprintConfirmResponse(
             result.PaperBasketId,
             result.SelectedQuestionCount,
             result.TeacherMessage,
-            result.AuditTrail);
+            result.AuditTrail,
+            result.VersionReferences.Select(x => new PaperVersionReference(
+                x.Kind, x.StableId, x.Version, x.Status, x.ReviewStatus, x.Provenance)).ToArray(),
+            result.ConstraintExplanation.Select(x => new PaperConstraintExplanation(
+                x.Dimension, x.RequestedValues, x.MatchedQuestionCount, x.Status, x.Disclosure)).ToArray(),
+            result.ConstraintShortages.Select(x => new PaperConstraintShortage(
+                x.Dimension, x.Required, x.Available, x.Reason)).ToArray());
     }
 }
 

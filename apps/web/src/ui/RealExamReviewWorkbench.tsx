@@ -205,7 +205,7 @@ export function RealExamReviewWorkbench({
                 max={100}
                 step={1 / 10}
                 value={cropDraft[field]}
-                addonBefore={field}
+                prefix={field}
                 onChange={(value) => onCropChange(field, value ?? 0)}
                 data-action={`real-guangzhou-v2-recrop-${field}`}
               />

@@ -83,9 +83,9 @@ try {
     }
 
     $year2020 = $report.years | Where-Object { $_.year -eq 2020 }
-    if ($year2020.questionSectionBoundary.mode -ne 'following_question_sequence' -or
+    if ($year2020.questionSectionBoundary.mode -notin @('following_question_sequence', 'document_end') -or
         $year2020.questionSectionBoundary.endPageNumber -ne 8) {
-        throw 'the 2020 combined paper must stop question regions at page 8 before the answer section'
+        throw 'the 2020 paper must stop question regions at page 8 for combined or split source layouts'
     }
     $report | ConvertTo-Json -Depth 12
 }
