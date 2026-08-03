@@ -34,7 +34,8 @@ foreach ($taskId in $frozenTaskIds) {
 $frozenBacklogRows = @($backlogRows | Where-Object { $frozenSet.ContainsKey($_.id) })
 Assert-True ($frozenBacklogRows.Count -eq $frozenTaskIds.Count) 'scope-freeze policy and backlog task sets differ'
 $unexpectedFutureRows = @($backlogRows | Where-Object { $_.phase -in @('Q0', 'R0') -and -not $frozenSet.ContainsKey($_.id) })
-Assert-True ($unexpectedFutureRows.Count -eq 0) ('unregistered future tasks bypass scope freeze: ' + (($unexpectedFutureRows.id) -join ','))
+$unexpectedFutureTaskIds = @($unexpectedFutureRows | ForEach-Object { [string]$_.id })
+Assert-True ($unexpectedFutureRows.Count -eq 0) ('unregistered future tasks bypass scope freeze: ' + ($unexpectedFutureTaskIds -join ','))
 
 if ($freezeActive) {
     foreach ($row in $frozenBacklogRows) {
@@ -42,7 +43,8 @@ if ($freezeActive) {
         Assert-True ([string]$row.verification -eq [string]$policy.backlogVerificationMarker) "frozen task must use the single activation marker: $($row.id)"
     }
     $prematureAutomationRows = @($automationRows | Where-Object { $frozenSet.ContainsKey($_.task_id) })
-    Assert-True ($prematureAutomationRows.Count -eq 0) ('frozen tasks must not prebuild automation contracts: ' + (($prematureAutomationRows.task_id) -join ','))
+    $prematureAutomationTaskIds = @($prematureAutomationRows | ForEach-Object { [string]$_.task_id })
+    Assert-True ($prematureAutomationRows.Count -eq 0) ('frozen tasks must not prebuild automation contracts: ' + ($prematureAutomationTaskIds -join ','))
 
     $retiredMatches = New-Object System.Collections.Generic.List[string]
     foreach ($path in @(git -C $repoRoot ls-files)) {

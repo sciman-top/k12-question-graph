@@ -104,7 +104,8 @@ $missingBacklogCoverage = @($openBacklogRows | Where-Object { -not $contractById
 Assert-True ($missingBacklogCoverage.Count -eq 0) ("automation-first contract missing open backlog tasks: " + (($missingBacklogCoverage | Select-Object -ExpandProperty id) -join ','))
 if ($freezeActive) {
     $prematureFrozenContracts = @($contractRows | Where-Object { $frozenTaskIds.ContainsKey($_.task_id) })
-    Assert-True ($prematureFrozenContracts.Count -eq 0) ('frozen future tasks must not have prebuilt automation contracts: ' + (($prematureFrozenContracts.task_id) -join ','))
+    $prematureFrozenContractIds = @($prematureFrozenContracts | ForEach-Object { [string]$_.task_id })
+    Assert-True ($prematureFrozenContracts.Count -eq 0) ('frozen future tasks must not have prebuilt automation contracts: ' + ($prematureFrozenContractIds -join ','))
 }
 
 $openS0Rows = @($s0Rows | Where-Object { $_.status -ne '已完成' })
