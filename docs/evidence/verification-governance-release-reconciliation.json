@@ -1,14 +1,14 @@
 {
   "schemaVersion": 2,
   "id": "verification-governance-release-reconciliation",
-  "checkedAt": "2026-08-03T16:21:01+08:00",
+  "checkedAt": "2026-08-03T17:32:28+08:00",
   "status": "pass",
   "authorityLevel": "release-side",
   "defaultRelease": {
     "entry": "tools/run-verification.ps1 -Profile Release -AuthorizeStateful",
     "profile": "Release",
-    "reportRoot": "tmp/verification/release-core-final",
-    "durationMs": 223100,
+    "reportRoot": "tmp/verification/authorized-release-final",
+    "durationMs": 165200,
     "steps": [
       "Quick",
       "release-contracts",

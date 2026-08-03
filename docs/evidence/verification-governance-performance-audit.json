@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "verification-governance-performance-audit",
-  "checkedAt": "2026-08-03T17:06:00+08:00",
+  "checkedAt": "2026-08-03T17:32:28+08:00",
   "status": "pass",
   "authorityLevel": "repo-side",
   "scope": "local verification orchestration, governance entrypoints, duplicate execution, side-effect boundaries, and measured feedback latency",
@@ -52,6 +52,19 @@
   ],
   "postFixMeasurements": [
     {
+      "case": "authorized-focused-release",
+      "wallTimeMs": 165200,
+      "steps": ["quick-profile-and-tests", "release-contracts:19382ms", "release-upgrade-recovery:90509ms", "release-closure-invariants:2144ms", "state-reconciliation"],
+      "worktreeUnchanged": true,
+      "processesUnchanged": true,
+      "migrationFilesUnchanged": true,
+      "databaseShapeUnchanged": true,
+      "databaseRowDataCompared": false,
+      "fileStoreFileDelta": 0,
+      "fileStoreByteDelta": 0,
+      "legacyCompatibilityIncluded": false
+    },
+    {
       "case": "quick-full-stack",
       "wallTimeMs": 77200,
       "steps": ["profile-inventory:784ms", "backend-build:2014ms", "frontend-build:6753ms", "frontend-lint:6525ms", "script-quality:10125ms", "backend-tests:4666ms", "frontend-tests:39580ms", "worker-tests:4706ms"],
@@ -94,8 +107,8 @@
     "release": "stateful focused core remains authorization-gated",
     "legacyAudit": "235-step compatibility audit remains explicit and non-default",
     "historicalEvidence": "retained for traceability but excluded from current-task selection",
-    "releaseRemeasuredAfterFix": false,
-    "releaseRemeasureReason": "current task did not explicitly authorize PostgreSQL, backup/restore, or repo process impact",
+    "releaseRemeasuredAfterFix": true,
+    "releaseRemeasureReason": "explicit authorization received; focused stateful Release passed with migration, database shape, FileStore, worktree, and process reconciliation",
     "onsiteOrLiveAccepted": false,
     "real005": "not_closed",
     "releaseDecision": "No-Go"
