@@ -48,10 +48,10 @@ If the standard local API is already running on `http://127.0.0.1:5275` from
 the repo-local Release output, either as
 `apps/api/bin/Release/net10.0/K12QuestionGraph.Api.exe` or as
 `dotnet apps/api/bin/Release/net10.0/K12QuestionGraph.Api.dll --contentRoot apps/api`,
-both `run-gates.ps1` and `run-repo-preflight.ps1` temporarily pause it before
-the backend build and restore it afterwards. This avoids the default Release
-output lock without asking the operator to stop and restart the repo-local API
-by hand.
+the optional legacy `run-gates.ps1` audit may temporarily pause it before the
+backend build and restore it afterwards. The canonical `run-repo-preflight.ps1`
+is process-neutral and routes to `run-verification.ps1`; default Quick/Slice/Release
+must not stop a running repo process.
 
 Reference basis guard:
 
@@ -179,20 +179,17 @@ Unified repo preflight:
 
 ```powershell
 .\tools\run-repo-preflight.ps1 -Mode Ci -InstallFrontendDependencies
-.\tools\run-repo-preflight.ps1 -Mode Release
+.\tools\run-repo-preflight.ps1 -Mode Release -AuthorizeStateful
 ```
 
-`Mode Ci` runs the repo-side build/lint/planning/reference/release-pack guards
-without pretending to replace the local full gate. `Mode Release` runs the
-same stack and then adds `run-gates.ps1` unless `-SkipFullGate` is supplied.
+`Mode Ci` routes to Quick. `Mode Release -AuthorizeStateful` routes to the
+focused Release core and never calls `run-gates.ps1` by default. Add
+`-IncludeLegacyCompatibility` only for an explicit, isolated compatibility audit;
+`-SkipFullGate` is retained as a deprecated no-op for caller compatibility.
 The GitHub Actions entrypoint is `.github/workflows/repo-preflight.yml`.
-If the default local API is already running on `127.0.0.1:5275`, repo
-preflight now detects both the native `.exe` shape and the
-`dotnet + .dll + --contentRoot` launcher shape before pausing and restoring it.
-It also stops repo-local API processes that still match the repo launcher shape
-but are no longer listening on `127.0.0.1:5275`, so stale background `dotnet`
-hosts do not keep `apps/api/bin/Release/net10.0/K12QuestionGraph.Api.dll`
-locked during `dotnet build`.
+Canonical preflight does not pause, restart, or clean up the local API. A build
+lock is reported as an environment blocker; only the explicitly authorized
+legacy audit retains its historical pause/restore behavior.
 If `-InstallFrontendDependencies` is used while the repo-local Vite dev server
 is still running on `127.0.0.1:5173`, preflight now fails fast with a clear
 message instead of surfacing a later Windows `EPERM` from `npm ci`. Local

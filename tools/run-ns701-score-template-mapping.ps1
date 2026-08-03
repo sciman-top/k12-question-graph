@@ -117,7 +117,9 @@ try {
         Assert-Condition (@($s011a.auditTrail) -contains $audit) "NS701 S011A audit trail missing: $audit"
     }
 
-    $program = (Read-Text 'apps/api/Program.cs') + "`n" + (Read-Text 'apps/api/Application/Workflows/ScoreAnalysisWorkflowService.cs')
+    $apiSources = (Read-Text 'apps/api/Program.cs') + "`n" +
+        (Read-Text 'apps/api/Endpoints/ScoreEndpoints.cs') + "`n" +
+        (Read-Text 'apps/api/Application/Workflows/ScoreAnalysisWorkflowService.cs')
     foreach ($marker in @(
         '/score-imports',
         'ScoreImportServiceRequest',
@@ -127,7 +129,7 @@ try {
         'item_score_mapping_required',
         'pii_not_allowed'
     )) {
-        Assert-Condition ($program.Contains($marker)) "NS701 API marker missing: $marker"
+        Assert-Condition ($apiSources.Contains($marker)) "NS701 API marker missing: $marker"
     }
 
     $app = (Read-Text 'apps/web/src/App.tsx') + "`n" + (Read-Text 'apps/web/src/api/client.ts')
@@ -156,6 +158,11 @@ try {
             f002 = $F002ReportPath
             s011a = $S011AReportPath
         }
+        apiSources = @(
+            'apps/api/Program.cs',
+            'apps/api/Endpoints/ScoreEndpoints.cs',
+            'apps/api/Application/Workflows/ScoreAnalysisWorkflowService.cs'
+        )
         template = [ordered]@{
             workbookPath = [string]$f002.workbookPath
             mappingPath = [string]$f002.mappingPath

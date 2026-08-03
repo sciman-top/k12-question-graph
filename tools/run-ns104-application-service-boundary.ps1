@@ -1,6 +1,11 @@
 param(
     [string] $ReportPath = 'docs/evidence/20260529-ns104-application-service-boundary-report.json',
     [string] $ProgramPath = 'apps/api/Program.cs',
+    [string[]] $EndpointSourcePaths = @(
+        'apps/api/Program.cs',
+        'apps/api/Endpoints/ScoreEndpoints.cs',
+        'apps/api/Endpoints/AdminAiEndpoints.cs'
+    ),
     [string] $Project = 'apps/api/K12QuestionGraph.Api.csproj'
 )
 
@@ -17,45 +22,52 @@ function ConvertTo-KqgObject([hashtable] $Data) {
     return [pscustomobject]$Data
 }
 
-function Get-EndpointBlock([string[]] $Lines, [string] $Route) {
+function Get-EndpointBlock([object[]] $Sources, [string] $Route) {
     $escapedRoute = [regex]::Escape($Route)
-    $start = -1
-    for ($i = 0; $i -lt $Lines.Count; $i++) {
-        if ($Lines[$i] -match "app\.Map(Get|Post|Put|Delete|Patch)\(`"$escapedRoute`"") {
-            $start = $i
-            break
+    foreach ($source in $Sources) {
+        $lines = @($source.lines)
+        $start = -1
+        for ($i = 0; $i -lt $lines.Count; $i++) {
+            if ($lines[$i] -match "[A-Za-z_][A-Za-z0-9_]*\.Map(Get|Post|Put|Delete|Patch)\(`"$escapedRoute`"") {
+                $start = $i
+                break
+            }
+        }
+
+        if ($start -ge 0) {
+            $end = [Math]::Min($lines.Count - 1, $start + 220)
+            for ($i = $start; $i -le $end; $i++) {
+                if ($lines[$i] -match '\.WithName\("([^"]+)"\)') {
+                    $end = $i
+                    break
+                }
+            }
+
+            return ConvertTo-KqgObject ([ordered]@{
+                route = $Route
+                sourcePath = [string]$source.path
+                line = $start + 1
+                text = ($lines[$start..$end] -join "`n")
+            })
         }
     }
 
-    Assert-Condition ($start -ge 0) "endpoint missing: $Route"
-
-    $end = [Math]::Min($Lines.Count - 1, $start + 220)
-    for ($i = $start; $i -le $end; $i++) {
-        if ($Lines[$i] -match '\.WithName\("([^"]+)"\)') {
-            $end = $i
-            break
-        }
-    }
-
-    ConvertTo-KqgObject ([ordered]@{
-        route = $Route
-        line = $start + 1
-        text = ($Lines[$start..$end] -join "`n")
-    })
+    throw "endpoint missing: $Route (searched: $($Sources.path -join ', '))"
 }
 
 function Test-ServiceBackedEndpoint(
-    [string[]] $Lines,
+    [object[]] $Sources,
     [string] $Route,
     [string] $RequiredService,
     [string[]] $RequiredMarkers
 ) {
-    $block = Get-EndpointBlock $Lines $Route
+    $block = Get-EndpointBlock $Sources $Route
     $text = [string]$block.text
     $missingMarkers = @($RequiredMarkers | Where-Object { $text -notmatch [regex]::Escape($_) })
 
     ConvertTo-KqgObject ([ordered]@{
         route = $Route
+        sourcePath = $block.sourcePath
         line = $block.line
         requiredService = $RequiredService
         serviceInjected = $text -match [regex]::Escape($RequiredService)
@@ -75,6 +87,9 @@ function Test-ServiceBackedEndpoint(
 Push-Location $repoRoot
 try {
     Assert-Condition (Test-Path -LiteralPath $ProgramPath) "missing Program.cs: $ProgramPath"
+    foreach ($sourcePath in $EndpointSourcePaths) {
+        Assert-Condition (Test-Path -LiteralPath $sourcePath) "missing endpoint source file: $sourcePath"
+    }
     foreach ($path in @(
         'apps/api/Application/Workflows/ImportReviewWorkflowService.cs',
         'apps/api/Application/Workflows/CutCandidateGenerationService.cs',
@@ -90,6 +105,12 @@ try {
 
     $programLines = @(Get-Content -LiteralPath $ProgramPath)
     $programText = $programLines -join "`n"
+    $endpointSources = @($EndpointSourcePaths | ForEach-Object {
+        ConvertTo-KqgObject ([ordered]@{
+            path = $_
+            lines = @(Get-Content -LiteralPath $_)
+        })
+    })
 
     foreach ($registration in @(
         'AddScoped<IImportReviewWorkflowService, ImportReviewWorkflowService>',
@@ -101,16 +122,16 @@ try {
     }
 
     $serviceEndpoints = @(
-        (Test-ServiceBackedEndpoint $programLines '/source-documents/{id:guid}/cut-candidates/generate' 'ICutCandidateGenerationService' @('GenerateAsync(', 'CutCandidateGenerationResponse')),
-        (Test-ServiceBackedEndpoint $programLines '/score-imports' 'IScoreAnalysisWorkflowService' @('ImportScoresAsync(', 'ScoreImportServiceRequest')),
-        (Test-ServiceBackedEndpoint $programLines '/assessments/{assessmentId:guid}/item-score-mappings/preview' 'IScoreAnalysisWorkflowService' @('PreviewItemScoreMappingsAsync(', 'ItemScoreMappingPreviewServiceRequest')),
-        (Test-ServiceBackedEndpoint $programLines '/assessments/{assessmentId:guid}/commentary-report/export' 'IScoreAnalysisWorkflowService' @('ExportCommentaryReportAsync(', 'CommentaryReportExportServiceRequest')),
-        (Test-ServiceBackedEndpoint $programLines '/paper-baskets/{id:guid}/export-preflight' 'IPaperWorkflowService' @('RunExportPreflightAsync(', 'PaperExportPreflightResponse')),
-        (Test-ServiceBackedEndpoint $programLines '/paper-requests/parse' 'IPaperWorkflowService' @('ParsePaperRequest(', 'PaperRequestParseResponse')),
-        (Test-ServiceBackedEndpoint $programLines '/paper-blueprints' 'IPaperWorkflowService' @('CreateBlueprintReviewAsync(', 'PaperBlueprintReviewResponse')),
-        (Test-ServiceBackedEndpoint $programLines '/paper-blueprints/{id:guid}/confirm' 'IPaperWorkflowService' @('ConfirmBlueprintReviewAsync(', 'PaperBlueprintConfirmResponse')),
-        (Test-ServiceBackedEndpoint $programLines '/paper-requests/replace-question' 'IPaperWorkflowService' @('ReplaceQuestion(', 'PaperQuestionReplacementResponse')),
-        (Test-ServiceBackedEndpoint $programLines '/knowledge-version-explanations/resolve' 'IPaperWorkflowService' @('ResolveKnowledgeVersionExplanation(', 'KnowledgeVersionExplanationResponse'))
+        (Test-ServiceBackedEndpoint $endpointSources '/source-documents/{id:guid}/cut-candidates/generate' 'ICutCandidateGenerationService' @('GenerateAsync(', 'CutCandidateGenerationResponse')),
+        (Test-ServiceBackedEndpoint $endpointSources '/score-imports' 'IScoreAnalysisWorkflowService' @('ImportScoresAsync(', 'ScoreImportServiceRequest')),
+        (Test-ServiceBackedEndpoint $endpointSources '/assessments/{assessmentId:guid}/item-score-mappings/preview' 'IScoreAnalysisWorkflowService' @('PreviewItemScoreMappingsAsync(', 'ItemScoreMappingPreviewServiceRequest')),
+        (Test-ServiceBackedEndpoint $endpointSources '/assessments/{assessmentId:guid}/commentary-report/export' 'IScoreAnalysisWorkflowService' @('ExportCommentaryReportAsync(', 'CommentaryReportExportServiceRequest')),
+        (Test-ServiceBackedEndpoint $endpointSources '/paper-baskets/{id:guid}/export-preflight' 'IPaperWorkflowService' @('RunExportPreflightAsync(', 'PaperExportPreflightResponse')),
+        (Test-ServiceBackedEndpoint $endpointSources '/paper-requests/parse' 'IPaperWorkflowService' @('ParsePaperRequest(', 'PaperRequestParseResponse')),
+        (Test-ServiceBackedEndpoint $endpointSources '/paper-blueprints' 'IPaperWorkflowService' @('CreateBlueprintReviewAsync(', 'PaperBlueprintReviewResponse')),
+        (Test-ServiceBackedEndpoint $endpointSources '/paper-blueprints/{id:guid}/confirm' 'IPaperWorkflowService' @('ConfirmBlueprintReviewAsync(', 'PaperBlueprintConfirmResponse')),
+        (Test-ServiceBackedEndpoint $endpointSources '/paper-requests/replace-question' 'IPaperWorkflowService' @('ReplaceQuestion(', 'PaperQuestionReplacementResponse')),
+        (Test-ServiceBackedEndpoint $endpointSources '/knowledge-version-explanations/resolve' 'IPaperWorkflowService' @('ResolveKnowledgeVersionExplanation(', 'KnowledgeVersionExplanationResponse'))
     )
 
     $failedServiceEndpoints = @($serviceEndpoints | Where-Object { -not $_.pass })
@@ -129,10 +150,11 @@ try {
     )
     $legacyDebt = @()
     foreach ($route in $legacyDirectDbRoutes) {
-        $block = Get-EndpointBlock $programLines $route
+        $block = Get-EndpointBlock $endpointSources $route
         $text = [string]$block.text
         $legacyDebt += ConvertTo-KqgObject ([ordered]@{
             route = $route
+            sourcePath = $block.sourcePath
             line = $block.line
             directDbContext = $text -match 'KqgDbContext\s+dbContext'
             saveChangesInEndpoint = $text -match 'SaveChangesAsync\('
@@ -173,6 +195,7 @@ try {
             'IPaperWorkflowService',
             'IScoreAnalysisWorkflowService'
         )
+        endpointSourcePaths = $EndpointSourcePaths
         serviceBackedEndpoints = $serviceEndpoints
         serviceBackedEndpointCount = $serviceEndpoints.Count
         legacyDirectDbEndpointDebt = $legacyDebt

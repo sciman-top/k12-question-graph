@@ -1,5 +1,7 @@
 # 109 · 发布 Go / No-Go 卡
 
+> 当前稳定状态入口为 `docs/CurrentClosureStatus.md`。本卡只负责发布裁决，不作为日常任务、roadmap 或 verifier 选择真源。
+
 日期：2026-07-29。状态证据核对到 2026-07-29。
 
 ## 1. 当前默认结论

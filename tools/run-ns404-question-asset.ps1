@@ -106,7 +106,7 @@ try {
     foreach ($marker in @(
         "runWorkbenchAction('associate')",
         "data-action=`"associate`"",
-        'data-contract="question-stem-asset-fusion"',
+        'data-contract="question-visual-source-of-truth"',
         '共用题图',
         '未关联题图'
     )) {

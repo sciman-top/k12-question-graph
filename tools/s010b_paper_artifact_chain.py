@@ -4,9 +4,11 @@ import argparse
 import hashlib
 import html
 import json
+import os
 import shutil
 import struct
 import subprocess
+import tempfile
 import zipfile
 from collections import OrderedDict
 from datetime import datetime, timezone
@@ -221,10 +223,14 @@ def create_pdf(path: Path, docx_path: Path) -> None:
     )
     if not soffice:
         raise RuntimeError("LibreOffice soffice is required for substantive PDF export")
+    soffice_path = Path(soffice)
+    if os.name == "nt" and soffice_path.name.lower() == "soffice.exe":
+        console_launcher = soffice_path.with_name("soffice.com")
+        if console_launcher.is_file():
+            soffice = str(console_launcher)
     if path.exists():
         path.unlink()
-    profile = (path.parent / f".lo-profile-{docx_path.stem}").resolve()
-    shutil.rmtree(profile, ignore_errors=True)
+    profile = Path(tempfile.mkdtemp(prefix=f"kqg-lo-{docx_path.stem}-"))
     completed = subprocess.run(
         [
             soffice,

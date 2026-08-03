@@ -313,14 +313,16 @@ select
   coalesce(qi.custom_fields->>'questionNo',''),
   coalesce(qi.custom_fields->>'sourceDocumentId',''),
   coalesce(qi.custom_fields->'answer'->>'value',''),
-  coalesce(qi.custom_fields->'solution'->>'text','')
+  coalesce(qi.custom_fields->'solution'->>'text',''),
+  coalesce(qi.difficulty_estimated::text,''),
+  coalesce(qi.default_score::text,'')
 from question_items qi
 where qi.id in ($selectedIdsSql)
 order by nullif(qi.custom_fields->>'questionNo','')::int nulls last, qi.id;
 "@
     )
     foreach ($row in $questionSnapshotRows) {
-        $parts = $row -split '\|', 8
+        $parts = $row -split '\|', 10
         $questionId = [string] $parts[0]
         $questionSnapshots[$questionId] = [ordered]@{
             id = $questionId
@@ -332,6 +334,8 @@ order by nullif(qi.custom_fields->>'questionNo','')::int nulls last, qi.id;
             assetCount = 0
             answerValue = [string] $parts[6]
             solutionText = [string] $parts[7]
+            difficultyEstimated = [string] $parts[8]
+            defaultScore = [string] $parts[9]
         }
     }
     Assert-True ($questionSnapshots.Count -eq $allSelectedQuestionIds.Count) "REAL005C1 question snapshot count mismatch: expected $($allSelectedQuestionIds.Count), actual $($questionSnapshots.Count)"
@@ -427,7 +431,7 @@ values (
     ) -PassThru -WindowStyle Hidden -RedirectStandardOutput $logOut -RedirectStandardError $logErr
     Wait-ApiReady -ProcessId $process.Id -ApiUrl $apiUrl -LogErr $logErr
 
-    $candidateFilterRows = @(Invoke-RowSql -Sql @"
+    $candidateFilterSql = @"
 select concat_ws('|',
   qi.id::text,
   qi.custom_fields->>'year',
@@ -449,8 +453,54 @@ where qi.custom_fields->>'sourceWorkflowKey'='$workflowKey'
   )
 order by (qi.custom_fields->>'year')::int, (qi.custom_fields->>'questionNo')::int
 limit 1;
+"@
+    $candidateFilterFixtureApplied = $false
+    $candidateFilterRows = @(Invoke-RowSql -Sql $candidateFilterSql)
+    if ($candidateFilterRows.Count -eq 0) {
+        $fixtureRows = @(Invoke-RowSql -Sql @"
+with knowledge_seed as (
+  select qi.custom_fields->'knowledgeCandidateIds'->>0 as id
+  from question_items qi
+  where qi.custom_fields->>'sourceWorkflowKey'='$workflowKey'
+    and jsonb_array_length(coalesce(qi.custom_fields->'knowledgeCandidateIds','[]'::jsonb)) > 0
+  limit 1
+), exam_seed as (
+  select qi.custom_fields->'examPointCandidateIds'->>0 as id
+  from question_items qi
+  where qi.custom_fields->>'sourceWorkflowKey'='$workflowKey'
+    and jsonb_array_length(coalesce(qi.custom_fields->'examPointCandidateIds','[]'::jsonb)) > 0
+  limit 1
+)
+select qi.id::text || '|' || knowledge_seed.id || '|' || exam_seed.id
+from question_items qi
+cross join knowledge_seed
+cross join exam_seed
+where qi.id in ($selectedIdsSql)
+  and qi.status='pending_review'
+  and exists (
+    select 1 from question_assets qa
+    where qa.question_item_id=qi.id
+      and qa.asset_type in ('image','question_region_image')
+  )
+order by (qi.custom_fields->>'year')::int, (qi.custom_fields->>'questionNo')::int
+limit 1;
 "@)
-    Assert-True ($candidateFilterRows.Count -eq 1) 'REAL005C1 requires one pending-review candidate with knowledge, exam point, difficulty, and image metadata'
+        Assert-True ($fixtureRows.Count -eq 1) 'REAL005C1 cannot prepare a reversible combined-filter fixture from current pending-review metadata'
+        $fixtureParts = $fixtureRows[0] -split '\|', 3
+        $fixtureQuestionIdSql = ConvertTo-SqlStringLiteral ([string] $fixtureParts[0])
+        Invoke-CommandSql -Sql @"
+update question_items
+set difficulty_estimated = coalesce(difficulty_estimated, 0.62),
+    custom_fields = jsonb_set(
+  jsonb_set(custom_fields, '{knowledgeCandidateIds}', jsonb_build_array($(ConvertTo-SqlStringLiteral ([string] $fixtureParts[1]))), true),
+  '{examPointCandidateIds}', jsonb_build_array($(ConvertTo-SqlStringLiteral ([string] $fixtureParts[2]))), true
+)
+where id = $($fixtureQuestionIdSql)::uuid;
+"@
+        $candidateFilterFixtureApplied = $true
+        $candidateFilterRows = @(Invoke-RowSql -Sql $candidateFilterSql)
+    }
+    Assert-True ($candidateFilterRows.Count -eq 1) 'REAL005C1 requires one reversible pending-review candidate fixture with knowledge, exam point, difficulty, and image metadata'
     $candidateFilterParts = $candidateFilterRows[0] -split '\|', 7
     $candidateFilterSample = [ordered]@{
         questionItemId = [string] $candidateFilterParts[0]
@@ -654,8 +704,10 @@ limit 1;
         else {
             "'" + [string] $snapshot.primaryKnowledgeId + "'"
         }
+        $difficultySql = if ([string]::IsNullOrWhiteSpace([string] $snapshot.difficultyEstimated)) { 'null' } else { [string] $snapshot.difficultyEstimated }
+        $defaultScoreSql = if ([string]::IsNullOrWhiteSpace([string] $snapshot.defaultScore)) { 'null' } else { [string] $snapshot.defaultScore }
         $questionRollbackLines.Add(
-            "update question_items set status = $(ConvertTo-SqlStringLiteral -Value ([string] $snapshot.status)), primary_knowledge_id = $primaryKnowledgeSql, custom_fields = $(ConvertTo-SqlStringLiteral -Value ([string] $snapshot.customFieldsJson))::jsonb where id = '$questionId';"
+            "update question_items set status = $(ConvertTo-SqlStringLiteral -Value ([string] $snapshot.status)), primary_knowledge_id = $primaryKnowledgeSql, difficulty_estimated = $difficultySql, default_score = $defaultScoreSql, custom_fields = $(ConvertTo-SqlStringLiteral -Value ([string] $snapshot.customFieldsJson))::jsonb where id = '$questionId';"
         ) | Out-Null
     }
 
@@ -792,6 +844,7 @@ where custom_fields->>'sourceWorkflowKey'='$workflowKey';
                 hasImage = [bool] @($candidateSearch.items)[0].hasImage
                 total = [int] $candidateSearch.total
                 wrongYearExcludesSelectedQuestion = $true
+                reversibleFixtureApplied = $candidateFilterFixtureApplied
             }
         }
         successPreflight = [ordered]@{
@@ -871,7 +924,9 @@ finally {
         foreach ($questionId in $allSelectedQuestionIds) {
             $snapshot = $questionSnapshots[[string] $questionId]
             $primaryKnowledgeSql = if ([string]::IsNullOrWhiteSpace([string] $snapshot.primaryKnowledgeId)) { 'null' } else { "'$([string] $snapshot.primaryKnowledgeId)'" }
-            $emergencyLines.Add("update question_items set status=$(ConvertTo-SqlStringLiteral ([string] $snapshot.status)), primary_knowledge_id=$primaryKnowledgeSql, custom_fields=$(ConvertTo-SqlStringLiteral ([string] $snapshot.customFieldsJson))::jsonb where id='$questionId';") | Out-Null
+            $difficultySql = if ([string]::IsNullOrWhiteSpace([string] $snapshot.difficultyEstimated)) { 'null' } else { [string] $snapshot.difficultyEstimated }
+            $defaultScoreSql = if ([string]::IsNullOrWhiteSpace([string] $snapshot.defaultScore)) { 'null' } else { [string] $snapshot.defaultScore }
+            $emergencyLines.Add("update question_items set status=$(ConvertTo-SqlStringLiteral ([string] $snapshot.status)), primary_knowledge_id=$primaryKnowledgeSql, difficulty_estimated=$difficultySql, default_score=$defaultScoreSql, custom_fields=$(ConvertTo-SqlStringLiteral ([string] $snapshot.customFieldsJson))::jsonb where id='$questionId';") | Out-Null
         }
         foreach ($sourceDocumentId in @($sourceSnapshots.Keys)) {
             $snapshot = $sourceSnapshots[[string] $sourceDocumentId]

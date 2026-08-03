@@ -805,7 +805,9 @@ $real005Guard = Join-Path $PSScriptRoot 'run-real005-guangzhou-2015-2025-closure
 if (-not (Test-Path -LiteralPath $real005Guard)) {
     throw "REAL005 closure standard guard is missing"
 }
-$real005Report = & $real005Guard | ConvertFrom-Json
+$real005Report = & $real005Guard `
+    -JsonReportPath 'tmp/verification/roadmap-real005-closure.json' `
+    -MarkdownReportPath 'tmp/verification/roadmap-real005-closure.md' | ConvertFrom-Json
 if ($real005.status -ne '已完成' -and $real005Report.closureStatus -ne 'not_closed') {
     throw "REAL005 must remain not_closed until backlog is completed; got $($real005Report.closureStatus)"
 }
@@ -820,7 +822,7 @@ $automationFirstGuard = Join-Path $PSScriptRoot 'run-automation-first-feature-co
 if (-not (Test-Path -LiteralPath $automationFirstGuard)) {
     throw "automation-first feature contract guard is missing"
 }
-& $automationFirstGuard | Out-Null
+& $automationFirstGuard -JsonReportPath 'tmp/verification/roadmap-automation-first.json' | Out-Null
 
 if ($i009.status -eq '已完成') {
     $i009Evidence = Join-Path $repoRoot 'docs\evidence\20260505-i009-teacher-visible-terminology.md'

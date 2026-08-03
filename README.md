@@ -4,7 +4,7 @@
 
 ## 当前状态入口
 
-如果你想知道“现在到底闭环到哪了”，先看 `docs/112_CurrentClosureStatus_20260609.md`、`docs/103_ExecutionControlBoard.md`、`docs/109_ReleaseGoNoGoCard.md` 和 `tasks/completion-state-dashboard.csv`；课程标准与真题多层证据专题看 `tasks/curriculum-exam-knowledge-extraction-todo.md`。如果你想知道“本地 Web/API 现在应该怎么跑、怎么看活着没”，先看 `docs/113_LocalRuntimeOperations_20260609.md`。README 这里只保留稳定背景、常用启动命令和少量状态摘要。
+如果你想知道“现在到底闭环到哪了”，先看 `docs/CurrentClosureStatus.md`、`docs/103_ExecutionControlBoard.md` 和 `docs/109_ReleaseGoNoGoCard.md`；任务顺序和状态以 `tasks/backlog.csv` 为机器真源。课程标准与真题多层证据专题的历史细节看 `tasks/curriculum-exam-knowledge-extraction-todo.md`。如果你想知道“本地 Web/API 现在应该怎么跑、怎么看活着没”，先看 `docs/113_LocalRuntimeOperations_20260609.md`。README 这里只保留稳定背景、常用启动命令和少量状态摘要。
 
 ## 当前仓库状态
 
@@ -27,7 +27,7 @@
 
 2026-05-08 起，所有后续功能推进采用横向 automation-first 合同：确定性规则、脚本、专用 API/UI、Adapter、schema、SQL、hash/cache、typed client、模板和 contract 先覆盖可确定部分；AI/agent 只能作为语义候选、复杂映射、异常复核或外层并行编排。机器可读合同为 `tasks/automation-first-contract.csv`，门禁为 `tools/run-automation-first-feature-contract-guard.ps1`，并纳入 unified gate。
 
-2026-05-14 起，README 的当前完成态以 `tasks/completion-state-dashboard.csv`、`tasks/backlog.csv`、`docs/19_Roadmap.md`、`docs/20_TaskBreakdown.md` 和 `docs/evidence/` 的 REAL/S0 报告为准；更细的仓库级 / 非现场 / 现场阻断请以 `docs/112_CurrentClosureStatus_20260609.md` 和 `docs/109_ReleaseGoNoGoCard.md` 为准。`S001-S012` 已完成非现场产品化闭环：教师四入口、导入/切题/人工接管、AI 标注建议、题库检索、组卷、导出、成绩导入、讲评报告和备份恢复均有合同或代理验收证据；但这不等于现场发布完成。当前发布阻断仍是 `P001` 试点部署预演、隔离机真实安装、权限/审计、现场网络/打印/文件权限、真实教师或教师代理验收和回滚演练。
+当前任务顺序和状态以 `tasks/backlog.csv` 为唯一机器真源；当前执行、闭环和发布裁决分别看 `docs/103_ExecutionControlBoard.md`、`docs/CurrentClosureStatus.md` 和 `docs/109_ReleaseGoNoGoCard.md`。完成切片文档与 `docs/evidence/` 只负责历史追溯，不选择下一任务。`S001-S012` 已形成非现场产品化链路，但这不等于现场发布完成；P001/P003/P005/P006、隔离机、学校网络/打印/权限域、真实教师和回滚签收仍保持开放。
 
 2026-05-28 起，若最新盘点发现非人工、非现场能力仍未真正落地，不再只引用旧 `S001-S012` 历史完成态作为产品化证明。新的总控入口是 `docs/101_NonSiteCapabilityImplementationRoadmap.md`，机器可读任务清单是 `tasks/non-site-implementation-plan.csv`。后续每个模块必须重新区分 `planned`、`contract_only`、`repo_landed`、`runtime_verified`、`non_site_validated` 和 `blocked_by_onsite`；只有具备代码、运行或端到端证据后，才允许回写完成态看板。
 
@@ -82,12 +82,14 @@ Web:
 
 2026-06-14 起，管理员 AI 设置的推荐配置模式收口为“默认单 key，兼容图片专用覆盖”。也就是：默认只配置主 `base URL + API key`；如果中继网关把生图单独挂到另一条路由、另一把 key，再额外填写图片专用 `base URL + key`。本地开发时，根目录 `.env` 可作为启动脚本 bootstrap，参考 `.env.example`；一旦管理员在 UI 中保存设置，运行时仍以 `D:\KQG_Data\config\admin\ai-provider-settings.local.json` 的本机加密配置为优先真值。
 
-统一 gate:
+日常验证入口：
 
 ```powershell
-$env:PGPASSWORD='<local-password>'
-.\tools\run-gates.ps1
+.\tools\run-verification.ps1 -Profile Quick
+.\tools\run-verification.ps1 -Profile Slice -TaskId <TASK_ID>
 ```
+
+`Quick/Slice` 不访问 PostgreSQL、不停止常驻进程、不写 FileStore 或 tracked evidence。发布前明确授权运行 `tools/run-verification.ps1 -Profile Release -AuthorizeStateful`：默认执行 Quick + 3 个风险聚焦阶段 + 状态对账，报告和恢复工件只进 `tmp/verification/`。`tools/run-gates.ps1` 不在默认 Release 中；只有追加 `-IncludeLegacyCompatibility` 才执行 235-step legacy audit。
 
 无数据库密码时的 C002 动态资产 dry-run:
 
@@ -95,16 +97,16 @@ $env:PGPASSWORD='<local-password>'
 .\tools\run-c002-dry-run-suite.ps1
 ```
 
-该命令验证 source material admission、draft -> formal replacement mapping、migration impact、candidate admission 和 activation guard，不连接数据库、不写生产数据。完整数据库 contract 仍需要 `PGPASSWORD` 并运行 `tools/run-gates.ps1`。
+该命令验证 source material admission、draft -> formal replacement mapping、migration impact、candidate admission 和 activation guard，不连接数据库、不写生产数据。数据库、migration、backup/restore 和 no-active-write 由默认 focused Release core 覆盖。
 
 仓库级预检（reference-basis / roadmap / closeout 一致性）：
 
 ```powershell
 .\tools\run-repo-preflight.ps1 -Mode Ci
-.\tools\run-repo-preflight.ps1 -Mode Release
+.\tools\run-repo-preflight.ps1 -Mode Release -AuthorizeStateful
 ```
 
-`-Mode Ci` 只跑 repo-side build/lint/guard；`-Mode Release` 在此基础上追加本地 full gate。当前最新 CI-style repo preflight 证据是 `docs/evidence/20260618-repo-preflight-ci-summary.json`：16 步通过，覆盖后端 build、前端 lint/build、automation-first、reference-basis、closeout、PQR、release-pack 与 roadmap guard；当前最新完整 full gate 则已在 2026-06-23 通过，并由 `docs/evidence/20260623-live-pilot-closeout-repo-side-audit.json` 记录观测结果。两者都不改变 `REAL005 = not_closed` 和 `P001/P003/P005/P006 = 待办` 的事实边界。
+`-Mode Ci` 路由到 Quick；`-Mode Release -AuthorizeStateful` 路由到 focused Release core，不再重复一套 preflight 或直接调用 legacy monolith。需要兼容审计时再显式追加 `-IncludeLegacyCompatibility`。当前治理收口证据由 `docs/evidence/verification-governance-release-reconciliation.json` 和 `docs/evidence/index.json` 策展；任何 repo-side/Release 结果都不改变 `REAL005 = not_closed`、P001-P006 待办和 release No-Go。
 
 C002 候选资料与真实来源资料入口：
 
@@ -242,7 +244,7 @@ tests/      自动化测试与黄金样本
 - `docs/103_ExecutionControlBoard.md`：当前 Now / Next / Later 与硬阻断。
 - `docs/104_OpenQuestionsAndAssumptions.md`：尚未拍板但会影响发布与范围的边界。
 - `docs/109_ReleaseGoNoGoCard.md`：`P006` 单页发布裁决入口。
-- `docs/112_CurrentClosureStatus_20260609.md`：当前仓库级 / 非现场 / 现场阻断的最短真实口径。
+- `docs/CurrentClosureStatus.md`：当前仓库级 / 非现场 / 现场阻断的稳定短入口；旧 `docs/112_CurrentClosureStatus_20260609.md` 仅作 legacy guard 与历史兼容。
 - `docs/113_LocalRuntimeOperations_20260609.md`：本地 Web/API 联调运行模型、状态语义和排查入口。
 - `tasks/reference-basis-requirements.csv`：高风险任务强制参考依据入口，决定哪些改动必须先补官方与本地参考锚点。
 - `tasks/reference-basis-module-map.csv`：板块级 reference-basis 清单，把 API、Web、export、score-analysis、AI routing、OCR、Windows Service、release pack、搜索、队列、互操作等板块和参考仓映射成机器可读表。
@@ -255,10 +257,11 @@ tests/      自动化测试与黄金样本
 - `apps/api`: 已提供 `dotnet run --project apps/api`，健康检查为 `http://localhost:5275/health`。
 - `apps/web`: 已提供 `npm run dev --prefix apps/web`。
 - `workers/document`: 提供 worker smoke entry。
-- `tools/run-gates.ps1`: 统一门禁入口。
+- `tools/run-verification.ps1`: Quick/Slice/Release/Onsite 统一 profile 入口；普通编码默认 Quick/Slice。
+- `tools/run-gates.ps1`: legacy 235-step stateful compatibility audit，仅由 `-IncludeLegacyCompatibility` 显式调用，不属于默认 Release。
 - `tools/run-automation-first-feature-contract-guard.ps1`: 功能实现 automation-first 合同守卫，确保待办任务先声明规则、脚本、专用功能和 evidence，再限定 AI/agent 使用范围。
 - `tools/run-reference-basis-guard.ps1`: 高风险任务参考依据守卫，要求架构、Windows Service、PowerShell 运维、OCR/toolchain、export、score-analysis、AI routing、搜索、互操作以及 `P001/P003/P005/P006` 这类 live pilot / release closeout 任务先在 `tasks/reference-basis-requirements.csv` 中登记官方来源与本地参考库锚点；本机若挂载了外部参考库，还会同时核对仓内 snapshot 与外部 manifest 是否同构。
-- `tools/run-repo-preflight.ps1`: 正式 repo 预检入口；`-Mode Ci` 跑 repo-side build/lint/guard，`-Mode Release` 在此基础上追加本地 full gate。
+- `tools/run-repo-preflight.ps1`: 兼容预检入口，内部路由到新的 verification profiles。
 - `tools/run-c002-dry-run-suite.ps1`: 无数据库的 C002 动态资产 dry-run 入口。
 - `tools/run-d001-model-router-contract.ps1`: D001 draft/test ModelRouter 合同。
 - `tools/run-d003-structured-output-eval.ps1`: D003 draft/test 结构化输出 eval smoke。
@@ -287,7 +290,7 @@ tests/      自动化测试与黄金样本
 - `tools/run-guangzhou-physics-year-batch-ingest.ps1`: REAL003 2016-2025 广州物理真卷批量 dry-run 入口，记录来源 hash、题数、答案覆盖、接管点和回滚 SQL。
 - `tools/run-real004-guangzhou-2015-review-smoke.ps1`: REAL004 2015 真卷审核队列 API/Web smoke，验证筛选、来源加载、确认、退回、教师修订和 audit。
 - `tools/run-real005-guangzhou-2015-2025-closure-standard.ps1`: REAL005 真卷全流程闭环判定入口；当前应输出 `closureStatus=not_closed`。
-- `tools/run-live-pilot-closeout-plan-guard.ps1`: 校验 `tasks/live-pilot-closeout-plan.csv`、`tasks/backlog.csv`、`docs/109_ReleaseGoNoGoCard.md`、`docs/112_CurrentClosureStatus_20260609.md` 等入口是否仍保持一致且不夸大现场闭环。
+- `tools/run-live-pilot-closeout-plan-guard.ps1`: 校验 `tasks/live-pilot-closeout-plan.csv`、`tasks/backlog.csv`、`docs/109_ReleaseGoNoGoCard.md` 和 legacy closure 投影等入口是否仍保持一致且不夸大现场闭环；稳定 current 入口为 `docs/CurrentClosureStatus.md`。
 - `tools/prepare-c002-candidate-csvs.ps1`: C002 ChatGPT Web 候选 CSV 清洗和预检入口。
 - `tools/import-c002-source-materials.ps1`: C002 原始来源资料 dry-run / evidence-layer 导入入口。
 - `tools/import-c002-candidate-assets.ps1`: C002 cleaned candidate DB dry-run / apply 入口。

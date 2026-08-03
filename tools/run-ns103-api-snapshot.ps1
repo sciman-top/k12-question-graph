@@ -1,6 +1,11 @@
 param(
     [string] $ReportPath = 'docs/evidence/20260528-ns103-api-snapshot.md',
     [string] $ApiProgramPath = 'apps/api/Program.cs',
+    [string[]] $EndpointSourcePaths = @(
+        'apps/api/Program.cs',
+        'apps/api/Endpoints/ScoreEndpoints.cs',
+        'apps/api/Endpoints/AdminAiEndpoints.cs'
+    ),
     [string] $ContractsPath = 'apps/web/src/api/contracts.ts',
     [string] $ClientPath = 'apps/web/src/api/client.ts',
     [string] $Project = 'apps/api/K12QuestionGraph.Api.csproj'
@@ -28,34 +33,41 @@ function Format-CodeCell([string] $Value) {
 
 Push-Location $repoRoot
 try {
-    foreach ($path in @($ApiProgramPath, $ContractsPath, $ClientPath)) {
+    foreach ($path in @($EndpointSourcePaths) + @($ContractsPath, $ClientPath)) {
         Assert-Condition (Test-Path -LiteralPath $path) "missing API snapshot input: $path"
     }
 
     $buildOutput = dotnet build $Project 2>&1
     Assert-Condition ($LASTEXITCODE -eq 0) 'dotnet build failed before API snapshot'
 
-    $programLines = @(Get-Content -LiteralPath $ApiProgramPath)
-    $programText = $programLines -join "`n"
+    $endpointSources = @($EndpointSourcePaths | ForEach-Object {
+        [pscustomobject]@{ path = $_; lines = @(Get-Content -LiteralPath $_) }
+    })
+    $programText = Get-Content -LiteralPath $ApiProgramPath -Raw
+    $apiText = @($endpointSources | ForEach-Object { $_.lines -join "`n" }) -join "`n"
     $contractsText = Get-Content -LiteralPath $ContractsPath -Raw
     $clientText = Get-Content -LiteralPath $ClientPath -Raw
 
     $endpoints = @()
-    for ($i = 0; $i -lt $programLines.Count; $i++) {
-        $line = $programLines[$i]
-        if ($line -match 'app\.Map(Get|Post|Put|Delete|Patch)\("([^"]+)"') {
-            $method = $Matches[1].ToUpperInvariant()
-            $route = $Matches[2]
-            $lookahead = ($programLines[$i..([Math]::Min($i + 12, $programLines.Count - 1))] -join "`n")
-            $name = ''
-            if ($lookahead -match '\.WithName\("([^"]+)"\)') {
-                $name = $Matches[1]
-            }
-            $endpoints += [ordered]@{
-                method = $method
-                route = $route
-                name = $name
-                line = $i + 1
+    foreach ($source in $endpointSources) {
+        $sourceLines = @($source.lines)
+        for ($i = 0; $i -lt $sourceLines.Count; $i++) {
+            $line = $sourceLines[$i]
+            if ($line -match '[A-Za-z_][A-Za-z0-9_]*\.Map(Get|Post|Put|Delete|Patch)\("([^"]+)"') {
+                $method = $Matches[1].ToUpperInvariant()
+                $route = $Matches[2]
+                $lookahead = ($sourceLines[$i..([Math]::Min($i + 12, $sourceLines.Count - 1))] -join "`n")
+                $name = ''
+                if ($lookahead -match '\.WithName\("([^"]+)"\)') {
+                    $name = $Matches[1]
+                }
+                $endpoints += [ordered]@{
+                    method = $method
+                    route = $route
+                    name = $name
+                    sourcePath = [string]$source.path
+                    line = $i + 1
+                }
             }
         }
     }
@@ -86,8 +98,8 @@ try {
         }
     }
 
-    $errorCodes = @([regex]::Matches($programText, 'error\s*=\s*"([^"]+)"') | ForEach-Object { $_.Groups[1].Value } | Sort-Object -Unique)
-    $statusLiterals = @([regex]::Matches($programText + "`n" + $contractsText, '"([a-z][a-z0-9_]{2,})"|''([a-z][a-z0-9_]{2,})''') |
+    $errorCodes = @([regex]::Matches($apiText, 'error\s*=\s*"([^"]+)"') | ForEach-Object { $_.Groups[1].Value } | Sort-Object -Unique)
+    $statusLiterals = @([regex]::Matches($apiText + "`n" + $contractsText, '"([a-z][a-z0-9_]{2,})"|''([a-z][a-z0-9_]{2,})''') |
         ForEach-Object {
             if ($_.Groups[1].Success) { $_.Groups[1].Value } else { $_.Groups[2].Value }
         } |
@@ -132,7 +144,7 @@ try {
     $lines.Add('| Method | Route | Name | Source |')
     $lines.Add('|---|---|---|---|')
     foreach ($endpoint in ($endpoints | Sort-Object route, method)) {
-        $lines.Add(('| {0} | {1} | {2} | {3} |' -f $endpoint.method, (Format-CodeCell $endpoint.route), (Format-CodeCell ([string]$endpoint.name)), (Format-CodeCell "${ApiProgramPath}:$($endpoint.line)")))
+        $lines.Add(('| {0} | {1} | {2} | {3} |' -f $endpoint.method, (Format-CodeCell $endpoint.route), (Format-CodeCell ([string]$endpoint.name)), (Format-CodeCell "$($endpoint.sourcePath):$($endpoint.line)")))
     }
     $lines.Add('')
     $lines.Add('## Typed Client Functions')
@@ -198,6 +210,7 @@ try {
         typedContractCount = $contractNames.Count
         errorCodeCount = $errorCodes.Count
         missingRequiredRoutes = $missingRequiredRoutes
+        endpointSourcePaths = $EndpointSourcePaths
     } | ConvertTo-Json -Depth 5
 }
 finally {

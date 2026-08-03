@@ -114,7 +114,9 @@ try {
     } 'N005 tiered practice draft/test') | ConvertFrom-Json
     Assert-Condition ($n005.status -eq 'pass') 'N005 tiered practice contract did not pass'
 
-    $surface = (Read-Text 'apps/api/Program.cs') + "`n" + (Read-Text 'apps/api/Application/Workflows/ScoreAnalysisWorkflowService.cs')
+    $surface = (Read-Text 'apps/api/Program.cs') + "`n" +
+        (Read-Text 'apps/api/Endpoints/ScoreEndpoints.cs') + "`n" +
+        (Read-Text 'apps/api/Application/Workflows/ScoreAnalysisWorkflowService.cs')
     foreach ($marker in @(
         '/assessments/{assessmentId:guid}/commentary-report/export',
         'CommentaryReportExportResponse',
@@ -156,6 +158,7 @@ try {
             n004 = [string]$n004.n004EvidencePath
             n005 = [string]$n005.n005EvidencePath
         }
+        apiSources = @('apps/api/Program.cs', 'apps/api/Endpoints/ScoreEndpoints.cs', 'apps/api/Application/Workflows/ScoreAnalysisWorkflowService.cs')
         report = [ordered]@{
             endpoint = [string]$s011c.endpoint
             assessmentId = [string]$s011c.assessmentId

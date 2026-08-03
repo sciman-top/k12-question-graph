@@ -1,5 +1,6 @@
 param(
-    [string] $ReportPath = 'docs/evidence/20260607-ns1308-release-evidence-pack.json'
+    [string] $ReportPath = 'docs/evidence/20260607-ns1308-release-evidence-pack.json',
+    [string] $CompletionDashboardPath = 'tasks/completion-state-dashboard.csv'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -60,6 +61,11 @@ try {
     $releaseCard = Read-Text 'docs/109_ReleaseGoNoGoCard.md'
     $executionBoard = Read-Text 'docs/103_ExecutionControlBoard.md'
     $technologyStack = Read-Text 'docs/04_TechnologyStack.md'
+    Assert-Condition (Test-Path -LiteralPath $CompletionDashboardPath) "missing completion dashboard: $CompletionDashboardPath"
+    $governanceState = @(Import-Csv -LiteralPath $CompletionDashboardPath | Where-Object { $_.area_id -eq 'verification-governance' })
+    Assert-Condition ($governanceState.Count -eq 1) 'NS1308 requires exactly one verification-governance dashboard row'
+    $currentTaskId = [string]$governanceState[0].next_task
+    Assert-Condition (-not [string]::IsNullOrWhiteSpace($currentTaskId)) 'NS1308 dashboard next_task must be populated'
 
     Assert-Condition ($o004b.Contains('status=pass')) 'NS1308 requires O004B pass evidence summary'
     Assert-Condition ($o004b.Contains('teacher') -and $o004b.Contains('group_lead') -and $o004b.Contains('admin')) 'NS1308 requires explicit role audit evidence'
@@ -93,7 +99,9 @@ try {
     Assert-Condition ($p001Checklist.Contains('执行前确认回滚路径')) 'NS1308 requires rollback path in checklist'
 
     Assert-Condition ($releaseCard.Contains('`No-Go`') -or $releaseCard.Contains('No-Go')) 'NS1308 expects release card to remain No-Go before onsite and release decision closure'
-    Assert-Condition ($executionBoard.Contains('`P001` readiness') -or $executionBoard.Contains('P001 readiness')) 'NS1308 expects execution board to keep P001 as current mainline'
+    $normalizedBoard = ($executionBoard -replace '[^A-Za-z0-9]', '').ToUpperInvariant()
+    $normalizedCurrentTask = ($currentTaskId -replace '[^A-Za-z0-9]', '').ToUpperInvariant()
+    Assert-Condition ($normalizedBoard.Contains($normalizedCurrentTask)) "NS1308 execution board does not project dashboard next_task: $currentTaskId"
 
     $report = [ordered]@{
         status = 'pass'
@@ -101,6 +109,11 @@ try {
         checkedAt = (Get-Date).ToString('s')
         mode = 'release_evidence_pack_aggregation'
         productionEligible = $false
+        currentTaskProjection = [ordered]@{
+            source = $CompletionDashboardPath
+            nextTask = $currentTaskId
+            executionBoard = 'docs/103_ExecutionControlBoard.md'
+        }
         dependency = [ordered]@{
             ns803 = $ns803ReportPath
             ns804 = $ns804ReportPath

@@ -4,6 +4,7 @@ using K12QuestionGraph.Api.Application.Workflows.Contracts;
 using K12QuestionGraph.Api.Configuration;
 using K12QuestionGraph.Api.Data;
 using K12QuestionGraph.Api.Domain;
+using K12QuestionGraph.Api.Endpoints;
 using K12QuestionGraph.Api.FileStore;
 using K12QuestionGraph.Api.Infrastructure.Health;
 using K12QuestionGraph.Api.Infrastructure.Json;
@@ -396,36 +397,7 @@ app.MapPost("/api/admin/cache/cleanup", (CacheCleanupRequest request, IConfigura
 })
 .WithName("AdminCacheCleanup");
 
-app.MapGet("/api/admin/ai/provider-settings", async (
-    IAiProviderSettingsStore settingsStore,
-    CancellationToken cancellationToken) =>
-{
-    var settings = await settingsStore.GetAsync(cancellationToken);
-    return Results.Ok(settings);
-})
-.WithName("GetAdminAiProviderSettings");
-
-app.MapPost("/api/admin/ai/provider-settings", async (
-    AdminAiProviderSettingsSaveRequest request,
-    IAiProviderSettingsStore settingsStore,
-    CancellationToken cancellationToken) =>
-{
-    var result = await settingsStore.SaveAsync(request, cancellationToken);
-    return Results.Ok(result);
-})
-.WithName("SaveAdminAiProviderSettings");
-
-app.MapPost("/api/admin/ai/provider-settings/test", async (
-    AdminAiProviderSettingsTestRequest request,
-    IAiProviderSettingsStore settingsStore,
-    IAiProviderSmokeTestService smokeTestService,
-    CancellationToken cancellationToken) =>
-{
-    var settings = await settingsStore.GetAsync(cancellationToken);
-    var result = await smokeTestService.RunAsync(settings, request, cancellationToken);
-    return Results.Ok(result);
-})
-.WithName("TestAdminAiProviderSettings");
+app.MapAdminAiEndpoints();
 
 app.MapPost("/internal/ai/model-route", (AiRouteRequest request, IAiModelRouter router) =>
 {
@@ -3242,117 +3214,7 @@ app.MapGet("/paper-baskets/{id:guid}", async (
 })
 .WithName("GetPaperBasket");
 
-app.MapPost("/score-imports", async (
-    ScoreImportRequest request,
-    IScoreAnalysisWorkflowService workflowService,
-    CancellationToken cancellationToken) =>
-{
-    var fieldMapping = request.FieldMapping ?? new ScoreImportFieldMappingRequest(
-        string.Empty,
-        string.Empty,
-        new Dictionary<string, string>());
-    var rows = request.Rows ?? Array.Empty<ScoreImportRowApiRequest>();
-    var result = await workflowService.ImportScoresAsync(
-        new ScoreImportServiceRequest(
-            request.AssessmentKey,
-            request.AssessmentTitle,
-            request.Subject,
-            request.Stage,
-            request.Grade,
-            request.TemplateKey,
-            request.TemplateDisplayName,
-            request.SourceFileName,
-            request.ContainsStudentPii,
-            request.ProductionEligible,
-            request.MaxTotalScore,
-            new ScoreImportFieldMapping(
-                fieldMapping.StudentKey,
-                fieldMapping.TotalScore,
-                fieldMapping.ItemScores ?? new Dictionary<string, string>()),
-            request.ItemMaxScores ?? new Dictionary<string, decimal>(),
-            rows.Select(x => new ScoreImportRowRequest(
-                x.RowNumber,
-                x.Values ?? new Dictionary<string, string>())).ToArray()),
-        cancellationToken);
-
-    var response = ScoreImportResponse.From(result);
-    return result.Status == "blocked"
-        ? Results.BadRequest(response)
-        : Results.Created($"/score-imports/{result.BatchId}", response);
-})
-.WithName("ImportScores");
-
-app.MapPost("/assessments/{assessmentId:guid}/item-score-mappings/preview", async (
-    Guid assessmentId,
-    ItemScoreMappingPreviewRequest request,
-    IScoreAnalysisWorkflowService workflowService,
-    CancellationToken cancellationToken) =>
-{
-    var result = await workflowService.PreviewItemScoreMappingsAsync(
-        assessmentId,
-        new ItemScoreMappingPreviewServiceRequest(
-            (request.Mappings ?? Array.Empty<ItemScoreMappingRequest>())
-                .Select(x => new ItemScoreMappingRequestItem(x.QuestionNo, x.QuestionItemId))
-                .ToArray()),
-        cancellationToken);
-    if (result is null)
-    {
-        return Results.NotFound(new { error = "assessment_not_found" });
-    }
-
-    return Results.Ok(ItemScoreMappingPreviewResponse.From(result));
-})
-.WithName("PreviewItemScoreMappings");
-
-app.MapPost("/assessments/{assessmentId:guid}/score-evidence-analysis/preview", async (
-    Guid assessmentId,
-    ScoreEvidenceAnalysisPreviewRequest request,
-    IScoreAnalysisWorkflowService workflowService,
-    CancellationToken cancellationToken) =>
-{
-    var result = await workflowService.PreviewScoreEvidenceAnalysisAsync(
-        assessmentId,
-        new ScoreEvidenceAnalysisServiceRequest(
-            request.ContainsStudentPii,
-            (request.Mappings ?? Array.Empty<ItemScoreMappingRequest>())
-                .Select(x => new ItemScoreMappingRequestItem(x.QuestionNo, x.QuestionItemId))
-                .ToArray()),
-        cancellationToken);
-    if (result is null)
-    {
-        return Results.NotFound(new { error = "assessment_not_found" });
-    }
-
-    return Results.Ok(ScoreEvidenceAnalysisPreviewResponse.From(result));
-})
-.WithName("PreviewScoreEvidenceAnalysis");
-
-app.MapPost("/assessments/{assessmentId:guid}/commentary-report/export", async (
-    Guid assessmentId,
-    CommentaryReportExportRequest request,
-    IScoreAnalysisWorkflowService workflowService,
-    CancellationToken cancellationToken) =>
-{
-    var result = await workflowService.ExportCommentaryReportAsync(
-        assessmentId,
-        new CommentaryReportExportServiceRequest(
-            request.Format,
-            request.AllowAiDraftText,
-            (request.Mappings ?? Array.Empty<ItemScoreMappingRequest>())
-                .Select(x => new ItemScoreMappingRequestItem(x.QuestionNo, x.QuestionItemId))
-                .ToArray()),
-        cancellationToken);
-    if (result is null)
-    {
-        return Results.NotFound(new { error = "assessment_not_found" });
-    }
-
-    var response = CommentaryReportExportResponse.From(result);
-    return result.Status == "blocked"
-        ? Results.Conflict(response)
-        : Results.Ok(response);
-})
-.WithName("ExportCommentaryReport");
+app.MapScoreEndpoints();
 
 app.MapPost("/paper-baskets/{id:guid}/export-preflight", async (
     Guid id,

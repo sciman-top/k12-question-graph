@@ -40,6 +40,7 @@ The admitted real corpus contains `128 retrospective_crosswalk` and `5 contempor
 - Curriculum page endpoint rendered image title `screenshot (1192x1684)`.
 - Annual-report page endpoint rendered image title `page-screenshot (1191x1684)`.
 - Both were opened in controlled browser tabs using hrefs exposed by the visible candidate card.
+- The raw source-page screenshots were removed from Git after the privacy/license scan identified them as tracked copyright-source binaries. This report retains the runtime observation and dimensions, but the source pages remain outside the repository.
 
 ## Visual and console checks
 
@@ -50,7 +51,7 @@ Desktop viewport was `1280x720` (`1265x712` captured content); mobile viewport w
 - Horizontal viewport overflow scan returned 0 elements.
 - The mobile review mode selector initially required horizontal scrolling. CEK-33 changed it to a visible `3 + 2` layout; its final `scrollWidth == clientWidth == 289`.
 - `AnalysisPanelContent` migrated deprecated Ant Design `Alert.message` to `Alert.title`; a fresh tab then reported 0 `error`, `warn`, or `warning` console entries.
-- Seven PNGs passed sampled non-blank checks with 108-345 distinct sampled colors.
+- Seven PNGs passed sampled non-blank checks with 108-345 distinct sampled colors during the run. Five product-UI screenshots remain as reviewed repository evidence; two raw source-page captures are intentionally not retained.
 
 Screenshots:
 
@@ -59,8 +60,6 @@ Screenshots:
 - `docs/evidence/cek033-mobile-candidate-search.png`
 - `docs/evidence/cek033-mobile-analysis.png`
 - `docs/evidence/cek033-mobile-review.png`
-- `docs/evidence/cek033-curriculum-source-page.png`
-- `docs/evidence/cek033-report-source-page.png`
 
 ## Verification
 

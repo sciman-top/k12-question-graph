@@ -23,6 +23,11 @@ try {
     $app = Read-Text $appPath
     $architecture = Read-Text 'docs/03_Architecture.md'
     $program = Read-Text 'apps/api/Program.cs'
+    $hotspotBudgetPath = 'configs/verification/product-hotspot-budgets.json'
+    Assert-Condition (Test-Path -LiteralPath $hotspotBudgetPath) "NS1301 hotspot budget missing: $hotspotBudgetPath"
+    $hotspotBudget = Get-Content -LiteralPath $hotspotBudgetPath -Raw | ConvertFrom-Json
+    $appBudget = @($hotspotBudget.files | Where-Object { $_.path -eq $appPath })
+    Assert-Condition ($appBudget.Count -eq 1) 'NS1301 requires exactly one canonical App.tsx hotspot budget'
 
     $requiredUiFiles = @(
         'apps/web/src/ui/workbenchData.tsx',
@@ -74,8 +79,9 @@ try {
         Assert-Condition (-not $app.Contains($forbidden)) "NS1301 App.tsx still owns extracted inline config/helper: $forbidden"
     }
 
-    $appLineCount = (Get-Content -LiteralPath $appPath | Measure-Object -Line).Lines
-    Assert-Condition ($appLineCount -lt 2000) "NS1301 expects App.tsx under 2000 lines after extraction; current=$appLineCount"
+    $appLineCount = @(Get-Content -LiteralPath $appPath).Count
+    $appMaxLines = [int]$appBudget[0].maxLines
+    Assert-Condition ($appLineCount -le $appMaxLines) "NS1301 App.tsx hotspot budget exceeded: current=$appLineCount max=$appMaxLines"
 
     foreach ($marker in @(
         'TeacherHomePanelContent.tsx',
@@ -107,6 +113,8 @@ try {
         app = [ordered]@{
             path = $appPath
             lineCount = $appLineCount
+            maxLines = $appMaxLines
+            budgetSource = $hotspotBudgetPath
             extractedComponents = @(
                 'TeacherHomePanelContent',
                 'ScoreWorkbenchPanelContent',
@@ -135,7 +143,7 @@ try {
             windowsServiceAndWorkflowOwnershipVisible = $true
         }
         boundary = 'NS1301 guards the repo-level structure split and inventory. It does not claim every import/review endpoint or every App.tsx panel is fully minimal; remaining import/review density and NS104 legacy direct-DB debt stay explicit.'
-        next = 'Continue trimming import/review UI density and migrate remaining review/import direct-DB endpoints toward workflow services before NS1302 Windows Service control panel productization.'
+        next = 'Use the canonical product hotspot budget for regression control; extract another business seam only when a cohesive change justifies it.'
         rollback = 'git restore apps/web/src/App.tsx apps/web/src/ui docs/03_Architecture.md tools/run-gates.ps1; git clean -f -- tools/run-ns1301-architecture-slimming-guard.ps1 docs/evidence/20260607-ns1301-architecture-slimming.json'
     }
 

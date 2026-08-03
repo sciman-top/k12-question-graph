@@ -7,6 +7,7 @@ param(
     [string] $PgBin = 'C:\Program Files\PostgreSQL\17\bin',
     [string] $ReportPath = '',
     [string] $O007ReportPath = '',
+    [string] $O007RecoveryReportPath = 'docs/evidence/o007-o003-recovery-drill-report.json',
     [switch] $SkipO007Refresh
 )
 
@@ -96,7 +97,8 @@ try {
             -DatabasePort $DatabasePort `
             -DatabasePassword $DatabasePassword `
             -PgBin $PgBin `
-            -ReportPath $O007ReportPath
+            -ReportPath $O007ReportPath `
+            -RecoveryReportPath $O007RecoveryReportPath
         Assert-Condition ($LASTEXITCODE -eq 0) 'NS806 embedded O007 upgrade drill failed'
         $o007 = Convert-OutputToJson $o007Output 'O007 EF migration bundle upgrade drill'
     }

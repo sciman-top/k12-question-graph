@@ -34,9 +34,9 @@ function Get-RequiredRow([object[]] $Rows, [string] $Id, [string] $Column = 'id'
     return $matches[0]
 }
 
-function Assert-TextContains([string] $Text, [string[]] $Needles, [string] $Label) {
-    foreach ($needle in $Needles) {
-        Assert-Condition ($Text.Contains($needle)) "$Label missing text: $needle"
+function Assert-TextMatches([string] $Text, [string[]] $Patterns, [string] $Label) {
+    foreach ($pattern in $Patterns) {
+        Assert-Condition ($Text -match $pattern) "$Label missing semantic contract: $pattern"
     }
 }
 
@@ -119,10 +119,27 @@ try {
     Assert-Condition ([string]$ns1306Automation.deterministic_precheck -match 'allowlisted tool runbook') 'NS1306 automation-first deterministic precheck must mention allowlisted tool/runbook'
     Assert-Condition ([string]$ns1306Automation.exception_policy -match 'allowlist|production active write|real data') 'NS1306 exception policy must block out-of-allowlist or production actions'
 
-    foreach ($docPath in @($ArchitecturePath, $TechnologyStackPath, $TaskBreakdownPath, $ProductizationPlanPath)) {
-        $docText = Get-Content -LiteralPath (Resolve-InRepoPath $docPath) -Raw
-        Assert-TextContains $docText @('allowlisted tool/runbook') $docPath
-    }
+    $architectureText = Get-Content -LiteralPath (Resolve-InRepoPath $ArchitecturePath) -Raw
+    Assert-TextMatches $architectureText @('tool_orchestration_agent', 'allowlist', 'runbook') $ArchitecturePath
+
+    $technologyStackText = Get-Content -LiteralPath (Resolve-InRepoPath $TechnologyStackPath) -Raw
+    Assert-TextMatches $technologyStackText @('tool_orchestration_agent', 'allowlist', 'runbook') $TechnologyStackPath
+
+    $taskBreakdownText = Get-Content -LiteralPath (Resolve-InRepoPath $TaskBreakdownPath) -Raw
+    Assert-TextMatches $taskBreakdownText @(
+        'configs/agent-tool-orchestration\.allowlist\.json',
+        'allowlist|白名单',
+        'runbook|运行手册',
+        '默认拒绝|默认阻断|blocked by default',
+        '外层编排|outer orchestration',
+        'production active write|生产 active|生产写',
+        'restore apply|恢复执行|恢复应用',
+        '真实学生数据|real student data',
+        '人工审批|human approval'
+    ) $TaskBreakdownPath
+
+    $productizationPlanText = Get-Content -LiteralPath (Resolve-InRepoPath $ProductizationPlanPath) -Raw
+    Assert-TextMatches $productizationPlanText @('NS1306', 'agent', 'allowlist', 'runbook') $ProductizationPlanPath
 
     $toolsReadmeText = Get-Content -LiteralPath (Resolve-InRepoPath $ToolsReadmePath) -Raw
     Assert-Condition ($toolsReadmeText.Contains('NS904') -and $toolsReadmeText.Contains('NS906')) 'tools/README must already expose NS904 and NS906 evidence chain'

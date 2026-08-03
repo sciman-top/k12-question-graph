@@ -2,7 +2,7 @@ param(
     [string] $PreflightScriptPath = 'tools/run-repo-preflight.ps1',
     [string] $FullGateScriptPath = 'tools/run-gates.ps1',
     [string] $StartLocalApiScriptPath = 'tools/start-local-api.ps1',
-    [string] $ReportPath = 'docs/evidence/20260614-repo-preflight-local-api-detection-contract.json'
+    [string] $ReportPath = 'tmp/verification/repo-preflight-process-boundary-contract.json'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -64,8 +64,11 @@ $requiredFullGateLatePausePatterns = @(
 )
 
 Assert-ContainsAll -ScriptPath $FullGateScriptPath -Text $fullGateText -Patterns $requiredDetectionPatterns
-Assert-ContainsAll -ScriptPath $PreflightScriptPath -Text $preflightText -Patterns $requiredDetectionPatterns
 Assert-ContainsAll -ScriptPath $FullGateScriptPath -Text $fullGateText -Patterns $requiredFullGateLatePausePatterns
+
+Assert-True ($preflightText.Contains("'run-verification.ps1'")) 'repo preflight must route to the canonical verification runner'
+Assert-True (-not $preflightText.Contains('Stop-Process')) 'repo preflight must not stop repo processes'
+Assert-True (-not $preflightText.Contains("'run-gates.ps1'")) 'repo preflight must not call the legacy monolith directly'
 
 $requiredLauncherPatterns = @(
     "-FilePath 'dotnet'",
@@ -75,13 +78,6 @@ $requiredLauncherPatterns = @(
 )
 Assert-ContainsAll -ScriptPath $StartLocalApiScriptPath -Text $startLocalApiText -Patterns $requiredLauncherPatterns
 
-$requiredPreflightOrchestrationPatterns = @(
-    "Invoke-PreflightStep 'repo preflight local api detection contract'",
-    "run-repo-preflight-local-api-detection-contract.ps1",
-    "-ReportPath (Join-Path `$ReportRoot 'repo-preflight-local-api-detection-contract.json')"
-)
-Assert-ContainsAll -ScriptPath $PreflightScriptPath -Text $preflightText -Patterns $requiredPreflightOrchestrationPatterns
-
 $report = [ordered]@{
     status = 'pass'
     taskId = 'REPO_PREFLIGHT_LOCAL_API_DETECTION_CONTRACT'
@@ -89,7 +85,7 @@ $report = [ordered]@{
     preflightScript = $PreflightScriptPath
     fullGateScript = $FullGateScriptPath
     startLocalApiScript = $StartLocalApiScriptPath
-    boundary = 'guards repo preflight and full gate against drifting away from the dotnet+dll+contentRoot local API launcher shape'
+    boundary = 'canonical repo preflight is process-neutral and routes to run-verification; only the optional legacy audit retains its historical local API pause contract'
 }
 
 $reportJson = $report | ConvertTo-Json -Depth 5

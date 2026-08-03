@@ -10,7 +10,7 @@
 
 ## 1.1 文档边界
 
-本 PRD 只定义稳定的产品目标、用户、成功指标和范围控制；当前仓库级、非现场与现场阻断、Go / No-Go 结论请看 `docs/112_CurrentClosureStatus_20260609.md`、`docs/103_ExecutionControlBoard.md`、`docs/109_ReleaseGoNoGoCard.md` 和 `tasks/completion-state-dashboard.csv`。这些状态入口已在 2026-06-23 按 2026-06-23 最新 repo-side 证据刷新。
+本 PRD 只定义稳定的产品目标、用户、成功指标和范围控制，不保存日期化进度。当前任务顺序和状态以 `tasks/backlog.csv` 为机器真源；当前执行、闭环边界和 Go / No-Go 分别看 `docs/103_ExecutionControlBoard.md`、`docs/CurrentClosureStatus.md` 和 `docs/109_ReleaseGoNoGoCard.md`。
 
 ## 2. 目标用户
 
@@ -55,7 +55,7 @@
 
 v0.1 的每个用户故事必须同时给出功能验收和教师效率验收。功能“能用”但教师更慢，不算通过。
 
-| 验收项 | P0/P1 口径 | v0.1 口径 |
+| 验收项 | repo-side 口径 | v0.1 口径 |
 |---|---|---|
 | 首次路径 | 能打开应用、上传文件、查看任务状态和错误 | 普通教师无需阅读手册即可完成导入、组卷、导出、登分 |
 | 人工确认 | 只确认异常项或 worker stub 标出的待处理项 | 高置信度自动通过，低置信度集中确认 |
@@ -127,14 +127,14 @@ v0.1 的每个用户故事必须同时给出功能验收和教师效率验收。
 
 ## 6. v0.1 首批实现边界
 
-v0.1 是完整教师闭环，但编码顺序必须先打 P0/P1。P0/P1 只要求可运行骨架和导入闭环，不要求一次做完组卷、导出和学情。
+v0.1 是完整教师闭环。P0/P1 历史骨架和导入链已落地，当前编码顺序以 `tasks/backlog.csv` 为准：先完成 VGOV 验证治理减负，再进入 P001-P006 现场与发布闭环；Q/R 未来能力保持停放。
 
 | 阶段 | 必须可运行的最小闭环 | 阶段退出门禁 | 不做 |
 |---|---|---|---|
 | P0 | 登录占位、上传文件、创建 ImportJob、写 PostgreSQL、文件入仓、健康检查、最小备份 manifest | build/test/contract/hotspot 全部有命令；无代码子项目必须记录 gate_na | OCR、AI 切题、真实组卷 |
 | P1 | 文档解析/OCR Adapter 占位、页面预览、SourceRegion、ReviewQueue、人工切题校正、单题入库、来源回看 | 至少一份黄金样本可从上传进入确认队列并保存题目 | 全自动准确切题、复杂知识图谱、正式导出引擎 |
 
-功能范围裁决见 `docs/28_FunctionScopeReview.md`。如果新功能未被归入 Must/Should/Later/Never，不得直接进入 P0/P1。
+功能范围裁决见 `docs/28_FunctionScopeReview.md`。如果新功能未被归入 Must/Should/Later/Never，且未进入当前 backlog task，不得直接实施。
 
 ## 7. 核心模块
 
@@ -173,4 +173,8 @@ v0.1 是完整教师闭环，但编码顺序必须先打 P0/P1。P0/P1 只要求
 | Word/WPS 兼容性 | OMML + 图片兜底、导出黄金样本回归、WPS 打开验证 |
 | 备份不可恢复 | manifest、sha256、恢复演练、独立脚本、WinPE 拷贝路径 |
 | 标准实现过早扩大范围 | QTI/CASE/OneRoster/Caliper 只做模型映射预留，不做完整导入导出 |
-| 学生数据误入外部 AI/fixture | P0/P1 使用合成或匿名化样本；真实学生数据外传必须先锁定辖区、授权、脱敏和人工确认边界 |
+| 学生数据误入外部 AI/fixture | repo-side 默认使用合成或匿名化样本；真实学生数据外传必须先锁定辖区、授权、脱敏和人工确认边界 |
+
+## 10. 当前工程使能目标
+
+验证治理减负是 v0.1 的工程使能任务，不是新增教师功能。它必须做到：普通编码获得无数据库、无进程停止、无 tracked evidence 的快速反馈；高风险数据、迁移、备份恢复和现场门禁仍由 Release/Onsite profile 承接；任何治理通过都不能改变 `REAL005=not_closed` 或 release No-Go。

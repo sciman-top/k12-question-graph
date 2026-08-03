@@ -1,3 +1,5 @@
+# LEGACY_RELEASE_COMPATIBILITY_ENTRY
+# Stateful full coverage retained for authorized Release parity. Quick/Slice must use tools/run-verification.ps1.
 param(
     [string] $DatabaseName = 'k12_question_graph',
     [string] $DatabaseUser = 'postgres',

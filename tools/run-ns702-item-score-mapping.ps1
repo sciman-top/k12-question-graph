@@ -82,7 +82,9 @@ try {
     Assert-Condition (-not [string]::IsNullOrWhiteSpace([string]$s011b.questionId)) 'NS702 mapped question id missing'
     Assert-Condition (-not [string]::IsNullOrWhiteSpace([string]$s011b.knowledgeId)) 'NS702 mapped knowledge id missing'
 
-    $surface = (Read-Text 'apps/api/Program.cs') + "`n" + (Read-Text 'apps/api/Application/Workflows/ScoreAnalysisWorkflowService.cs')
+    $surface = (Read-Text 'apps/api/Program.cs') + "`n" +
+        (Read-Text 'apps/api/Endpoints/ScoreEndpoints.cs') + "`n" +
+        (Read-Text 'apps/api/Application/Workflows/ScoreAnalysisWorkflowService.cs')
     foreach ($marker in @(
         '/assessments/{assessmentId:guid}/item-score-mappings/preview',
         'ItemScoreMappingPreviewResponse',
@@ -119,6 +121,7 @@ try {
             ns701 = 'docs/evidence/20260530-ns701-score-template-mapping-report.json'
             s011b = $s011bPath
         }
+        apiSources = @('apps/api/Program.cs', 'apps/api/Endpoints/ScoreEndpoints.cs', 'apps/api/Application/Workflows/ScoreAnalysisWorkflowService.cs')
         mapping = [ordered]@{
             endpoint = [string]$s011b.endpoint
             assessmentId = [string]$s011b.assessmentId

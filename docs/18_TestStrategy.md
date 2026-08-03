@@ -1,135 +1,107 @@
-# 18 · 测试策略
+# 18 · 测试与验证策略
 
-## 1. 核心思路
+## 1. 目标
 
-本项目必须建立黄金样本集。AI、OCR、切题、导出、成绩导入一旦修改，都要回归测试。
+验证必须优先发现真实产品风险，同时保持反馈快速、失败可归因、副作用可见。测试数量或 evidence 数量不是质量指标；教师工作流、数据兼容、来源可信、人工审核、隐私和可恢复性才是质量目标。
 
-测试策略必须服务于最高原则：验证教师是否更省时，而不只是验证代码能运行。
-
-## 2. 测试类型
-
-| 类型 | 内容 |
-|---|---|
-| 单元测试 | 业务规则、分数计算、字段映射、权限 |
-| 集成测试 | 文档导入、AI 任务、导出、备份恢复 |
-| AI Evals | 切题、知识点标注、答案校验、组卷意图解析 |
-| 导出回归 | Word/PDF/图片输出、公式、题图、分页 |
-| 恢复演练 | 备份包恢复、WinPE 拷贝方案、hash 校验 |
-| UX 验收 | 普通教师完成导入/组卷/成绩导入耗时 |
-| 安全测试 | 权限越权、上传文件、备份访问 |
-| 隐私/合规测试 | fixture、日志、prompt、备份 manifest 不含真实学生 PII、API key 或数据库密码 |
-| 可访问性/可理解性测试 | 表单错误、任务状态、导入异常和确认队列可被清晰理解，键盘和屏幕阅读器不被关键流程阻断 |
-| 文档一致性测试 | README、路线图、任务清单、schema、配置是否互相矛盾 |
-
-## 3. 黄金样本集
-
-至少包括：
+## 2. 固定门禁语义
 
 ```text
-含共用题图的物理试卷
-含跨页题的 PDF
-含公式密集的 docx
-含表格题的试卷
-含答案解析页的试卷
-扫描版试卷
-典型 Excel 成绩表
-典型导出模板
+build -> test -> contract/invariant -> hotspot
 ```
 
-建议目录：
+- build：编译、类型、依赖和基本打包。
+- test：业务规则、组件行为、API/service、worker 单元与集成测试。
+- contract/invariant：schema、API、数据状态、权限、no-active-write、迁移和兼容边界。
+- hotspot：当前切片最可能破坏的真实用户/数据路径。
 
-```text
-tests/fixtures/import-golden/
-  README.md
-  manifest.json
-  shared-image/
-  cross-page/
-  formula-heavy/
-  scanned/
-  answer-separated/
-  invalid/
-```
+不得用大量静态字符串检查替代行为测试，也不得以 full gate 通过代替现场事实。
 
-每个样本目录至少包含：
+## 3. Verification profiles
 
-```text
-source 文件
-expected_document_model.json
-expected_regions.json
-notes.md
-privacy_and_license.md
-```
+### Quick
 
-`invalid/` 用于验证失败接管路径，例如损坏文件、类型不支持、页图缺失、Adapter 超时。
+适用于普通本地反馈：backend/frontend/worker build、lint、unit tests、JSON/YAML/CSV parse。禁止 PostgreSQL、停止/启动常驻进程、FileStore 写入和 tracked evidence。
 
-黄金样本默认只能使用合成、公开授权或充分匿名化资料。不得把真实学生姓名、学号、班级、成绩表或含学生身份的 prompt 放入仓库；如确需使用真实校本试卷原件，必须在 `privacy_and_license.md` 记录来源、授权、传播限制、脱敏方式和清理责任人。
+### Slice
 
-## 4. 验收指标
+适用于当前 task：包含 Quick，并根据 task ID、changed paths、风险和 owner module 选择 focused contract/invariant/hotspot。unknown path 必须 fail-closed 或提升 profile。
 
-| 场景 | 指标 |
-|---|---|
-| 导入 | 高置信度自动入库比例、人工确认题数、切题准确率 |
-| 组卷 | 10 分钟内生成可打印试卷，一键换题可撤销 |
-| 导出 | 题号/公式/图片/表格不丢，WPS/Word 可打开 |
-| 成绩导入 | 字段自动匹配成功率，异常提示准确 |
-| 备份 | 可恢复，hash 校验通过 |
-| AI 成本 | 单次导入/组卷成本可统计、可控 |
+### Release
 
-真实教师现场验收暂缓；P0/P1 只做代理流程验收、自动化样本回归和错误路径验证。
+适用于 release candidate 或明确授权的 stateful closeout。默认 Release = Quick + migration/privacy/API/no-active-write contracts + NS806 isolated backup/restore/upgrade + closure invariants + 状态指纹对账；不遍历 235-step legacy monolith，不刷新日期化 tracked evidence，不写共享 FileStore fixture。允许的 DB 影响必须提前声明。
 
-所有指标的样本、起止口径和通过标准，统一按 `docs/01_PRD.md` 第 3.1 节执行。
+只有显式 `-IncludeLegacyCompatibility` 才运行 235-step legacy audit；它用于低频兼容审计，不是默认发布阻断链。
 
-### 4.1 指标记录字段
+### Onsite
 
-每次效率或可用性验收至少记录：
+适用于隔离机、学校网络、打印、权限域、真实教师操作和签字。自动化可以准备执行包、采集客观 trace、验证导入证据，但不得合成签字或把 proxy/synthetic 写成 live accepted。
 
-- `scenario_id`
-- `dataset_type`
-- `operator_role`
-- `start_ts`
-- `end_ts`
-- `manual_touches`
-- `retry_count`
-- `fallback_used`
-- `result_status`
-- `evidence_link`
+## 4. 选择规则
 
-## 5. P0/P1 最小门禁
+每个 task spec 必须声明：
 
-P0/P1 阶段必须建立并持续运行以下门禁：
+- `verification_profile`
+- `focused_verifiers`
+- `stateful_verifiers`
+- `requires_database`
+- `stops_process`
+- `writes_filestore`
+- `evidence_policy`
 
-```text
-build: backend build + frontend build + worker syntax/import check
-test: backend unit tests + frontend unit tests + worker unit tests
-contract/invariant: JSON Schema 可解析 + API contract snapshot + migration 可创建
-hotspot: upload/import job/file store/backup manifest 黄金路径测试
-privacy: fixture/log/prompt/backup manifest 敏感信息检查
-```
+Q001-Q005 和 R001-R007 在 P006 前不进入默认 Quick；仅在 changed paths、当前 task 或 Release 显式命中时运行。
 
-如果某个子项目尚未创建，必须在当次报告中按 `gate_na` 写明原因、替代验证、证据位置和过期条件。不能因为项目刚开始就跳过硬门禁。
+## 5. 测试类型和 owner
 
-## 6. 文档与 schema 门禁
+| 类型 | 首选实现 | 主要证明 |
+|---|---|---|
+| 业务规则 | .NET/Python/TypeScript unit test | 输入输出和边界 |
+| API/workflow | API/service integration test | 协议、状态和事务 |
+| UI | Testing Library/Playwright | 用户能否完成动作 |
+| 静态合同 | 少量 PowerShell/schema guard | 安全、权限、结构不变量 |
+| OCR/AI | golden/eval + source anchor | 质量、失败接管、candidate 边界 |
+| 导出 | artifact regression | Word/PDF/公式/题图/表格 |
+| 数据 | migration/backup/restore drill | 兼容与可恢复 |
+| 现场 | checklist + trace + signoff | 实际环境和教师验收 |
 
-编码前和修改规划文档后，至少检查：
+## 6. UI 静态合同策略
 
-- `tasks/backlog.csv` 能被 CSV parser 读取。
-- `schemas/**/*.json` 均为合法 JSON。
-- `configs/**/*.yaml` 均能被 YAML parser 读取；如果当前环境缺 YAML parser，按 `gate_na` 记录替代检查和过期条件。
-- README、`docs/19_Roadmap.md`、`docs/20_TaskBreakdown.md` 的 P0/P1 任务编号一致。
-- `docs/04_TechnologyStack.md` 与 `prompts/CODEX_CLI_HANDOFF.md` 的技术栈一致。
-- `docs/26_References.md` 与 `sources/references.md` 的关键外部来源一致。
+- keep：权限、no-active-write、教师/管理员边界、安全 fail-closed。
+- replace：class、CSS selector、固定 DOM 结构和文案存在性，迁移到行为测试。
+- delete_after_parity：新行为测试已覆盖且通过覆盖对账后退出默认 profile。
 
-文档门禁通过后，需要在当次报告中写明：命令、退出码、关键输出、无法执行项的 `gate_na`、下一次必须恢复执行的条件。
+先补等价测试，再移除旧检查；不按脚本数量机械删除。
 
-## 7. 升级前门禁
+## 7. Golden samples
 
-升级前必须：
+导入/OCR/公式/表格/题图/导出/成绩映射保留代表性 golden set。样本必须是合成、公开授权或充分匿名化材料，并记录 source、license/privacy、expected output、失败接管和适用范围。
 
-```text
-创建数据库备份
-创建文件仓库清单
-检查剩余磁盘空间
-确认无关键任务运行
-运行核心回归测试
-生成恢复点
-```
+真实题目候选、proxy 流程或 synthetic fixture 不能替代教师/现场 acceptance。
+
+## 8. Evidence policy
+
+| 运行 | 默认输出 | 是否 tracked |
+|---|---|---:|
+| Quick/Slice | `tmp/verification/<run-id>/` | no |
+| 临时诊断 | `tmp/` | no |
+| 默认 Release/migration/restore rehearsal | `tmp/verification/<run-id>/` | no |
+| 稳定 release reconciliation / onsite acceptance | `docs/evidence/` | yes |
+| Onsite/live | 签收报告与附件 | yes |
+
+同一未变化 guard 不应每天生成新的 tracked 快照。后续由 `docs/evidence/index.json` 标识 current/superseded/authority。
+
+## 9. 完成声明
+
+- Quick/Slice pass：只证明当前 repo-side slice。
+- Release pass：只证明授权环境的 release-side 技术门禁。
+- Onsite pass：必须绑定真实环境、操作者、时间、输入和签字。
+- `REAL005`、production active、release 或 live accepted 只能由各自权威事实改变。
+
+## 10. 当前迁移边界
+
+当前迁移状态：
+
+- `tools/run-verification.ps1 -Profile Quick|Slice` 是普通切片入口，报告只进入 `tmp/verification/`；
+- 默认 Release 通过 `tools/run-verification.ps1 -Profile Release -AuthorizeStateful` 执行聚焦 core；`tools/run-gates.ps1` 只能由 `-IncludeLegacyCompatibility` 显式进入；
+- 默认 Release 必须记录 DB/FileStore/进程前后指纹，`sharedFileStoreWriteExpected=false`；状态 pass 不得掩盖 FileStore 变化或数据库 row-level 未比较的边界；
+- Onsite 仍只接受真实环境、操作者、输入、时间与签字证据。

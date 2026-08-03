@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "unknownPathPolicy": "fail",
+  "commandCatalog": [
+    { "id": "backend-tests", "command": "dotnet test tests/api/K12QuestionGraph.Api.Tests/K12QuestionGraph.Api.Tests.csproj", "sideEffects": "ignored bin/obj only" },
+    { "id": "frontend-tests", "command": "npm --prefix apps/web run test", "sideEffects": "none" },
+    { "id": "worker-tests", "command": "python -m unittest discover -s tests/workers -p test_*.py", "sideEffects": "temporary test files only" },
+    { "id": "verification-governance", "command": "tools/run-verification-profile-inventory-guard.ps1 and parser/selector tests", "sideEffects": "tmp/verification only" },
+    { "id": "governance-contracts", "command": "automation-first dashboard S0 and reference-basis guards with tmp reports", "sideEffects": "tmp/verification only" },
+    { "id": "script-quality", "command": "tools/run-script-quality-sweep.ps1 with tmp report", "sideEffects": "tmp/verification only" },
+    { "id": "evidence-index", "command": "tools/run-evidence-index-guard.ps1 with tmp report", "sideEffects": "tmp/verification only" },
+    { "id": "ui-behavior", "command": "tools/run-ui-behavior-contract-guard.ps1", "sideEffects": "tmp/verification only" },
+    { "id": "hotspot-budget", "command": "tools/run-product-hotspot-budget-guard.ps1", "sideEffects": "tmp/verification only" }
+  ],
+  "pathRules": [
+    { "pattern": "apps/api/Data/Migrations/*", "owner": "operations", "profile": "Release", "commands": [], "reason": "database migration requires stateful compatibility and rollback verification" },
+    { "pattern": "tools/run-gates.ps1", "owner": "operations", "profile": "Release", "commands": [], "reason": "legacy full gate orchestration change requires Release parity" },
+    { "pattern": "tools/backup.ps1", "owner": "operations", "profile": "Release", "commands": [], "reason": "backup behavior requires Release verification" },
+    { "pattern": "tools/restore.ps1", "owner": "operations", "profile": "Release", "commands": [], "reason": "restore behavior requires Release verification" },
+    { "pattern": "apps/api/*", "owner": "api", "profile": "Slice", "commands": ["backend-tests"], "reason": "API implementation or contract changed" },
+    { "pattern": "tests/api/*", "owner": "api", "profile": "Slice", "commands": ["backend-tests"], "reason": "API regression coverage changed" },
+    { "pattern": "apps/web/*", "owner": "web", "profile": "Slice", "commands": ["frontend-tests"], "reason": "teacher or admin web behavior changed" },
+    { "pattern": "workers/*", "owner": "document-worker", "profile": "Slice", "commands": ["worker-tests"], "reason": "document worker changed" },
+    { "pattern": "tests/workers/*", "owner": "document-worker", "profile": "Slice", "commands": ["worker-tests"], "reason": "worker regression coverage changed" },
+    { "pattern": "tools/verification/*", "owner": "verification-governance", "profile": "Slice", "commands": ["verification-governance", "script-quality"], "reason": "verification engine changed" },
+    { "pattern": "configs/verification/*", "owner": "verification-governance", "profile": "Slice", "commands": ["verification-governance"], "reason": "verification policy changed" },
+    { "pattern": "schemas/verification/*", "owner": "verification-governance", "profile": "Slice", "commands": ["verification-governance"], "reason": "verification schema changed" },
+    { "pattern": "tests/verification/*", "owner": "verification-governance", "profile": "Slice", "commands": ["verification-governance"], "reason": "verification regression coverage changed" },
+    { "pattern": "tools/*", "owner": "governance", "profile": "Slice", "commands": ["script-quality", "governance-contracts"], "reason": "repo-local deterministic tool changed" },
+    { "pattern": "tasks/*", "owner": "governance", "profile": "Slice", "commands": ["governance-contracts"], "reason": "machine task or governance contract changed" },
+    { "pattern": "docs/evidence/*", "owner": "evidence", "profile": "Slice", "commands": ["evidence-index"], "reason": "tracked evidence metadata changed" },
+    { "pattern": "docs/*", "owner": "governance", "profile": "Slice", "commands": ["governance-contracts"], "reason": "canonical or projection documentation changed" },
+    { "pattern": "schemas/*", "owner": "schema", "profile": "Slice", "commands": ["backend-tests", "worker-tests"], "reason": "shared schema changed" },
+    { "pattern": "configs/*", "owner": "configuration", "profile": "Slice", "commands": ["script-quality"], "reason": "runtime or policy configuration changed" },
+    { "pattern": "sources/*", "owner": "reference-basis", "profile": "Slice", "commands": ["governance-contracts"], "reason": "reference basis changed" },
+    { "pattern": "README.md", "owner": "governance", "profile": "Slice", "commands": ["governance-contracts"], "reason": "stable navigation changed" },
+    { "pattern": "ALL_IN_ONE_EXECUTIVE_SPEC.md", "owner": "governance", "profile": "Slice", "commands": ["governance-contracts"], "reason": "executive truth projection changed" },
+    { "pattern": "AGENTS.md", "owner": "governance", "profile": "Slice", "commands": ["script-quality"], "reason": "repository execution contract changed" }
+  ],
+  "taskRules": [
+    { "pattern": "VGOV007", "commands": ["ui-behavior"], "reason": "UI static-to-behavior migration task" },
+    { "pattern": "VGOV008", "commands": ["evidence-index"], "reason": "evidence lifecycle task" },
+    { "pattern": "VGOV010", "commands": ["hotspot-budget", "backend-tests", "frontend-tests"], "reason": "product hotspot boundary task" },
+    { "pattern": "VGOV*", "commands": ["verification-governance", "governance-contracts", "script-quality"], "reason": "verification governance task" }
+  ]
+}

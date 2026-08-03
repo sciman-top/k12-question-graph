@@ -24,9 +24,20 @@ describe('App navigation smoke', () => {
 
     const appHeading = screen.getByRole('heading', { name: '校本题谱' })
     const homeEntries = within(screen.getByRole('region', { name: '普通教师入口' }))
-    for (const name of ['打开导入', '导入试卷', '找题组卷', '导入成绩', '查看分析']) {
+    const expectedViewByEntry = new Map([
+      ['打开导入', 'import'],
+      ['导入试卷', 'import'],
+      ['找题组卷', 'paper'],
+      ['导入成绩', 'scores'],
+      ['查看分析', 'analysis'],
+    ])
+    const workspace = document.querySelector('main.workspace')
+    expect(workspace).not.toBeNull()
+
+    for (const [name, view] of expectedViewByEntry) {
       fireEvent.click(homeEntries.getByRole('button', { name: new RegExp(name) }))
       expect(appHeading).toBeInTheDocument()
+      expect(workspace).toHaveClass(`teacher-view-${view}`)
     }
   }, 15_000)
 
@@ -49,5 +60,27 @@ describe('App navigation smoke', () => {
     expect(screen.queryByText('证据摘要（S003D）')).not.toBeInTheDocument()
     expect(screen.queryByText('B004')).not.toBeInTheDocument()
     expect(screen.queryByLabelText('重裁 x')).not.toBeInTheDocument()
+  })
+
+  it('keeps admin governance outside the teacher workspace until explicitly opened', () => {
+    vi.stubGlobal('ResizeObserver', class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    })
+
+    const { container } = render(
+      <QueryClientProvider client={createAppQueryClient()}>
+        <App />
+      </QueryClientProvider>,
+    )
+
+    const teacherWorkspace = container.querySelector<HTMLElement>('main.workspace')
+    const adminWorkspace = container.querySelector<HTMLElement>('aside[data-shell="admin-governance-staging"]')
+    const adminEntry = screen.getByRole('button', { name: '管理员调试入口' })
+
+    expect(teacherWorkspace).not.toContainElement(adminWorkspace)
+    expect(adminWorkspace).toHaveAttribute('aria-hidden', 'true')
+    expect(adminEntry).toHaveAttribute('aria-expanded', 'false')
   })
 })

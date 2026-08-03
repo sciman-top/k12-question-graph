@@ -1,78 +1,49 @@
 # 103 · 执行总控板
 
-日期：2026-07-31。状态证据核对到 2026-07-31。
+本文件是 `tasks/backlog.csv` 的短投影，不是第二任务真源。
 
-## 1. 判断
+## Now
 
-AI 推荐：当前唯一主目标不是继续扩能力面，而是把 `P001 -> P005/P006` 收成一个可裁决、可发布、可回滚的单主线。
+**P001：隔离机部署与真实环境 preflight**
 
-当前不承诺新的日历发布日期。发布目标先按能力里程碑管理，直到现场数据授权、支持负责人、回滚窗口和发布裁决链都补齐。
+- repo-side 前置：VGOV-001..010 已完成；默认 Release 已收缩为聚焦 core；235-step inventory 保持 unmapped=0，但仅作显式 legacy audit。
+- 现场目标：验证安装、服务、PostgreSQL、FileStore、backup/restore、权限、学校网络、打印和四个教师入口。
+- AI 允许：准备执行包、运行确定性 precheck、汇总脱敏日志、导入真实 evidence、标记阻断和 rollback。
+- AI 禁止：代替操作者、教师或负责人签字；把 readiness/repo-side pass 写成 onsite/live accepted；自动切 production active。
+- 完成：真实环境、操作者、授权输入、时间戳、执行结果、回滚验证和签收字段齐备。
 
-## 2. 单一真相入口
+## Next
 
-若问题不是“当前主线是什么”，而是“我先看哪份文档”，先回到 `docs/111_ProjectNavigationOverview.md`。
+P002 -> P003 -> P004 -> P005 -> P006，严格按 `tasks/backlog.csv` 和 `tasks/live-pilot-closeout-plan.csv` 的依赖推进。
 
-| 用途 | 单一入口 | 说明 |
-|---|---|---|
-| 当前对外完成态 | `tasks/completion-state-dashboard.csv` | 对外只引用这里，不只引用 backlog 的 `已完成` |
-| 当前 repo-side 口径有没有被旧状态覆盖 | `docs/evidence/20260623-ns905-status-sync.md` | 看 backlog、dashboard、non-site plan 和 live closeout 是否仍保持 truthful No-Go |
-| 本地联调运行模型 | `docs/113_LocalRuntimeOperations_20260609.md` | 决定 Web/API 怎么启动、重启、判断 ready 和排查 |
-| 主线顺序与依赖 | `tasks/backlog.csv` | 决定先做什么、后做什么 |
-| 高风险任务参考依据 | `tasks/reference-basis-requirements.csv` | 决定哪些架构/运维/OCR/AI/搜索/互操作/发布任务必须先补官方与本地参考锚点 |
-| 当前 reference-basis 守卫是否收口 | `docs/evidence/20260623-reference-basis-guard.md` | 看受管任务、模块覆盖和 external/snapshot parity 是否仍成立 |
-| 非现场产品化与运行形态 | `tasks/non-site-implementation-plan.csv` | 决定 NS0-NS13 的实现顺序和证据 |
-| 产品化闭环拆解 | `tasks/productization-roadmap.csv` / `tasks/productization-s0-execution-plan.csv` | 决定 S0 子任务归宿 |
-| 现场 closeout 拆解 | `tasks/live-pilot-closeout-plan.csv` | 决定 `REAL005` 与 `P001/P003/P005/P006` 的最小关闭步骤 |
-| 发布裁决 | `docs/109_ReleaseGoNoGoCard.md` | 决定 go / no-go，不由聊天结论代替 |
-| 未决事项 | `docs/104_OpenQuestionsAndAssumptions.md` | 决定哪些边界还没拍板 |
+## Repo-side governance closeout
 
-## 3. Now / Next / Later
+- VGOV-001..010：全部 repo-side complete，没有剩余 VGOV 编码任务。
+- 日常入口：`tools/run-verification.ps1 -Profile Quick|Slice`。
+- 默认 Release：`tools/run-verification.ps1 -Profile Release -AuthorizeStateful`，只运行聚焦 core，报告/恢复工件进入 `tmp/verification/`，共享 FileStore 必须无写入。
+- legacy audit：仅 `-IncludeLegacyCompatibility` 显式进入 235-step monolith；它不属于默认发布阻断链。
+- current evidence：只由 `docs/evidence/index.json` 指向；隔离 Release 的日期化 evidence 不回拷主仓。
+- hotspot：Score/Admin AI endpoint seam 已抽取，其余稳定模块由单一预算守卫阻止重新膨胀；无真实增长不继续拆分。
 
-### Now
+## Blocked / external
 
-| 主线 | 目标 | 退出条件 | 负责人角色 |
-|---|---|---|---|
-| `REAL005` truthful boundary | 保持真卷闭环口径诚实，不让非现场或局部 smoke 提前改成“已闭环” | 只有逐年逐题 criteria 全部满足后才允许从 `not_closed` 改口径 | 题库/导入负责人 |
-| `P001` readiness | 把非现场闭环变成现场前置包，而不是聊天判断 | 只剩隔离机、现场教师、打印、权限域、真实网络阻断项 | 发布负责人 + 试点支持负责人 |
-| `P005/P006` 发布裁决 | 形成可签字的 go / no-go 卡，而不是只有 preflight | `P005` 反馈分流完成，`P006` 发布卡留痕，回滚和 tag candidate 策略明确 | 产品负责人 + 发布负责人 + 数据责任方代表 |
+- `REAL005=not_closed`，`fullClosureAllowed=false`。
+- P001-P006 均为待办；P001/P003/P005/P006 仍依赖隔离机、学校网络、打印/权限域、真实教师、反馈责任和签字。
+- production active 未因 repo-side 候选链或治理工作切换。
+- release No-Go。
 
-2026-07-31 CEK 专题状态：CEK-01..35 本机 repo-side 已收口，fresh 授权版 CEK-34 suite 为 `status=pass/cek34Complete=true`，并通过完整 full gate、隔离 DB/FileStore 恢复、migration Down/Up 和供应链扫描。234 题证据链、课程/考点/知识/年报候选及教师审核、检索、组卷、分析入口已落盘；所有自动结果仍为 `candidate/pending_review/productionEligible=false`，production active 未切换。该状态不改变下表和发布卡的 `REAL005=not_closed`、P001/P003/P005/P006 未关闭与 release No-Go。
+## Truth owners
 
-2026-06-23 最新 repo-side 刷新结果：`full gate`、`reference-basis guard`、`live pilot closeout plan guard`、`live pilot closeout repo-side audit`、`NS905 status sync audit`、`PQR gate group` 和 `repo preflight -Mode Ci` 继续保持 `pass`。它们共同证明高风险任务参考基线、closeout 计划、completion dashboard、P/Q/R preflight 和 release No-Go 口径没有继续漂移；同时也明确 `release_ready_count = 0`，`REAL005 = not_closed`，`REAL005A/B/C/D 的 repo-side closeout 已完成`，`REAL005` 的 repo-side next open slice 已收口为 `none`，当前仅剩 `P001/P003/P005/P006` 没有被现场证据关闭。`live-pilot closeout plan guard` 与 `live-pilot closeout repo-side audit` 最新证据为 `docs/evidence/20260623-live-pilot-closeout-plan-guard.json` / `.md` 与 `docs/evidence/20260623-live-pilot-closeout-repo-side-audit.json` / `.md`；后者已记录 2026-06-23 完整 `full gate` 通过与 `tmp/full-gate-pqr/` 刷新产物。它们只能证明 closeout 计划、backlog、入口文档和 truth boundary 同步，不替代任何现场事实。
+| 问题 | Owner |
+|---|---|
+| 产品目标 | `docs/01_PRD.md` |
+| 范围 | `docs/02_MVP_Scope_and_ScopeControl.md` |
+| 任务顺序/状态 | `tasks/backlog.csv` |
+| 当前 closure | `docs/CurrentClosureStatus.md` |
+| 发布裁决 | `docs/109_ReleaseGoNoGoCard.md` |
+| current evidence | `docs/evidence/index.json` |
+| 历史事实 | `docs/evidence/` 与 Git |
 
-### Next
+## Update protocol
 
-| 主线 | 启动前提 | 默认边界 |
-|---|---|---|
-| `NS10` 现场链路 | `NS13` 和 `P001` 收口 | 只验证现场事实，不回头替代仓内应做能力 |
-| `NS11` 第二学科 | `P006` 发布裁决关闭 | 只允许 candidate/review/dry-run，不提前扩成多学科产品面 |
-
-### Later
-
-| 主线 | 触发条件 | 默认边界 |
-|---|---|---|
-| `NS12 / R0` 长期平台 | 真实瓶颈、真实对接、真实样本、真实维护压力 | 无触发不做搜索引擎、复杂队列、完整标准互操作、高级分析、多校部署 |
-
-## 4. 当前硬阻断
-
-| 阻断项 | 当前状态 | 关闭条件 |
-|---|---|---|
-| `REAL005` 真卷全流程闭环口径 | `not_closed` | `REAL005A/B/C/D` 的 repo-side closeout 已完成；只有现场 / 人工链路也闭合后，才允许从 truthful `not_closed` 改口径 |
-| `P003` 现场数据授权、支持负责人、回滚计划 | 未关闭 | 形成现场数据授权记录、支持负责人记录和回滚记录 |
-| `P005` 试点反馈分流 | 未关闭 | 反馈被明确分流为保留 / 修改 / 后置 / 不做 |
-| `P006` 发布裁决 | 未关闭 | `docs/109_ReleaseGoNoGoCard.md` 完整填写并留痕 |
-| `NS13` 现场外主线已闭合 | 已完成 | 后续只保留 `P001/P003/P005/P006` 的现场事实与发布裁决阻断 |
-
-## 5. 明确不并行推进
-
-- 不在 `P006` 前并行推进完整标准互操作。
-- 不在 `P006` 前并行推进第二学科真实 active。
-- 不在 `P006` 前把本地小模型或新云 provider 切成默认生产路由。
-- 不在 `P006` 前扩大普通教师可见入口、状态词和治理面。
-
-## 6. 更新协议
-
-1. 每次状态变更先更新证据，再更新机器表。
-2. 对外汇报先看 `tasks/completion-state-dashboard.csv`，再引用证据。
-3. 若 `backlog / dashboard / non-site plan / release card` 结论冲突，以最新证据和发布卡为准，并回写其余入口。
-4. 日历发布日期只有在 `P006` 关闭后才能写入。
+完成 task 后先更新 backlog，再刷新本投影、todo 和 closure status。Quick/Slice 结果不得进入 tracked evidence，也不得由 repo-side pass 自动改变现场/发布状态。

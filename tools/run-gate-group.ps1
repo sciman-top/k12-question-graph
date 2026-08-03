@@ -1,6 +1,7 @@
 param(
-    [ValidateSet('list', 'quick', 'roadmap', 'ui', 'pqr', 'full')]
-    [string] $Group = 'list'
+    [ValidateSet('list', 'quick', 'roadmap', 'ui', 'pqr', 'full', 'legacy-audit')]
+    [string] $Group = 'list',
+    [switch] $AuthorizeStateful
 )
 
 $ErrorActionPreference = 'Stop'
@@ -72,19 +73,9 @@ function Invoke-RoadmapGroup {
 }
 
 function Invoke-UiGroup {
-    foreach ($scriptName in @(
-        'run-i001-teacher-home-ui-contract.ps1',
-        'run-i002-import-wizard-ui-contract.ps1',
-        'run-i003-review-queue-ui-contract.ps1',
-        'run-i004-paper-workbench-ui-contract.ps1',
-        'run-i005-score-analysis-workbench-ui-contract.ps1',
-        'run-i006-starter-defaults-ui-contract.ps1',
-        'run-i007-frontend-boundary-contract.ps1',
-        'run-i008-teacher-simplification-contract.ps1'
-    )) {
-        Invoke-GateCommand ($scriptName -replace '^run-', '' -replace '\.ps1$', '') {
-            & (Join-Path $PSScriptRoot $scriptName) | Write-Host
-        }
+    Invoke-GateCommand 'ui behavior contract guard' {
+        & (Join-Path $PSScriptRoot 'run-ui-behavior-contract-guard.ps1') `
+            -JsonReportPath 'tmp/gate-group-ui/ui-behavior-contract.json' | Write-Host
     }
 }
 
@@ -155,9 +146,10 @@ try {
                 groups = @(
                     [ordered]@{ name = 'quick'; description = 'Database-free C002 daily feedback plus roadmap guard.' },
                     [ordered]@{ name = 'roadmap'; description = 'Roadmap, completion-state, S0 plan, automation-first, and non-site implementation guards.' },
-                    [ordered]@{ name = 'ui'; description = 'Teacher-facing UI source-contract guards I001-I008.' },
+                    [ordered]@{ name = 'ui'; description = 'Teacher-facing behavior tests plus the reviewed legacy-to-behavior coverage map.' },
                     [ordered]@{ name = 'pqr'; description = 'P/Q/R preflight pack, report-write lock, freshness, dashboard, and orchestration guards.' },
-                    [ordered]@{ name = 'full'; description = 'Fallback to tools/run-gates.ps1 without changing full-gate semantics.' }
+                    [ordered]@{ name = 'full'; description = 'Default focused Release core; requires -AuthorizeStateful.' },
+                    [ordered]@{ name = 'legacy-audit'; description = 'Optional 235-step compatibility audit; never part of default Release.' }
                 )
             } | ConvertTo-Json -Depth 5
             return
@@ -167,8 +159,13 @@ try {
         'ui' { Invoke-UiGroup }
         'pqr' { Invoke-PqrGroup }
         'full' {
-            Invoke-GateCommand 'full fallback run-gates' {
-                & (Join-Path $PSScriptRoot 'run-gates.ps1') | Write-Host
+            Invoke-GateCommand 'focused release core' {
+                & (Join-Path $PSScriptRoot 'run-verification.ps1') -Profile Release -AuthorizeStateful:$AuthorizeStateful -ReportRoot 'tmp/gate-group-release' | Write-Host
+            }
+        }
+        'legacy-audit' {
+            Invoke-GateCommand 'explicit legacy compatibility audit' {
+                & (Join-Path $PSScriptRoot 'run-verification.ps1') -Profile Release -AuthorizeStateful:$AuthorizeStateful -IncludeLegacyCompatibility -ReportRoot 'tmp/gate-group-legacy-audit' | Write-Host
             }
         }
     }

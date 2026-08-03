@@ -8,6 +8,7 @@ param(
     [string] $ClientPath = 'apps/web/src/api/client.ts',
     [string] $ContractsPath = 'apps/web/src/api/contracts.ts',
     [string] $ProgramPath = 'apps/api/Program.cs',
+    [string] $AdminAiEndpointsPath = 'apps/api/Endpoints/AdminAiEndpoints.cs',
     [string] $ReportPath = 'docs/evidence/20260609-ns1305a-admin-ai-settings-dialog.json'
 )
 
@@ -37,7 +38,8 @@ try {
     $client = Read-Text $ClientPath
     $contracts = Read-Text $ContractsPath
     $program = Read-Text $ProgramPath
-    $fallbackBackend = $program + $settingsStore
+    $adminAiEndpoints = Read-Text $AdminAiEndpointsPath
+    $fallbackBackend = $program + $adminAiEndpoints + $settingsStore
 
     foreach ($marker in @(
         'data-contract="admin-ai-settings-dialog"',
@@ -72,8 +74,9 @@ try {
         '/api/admin/ai/provider-settings',
         '/api/admin/ai/provider-settings/test'
     )) {
-        Assert-Condition ($program.Contains($apiMarker)) "NS1305A API route missing: $apiMarker"
+        Assert-Condition ($adminAiEndpoints.Contains($apiMarker)) "NS1305A API route missing: $apiMarker"
     }
+    Assert-Condition ($program.Contains('app.MapAdminAiEndpoints();')) 'NS1305A Program.cs missing modular admin AI endpoint registration'
 
     Assert-Condition (
         -not $settingsStore.Contains('Path.Combine(AppContext.BaseDirectory, "..", "..")')
@@ -174,6 +177,7 @@ try {
             fallbackEnvBootstrapExists = $true
             runtimeFallbackAttemptsAudited = $true
         }
+        endpointSources = @($ProgramPath, $AdminAiEndpointsPath)
         boundary = 'NS1305A proves the admin AI routing surface is no longer display-only: it must expose a reachable local-shell admin entry, a provider settings dialog, typed save/test APIs, masked secret handling, and automatic primary-to-fallback endpoint attempts while remaining draft/test and no-active-write.'
         rollback = "git restore apps/web/src/App.tsx apps/web/src/App.css apps/web/vite.config.ts apps/web/src/ui/AiRoutingControlPanel.tsx apps/web/src/api/client.ts apps/web/src/api/contracts.ts apps/api/Program.cs tools/run-gates.ps1 tools/README.md; git clean -f -- $ReportPath tools/run-ns1305a-admin-ai-settings-dialog-contract.ps1"
     }

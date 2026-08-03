@@ -1,157 +1,120 @@
-# 校本题谱 · Executive Spec
+# 校本题谱 · AI Coding Executive Spec
 
-本文件是给人和 AI Coding Agent 的压缩入口。详细事实以 `README.md` 与 `docs/` 下分文件为准；若本文件与分文件冲突，以更具体的分文件为准。
+本文件是人和 AI Coding Agent 的短入口，只描述稳定边界与当前路由。任务顺序以 `tasks/backlog.csv` 为唯一机器真源；当前投影看 `docs/103_ExecutionControlBoard.md`；发布裁决看 `docs/109_ReleaseGoNoGoCard.md`。
 
-## 1. 项目定位
+## 1. 产品目标
 
-**校本题谱 / K12 Question Graph** 是面向 K-12 教师的 AI 原生校本题库、组卷和学情分析平台。v0.1 只聚焦初中物理，目标是替代教师日常 Word/Excel 低效流程，而不是一次性实现完整教育平台。
+校本题谱面向 K-12 教师与备课组，当前聚焦初中物理，把 Word、PDF、图片和 Excel 中的题库、组卷、导出和学情工作低摩擦转成可检索、可复用、可分析、可恢复的校本资产。
 
-## 2. 最高原则
+最高原则是减少教师步骤、等待、重复录入和治理术语暴露，而不是扩大平台功能面。
 
-> 教师工作流效率最大化。
-
-可验收含义：
-
-- 常规组卷从需求输入到可打印导出，目标不超过 10 分钟。
-- 试卷导入时教师只处理异常项，不逐题确认全部结果。
-- 高频流程默认值来自教师偏好、模板和历史映射。
-- 每个新字段都必须证明会用于检索、组卷、分析、导出或治理。
-- AI 输出必须结构化、可审计、可人工接管、可回滚。
-
-## 3. v0.1 范围
-
-v0.1 完整闭环：
+## 2. v0.1 用户闭环
 
 ```text
-上传文件 -> AI/人工切题 -> 入库 -> 检索 -> 组卷 -> 导出 -> Excel 成绩导入 -> 基础分析 -> 备份恢复
+上传 -> 解析/切题 -> 异常审核 -> 入库/来源回看
+     -> 检索/题篮/组卷 -> Word/PDF 导出
+     -> Excel 成绩导入 -> 基础分析/讲评 -> 备份恢复
 ```
 
-明确不做：
+普通教师默认只看导入、组卷、成绩、分析四个入口。高级治理、模型路由、迁移、备份、权限和证据下沉到管理员或系统层。
 
-- 在线考试、在线监考、防作弊。
-- 学生端、家长端、公网 SaaS。
-- 全学科一次上线。
-- 自动主观题阅卷。
-- 复杂 IRT。
-- 完整 QTI/CASE/OneRoster/Caliper 实现。
+## 3. 当前事实边界
 
-## 4. 当前编码焦点
+- API、Web、Worker、PostgreSQL、FileStore、备份与版本化领域资产已存在。
+- C002 是当前生产默认；修订走 C002R candidate/review/impact/snapshot/active-switch。
+- CEK-01..35 已完成 repo-side 候选链与验证收口，但自动结果仍为 `candidate/pending_review/productionEligible=false`。
+- `REAL005=not_closed`；repo-side 完成不等于教师签字、学校网络、隔离机或 live acceptance。
+- P001/P003/P005/P006 仍依赖外部现场/人工事实，当前 release No-Go。
+- VGOV-001..010 验证治理减负已完成 repo-side 收口；当前进入 P001-P006 外部现场与发布链路，不在 P006 前扩展第二学科或高级平台能力。
 
-先做 P0/P1 最小纵切，不横向铺完整平台。
+## 4. 明确不做
 
-```text
-P0: 打开应用 -> 登录占位 -> 上传文件 -> 创建 ImportJob -> 写数据库 -> 文件入仓 -> 备份 manifest
-P1: 上传试卷 -> 文档解析/OCR 占位 -> 页面预览 -> 异常确认队列 -> 单题入库 -> 来源回看
-```
+- 学生端、家长端、在线监考和自动主观题阅卷。
+- 未经真实瓶颈证明的 RabbitMQ、外部搜索、图数据库或多租户 SaaS。
+- P006 前的第二学科 active。
+- AI 自动写 active、自动代签、用 synthetic evidence 替代现场事实。
+- 为治理减负再建立常驻治理服务、跨仓 registry 或第二套任务数据库。
 
-P1 验收前不得实现真实在线考试、自然语言组卷、完整 AI 自动入库、成绩分析、学生端或复杂消息队列。
+## 5. 核心不变量
 
-## 5. 默认技术栈
+- AI 输出默认 `draft/test/pending_review`。
+- 正式写入必须可追溯到来源、版本、审核和回滚。
+- 动态领域资产保留版本、状态、来源、映射、迁移和 rollback snapshot。
+- 数据库只存 metadata/path/hash/status，大文件进入 FileStore。
+- 真实学生数据、凭据、版权敏感原文不得进入仓库、prompt 或普通 evidence。
+- 任何 repo-side pass 都不能自动升级为 deployed、onsite/manual 或 live accepted。
 
-| 层 | 默认选择 |
-| --- | --- |
-| 前端 | React + TypeScript + Vite + Ant Design |
-| 前端状态 | TanStack Query + React Router |
-| 后端 | ASP.NET Core / .NET 10 LTS |
-| ORM | EF Core 10 + Npgsql |
-| 数据库 | PostgreSQL + JSONB + FTS + pg_trgm + pgvector |
-| 文件 | 本地 File Store，数据库只存 metadata/path/hash |
-| 任务 | PostgreSQL job table + ASP.NET Core BackgroundService |
-| Worker | Python Adapter for Docling/OpenXML/PaddleOCR/AI |
-| AI | Provider abstraction + Structured Outputs + Evals + prompt caching |
-| 部署 | Windows-first；后续 Windows Service / LAN |
-| 备份 | pg_dump + File Store manifest + config + sha256 |
+## 6. 默认技术边界
 
-后置条件：
+| 层 | 当前选择 |
+|---|---|
+| Web | React + TypeScript + Vite + Ant Design |
+| API | ASP.NET Core / .NET 10 |
+| 数据 | PostgreSQL + EF Core + Npgsql |
+| 文件 | 本地 FileStore |
+| Worker | Python document/OCR adapter |
+| 后台任务 | PostgreSQL job + BackgroundService |
+| 部署 | Windows-first，Windows Service/LAN |
+| 备份 | pg_dump + FileStore manifest + config + sha256 |
 
-- Hangfire：需要仪表盘、复杂重试、定时任务后再引入。
-- RabbitMQ：需要跨机高吞吐和独立 worker 扩缩容后再评估。
-- 图数据库/独立搜索引擎：PostgreSQL 无法支撑真实查询模式后再评估。
-- 对象存储：校内 NAS/MinIO 需求明确后再引入。
+pgvector、独立搜索、Hangfire、RabbitMQ、对象存储和多租户均为触发式 Later，不是默认依赖。
 
-## 6. 核心领域模型
+## 7. AI 任务读取顺序
 
-P0/P1 必须先覆盖：
+1. `AGENTS.md`
+2. 本文件
+3. `docs/103_ExecutionControlBoard.md`
+4. `tasks/backlog.csv` 中当前 task
+5. 当前 task 对应 spec
+6. 相关模块代码和测试
+7. 命中高风险路由时才读取 reference-basis、release 或历史 evidence
 
-- `User`
-- `TeacherPreference`
-- `FileAsset`
-- `ImportJob`
-- `AIJob`
-- `ReviewQueueItem`
-- `BackupJob`
-- `SourceDocument`
-- `SourceRegion`
-- `QuestionItem`
-- `QuestionBlock`
-- `QuestionAsset`
-- `SharedMaterial`
+不要默认通读全部 `docs/` 或 `docs/evidence/`，不要从历史完成说明推断当前任务。
 
-后续阶段再扩展：
+## 8. AI 可执行 task 最小合同
 
-- `KnowledgeNode`
-- `KnowledgeEdge`
-- `KnowledgeMapping`
-- `Paper`
-- `Exam`
-- `ScoreRecord`
-- `FeedbackEvent`
-- `AnalysisReport`
+每个 task 必须给出：objective、user outcome、current truth、depends_on、in/out of scope、write-set、protected paths、implementation steps、acceptance、verification profile、focused/stateful verifier、evidence policy、rollback、truth boundary 和 next task。
 
-## 7. AI 与文档处理原则
+AI 不得修改 write-set 外的用户资产；遇到版权授权、生产 active、真实身份签字或不可逆外部操作时 fail-closed。
 
-- 外部工具必须通过 Adapter，不把 Docling/PaddleOCR/OpenXML 输出直接当领域模型。
-- Adapter 输出必须包含 `tool_version`、`input_hash`、`output_hash`、`diagnostics`、`duration_ms`。
-- AI 输出必须使用 JSON Schema/Structured Outputs。
-- AI 任务必须记录 model、prompt_version、schema_version、cost、confidence、latency、review_status。
-- 低置信度、高影响或正式题目进入人工确认队列。
+## 9. 验证策略
 
-## 8. 门禁
-
-硬门禁顺序：
+固定语义仍为：
 
 ```text
 build -> test -> contract/invariant -> hotspot
 ```
 
-P0 最小门禁：
+执行 profile：
 
-- 后端 build/test。
-- 前端 build/test。
-- Worker smoke test。
-- JSON schema 可解析。
-- YAML/CSV 可解析。
-- backup manifest 可生成和校验。
-- README、roadmap、task CSV、handoff prompt 的 P0/P1 术语一致。
+- Quick：无 DB、无进程停止、无 tracked evidence。
+- Slice：Quick + task/changed-path 对应合同与热点。
+- Release：Quick + migration/privacy/API/no-active-write + isolated backup/restore/upgrade + closure invariants + 状态对账；执行前明确授权，默认工件只进 `tmp/verification/`。
+- Onsite：隔离机、网络、打印、权限域、真实教师和签字；不能由 repo-side 自动化替代。
 
-## 9. 关键文档入口
+默认 Release 不调用 `tools/run-gates.ps1`。235-step legacy monolith 只能通过 `-IncludeLegacyCompatibility` 作为低频、有状态、隔离 compatibility audit 显式运行，且不再是默认发布阻断。日常 AI 编码只走 Quick/Slice；Release 前后必须报告 DB/migration、FileStore 和进程差异，并要求共享 FileStore 无写入。
 
-- 产品与最高原则：`docs/00_ProjectConstitution.md`
+## 10. 文档和任务真源
+
+- 产品准则：`docs/00_ProjectConstitution.md`
 - PRD：`docs/01_PRD.md`
-- 范围控制：`docs/02_MVP_Scope_and_ScopeControl.md`
+- 范围：`docs/02_MVP_Scope_and_ScopeControl.md`
 - 架构：`docs/03_Architecture.md`
-- 技术栈：`docs/04_TechnologyStack.md`
+- 测试：`docs/18_TestStrategy.md`
 - 路线图：`docs/19_Roadmap.md`
-- 任务拆解：`docs/20_TaskBreakdown.md`
-- 机器任务清单：`tasks/backlog.csv`
-- 外部审查和决策：`docs/27_ExternalReview_DecisionLog.md`
-- 功能范围审查：`docs/28_FunctionScopeReview.md`
-- 执行总控：`docs/103_ExecutionControlBoard.md`
-- 导航总览：`docs/111_ProjectNavigationOverview.md`
-- 未决事项：`docs/104_OpenQuestionsAndAssumptions.md`
+- 当前执行：`docs/103_ExecutionControlBoard.md`
+- 当前 closure：`docs/CurrentClosureStatus.md`
 - 发布裁决：`docs/109_ReleaseGoNoGoCard.md`
-- 长期终态 ADR：`docs/decisions/ADR-014-recommended-engineering-endstate-and-stack-boundary.md`
-- 工程终态短清单：`docs/110_EngineeringEndStateChecklist.md`
-- ADR：`docs/decisions/`
+- 机器任务真源：`tasks/backlog.csv`
+- 治理减负规格：`docs/specs/verification-governance-simplification-v1.md`
 
-## 10. 下一步
+## 11. 当前路由
 
-下一步只做 P0：
+```text
+Now:  P001 隔离机部署与真实环境 preflight
+Next: P002 -> P003 -> P004 -> P005 -> P006
+Repo: VGOV-001..010 已完成；无剩余 repo-side VGOV task
+Later: Q001-Q005 / R001-R007，仅在触发条件满足后进入
+```
 
-1. 完成 `A000` P0 准入预检：SDK/runtime、PostgreSQL、数据目录、Windows Service/content root、BackgroundService job lease/retry/idempotency、文档门禁。
-2. 创建 monorepo 目录。
-3. 创建 ASP.NET Core API、React Web、Python Worker 占位。
-4. 建立 PostgreSQL migration 与 FileStore。
-5. 实现上传文件、ImportJob、基础状态查询。
-6. 生成 backup manifest。
-7. 建立统一 gate 和 P0 证据包。
+VGOV-001..010 已实现 repo-side verifier、evidence 分流、聚焦 Release core、可选 legacy audit、状态对账和 hotspot 收口；这仍不代表现场发布、REAL005 或 live acceptance 完成。

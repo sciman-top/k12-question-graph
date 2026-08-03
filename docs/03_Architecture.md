@@ -9,7 +9,7 @@
 5. 数据与程序分离。
 6. AI 模型路由内置。
 7. 文件、数据库、配置、AI 结果、教师偏好全部可备份恢复。
-8. P0/P1 优先可运行、可验证、可回滚，而不是一次铺满所有未来模块。
+8. 每个当前切片优先可运行、可验证、可回滚，而不是一次铺满所有未来模块。
 9. 教学领域资产可版本化、可替换、可追溯、可迁移。
 
 AI 推荐：继续采用“ASP.NET Core 模块化单体 + PostgreSQL + 本地文件仓库 + Python Worker”的架构。理由：它匹配 Windows/LAN 部署、学校低运维能力、Word/Excel 文件工作流、结构化数据与大文件分离、AI/OCR 工具多为 Python 生态这些事实；微服务、图数据库和纯云 SaaS 都会在 v0.1 过早增加部署和恢复成本。
@@ -207,7 +207,7 @@ AI 路由不按具体模型名写死，按任务角色配置。默认角色包�
 
 ## 7. 任务与 Worker 边界
 
-P0/P1 默认不引入 RabbitMQ。任务状态先保存在 PostgreSQL，ASP.NET Core `BackgroundService` 轮询可执行任务并调用本机 Adapter/Worker。
+v0.1 默认不引入 RabbitMQ。任务状态先保存在 PostgreSQL，ASP.NET Core `BackgroundService` 轮询可执行任务并调用本机 Adapter/Worker。
 
 任务表必须支持：
 
@@ -281,6 +281,33 @@ Windows-first 不等于把数据写进程序目录。P0 起必须区分：
 |---|---|
 | 微服务拆分 | v0.1 部署和恢复成本高于收益 |
 | 图数据库 | PostgreSQL 表结构、JSONB、FTS、pgvector 足够支撑初中物理 |
-| RabbitMQ/Kafka | P0/P1 无多机吞吐需求 |
+| RabbitMQ/Kafka | v0.1 尚无已证明的多机吞吐需求 |
+
+## 11. Verification architecture
+
+验证属于 repo-local 工程能力，不进入产品运行时。详细合同见 `docs/specs/verification-governance-simplification-v1.md` 和 `docs/18_TestStrategy.md`。
+
+```text
+task/backlog + changed paths + risk
+                |
+                v
+      Quick / Slice selector
+                |
+       focused deterministic checks
+                |
+      Release (explicit stateful auth)
+                |
+      Onsite (real environment facts)
+```
+
+- Quick/Slice 不依赖常驻治理服务，不写 tracked evidence。
+- Release 承接 PostgreSQL、migration、backup/restore、安装和真实数据 smoke。
+- Onsite 承接学校网络、打印、权限域、教师操作和签字。
+- legacy `run-gates.ps1` 已退出默认 Release，只由 `-IncludeLegacyCompatibility` 作为低频隔离兼容审计显式进入；默认 Release 使用 focused core 和状态对账。
+- Q/R future admission 只有在 current task、changed paths 或 Release 显式命中时运行。
+
+## 12. 当前结构热点和后置拆分
+
+`Program.cs`、`App.tsx`、KnowledgeEvidence/Paper/Score workflow 和 Admin AI settings 是已识别热点。VGOV-010 已按真实 seam 抽出 Score/Admin AI endpoint，并为其余稳定模块设置单一 hotspot budget；后续只有真实增长或职责漂移触发时才继续拆分，且必须保持 API、payload、schema、数据库和教师行为兼容，不引入新消息总线或通用插件平台。
 | Kubernetes | 校本/LAN 场景运维负担过高 |
 | 公网 SaaS | 数据、采购、隐私和网络约束不匹配 |

@@ -1,7 +1,8 @@
 param(
     [string] $PgBin = 'C:\Program Files\PostgreSQL\17\bin',
     [string] $RestoreRoot = 'tmp\ns802-restore',
-    [string] $ReportPath = 'docs/evidence/20260530-ns802-restore-drill-report.json'
+    [string] $ReportPath = 'docs/evidence/20260530-ns802-restore-drill-report.json',
+    [string] $Ns801ReportPath = 'docs/evidence/20260530-ns801-backup-manifest-report.json'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -70,7 +71,7 @@ function Copy-ManifestGroup($Items, [string] $SourceRoot, [string] $TargetRoot) 
 
 Push-Location $repoRoot
 try {
-    $ns801 = Read-Json 'docs/evidence/20260530-ns801-backup-manifest-report.json'
+    $ns801 = Read-Json $Ns801ReportPath
     Assert-Condition ($ns801.status -eq 'pass') 'NS802 dependency NS801 report did not pass'
     $manifestPath = Join-Path $repoRoot ([string]$ns801.backup.manifest)
     Assert-Condition (Test-Path -LiteralPath $manifestPath) "NS802 backup manifest missing: $manifestPath"
@@ -139,7 +140,7 @@ try {
         writesProductionHistory = $false
         activeAssetMutation = $false
         dependency = [ordered]@{
-            ns801 = 'docs/evidence/20260530-ns801-backup-manifest-report.json'
+            ns801 = $Ns801ReportPath
         }
         restore = [ordered]@{
             sourceManifest = To-RepoRelative $manifestPath

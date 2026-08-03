@@ -121,7 +121,7 @@ $docReferences = @(
     @{ path = $ClosureSummaryPath; keywords = @('REAL005', 'not_closed', 'P001', '现场') },
     @{ path = $DetailedTreePath; keywords = @('REAL005B1', 'REAL005C5', 'REAL005D', 'not_closed') },
     @{ path = $ExecutionBoardPath; keywords = @('REAL005', 'P001', 'P005/P006', 'No-Go') },
-    @{ path = $NavigationPath; keywords = @('tasks/live-pilot-closeout-plan.csv', 'P001 / P003 / P005 / P006 / REAL005') },
+    @{ path = $NavigationPath; keywords = @('tasks/live-pilot-closeout-plan.csv', 'P001', 'P003', 'P005', 'P006', 'REAL005', 'not_closed', 'No-Go') },
     @{ path = $ReadmePath; keywords = @('tasks/live-pilot-closeout-plan.csv', 'REAL005', 'P001/P003/P005/P006') }
 )
 

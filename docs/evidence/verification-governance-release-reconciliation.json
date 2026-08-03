@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 2,
+  "id": "verification-governance-release-reconciliation",
+  "checkedAt": "2026-08-03T16:21:01+08:00",
+  "status": "pass",
+  "authorityLevel": "release-side",
+  "defaultRelease": {
+    "entry": "tools/run-verification.ps1 -Profile Release -AuthorizeStateful",
+    "profile": "Release",
+    "reportRoot": "tmp/verification/release-core-final",
+    "durationMs": 223100,
+    "steps": [
+      "Quick",
+      "release-contracts",
+      "release-upgrade-recovery",
+      "release-closure-invariants",
+      "release-state-reconciliation"
+    ],
+    "legacyMonolithIncluded": false,
+    "worktreeUnchanged": true,
+    "processesUnchanged": true,
+    "migrationFilesUnchanged": true,
+    "databaseShapeUnchanged": true,
+    "databaseRowDataCompared": false,
+    "sharedFileStoreWriteExpected": false,
+    "fileStoreChanged": false,
+    "fileStoreFileDelta": 0,
+    "fileStoreByteDelta": 0,
+    "trackedDatedEvidenceWritten": false
+  },
+  "legacyInventory": {
+    "stepCount": 235,
+    "quickClassified": 7,
+    "releaseClassified": 228,
+    "unmapped": 0,
+    "operationallyStateless": 151,
+    "futureTriggerOnly": 22,
+    "retiredDefaultExecutionCount": 235
+  },
+  "optionalLegacyAudit": {
+    "entry": "tools/run-verification.ps1 -Profile Release -AuthorizeStateful -IncludeLegacyCompatibility",
+    "defaultBlocking": false,
+    "explicitAuthorizationRequired": true,
+    "isolatedExecutionRequired": true,
+    "historicalDurationMs": 1456402,
+    "historicalFileStoreFileDelta": 159,
+    "historicalFileStoreByteDelta": 9024094,
+    "purpose": "low-frequency compatibility audit only"
+  },
+  "retainedSafetyCoverage": [
+    "database migration baseline and migration bundle",
+    "privacy and PII scan",
+    "API and application service boundary",
+    "no-active-write invariant",
+    "isolated backup and restore rehearsal",
+    "reference and evidence lifecycle",
+    "UI behavior compatibility",
+    "release evidence pack",
+    "REAL005 closeout boundary",
+    "roadmap and release No-Go invariants"
+  ],
+  "governanceDecision": {
+    "defaultReleasePolicy": "focused risk-based core; no legacy monolith",
+    "legacyPolicy": "explicit optional audit; not a permanent default gate",
+    "artifactPolicy": "default reports and recovery artifacts stay under tmp/verification",
+    "statePolicy": "shared FileStore, migration shape, tracked worktree, and repo processes must reconcile unchanged",
+    "taskPolicy": "tasks/backlog.csv owns task state; docs/evidence/index.json curates current evidence; historical evidence does not select work"
+  },
+  "truthBoundary": {
+    "repoSideGovernanceTasks": "VGOV001-VGOV010 complete",
+    "real005": "not_closed",
+    "fullClosureAllowed": false,
+    "openExternalTasks": ["P001", "P003", "P005", "P006"],
+    "p001ToP006OnsiteComplete": false,
+    "releaseDecision": "No-Go",
+    "productionActiveChangedByGovernanceWork": false,
+    "onsiteOrLiveAccepted": false
+  }
+}

@@ -5,7 +5,8 @@ param(
     [int]$DatabasePort = 5432,
     [string]$DatabasePassword = $env:PGPASSWORD,
     [string]$PgBin = 'C:\Program Files\PostgreSQL\17\bin',
-    [string]$ReportPath = 'docs/evidence/o007-ef-migration-bundle-upgrade-drill-report.json'
+    [string]$ReportPath = 'docs/evidence/o007-ef-migration-bundle-upgrade-drill-report.json',
+    [string]$RecoveryReportPath = 'docs/evidence/o007-o003-recovery-drill-report.json'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -70,7 +71,7 @@ try {
     & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'verify-backup.ps1') -ManifestPath $backup.manifest | Out-Null
     Assert-Condition ($LASTEXITCODE -eq 0) 'verify-backup.ps1 failed in O007 drill'
 
-    $o003ReportPath = 'docs/evidence/o007-o003-recovery-drill-report.json'
+    $o003ReportPath = $RecoveryReportPath
     & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'run-o003-recovery-drill-contract.ps1') -BackupRoot 'tmp/o007/o003-backup-root' -ReportPath $o003ReportPath -PgBin $PgBin -DatabaseName $DatabaseName -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabaseUser $DatabaseUser -DatabasePassword $DatabasePassword | Out-Null
     Assert-Condition ($LASTEXITCODE -eq 0) 'embedded O003 recovery drill failed in O007'
     Assert-Condition (Test-Path -LiteralPath $o003ReportPath) 'missing embedded O003 report for O007'

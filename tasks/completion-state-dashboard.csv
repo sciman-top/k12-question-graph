@@ -1,5 +1,6 @@
 area_id,area,user_visible,current_state,usable_today,evidence_basis,blocking_gap,next_task,risk_level
 core-runtime,本机运行骨架,false,db_backed_done,部分可用,"API health PostgreSQL FileStore migration backup gates pass","不是教师业务闭环 只是运行底座",S002,medium
+verification-governance,验证与证据治理,false,contract_done,可用,"VGOV001-VGOV010 repo-side complete; Quick Slice UI behavior evidence lifecycle hotspot budgets and focused Release core implemented","无剩余repo-side VGOV任务；235-step legacy仅显式可选审计 默认Release不能替代现场验收",P001,medium
 teacher-shell,教师四入口外壳,true,teacher_validated,非现场可用,"I001-I010 UI contract and teacher simplification gates S012A-S012C full gate evidence","现场网络 打印与权限需在 P001 preflight 逐项复核",P001,high
 source-materials,来源资料与 C002 active,false,db_backed_done,管理员可用,"C002J-C002T K001 evidence active C002 query","普通教师题库工作流尚未产品化接入",S008,medium
 question-upload,试题文件上传与 ImportJob,true,teacher_validated,非现场可用,"/files /imports ImportJob FileAsset SourceDocument contracts S012B non-site E2E rehearsal","现场文件权限与大文件吞吐仍需 P001 preflight 复核",P001,high
