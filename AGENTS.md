@@ -1,8 +1,8 @@
 # AGENTS.md - k12-question-graph
 **项目契约**: 2.0
-**全局规则复核**: 9.62
+**全局规则复核**: 9.71
 **类型**: K-12 teacher-first question graph platform
-**最后更新**: 2026-08-03
+**最后更新**: 2026-08-08
 
 ## 1. 当前落点与目标归宿
 - 当前落点：本仓是校本题谱平台，当前聚焦初中物理，已有 API、Web、Worker、PostgreSQL、FileStore、备份与版本化领域资产。
