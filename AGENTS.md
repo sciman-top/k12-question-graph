@@ -1,6 +1,6 @@
 # AGENTS.md - k12-question-graph
 **项目契约**: 2.0
-**全局规则复核**: 9.73
+**全局规则复核**: 9.75
 **类型**: K-12 teacher-first question graph platform
 **最后更新**: 2026-08-08
 
@@ -42,7 +42,7 @@
 - 回滚只撤销本任务；schema、data 或 active 变化必须附 migration down、snapshot/restore 与兼容读取证明。
 
 ## D. Global Rule -> Repo Action
-- Git profile: baseline=`main`; upstream=`origin/main`; closeout=`push_after_full_gate`。
+- Git profile: baseline=`main`; upstream=`origin/main`; closeout=`proportional_slice_or_authorized_release`。
 - `R1`：从 backlog、教师场景与领域资产确定模块落点和验收。
 - `R2`：按 Slice 跑最低充分验证，再由 `tools/run-verification.ps1` 收口。
 - `R3`：临时兼容或数据修复必须写回收点、备份和最终归宿。
