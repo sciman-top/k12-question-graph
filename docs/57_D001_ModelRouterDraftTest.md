@@ -11,7 +11,9 @@ D001 最初在正式 C002 未激活时只进入 draft/test 模式，目标是建
 - `IAiModelRouter` 返回任务路由决策。
 - 规则任务可路由到 `rule`。
 - LLM 类任务只能路由到 `stub_llm`。
-- 路由结果包含 `routingVersion`、`promptVersion`、`schemaVersion`、`modelTier`、`costTier`、`requiresHumanReview`、`productionEligible` 和 blockers。
+- 路由结果包含 `routingVersion`、`promptVersion`、`schemaVersion`、`stage`、`modelRole`、`modelName`、`reasoningEffort`、`modelTier`、升级目标、`costTier`、`requiresHumanReview`、`productionEligible` 和 blockers。
+- 业务任务按任务类型路由，而不是整份文档固定一个模型：普通结构化使用 `gpt-5.6-sol/medium`，视觉版面和切图候选使用 `gpt-5.6-luna/xhigh`，复杂标签映射、组卷决策和答案一致性使用 `gpt-5.6-sol/xhigh`。
+- 切图模型只提出带 `bbox` 和来源锚点的候选区域，实际裁切仍由确定性工具执行；组卷模型只复核候选和软约束，硬约束仍由规则/求解器执行。
 - 内部 API：`POST /internal/ai/model-route`。
 - 内部 API：`GET /internal/ai/providers`。
 
@@ -28,6 +30,10 @@ D001 不调用外部 AI provider，不写 AI 结果，不写正式知识体系�
 合同验证：
 
 - `knowledge_tagging` 在 draft 资产下路由到 `stub_llm`。
+- `knowledge_tagging` 的计划路由为 `gpt-5.6-sol/medium`。
+- `crop_candidate_generation` 的计划路由为 `gpt-5.6-luna/xhigh`，视觉冲突可升级到 `gpt-5.6-sol/xhigh`。
+- `paper_composition` 的计划路由为 `gpt-5.6-sol/xhigh`。
+- `file_dedup` 保持 `local_deterministic/none`，不调用外部模型。
 - `stub_llm` provider 已注册且不支持真实模型调用。
 - 真实模型调用保持禁用。
 - schema 文件存在。
@@ -40,6 +46,6 @@ D001 不调用外部 AI provider，不写 AI 结果，不写正式知识体系�
 ## 5. 回滚
 
 ```powershell
-git restore --source=HEAD -- apps/api/Program.cs apps/api/appsettings.json tools/run-gates.ps1 tools/README.md README.md docs/20_TaskBreakdown.md tasks/backlog.csv
-git clean -f -- apps/api/Ai/AiModelRouter.cs apps/api/Ai/AiProvider.cs apps/api/Ai/AiRoutingOptions.cs tools/run-d001-model-router-contract.ps1 docs/57_D001_ModelRouterDraftTest.md
+git restore --source=HEAD -- apps/api/Program.cs apps/api/appsettings.json configs/model_routing.defaults.yaml tools/run-gates.ps1 tools/README.md README.md docs/20_TaskBreakdown.md tasks/backlog.csv
+git clean -f -- apps/api/Ai/AiModelRouter.cs apps/api/Ai/AiProvider.cs apps/api/Ai/AiRoutingOptions.cs schemas/ai/crop_candidate_generation.schema.json schemas/ai/paper_composition_review.schema.json schemas/ai/visual_asset_review.schema.json tools/run-d001-model-router-contract.ps1 docs/57_D001_ModelRouterDraftTest.md
 ```

@@ -15,7 +15,7 @@ $DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword
 Push-Location $repoRoot
 try {
     $started = Get-Date
-    $golden = .\tools\run-import-golden.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -FileStoreRoot $FileStoreRoot -Port 5287 | ConvertFrom-Json
+    $golden = .\tools\run-import-golden.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -FileStoreRoot $FileStoreRoot | ConvertFrom-Json
     if ($golden.status -ne 'pass') {
         throw "golden import did not pass"
     }

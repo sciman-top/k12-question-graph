@@ -5,12 +5,13 @@ param(
     [int] $DatabasePort = 5432,
     [string] $DatabasePassword = $env:PGPASSWORD,
     [string] $FileStoreRoot = 'D:\KQG_Data\file_store',
-    [int] $Port = 5286
+    [int] $Port = 0
 )
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 . (Join-Path $PSScriptRoot 'database-env.ps1')
+. (Join-Path $PSScriptRoot 'network-port.ps1')
 $DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword
 $samplesPath = Join-Path $repoRoot 'tests\golden-import\samples.json'
 $samples = Get-Content -LiteralPath $samplesPath -Raw | ConvertFrom-Json
@@ -18,6 +19,13 @@ if ([string]::IsNullOrWhiteSpace($DatabasePassword)) {
     throw "DatabasePassword or PGPASSWORD is required for golden import"
 }
 
+$requestedPort = $Port
+if ($Port -eq 0) {
+    $Port = Get-KqgFreeTcpPort
+}
+if ($Port -lt 1 -or $Port -gt 65535) {
+    throw "Port must be 0 or a valid TCP port: $requestedPort"
+}
 $apiUrl = "http://127.0.0.1:$Port"
 $logOut = Join-Path $repoRoot 'docs\evidence\b007-golden-api.out.log'
 $logErr = Join-Path $repoRoot 'docs\evidence\b007-golden-api.err.log'
@@ -142,6 +150,8 @@ try {
 
     [ordered]@{
         status = 'pass'
+        requestedPort = $requestedPort
+        resolvedPort = $Port
         sampleCount = $results.Count
         samples = $results
     } | ConvertTo-Json -Depth 6

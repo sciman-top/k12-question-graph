@@ -1,4 +1,4 @@
-version: 0.1
+version: 0.2
 modes:
   low_cost:
     description: "本地工具和小模型优先，强模型只处理高风险异常。"
@@ -6,35 +6,173 @@ modes:
     description: "默认模式，兼顾准确率和成本。"
   high_accuracy:
     description: "正式试卷、答案校验、重要导入使用。"
+model_catalog:
+  local_deterministic:
+    model: none
+    reasoning_effort: none
+    description: "文件、版面、裁切执行和硬约束由本地规则/工具完成，不调用外部模型。"
+  general_structuring:
+    model: gpt-5.6-sol
+    reasoning_effort: medium
+    description: "高吞吐、结构清楚的入库、题目结构化、普通标签和组卷需求解析。"
+  visual_document:
+    model: gpt-5.6-luna
+    reasoning_effort: xhigh
+    description: "视觉、版面、图表、公式区域、共享题图和导出视觉复核。"
+  semantic_decision:
+    model: gpt-5.6-sol
+    reasoning_effort: xhigh
+    description: "复杂映射、跨页语义冲突、组卷软约束和答案一致性裁决。"
+route_contract:
+  task_scoped: true
+  local_execution_before_model: true
+  model_output_status: pending_review
+  production_eligible_default: false
+  crop_model_proposes_regions_only: true
+  paper_model_reviews_candidates_only: true
 routes:
   file_dedup:
+    stage: ingest
     handler: rule
+    model_role: local_deterministic
+    model: none
+    reasoning_effort: none
+  source_material_ingest:
+    stage: ingest
+    handler: rule
+    model_role: local_deterministic
+    model: none
+    reasoning_effort: none
   ordinary_ocr:
+    stage: ingest
     handler: local_ocr
     tool: paddleocr
+    model_role: local_deterministic
+    model: none
+    reasoning_effort: none
   document_layout:
+    stage: ingest
     handler: local_document_parser
     tool: docling
-  question_extraction:
+    model_role: local_deterministic
+    model: none
+    reasoning_effort: none
+  question_region_detection:
+    stage: cutting
     handler: llm
+    model_role: visual_document
+    model: gpt-5.6-luna
+    reasoning_effort: xhigh
+    model_tier: strong
+    escalate_to_role: semantic_decision
+    escalate_to: gpt-5.6-sol
+    escalate_reasoning_effort: xhigh
+    structured_output_schema: schemas/ai/crop_candidate_generation.schema.json
+    require_human_review_below_confidence: 0.9
+  crop_candidate_generation:
+    stage: cutting
+    handler: llm
+    model_role: visual_document
+    model: gpt-5.6-luna
+    reasoning_effort: xhigh
+    model_tier: strong
+    escalate_to_role: semantic_decision
+    escalate_to: gpt-5.6-sol
+    escalate_reasoning_effort: xhigh
+    structured_output_schema: schemas/ai/crop_candidate_generation.schema.json
+    require_human_review_below_confidence: 0.9
+  crop_execution:
+    stage: cutting
+    handler: rule
+    model_role: local_deterministic
+    model: none
+    reasoning_effort: none
+  question_extraction:
+    stage: structuring
+    handler: llm
+    model_role: general_structuring
+    model: gpt-5.6-sol
+    reasoning_effort: medium
     model_tier: medium
     structured_output_schema: schemas/ai/question_extraction.schema.json
     require_human_review_below_confidence: 0.85
   knowledge_tagging:
     handler: llm
-    model_tier: small_or_medium
+    stage: tagging
+    model_role: general_structuring
+    model: gpt-5.6-sol
+    reasoning_effort: medium
+    model_tier: medium
+    escalate_to_role: semantic_decision
+    escalate_to: gpt-5.6-sol
+    escalate_reasoning_effort: xhigh
     batchable: true
     require_human_review_below_confidence: 0.8
+  knowledge_mapping_review:
+    stage: tagging
+    handler: llm
+    model_role: semantic_decision
+    model: gpt-5.6-sol
+    reasoning_effort: xhigh
+    model_tier: strong
+    structured_output_schema: schemas/ai/knowledge_mapping.schema.json
+    require_human_review_below_confidence: 0.95
   natural_language_paper_request:
     handler: llm
+    stage: paper_request
+    model_role: general_structuring
+    model: gpt-5.6-sol
+    reasoning_effort: medium
     model_tier: medium
     structured_output_schema: schemas/ai/natural_language_paper_request.schema.json
+    require_human_review_below_confidence: 0.85
+  paper_constraint_check:
+    stage: assembly
+    handler: rule
+    model_role: local_deterministic
+    model: none
+    reasoning_effort: none
+  paper_composition:
+    stage: assembly
+    handler: llm
+    model_role: semantic_decision
+    model: gpt-5.6-sol
+    reasoning_effort: xhigh
+    model_tier: strong
+    structured_output_schema: schemas/ai/paper_composition_review.schema.json
+    require_human_review_below_confidence: 0.95
+  visual_asset_review:
+    stage: review
+    handler: llm
+    model_role: visual_document
+    model: gpt-5.6-luna
+    reasoning_effort: xhigh
+    model_tier: strong
+    structured_output_schema: schemas/ai/visual_asset_review.schema.json
+    require_human_review_below_confidence: 0.95
+  paper_visual_review:
+    stage: review
+    handler: llm
+    model_role: visual_document
+    model: gpt-5.6-luna
+    reasoning_effort: xhigh
+    model_tier: strong
+    structured_output_schema: schemas/ai/visual_asset_review.schema.json
+    require_human_review_below_confidence: 0.95
   answer_verification:
     handler: llm
-    model_tier: medium_or_strong
+    stage: verification
+    model_role: semantic_decision
+    model: gpt-5.6-sol
+    reasoning_effort: xhigh
+    model_tier: strong
     require_review_for: [formal_exam, high_value_question]
   export_preflight:
-    handler: rule_then_llm_if_needed
+    stage: export
+    handler: rule
+    model_role: local_deterministic
+    model: none
+    reasoning_effort: none
 outer_ai_validation:
   default_policy: cost_first_with_quality_escalation
   strategy_contract:

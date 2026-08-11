@@ -64,6 +64,46 @@ try {
             if ($knowledge.blockers -notcontains $blocker) { throw "missing D001 blocker: $blocker" }
         }
 
+        $cropBody = [ordered]@{
+            taskType = 'crop_candidate_generation'
+            mode = 'high_accuracy'
+            assetStatus = 'draft'
+            expectedConfidence = 0.86
+        } | ConvertTo-Json
+        $crop = Invoke-RestMethod -Method Post -Uri "$apiUrl/internal/ai/model-route" -ContentType 'application/json' -Body $cropBody
+        if ($crop.stage -ne 'cutting') { throw "crop route must be in cutting stage" }
+        if ($crop.modelRole -ne 'visual_document') { throw "crop route must use visual_document role" }
+        if ($crop.modelName -ne 'gpt-5.6-luna') { throw "crop route model mismatch" }
+        if ($crop.reasoningEffort -ne 'xhigh') { throw "crop route reasoning mismatch" }
+        if (-not $crop.schemaExists) { throw "crop route schema missing" }
+        if ($crop.escalateToModel -ne 'gpt-5.6-sol' -or $crop.escalateReasoningEffort -ne 'xhigh') {
+            throw "crop route semantic escalation mismatch"
+        }
+
+        $paperBody = [ordered]@{
+            taskType = 'paper_composition'
+            mode = 'high_accuracy'
+            assetStatus = 'draft'
+            expectedConfidence = 0.9
+        } | ConvertTo-Json
+        $paper = Invoke-RestMethod -Method Post -Uri "$apiUrl/internal/ai/model-route" -ContentType 'application/json' -Body $paperBody
+        if ($paper.stage -ne 'assembly') { throw "paper route must be in assembly stage" }
+        if ($paper.modelRole -ne 'semantic_decision') { throw "paper route must use semantic_decision role" }
+        if ($paper.modelName -ne 'gpt-5.6-sol') { throw "paper route model mismatch" }
+        if ($paper.reasoningEffort -ne 'xhigh') { throw "paper route reasoning mismatch" }
+        if (-not $paper.schemaExists) { throw "paper route schema missing" }
+
+        $dedupBody = [ordered]@{
+            taskType = 'file_dedup'
+            mode = 'low_cost'
+            assetStatus = 'active'
+            expectedConfidence = 1.0
+        } | ConvertTo-Json
+        $dedup = Invoke-RestMethod -Method Post -Uri "$apiUrl/internal/ai/model-route" -ContentType 'application/json' -Body $dedupBody
+        if ($dedup.modelRole -ne 'local_deterministic' -or $dedup.modelName -ne 'none' -or $dedup.reasoningEffort -ne 'none') {
+            throw "deterministic ingest route must not use an external model"
+        }
+
         $ruleBody = [ordered]@{
             taskType = 'file_dedup'
             mode = 'low_cost'
@@ -99,6 +139,12 @@ try {
             providerRegistered = $true
             draftKnowledgeProvider = $knowledge.provider
             draftKnowledgeProductionEligible = $knowledge.productionEligible
+            businessRoutes = [ordered]@{
+                knowledge = "$($knowledge.modelName)/$($knowledge.reasoningEffort)"
+                crop = "$($crop.modelName)/$($crop.reasoningEffort)"
+                paper = "$($paper.modelName)/$($paper.reasoningEffort)"
+                deterministic = "$($dedup.modelName)/$($dedup.reasoningEffort)"
+            }
             ruleProvider = $rule.provider
             unknownTaskRejected = $true
         } | ConvertTo-Json

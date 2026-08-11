@@ -914,6 +914,10 @@ try {
         .\tools\run-d001-model-router-contract.ps1 | Write-Host
     }
 
+    Invoke-GateStep 'business model task routing contract' {
+        .\tools\run-business-model-routing-contract.ps1 | Write-Host
+    }
+
     Invoke-GateStep 'd002 ai job cost contract' {
         .\tools\run-d002-ai-job-cost-contract.ps1 -DatabaseName $DatabaseName -DatabaseUser $DatabaseUser -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabasePassword $DatabasePassword -PgBin $PgBin | Write-Host
     }

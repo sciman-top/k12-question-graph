@@ -32,14 +32,41 @@ L0 不调用外部 AI。能由 CSV parser、JSON/YAML/schema、SQL、hash、rege
 | 总分/题号连续检查 | 程序规则 |
 | 普通 OCR | 本地 OCR |
 | 版面初解析 | Docling/PaddleOCR |
-| 知识点候选 | 小/中模型 |
-| 自然语言组卷 | 中模型 + 结构化输出 |
-| 答案校验 | 中/强模型，正式题更严格 |
-| 疑难图文关系 | 强模型或人工 |
+| 知识点候选与普通标签 | `gpt-5.6-sol / medium` |
+| 自然语言组卷需求解析 | `gpt-5.6-sol / medium` + 结构化输出 |
+| 答案校验与复杂组卷复核 | `gpt-5.6-sol / xhigh` |
+| 疑难图文关系、切图候选和导出视觉复核 | `gpt-5.6-luna / xhigh` |
 | 批量标注 | Batch |
 | Embedding | 批量、缓存、去重 |
 
-## 3.1 Codex 外层校验模型矩阵
+## 3.1 业务流水线任务路由
+
+模型路由以任务项为粒度，不以整份 PDF 或整张试卷为粒度。同一份来源资料可以在不同任务项使用不同路由：
+
+| 业务阶段 | 任务 | 默认路由 | 升级/切换条件 | 执行边界 |
+| --- | --- | --- | --- | --- |
+| 入库 | hash、来源 metadata、页码、硬约束 | 本地确定性处理 | 不升级模型，先修复本地输入 | 可写缓存/候选元数据 |
+| 入库 | 普通题目结构化、选项和小问拆分 | `gpt-5.6-sol / medium` | 跨页或结构冲突转 `sol / xhigh` | 只能生成候选 |
+| 切图 | 题目区域、共用题图、表格和公式区域候选 | `gpt-5.6-luna / xhigh` | 图文归属冲突转 `sol / xhigh` | 模型只给 `bbox`，确定性工具执行裁切 |
+| 标签 | 普通知识点、题型、难度候选 | `gpt-5.6-sol / medium` | 一拆多、多合一、多对多或低置信度转 `sol / xhigh` | 不自动写 active 知识节点 |
+| 组卷 | 教师自然语言需求解析 | `gpt-5.6-sol / medium` | 需求互相冲突时转 `sol / xhigh` | 只生成结构化 blueprint |
+| 组卷 | 候选排序、覆盖面、难度和梯度取舍 | `gpt-5.6-sol / xhigh` | 仅在复杂软约束存在时调用 | 硬约束仍由规则/求解器确认 |
+| 复核 | 图片、公式、裁切和导出版面 | `gpt-5.6-luna / xhigh` | 视觉结果与题干语义冲突时转 `sol / xhigh` | 生成视觉问题报告 |
+| 校验 | 答案、解析、评分点和分支条件一致性 | `gpt-5.6-sol / xhigh` | 仍有证据冲突则人工接管 | 保持 `pending_review` |
+
+三档不是强弱排序，而是“通用结构化、视觉专项、语义决策”三个业务角色：
+
+```text
+本地确定性处理
+  -> sol/medium：批量结构化和普通候选
+  -> luna/xhigh：视觉/版面/图表专项
+  -> sol/xhigh：复杂语义、约束取舍和一致性裁决
+  -> pending_review / 人工确认
+```
+
+配置真源为 `configs/model_routing.defaults.yaml`，运行时投影为 `apps/api/appsettings.json`。路由结果必须记录 `stage`、`modelRole`、`modelName`、`reasoningEffort`、升级目标、prompt/schema 版本和输入证据。模型输出默认保持 `candidate/pending_review/productionEligible=false`，不得直接改变 active 资产。
+
+## 3.2 Codex 外层校验模型矩阵
 
 本节只约束外层 AI 协助整理、校验、导入和工程实现时的推荐策略；项目内真实模型调用仍受 `AllowRealModelCalls=false`、production guard 和人工审核边界控制。
 

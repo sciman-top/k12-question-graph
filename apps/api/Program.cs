@@ -478,7 +478,7 @@ app.MapPost("/internal/ai/jobs/stub", async (
         JobType = route.TaskType,
         Status = JobStatuses.Succeeded,
         IdempotencyKey = idempotencyKey,
-        ModelRoute = route.Handler,
+        ModelRoute = $"{route.Stage}/{route.ModelRole}:{route.ModelName}/{route.ReasoningEffort}",
         ModelProvider = providerResult.ProviderId,
         ModelName = providerResult.ModelName,
         RoutingVersion = route.RoutingVersion,

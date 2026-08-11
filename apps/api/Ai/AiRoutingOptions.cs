@@ -2,7 +2,7 @@ namespace K12QuestionGraph.Api.Ai;
 
 public sealed class AiRoutingOptions
 {
-    public string Version { get; set; } = "d001.draft-test.v1";
+    public string Version { get; set; } = "d001.business-task-routing.v1";
 
     public bool AllowRealModelCalls { get; set; }
 
@@ -17,7 +17,21 @@ public sealed class AiRouteOptions
 {
     public string Handler { get; set; } = "rule";
 
+    public string? Stage { get; set; }
+
+    public string? ModelRole { get; set; }
+
+    public string? ModelName { get; set; }
+
+    public string? ReasoningEffort { get; set; }
+
     public string? ModelTier { get; set; }
+
+    public string? EscalateToRole { get; set; }
+
+    public string? EscalateToModel { get; set; }
+
+    public string? EscalateReasoningEffort { get; set; }
 
     public string? StructuredOutputSchema { get; set; }
 

@@ -26,6 +26,9 @@ public sealed class AiModelRouter(IOptions<AiRoutingOptions> options, IWebHostEn
         var handler = Normalize(route.Handler, "rule");
         var provider = ResolveProvider(handler);
         var mode = Normalize(request.Mode, options.DefaultMode);
+        var modelRole = Normalize(route.ModelRole, IsLlmHandler(handler) ? "general_structuring" : "local_deterministic");
+        var modelName = Normalize(route.ModelName, IsLlmHandler(handler) ? "stub" : "none");
+        var reasoningEffort = Normalize(route.ReasoningEffort, IsLlmHandler(handler) ? "medium" : "none");
         var schemaExists = string.IsNullOrWhiteSpace(route.StructuredOutputSchema) || SchemaExists(route.StructuredOutputSchema);
         var requiresHumanReview = IsLlmHandler(handler) || (route.RequireHumanReviewBelowConfidence.HasValue && request.ExpectedConfidence < route.RequireHumanReviewBelowConfidence.Value);
         var blockers = new List<string>();
@@ -52,7 +55,14 @@ public sealed class AiModelRouter(IOptions<AiRoutingOptions> options, IWebHostEn
             Mode: mode,
             Handler: handler,
             Provider: provider,
+            Stage: Normalize(route.Stage, "unspecified"),
+            ModelRole: modelRole,
+            ModelName: modelName,
+            ReasoningEffort: reasoningEffort,
             ModelTier: route.ModelTier,
+            EscalateToRole: route.EscalateToRole,
+            EscalateToModel: route.EscalateToModel,
+            EscalateReasoningEffort: route.EscalateReasoningEffort,
             PromptVersion: options.PromptVersion,
             SchemaVersion: route.StructuredOutputSchema,
             SchemaExists: schemaExists,
@@ -119,7 +129,14 @@ public sealed record AiRouteDecision(
     string Mode,
     string Handler,
     string Provider,
+    string Stage,
+    string ModelRole,
+    string ModelName,
+    string ReasoningEffort,
     string? ModelTier,
+    string? EscalateToRole,
+    string? EscalateToModel,
+    string? EscalateReasoningEffort,
     string PromptVersion,
     string? SchemaVersion,
     bool SchemaExists,

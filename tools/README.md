@@ -1224,8 +1224,21 @@ D001 ModelRouter draft/test contract:
 
 This starts a temporary API process and validates that real model calls remain
 disabled, LLM tasks route to `stub_llm`, structured output schemas exist,
-draft/domain-asset routes are not production eligible, and unknown AI tasks are
-rejected. It does not call any external AI provider.
+draft/domain-asset routes are not production eligible, business tasks select
+the configured model/role/reasoning lane, and unknown AI tasks are rejected.
+It does not call any external AI provider.
+
+Business task model routing projection contract:
+
+```powershell
+.\tools\run-business-model-routing-contract.ps1
+```
+
+This verifies that `configs/model_routing.defaults.yaml` and the API runtime
+projection agree on the ingest, cutting, tagging, assembly, review, and
+verification lanes. It keeps model output in `pending_review`, leaves hard
+constraints and crop execution deterministic, and does not call any external
+AI provider.
 
 Roadmap dependency guard:
 

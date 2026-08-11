@@ -64,6 +64,16 @@ L0 本地确定性处理，不调用外部 AI
 
 `configs/model_routing.defaults.yaml` 必须显式声明 L0-L4 的默认模型、`reasoning_effort`、升级目标、dry-run token 上限、L4 数量上限、cache key 字段和 full extraction 的人工预算确认要求。该合同由 `tools/run-c002p-model-budget-guard.ps1` 检查，并纳入 `tools/run-gates.ps1`。
 
+在 L0-L4 成本和准入门禁之上，当前业务任务路由再按任务性质选择三条实际模型 lane：
+
+| 业务 lane | 模型 | 主要任务 |
+| --- | --- | --- |
+| `general_structuring` | `gpt-5.6-sol / medium` | 普通入库结构化、题目拆分、常规标签、教师组卷需求解析 |
+| `visual_document` | `gpt-5.6-luna / xhigh` | 版面、题目区域、切图候选、图表/公式和导出视觉复核 |
+| `semantic_decision` | `gpt-5.6-sol / xhigh` | 复杂映射、跨页语义冲突、组卷软约束、答案一致性 |
+
+这三条 lane 是任务级路由，不把整份来源资料固定绑定到一个模型。模型只产出候选或复核报告：切图模型只提出区域坐标，组卷模型只复核候选与软约束；实际裁切、硬约束、状态转换和 active guard 仍由本地工具、规则和审核流程负责。
+
 ## 6. 当前建议
 
 下一步直接做 C002N。不要等整个项目完全搭建完再做，因为 C002N 是降低 token 消耗的前置工程；但也不要越过 C002N/O/P 直接做 33 份 PDF 的全量模型提炼。
