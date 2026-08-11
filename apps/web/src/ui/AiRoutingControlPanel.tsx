@@ -294,7 +294,7 @@ export function AiRoutingControlPanel() {
     disabledByDefault: true,
     allowRealModelCalls: false,
     defaultSmokeTaskType: 'knowledge_tagging',
-    defaultSmokeModel: 'gpt-5.4-mini',
+    defaultSmokeModel: 'gpt-5.6-sol',
     fallbackBaseUrl: '',
     fallbackImageBaseUrl: '',
     maskedFallbackSecret: '',

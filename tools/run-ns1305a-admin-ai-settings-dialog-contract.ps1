@@ -87,6 +87,11 @@ try {
     Assert-Condition (
         $router.Contains('Path.Combine(environment.ContentRootPath, "..", "..")')
     ) 'NS1305A route/schema checks must resolve repo assets from ContentRootPath back to the repo root.'
+    Assert-Condition ($settingsStore.Contains('private const string DefaultSmokeModel = "gpt-5.6-sol";')) 'NS1305A default text model must be gpt-5.6-sol.'
+    Assert-Condition ($settingsStore.Contains('effort = "medium"')) 'NS1305A Responses smoke must request medium reasoning explicitly.'
+    Assert-Condition ($settingsStore.Contains('private const string ImageProbeFallbackModel = "gpt-image-2";')) 'NS1305A image model must be gpt-image-2.'
+    Assert-Condition ($settingsStore.Contains('"/images/generations"')) 'NS1305A image generation must use the standard Images API endpoint.'
+    Assert-Condition (-not $settingsStore.Contains('responses_image_generation_tool')) 'NS1305A image generation must not route through the Responses image tool.'
 
     foreach ($fallbackBackendMarker in @(
         'FallbackBaseUrl',

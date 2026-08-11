@@ -218,7 +218,7 @@ public sealed class FileAiProviderSettingsStore(
     private const string DefaultProviderType = "openai_compatible";
     private const string DefaultCredentialMode = "dialog_secret_local_machine";
     private const string DefaultSmokeTaskType = "knowledge_tagging";
-    private const string DefaultSmokeModel = "gpt-5.4-mini";
+    private const string DefaultSmokeModel = "gpt-5.6-sol";
     private const string PrimaryEnvSecretName = "KQG_AI_OPENAI_KEY";
     private const string PrimaryEnvBaseUrlName = "KQG_AI_OPENAI_BASE_URL";
     private const string ImageEnvSecretName = "KQG_AI_IMAGE_OPENAI_KEY";
@@ -772,10 +772,7 @@ public sealed class OpenAiCompatibleSmokeTestService(
             normalizedTaskType,
             request.InputJson,
             cancellationToken);
-        var imageProbe = await RunImageProbeAsync(
-            runtimeEndpoints,
-            normalizedModel,
-            cancellationToken);
+        var imageProbe = await RunImageProbeAsync(runtimeEndpoints, cancellationToken);
 
         var combinedPassed = smokeResult.Passed && imageProbe.Passed;
         var combinedBlockers = new List<string>();
@@ -909,6 +906,10 @@ public sealed class OpenAiCompatibleSmokeTestService(
         {
             model,
             store = false,
+            reasoning = new
+            {
+                effort = "medium"
+            },
             input = NormalizeInputJson(inputJson, taskType),
             text = new
             {
@@ -1034,7 +1035,6 @@ public sealed class OpenAiCompatibleSmokeTestService(
 
     private async Task<AdminAiProviderImageProbeResult> RunImageProbeAsync(
         IReadOnlyList<AiProviderRuntimeEndpoint> endpoints,
-        string primaryModel,
         CancellationToken cancellationToken)
     {
         if (!endpoints.Any(x => !string.IsNullOrWhiteSpace(x.ImageBaseUrl) && !string.IsNullOrWhiteSpace(x.ImageSecret)))
@@ -1053,38 +1053,14 @@ public sealed class OpenAiCompatibleSmokeTestService(
                 attempts.Add(new AdminAiProviderImageProbeAttempt(
                     ProviderEndpointId: endpoint.EndpointId,
                     BaseUrl: endpoint.ImageBaseUrl,
-                    RouteKind: "responses_image_generation_tool",
-                    EndpointPath: "/responses",
-                    Model: primaryModel,
+                    RouteKind: "images_generations",
+                    EndpointPath: "/images/generations",
+                    Model: ImageProbeFallbackModel,
                     Passed: false,
                     HttpStatusCode: 0,
                     LatencyMs: 0,
                     Message: "endpoint 图片 base URL 或 key 未配置，已跳过。"));
                 continue;
-            }
-
-            var responsesAttempt = await ProbeResponsesImageGenerationAsync(endpoint, primaryModel, cancellationToken);
-            attempts.Add(responsesAttempt);
-            if (responsesAttempt.Passed)
-            {
-                return new AdminAiProviderImageProbeResult(
-                    Attempted: true,
-                    Passed: true,
-                    EffectiveProviderEndpointId: endpoint.EndpointId,
-                    EffectiveBaseUrl: endpoint.ImageBaseUrl,
-                    EffectiveRouteKind: responsesAttempt.RouteKind,
-                    EffectiveModel: responsesAttempt.Model,
-                    HttpStatusCode: responsesAttempt.HttpStatusCode,
-                    LatencyMs: responsesAttempt.LatencyMs,
-                    Message: "图片链路探针通过：Responses + image_generation tool 可用。",
-                    Blockers: [],
-                    Attempts: attempts,
-                    AuditTrail: [
-                        "test_admin_ai_image_probe",
-                        $"selected_provider_endpoint={endpoint.EndpointId}",
-                        "image_probe_route=responses_image_generation_tool",
-                        $"image_probe_http_status={responsesAttempt.HttpStatusCode}"
-                    ]);
             }
 
             var imagesApiAttempt = await ProbeImagesApiAsync(endpoint, cancellationToken);
@@ -1100,14 +1076,13 @@ public sealed class OpenAiCompatibleSmokeTestService(
                     EffectiveModel: imagesApiAttempt.Model,
                     HttpStatusCode: imagesApiAttempt.HttpStatusCode,
                     LatencyMs: imagesApiAttempt.LatencyMs,
-                    Message: "图片链路探针通过：Responses 失败后已成功回退到 Images API。",
+                    Message: "图片链路探针通过：Images API 成功返回图片结果。",
                     Blockers: [],
                     Attempts: attempts,
                     AuditTrail: [
                         "test_admin_ai_image_probe",
                         $"selected_provider_endpoint={endpoint.EndpointId}",
-                        "image_probe_route=images_generations_fallback",
-                        $"responses_probe_http_status={responsesAttempt.HttpStatusCode}",
+                        "image_probe_route=images_generations",
                         $"images_probe_http_status={imagesApiAttempt.HttpStatusCode}"
                     ]);
             }
@@ -1131,37 +1106,6 @@ public sealed class OpenAiCompatibleSmokeTestService(
                 "selected_provider_endpoint=",
                 $"fallback_attempt_count={Math.Max(0, attempts.Select(x => x.ProviderEndpointId).Distinct().Count() - 1)}"
             ]);
-    }
-
-    private async Task<AdminAiProviderImageProbeAttempt> ProbeResponsesImageGenerationAsync(
-        AiProviderRuntimeEndpoint endpoint,
-        string model,
-        CancellationToken cancellationToken)
-    {
-        var payload = new
-        {
-            model,
-            store = false,
-            input = ImageProbePrompt,
-            tools = new object[]
-            {
-                new
-                {
-                    type = "image_generation",
-                    quality = "low",
-                    size = "1024x1024"
-                }
-            }
-        };
-
-        return await SendImageProbeRequestAsync(
-            endpoint,
-            "/responses",
-            model,
-            payload,
-            "responses_image_generation_tool",
-            BodyHasResponsesImageOutput,
-            cancellationToken);
     }
 
     private async Task<AdminAiProviderImageProbeAttempt> ProbeImagesApiAsync(
@@ -1208,9 +1152,7 @@ public sealed class OpenAiCompatibleSmokeTestService(
             var body = await response.Content.ReadAsStringAsync(cancellationToken);
             var latencyMs = (int)Math.Max(1, (DateTimeOffset.UtcNow - startedAt).TotalMilliseconds);
             var passed = response.IsSuccessStatusCode && successPredicate(body);
-            var successMessage = routeKind == "responses_image_generation_tool"
-                ? "Responses image_generation tool 成功返回图片结果。"
-                : "Images API 成功返回图片结果。";
+            const string successMessage = "Images API 成功返回图片结果。";
             var failureMessage = passed
                 ? successMessage
                 : DescribeResponseFailure(body, (int)response.StatusCode);
@@ -1356,35 +1298,6 @@ public sealed class OpenAiCompatibleSmokeTestService(
         {
             return (body, 0, 0, 0);
         }
-    }
-
-    private static bool BodyHasResponsesImageOutput(string body)
-    {
-        try
-        {
-            using var document = JsonDocument.Parse(body);
-            if (!document.RootElement.TryGetProperty("output", out var output) || output.ValueKind != JsonValueKind.Array)
-            {
-                return false;
-            }
-
-            foreach (var item in output.EnumerateArray())
-            {
-                if (item.TryGetProperty("type", out var typeElement) &&
-                    string.Equals(typeElement.GetString(), "image_generation_call", StringComparison.OrdinalIgnoreCase) &&
-                    item.TryGetProperty("result", out var resultElement) &&
-                    resultElement.ValueKind == JsonValueKind.String &&
-                    !string.IsNullOrWhiteSpace(resultElement.GetString()))
-                {
-                    return true;
-                }
-            }
-        }
-        catch
-        {
-        }
-
-        return false;
     }
 
     private static bool BodyHasImageApiOutput(string body)
