@@ -60,6 +60,12 @@ try {
         if ($knowledge.productionEligible) { throw "draft knowledge route must not be production eligible" }
         if (-not $knowledge.requiresHumanReview) { throw "LLM route must require human review in D001 draft/test" }
         if (-not $knowledge.schemaExists) { throw "knowledge mapping schema missing" }
+        if ($knowledge.modelRole -ne 'bulk_structuring' -or $knowledge.modelName -ne 'gpt-5.6-terra' -or $knowledge.reasoningEffort -ne 'high') {
+            throw "knowledge route default tier mismatch"
+        }
+        if ($knowledge.escalateToRole -ne 'general_semantics' -or $knowledge.escalateToModel -ne 'gpt-5.6-sol' -or $knowledge.escalateReasoningEffort -ne 'medium') {
+            throw "knowledge route semantic escalation mismatch"
+        }
         foreach ($blocker in @('real_model_calls_disabled','formal_active_domain_asset_required')) {
             if ($knowledge.blockers -notcontains $blocker) { throw "missing D001 blocker: $blocker" }
         }
@@ -73,7 +79,7 @@ try {
         $crop = Invoke-RestMethod -Method Post -Uri "$apiUrl/internal/ai/model-route" -ContentType 'application/json' -Body $cropBody
         if ($crop.stage -ne 'cutting') { throw "crop route must be in cutting stage" }
         if ($crop.modelRole -ne 'visual_document') { throw "crop route must use visual_document role" }
-        if ($crop.modelName -ne 'gpt-5.6-luna') { throw "crop route model mismatch" }
+        if ($crop.modelName -ne 'gpt-5.6-terra') { throw "crop route model mismatch" }
         if ($crop.reasoningEffort -ne 'xhigh') { throw "crop route reasoning mismatch" }
         if (-not $crop.schemaExists) { throw "crop route schema missing" }
         if ($crop.escalateToModel -ne 'gpt-5.6-sol' -or $crop.escalateReasoningEffort -ne 'xhigh') {

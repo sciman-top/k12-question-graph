@@ -26,7 +26,7 @@ public sealed class AiModelRouter(IOptions<AiRoutingOptions> options, IWebHostEn
         var handler = Normalize(route.Handler, "rule");
         var provider = ResolveProvider(handler);
         var mode = Normalize(request.Mode, options.DefaultMode);
-        var modelRole = Normalize(route.ModelRole, IsLlmHandler(handler) ? "general_structuring" : "local_deterministic");
+        var modelRole = Normalize(route.ModelRole, IsLlmHandler(handler) ? "bulk_structuring" : "local_deterministic");
         var modelName = Normalize(route.ModelName, IsLlmHandler(handler) ? "stub" : "none");
         var reasoningEffort = Normalize(route.ReasoningEffort, IsLlmHandler(handler) ? "medium" : "none");
         var schemaExists = string.IsNullOrWhiteSpace(route.StructuredOutputSchema) || SchemaExists(route.StructuredOutputSchema);

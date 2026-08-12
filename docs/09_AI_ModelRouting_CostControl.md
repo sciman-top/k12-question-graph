@@ -32,10 +32,10 @@ L0 不调用外部 AI。能由 CSV parser、JSON/YAML/schema、SQL、hash、rege
 | 总分/题号连续检查 | 程序规则 |
 | 普通 OCR | 本地 OCR |
 | 版面初解析 | Docling/PaddleOCR |
-| 知识点候选与普通标签 | `gpt-5.6-sol / medium` |
-| 自然语言组卷需求解析 | `gpt-5.6-sol / medium` + 结构化输出 |
+| 知识点候选与普通标签 | `gpt-5.6-terra / high`，复杂语义升 `gpt-5.6-sol / medium` |
+| 自然语言组卷需求解析 | `gpt-5.6-terra / high`，歧义需求升 `gpt-5.6-sol / medium` |
 | 答案校验与复杂组卷复核 | `gpt-5.6-sol / xhigh` |
-| 疑难图文关系、切图候选和导出视觉复核 | `gpt-5.6-luna / xhigh` |
+| 疑难图文关系、切图候选和导出视觉复核 | `gpt-5.6-terra / xhigh` |
 | 批量标注 | Batch |
 | Embedding | 批量、缓存、去重 |
 
@@ -46,25 +46,28 @@ L0 不调用外部 AI。能由 CSV parser、JSON/YAML/schema、SQL、hash、rege
 | 业务阶段 | 任务 | 默认路由 | 升级/切换条件 | 执行边界 |
 | --- | --- | --- | --- | --- |
 | 入库 | hash、来源 metadata、页码、硬约束 | 本地确定性处理 | 不升级模型，先修复本地输入 | 可写缓存/候选元数据 |
-| 入库 | 普通题目结构化、选项和小问拆分 | `gpt-5.6-sol / medium` | 跨页或结构冲突转 `sol / xhigh` | 只能生成候选 |
-| 切图 | 题目区域、共用题图、表格和公式区域候选 | `gpt-5.6-luna / xhigh` | 图文归属冲突转 `sol / xhigh` | 模型只给 `bbox`，确定性工具执行裁切 |
-| 标签 | 普通知识点、题型、难度候选 | `gpt-5.6-sol / medium` | 一拆多、多合一、多对多或低置信度转 `sol / xhigh` | 不自动写 active 知识节点 |
-| 组卷 | 教师自然语言需求解析 | `gpt-5.6-sol / medium` | 需求互相冲突时转 `sol / xhigh` | 只生成结构化 blueprint |
+| 入库 | 普通题目结构化、选项和小问拆分 | `gpt-5.6-terra / high` | 跨页或结构歧义转 `sol / medium`，高风险冲突再转 `sol / xhigh` | 只能生成候选 |
+| 切图 | 普通题目区域候选 | `gpt-5.6-terra / high` | 共用题图、跨页、复杂图表时转 `terra / xhigh` | 模型只给 `bbox`，确定性工具执行裁切 |
+| 切图 | 疑难图文归属、表格和公式区域复核 | `gpt-5.6-terra / xhigh` | 图文语义仍冲突时转 `sol / xhigh` | 生成复核候选，不执行裁切 |
+| 标签 | 普通知识点、题型、难度候选 | `gpt-5.6-terra / high` | 需结合课标/教材/评价目标时转 `sol / medium` | 不自动写 active 知识节点 |
+| 标签 | 一拆多、多合一、多对多映射 | `gpt-5.6-sol / xhigh` | 证据不足则人工接管 | 保持 `pending_review` |
+| 组卷 | 教师自然语言需求解析 | `gpt-5.6-terra / high` | 需求含多个语义约束或指代不清时转 `sol / medium` | 只生成结构化 blueprint |
 | 组卷 | 候选排序、覆盖面、难度和梯度取舍 | `gpt-5.6-sol / xhigh` | 仅在复杂软约束存在时调用 | 硬约束仍由规则/求解器确认 |
-| 复核 | 图片、公式、裁切和导出版面 | `gpt-5.6-luna / xhigh` | 视觉结果与题干语义冲突时转 `sol / xhigh` | 生成视觉问题报告 |
-| 校验 | 答案、解析、评分点和分支条件一致性 | `gpt-5.6-sol / xhigh` | 仍有证据冲突则人工接管 | 保持 `pending_review` |
+| 复核 | 图片、公式、裁切和导出版面 | `gpt-5.6-terra / xhigh` | 视觉结果与题干语义冲突时转 `sol / xhigh` | 生成视觉问题报告 |
+| 校验 | 普通答案和解析一致性 | `gpt-5.6-sol / medium` | 正式题、分支条件或评分点冲突时转 `sol / xhigh` | 保持 `pending_review` |
 
-三档不是强弱排序，而是“通用结构化、视觉专项、语义决策”三个业务角色：
+四档由“模型层级 + reasoning”共同定义，形成普通任务链与疑难任务链：
 
 ```text
 本地确定性处理
-  -> sol/medium：批量结构化和普通候选
-  -> luna/xhigh：视觉/版面/图表专项
+  -> terra/high：批量结构化和普通候选
+  -> sol/medium：常规语义复核
+  -> terra/xhigh：视觉/版面/图表专项
   -> sol/xhigh：复杂语义、约束取舍和一致性裁决
   -> pending_review / 人工确认
 ```
 
-配置真源为 `configs/model_routing.defaults.yaml`，运行时投影为 `apps/api/appsettings.json`。路由结果必须记录 `stage`、`modelRole`、`modelName`、`reasoningEffort`、升级目标、prompt/schema 版本和输入证据。模型输出默认保持 `candidate/pending_review/productionEligible=false`，不得直接改变 active 资产。
+配置真源为 `configs/model_routing.defaults.yaml`，运行时投影为 `apps/api/appsettings.json`。`terra/high` 与 `terra/xhigh` 的项目准入基于其图像输入、Structured Outputs 和 reasoning 支持，但视觉质量仍须由真实题卷 eval 验证；配置存在不等于 live accepted。路由结果必须记录 `stage`、`modelRole`、`modelName`、`reasoningEffort`、升级目标、prompt/schema 版本和输入证据。模型输出默认保持 `candidate/pending_review/productionEligible=false`，不得直接改变 active 资产。
 
 ## 3.2 Codex 外层校验模型矩阵
 

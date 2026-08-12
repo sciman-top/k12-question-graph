@@ -22,8 +22,9 @@ config = yaml.safe_load((root / "configs/model_routing.defaults.yaml").read_text
 app = json.loads((root / "apps/api/appsettings.json").read_text(encoding="utf-8"))
 
 expected_roles = {
-    "general_structuring": ("gpt-5.6-sol", "medium"),
-    "visual_document": ("gpt-5.6-luna", "xhigh"),
+    "bulk_structuring": ("gpt-5.6-terra", "high"),
+    "general_semantics": ("gpt-5.6-sol", "medium"),
+    "visual_document": ("gpt-5.6-terra", "xhigh"),
     "semantic_decision": ("gpt-5.6-sol", "xhigh"),
 }
 catalog = config["model_catalog"]
@@ -34,14 +35,16 @@ for role, (model, reasoning) in expected_roles.items():
 
 expected_tasks = {
     "source_material_ingest": ("ingest", "local_deterministic", "none", "none"),
-    "question_extraction": ("structuring", "general_structuring", "gpt-5.6-sol", "medium"),
-    "crop_candidate_generation": ("cutting", "visual_document", "gpt-5.6-luna", "xhigh"),
-    "knowledge_tagging": ("tagging", "general_structuring", "gpt-5.6-sol", "medium"),
+    "question_region_detection": ("cutting", "bulk_structuring", "gpt-5.6-terra", "high"),
+    "question_extraction": ("structuring", "bulk_structuring", "gpt-5.6-terra", "high"),
+    "crop_candidate_generation": ("cutting", "visual_document", "gpt-5.6-terra", "xhigh"),
+    "knowledge_tagging": ("tagging", "bulk_structuring", "gpt-5.6-terra", "high"),
     "knowledge_mapping_review": ("tagging", "semantic_decision", "gpt-5.6-sol", "xhigh"),
-    "natural_language_paper_request": ("paper_request", "general_structuring", "gpt-5.6-sol", "medium"),
+    "natural_language_paper_request": ("paper_request", "bulk_structuring", "gpt-5.6-terra", "high"),
     "paper_composition": ("assembly", "semantic_decision", "gpt-5.6-sol", "xhigh"),
-    "visual_asset_review": ("review", "visual_document", "gpt-5.6-luna", "xhigh"),
-    "answer_verification": ("verification", "semantic_decision", "gpt-5.6-sol", "xhigh"),
+    "visual_asset_review": ("review", "visual_document", "gpt-5.6-terra", "xhigh"),
+    "paper_visual_review": ("review", "visual_document", "gpt-5.6-terra", "xhigh"),
+    "answer_verification": ("verification", "general_semantics", "gpt-5.6-sol", "medium"),
 }
 
 policy_routes = config["routes"]
@@ -59,6 +62,24 @@ for task, (stage, role, model, reasoning) in expected_tasks.items():
     require(runtime["ModelRole"] == role, f"runtime role mismatch: {task}")
     require(runtime["ModelName"] == model, f"runtime model mismatch: {task}")
     require(runtime["ReasoningEffort"] == reasoning, f"runtime reasoning mismatch: {task}")
+
+expected_escalations = {
+    "question_region_detection": ("visual_document", "gpt-5.6-terra", "xhigh"),
+    "question_extraction": ("general_semantics", "gpt-5.6-sol", "medium"),
+    "knowledge_tagging": ("general_semantics", "gpt-5.6-sol", "medium"),
+    "natural_language_paper_request": ("general_semantics", "gpt-5.6-sol", "medium"),
+    "crop_candidate_generation": ("semantic_decision", "gpt-5.6-sol", "xhigh"),
+    "answer_verification": ("semantic_decision", "gpt-5.6-sol", "xhigh"),
+}
+for task, (role, model, reasoning) in expected_escalations.items():
+    policy = policy_routes[task]
+    runtime = runtime_routes[task]
+    require(policy["escalate_to_role"] == role, f"policy escalation role mismatch: {task}")
+    require(policy["escalate_to"] == model, f"policy escalation model mismatch: {task}")
+    require(policy["escalate_reasoning_effort"] == reasoning, f"policy escalation reasoning mismatch: {task}")
+    require(runtime["EscalateToRole"] == role, f"runtime escalation role mismatch: {task}")
+    require(runtime["EscalateToModel"] == model, f"runtime escalation model mismatch: {task}")
+    require(runtime["EscalateReasoningEffort"] == reasoning, f"runtime escalation reasoning mismatch: {task}")
 
 for task in ["crop_candidate_generation", "visual_asset_review", "paper_composition"]:
     schema = runtime_routes[task].get("StructuredOutputSchema")
@@ -78,6 +99,7 @@ report = {
     "routingVersion": app["AiRouting"]["Version"],
     "rolesChecked": sorted(expected_roles),
     "tasksChecked": sorted(expected_tasks),
+    "escalationsChecked": sorted(expected_escalations),
     "runtimeRealModelCalls": app["AiRouting"]["AllowRealModelCalls"],
     "reviewStatus": config["route_contract"]["model_output_status"],
     "productionEligibleDefault": config["route_contract"]["production_eligible_default"],

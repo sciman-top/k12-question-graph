@@ -2,7 +2,7 @@ namespace K12QuestionGraph.Api.Ai;
 
 public sealed class AiRoutingOptions
 {
-    public string Version { get; set; } = "d001.business-task-routing.v1";
+    public string Version { get; set; } = "d001.business-task-routing.v2";
 
     public bool AllowRealModelCalls { get; set; }
 

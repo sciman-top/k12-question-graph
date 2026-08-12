@@ -1,4 +1,4 @@
-version: 0.2
+version: 0.3
 modes:
   low_cost:
     description: "本地工具和小模型优先，强模型只处理高风险异常。"
@@ -11,14 +11,18 @@ model_catalog:
     model: none
     reasoning_effort: none
     description: "文件、版面、裁切执行和硬约束由本地规则/工具完成，不调用外部模型。"
-  general_structuring:
+  bulk_structuring:
+    model: gpt-5.6-terra
+    reasoning_effort: high
+    description: "批量入库结构化、普通题目拆分、常规标签初筛和普通组卷需求解析。"
+  general_semantics:
     model: gpt-5.6-sol
     reasoning_effort: medium
-    description: "高吞吐、结构清楚的入库、题目结构化、普通标签和组卷需求解析。"
+    description: "较复杂题目结构确认、一般答案校验和组卷候选语义复核。"
   visual_document:
-    model: gpt-5.6-luna
+    model: gpt-5.6-terra
     reasoning_effort: xhigh
-    description: "视觉、版面、图表、公式区域、共享题图和导出视觉复核。"
+    description: "疑难视觉、版面、图表、公式区域、共享题图和导出视觉复核。"
   semantic_decision:
     model: gpt-5.6-sol
     reasoning_effort: xhigh
@@ -60,12 +64,12 @@ routes:
   question_region_detection:
     stage: cutting
     handler: llm
-    model_role: visual_document
-    model: gpt-5.6-luna
-    reasoning_effort: xhigh
-    model_tier: strong
-    escalate_to_role: semantic_decision
-    escalate_to: gpt-5.6-sol
+    model_role: bulk_structuring
+    model: gpt-5.6-terra
+    reasoning_effort: high
+    model_tier: medium
+    escalate_to_role: visual_document
+    escalate_to: gpt-5.6-terra
     escalate_reasoning_effort: xhigh
     structured_output_schema: schemas/ai/crop_candidate_generation.schema.json
     require_human_review_below_confidence: 0.9
@@ -73,7 +77,7 @@ routes:
     stage: cutting
     handler: llm
     model_role: visual_document
-    model: gpt-5.6-luna
+    model: gpt-5.6-terra
     reasoning_effort: xhigh
     model_tier: strong
     escalate_to_role: semantic_decision
@@ -90,22 +94,25 @@ routes:
   question_extraction:
     stage: structuring
     handler: llm
-    model_role: general_structuring
-    model: gpt-5.6-sol
-    reasoning_effort: medium
+    model_role: bulk_structuring
+    model: gpt-5.6-terra
+    reasoning_effort: high
     model_tier: medium
+    escalate_to_role: general_semantics
+    escalate_to: gpt-5.6-sol
+    escalate_reasoning_effort: medium
     structured_output_schema: schemas/ai/question_extraction.schema.json
     require_human_review_below_confidence: 0.85
   knowledge_tagging:
     handler: llm
     stage: tagging
-    model_role: general_structuring
-    model: gpt-5.6-sol
-    reasoning_effort: medium
+    model_role: bulk_structuring
+    model: gpt-5.6-terra
+    reasoning_effort: high
     model_tier: medium
-    escalate_to_role: semantic_decision
+    escalate_to_role: general_semantics
     escalate_to: gpt-5.6-sol
-    escalate_reasoning_effort: xhigh
+    escalate_reasoning_effort: medium
     batchable: true
     require_human_review_below_confidence: 0.8
   knowledge_mapping_review:
@@ -120,10 +127,13 @@ routes:
   natural_language_paper_request:
     handler: llm
     stage: paper_request
-    model_role: general_structuring
-    model: gpt-5.6-sol
-    reasoning_effort: medium
+    model_role: bulk_structuring
+    model: gpt-5.6-terra
+    reasoning_effort: high
     model_tier: medium
+    escalate_to_role: general_semantics
+    escalate_to: gpt-5.6-sol
+    escalate_reasoning_effort: medium
     structured_output_schema: schemas/ai/natural_language_paper_request.schema.json
     require_human_review_below_confidence: 0.85
   paper_constraint_check:
@@ -145,7 +155,7 @@ routes:
     stage: review
     handler: llm
     model_role: visual_document
-    model: gpt-5.6-luna
+    model: gpt-5.6-terra
     reasoning_effort: xhigh
     model_tier: strong
     structured_output_schema: schemas/ai/visual_asset_review.schema.json
@@ -154,7 +164,7 @@ routes:
     stage: review
     handler: llm
     model_role: visual_document
-    model: gpt-5.6-luna
+    model: gpt-5.6-terra
     reasoning_effort: xhigh
     model_tier: strong
     structured_output_schema: schemas/ai/visual_asset_review.schema.json
@@ -162,10 +172,13 @@ routes:
   answer_verification:
     handler: llm
     stage: verification
-    model_role: semantic_decision
+    model_role: general_semantics
     model: gpt-5.6-sol
-    reasoning_effort: xhigh
-    model_tier: strong
+    reasoning_effort: medium
+    model_tier: medium
+    escalate_to_role: semantic_decision
+    escalate_to: gpt-5.6-sol
+    escalate_reasoning_effort: xhigh
     require_review_for: [formal_exam, high_value_question]
   export_preflight:
     stage: export
