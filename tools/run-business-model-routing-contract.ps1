@@ -44,6 +44,7 @@ expected_tasks = {
     "paper_composition": ("assembly", "semantic_decision", "gpt-5.6-sol", "xhigh"),
     "visual_asset_review": ("review", "visual_document", "gpt-5.6-terra", "xhigh"),
     "paper_visual_review": ("review", "visual_document", "gpt-5.6-terra", "xhigh"),
+    "question_solving": ("solving", "semantic_decision", "gpt-5.6-sol", "xhigh"),
     "answer_verification": ("verification", "general_semantics", "gpt-5.6-sol", "medium"),
 }
 
@@ -80,6 +81,12 @@ for task, (role, model, reasoning) in expected_escalations.items():
     require(runtime["EscalateToRole"] == role, f"runtime escalation role mismatch: {task}")
     require(runtime["EscalateToModel"] == model, f"runtime escalation model mismatch: {task}")
     require(runtime["EscalateReasoningEffort"] == reasoning, f"runtime escalation reasoning mismatch: {task}")
+
+for source, task in ((policy_routes, "question_solving"), (runtime_routes, "question_solving")):
+    require(not any(key in source[task] for key in (
+        "escalate_to_role", "escalate_to", "escalate_reasoning_effort",
+        "EscalateToRole", "EscalateToModel", "EscalateReasoningEffort",
+    )), "question_solving must not define downgrade or alternate route")
 
 for task in ["crop_candidate_generation", "visual_asset_review", "paper_composition"]:
     schema = runtime_routes[task].get("StructuredOutputSchema")

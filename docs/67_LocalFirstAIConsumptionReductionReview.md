@@ -73,7 +73,7 @@ L0 本地确定性处理，不调用外部 AI
 | `visual_document` | `gpt-5.6-terra / xhigh` | 疑难版面、共用题图、切图候选、图表/公式和导出视觉复核 |
 | `semantic_decision` | `gpt-5.6-sol / xhigh` | 复杂映射、跨页语义冲突、组卷软约束、答案一致性 |
 
-这四条 lane 是任务级路由，不把整份来源资料固定绑定到一个模型。普通任务优先走 `terra/high -> sol/medium`，疑难视觉和高风险语义走 `terra/xhigh -> sol/xhigh`。模型只产出候选或复核报告：切图模型只提出区域坐标，组卷模型只复核候选与软约束；实际裁切、硬约束、状态转换和 active guard 仍由本地工具、规则和审核流程负责。
+这四条 lane 是任务级路由，不把整份来源资料固定绑定到一个模型。普通任务优先走 `terra/high -> sol/medium`，疑难视觉和高风险语义走 `terra/xhigh -> sol/xhigh`；但 AI 独立解题 `question_solving` 对普通、高难和复杂题均固定使用 `semantic_decision`，不允许 mode、置信度或风险信号将其降档或换档。模型只产出候选或复核报告：切图模型只提出区域坐标，组卷模型只复核候选与软约束；解题结果仍须结构化校验和人工复核，实际裁切、硬约束、状态转换和 active guard 仍由本地工具、规则和审核流程负责。
 
 ## 6. 当前建议
 

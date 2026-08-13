@@ -183,6 +183,15 @@ routes:
     model_tier: strong
     structured_output_schema: schemas/ai/visual_asset_review.schema.json
     require_human_review_below_confidence: 0.95
+  question_solving:
+    stage: solving
+    handler: llm
+    model_role: semantic_decision
+    model: gpt-5.6-sol
+    reasoning_effort: xhigh
+    model_tier: strong
+    structured_output_schema: schemas/ai/answer_verification.schema.json
+    require_human_review_below_confidence: 1.0
   answer_verification:
     handler: llm
     stage: verification

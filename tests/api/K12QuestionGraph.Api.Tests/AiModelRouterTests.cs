@@ -58,6 +58,41 @@ public sealed class AiModelRouterTests
         Assert.Empty(route.EscalationReasons);
     }
 
+    [Theory]
+    [InlineData("low_cost")]
+    [InlineData("balanced")]
+    [InlineData("high_accuracy")]
+    public void QuestionSolvingRemainsPinnedToSolXhighForEveryMode(string mode)
+    {
+        var route = CreateRouter().Route(new(
+            "question_solving",
+            mode,
+            "draft",
+            0.1m,
+            new(
+                CrossPage: true,
+                SharedVisual: true,
+                FormulaOrTable: true,
+                SemanticConflict: true,
+                MultipleConstraints: true,
+                FormalExam: true,
+                SourceEvidenceConflict: true)));
+
+        Assert.Equal("semantic_decision", route.ModelRole);
+        Assert.Equal("gpt-5.6-sol", route.ModelName);
+        Assert.Equal("xhigh", route.ReasoningEffort);
+        Assert.Equal(route.ModelRole, route.EffectiveModelRole);
+        Assert.Equal(route.ModelName, route.EffectiveModelName);
+        Assert.Equal(route.ReasoningEffort, route.EffectiveReasoningEffort);
+        Assert.False(route.Escalated);
+        Assert.Empty(route.EscalationReasons);
+        Assert.Null(route.EscalateToRole);
+        Assert.Null(route.EscalateToModel);
+        Assert.Null(route.EscalateReasoningEffort);
+        Assert.True(route.RequiresHumanReview);
+        Assert.False(route.ProductionEligible);
+    }
+
     [Fact]
     public void UnknownModeFailsClosed()
     {
@@ -101,6 +136,15 @@ public sealed class AiModelRouterTests
                 EscalateToModel = "gpt-5.6-sol",
                 EscalateReasoningEffort = "xhigh",
                 EscalationSignals = ["semantic_conflict"]
+            },
+            ["question_solving"] = new()
+            {
+                Handler = "llm",
+                ModelRole = "semantic_decision",
+                ModelName = "gpt-5.6-sol",
+                ReasoningEffort = "xhigh",
+                ModelTier = "strong",
+                RequireHumanReviewBelowConfidence = 1.0m
             }
         };
 

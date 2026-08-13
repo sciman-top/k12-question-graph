@@ -54,6 +54,7 @@ L0 不调用外部 AI。能由 CSV parser、JSON/YAML/schema、SQL、hash、rege
 | 组卷 | 教师自然语言需求解析 | `gpt-5.6-terra / high` | 需求含多个语义约束或指代不清时转 `sol / medium` | 只生成结构化 blueprint |
 | 组卷 | 候选排序、覆盖面、难度和梯度取舍 | `gpt-5.6-sol / xhigh` | 仅在复杂软约束存在时调用 | 硬约束仍由规则/求解器确认 |
 | 复核 | 图片、公式、裁切和导出版面 | `gpt-5.6-terra / xhigh` | 视觉结果与题干语义冲突时转 `sol / xhigh` | 生成视觉问题报告 |
+| 解题 | AI 独立求解并生成答案、关键步骤和依据 | 固定 `gpt-5.6-sol / xhigh` | 普通题、高难题、复杂题及任意 mode/风险信号均不降档或换档 | 保持 `pending_review`，结构化校验和人工复核仍必需 |
 | 校验 | 普通答案和解析一致性 | `gpt-5.6-sol / medium` | 正式题、分支条件或评分点冲突时转 `sol / xhigh` | 保持 `pending_review` |
 
 四档由“模型层级 + reasoning”共同定义，形成普通任务链与疑难任务链：
@@ -69,7 +70,7 @@ L0 不调用外部 AI。能由 CSV parser、JSON/YAML/schema、SQL、hash、rege
 
 配置真源为 `configs/model_routing.defaults.yaml`，运行时投影为 `apps/api/appsettings.json`。`terra/high` 与 `terra/xhigh` 的项目准入基于其图像输入、Structured Outputs 和 reasoning 支持，但视觉质量仍须由真实题卷 eval 验证；配置存在不等于 live accepted。路由结果必须记录 `stage`、`modelRole`、`modelName`、`reasoningEffort`、升级目标、prompt/schema 版本和输入证据。模型输出默认保持 `candidate/pending_review/productionEligible=false`，不得直接改变 active 资产。
 
-运行时同时返回默认路线和最终生效路线。`low_cost` 仅在当前任务声明的显式风险信号命中时升级；`balanced` 还会在置信度低于任务阈值时升级；`high_accuracy` 可对显式 opt-in 的普通路线预防性提前一级。风险信号按任务 allowlist 过滤，未知 mode fail-closed，确定性任务和没有升级目标的最高档任务永不隐式升级。当前信号包括 `cross_page`、`shared_visual`、`formula_or_table`、`semantic_conflict`、`multiple_constraints`、`formal_exam` 和 `source_evidence_conflict`。返回值中的 `effectiveModelRole`、`effectiveModelName`、`effectiveReasoningEffort`、`escalated` 和 `escalationReasons` 是实际执行选择；原 `model*` 字段保留默认路线用于审计。
+运行时同时返回默认路线和最终生效路线。`low_cost` 仅在当前任务声明的显式风险信号命中时升级；`balanced` 还会在置信度低于任务阈值时升级；`high_accuracy` 可对显式 opt-in 的普通路线预防性提前一级。风险信号按任务 allowlist 过滤，未知 mode fail-closed，确定性任务和没有升级目标的最高档任务永不隐式升级。`question_solving` 是明确例外：默认和最终路由始终固定为 `gpt-5.6-sol/xhigh`，不配置替代路线；题目难度和复杂度只影响复核优先级，不参与解题模型降档或换档。当前信号包括 `cross_page`、`shared_visual`、`formula_or_table`、`semantic_conflict`、`multiple_constraints`、`formal_exam` 和 `source_evidence_conflict`。返回值中的 `effectiveModelRole`、`effectiveModelName`、`effectiveReasoningEffort`、`escalated` 和 `escalationReasons` 是实际执行选择；原 `model*` 字段保留默认路线用于审计。
 
 ## 3.2 Codex 外层校验模型矩阵
 

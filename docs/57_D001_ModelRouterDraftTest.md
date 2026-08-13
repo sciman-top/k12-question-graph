@@ -13,6 +13,7 @@ D001 最初在正式 C002 未激活时只进入 draft/test 模式，目标是建
 - LLM 类任务只能路由到 `stub_llm`。
 - 路由结果包含 `routingVersion`、`promptVersion`、`schemaVersion`、`stage`、`modelRole`、`modelName`、`reasoningEffort`、`modelTier`、升级目标、`costTier`、`requiresHumanReview`、`productionEligible` 和 blockers。
 - 业务任务按任务类型路由，而不是整份文档固定一个模型：批量结构化使用 `gpt-5.6-terra/high`，常规语义复核使用 `gpt-5.6-sol/medium`，疑难视觉使用 `gpt-5.6-terra/xhigh`，复杂映射和组卷裁决使用 `gpt-5.6-sol/xhigh`。
+- `question_solving` 独立于 `answer_verification`：前者对普通、高难和复杂题均固定 `gpt-5.6-sol/xhigh` 且没有降档/换档路线；后者继续按普通一致性校验默认 `sol/medium`、风险升级 `sol/xhigh`。
 - 切图模型只提出带 `bbox` 和来源锚点的候选区域，实际裁切仍由确定性工具执行；组卷模型只复核候选和软约束，硬约束仍由规则/求解器执行。
 - 内部 API：`POST /internal/ai/model-route`。
 - 内部 API：`GET /internal/ai/providers`。
@@ -33,6 +34,7 @@ D001 不调用外部 AI provider，不写 AI 结果，不写正式知识体系�
 - `knowledge_tagging` 的计划路由为 `gpt-5.6-terra/high`，复杂语义升级到 `gpt-5.6-sol/medium`。
 - `crop_candidate_generation` 的计划路由为 `gpt-5.6-terra/xhigh`，视觉与题干语义冲突可升级到 `gpt-5.6-sol/xhigh`。
 - `paper_composition` 的计划路由为 `gpt-5.6-sol/xhigh`。
+- `question_solving` 在 `low_cost`、`balanced`、`high_accuracy` 及全部难度/复杂度风险信号下均固定 `gpt-5.6-sol/xhigh`，不定义替代路线。
 - `file_dedup` 保持 `local_deterministic/none`，不调用外部模型。
 - `stub_llm` provider 已注册且不支持真实模型调用。
 - 真实模型调用保持禁用。

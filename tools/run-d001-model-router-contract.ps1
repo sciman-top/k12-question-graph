@@ -116,6 +116,35 @@ try {
         if ($paper.reasoningEffort -ne 'xhigh') { throw "paper route reasoning mismatch" }
         if (-not $paper.schemaExists) { throw "paper route schema missing" }
 
+        foreach ($mode in @('low_cost','balanced','high_accuracy')) {
+            $solvingBody = [ordered]@{
+                taskType = 'question_solving'
+                mode = $mode
+                assetStatus = 'draft'
+                expectedConfidence = 0.1
+                riskSignals = [ordered]@{
+                    crossPage = $true
+                    sharedVisual = $true
+                    formulaOrTable = $true
+                    semanticConflict = $true
+                    multipleConstraints = $true
+                    formalExam = $true
+                    sourceEvidenceConflict = $true
+                }
+            } | ConvertTo-Json -Depth 4
+            $solving = Invoke-RestMethod -Method Post -Uri "$apiUrl/internal/ai/model-route" -ContentType 'application/json' -Body $solvingBody
+            if ($solving.stage -ne 'solving' -or $solving.modelRole -ne 'semantic_decision' -or $solving.modelName -ne 'gpt-5.6-sol' -or $solving.reasoningEffort -ne 'xhigh') {
+                throw "question solving must use gpt-5.6-sol/xhigh in $mode mode"
+            }
+            if ($solving.escalated -or $solving.effectiveModelName -ne 'gpt-5.6-sol' -or $solving.effectiveReasoningEffort -ne 'xhigh') {
+                throw "question solving must remain pinned under difficult and complex signals in $mode mode"
+            }
+            if ($solving.escalateToModel -or $solving.escalateReasoningEffort) { throw "question solving must not define an alternate model route" }
+            if ($solving.provider -ne 'stub_llm' -or $solving.productionEligible -or -not $solving.requiresHumanReview) {
+                throw "question solving must preserve stub, pending-review, and non-production boundaries"
+            }
+        }
+
         $dedupBody = [ordered]@{
             taskType = 'file_dedup'
             mode = 'low_cost'
@@ -168,6 +197,7 @@ try {
                 crop = "$($crop.modelName)/$($crop.reasoningEffort)"
                 cropRiskEffective = "$($cropRisk.effectiveModelName)/$($cropRisk.effectiveReasoningEffort)"
                 paper = "$($paper.modelName)/$($paper.reasoningEffort)"
+                questionSolving = "$($solving.modelName)/$($solving.reasoningEffort)"
                 deterministic = "$($dedup.modelName)/$($dedup.reasoningEffort)"
             }
             ruleProvider = $rule.provider

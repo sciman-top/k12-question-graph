@@ -1252,6 +1252,7 @@ public sealed class OpenAiCompatibleSmokeTestService(
         {
             "question_extraction" => "请根据题目图片 OCR 文本，输出结构化题目草稿。",
             "natural_language_paper_request" => "请把这段教师组卷需求解析成结构化蓝图。",
+            "question_solving" => "请独立解答这道物理题，给出答案、关键步骤与可复核依据。",
             "answer_verification" => "请独立校验一道物理题答案与解析是否一致。",
             _ => "请给出初中物理知识点映射候选，并保留人工复核边界。"
         };
@@ -1264,6 +1265,7 @@ public sealed class OpenAiCompatibleSmokeTestService(
         {
             "question_extraction" => Path.Combine("schemas", "ai", "question_extraction.schema.json"),
             "natural_language_paper_request" => Path.Combine("schemas", "ai", "natural_language_paper_request.schema.json"),
+            "question_solving" => Path.Combine("schemas", "ai", "answer_verification.schema.json"),
             "answer_verification" => Path.Combine("schemas", "ai", "answer_verification.schema.json"),
             _ => Path.Combine("schemas", "ai", "knowledge_mapping.schema.json")
         };

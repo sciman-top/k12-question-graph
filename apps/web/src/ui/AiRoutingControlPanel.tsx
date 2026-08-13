@@ -117,6 +117,7 @@ const smokeTaskOptions = [
   { value: 'knowledge_tagging', label: 'knowledge_tagging' },
   { value: 'question_extraction', label: 'question_extraction' },
   { value: 'natural_language_paper_request', label: 'natural_language_paper_request' },
+  { value: 'question_solving', label: 'question_solving' },
   { value: 'answer_verification', label: 'answer_verification' },
 ]
 
