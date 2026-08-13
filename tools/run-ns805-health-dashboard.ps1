@@ -232,7 +232,7 @@ try {
             hotspot = 'gate_na: no live operator dashboard session or isolated teacher-machine install; NS1001/P001 own live install and pilot validation'
         }
         boundary = 'NS805 proves a non-site administrator capacity/cost/health dashboard contract using draft/test API smoke and existing UI markers. It is not a live production monitoring rollout, and it does not install services, delete production data, call external AI, or change active assets.'
-        rollback = "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1 tools/README.md; git clean -f -- tools/run-ns805-health-dashboard.ps1 $ReportPath"
+        rollback = "git restore tasks/non-site-implementation-plan.csv tools/README.md; git clean -f -- tools/run-ns805-health-dashboard.ps1 $ReportPath"
         next = 'NS806 can continue EF migration bundle and upgrade rehearsal.'
     }
 

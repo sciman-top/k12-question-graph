@@ -5,8 +5,7 @@ param(
     [string]$DatabaseHost = '127.0.0.1',
     [int]$DatabasePort = 5432,
     [string]$DatabaseUser = 'postgres',
-    [string]$DatabasePassword = $env:PGPASSWORD,
-    [switch]$FullGateAuthorized
+    [string]$DatabasePassword = $env:PGPASSWORD
 )
 
 $ErrorActionPreference = 'Stop'
@@ -233,22 +232,6 @@ try {
         return [ordered]@{ suite = 'web'; total = $total; failed = 0; lint = 'pass' }
     }
 
-    if ($FullGateAuthorized) {
-        Invoke-SuiteStep -Name 'repository-full-gate' -Phase 'test/full' -Command 'pwsh -File tools/run-gates.ps1' -Action {
-            Invoke-CheckedNative -FilePath 'pwsh' -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', 'tools/run-gates.ps1') -LogPath (Join-Path $logRoot 'full-gate.log') | Out-Null
-            return [ordered]@{ authorization = 'explicit_switch'; result = 'pass' }
-        }
-    }
-    else {
-        $steps.Add([ordered]@{
-            name = 'repository-full-gate'
-            phase = 'test/full'
-            status = 'not_authorized'
-            command = 'pwsh -File tools/run-gates.ps1'
-            reason = 'AGENTS.md and CEK-34 require fresh explicit confirmation because the gate uses PostgreSQL and can pause/resume repository API processes.'
-        }) | Out-Null
-    }
-
     Invoke-SuiteStep -Name 'schema-and-evidence-contracts' -Phase 'contract/invariant' -Command 'parse CEK schemas/configs and verify CEK-01..33 evidence references' -Action {
         $jsonPaths = @(
             'schemas/curriculum_requirement.schema.json',
@@ -439,15 +422,13 @@ finally {
         $failure = "failed to delete isolated temporary root: $temporaryRoot"
     }
 
-    $fullGateStep = @($steps | Where-Object { $_.name -eq 'repository-full-gate' } | Select-Object -First 1)
-    $status = if ($null -ne $failure) { 'fail' } elseif ($FullGateAuthorized -and $fullGateStep.status -eq 'pass') { 'pass' } else { 'partial' }
+    $status = if ($null -ne $failure) { 'fail' } else { 'pass' }
     $report = [ordered]@{
         schemaVersion = 1
         taskId = 'CEK-34'
         generatedAt = (Get-Date).ToUniversalTime().ToString('o')
         status = $status
         cek34Complete = ($status -eq 'pass')
-        fullGateAuthorized = [bool]$FullGateAuthorized
         failure = $failure
         fixedOrder = @('build', 'test/full', 'contract/invariant', 'hotspot')
         steps = $steps
@@ -466,7 +447,7 @@ finally {
             real005 = 'not_closed'
             release = 'No-Go'
         }
-        next = if ($status -eq 'pass') { 'CEK-35 may synchronize status documents without changing external acceptance boundaries.' } elseif ($status -eq 'partial') { 'Obtain fresh explicit authorization, then rerun this suite with -FullGateAuthorized before closing CEK-34.' } else { 'Fix the failed step, confirm cleanup, and rerun the suite.' }
+        next = if ($status -eq 'pass') { 'CEK domain verification passed. Run the canonical Release verifier separately only when release authorization is required.' } else { 'Fix the failed step, confirm cleanup, and rerun the suite.' }
         rollback = [ordered]@{
             code = 'Revert only the CEK-34 suite and explicit dependency override after restoring a secure compatible dependency graph.'
             data = 'The unique temporary database and FileStore root are deleted in finally; production data is not a rollback target for this suite.'

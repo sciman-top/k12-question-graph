@@ -184,7 +184,7 @@ try {
         }
         endpointSources = @($ProgramPath, $AdminAiEndpointsPath)
         boundary = 'NS1305A proves the admin AI routing surface is no longer display-only: it must expose a reachable local-shell admin entry, a provider settings dialog, typed save/test APIs, masked secret handling, and automatic primary-to-fallback endpoint attempts while remaining draft/test and no-active-write.'
-        rollback = "git restore apps/web/src/App.tsx apps/web/src/App.css apps/web/vite.config.ts apps/web/src/ui/AiRoutingControlPanel.tsx apps/web/src/api/client.ts apps/web/src/api/contracts.ts apps/api/Program.cs tools/run-gates.ps1 tools/README.md; git clean -f -- $ReportPath tools/run-ns1305a-admin-ai-settings-dialog-contract.ps1"
+        rollback = "git restore apps/web/src/App.tsx apps/web/src/App.css apps/web/vite.config.ts apps/web/src/ui/AiRoutingControlPanel.tsx apps/web/src/api/client.ts apps/web/src/api/contracts.ts apps/api/Program.cs tools/README.md; git clean -f -- $ReportPath tools/run-ns1305a-admin-ai-settings-dialog-contract.ps1"
     }
 
     $reportFullPath = Join-Path $repoRoot $ReportPath

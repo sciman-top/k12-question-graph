@@ -377,11 +377,11 @@ try {
         }
         fullGate = [ordered]@{
             status = 'gate_na'
-            reason = 'tools/run-gates.ps1 may affect PostgreSQL and API processes and is reserved for the separately authorized CEK-34 gate'
+            reason = 'stateful Release requires explicit authorization because it uses PostgreSQL and isolated backup/restore rehearsal'
             alternative_verification = 'CEK-07 unit tests, rule/AI JSON Schema validation, fail-closed negative cases, Release build, roadmap guard, and static hotspot review'
             evidence_link = 'docs/evidence/cek007-curriculum-requirement-extraction-eval.json'
             expires_at = 'CEK-34'
-            recovery_condition = 'obtain current-task confirmation for PostgreSQL/API process impact and run tools/run-gates.ps1'
+            recovery_condition = 'obtain current-task authorization and run tools/run-verification.ps1 -Profile Release -AuthorizeStateful'
         }
         rollback = 'Delete the ignored CEK-07 candidates and revert only the CEK-07 schema, eval fixture, parser, tests, wrapper, documentation, and evidence. The CEK-06 source candidate, SourceRegion, database, and C002 active remain unchanged.'
         completionBoundary = 'CEK-07 proves reviewable rule facets and an offline AI output contract only. It does not call a real model, approve facets, create CEK-08 knowledge mappings, persist CEK-09 assets, write SourceRegion or database rows, switch C002 active, close REAL005, or establish teacher/live acceptance.'

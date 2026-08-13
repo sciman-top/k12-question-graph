@@ -144,7 +144,7 @@ try {
             hotspot = 'gate_na: no independent hotspot command; teacher workflow hotspot covered by same-knowledge/type/difficulty/score constraints, duplicate/recent-use exclusions, undo snapshot, and UI actions'
         }
         boundary = 'NS605 proves one-click replacement keeps teacher-facing paper constraints and returns an undo snapshot in draft_test mode without real model calls or production writes.'
-        rollback = "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns605-replace-undo.ps1 $ReportPath"
+        rollback = "git restore tasks/non-site-implementation-plan.csv; git clean -f -- tools/run-ns605-replace-undo.ps1 $ReportPath"
         next = 'NS606 can continue export preflight review before Word/PDF artifact generation.'
     }
 

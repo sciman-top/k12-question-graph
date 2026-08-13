@@ -244,7 +244,7 @@ try {
             hotspot = 'gate_na: no real cloud token enablement, no local model download, and no production default switch'
         }
         boundary = 'NS1305 proves the repository has an administrator-only role-routed AI configuration contract with simplified teacher modes, provider profile metadata, budget/cache/no-active-write links, and secret redaction. It does not enable real provider calls, does not store plaintext secrets, and does not switch production defaults.'
-        rollback = "git restore apps/web/src/ui/AdminGovernancePanels.tsx apps/web/src/App.css docs/04_TechnologyStack.md tools/README.md tools/run-gates.ps1 tasks/non-site-implementation-plan.csv tasks/productization-roadmap.csv; git clean -f -- apps/web/src/ui/AiRoutingControlPanel.tsx configs/ai-provider-profiles.defaults.yaml schemas/ai/provider_profiles.schema.json $ReportPath tools/run-ns1305-role-routed-ai-contract.ps1"
+        rollback = "git restore apps/web/src/ui/AdminGovernancePanels.tsx apps/web/src/App.css docs/04_TechnologyStack.md tools/README.md tasks/non-site-implementation-plan.csv tasks/productization-roadmap.csv; git clean -f -- apps/web/src/ui/AiRoutingControlPanel.tsx configs/ai-provider-profiles.defaults.yaml schemas/ai/provider_profiles.schema.json $ReportPath tools/run-ns1305-role-routed-ai-contract.ps1"
         next = 'NS1306 stays on the same allowlisted tool boundary while NS1305 provides the administrator AI routing contract underneath.'
     }
 

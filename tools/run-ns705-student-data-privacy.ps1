@@ -150,7 +150,7 @@ try {
             hotspot = 'gate_na: real school authorization and onsite privacy sign-off are not present; this gate blocks real data until those documents exist'
         }
         boundary = 'NS705 proves the non-site score and commentary chain remains synthetic/anonymized and fail-closed before any real student data pilot. It does not authorize processing real student records.'
-        rollback = "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns705-student-data-privacy.ps1 $ReportPath"
+        rollback = "git restore tasks/non-site-implementation-plan.csv; git clean -f -- tools/run-ns705-student-data-privacy.ps1 $ReportPath"
         next = 'NS801 can continue backup manifest drill.'
     }
 

@@ -291,7 +291,7 @@ def summarize_manifest(manifest: Mapping[str, Any], sha256: str) -> dict[str, An
                 "alternativeVerification": "API build and tests, scope contract, schema compatibility, roadmap/reference guards, Ruff, compile/AST, and REAL005B diagnostics",
                 "evidenceLink": "docs/evidence/cek010-question-scope-normalization.json",
                 "expiresAt": "CEK-34",
-                "recoveryCondition": "obtain the planned current confirmation and run tools/run-gates.ps1 at CEK-34",
+                "recoveryCondition": "obtain current-task authorization and run tools/run-verification.ps1 -Profile Release -AuthorizeStateful at CEK-34",
             },
         },
         "completionBoundary": (

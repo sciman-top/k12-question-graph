@@ -338,7 +338,7 @@ $report = [ordered]@{
         real005ClosureStatus = [string]$production.real005ClosureStatus
     }
     blockers = $blockers
-    rollback = 'git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns906-visual-surrogate-review.ps1 docs/evidence/20260528-ns906-visual-surrogate-review-report.json'
+    rollback = 'git restore tasks/non-site-implementation-plan.csv; git clean -f -- tools/run-ns906-visual-surrogate-review.ps1 docs/evidence/20260528-ns906-visual-surrogate-review-report.json'
     conclusion = if ($blockers.Count -eq 0) {
         'NS906 proves a deterministic visual surrogate can replace early manual spot checks for source screenshots, export artifacts, and analysis boundaries while keeping live/site closure not_closed.'
     } else {

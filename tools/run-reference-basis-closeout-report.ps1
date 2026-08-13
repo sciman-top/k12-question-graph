@@ -64,7 +64,7 @@ $dedicatedSlicePaths = @(
     'tasks/reference-basis-module-map.csv',
     'tasks/reference-basis-requirements.csv',
     'tools/run-reference-basis-guard.ps1',
-    'tools/run-repo-preflight.ps1',
+    'tools/run-verification.ps1',
     'tools/run-reference-basis-closeout-report.ps1',
     'tools/sync-reference-shelf-snapshot.ps1'
 )
@@ -75,7 +75,7 @@ $sharedTouchpointPaths = @(
     'docs/111_ProjectNavigationOverview.md',
     'sources/references.md',
     'tools/README.md',
-    'tools/run-gates.ps1'
+    'tools/run-reference-basis-guard.ps1'
 )
 
 $retainedEvidencePaths = @(

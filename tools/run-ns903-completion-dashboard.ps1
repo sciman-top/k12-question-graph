@@ -277,7 +277,7 @@ try {
             hotspot = 'gate_na: completion dashboard is evidence-only and does not include isolated-machine teacher observation, printer/network/domain checks, or live operator signoff'
         }
         boundary = 'NS903 refreshes the completion dashboard using runtime/E2E evidence and keeps live deployment and real full-closure claims blocked. It does not claim non_site_validated, release_ready, P001 closure, or REAL005 closure.'
-        rollback = "git restore tasks/completion-state-dashboard.csv tasks/non-site-implementation-plan.csv tools/run-gates.ps1 tools/README.md; git clean -f -- tools/run-ns903-completion-dashboard.ps1 $ReportPath"
+        rollback = "git restore tasks/completion-state-dashboard.csv tasks/non-site-implementation-plan.csv tools/README.md; git clean -f -- tools/run-ns903-completion-dashboard.ps1 $ReportPath"
         next = 'NS904 should assemble the P001 readiness evidence pack while keeping isolated-machine and onsite blockers explicit.'
     }
 

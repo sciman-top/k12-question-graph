@@ -62,7 +62,7 @@ try {
         }
         boundary = 'NS306 proves RapidOCR scanned PDF/image adapters produce pending_review OCR blocks and invalid images fail closed to manual takeover. It does not claim production OCR accuracy for real school materials.'
         next = 'NS307 can continue SourceRegion screenshot path invariants after PDF/OCR adapter evidence.'
-        rollback = 'git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns306-scan-ocr-adapter.ps1 docs/evidence/20260530-ns306-scan-ocr-adapter-report.json'
+        rollback = 'git restore tasks/non-site-implementation-plan.csv; git clean -f -- tools/run-ns306-scan-ocr-adapter.ps1 docs/evidence/20260530-ns306-scan-ocr-adapter-report.json'
     }
 
     $reportFullPath = Join-Path $repoRoot $ReportPath

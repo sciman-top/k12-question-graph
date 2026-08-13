@@ -185,7 +185,7 @@ try {
             hotspot = 'gate_na: no independent hotspot command; teacher workflow hotspot covered by visible understanding, review questions, pending_review guard, no basket before confirmation, no opaque generation'
         }
         boundary = 'NS604 proves natural-language paper requests are converted into reviewable understanding and blueprint drafts only; they do not create an opaque final paper or draft basket before teacher confirmation.'
-        rollback = "delete from paper_blueprint_reviews where id = '$($blueprint.id)'; git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns604-paper-request-understanding.ps1 $ReportPath"
+        rollback = "delete from paper_blueprint_reviews where id = '$($blueprint.id)'; git restore tasks/non-site-implementation-plan.csv; git clean -f -- tools/run-ns604-paper-request-understanding.ps1 $ReportPath"
         next = 'NS605 can continue one-click replacement and undo snapshot verification.'
     }
 

@@ -219,7 +219,7 @@ try {
             hotspot = 'gate_na: no real Windows service install/start/stop against isolated target machine; NS1001/P001 still own live deployment and operator validation'
         }
         boundary = 'NS1302 proves the repository has a Windows Service-first runtime contract and an administrator-only service control panel surface. It does not install or start a real Windows Service on a target machine, and it does not move teacher workflows into the control panel.'
-        rollback = "git restore apps/web/src/ui/AdminGovernancePanels.tsx apps/web/src/ui/ServiceControlPanel.tsx apps/web/src/App.css docs/04_TechnologyStack.md tasks/non-site-implementation-plan.csv tasks/productization-roadmap.csv tools/run-gates.ps1; git clean -f -- tools/run-ns1302-service-control-panel-contract.ps1 $ReportPath"
+        rollback = "git restore apps/web/src/ui/AdminGovernancePanels.tsx apps/web/src/ui/ServiceControlPanel.tsx apps/web/src/App.css docs/04_TechnologyStack.md tasks/non-site-implementation-plan.csv tasks/productization-roadmap.csv; git clean -f -- tools/run-ns1302-service-control-panel-contract.ps1 $ReportPath"
         next = 'NS1303 can continue host capability -> runtime profile/config generation after the control panel contract is fixed.'
     }
 

@@ -180,7 +180,7 @@ try {
             hotspot = 'gate_na: this non-site slice does not install a Windows Service, change firewall, or rehearse isolated target-machine service startup; NS1001/P001 own live install validation'
         }
         boundary = 'NS804 proves a Windows Service-ready publish package and contentRoot smoke without installing a service or changing host firewall/system configuration.'
-        rollback = "Remove-Item -LiteralPath '$packageRoot' -Recurse -Force; git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1 tools/README.md; git clean -f -- tools/run-ns804-windows-service-package.ps1 $ReportPath"
+        rollback = "Remove-Item -LiteralPath '$packageRoot' -Recurse -Force; git restore tasks/non-site-implementation-plan.csv tools/README.md; git clean -f -- tools/run-ns804-windows-service-package.ps1 $ReportPath"
         next = 'NS805 can continue capacity/cost/health dashboard; NS806 can continue EF migration bundle after NS804.'
     }
 

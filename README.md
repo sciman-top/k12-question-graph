@@ -86,10 +86,10 @@ Web:
 
 ```powershell
 .\tools\run-verification.ps1 -Profile Quick
-.\tools\run-verification.ps1 -Profile Slice -TaskId <TASK_ID>
+.\tools\run-verification.ps1 -Profile Slice -ChangedPaths <PATHS>
 ```
 
-`Quick` 是约 1 分钟级的全栈无状态基线；`Slice` 不隐式重跑 Quick，只执行 task/changed paths 命中的 API、Web、Worker 或治理最小链，空选择和未知路径 fail-closed。两者都不访问 PostgreSQL、不停止常驻进程、不写 FileStore 或 tracked evidence。发布前明确授权运行 `tools/run-verification.ps1 -Profile Release -AuthorizeStateful`：默认执行 Quick + 3 个风险聚焦阶段 + 状态对账，报告和恢复工件只进 `tmp/verification/`。`tools/run-gates.ps1` 不在默认 Release 中；只有追加 `-IncludeLegacyCompatibility` 才执行 legacy compatibility audit（当前 inventory 208 steps）。
+`Quick` 是全栈无状态基线；`Slice` 不隐式重跑 Quick，只按 changed paths 运行对应产品 build/test 或工具脚本质量，纯文档变更返回 `gate_na`，空选择和未知路径 fail-closed。两者都不访问 PostgreSQL、不停止常驻进程、不写 FileStore 或 tracked evidence。发布前明确授权运行 `tools/run-verification.ps1 -Profile Release -AuthorizeStateful`：执行 Quick + 3 个风险聚焦阶段 + 状态对账，报告和恢复工件只进 `tmp/verification/`。旧 235-step monolith 已退役，Git 历史是唯一回溯入口。
 
 无数据库密码时的 C002 动态资产 dry-run:
 
@@ -99,14 +99,14 @@ Web:
 
 该命令验证 source material admission、draft -> formal replacement mapping、migration impact、candidate admission 和 activation guard，不连接数据库、不写生产数据。数据库、migration、backup/restore 和 no-active-write 由默认 focused Release core 覆盖。
 
-仓库级预检（reference-basis / roadmap / closeout 一致性）：
+仓库级发布验证：
 
 ```powershell
-.\tools\run-repo-preflight.ps1 -Mode Ci
-.\tools\run-repo-preflight.ps1 -Mode Release -AuthorizeStateful
+.\tools\run-verification.ps1 -Profile Quick
+.\tools\run-verification.ps1 -Profile Release -AuthorizeStateful
 ```
 
-`-Mode Ci` 路由到 Quick；`-Mode Release -AuthorizeStateful` 路由到 focused Release core，不再重复一套 preflight 或直接调用 legacy monolith。需要兼容审计时再显式追加 `-IncludeLegacyCompatibility`。当前治理收口证据由 `docs/evidence/verification-governance-release-reconciliation.json` 和 `docs/evidence/index.json` 策展；任何 repo-side/Release 结果都不改变 `REAL005 = not_closed`、P001-P006 待办和 release No-Go。
+CI 与本地只调用同一个 canonical runner，不再保留 preflight wrapper、gate group、legacy compatibility audit 或覆盖对账器。current evidence 由 `docs/evidence/index.json` 策展；任何 repo-side/Release 结果都不改变 `REAL005 = not_closed`、P001-P006 待办和 release No-Go。
 
 C002 候选资料与真实来源资料入口：
 
@@ -257,11 +257,9 @@ tests/      自动化测试与黄金样本
 - `apps/api`: 已提供 `dotnet run --project apps/api`，健康检查为 `http://localhost:5275/health`。
 - `apps/web`: 已提供 `npm run dev --prefix apps/web`。
 - `workers/document`: 提供 worker smoke entry。
-- `tools/run-verification.ps1`: Quick/Slice/Release/Onsite 统一 profile 入口；普通编码默认 Quick/Slice。
-- `tools/run-gates.ps1`: legacy stateful compatibility audit（当前 inventory 208 steps），仅由 `-IncludeLegacyCompatibility` 显式调用，不属于默认 Release。
+- `tools/run-verification.ps1`: Quick/Slice/Release 唯一 profile 入口；普通编码默认 Slice，跨栈基线才运行 Quick；onsite/live acceptance 不提供伪自动化 profile。
 - `tools/run-automation-first-feature-contract-guard.ps1`: 功能实现 automation-first 合同守卫，确保待办任务先声明规则、脚本、专用功能和 evidence，再限定 AI/agent 使用范围。
 - `tools/run-reference-basis-guard.ps1`: 高风险任务参考依据守卫，要求架构、Windows Service、PowerShell 运维、OCR/toolchain、export、score-analysis、AI routing、搜索、互操作以及 `P001/P003/P005/P006` 这类 live pilot / release closeout 任务先在 `tasks/reference-basis-requirements.csv` 中登记官方来源与本地参考库锚点；本机若挂载了外部参考库，还会同时核对仓内 snapshot 与外部 manifest 是否同构。
-- `tools/run-repo-preflight.ps1`: 兼容预检入口，内部路由到新的 verification profiles。
 - `tools/run-c002-dry-run-suite.ps1`: 无数据库的 C002 动态资产 dry-run 入口。
 - `tools/run-d001-model-router-contract.ps1`: D001 draft/test ModelRouter 合同。
 - `tools/run-d003-structured-output-eval.ps1`: D003 draft/test 结构化输出 eval smoke。

@@ -152,7 +152,7 @@ try {
             hotspot = 'gate_na: no real school score sheet or teacher UI session; synthetic API/UI contract covers non-site mapping semantics'
         }
         boundary = 'NS702 proves item-score mappings can be previewed against question and knowledge references, while unclear mappings are centralized for teacher review and never silently dropped.'
-        rollback = "delete synthetic S011B rows recorded in $s011bPath if needed; git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns702-item-score-mapping.ps1 $ReportPath $s011bPath"
+        rollback = "delete synthetic S011B rows recorded in $s011bPath if needed; git restore tasks/non-site-implementation-plan.csv; git clean -f -- tools/run-ns702-item-score-mapping.ps1 $ReportPath $s011bPath"
         next = 'NS703 can continue analysis metrics verification.'
     }
 

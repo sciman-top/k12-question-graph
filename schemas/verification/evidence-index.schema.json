@@ -5,7 +5,7 @@
   "type": "object",
   "required": ["schemaVersion", "scope", "policy", "entries"],
   "properties": {
-    "schemaVersion": { "const": 1 },
+    "schemaVersion": { "const": 2 },
     "scope": { "const": "curated_current_only" },
     "policy": {
       "type": "object",
@@ -22,11 +22,10 @@
       "minItems": 1,
       "items": {
         "type": "object",
-        "required": ["id", "currentPath", "supersededPaths", "authorityLevel", "claimBoundary", "state"],
+        "required": ["id", "currentPath", "authorityLevel", "claimBoundary", "state"],
         "properties": {
           "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
           "currentPath": { "type": "string", "pattern": "^docs/evidence/" },
-          "supersededPaths": { "type": "array", "items": { "type": "string", "pattern": "^docs/evidence/" } },
           "authorityLevel": { "enum": ["repo-side", "release-side", "onsite-manual", "live-accepted"] },
           "claimBoundary": { "type": "string", "minLength": 1 },
           "state": { "const": "current" }

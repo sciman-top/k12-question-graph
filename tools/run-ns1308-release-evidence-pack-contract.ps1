@@ -187,7 +187,7 @@ try {
             hotspot = 'gate_na: no isolated-machine install, no printer/network/domain run, no onsite teacher observation, and no release signoff in this slice'
         }
         boundary = 'NS1308 proves the repository now has an aggregated non-site release evidence pack covering installer dry-run, Windows Service package shape, backup/restore, upgrade bundle, permission audit evidence, and the P001 readiness pack. It does not execute the isolated-machine rehearsal, does not close P001/P003/P005/P006, and does not create a release candidate.'
-        rollback = "git restore docs/103_ExecutionControlBoard.md docs/109_ReleaseGoNoGoCard.md tasks/backlog.csv tasks/non-site-implementation-plan.csv tasks/productization-roadmap.csv tools/run-gates.ps1 tools/README.md; git clean -f -- tools/run-ns1308-release-evidence-pack-contract.ps1 $ReportPath docs/evidence/20260607-ns1308-release-evidence-pack-closure.md"
+        rollback = "git restore docs/103_ExecutionControlBoard.md docs/109_ReleaseGoNoGoCard.md tasks/backlog.csv tasks/non-site-implementation-plan.csv tasks/productization-roadmap.csv tools/README.md; git clean -f -- tools/run-ns1308-release-evidence-pack-contract.ps1 $ReportPath docs/evidence/20260607-ns1308-release-evidence-pack-closure.md"
         next = 'P001 becomes the remaining mainline entry; the repository-side NS13 closure no longer blocks progression to isolated-machine and onsite facts.'
     }
 

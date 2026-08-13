@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "scope": "curated_current_only",
   "policy": {
     "quickSliceRoot": "tmp/verification",
@@ -8,17 +8,8 @@
   },
   "entries": [
     {
-      "id": "automation-first-contract",
-      "currentPath": "docs/evidence/20260508-automation-first-feature-contract-report.json",
-      "supersededPaths": [],
-      "authorityLevel": "repo-side",
-      "claimBoundary": "deterministic task admission contract only",
-      "state": "current"
-    },
-    {
       "id": "completion-state-dashboard",
       "currentPath": "docs/evidence/20260506-s001-completion-state-dashboard.json",
-      "supersededPaths": [],
       "authorityLevel": "repo-side",
       "claimBoundary": "dashboard structure and task projection only",
       "state": "current"
@@ -26,10 +17,6 @@
     {
       "id": "reference-basis",
       "currentPath": "docs/evidence/20260801-reference-basis-guard.json",
-      "supersededPaths": [
-        "docs/evidence/20260731-reference-basis-guard.json",
-        "docs/evidence/20260730-reference-basis-guard.json"
-      ],
       "authorityLevel": "repo-side",
       "claimBoundary": "reference manifest parity and governed module coverage",
       "state": "current"
@@ -37,10 +24,6 @@
     {
       "id": "real005-closure-standard",
       "currentPath": "docs/evidence/20260801-real005-guangzhou-2015-2025-closure-standard-report.json",
-      "supersededPaths": [
-        "docs/evidence/20260731-real005-guangzhou-2015-2025-closure-standard-report.json",
-        "docs/evidence/20260730-real005-guangzhou-2015-2025-closure-standard-report.json"
-      ],
       "authorityLevel": "repo-side",
       "claimBoundary": "REAL005 remains not_closed and cannot establish onsite or live acceptance",
       "state": "current"
@@ -48,10 +31,6 @@
     {
       "id": "p001-readiness",
       "currentPath": "docs/evidence/20260731-p001-live-pilot-readiness-preflight-report.json",
-      "supersededPaths": [
-        "docs/evidence/20260730-p001-live-pilot-readiness-preflight-report.json",
-        "docs/evidence/20260729-p001-live-pilot-readiness-preflight-report.json"
-      ],
       "authorityLevel": "release-side",
       "claimBoundary": "preflight readiness only; isolated-machine and operator acceptance remain external",
       "state": "current"
@@ -59,10 +38,6 @@
     {
       "id": "p006-release-decision",
       "currentPath": "docs/evidence/20260731-p006-release-decision-admission-report.json",
-      "supersededPaths": [
-        "docs/evidence/20260730-p006-release-decision-admission-report.json",
-        "docs/evidence/20260729-p006-release-decision-admission-report.json"
-      ],
       "authorityLevel": "release-side",
       "claimBoundary": "No-Go admission evidence; not a signed release decision",
       "state": "current"
@@ -70,10 +45,6 @@
     {
       "id": "live-pilot-closeout-plan",
       "currentPath": "docs/evidence/20260731-live-pilot-closeout-plan-guard.json",
-      "supersededPaths": [
-        "docs/evidence/20260730-live-pilot-closeout-plan-guard.json",
-        "docs/evidence/20260729-live-pilot-closeout-plan-guard.json"
-      ],
       "authorityLevel": "repo-side",
       "claimBoundary": "closeout plan consistency only; no onsite completion",
       "state": "current"
@@ -81,28 +52,8 @@
     {
       "id": "status-sync",
       "currentPath": "docs/evidence/20260731-ns905-status-sync.md",
-      "supersededPaths": [
-        "docs/evidence/20260730-ns905-status-sync.md",
-        "docs/evidence/20260729-ns905-status-sync.md"
-      ],
       "authorityLevel": "repo-side",
       "claimBoundary": "status projection consistency only",
-      "state": "current"
-    },
-    {
-      "id": "verification-governance-release-reconciliation",
-      "currentPath": "docs/evidence/verification-governance-release-reconciliation.json",
-      "supersededPaths": [],
-      "authorityLevel": "release-side",
-      "claimBoundary": "focused default Release core and optional legacy audit reconciliation only; not onsite, live acceptance, or a Go decision",
-      "state": "current"
-    },
-    {
-      "id": "verification-governance-performance-audit",
-      "currentPath": "docs/evidence/verification-governance-performance-audit.json",
-      "supersededPaths": [],
-      "authorityLevel": "repo-side",
-      "claimBoundary": "local orchestration performance and governance entrypoint audit only; stateful Release was not rerun and no onsite or live acceptance is claimed",
       "state": "current"
     }
   ]

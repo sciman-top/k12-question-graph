@@ -193,7 +193,7 @@ try {
             hotspot = 'gate_na: no real class interpretation session or formal historical analytics; deterministic draft report export covers non-site report generation'
         }
         boundary = 'NS704 proves commentary report draft export and layered practice suggestions from deterministic score metrics after item-score mapping. It does not process real student data, enable AI-written production commentary, or write formal historical analytics.'
-        rollback = "delete synthetic S011C rows recorded in $S011CReportPath if needed; git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns704-commentary-report.ps1 $ReportPath $S011CReportPath"
+        rollback = "delete synthetic S011C rows recorded in $S011CReportPath if needed; git restore tasks/non-site-implementation-plan.csv; git clean -f -- tools/run-ns704-commentary-report.ps1 $ReportPath $S011CReportPath"
         next = 'NS705 can continue real-student-data privacy admission audit.'
     }
 

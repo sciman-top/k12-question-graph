@@ -105,7 +105,7 @@ try {
             hotspot = 'gate_na: no isolated restore yet; NS802 owns restore drill from this or a fresh manifest'
         }
         boundary = 'NS801 proves a local draft/test backup manifest can be generated and hash-verified for database, file store, configs, templates, and evidence. Restore is intentionally deferred to NS802.'
-        rollback = "delete $BackupRoot if this dry-run backup is no longer needed; git restore tools/backup.ps1 tools/verify-backup.ps1 tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns801-backup-manifest.ps1 $ReportPath"
+        rollback = "delete $BackupRoot if this dry-run backup is no longer needed; git restore tools/backup.ps1 tools/verify-backup.ps1 tasks/non-site-implementation-plan.csv; git clean -f -- tools/run-ns801-backup-manifest.ps1 $ReportPath"
         next = 'NS802 can continue isolated restore drill.'
     }
 

@@ -198,7 +198,7 @@ try {
             hotspot = 'gate_na: no real school Excel or onsite privacy workflow; deterministic synthetic workbook/API contract covers non-site score-template mapping'
         }
         boundary = 'NS701 proves synthetic Excel template mapping, reusable template persistence, centralized abnormal rows, and PII fail-closed behavior before score analysis. It does not process real student records or switch formal analytics history.'
-        rollback = "delete $F002OutputRoot, $F002ReportPath, and $S011AReportPath if needed; git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns701-score-template-mapping.ps1 $ReportPath"
+        rollback = "delete $F002OutputRoot, $F002ReportPath, and $S011AReportPath if needed; git restore tasks/non-site-implementation-plan.csv; git clean -f -- tools/run-ns701-score-template-mapping.ps1 $ReportPath"
         next = 'NS702 can continue item score mapping UI/API.'
     }
 

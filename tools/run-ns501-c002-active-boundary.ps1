@@ -156,7 +156,7 @@ try {
         }
         boundary = 'NS501 proves active C002 v1 is the default reference for question search, paper assembly constraints, and knowledge mastery analysis while future revisions remain candidate/review/rollback guarded. It is read-only, performs no active switch, writes no production history, uses no real student data, and does not close REAL005.'
         next = 'NS502 can continue AI schema/eval so AI suggestions stay candidate/pending_review with no active write.'
-        rollback = "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns501-c002-active-boundary.ps1 docs/evidence/20260530-ns501-c002-active-boundary.json docs/evidence/20260530-ns501-k001-source-report.json"
+        rollback = "git restore tasks/non-site-implementation-plan.csv; git clean -f -- tools/run-ns501-c002-active-boundary.ps1 docs/evidence/20260530-ns501-c002-active-boundary.json docs/evidence/20260530-ns501-k001-source-report.json"
     }
 
     $reportFullPath = Join-Path $repoRoot $ReportPath

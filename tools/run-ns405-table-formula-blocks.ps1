@@ -189,7 +189,7 @@ try {
         }
         boundary = 'NS405 proves structured table and formula QuestionBlock contracts through REAL009/REAL010 API smoke plus API/worker markers. It does not claim full Word/PDF export visual fidelity or onsite teacher validation.'
         next = 'NS406 can combine NS404 and NS405 evidence for question edit, recrop, merge/split, and audit.'
-        rollback = "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns405-table-formula-blocks.ps1 docs/evidence/20260530-ns405-table-formula-blocks-report.json docs/evidence/20260530-ns405-real009-table-source-report.json docs/evidence/20260530-ns405-real010-formula-source-report.json"
+        rollback = "git restore tasks/non-site-implementation-plan.csv; git clean -f -- tools/run-ns405-table-formula-blocks.ps1 docs/evidence/20260530-ns405-table-formula-blocks-report.json docs/evidence/20260530-ns405-real009-table-source-report.json docs/evidence/20260530-ns405-real010-formula-source-report.json"
     }
 
     $reportFullPath = Join-Path $repoRoot $ReportPath

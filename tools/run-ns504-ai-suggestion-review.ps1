@@ -166,7 +166,7 @@ try {
         }
         boundary = 'NS504 proves AI suggestions are stored as review-queue candidates and teacher feedback/confirmation gates writeback. S007B verifies no question write before confirmation; S007C verifies teacher confirm creates a QuestionItem and KnowledgeMapping, then undo removes that confirmed question and mapping link. It does not enable real model calls, local models, external AI, or C002 active switching.'
         next = 'NS505 can continue teacher modification feedback and eval-loop evidence without auto-promoting prompt or production assets.'
-        rollback = "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1 tools/run-s007b-db-backed-suggestion-queue-smoke.ps1 tools/run-s007c-teacher-confirm-writeback-smoke.ps1; git clean -f -- tools/run-ns504-ai-suggestion-review.ps1 docs/evidence/20260530-ns504-ai-suggestion-review-report.json docs/evidence/20260530-ns504-s007b-source-report.json docs/evidence/20260530-ns504-s007c-source-report.json"
+        rollback = "git restore tasks/non-site-implementation-plan.csv tools/run-s007b-db-backed-suggestion-queue-smoke.ps1 tools/run-s007c-teacher-confirm-writeback-smoke.ps1; git clean -f -- tools/run-ns504-ai-suggestion-review.ps1 docs/evidence/20260530-ns504-ai-suggestion-review-report.json docs/evidence/20260530-ns504-s007b-source-report.json docs/evidence/20260530-ns504-s007c-source-report.json"
     }
 
     $reportFullPath = Join-Path $repoRoot $ReportPath

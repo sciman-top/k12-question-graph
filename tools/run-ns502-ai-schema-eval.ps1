@@ -156,7 +156,7 @@ try {
         }
         boundary = 'NS502 proves AI-related schema/eval and candidate dry-run outputs remain draft_test, candidate/pending_review, productionEligible=false, noActiveWrite, and externalAiCalls=0. Commentary draft coverage is deterministic S011C plus trend summary candidate evidence, not a real AI-generated production report.'
         next = 'NS503 can continue ModelRouter budget, cache, token, and fail-closed routing contracts without enabling real model calls.'
-        rollback = "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns502-ai-schema-eval.ps1 docs/evidence/20260530-ns502-ai-schema-eval-report.json docs/evidence/20260530-ns502-c002o-candidate-extraction-eval-report.json docs/evidence/20260530-ns502-c002q-ai-extract-dry-run-report.json"
+        rollback = "git restore tasks/non-site-implementation-plan.csv; git clean -f -- tools/run-ns502-ai-schema-eval.ps1 docs/evidence/20260530-ns502-ai-schema-eval-report.json docs/evidence/20260530-ns502-c002o-candidate-extraction-eval-report.json docs/evidence/20260530-ns502-c002q-ai-extract-dry-run-report.json"
     }
 
     $reportFullPath = Join-Path $repoRoot $ReportPath

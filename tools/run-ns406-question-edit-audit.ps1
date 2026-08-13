@@ -169,7 +169,7 @@ try {
         }
         boundary = 'NS406 proves question edit and recrop audit through REAL011 API smoke, plus NS404 QuestionAsset and NS405 table/formula dependencies. Knowledge tag edit is verified as an API contract path marker, not a separate live UI interaction. It does not claim onsite teacher validation.'
         next = 'NS501 can continue C002 active reference boundary after NS4 edit/import review chain is runtime verified.'
-        rollback = "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns406-question-edit-audit.ps1 docs/evidence/20260530-ns406-question-edit-audit-report.json docs/evidence/20260530-ns406-real011-source-report.json"
+        rollback = "git restore tasks/non-site-implementation-plan.csv; git clean -f -- tools/run-ns406-question-edit-audit.ps1 docs/evidence/20260530-ns406-question-edit-audit-report.json docs/evidence/20260530-ns406-real011-source-report.json"
     }
 
     $reportFullPath = Join-Path $repoRoot $ReportPath

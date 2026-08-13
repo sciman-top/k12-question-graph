@@ -155,7 +155,7 @@ try {
         }
         boundary = 'NS204 proves non-site AI/import/dynamic-asset/analysis flows remain draft, candidate, pending_review, noActiveWrite, or not_closed; it does not enable production active switches.'
         next = 'NS301 can continue SourceDocument evidence layer and upload metadata smoke.'
-        rollback = 'git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns204-no-active-write-guard.ps1 docs/evidence/20260529-ns204-no-active-write-guard-report.json'
+        rollback = 'git restore tasks/non-site-implementation-plan.csv; git clean -f -- tools/run-ns204-no-active-write-guard.ps1 docs/evidence/20260529-ns204-no-active-write-guard-report.json'
     }
 
     $reportFullPath = Join-Path $repoRoot $ReportPath

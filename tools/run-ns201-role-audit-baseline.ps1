@@ -122,7 +122,7 @@ try {
         }
         boundary = 'NS201 establishes a non-site role/audit baseline for admin/internal and high-risk admin writes. It does not replace per-workflow role checks during live pilot.'
         next = 'NS202 can continue admin/internal fail-closed regression as an explicit non-site security guard.'
-        rollback = 'git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns201-role-audit-baseline.ps1 docs/evidence/20260529-ns201-role-audit-baseline-report.json'
+        rollback = 'git restore tasks/non-site-implementation-plan.csv; git clean -f -- tools/run-ns201-role-audit-baseline.ps1 docs/evidence/20260529-ns201-role-audit-baseline-report.json'
     }
 
     $reportFullPath = Join-Path $repoRoot $ReportPath

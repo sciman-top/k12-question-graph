@@ -206,11 +206,11 @@ where asset_type='knowledge_point' and status='active';
         }
         fullGate = [ordered]@{
             status = 'gate_na'
-            reason = 'tools/run-gates.ps1 may affect PostgreSQL and API processes and is reserved for the separately authorized CEK-34 gate'
+            reason = 'stateful Release requires explicit authorization because it uses PostgreSQL and isolated backup/restore rehearsal'
             alternative_verification = 'CEK-08 unit tests, JSON Schema definitions, deterministic real-candidate crosswalk, Release build, roadmap guard, and static hotspot review'
             evidence_link = 'docs/evidence/cek008-curriculum-knowledge-crosswalk.json'
             expires_at = 'CEK-34'
-            recovery_condition = 'obtain current-task confirmation for PostgreSQL/API process impact and run tools/run-gates.ps1'
+            recovery_condition = 'obtain current-task authorization and run tools/run-verification.ps1 -Profile Release -AuthorizeStateful'
         }
         rollback = 'Delete the ignored tmp/cek008 outputs and revert only CEK-08 code, tests, schema definitions, template, wrapper, docs, and evidence. No database or active state changed.'
         completionBoundary = 'CEK-08 creates deterministic review candidates only. It does not approve semantic mappings, insert KnowledgeNode or DomainAssetMapping rows, persist CEK-09 assets, call a model, switch C002 active, close REAL005, or establish teacher/live acceptance.'

@@ -211,7 +211,7 @@ try {
         }
         boundary = 'NS104 guards the service-backed non-site core write chain and tracks remaining legacy direct-DB endpoints; it does not claim Program.cs is fully thin yet.'
         next = 'NS105 can continue frontend typed-client boundary; NS402/NS403 should migrate review queue and review workbench endpoint orchestration into services.'
-        rollback = 'git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns104-application-service-boundary.ps1 docs/evidence/20260529-ns104-application-service-boundary-report.json'
+        rollback = 'git restore tasks/non-site-implementation-plan.csv; git clean -f -- tools/run-ns104-application-service-boundary.ps1 docs/evidence/20260529-ns104-application-service-boundary-report.json'
     }
 
     $reportFullPath = Join-Path $repoRoot $ReportPath

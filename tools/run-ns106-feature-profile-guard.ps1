@@ -146,7 +146,7 @@ try {
         }
         boundary = 'NS106 is a read-only config/profile guard. It does not enable cloud AI, local LLM, OCR route changes, active switches, or production defaults.'
         next = 'NS201 can continue role permission and high-risk audit baseline.'
-        rollback = 'git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns106-feature-profile-guard.ps1 docs/evidence/20260529-ns106-feature-profile-guard-report.json'
+        rollback = 'git restore tasks/non-site-implementation-plan.csv; git clean -f -- tools/run-ns106-feature-profile-guard.ps1 docs/evidence/20260529-ns106-feature-profile-guard-report.json'
     }
 
     $reportFullPath = Join-Path $repoRoot $ReportPath

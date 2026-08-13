@@ -407,7 +407,7 @@ try {
             hotspot = 'gate_na: live P001 requires isolated target-machine installation, school network/printer/domain checks, real teacher observation, and operator signoff; this script only packages and guards the preflight evidence'
         }
         boundary = 'NS904 proves that the P001 readiness evidence pack is assembled and ready for an isolated-machine run. It does not execute the isolated-machine run, does not close P001, does not mark release_ready/non_site_validated, and does not close REAL005.'
-        rollback = "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1 tools/README.md; git clean -f -- tools/run-ns904-p001-readiness-pack.ps1 $ReportPath"
+        rollback = "git restore tasks/non-site-implementation-plan.csv tools/README.md; git clean -f -- tools/run-ns904-p001-readiness-pack.ps1 $ReportPath"
         next = 'NS905 can audit backlog/completion-dashboard/NS plan status synchronization; NS1001/P001 still require isolated-machine execution evidence.'
     }
 

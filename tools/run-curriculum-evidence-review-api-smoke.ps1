@@ -381,11 +381,11 @@ where review_type='curriculum_evidence_decision'
         }
         fullGate = [ordered]@{
             status = 'gate_na'
-            reason = 'tools/run-gates.ps1 may affect PostgreSQL and API processes and is reserved for CEK-34 current confirmation'
+            reason = 'stateful Release requires current explicit authorization because it uses PostgreSQL and isolated backup/restore rehearsal'
             alternative_verification = 'CEK-25 backup verification, API build, targeted red-green tests, live decision/undo smoke, database fingerprint parity, roadmap/reference guards, and static hotspot audit'
             evidence_link = 'docs/evidence/cek025-curriculum-evidence-review-api.json'
             expires_at = 'CEK-34'
-            recovery_condition = 'obtain the planned current confirmation and run tools/run-gates.ps1 at CEK-34'
+            recovery_condition = 'obtain current-task authorization and run tools/run-verification.ps1 -Profile Release -AuthorizeStateful at CEK-34'
         }
         identityBoundary = 'reviewer and actorRole are request audit fields in the current local API; authenticated identity and authorization are not proven by CEK-25.'
         completionBoundary = 'CEK-25 proves local candidate review, audit, batch admission, readiness, stale-undo rejection, and undo only. C002R migration/active switch, authenticated identity/authorization, CEK-20 persistence, teacher UI acceptance, and REAL005 remain open.'

@@ -22,7 +22,7 @@
 - DB migration、active 切换、备份恢复、权限、外部 AI、真实数据与生产统计口径属于中高风险，先说明 snapshot/restore 与验收证据。
 - AI 输出默认 `draft/test/pending_review`，不得自动写生产或绕过人工审核。
 - 大文件与程序分离，数据库只存 metadata、path、hash 和 status。
-- `tools/run-gates.ps1` 会使用 PostgreSQL 并可能暂停或恢复 API；运行前必须获得当前任务明确确认，不能当无副作用 quick gate。
+- `tools/run-verification.ps1 -Profile Release -AuthorizeStateful` 会使用 PostgreSQL 并执行隔离备份恢复演练；只能在当前任务明确授权后运行，不能当无副作用 quick gate。
 - 新功能说明减少的教师步骤、维护负担、失败继续路径及成本、隐私和备份影响。
 - Markdown 规则只指导教师价值与风险；权限、schema、active switch、备份恢复和 gate 选择由 API/DB 约束、脚本、测试与 CI 强制。
 
@@ -33,11 +33,11 @@
 
 ## C. 门禁、证据与回滚
 - fixed order：`build -> test -> contract/invariant -> hotspot`。
-- 日常切片：`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-verification.ps1 -Profile Slice -TaskId <TASK_ID>`；只运行 changed-path/task 命中的 build、test、contract/invariant、hotspot，空选择或未知路径 fail-closed。
+- 日常切片：`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-verification.ps1 -Profile Slice -ChangedPaths <PATHS>`；产品路径只运行对应 build/test，工具路径只运行脚本质量，纯文档为 `gate_na`，空选择或未知路径 fail-closed。
 - 全栈无状态基线：`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-verification.ps1 -Profile Quick`；不得访问 PostgreSQL、停止进程、写 FileStore 或 tracked evidence。
-- 发布门禁：明确授权后运行 `pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-verification.ps1 -Profile Release -AuthorizeStateful`；legacy `tools/run-gates.ps1` 仅由 `-IncludeLegacyCompatibility` 显式进入，不是默认 test/full。
-- contract/invariant 与 hotspot 由 Slice/Release 路由；单独复核可运行 `tools/run-roadmap-guard.ps1` 和 `tools/run-product-hotspot-budget-guard.ps1`。
-- 进程或 DB 授权缺失时 Release/legacy test 按完整 N/A 字段留痕，不能改写门禁顺序或伪称 full gate。
+- 发布门禁：明确授权后运行 `pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-verification.ps1 -Profile Release -AuthorizeStateful`；已退役的 legacy monolith 只保留在 Git 历史中，不再有可执行兼容入口。
+- contract/invariant 仅在当前变更触发相应风险时运行；不以历史任务、固定行数预算或迁移对账作为永久门禁。
+- 进程或 DB 授权缺失时 Release 按完整 N/A 字段留痕，不能改写门禁顺序或伪称 full gate。
 - 证据放 `docs/evidence/`，区分 repo-side、onsite/manual、deployed 与 live accepted。
 - 回滚只撤销本任务；schema、data 或 active 变化必须附 migration down、snapshot/restore 与兼容读取证明。
 

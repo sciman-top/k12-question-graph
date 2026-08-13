@@ -127,7 +127,7 @@ try {
         }
         boundary = 'NS308 proves the import quality report contract can output source-document metrics, gaps, pending manual items, external-AI count, and rollback SQL. It does not claim real full-paper or 2015-2025 production closure.'
         next = 'NS401 can continue cut-candidate service after the quality report exposes per-material gaps and takeover needs.'
-        rollback = "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns308-import-quality-report.ps1 docs/evidence/20260530-ns308-import-quality-report.json docs/evidence/20260530-ns308-real012-quality-source-report.json"
+        rollback = "git restore tasks/non-site-implementation-plan.csv; git clean -f -- tools/run-ns308-import-quality-report.ps1 docs/evidence/20260530-ns308-import-quality-report.json docs/evidence/20260530-ns308-real012-quality-source-report.json"
     }
 
     $reportFullPath = Join-Path $repoRoot $ReportPath

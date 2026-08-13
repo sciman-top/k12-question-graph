@@ -25,13 +25,13 @@ build -> test -> contract/invariant -> hotspot
 
 ### Slice
 
-适用于当前 task：不先跑整套 Quick，而是根据 task ID、changed paths、风险和 owner module 选择最小 build/test/contract/invariant/hotspot 链。API、Web、Worker 各自保留 build/test 闭环；docs/governance 不拉起无关产品栈。unknown path、空选择必须 fail-closed 或提升 profile。
+适用于当前变更：不先跑整套 Quick，而是根据 changed paths 选择最小链。API、Web、Worker 各自保留 build/test 闭环；工具只做脚本质量；纯 docs 为 `gate_na`。unknown path、空选择必须 fail-closed 或提升 profile。
 
 ### Release
 
 适用于 release candidate 或明确授权的 stateful closeout。默认 Release = Quick + migration/privacy/API/no-active-write contracts + NS806 isolated backup/restore/upgrade + closure invariants + 状态指纹对账；不遍历 legacy monolith，不刷新日期化 tracked evidence，不写共享 FileStore fixture。允许的 DB 影响必须提前声明。
 
-只有显式 `-IncludeLegacyCompatibility` 才运行 legacy audit（当前 inventory 208 steps）；它用于低频兼容审计，不是默认发布阻断链。
+旧 235-step legacy monolith 已退役；需要历史取证时读取 Git，不再运行或维护兼容审计。
 
 ### Onsite
 
@@ -102,6 +102,6 @@ Q001-Q005 和 R001-R007 在 P006 前不进入默认 Quick；仅在 changed paths
 当前迁移状态：
 
 - `tools/run-verification.ps1 -Profile Quick|Slice` 是普通入口；Quick 是全栈无状态基线，Slice 是 task/path 聚焦链，报告只进入 `tmp/verification/`；
-- 默认 Release 通过 `tools/run-verification.ps1 -Profile Release -AuthorizeStateful` 执行聚焦 core；`tools/run-gates.ps1` 只能由 `-IncludeLegacyCompatibility` 显式进入；
+- 默认 Release 通过 `tools/run-verification.ps1 -Profile Release -AuthorizeStateful` 执行聚焦 core；仓库不再保留第二套 full gate；
 - 默认 Release 必须记录 DB/FileStore/进程前后指纹，`sharedFileStoreWriteExpected=false`；状态 pass 不得掩盖 FileStore 变化或数据库 row-level 未比较的边界；
 - Onsite 仍只接受真实环境、操作者、输入、时间与签字证据。

@@ -321,7 +321,7 @@ try {
             hotspot = 'gate_na: no package install, no model download, no driver/runtime mutation, and no production default switch'
         }
         boundary = 'NS1304 proves the current host stays on an open-source/free toolchain profile with explicit admission evidence and fail-closed fallbacks. Available optional tools remain available_but_not_admitted, missing tools remain blocked_missing_tool_fall_closed, and no default OCR/export route changes automatically.'
-        rollback = "git restore tasks/non-site-implementation-plan.csv tasks/productization-roadmap.csv tools/run-gates.ps1 tools/README.md; git clean -f -- configs/toolchain-admission.catalog.yaml tools/run-ns1304-toolchain-admission-contract.ps1 $ReportPath"
+        rollback = "git restore tasks/non-site-implementation-plan.csv tasks/productization-roadmap.csv tools/README.md; git clean -f -- configs/toolchain-admission.catalog.yaml tools/run-ns1304-toolchain-admission-contract.ps1 $ReportPath"
         next = 'NS1305 can continue role-routed AI admission on top of the fixed toolchain/profile boundary.'
     }
 

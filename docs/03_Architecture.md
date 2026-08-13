@@ -304,7 +304,7 @@ task/backlog + changed paths + risk
 - Quick/Slice 不依赖常驻治理服务，不写 tracked evidence。
 - Release 承接 PostgreSQL、migration、backup/restore、安装和真实数据 smoke。
 - Onsite 承接学校网络、打印、权限域、教师操作和签字。
-- legacy `run-gates.ps1` 已退出默认 Release，只由 `-IncludeLegacyCompatibility` 作为低频隔离兼容审计显式进入；默认 Release 使用 focused core 和状态对账。
+- legacy monolith、wrapper、inventory 和兼容审计已退役；唯一 Release 入口是 `run-verification.ps1 -Profile Release -AuthorizeStateful`。
 - Q/R future admission 只有在 current task、changed paths 或 Release 显式命中时运行。
 
 ## 12. 当前结构热点和后置拆分

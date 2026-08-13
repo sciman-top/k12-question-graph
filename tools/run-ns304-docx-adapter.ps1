@@ -68,7 +68,7 @@ try {
         }
         boundary = 'NS304 proves the existing OpenXML DOCX adapter returns DocumentModel blocks with table and OMML formula evidence. It does not claim scanned OCR, PDF layout, or real copyrighted source ingestion.'
         next = 'NS305 can continue PDF text/layout adapter evidence.'
-        rollback = 'git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns304-docx-adapter.ps1 docs/evidence/20260530-ns304-docx-adapter-report.json'
+        rollback = 'git restore tasks/non-site-implementation-plan.csv; git clean -f -- tools/run-ns304-docx-adapter.ps1 docs/evidence/20260530-ns304-docx-adapter-report.json'
     }
 
     $reportFullPath = Join-Path $repoRoot $ReportPath

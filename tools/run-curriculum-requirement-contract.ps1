@@ -376,11 +376,11 @@ $report = [ordered]@{
     }
     fullGate = [ordered]@{
         status = 'gate_na'
-        reason = 'tools/run-gates.ps1 may affect PostgreSQL and API processes and is reserved for the separately authorized CEK-34 gate'
+        reason = 'stateful Release requires explicit authorization because it uses PostgreSQL and isolated backup/restore rehearsal'
         alternative_verification = 'JSON Schema positive and negative fixtures, Release build, roadmap guard, and static scope review'
         evidence_link = 'docs/evidence/cek005-curriculum-requirement-contract.json'
         expires_at = 'CEK-34'
-        recovery_condition = 'obtain current-task confirmation for PostgreSQL/API process impact and run tools/run-gates.ps1'
+        recovery_condition = 'obtain current-task authorization and run tools/run-verification.ps1 -Profile Release -AuthorizeStateful'
     }
     rollback = 'remove only the CEK-05 schemas, template, contract, documentation, and evidence; no data restore is required'
     completionBoundary = 'CEK-05 defines candidate contracts only. It does not extract curriculum text, write SourceRegion metadata, create or activate domain assets, switch C002 active, close REAL005, or establish live acceptance.'

@@ -163,7 +163,7 @@ try {
             boundary = '当前组合门禁已覆盖黄金样本、OCR/导出保真、视觉代理不可替代边界和 LLM no-active-write/pending_review 安全约束。'
             next = '后续可在保持这些组合门禁不退化的前提下继续推进 NS1308 release evidence pack。'
         }
-        rollback = 'git restore tools/run-ns1307-golden-visual-llm-security-gate.ps1 tools/run-gates.ps1 tools/README.md configs/agent-tool-orchestration.allowlist.json'
+        rollback = 'git restore tools/run-ns1307-golden-visual-llm-security-gate.ps1 tools/README.md configs/agent-tool-orchestration.allowlist.json'
     }
 
     $reportFullPath = Resolve-InRepoPath $ReportPath

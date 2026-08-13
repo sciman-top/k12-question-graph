@@ -288,7 +288,7 @@ try {
         }
         boundary = 'NS202 proves admin/internal fail closed for production defaults and credentials. Development unguarded access remains explicit, marked, and draft/test only.'
         next = 'NS203 can continue PII/source-license scanning without enabling live data or production writes.'
-        rollback = 'git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns202-admin-internal-fail-closed.ps1 docs/evidence/20260529-ns202-admin-internal-fail-closed-report.json'
+        rollback = 'git restore tasks/non-site-implementation-plan.csv; git clean -f -- tools/run-ns202-admin-internal-fail-closed.ps1 docs/evidence/20260529-ns202-admin-internal-fail-closed-report.json'
     }
 
     $reportFullPath = Join-Path $repoRoot $ReportPath

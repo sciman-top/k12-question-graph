@@ -354,7 +354,7 @@ try {
     $lines.Add('NS905 audits status synchronization only. It does not close P001, does not mark release_ready or non_site_validated, and does not replace isolated-machine or onsite pilot evidence.')
     $lines.Add('')
     $lines.Add('## Rollback')
-    $lines.Add("git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1 tools/README.md; git clean -f -- tools/run-ns905-status-sync-audit.ps1 $ReportPath")
+    $lines.Add("git restore tasks/non-site-implementation-plan.csv tools/README.md; git clean -f -- tools/run-ns905-status-sync-audit.ps1 $ReportPath")
 
     $reportFullPath = Resolve-InRepoPath $ReportPath
     New-Item -ItemType Directory -Path (Split-Path -Parent $reportFullPath) -Force | Out-Null

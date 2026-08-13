@@ -122,7 +122,7 @@ try {
         }
         boundary = 'NS602 proves the question-card UI consumes the typed question search contract and displays source, active version, rich-media flags, status, and authorization/privacy boundary states. It runs frontend build/lint and does not call external AI or use real student data.'
         next = 'NS603 can continue paper basket and paper draft persistence.'
-        rollback = "git restore apps/api/Program.cs apps/web/src/App.tsx apps/web/src/api/contracts.ts tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns602-question-card-ui.ps1 docs/evidence/20260530-ns602-question-card-ui-report.json"
+        rollback = "git restore apps/api/Program.cs apps/web/src/App.tsx apps/web/src/api/contracts.ts tasks/non-site-implementation-plan.csv; git clean -f -- tools/run-ns602-question-card-ui.ps1 docs/evidence/20260530-ns602-question-card-ui-report.json"
     }
 
     $reportFullPath = Join-Path $repoRoot $ReportPath

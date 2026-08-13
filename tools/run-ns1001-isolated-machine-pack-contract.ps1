@@ -171,7 +171,7 @@ try {
         }
         boundary = 'NS1001 pack contract proves the repo now has both a handoff pack and a return-import validator. It does not create live field evidence and does not close P001.'
         reportPath = $ReportPath
-        rollback = "git restore tools/run-gates.ps1 tools/README.md tasks/non-site-implementation-plan.csv; git clean -f -- tools/run-ns1001-isolated-machine-pack-contract.ps1 tools/run-ns1001-isolated-machine-execution-pack.ps1 tools/run-ns1001-isolated-machine-evidence-import.ps1 docs/templates/p001-isolated-machine-evidence-template.json"
+        rollback = "git restore tools/README.md tasks/non-site-implementation-plan.csv; git clean -f -- tools/run-ns1001-isolated-machine-pack-contract.ps1 tools/run-ns1001-isolated-machine-execution-pack.ps1 tools/run-ns1001-isolated-machine-evidence-import.ps1 docs/templates/p001-isolated-machine-evidence-template.json"
     }
 
     $reportFullPath = Resolve-InRepoPath $ReportPath

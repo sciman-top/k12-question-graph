@@ -1,13 +1,10 @@
 param(
-    [ValidateSet('Quick', 'Slice', 'Release', 'Onsite')]
+    [ValidateSet('Quick', 'Slice', 'Release')]
     [string] $Profile = 'Quick',
-    [string] $TaskId = '',
     [string[]] $ChangedPaths = @(),
     [string] $ReportRoot = 'tmp/verification/current',
-    [string] $FileStoreRoot = 'D:\KQG_Data\file_store',
     [switch] $DryRun,
-    [switch] $AuthorizeStateful,
-    [switch] $IncludeLegacyCompatibility
+    [switch] $AuthorizeStateful
 )
 
 $ErrorActionPreference = 'Stop'
@@ -36,15 +33,6 @@ function Get-RepoProcessSnapshot {
     )
 }
 
-function Copy-DirectoryMirror([string] $Source, [string] $Destination) {
-    New-Item -ItemType Directory -Path $Destination -Force | Out-Null
-    & robocopy $Source $Destination /MIR /COPY:DAT /DCOPY:DAT /R:1 /W:1 /NFL /NDL /NJH /NJS /NP | Out-Null
-    $exitCode = $LASTEXITCODE
-    if ($exitCode -gt 7) {
-        throw "directory mirror failed from '$Source' to '$Destination' with robocopy exit code $exitCode"
-    }
-}
-
 function Invoke-VerifiedStep {
     param(
         [Parameter(Mandatory = $true)][string] $Id,
@@ -54,9 +42,11 @@ function Invoke-VerifiedStep {
 
     $logPath = Join-Path $reportRootFullPath "$Id.log"
     $started = Get-Date
+    $capturedOutput = New-Object System.Collections.Generic.List[object]
     try {
-        # Capture after the child process exits so Vitest/Vite cannot retain the log handle.
-        $capturedOutput = @(& $Action *>&1)
+        # Buffer in memory so child processes never retain the log handle and
+        # partial native output survives a terminating wrapper error.
+        & $Action *>&1 | ForEach-Object { $capturedOutput.Add($_) }
         $capturedOutput | Set-Content -LiteralPath $logPath -Encoding UTF8
         $Results.Add([pscustomobject]@{
             id = $Id
@@ -66,6 +56,9 @@ function Invoke-VerifiedStep {
         })
     }
     catch {
+        if ($capturedOutput.Count -gt 0) {
+            $capturedOutput | Set-Content -LiteralPath $logPath -Encoding UTF8
+        }
         $_ | Out-String | Add-Content -LiteralPath $logPath -Encoding UTF8
         $Results.Add([pscustomobject]@{
             id = $Id
@@ -80,9 +73,6 @@ function Invoke-VerifiedStep {
 
 function Invoke-QuickProfile([AllowEmptyCollection()][System.Collections.Generic.List[object]] $Results) {
     $steps = @(
-        [pscustomobject]@{ id = 'profile-inventory'; action = {
-            & (Join-Path $PSScriptRoot 'run-verification-profile-inventory-guard.ps1') -JsonReportPath (Join-Path $ReportRoot 'profile-inventory.json') | Out-Null
-        } },
         [pscustomobject]@{ id = 'backend-build'; action = {
             & dotnet build tests/api/K12QuestionGraph.Api.Tests/K12QuestionGraph.Api.Tests.csproj --no-restore
             if ($LASTEXITCODE -ne 0) { throw 'backend build failed' }
@@ -159,12 +149,8 @@ function Invoke-ReleaseCoreProfile([AllowEmptyCollection()][System.Collections.G
                 -O007RecoveryReportPath (Join-Path $ReportRoot 'ns806-o003-recovery-drill.json') | Out-Null
         } },
         [pscustomobject]@{ id = 'release-closure-invariants'; action = {
-            & (Join-Path $PSScriptRoot 'run-scope-freeze-guard.ps1') -JsonReportPath (Join-Path $ReportRoot 'scope-freeze.json') | Out-Null
             & (Join-Path $PSScriptRoot 'run-reference-basis-guard.ps1') -ValidationMode Local -JsonReportPath (Join-Path $ReportRoot 'reference-basis.json') -MarkdownReportPath (Join-Path $ReportRoot 'reference-basis.md') | Out-Null
             & (Join-Path $PSScriptRoot 'run-evidence-index-guard.ps1') -JsonReportPath (Join-Path $ReportRoot 'evidence-index.json') | Out-Null
-            & (Join-Path $PSScriptRoot 'run-release-coverage-reconciliation.ps1') -JsonReportPath (Join-Path $ReportRoot 'release-coverage.json') | Out-Null
-            & (Join-Path $PSScriptRoot 'run-product-hotspot-budget-guard.ps1') -JsonReportPath (Join-Path $ReportRoot 'product-hotspot-budget.json') | Out-Null
-            & (Join-Path $PSScriptRoot 'run-ui-behavior-contract-guard.ps1') -SkipTests -JsonReportPath (Join-Path $ReportRoot 'ui-behavior-contract.json') | Out-Null
             & (Join-Path $PSScriptRoot 'run-ns1308-release-evidence-pack-contract.ps1') -ReportPath (Join-Path $ReportRoot 'ns1308-release-evidence-pack.json') | Out-Null
             & (Join-Path $PSScriptRoot 'run-live-pilot-closeout-plan-guard.ps1') `
                 -Real005ReportPath $real005ReportPath `
@@ -230,19 +216,18 @@ function Invoke-SliceFocusedCommand {
                 & (Join-Path $PSScriptRoot 'run-script-quality-sweep.ps1') -JsonReportPath (Join-Path $ReportRoot 'slice-script-quality.json') | Out-Null
             }
         }
-        'verification-governance' {
-            Invoke-SliceStep -Id 'slice-verification-governance' -Results $Results -Action {
-                & (Join-Path $repoRoot 'tests/verification/run-verification-profile-parser-tests.ps1') | Out-Null
+        'verification-routing' {
+            Invoke-SliceStep -Id 'slice-verification-routing' -Results $Results -Action {
                 & (Join-Path $repoRoot 'tests/verification/run-verification-slice-selector-tests.ps1') | Out-Null
-                & (Join-Path $PSScriptRoot 'run-verification-profile-inventory-guard.ps1') -JsonReportPath (Join-Path $ReportRoot 'slice-profile-inventory.json') | Out-Null
             }
         }
-        'governance-contracts' {
-            Invoke-SliceStep -Id 'slice-governance-contracts' -Results $Results -Action {
-                & (Join-Path $PSScriptRoot 'run-scope-freeze-guard.ps1') -JsonReportPath (Join-Path $ReportRoot 'scope-freeze.json') | Out-Null
-                & (Join-Path $PSScriptRoot 'run-automation-first-feature-contract-guard.ps1') -JsonReportPath (Join-Path $ReportRoot 'automation-first.json') | Out-Null
-                & (Join-Path $PSScriptRoot 'run-s001-completion-state-dashboard.ps1') -JsonReportPath (Join-Path $ReportRoot 'dashboard.json') -MarkdownReportPath (Join-Path $ReportRoot 'dashboard.md') | Out-Null
-                & (Join-Path $PSScriptRoot 'run-s0-execution-plan-guard.ps1') -JsonReportPath (Join-Path $ReportRoot 's0.json') | Out-Null
+        'roadmap' {
+            Invoke-SliceStep -Id 'slice-roadmap' -Results $Results -Action {
+                & (Join-Path $PSScriptRoot 'run-roadmap-guard.ps1') | Out-Null
+            }
+        }
+        'reference-basis' {
+            Invoke-SliceStep -Id 'slice-reference-basis' -Results $Results -Action {
                 & (Join-Path $PSScriptRoot 'run-reference-basis-guard.ps1') -ValidationMode Ci -JsonReportPath (Join-Path $ReportRoot 'reference.json') -MarkdownReportPath (Join-Path $ReportRoot 'reference.md') | Out-Null
             }
         }
@@ -251,16 +236,6 @@ function Invoke-SliceFocusedCommand {
                 $guard = Join-Path $PSScriptRoot 'run-evidence-index-guard.ps1'
                 if (-not (Test-Path -LiteralPath $guard)) { throw 'evidence index guard is not installed' }
                 & $guard -JsonReportPath (Join-Path $ReportRoot 'evidence-index.json') | Out-Null
-            }
-        }
-        'ui-behavior' {
-            Invoke-SliceStep -Id 'slice-ui-behavior' -Results $Results -Action {
-                & (Join-Path $PSScriptRoot 'run-ui-behavior-contract-guard.ps1') -SkipTests -JsonReportPath (Join-Path $ReportRoot 'ui-behavior.json') | Out-Null
-            }
-        }
-        'hotspot-budget' {
-            Invoke-SliceStep -Id 'slice-hotspot-budget' -Results $Results -Action {
-                & (Join-Path $PSScriptRoot 'run-product-hotspot-budget-guard.ps1') -JsonReportPath (Join-Path $ReportRoot 'hotspot-budget.json') | Out-Null
             }
         }
         default { throw "unknown focused Slice command: $Id" }
@@ -290,7 +265,7 @@ try {
                         if ($value.Length -ge 4) { ($value.Substring(3) -split ' -> ')[-1] }
                     } | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
                 }
-                $selection = Get-VerificationSelection -RepoRoot $repoRoot -ChangedPaths $ChangedPaths -TaskId $TaskId
+                $selection = Get-VerificationSelection -RepoRoot $repoRoot -ChangedPaths $ChangedPaths
                 $selection | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $reportRootFullPath 'slice-selection.json') -Encoding UTF8
                 if ($selection.status -ne 'pass') {
                     throw "Slice selection blocked or requires $($selection.escalatedProfile): unknown=$($selection.unknownPaths.Count) release=$($selection.releasePaths.Count) empty=$($selection.noSelection)"
@@ -310,36 +285,6 @@ try {
                 }
                 try {
                     Invoke-ReleaseCoreProfile -Results $results
-                    if ($IncludeLegacyCompatibility) {
-                        if ($DryRun) {
-                            $results.Add([pscustomobject]@{ id = 'legacy-compatibility-audit'; status = 'selected'; durationMs = 0; log = $null })
-                        }
-                        else {
-                            Invoke-VerifiedStep -Id 'legacy-compatibility-audit' -Results $results -Action {
-                                $legacyFileStoreRoot = Join-Path $reportRootFullPath 'legacy-file-store'
-                                $legacyEvidenceSnapshot = Join-Path $reportRootFullPath 'legacy-evidence-snapshot'
-                                if (Test-Path -LiteralPath $legacyFileStoreRoot) {
-                                    throw "legacy FileStore scratch already exists: $legacyFileStoreRoot"
-                                }
-                                if (Test-Path -LiteralPath $legacyEvidenceSnapshot) {
-                                    throw "legacy evidence snapshot already exists: $legacyEvidenceSnapshot"
-                                }
-                                New-Item -ItemType Directory -Path $legacyFileStoreRoot | Out-Null
-                                Copy-Item -Path (Join-Path $FileStoreRoot '*') -Destination $legacyFileStoreRoot -Recurse -Force
-                                $legacyGateScratchRoot = Join-Path $legacyFileStoreRoot 'gate'
-                                $evidenceRoot = Join-Path $repoRoot 'docs/evidence'
-                                Copy-DirectoryMirror -Source $evidenceRoot -Destination $legacyEvidenceSnapshot
-                                try {
-                                    & (Join-Path $PSScriptRoot 'run-gates.ps1') `
-                                        -FileStoreRoot $legacyFileStoreRoot `
-                                        -GateScratchRoot $legacyGateScratchRoot
-                                }
-                                finally {
-                                    Copy-DirectoryMirror -Source $legacyEvidenceSnapshot -Destination $evidenceRoot
-                                }
-                            }
-                        }
-                    }
                 }
                 finally {
                     if (-not $DryRun) {
@@ -365,9 +310,6 @@ try {
                         }
                 }
                 }
-            'Onsite' {
-                throw 'Onsite profile cannot be completed by repo-side automation; import real environment, operator, input, timestamp, and signed acceptance evidence'
-            }
         }
     }
     finally {
@@ -389,7 +331,7 @@ if ($Profile -in @('Quick', 'Slice', 'Release') -and -not $DryRun) {
 }
 $worktreeUnchanged = $beforeWorktree -eq $afterWorktree
 $processesUnchanged = (@($beforeProcesses) -join "`n") -eq (@($afterProcesses) -join "`n")
-if (($Profile -in @('Quick', 'Slice') -or ($Profile -eq 'Release' -and -not $IncludeLegacyCompatibility)) -and (-not $worktreeUnchanged -or -not $processesUnchanged)) {
+if ($Profile -in @('Quick', 'Slice', 'Release') -and (-not $worktreeUnchanged -or -not $processesUnchanged)) {
     $status = 'fail'
     $failure = "side-effect boundary violated: worktreeUnchanged=$worktreeUnchanged processesUnchanged=$processesUnchanged"
 }
@@ -398,21 +340,20 @@ $report = [ordered]@{
     schemaVersion = 1
     status = $status
     profile = $Profile
-    taskId = $TaskId
     dryRun = [bool]$DryRun
     checkedAt = (Get-Date).ToString('s')
     reportRoot = $ReportRoot
     worktreeUnchanged = $worktreeUnchanged
     processesUnchanged = $processesUnchanged
-    selected = if ($null -eq $selection) { @() } else { @($selection.selected) }
-    skipped = if ($null -eq $selection) { @() } else { @($selection.skipped) }
-    sideEffectSummary = if ($null -eq $selection) { @() } else { @($selection.sideEffectSummary) }
+    gateNa = $null -ne $selection -and [bool]$selection.gateNa
+    selected = if ($null -eq $selection -or $null -eq $selection.selected) { ,([object[]]::new(0)) } else { ,([object[]]@($selection.selected)) }
+    skipped = if ($null -eq $selection -or $null -eq $selection.skipped) { ,([object[]]::new(0)) } else { ,([object[]]@($selection.skipped)) }
+    sideEffectSummary = if ($null -eq $selection -or $null -eq $selection.sideEffectSummary) { ,([object[]]::new(0)) } else { ,([object[]]@($selection.sideEffectSummary)) }
     releaseCoreIncluded = $Profile -eq 'Release'
-    legacyCompatibilityIncluded = $Profile -eq 'Release' -and [bool]$IncludeLegacyCompatibility
     releaseStateReconciliation = $releaseStateReconciliation
     steps = $results.ToArray()
     failure = $failure
-    boundary = if ($Profile -eq 'Onsite') { 'not repo-side automatable' } else { 'repo-side verification only' }
+    boundary = 'repo-side verification only; onsite and live acceptance require external evidence'
 }
 $reportPath = Join-Path $reportRootFullPath 'verification-summary.json'
 $report | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $reportPath -Encoding UTF8

@@ -6,7 +6,6 @@ function Get-VerificationSelection {
     param(
         [Parameter(Mandatory = $true)][string] $RepoRoot,
         [string[]] $ChangedPaths = @(),
-        [string] $TaskId = '',
         [string] $RulesPath = 'configs/verification/slice-selection.rules.json'
     )
 
@@ -50,27 +49,23 @@ function Get-VerificationSelection {
         }
     }
 
-    if (-not [string]::IsNullOrWhiteSpace($TaskId)) {
-        foreach ($taskRule in $rules.taskRules) {
-            if ($TaskId -like [string]$taskRule.pattern) {
-                foreach ($commandId in @($taskRule.commands)) {
-                    if (-not $catalog.ContainsKey([string]$commandId)) { throw "task rule references unknown command: $commandId" }
-                    if (-not $selectedReasons.ContainsKey([string]$commandId)) { $selectedReasons[[string]$commandId] = New-Object System.Collections.Generic.List[string] }
-                    $selectedReasons[[string]$commandId].Add("task:$TaskId")
-                }
-            }
-        }
-    }
-
     $selected = New-Object System.Collections.Generic.List[object]
     $skipped = New-Object System.Collections.Generic.List[object]
     foreach ($entry in $rules.commandCatalog) {
         $id = [string]$entry.id
         if ($selectedReasons.ContainsKey($id)) {
+            $reasons = @($selectedReasons[$id].ToArray())
+            $reasonSummary = if ($reasons.Count -le 3) {
+                $reasons
+            }
+            else {
+                @($reasons[0..2]) + "... and $($reasons.Count - 3) more changed paths"
+            }
             $selected.Add([pscustomobject]@{
                 id = $id
                 command = [string]$entry.command
-                reason = @($selectedReasons[$id].ToArray())
+                reason = $reasonSummary
+                reasonCount = $reasons.Count
                 side_effects = [string]$entry.sideEffects
             })
         }
@@ -79,12 +74,12 @@ function Get-VerificationSelection {
         }
     }
 
-    $noSelection = $selected.Count -eq 0 -and $unknownPaths.Count -eq 0 -and $releasePaths.Count -eq 0
+    $noSelection = $selected.Count -eq 0 -and $pathDecisions.Count -eq 0
+    $gateNa = $selected.Count -eq 0 -and $pathDecisions.Count -gt 0 -and $unknownPaths.Count -eq 0 -and $releasePaths.Count -eq 0
     $escalatedProfile = if ($unknownPaths.Count -gt 0 -or $releasePaths.Count -gt 0) { 'Release' } else { 'Slice' }
     return [pscustomobject][ordered]@{
         schemaVersion = 1
         status = if ($unknownPaths.Count -gt 0 -or $noSelection) { 'blocked' } elseif ($releasePaths.Count -gt 0) { 'escalated' } else { 'pass' }
-        taskId = $TaskId
         changedPaths = @($ChangedPaths)
         selected = $selected.ToArray()
         skipped = $skipped.ToArray()
@@ -92,6 +87,7 @@ function Get-VerificationSelection {
         unknownPaths = $unknownPaths.ToArray()
         releasePaths = $releasePaths.ToArray()
         noSelection = $noSelection
+        gateNa = $gateNa
         escalatedProfile = $escalatedProfile
         sideEffectSummary = @($selected | ForEach-Object { "$($_.id): $($_.side_effects)" })
     }

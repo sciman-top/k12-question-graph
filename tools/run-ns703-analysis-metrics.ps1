@@ -117,7 +117,7 @@ try {
             hotspot = 'gate_na: no real class sample or onsite teacher interpretation session; deterministic synthetic analysis covers non-site metric reproducibility'
         }
         boundary = 'NS703 proves basic CTT-style score rate, discrimination, and knowledge mastery metrics are recomputable and explainable in draft_test mode without real student data or production history writes.'
-        rollback = "delete $OutputRoot and $f003Path if needed; git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns703-analysis-metrics.ps1 $ReportPath"
+        rollback = "delete $OutputRoot and $f003Path if needed; git restore tasks/non-site-implementation-plan.csv; git clean -f -- tools/run-ns703-analysis-metrics.ps1 $ReportPath"
         next = 'NS704 can continue commentary report and layered suggestions export.'
     }
 

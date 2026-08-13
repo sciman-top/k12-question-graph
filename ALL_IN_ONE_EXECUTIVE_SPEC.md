@@ -92,7 +92,7 @@ build -> test -> contract/invariant -> hotspot
 - Release：Quick + migration/privacy/API/no-active-write + isolated backup/restore/upgrade + closure invariants + 状态对账；执行前明确授权，默认工件只进 `tmp/verification/`。
 - Onsite：隔离机、网络、打印、权限域、真实教师和签字；不能由 repo-side 自动化替代。
 
-默认 Release 不调用 `tools/run-gates.ps1`。235-step legacy monolith 只能通过 `-IncludeLegacyCompatibility` 作为低频、有状态、隔离 compatibility audit 显式运行，且不再是默认发布阻断。日常 AI 编码只走 Quick/Slice；Release 前后必须报告 DB/migration、FileStore 和进程差异，并要求共享 FileStore 无写入。
+235-step legacy monolith 及其 compatibility audit 已退役，只从 Git 历史取证。日常 AI 编码只走 changed-path Slice，跨栈基线才走 Quick；Release 前后必须报告 DB/migration、FileStore 和进程差异，并要求共享 FileStore 无写入。
 
 ## 10. 文档和任务真源
 

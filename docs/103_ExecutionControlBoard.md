@@ -21,7 +21,7 @@ P002 -> P003 -> P004 -> P005 -> P006，严格按 `tasks/backlog.csv` 和 `tasks/
 - VGOV-001..010：全部 repo-side complete，没有剩余 VGOV 编码任务。
 - 日常入口：`tools/run-verification.ps1 -Profile Quick|Slice`。
 - 默认 Release：`tools/run-verification.ps1 -Profile Release -AuthorizeStateful`，只运行聚焦 core，报告/恢复工件进入 `tmp/verification/`，共享 FileStore 必须无写入。
-- legacy audit：仅 `-IncludeLegacyCompatibility` 显式进入 legacy monolith；它不属于默认发布阻断链。
+- legacy monolith、inventory 与兼容审计已退役；Git 历史只用于取证，不参与当前任务选择。
 - current evidence：只由 `docs/evidence/index.json` 指向；隔离 Release 的日期化 evidence 不回拷主仓。
 - hotspot：Score/Admin AI endpoint seam 已抽取，其余稳定模块由单一预算守卫阻止重新膨胀；无真实增长不继续拆分。
 

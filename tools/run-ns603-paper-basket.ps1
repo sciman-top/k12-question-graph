@@ -160,7 +160,7 @@ try {
             hotspot = 'gate_na: no independent hotspot command; teacher workflow hotspot covered by persisted structure, confirmation-before-selection guard, UI saved-basket contract, no visible backend id, no external AI, no real student data'
         }
         boundary = 'NS603 proves paper baskets and draft paper structure can be saved, reloaded, reproduced with active knowledge version references, and created from blueprint only after teacher confirmation.'
-        rollback = "delete from paper_basket_items where paper_basket_id in ('$($s009a.basketId)','$($s009b.paperBasketId)'); delete from paper_baskets where id in ('$($s009a.basketId)','$($s009b.paperBasketId)'); delete from paper_blueprint_reviews where id = '$($s009b.blueprintReviewId)'; git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns603-paper-basket.ps1 $ReportPath $s009aPath $s009bPath $s009cPath"
+        rollback = "delete from paper_basket_items where paper_basket_id in ('$($s009a.basketId)','$($s009b.paperBasketId)'); delete from paper_baskets where id in ('$($s009a.basketId)','$($s009b.paperBasketId)'); delete from paper_blueprint_reviews where id = '$($s009b.blueprintReviewId)'; git restore tasks/non-site-implementation-plan.csv; git clean -f -- tools/run-ns603-paper-basket.ps1 $ReportPath $s009aPath $s009bPath $s009cPath"
         next = 'NS604 can continue natural-language paper request understanding without enabling real model calls or direct production generation.'
     }
 

@@ -234,8 +234,11 @@ for ($i = 0; $i -lt (Get-ItemCount $expectedTaskIds); $i++) {
     $actualId = [string] $requirementsRows[$i].task_id
     Assert-True ($actualId -eq $expectedId) "reference-basis row order drift at position $($i + 1): expected $expectedId actual $actualId"
     Assert-True ($requirementsById.ContainsKey($expectedId)) "missing reference-basis row: $expectedId"
-    Assert-True ($automationIds -contains $expectedId) "automation-first contract missing high-risk task: $expectedId"
     Assert-True ($backlogIds -contains $expectedId) "backlog missing high-risk task: $expectedId"
+    $backlogTask = @($backlogRows | Where-Object { [string]$_.id -eq $expectedId })
+    if ([string]$backlogTask[0].status -ne '已完成') {
+        Assert-True ($automationIds -contains $expectedId) "automation-first contract missing current high-risk task: $expectedId"
+    }
 
     $row = $requirementsById[$expectedId]
     $officialUrls = Split-Values $row.official_reference_urls

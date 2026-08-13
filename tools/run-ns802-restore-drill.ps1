@@ -171,7 +171,7 @@ try {
             hotspot = 'gate_na: no real disaster recovery operator session; isolated restore drill covers non-site restore mechanics'
         }
         boundary = 'NS802 proves the NS801 backup manifest can drive an isolated restore drill without overwriting the current database or production file store.'
-        rollback = "delete $RestoreRoot if this isolated restore output is no longer needed; git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns802-restore-drill.ps1 $ReportPath"
+        rollback = "delete $RestoreRoot if this isolated restore output is no longer needed; git restore tasks/non-site-implementation-plan.csv; git clean -f -- tools/run-ns802-restore-drill.ps1 $ReportPath"
         next = 'NS803 can continue installer/host diagnostic.'
     }
 

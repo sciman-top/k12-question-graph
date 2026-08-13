@@ -167,7 +167,7 @@ try {
             hotspot = 'gate_na: no independent hotspot command; teacher workflow hotspot covered by issue-code blocking for source authorization, answer, solution, image, and knowledge-version reproducibility'
         }
         boundary = 'NS606 proves export preflight blocks risky student/teacher/answer-version generation until source authorization, answer/solution, asset, and knowledge-version reproducibility checks are visible.'
-        rollback = "delete synthetic S010A rows recorded in $s010aPath if needed; git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns606-export-preflight.ps1 $ReportPath $s010aPath"
+        rollback = "delete synthetic S010A rows recorded in $s010aPath if needed; git restore tasks/non-site-implementation-plan.csv; git clean -f -- tools/run-ns606-export-preflight.ps1 $ReportPath $s010aPath"
         next = 'NS607 can continue Word/PDF artifact regression.'
     }
 

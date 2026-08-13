@@ -52,14 +52,18 @@ jobs:
           cache: 'npm'
           cache-dependency-path: apps/web/package-lock.json
 
-      - name: Run repo preflight
+      - name: Restore dependencies
+        shell: pwsh
+        run: |
+          dotnet restore tests/api/K12QuestionGraph.Api.Tests/K12QuestionGraph.Api.Tests.csproj
+          npm --prefix apps/web ci
+
+      - name: Run stateless verification
         shell: pwsh
         run: >
-          .\tools\run-repo-preflight.ps1
-          -Mode Ci
-          -InstallFrontendDependencies
+          .\tools\run-verification.ps1
+          -Profile Quick
           -ReportRoot tmp\ci\repo-preflight
-          -JsonReportPath tmp\ci\repo-preflight-report.json
 
       - name: Upload preflight report
         if: always()
@@ -67,6 +71,5 @@ jobs:
         with:
           name: repo-preflight-report
           path: |
-            tmp/ci/repo-preflight-report.json
             tmp/ci/repo-preflight/**
           if-no-files-found: error

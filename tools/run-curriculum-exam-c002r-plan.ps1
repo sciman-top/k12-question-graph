@@ -65,11 +65,11 @@ try {
     }) -Force
     $evidence | Add-Member -NotePropertyName fullGate -NotePropertyValue ([ordered]@{
         status = 'gate_na'
-        reason = 'tools/run-gates.ps1 may affect PostgreSQL and API processes and is reserved for CEK-34 current confirmation'
+        reason = 'stateful Release requires current explicit authorization because it uses PostgreSQL and isolated backup/restore rehearsal'
         alternative_verification = 'CEK-24 unit tests, read-only live planning-input snapshot parity, existing C002R contract, roadmap/reference guards, and static hotspot audit'
         evidence_link = 'docs/evidence/cek024-curriculum-exam-c002r-plan.json'
         expires_at = 'CEK-34'
-        recovery_condition = 'obtain the planned current confirmation and run tools/run-gates.ps1 at CEK-34'
+        recovery_condition = 'obtain current-task authorization and run tools/run-verification.ps1 -Profile Release -AuthorizeStateful at CEK-34'
     }) -Force
     $evidence | Add-Member -NotePropertyName rollback -NotePropertyValue 'Delete only the generated plan/report; CEK-24 performs no database, migration, candidate, question, or active write.' -Force
     Write-Json $evidence $report

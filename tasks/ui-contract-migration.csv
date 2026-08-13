@@ -1,9 +1,0 @@
-legacy_id,legacy_script,classification,new_authority,parity_status,new_default_profile,reason
-I001,tools/run-i001-teacher-home-ui-contract.ps1,replace,apps/web/src/ui/TeacherHomePanelContent.test.tsx;apps/web/src/App.test.tsx,passed,Slice,teacher actions and navigation are observable behaviors
-I002,tools/run-i002-import-wizard-ui-contract.ps1,replace,apps/web/src/App.test.tsx,passed,Slice,import entry and workspace transition are behavior-tested
-I003,tools/run-i003-review-queue-ui-contract.ps1,keep,apps/web/src/App.test.tsx;apps/web/src/api/client.test.ts,partial,Release,manual review and queue safety markers remain fail-closed until deeper interaction coverage exists
-I004,tools/run-i004-paper-workbench-ui-contract.ps1,replace,apps/web/src/App.test.tsx;apps/web/src/api/client.test.ts,passed,Slice,paper entry and workflow API behavior replace CSS and fixed text checks
-I005,tools/run-i005-score-analysis-workbench-ui-contract.ps1,replace,apps/web/src/App.test.tsx;apps/web/src/ui/AnalysisPanelContent.test.tsx;apps/web/src/api/client.test.ts,passed,Slice,score and analysis behavior has component and client authority
-I006,tools/run-i006-starter-defaults-ui-contract.ps1,replace,apps/web/src/ui/TeacherHomePanelContent.test.tsx,passed,Slice,starter action callback behavior replaces source markers
-I007,tools/run-i007-frontend-boundary-contract.ps1,keep,apps/web/src/api/client.test.ts;apps/web/src/api/queries.test.ts,partial,Release,typed API boundary and bundle chunk checks remain release contracts
-I008,tools/run-i008-teacher-simplification-contract.ps1,keep,apps/web/src/App.test.tsx,partial,Release,teacher admin separation and forbidden governance terms remain security fail-closed checks

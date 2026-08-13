@@ -155,7 +155,7 @@ try {
         }
         boundary = 'NS404 proves QuestionAsset association, unlink, and reassociation through REAL008 API smoke plus frontend contract markers. It uses reassociation as the recut regression and does not claim live crop UI pixel editing or onsite teacher validation.'
         next = 'NS405 can continue table/formula QuestionBlock contract evidence; NS406 can combine NS404 and NS405 for edit audit.'
-        rollback = "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns404-question-asset.ps1 docs/evidence/20260530-ns404-question-asset-report.json docs/evidence/20260530-ns404-real008-source-report.json"
+        rollback = "git restore tasks/non-site-implementation-plan.csv; git clean -f -- tools/run-ns404-question-asset.ps1 docs/evidence/20260530-ns404-question-asset-report.json docs/evidence/20260530-ns404-real008-source-report.json"
     }
 
     $reportFullPath = Join-Path $repoRoot $ReportPath

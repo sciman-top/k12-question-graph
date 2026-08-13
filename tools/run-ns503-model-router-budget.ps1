@@ -174,7 +174,7 @@ try {
         }
         boundary = 'NS503 proves model routing budget/cache/cost/fail-closed contracts with C002P config evidence and a D002 stub AI job. It records token/cost/schema/prompt/idempotency without enabling real model calls, local model defaults, or external AI.'
         next = 'NS504 can continue AI suggestion review queue so teacher confirmation is required before writeback.'
-        rollback = "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns503-model-router-budget.ps1 docs/evidence/20260530-ns503-model-router-budget-report.json docs/evidence/20260530-ns503-d002-ai-job-cost-source-report.json"
+        rollback = "git restore tasks/non-site-implementation-plan.csv; git clean -f -- tools/run-ns503-model-router-budget.ps1 docs/evidence/20260530-ns503-model-router-budget-report.json docs/evidence/20260530-ns503-d002-ai-job-cost-source-report.json"
     }
 
     $reportFullPath = Join-Path $repoRoot $ReportPath

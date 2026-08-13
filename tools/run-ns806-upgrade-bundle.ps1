@@ -194,7 +194,7 @@ try {
             hotspot = 'gate_na: this is a local draft/test rehearsal, not an isolated target-machine migration apply with operator signoff; NS1001/P001 own live deployment validation'
         }
         boundary = 'NS806 proves the non-site EF migration bundle and upgrade rehearsal chain using draft/test evidence. It does not install a Windows Service, switch production defaults, delete production data, process real student data, or close the live deployment boundary.'
-        rollback = "Remove-Item -LiteralPath 'tmp/ns806' -Recurse -Force -ErrorAction SilentlyContinue; Remove-Item -LiteralPath 'tmp/o007' -Recurse -Force -ErrorAction SilentlyContinue; git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1 tools/README.md; git clean -f -- tools/run-ns806-upgrade-bundle.ps1 $ReportPath"
+        rollback = "Remove-Item -LiteralPath 'tmp/ns806' -Recurse -Force -ErrorAction SilentlyContinue; Remove-Item -LiteralPath 'tmp/o007' -Recurse -Force -ErrorAction SilentlyContinue; git restore tasks/non-site-implementation-plan.csv tools/README.md; git clean -f -- tools/run-ns806-upgrade-bundle.ps1 $ReportPath"
         next = 'NS901 can consume NS806 as the non-site E2E package prerequisite; NS1001/P001 remain blocked by isolated-machine and live operator validation.'
     }
 

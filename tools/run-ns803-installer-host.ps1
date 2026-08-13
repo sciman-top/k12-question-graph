@@ -247,7 +247,7 @@ try {
             hotspot = 'gate_na: no isolated-machine GUI installer or service install in this non-site slice; NS804/NS1001 own publish/service and live install rehearsals'
         }
         boundary = 'NS803 proves draft/test installer initialization and host diagnostic readiness on this host. It does not install a Windows Service, change firewall or drivers, download model weights, process real materials, or switch production defaults.'
-        rollback = "Remove only empty directories created by this dry-run under $dataRoot or $backupRoot if they did not exist before; git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1 tools/README.md; git clean -f -- tools/run-ns803-installer-host.ps1 $ReportPath $PgpassReportPath $WorkerProfileReportPath $HostCapabilityReportPath"
+        rollback = "Remove only empty directories created by this dry-run under $dataRoot or $backupRoot if they did not exist before; git restore tasks/non-site-implementation-plan.csv tools/README.md; git clean -f -- tools/run-ns803-installer-host.ps1 $ReportPath $PgpassReportPath $WorkerProfileReportPath $HostCapabilityReportPath"
         next = 'NS804 can continue Windows Service publish package.'
     }
 

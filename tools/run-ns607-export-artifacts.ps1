@@ -159,7 +159,7 @@ try {
             hotspot = 'gate_na: no onsite printer/WPS visual hotspot command; artifact-level regression covers deterministic non-site export integrity'
         }
         boundary = 'NS607 proves deterministic non-site Word/PDF artifact generation for student, teacher, and answer variants from ready_for_review preflight. It does not prove onsite printer behavior, WPS rendering on every target machine, or production/live release.'
-        rollback = "delete $OutputRoot and $S010BReportPath; git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns607-export-artifacts.ps1 $ReportPath"
+        rollback = "delete $OutputRoot and $S010BReportPath; git restore tasks/non-site-implementation-plan.csv; git clean -f -- tools/run-ns607-export-artifacts.ps1 $ReportPath"
         next = 'NS701 can continue Excel score template mapping.'
     }
 

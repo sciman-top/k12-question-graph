@@ -55,7 +55,7 @@ try {
         }
         boundary = 'NS305 proves the existing PDF text adapter returns ordered pages, text blocks, and sourceRegion PDF object references for a synthetic text PDF. It does not claim scanned OCR, image PDF, or real copyrighted source quality.'
         next = 'NS306 can continue scanned image/PDF OCR adapter evidence.'
-        rollback = 'git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns305-pdf-text-adapter.ps1 docs/evidence/20260530-ns305-pdf-text-adapter-report.json'
+        rollback = 'git restore tasks/non-site-implementation-plan.csv; git clean -f -- tools/run-ns305-pdf-text-adapter.ps1 docs/evidence/20260530-ns305-pdf-text-adapter-report.json'
     }
 
     $reportFullPath = Join-Path $repoRoot $ReportPath

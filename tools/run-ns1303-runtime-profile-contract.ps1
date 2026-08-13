@@ -226,7 +226,7 @@ try {
             hotspot = 'gate_na: no real service install, no driver/runtime change, no cloud token enablement, no model download, and no production default switch'
         }
         boundary = 'NS1303 turns host/worker diagnostics into a reusable draft config overlay for installer or service control panel review. It does not mutate appsettings, install dependencies, enable cloud AI, download local models, or switch production defaults.'
-        rollback = "git restore tasks/non-site-implementation-plan.csv tasks/productization-roadmap.csv tools/run-gates.ps1 tools/README.md; git clean -f -- tools/run-ns1303-runtime-profile-contract.ps1 $WorkerReportPath $HostReportPath $ReportPath"
+        rollback = "git restore tasks/non-site-implementation-plan.csv tasks/productization-roadmap.csv tools/README.md; git clean -f -- tools/run-ns1303-runtime-profile-contract.ps1 $WorkerReportPath $HostReportPath $ReportPath"
         next = 'NS1304 can continue toolchain admission and fail-closed profile selection from the generated runtime profile overlay.'
     }
 

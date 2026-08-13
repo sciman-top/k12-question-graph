@@ -137,7 +137,7 @@ try {
         }
         boundary = 'NS105 proves the teacher four-entry shell is wired through typed client/query boundaries; it does not prove live classroom usability or isolated-machine deployment.'
         next = 'NS106 should add an explicit non-site feature/profile guard for external AI, active switch, cloud OCR, and local model defaults.'
-        rollback = 'git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns105-teacher-route-client-boundary.ps1 docs/evidence/20260529-ns105-teacher-route-client-boundary-report.json'
+        rollback = 'git restore tasks/non-site-implementation-plan.csv; git clean -f -- tools/run-ns105-teacher-route-client-boundary.ps1 docs/evidence/20260529-ns105-teacher-route-client-boundary-report.json'
     }
 
     $reportFullPath = Join-Path $repoRoot $ReportPath

@@ -180,7 +180,7 @@ try {
             boundary = '当前只允许 agent 编排低风险、只读或 dry-run 工具；默认阻断 active switch、restore apply、release sign-off 和真实学生数据外传。'
             next = '下一步进入 NS1307，把 golden set、visual surrogate 和 LLM security 串成组合 gate。'
         }
-        rollback = 'git restore configs/agent-tool-orchestration.allowlist.json tools/run-ns1306-agent-tool-orchestration-contract.ps1 tools/run-gates.ps1 tools/README.md'
+        rollback = 'git restore configs/agent-tool-orchestration.allowlist.json tools/run-ns1306-agent-tool-orchestration-contract.ps1 tools/README.md'
     }
 
     $reportFullPath = Resolve-InRepoPath $ReportPath

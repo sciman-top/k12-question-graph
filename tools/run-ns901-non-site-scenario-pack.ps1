@@ -182,7 +182,7 @@ try {
             hotspot = 'gate_na: this is still a synthetic/proxy non-site runtime pack; authorized school materials, isolated-machine install, teacher observation, printer/network/domain checks, and live operator signoff remain NS904/NS1001/P001 boundaries'
         }
         boundary = 'NS901 proves the non-site scenario pack can be verified from synthetic/proxy fixtures through runtime rehearsal, export, analysis, upgrade, backup, and restore evidence. It does not claim non_site_validated or live pilot closure until authorized/anonymized school materials and isolated-machine/operator validation exist.'
-        rollback = "restore from S012B pre-run backup if synthetic rehearsal rows must be removed; git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1 tools/README.md; git clean -f -- tools/run-ns901-non-site-scenario-pack.ps1 $ReportPath"
+        rollback = "restore from S012B pre-run backup if synthetic rehearsal rows must be removed; git restore tasks/non-site-implementation-plan.csv tools/README.md; git clean -f -- tools/run-ns901-non-site-scenario-pack.ps1 $ReportPath"
         next = 'NS903 can refresh completion-state dashboards, then NS904 should assemble P001 readiness evidence without closing onsite/live blockers.'
     }
 

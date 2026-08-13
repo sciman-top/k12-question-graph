@@ -888,7 +888,7 @@ def build_report(
             "expires_at": "CEK-34",
             "recovery_condition": (
                 "obtain current-task confirmation for PostgreSQL/API process impact and run "
-                "tools/run-gates.ps1"
+                "tools/run-verification.ps1 -Profile Release -AuthorizeStateful"
             ),
         },
         "rollback": (

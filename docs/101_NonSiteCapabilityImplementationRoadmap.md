@@ -131,7 +131,7 @@ AI 推荐：应当先把除人工现场以外的能力全部落盘，并把它�
 pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-verification.ps1 -Profile Slice -TaskId <TASK_ID>
 ```
 
-该入口按 task/changed paths 依次执行适用的 build、test、contract/invariant、hotspot；发布态或 migration/backup/restore 另行明确授权 `-Profile Release -AuthorizeStateful`。旧 `tools/run-gates.ps1` 仅保留为显式 legacy compatibility audit。
+该入口按 changed paths 执行最低充分的 build/test 或脚本质量；纯文档为 `gate_na`。发布态或 migration/backup/restore 另行明确授权 `-Profile Release -AuthorizeStateful`，不保留第二套 full gate。
 
 纯规划或任务清单变更时，允许 `gate_na`，但必须执行替代验证：
 

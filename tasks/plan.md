@@ -7,11 +7,10 @@
 ## Current truth
 
 - VGOV-001..010 均为 `已完成`；没有剩余 repo-side VGOV task。
-- 日常 AI 编码只使用 `Quick` 或 task/changed-path `Slice`。
-- legacy inventory 当前 208 steps 已完整映射：Quick=7、Release=201、unmapped=0；历史基线 235 中的未来治理节点已退役，该数字不描述默认 Release coverage。
-- 历史授权 legacy Release 用时 1456402 ms，并写入 FileStore 159 个文件、9024094 bytes；默认 Release 已因此改为 3 阶段 focused core，legacy 仅显式审计。
+- 日常 AI 编码只使用 changed-path `Slice`；跨栈基线才运行 `Quick`。
+- `tools/run-verification.ps1` 是唯一验证入口；legacy inventory、monolith、兼容 wrapper 和迁移对账已删除，历史只从 Git 取证。
 - 默认 Release 报告和 isolated backup/restore 工件只进 `tmp/verification/`，要求 migration/database shape/shared FileStore/process reconciliation 通过；数据库 row-level 等值仍不作无证据声明。
-- 稳定证据为 `docs/evidence/verification-governance-release-reconciliation.json`；隔离工作区日期化 evidence 不回拷主仓。
+- current evidence 指针为 `docs/evidence/index.json`；隔离工作区日期化 evidence 不回拷主仓。
 - `REAL005=not_closed`、`fullClosureAllowed=false`、P001-P006 待办、release No-Go。
 
 ## Now: P001
@@ -36,7 +35,7 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-verification.ps1 -Profil
 pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-verification.ps1 -Profile Release -AuthorizeStateful
 ```
 
-不得把 `tools/run-gates.ps1` 作为日常或默认 Release 入口。只有显式 `-IncludeLegacyCompatibility` 才运行 legacy audit；单项能力脚本、日期化 evidence 或历史状态页均不决定当前任务。
+不得恢复第二套 full gate、legacy inventory 或兼容审计；单项能力脚本、日期化 evidence 或历史状态页均不决定当前任务。
 
 ## Evidence policy
 
