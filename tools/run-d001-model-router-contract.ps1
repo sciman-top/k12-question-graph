@@ -66,6 +66,10 @@ try {
         if ($knowledge.escalateToRole -ne 'general_semantics' -or $knowledge.escalateToModel -ne 'gpt-5.6-sol' -or $knowledge.escalateReasoningEffort -ne 'medium') {
             throw "knowledge route semantic escalation mismatch"
         }
+        if (-not $knowledge.escalated -or $knowledge.effectiveModelName -ne 'gpt-5.6-sol' -or $knowledge.effectiveReasoningEffort -ne 'medium') {
+            throw "balanced low-confidence knowledge route must use its effective escalation"
+        }
+        if ($knowledge.escalationReasons -notcontains 'low_confidence') { throw "knowledge route escalation reason mismatch" }
         foreach ($blocker in @('real_model_calls_disabled','formal_active_domain_asset_required')) {
             if ($knowledge.blockers -notcontains $blocker) { throw "missing D001 blocker: $blocker" }
         }
@@ -74,7 +78,7 @@ try {
             taskType = 'crop_candidate_generation'
             mode = 'high_accuracy'
             assetStatus = 'draft'
-            expectedConfidence = 0.86
+            expectedConfidence = 0.95
         } | ConvertTo-Json
         $crop = Invoke-RestMethod -Method Post -Uri "$apiUrl/internal/ai/model-route" -ContentType 'application/json' -Body $cropBody
         if ($crop.stage -ne 'cutting') { throw "crop route must be in cutting stage" }
@@ -84,6 +88,19 @@ try {
         if (-not $crop.schemaExists) { throw "crop route schema missing" }
         if ($crop.escalateToModel -ne 'gpt-5.6-sol' -or $crop.escalateReasoningEffort -ne 'xhigh') {
             throw "crop route semantic escalation mismatch"
+        }
+        if ($crop.escalated) { throw "strong crop route must not escalate without an allowed risk signal" }
+
+        $cropRiskBody = [ordered]@{
+            taskType = 'crop_candidate_generation'
+            mode = 'balanced'
+            assetStatus = 'draft'
+            expectedConfidence = 0.95
+            riskSignals = [ordered]@{ semanticConflict = $true }
+        } | ConvertTo-Json -Depth 4
+        $cropRisk = Invoke-RestMethod -Method Post -Uri "$apiUrl/internal/ai/model-route" -ContentType 'application/json' -Body $cropRiskBody
+        if (-not $cropRisk.escalated -or $cropRisk.effectiveModelName -ne 'gpt-5.6-sol' -or $cropRisk.escalationReasons -notcontains 'semantic_conflict') {
+            throw "crop semantic conflict must select the effective Sol escalation"
         }
 
         $paperBody = [ordered]@{
@@ -147,7 +164,9 @@ try {
             draftKnowledgeProductionEligible = $knowledge.productionEligible
             businessRoutes = [ordered]@{
                 knowledge = "$($knowledge.modelName)/$($knowledge.reasoningEffort)"
+                knowledgeEffective = "$($knowledge.effectiveModelName)/$($knowledge.effectiveReasoningEffort)"
                 crop = "$($crop.modelName)/$($crop.reasoningEffort)"
+                cropRiskEffective = "$($cropRisk.effectiveModelName)/$($cropRisk.effectiveReasoningEffort)"
                 paper = "$($paper.modelName)/$($paper.reasoningEffort)"
                 deterministic = "$($dedup.modelName)/$($dedup.reasoningEffort)"
             }

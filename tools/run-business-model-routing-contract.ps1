@@ -91,7 +91,20 @@ require(config["route_contract"]["model_output_status"] == "pending_review", "mo
 require(config["route_contract"]["production_eligible_default"] is False, "business AI output must not be production eligible")
 require(config["route_contract"]["crop_model_proposes_regions_only"] is True, "crop model must not own crop execution")
 require(config["route_contract"]["paper_model_reviews_candidates_only"] is True, "paper model must not replace hard constraints")
+require(config["route_contract"]["effective_route_uses_risk_signals"] is True, "effective route risk signal contract missing")
+require(config["route_contract"]["mode_policy"] == {
+    "low_cost": "explicit_risk_only",
+    "balanced": "explicit_risk_or_low_confidence",
+    "high_accuracy": "explicit_risk_or_low_confidence_or_route_opt_in",
+}, "routing mode policy mismatch")
 require(app["AiRouting"]["AllowRealModelCalls"] is False, "runtime real model calls must stay disabled")
+
+for task in expected_escalations:
+    policy = policy_routes[task]
+    runtime = runtime_routes[task]
+    require(policy.get("escalation_signals"), f"policy escalation signals missing: {task}")
+    require(runtime.get("EscalationSignals") == policy["escalation_signals"], f"runtime escalation signals mismatch: {task}")
+    require(bool(runtime.get("EscalateInHighAccuracy", False)) == bool(policy.get("escalate_in_high_accuracy", False)), f"high accuracy opt-in mismatch: {task}")
 
 report = {
     "status": "pass",
@@ -100,6 +113,7 @@ report = {
     "rolesChecked": sorted(expected_roles),
     "tasksChecked": sorted(expected_tasks),
     "escalationsChecked": sorted(expected_escalations),
+    "dynamicModePolicyChecked": True,
     "runtimeRealModelCalls": app["AiRouting"]["AllowRealModelCalls"],
     "reviewStatus": config["route_contract"]["model_output_status"],
     "productionEligibleDefault": config["route_contract"]["production_eligible_default"],

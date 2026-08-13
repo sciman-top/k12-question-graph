@@ -7,7 +7,8 @@ public sealed record AiJobCreateRequest(
     string? AssetStatus,
     decimal? ExpectedConfidence,
     string InputJson,
-    string? IdempotencyKey);
+    string? IdempotencyKey,
+    AiRouteRiskSignals? RiskSignals = null);
 
 public sealed record AiJobResponse(
     Guid Id,

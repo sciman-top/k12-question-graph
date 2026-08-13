@@ -1,4 +1,4 @@
-version: 0.3
+version: 0.4
 modes:
   low_cost:
     description: "本地工具和小模型优先，强模型只处理高风险异常。"
@@ -34,6 +34,11 @@ route_contract:
   production_eligible_default: false
   crop_model_proposes_regions_only: true
   paper_model_reviews_candidates_only: true
+  effective_route_uses_risk_signals: true
+  mode_policy:
+    low_cost: explicit_risk_only
+    balanced: explicit_risk_or_low_confidence
+    high_accuracy: explicit_risk_or_low_confidence_or_route_opt_in
 routes:
   file_dedup:
     stage: ingest
@@ -71,6 +76,8 @@ routes:
     escalate_to_role: visual_document
     escalate_to: gpt-5.6-terra
     escalate_reasoning_effort: xhigh
+    escalate_in_high_accuracy: true
+    escalation_signals: [cross_page, shared_visual, formula_or_table]
     structured_output_schema: schemas/ai/crop_candidate_generation.schema.json
     require_human_review_below_confidence: 0.9
   crop_candidate_generation:
@@ -83,6 +90,7 @@ routes:
     escalate_to_role: semantic_decision
     escalate_to: gpt-5.6-sol
     escalate_reasoning_effort: xhigh
+    escalation_signals: [semantic_conflict, source_evidence_conflict]
     structured_output_schema: schemas/ai/crop_candidate_generation.schema.json
     require_human_review_below_confidence: 0.9
   crop_execution:
@@ -101,6 +109,8 @@ routes:
     escalate_to_role: general_semantics
     escalate_to: gpt-5.6-sol
     escalate_reasoning_effort: medium
+    escalate_in_high_accuracy: true
+    escalation_signals: [cross_page, semantic_conflict, source_evidence_conflict]
     structured_output_schema: schemas/ai/question_extraction.schema.json
     require_human_review_below_confidence: 0.85
   knowledge_tagging:
@@ -113,6 +123,8 @@ routes:
     escalate_to_role: general_semantics
     escalate_to: gpt-5.6-sol
     escalate_reasoning_effort: medium
+    escalate_in_high_accuracy: true
+    escalation_signals: [semantic_conflict, source_evidence_conflict]
     batchable: true
     require_human_review_below_confidence: 0.8
   knowledge_mapping_review:
@@ -134,6 +146,8 @@ routes:
     escalate_to_role: general_semantics
     escalate_to: gpt-5.6-sol
     escalate_reasoning_effort: medium
+    escalate_in_high_accuracy: true
+    escalation_signals: [multiple_constraints, semantic_conflict]
     structured_output_schema: schemas/ai/natural_language_paper_request.schema.json
     require_human_review_below_confidence: 0.85
   paper_constraint_check:
@@ -179,6 +193,8 @@ routes:
     escalate_to_role: semantic_decision
     escalate_to: gpt-5.6-sol
     escalate_reasoning_effort: xhigh
+    escalate_in_high_accuracy: true
+    escalation_signals: [formal_exam, semantic_conflict, source_evidence_conflict]
     require_review_for: [formal_exam, high_value_question]
   export_preflight:
     stage: export

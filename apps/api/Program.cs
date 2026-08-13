@@ -433,7 +433,7 @@ app.MapPost("/internal/ai/jobs/stub", async (
     AiRouteDecision route;
     try
     {
-        route = router.Route(new AiRouteRequest(request.TaskType, request.Mode, request.AssetStatus, request.ExpectedConfidence));
+        route = router.Route(new AiRouteRequest(request.TaskType, request.Mode, request.AssetStatus, request.ExpectedConfidence, request.RiskSignals));
     }
     catch (AiRouteException exception)
     {
@@ -458,7 +458,7 @@ app.MapPost("/internal/ai/jobs/stub", async (
 
     var inputHash = Sha256Hex(request.InputJson);
     var idempotencyKey = string.IsNullOrWhiteSpace(request.IdempotencyKey)
-        ? $"ai:{route.TaskType}:{route.RoutingVersion}:{route.PromptVersion}:{route.SchemaVersion}:{inputHash}"
+        ? $"ai:{route.TaskType}:{route.RoutingVersion}:{route.Mode}:{route.EffectiveModelRole}:{route.EffectiveModelName}:{route.EffectiveReasoningEffort}:{route.PromptVersion}:{route.SchemaVersion}:{inputHash}"
         : request.IdempotencyKey.Trim();
 
     var existing = await dbContext.AIJobs
@@ -478,7 +478,7 @@ app.MapPost("/internal/ai/jobs/stub", async (
         JobType = route.TaskType,
         Status = JobStatuses.Succeeded,
         IdempotencyKey = idempotencyKey,
-        ModelRoute = $"{route.Stage}/{route.ModelRole}:{route.ModelName}/{route.ReasoningEffort}",
+        ModelRoute = $"{route.Stage}/{route.EffectiveModelRole}:{route.EffectiveModelName}/{route.EffectiveReasoningEffort}",
         ModelProvider = providerResult.ProviderId,
         ModelName = providerResult.ModelName,
         RoutingVersion = route.RoutingVersion,

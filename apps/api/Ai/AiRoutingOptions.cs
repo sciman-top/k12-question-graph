@@ -2,7 +2,7 @@ namespace K12QuestionGraph.Api.Ai;
 
 public sealed class AiRoutingOptions
 {
-    public string Version { get; set; } = "d001.business-task-routing.v2";
+    public string Version { get; set; } = "d001.business-task-routing.v3";
 
     public bool AllowRealModelCalls { get; set; }
 
@@ -38,4 +38,8 @@ public sealed class AiRouteOptions
     public decimal? RequireHumanReviewBelowConfidence { get; set; }
 
     public bool Batchable { get; set; }
+
+    public bool EscalateInHighAccuracy { get; set; }
+
+    public string[] EscalationSignals { get; set; } = [];
 }
