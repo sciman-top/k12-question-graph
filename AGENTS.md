@@ -2,7 +2,7 @@
 **项目契约**: 2.0
 **全局规则复核**: 9.75
 **类型**: K-12 teacher-first question graph platform
-**最后更新**: 2026-08-08
+**最后更新**: 2026-08-14
 
 ## 1. 当前落点与目标归宿
 - 当前落点：本仓是校本题谱平台，当前聚焦初中物理，已有 API、Web、Worker、PostgreSQL、FileStore、备份与版本化领域资产。
@@ -33,11 +33,11 @@
 
 ## C. 门禁、证据与回滚
 - fixed order：`build -> test -> contract/invariant -> hotspot`。
-- 日常切片：`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-verification.ps1 -Profile Slice -ChangedPaths <PATHS>`；产品路径只运行对应 build/test，工具路径只运行脚本质量，纯文档为 `gate_na`，空选择或未知路径 fail-closed。
+- 日常切片：`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-verification.ps1 -Profile Slice -ChangedPaths <PATHS>`；产品路径只运行对应 build/test，工具路径只运行脚本质量，纯文档按全局 A.4 的 gate N/A 口径返回，空选择或未知路径 fail-closed。
 - 全栈无状态基线：`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-verification.ps1 -Profile Quick`；不得访问 PostgreSQL、停止进程、写 FileStore 或 tracked evidence。
 - 发布门禁：明确授权后运行 `pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-verification.ps1 -Profile Release -AuthorizeStateful`；已退役的 legacy monolith 只保留在 Git 历史中，不再有可执行兼容入口。
 - contract/invariant 仅在当前变更触发相应风险时运行；不以历史任务、固定行数预算或迁移对账作为永久门禁。
-- 进程或 DB 授权缺失时 Release 按完整 N/A 字段留痕，不能改写门禁顺序或伪称 full gate。
+- 进程或 DB 授权缺失时，Release 按全局 A.4 临时缺口字段记录，不能改写门禁顺序或伪称 full gate。
 - 证据放 `docs/evidence/`，区分 repo-side、onsite/manual、deployed 与 live accepted。
 - 回滚只撤销本任务；schema、data 或 active 变化必须附 migration down、snapshot/restore 与兼容读取证明。
 
@@ -48,7 +48,7 @@
 - `R3`：临时兼容或数据修复必须写回收点、备份和最终归宿。
 - `R4`：DB、active 切换、AI/OCR 与 onsite 操作先授权并预演回滚。
 - `R5`：无教师价值或重复证据，拒绝未来能力驱动的平台化。
-- `R6`：按 C 章执行；有状态 full gate 先获授权，缺口按 N/A 记录。
+- `R6`：按 C 章执行；有状态 full gate 先获授权，缺口按全局 A.4 记录。
 - `R7`：保护 C002/C002R、schema、导入导出、权限、备份和 active 切换兼容。
 - `R8`：`docs/evidence/` 记录依据、命令、状态边界与回滚。
 - `S1`：以教师场景和 C 章 Slice 跑最薄真实链。
