@@ -39,31 +39,87 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Select verification slice
+        id: scope
+        shell: pwsh
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BEFORE_SHA: ${{ github.event.before }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          if ($env:EVENT_NAME -eq 'workflow_dispatch') {
+            $profile = 'Quick'
+            $changedPaths = ''
+            $selected = @('backend-tests', 'frontend-tests', 'worker-tests')
+          }
+          else {
+            $profile = 'Slice'
+            $base = if ($env:EVENT_NAME -eq 'pull_request') { $env:BASE_SHA } else { $env:BEFORE_SHA }
+            if ([string]::IsNullOrWhiteSpace($base) -or $base -match '^0+$') {
+              $base = git rev-list --max-parents=0 HEAD | Select-Object -First 1
+            }
+            $paths = @(git diff --name-only --diff-filter=ACMRD $base $env:HEAD_SHA)
+            if ($paths.Count -eq 0) { $paths = @('README.md') }
+            $changedPaths = $paths -join '|'
+            .\tools\run-verification.ps1 `
+              -Profile Slice `
+              -ChangedPaths $paths `
+              -DryRun `
+              -ReportRoot tmp\ci\selection | Out-Null
+            $selection = Get-Content tmp\ci\selection\verification-summary.json -Raw | ConvertFrom-Json
+            $selected = @($selection.selected.id)
+          }
+
+          "profile=$profile" >> $env:GITHUB_OUTPUT
+          "changed_paths=$changedPaths" >> $env:GITHUB_OUTPUT
+          "backend=$(('backend-tests' -in $selected).ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
+          "frontend=$(('frontend-tests' -in $selected).ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
+          "worker=$(('worker-tests' -in $selected).ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
 
       - name: Setup .NET
+        if: steps.scope.outputs.backend == 'true'
         uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
 
       - name: Setup Node
+        if: steps.scope.outputs.frontend == 'true'
         uses: actions/setup-node@v6
         with:
           node-version: '24'
           cache: 'npm'
           cache-dependency-path: apps/web/package-lock.json
 
-      - name: Restore dependencies
+      - name: Restore backend dependencies
+        if: steps.scope.outputs.backend == 'true'
         shell: pwsh
-        run: |
-          dotnet restore tests/api/K12QuestionGraph.Api.Tests/K12QuestionGraph.Api.Tests.csproj
-          npm --prefix apps/web ci
+        run: dotnet restore tests/api/K12QuestionGraph.Api.Tests/K12QuestionGraph.Api.Tests.csproj
 
-      - name: Run stateless verification
+      - name: Restore frontend dependencies
+        if: steps.scope.outputs.frontend == 'true'
         shell: pwsh
-        run: >
-          .\tools\run-verification.ps1
-          -Profile Quick
-          -ReportRoot tmp\ci\repo-preflight
+        run: npm --prefix apps/web ci
+
+      - name: Run selected stateless verification
+        shell: pwsh
+        env:
+          PROFILE: ${{ steps.scope.outputs.profile }}
+          CHANGED_PATHS: ${{ steps.scope.outputs.changed_paths }}
+        run: |
+          if ($env:PROFILE -eq 'Quick') {
+            .\tools\run-verification.ps1 -Profile Quick -ReportRoot tmp\ci\repo-preflight
+          }
+          else {
+            $paths = @($env:CHANGED_PATHS -split '\|' | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+            .\tools\run-verification.ps1 `
+              -Profile Slice `
+              -ChangedPaths $paths `
+              -ReportRoot tmp\ci\repo-preflight
+          }
 
       - name: Upload preflight report
         if: always()

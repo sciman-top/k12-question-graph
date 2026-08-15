@@ -142,7 +142,7 @@ union all select 'score_records', count(*), count(*) filter (where contains_stud
         buildOutput = $buildResult.output
         efListOutput = $efList.output
         teacherEfficiencyCheck = 'database and migration baseline is current before teacher-facing import, paper, export, and score workflows are advanced'
-        rollback = 'git restore tools/run-ns102-migration-baseline.ps1 tasks/non-site-implementation-plan.csv; git clean -f -- docs/evidence/20260528-ns102-migration-baseline.json'
+        rollback = 'git restore tools/run-ns102-migration-baseline.ps1; git clean -f -- docs/evidence/20260528-ns102-migration-baseline.json'
     }
 
     New-Item -ItemType Directory -Path (Split-Path -Parent (Join-Path $repoRoot $ReportPath)) -Force | Out-Null
@@ -163,4 +163,3 @@ union all select 'score_records', count(*), count(*) filter (where contains_stud
 finally {
     Pop-Location
 }
-

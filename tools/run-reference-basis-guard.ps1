@@ -4,13 +4,9 @@ param(
     [string] $PolicyPath = 'tasks/reference-basis-policy.json',
     [string] $RequirementsPath = 'tasks/reference-basis-requirements.csv',
     [string] $ModuleMapPath = 'tasks/reference-basis-module-map.csv',
-    [string] $AutomationContractPath = 'tasks/automation-first-contract.csv',
     [string] $BacklogPath = 'tasks/backlog.csv',
     [string] $ReferenceDocPath = 'docs/26_References.md',
     [string] $ReferenceUrlsPath = 'sources/references.md',
-    [string] $ReadmePath = 'README.md',
-    [string] $ToolsReadmePath = 'tools/README.md',
-    [string] $NavigationPath = 'docs/111_ProjectNavigationOverview.md',
     [string] $SnapshotManifestPath = 'sources/reference-shelf.manifest.snapshot.json',
     [string] $ExternalReferenceRoot = 'D:\CODE\external\k12-question-graph-references',
     [string] $ExternalManifestPath = 'D:\CODE\external\k12-question-graph-references\references.manifest.json',
@@ -97,13 +93,9 @@ function Test-PathPrefixMatch([string] $ChangedPath, [string] $ModulePath) {
 $policyFullPath = Resolve-RepoPath $PolicyPath
 $requirementsFullPath = Resolve-RepoPath $RequirementsPath
 $moduleMapFullPath = Resolve-RepoPath $ModuleMapPath
-$automationContractFullPath = Resolve-RepoPath $AutomationContractPath
 $backlogFullPath = Resolve-RepoPath $BacklogPath
 $referenceDocFullPath = Resolve-RepoPath $ReferenceDocPath
 $referenceUrlsFullPath = Resolve-RepoPath $ReferenceUrlsPath
-$readmeFullPath = Resolve-RepoPath $ReadmePath
-$toolsReadmeFullPath = Resolve-RepoPath $ToolsReadmePath
-$navigationFullPath = Resolve-RepoPath $NavigationPath
 $snapshotManifestFullPath = Resolve-RepoPath $SnapshotManifestPath
 
 if ([string]::IsNullOrWhiteSpace($JsonReportPath)) {
@@ -121,13 +113,9 @@ foreach ($path in @(
     $policyFullPath,
     $requirementsFullPath,
     $moduleMapFullPath,
-    $automationContractFullPath,
     $backlogFullPath,
     $referenceDocFullPath,
     $referenceUrlsFullPath,
-    $readmeFullPath,
-    $toolsReadmeFullPath,
-    $navigationFullPath,
     $snapshotManifestFullPath
 )) {
     Assert-True (Test-Path -LiteralPath $path) "missing required file: $path"
@@ -170,13 +158,9 @@ Assert-True ((Get-ItemCount $allowedAdoptionModes) -gt 0) 'reference-basis polic
 
 $requirementsRows = @(Import-Csv -LiteralPath $requirementsFullPath -Encoding UTF8)
 $moduleMapRows = @(Import-Csv -LiteralPath $moduleMapFullPath -Encoding UTF8)
-$automationRows = @(Import-Csv -LiteralPath $automationContractFullPath -Encoding UTF8)
 $backlogRows = @(Import-Csv -LiteralPath $backlogFullPath -Encoding UTF8)
 $referenceDocText = Get-Content -LiteralPath $referenceDocFullPath -Raw
 $referenceUrlsText = Get-Content -LiteralPath $referenceUrlsFullPath -Raw
-$readmeText = Get-Content -LiteralPath $readmeFullPath -Raw
-$toolsReadmeText = Get-Content -LiteralPath $toolsReadmeFullPath -Raw
-$navigationText = Get-Content -LiteralPath $navigationFullPath -Raw
 
 $snapshotManifest = Get-Content -LiteralPath $snapshotManifestFullPath -Raw | ConvertFrom-Json
 $snapshotManifestPaths = @($snapshotManifest.entries | ForEach-Object { [string] $_.relativePath })
@@ -226,7 +210,6 @@ foreach ($row in $requirementsRows) {
     }
 }
 
-$automationIds = @($automationRows | ForEach-Object { [string] $_.task_id })
 $backlogIds = @($backlogRows | ForEach-Object { [string] $_.id })
 
 for ($i = 0; $i -lt (Get-ItemCount $expectedTaskIds); $i++) {
@@ -235,11 +218,6 @@ for ($i = 0; $i -lt (Get-ItemCount $expectedTaskIds); $i++) {
     Assert-True ($actualId -eq $expectedId) "reference-basis row order drift at position $($i + 1): expected $expectedId actual $actualId"
     Assert-True ($requirementsById.ContainsKey($expectedId)) "missing reference-basis row: $expectedId"
     Assert-True ($backlogIds -contains $expectedId) "backlog missing high-risk task: $expectedId"
-    $backlogTask = @($backlogRows | Where-Object { [string]$_.id -eq $expectedId })
-    if ([string]$backlogTask[0].status -ne '已完成') {
-        Assert-True ($automationIds -contains $expectedId) "automation-first contract missing current high-risk task: $expectedId"
-    }
-
     $row = $requirementsById[$expectedId]
     $officialUrls = Split-Values $row.official_reference_urls
     $localPaths = Split-Values $row.local_reference_paths
@@ -308,23 +286,6 @@ for ($i = 0; $i -lt (Get-ItemCount $expectedModuleIds); $i++) {
         }
         Assert-True ($referenceDocText.Contains($relativePath)) "${actualId} local/community reference missing from docs/26_References.md: $relativePath"
     }
-}
-
-$globalRow = @($automationRows | Where-Object { [string] $_.task_id -eq 'GLOBAL' })
-Assert-True ((Get-ItemCount $globalRow) -eq 1) 'automation-first contract must keep exactly one GLOBAL row'
-Assert-True ($globalRow[0].dedicated_surface -match 'reference-basis-requirements\.csv') 'automation-first GLOBAL row must mention reference-basis-requirements.csv'
-Assert-True ($globalRow[0].evidence_command -match 'run-reference-basis-guard\.ps1') 'automation-first GLOBAL row must mention run-reference-basis-guard.ps1'
-
-foreach ($keyword in @(
-    'tasks/reference-basis-requirements.csv',
-    'tasks/reference-basis-module-map.csv',
-    'sources/reference-shelf.manifest.snapshot.json',
-    'tools/run-reference-basis-guard.ps1'
-)) {
-    Assert-True ($readmeText.Contains($keyword)) "README missing keyword: $keyword"
-    Assert-True ($toolsReadmeText.Contains($keyword)) "tools/README.md missing keyword: $keyword"
-    Assert-True ($referenceDocText.Contains($keyword)) "docs/26_References.md missing keyword: $keyword"
-    Assert-True ($navigationText.Contains($keyword)) "docs/111_ProjectNavigationOverview.md missing keyword: $keyword"
 }
 
 $communityTaskCount = Get-ItemCount @($requirementsRows | Where-Object { (Get-ItemCount (Split-Values $_.community_reference_paths)) -gt 0 })

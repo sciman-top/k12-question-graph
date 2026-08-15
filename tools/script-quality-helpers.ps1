@@ -18,11 +18,23 @@ function Test-KqgScriptPath {
 
 function Invoke-KqgPowerShellParseSweep {
     param(
-        [Parameter(Mandatory = $true)][string] $RepoRoot
+        [Parameter(Mandatory = $true)][string] $RepoRoot,
+        [string[]] $ChangedPaths = @()
     )
 
     $errors = New-Object System.Collections.Generic.List[object]
-    $scripts = Get-ChildItem -Path (Join-Path $RepoRoot 'tools') -Recurse -Include *.ps1 -File
+    $scripts = if ($ChangedPaths.Count -eq 0) {
+        @(Get-ChildItem -Path (Join-Path $RepoRoot 'tools') -Recurse -Include *.ps1 -File)
+    }
+    else {
+        @($ChangedPaths |
+            Where-Object { $_ -like 'tools/*.ps1' } |
+            ForEach-Object { Join-Path $RepoRoot ($_ -replace '/', '\\') } |
+            Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } |
+            ForEach-Object { Get-Item -LiteralPath $_ } |
+            Sort-Object FullName -Unique)
+    }
+    $scripts = @($scripts)
 
     foreach ($script in $scripts) {
         $tokens = $null
@@ -50,13 +62,25 @@ function Invoke-KqgPowerShellParseSweep {
 
 function Invoke-KqgPythonCompileSweep {
     param(
-        [Parameter(Mandatory = $true)][string] $RepoRoot
+        [Parameter(Mandatory = $true)][string] $RepoRoot,
+        [string[]] $ChangedPaths = @()
     )
 
-    $targets = @(
-        Get-ChildItem -Path (Join-Path $RepoRoot 'tools') -Recurse -Include *.py -File -ErrorAction SilentlyContinue
-        Get-ChildItem -Path (Join-Path $RepoRoot 'workers') -Recurse -Include *.py -File -ErrorAction SilentlyContinue
-    ) | Sort-Object FullName -Unique
+    $targets = if ($ChangedPaths.Count -eq 0) {
+        @(
+            Get-ChildItem -Path (Join-Path $RepoRoot 'tools') -Recurse -Include *.py -File -ErrorAction SilentlyContinue
+            Get-ChildItem -Path (Join-Path $RepoRoot 'workers') -Recurse -Include *.py -File -ErrorAction SilentlyContinue
+        ) | Sort-Object FullName -Unique
+    }
+    else {
+        @($ChangedPaths |
+            Where-Object { ($_ -like 'tools/*.py') -or ($_ -like 'workers/*.py') } |
+            ForEach-Object { Join-Path $RepoRoot ($_ -replace '/', '\\') } |
+            Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } |
+            ForEach-Object { Get-Item -LiteralPath $_ } |
+            Sort-Object FullName -Unique)
+    }
+    $targets = @($targets)
 
     $failures = New-Object System.Collections.Generic.List[object]
     foreach ($target in $targets) {

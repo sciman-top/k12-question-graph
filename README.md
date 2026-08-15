@@ -1,363 +1,113 @@
-# 校本题谱：AI 原生校本题库与学情诊断平台
+# 校本题谱
 
-本仓用于本地 Codex CLI / AI Coding Agent 持续编码实现。当前目标不是“把所有未来功能一次做完”，而是按可验证小步闭环，把教师 Word/Excel 工作流迁移成可检索、可复用、可导出、可分析、可恢复的校本题库系统。
+面向教师的本地题库、组卷与学情诊断平台。当前实现聚焦初中物理，采用 ASP.NET Core API、React Web、PostgreSQL、Python 文档 Worker 和本地 FileStore。
 
-## 当前状态入口
+## 当前结论
 
-如果你想知道“现在到底闭环到哪了”，先看 `docs/CurrentClosureStatus.md`、`docs/103_ExecutionControlBoard.md` 和 `docs/109_ReleaseGoNoGoCard.md`；任务顺序和状态以 `tasks/backlog.csv` 为机器真源。课程标准与真题多层证据专题的历史细节看 `tasks/curriculum-exam-knowledge-extraction-todo.md`。如果你想知道“本地 Web/API 现在应该怎么跑、怎么看活着没”，先看 `docs/113_LocalRuntimeOperations_20260609.md`。README 这里只保留稳定背景、常用启动命令和少量状态摘要。
+- API、Web、Worker、数据库、FileStore、备份恢复和版本化领域资产均已落地。
+- `C002` 是当前 active 知识体系；任何修订必须走 candidate -> review -> backup -> active switch，不直接改旧 active。
+- 2015–2025 广州真题的 repo-side 候选/审核链已收口，但自动结果仍是 `candidate/pending_review/productionEligible=false`。
+- `REAL005=not_closed`、`fullClosureAllowed=false`，P001–P006 仍未完成，发布裁决是 `No-Go`。
+- repo-side 验证不能替代隔离机、学校网络、打印、权限域、真实教师使用和签字。
 
-## 当前仓库状态
+当前任务与状态只看 [tasks/backlog.csv](tasks/backlog.csv)；最短状态入口是 [docs/CurrentClosureStatus.md](docs/CurrentClosureStatus.md) 和 [docs/103_ExecutionControlBoard.md](docs/103_ExecutionControlBoard.md)。
 
-本仓已从**编码前设计包**进入可运行实现阶段：已有产品、架构、schema、配置、runbook、任务清单、ASP.NET Core API、React/Vite/Ant Design 前端、PostgreSQL/EF Core migration、Python Worker 占位、FileStore、ImportJob、health、backup 和统一 gate。
+## 教师主链
 
-2026-06-23 文档刷新口径：最新完整 `full gate` 已在 2026-06-23 通过，`tools/run-live-pilot-closeout-repo-side-audit.ps1` 也已记录 `exit_code = 0` 与 `tmp/full-gate-closure/` 刷新产物。最新 repo-side 守卫与状态同步同样推进到 2026-06-23，其中 `tools/run-reference-basis-guard.ps1` 通过（17 个受管任务、10 个模块、`snapshot_parity = match`），`tools/run-live-pilot-closeout-plan-guard.ps1` 通过（26 行 closeout 计划、`REAL005 = not_closed`、`REAL005A/B/C/D 的 repo-side closeout 已完成`、`REAL005` 的 repo-side next open slice = `none`、当前仅剩 `P001A/P003A/P005A/P006A` 为 next open），`tools/run-live-pilot-closeout-repo-side-audit.ps1` 也通过并再次确认 `release_ready_claimed = false` 与 truth boundary 未被现场事实消掉。`REAL005` 最新 closure report 仍明确 `fullClosureAllowed = false`，因此即使 `REAL005A/B/C/D 的 repo-side closeout 已完成`，整体口径仍只能保持 `not_closed`，不能提前改成已闭环。`release_ready_count = 0`、`P001/P003/P005/P006` 仍为 `待办`。这意味着仓库侧 closeout、参考基线和状态口径已进一步收口，但没有把现场 / 隔离机 / 签字级闭环“提前算完成”。
+```text
+导入/建题 -> 题谱映射 -> 检索/组卷或成绩诊断 -> Word/Excel 交付 -> 教师复核
+```
 
-2026-07-31 课程标准与真题多层证据专题（CEK-01..35）已完成本机 repo-side 收口。fresh 授权版 CEK-34 suite 记录 `status=pass/cek34Complete=true`：API 78、Worker 182、Web 38、lint 和完整 full gate 通过；2015-2025 共 234 题的题干、答案、试卷/答案锚点与题级年报锚点已进入 PostgreSQL 候选链，4,571 个 FileStore 文件隔离恢复后 hash 一致。自动提炼结果仍为 `candidate/pending_review/productionEligible=false`，生产 active 未切换；真实教师签字、身份授权、学校网络、隔离机、`REAL005=not_closed` 和 release No-Go 均保持开放。
+教师默认只接触少步骤、少选择、少术语的工作台。权限、审计、备份、迁移、AI provider 和 active switch 均属于管理员层。
 
-2026-05-02 外部资料复核后的判断：最高原则、默认技术栈、模块化单体架构和 P0/P1 纵切路线保持正确；需要在进入编码前先完成 P0 准入预检，锁定 SDK/runtime、PostgreSQL 版本、数据目录、Windows Service/content root 约束、BackgroundService job lease/retry 规则、学生数据/合规辖区边界和文档门禁。
+## 本地启动
 
-2026-05-04 工程终态复核后的判断：当前最优终态仍是 Windows/LAN first teacher workstation + ASP.NET Core modular monolith + PostgreSQL fact store + local file store + Python document/OCR/AI adapters + React/Vite/Ant Design teacher workbench + versioned domain assets + structured AI candidate pipeline + release/backup/restore evidence。需要补强的不是换栈，而是 external benchmark drift guard、前端 server-state/typed API 边界、LLM security red-team gate、EF migration bundle/升级演练和标准互操作 profile map。
-2026-06-06 已把这套长期判断固化为 `docs/decisions/ADR-014-recommended-engineering-endstate-and-stack-boundary.md`，并提供短入口 `docs/110_EngineeringEndStateChecklist.md`；后续任何“换栈/换架构/提前平台化”的讨论默认先看这两份文档。
-
-当前 P0/P1 已打通“上传文件 -> 创建 ImportJob -> 持久化元数据 -> Python Worker 占位 -> 页面预览/人工确认/来源回看 -> health -> backup manifest -> unified gate”纵切闭环。P2 已完成 C001、C002A-C002T 和 C002R：draft bootstrap 可用于测试，广州中考 33 份原始来源资料已进入 `SourceDocument/FileAsset` 证据层，质量复核后的 cleaned candidate 已完成 candidate 导入、审核决策、reviewed -> active 受控切换，当前 C002 初中物理 v1 为 452 个 `active` 动态资产、400 条 `approved` 映射和 1 个 `applied` migration；C002R 已把 active 后修订合同化，后续教师修正、新教材、新课标或新考情必须进入新 candidate 版本、映射、影响报告、审核、回滚演练和管理员 active 切换，不直接改旧 active。来源 PDF 已完成本地 chunk/hash/cache 证据层，候选提炼 schema/eval 已验证，分层模型路由预算门禁已证明 full extraction 必须人工预算确认，outer AI runner/subagent 编排 readiness 已证明不启用项目内生产真实模型、不引入运行时 subagent 依赖，小批量 AI extract contract dry-run 已生成候选输出、模型层级、token/cost/cache 证据且不覆盖 C002K。P3 已在 draft/test 模式完成 D001-D003：真实模型调用仍禁用，LLM 路由只进入 `stub_llm`、成本日志和结构化输出 eval smoke，结果保持人工审核边界。P4 已完成 E001-E004 draft/test：题库检索、自然语言组卷理解、一键换题与撤销、Word/PDF 导出 MVP 合同均不等待正式 C002。P5 已完成 F001-F003 draft/test：学生、班级、考试、报名、Excel 字段映射导入、异常行提示、得分率、区分度、知识点掌握摘要和薄弱知识点报告均使用 synthetic fixture；不使用真实学生数据，不暴露学生端，不写正式学情口径。P6 已完成 G001-G004 draft/test：本机/共享目录备份、管理员存储看板、配置化缓存清理、WinPE 应急拷贝脚本和 PostgreSQL `pgpass.conf` 非交互凭据 dry-run 均已纳入合同；G004 仅使用临时 `APPDATA` 写入 pgpass，清空进程级 `PGPASSWORD` 后用 `psql -w` 验证，不修改真实用户 pgpass，不记录密码。
-
-`C002` 标记为正式完成时，只表示初中物理知识体系 v1 已成为当前生产默认版本，不表示永久冻结。后续修改必须走新候选版本、映射、影响报告、审核、回滚快照和 active 切换，旧版本保留给历史题目、旧卷和学情解释。
-
-大模型提炼候选体系要先走本地优先审查、chunk/hash/cache、schema/eval、模型路由预算和小批量 dry-run，不直接把 33 个 PDF 全量送入高强模型。文件 hash、来源 metadata、CSV/JSON/YAML/schema、SQL、导入幂等、active guard、chunk cache、token 预算和中文显示 guard 都应先由本地工具 100% 覆盖；真实模型输出仍只能进入 `candidate/pending_review`，不得直接 active。
-
-2026-05-08 起，所有后续功能推进采用横向 automation-first 合同：确定性规则、脚本、专用 API/UI、Adapter、schema、SQL、hash/cache、typed client、模板和 contract 先覆盖可确定部分；AI/agent 只能作为语义候选、复杂映射、异常复核或外层并行编排。机器可读合同为 `tasks/automation-first-contract.csv`，门禁为 `tools/run-automation-first-feature-contract-guard.ps1`，并纳入 unified gate。
-
-当前任务顺序和状态以 `tasks/backlog.csv` 为唯一机器真源；当前执行、闭环和发布裁决分别看 `docs/103_ExecutionControlBoard.md`、`docs/CurrentClosureStatus.md` 和 `docs/109_ReleaseGoNoGoCard.md`。完成切片文档与 `docs/evidence/` 只负责历史追溯，不选择下一任务。`S001-S012` 已形成非现场产品化链路，但这不等于现场发布完成；P001/P003/P005/P006、隔离机、学校网络/打印/权限域、真实教师和回滚签收仍保持开放。
-
-2026-05-28 起，若最新盘点发现非人工、非现场能力仍未真正落地，不再只引用旧 `S001-S012` 历史完成态作为产品化证明。新的总控入口是 `docs/101_NonSiteCapabilityImplementationRoadmap.md`，机器可读任务清单是 `tasks/non-site-implementation-plan.csv`。后续每个模块必须重新区分 `planned`、`contract_only`、`repo_landed`、`runtime_verified`、`non_site_validated` 和 `blocked_by_onsite`；只有具备代码、运行或端到端证据后，才允许回写完成态看板。
-
-真实广州中考物理资料已进入 `REAL001-REAL005` 纠偏主线。`REAL001/REAL002` 已把 2015 年第 1-24 题写入数据库并进入 `pending_review` 审核队列，其中第 19-24 题已有截图级 `SourceRegion` 与题图资产；`REAL003` 已对 2016-2025 年做首轮 dry-run，核对 210 个候选题、210 条答案和 33 个带 hash 的 `SourceDocument`，未写 active、未调用外部 AI；`REAL004` 已证明 2015 真卷审核队列可筛选、加载来源、确认、退回、修订并写入 audit；`REAL005` 已安装机器可读闭环判定标准，当前真实结论必须保持 `closureStatus=not_closed`，不能宣称 2015-2025 真卷全流程已经全部完成。
-
-2026-06-09 起，`REAL005` 与 `P001/P003/P005/P006` 的剩余现场阻断不再只散落在 README、发布卡和证据 JSON 中；新的最小执行顺序入口是 `tasks/live-pilot-closeout-plan.csv`，专门用于隔离机事实、签收、反馈分流和发布裁决 closeout。
-
-同样从 2026-06-09 起，高风险编码任务不再只“建议查参考”。`tasks/reference-basis-requirements.csv` + `tasks/reference-basis-module-map.csv` + `tools/run-reference-basis-guard.ps1` 已进入主 gate，当前首批强制覆盖 `S004`、`S010`、`S011`、`REAL010`、`NS1301-NS1308`、`O008`、`P001`、`P003`、`P005`、`P006`、`R001`、`R002`、`R007`；这些任务若缺少官方来源或本地参考库锚点，统一视为 gate fail。`requirements` 解决“哪些高风险任务必须查参考”，`module-map` 解决“哪个代码板块该参考/复刻/复用哪个仓”，`tools/sync-reference-shelf-snapshot.ps1` 负责把外部参考架同步成仓内 snapshot，避免 CI 因 snapshot 漂移假失败。
-
-当前完成态速览：
-
-| 范围 | 当前完成态 | 可用性结论 | 下一阻断 |
-|---|---|---|---|
-| 教师四入口、导入、切题、人工接管、题目保存、AI 标注、检索、组卷、导出、成绩导入和讲评报告 | `teacher_validated`（非现场/代理证据） | 非现场可用，现场发布前仍需 P001 复核 | `P001` |
-| C002 初中物理 v1 与来源资料证据层 | `db_backed_done` | 管理员可用，后续修订必须走 C002R | 新 candidate/review/active switch |
-| 2015 广州真卷 1-24 题 | `ui_productized` | 可进入教师审核队列，需教师现场验收后才算可用 | `REAL005` / P0-live 验收 |
-| 2016-2025 广州真卷全流程 | `contract_done` | 不可宣称完成；REAL003 只是 dry-run | `REAL005` 输出仍为 `not_closed` |
-| 安装部署、Windows Service、现场权限审计和发布试点 | `contract_done` | 不可发布使用 | `P001` |
-
-## 当前启动与门禁
-
-API:
+API：
 
 ```powershell
 $env:KQG_CONNECTION_STRING='Host=127.0.0.1;Port=5432;Database=k12_question_graph;Username=postgres;Password=<local-password>'
-dotnet run --project apps\api\K12QuestionGraph.Api.csproj --urls http://127.0.0.1:5275
+.\tools\start-local-api.ps1
+.\tools\start-local-api.ps1 -Status
 ```
 
-本机 Codex/agent 环境中的 `postgres` MCP 可作为只读诊断入口使用；当前本机验证过的目标是 `127.0.0.1:5432/k12_question_graph`。该 MCP 连接串由用户级 `POSTGRES_CONNECTION_STRING` 提供，不在仓库、日志或证据文件写入明文密码。MCP 只用于代理侧数据库探测和排障，不是 API、Web、gate、安装器或现场发布的运行前置；产品运行仍以 `KQG_CONNECTION_STRING`、`PGPASSWORD`、pgpass 和本仓脚本为准。
-
-Web:
+Web：
 
 ```powershell
 .\tools\start-local-web.ps1
 .\tools\start-local-web.ps1 -Status
 ```
 
-该入口会把 Vite 固定到 `http://127.0.0.1:5173/`，后台启动并把 PID/日志写入 `logs/dev-web/`。需要重启或停止时使用 `.\tools\start-local-web.ps1 -Restart` / `.\tools\start-local-web.ps1 -Stop`。
-日常运行模型、状态语义和排查顺序见 `docs/113_LocalRuntimeOperations_20260609.md`。
+默认地址为 API `http://127.0.0.1:5275`、Web `http://127.0.0.1:5173`。停止或重启使用启动脚本的 `-Stop` / `-Restart`。详见 [docs/113_LocalRuntimeOperations_20260609.md](docs/113_LocalRuntimeOperations_20260609.md)。
 
-本地 API 常驻入口：
+## AI 配置边界
 
-```powershell
-.\tools\start-local-api.ps1
-.\tools\start-local-api.ps1 -Status
-```
+- 根目录 `.env` 只提供本地 bootstrap；模板见 `.env.example`。
+- 管理员保存后的本机配置优先于 `.env`，默认路径为 `D:\KQG_Data\config\admin\ai-provider-settings.local.json`。
+- 默认使用一组 base URL + API key；只有图片网关确实分流时才填写图片专用覆盖。
+- real model、外部 AI、成本预算和 provider smoke 均不得绕过 `pending_review` 与 no-active-write。
 
-该入口会把 API 固定到 `http://127.0.0.1:5275`，自动解析本机 `PGPASSWORD` 或 `KQG_CONNECTION_STRING`，后台启动并把 PID/日志写入 `logs/dev-api/`。需要重启或停止时使用 `.\tools\start-local-api.ps1 -Restart` / `.\tools\start-local-api.ps1 -Stop`。
-日常运行模型、状态语义和排查顺序见 `docs/113_LocalRuntimeOperations_20260609.md`。
+## 验证
 
-管理员 AI 路由本地验证入口：打开 `http://127.0.0.1:5173/?admin=1`，通过 `打开设置 -> 管理员 AI 设置` 进行 `provider-settings` 保存和 `provider-settings/test` 结构化 smoke。该入口已在 2026-06-11 通过 `NS1305A` contract，配置持久化到 `D:\KQG_Data\config\admin\ai-provider-settings.local.json`，但边界仍是 `draft/test`、`pending_review`、`no-active-write`。
-
-2026-06-14 起，管理员 AI 设置的推荐配置模式收口为“默认单 key，兼容图片专用覆盖”。也就是：默认只配置主 `base URL + API key`；如果中继网关把生图单独挂到另一条路由、另一把 key，再额外填写图片专用 `base URL + key`。本地开发时，根目录 `.env` 可作为启动脚本 bootstrap，参考 `.env.example`；一旦管理员在 UI 中保存设置，运行时仍以 `D:\KQG_Data\config\admin\ai-provider-settings.local.json` 的本机加密配置为优先真值。
-
-日常验证入口：
+日常代码变更优先运行 Slice：
 
 ```powershell
-.\tools\run-verification.ps1 -Profile Quick
 .\tools\run-verification.ps1 -Profile Slice -ChangedPaths <PATHS>
 ```
 
-`Quick` 是全栈无状态基线；`Slice` 不隐式重跑 Quick，只按 changed paths 运行对应产品 build/test 或工具脚本质量，纯文档变更返回 `gate_na`，空选择和未知路径 fail-closed。两者都不访问 PostgreSQL、不停止常驻进程、不写 FileStore 或 tracked evidence。发布前明确授权运行 `tools/run-verification.ps1 -Profile Release -AuthorizeStateful`：执行 Quick + 3 个风险聚焦阶段 + 状态对账，报告和恢复工件只进 `tmp/verification/`。旧 235-step monolith 已退役，Git 历史是唯一回溯入口。
-
-无数据库密码时的 C002 动态资产 dry-run:
-
-```powershell
-.\tools\run-c002-dry-run-suite.ps1
-```
-
-该命令验证 source material admission、draft -> formal replacement mapping、migration impact、candidate admission 和 activation guard，不连接数据库、不写生产数据。数据库、migration、backup/restore 和 no-active-write 由默认 focused Release core 覆盖。
-
-仓库级发布验证：
+全栈无状态基线：
 
 ```powershell
 .\tools\run-verification.ps1 -Profile Quick
+```
+
+`Slice` 只运行受影响产品 build/test 或 changed-script 解析；纯文档返回 `gate_na`。`Quick` 运行 API、Web 和核心 Worker，不扫描全部历史工具。两者只写 `tmp/verification/`，不访问 PostgreSQL、不停止常驻进程、不写 FileStore 或 tracked evidence。
+
+数据库 migration、备份恢复和发布前状态对账只在明确授权后运行：
+
+```powershell
 .\tools\run-verification.ps1 -Profile Release -AuthorizeStateful
 ```
 
-CI 与本地只调用同一个 canonical runner，不再保留 preflight wrapper、gate group、legacy compatibility audit 或覆盖对账器。current evidence 由 `docs/evidence/index.json` 策展；任何 repo-side/Release 结果都不改变 `REAL005 = not_closed`、P001-P006 待办和 release No-Go。
+Release 只增加 migration/privacy/no-active-write、隔离备份恢复、reference/current-evidence/closeout 检查；不会重新审计全部历史任务或生成日期化 tracked evidence。
 
-C002 候选资料与真实来源资料入口：
+## 数据与运维
+
+常用低层入口：
 
 ```powershell
+.\tools\backup.ps1
+.\tools\verify-backup.ps1
+.\tools\restore.ps1
+.\tools\run-c002-dry-run-suite.ps1
 .\tools\prepare-c002-candidate-csvs.ps1
-.\tools\prepare-c002-candidate-csvs.ps1 -InputDir 'guangzhou-physics-full-research-package-2016-2025\csv' -OutputDir 'c002-k12-question-graph-candidate-csvs\cleaned'
-.\tools\merge-c003-quality-review-package.ps1 -Force
 .\tools\import-c002-source-materials.ps1
-```
-
-`prepare-c002-candidate-csvs.ps1` 只清洗候选 CSV，输出 cleaned candidate 输入，不写库、不激活正式资产。默认兼容旧 `c002-*` 候选包；当输入目录包含 `c003-source-material.csv` 时，会自动把完整 `c003-*full` 数据转换成既有 C002 candidate import 格式，继续保持 `candidate/pending_review/productionEligible=false`。`merge-c003-quality-review-package.ps1` 会把完整 C003 CSV 包与 `quality-review-complete-csv-package` 合并到 `D:\KQG_Data\candidate_packages\c003-merged-quality-review-2016-2025`，用于复跑 C002S 和生成新 candidate 输入。原始 PDF 统一存放在 `D:\KQG_Data\source_materials\imported\guangzhou_physics_2016_2025`；`import-c002-source-materials.ps1` 默认从该目录 dry-run。真实导入必须先设置正确 `PGPASSWORD/KQG_CONNECTION_STRING` 并保留备份证据，再用 `-Apply -StartApi -BackupManifest 'D:\KQG_Backups\<timestamp>\manifest.json'` 把原始 PDF 导入 `SourceDocument/FileAsset` 证据层。C002 正式激活只走 `run-c002t-active-switch.ps1`：先 dry-run，再备份并校验 manifest，最后 `-Apply`。
-
-广州真卷 REAL 入口：
-
-```powershell
-.\tools\run-guangzhou-2015-real-ingest-slice.ps1
-.\tools\run-guangzhou-2015-visual-region-slice.ps1
-.\tools\run-guangzhou-physics-year-batch-ingest.ps1
-.\tools\run-real004-guangzhou-2015-review-smoke.ps1
-.\tools\run-real005-guangzhou-2015-2025-closure-standard.ps1
-```
-
-其中前两个脚本默认先 dry-run，只有显式 `-Apply` 才写入本机数据库；`run-guangzhou-physics-year-batch-ingest.ps1` 当前用于 2016-2025 批量 dry-run；`run-real005-guangzhou-2015-2025-closure-standard.ps1` 是能否宣称真卷全流程闭环的判定入口，当前必须输出 `not_closed` 才符合事实。
-
-候选数据写库入口：
-
-```powershell
-$env:PGPASSWORD='<local-password>'
 .\tools\import-c002-candidate-assets.ps1
-.\tools\import-c002-candidate-assets.ps1 -Apply -BackupManifest 'D:\KQG_Backups\<timestamp>\manifest.json'
+.\tools\run-domain-asset-activation.ps1
 ```
 
-该入口只导入 `candidate/pending_review` 动态资产、映射、迁移计划和审核队列，不会激活正式 C002。
+写数据库、恢复、active switch 或真实资料导入前必须先生成并验证 backup manifest；默认运行必须是 dry-run。真实学生信息、版权受限原文和凭据不得提交。
 
-新学科知识体系激活入口：
-
-```powershell
-.\tools\run-domain-asset-activation.ps1 `
-  -ImportKey '<subject_candidate_import_key>' `
-  -MaterialBatchKey '<source_material_batch_key>' `
-  -EvidencePrefix '<subject>-activation' `
-  -ExpectedSourceDocumentCount 0
-```
-
-后续化学、生物、数学等学科不要手工串联底层 C002L/C002M/C002T 命令，优先使用该统一入口。教师复核和激活确认必须配套使用：
-
-- `docs/templates/subject-candidate-review-checklist.md`：候选知识点、教材章节、课标条目、地区考点和映射关系复核清单。
-- `docs/templates/subject-activation-approval-form.md`：激活前机器摘要、人工复核、备份和最终确认表。
-- `docs/79_TeacherCandidateReviewAndActivationGuide.md`：教师/备课组操作说明。
-- `docs/78_SubjectDomainAssetActivationRunbook.md`：管理员/代理执行 runbook。
-
-这四份文档已纳入 `tools/run-teacher-activation-template-guard.ps1` 和 full gate，避免后续学科激活流程只剩脚本、缺少教师可理解的操作材料。
-
-证据与回滚入口：
-
-- `docs/evidence/P0_EVIDENCE_2026-05-02.md`
-- `docs/evidence/P0_ROLLBACK_2026-05-02.md`
-
-## 最高硬约束
-
-> **教师工作流效率最大化。**
-
-所有功能、界面、AI 设计、数据模型、工程取舍，均必须服从该原则。当功能完整性与教师使用效率冲突时，优先教师使用效率；当字段丰富性与录入负担冲突时，优先降低录入负担；当 AI 自动化与成本/可靠性冲突时，优先成本可控和结果可靠。
-
-所有教师侧流程和界面还必须力求简化、便捷：少步骤、少选择、少术语、少打扰，多默认、多自动、多模板、多撤销。脚本参数、证据、备份、回滚、迁移、权限和审计细节默认下沉到管理员/代理/系统层，不直接暴露给普通教师。
-
-该原则必须可度量，至少用以下指标验收：
-
-- 常规组卷从需求输入到可打印导出，目标不超过 10 分钟。
-- 导入试卷时教师只处理异常项，不逐题确认全部结果。
-- 高频流程默认值来自教师偏好、模板和历史映射，不要求重复配置。
-- 新流程进入教师侧前，必须证明比原流程更清楚、更省事，不能只是把后台复杂度搬到页面上。
-- 每个新字段都能证明会用于检索、组卷、分析、导出或治理。
-- 所有 AI 结果结构化、可审计、可人工接管、可回滚。
-- P0/P1 默认不使用真实学生个人信息作为样本、fixture 或 prompt 内容；真实外部 AI 调用必须等数据边界和人工确认契约锁定后再评估。
-
-## v0.1 冻结范围
-
-v0.1 聚焦：
-
-1. 初中物理。
-2. Windows-first，本机开发，终态校本局域网部署。
-3. 浏览器 Web 页面。
-4. Word/PDF/图片试卷导入。
-5. AI + 人工异常确认的试题入库。
-6. 题图、公式、表格、多模态内容保留。
-7. 可版本化、可替换、可追溯的物理知识体系，课标/教材/地区考点为映射层。
-8. 题库检索、自然语言组卷、一键换题、Word/PDF 导出。
-9. Excel 成绩导入、小题分映射、基础学情分析。
-10. 自动备份、缓存清理、恢复包、WinPE 应急恢复方案。
-
-明确不做：在线考试、在线监考、防作弊、全学科一次上线、自动主观题阅卷、复杂 IRT、完整 QTI/CASE 实现、学生端/家长端。
-
-## 推荐实现顺序
-
-先按 `docs/19_Roadmap.md`、`docs/20_TaskBreakdown.md`、`docs/87_PhaseCloseoutAndFullRoadmap.md`、`docs/99_ProductizationFullRoadmapAndTaskPlan.md`、`tasks/backlog.csv` 与 `tasks/completion-state-dashboard.csv` 执行。旧 A000-G004 已全部完成，H0/I0/J0/K0 与 S001-S012 已形成可复跑合同和非现场产品化证据；当前主线已经进入 `REAL001-REAL005` 真卷闭环纠偏与 `P001` 试点前置复核。进入 L0 真实 AI、M0/N0/O0 或发布试点前，必须保持 I008/I009/I010 教师简洁模式、教师可见术语和教师 shell 边界合同通过。O004 只代表 `/api/admin/*` 和 `/internal/ai/*` 裸接口 fail-closed guard 已完成，P0-live 前还必须完成 O004B 角色权限与审计日志剩余闭环。知识点、标签、题型、难度、组卷规则、导出模板、Excel 映射、AI prompt/schema/model routing、分析指标、组织权限和隐私策略等动态元素都不得写死，但它们的可变性也不得阻断开发：可先用示例数据、示例配置或少量临时资料完成系统能力，正式资料以后再录入、映射、审核、激活。
+## 当前发布链
 
 ```text
-P0/P1: 打开应用 → 上传文件 → 创建 ImportJob → 写数据库 → 文件入仓 → 页面预览 → 人工确认 → 单题入库 → 来源回看 → 备份 manifest
-P2/C002 draft-test: draft 知识点 → 替换映射 dry-run → 迁移影响报告 → candidate admission → active guard
-P2/C002 dynamic contract: dynamic elements → one-to-one/one-to-many/many-to-one/many-to-many mapping → review workbench → impact/rollback
-P3/D001-D003 draft-test: AI task → ModelRouter → rule/stub_llm → schema/prompt/model/cost log → structured output eval → human review guard
-P4/E001-E004 draft-test: question search → paper request understanding → replace question → undo snapshot → export Word/PDF → non-production guard
-P5/F001-F002 draft-test: synthetic student → class group → assessment → enrollment → Excel score mapping → row errors → privacy guard → no student portal
+P001 隔离机预演
+  -> P002 教师代理试点
+  -> P003 现场准入
+  -> P004 现场试点
+  -> P005 反馈分流
+  -> P006 发布裁决
 ```
 
-完整 v0.1 闭环仍是：
+细化顺序在 [tasks/live-pilot-closeout-plan.csv](tasks/live-pilot-closeout-plan.csv)。只要 P001–P006 未全部关闭，就保持 `No-Go`，不创建 release tag，不宣称 live accepted。
 
-```text
-上传文件 → AI/人工切题 → 入库 → 检索 → 组卷 → 导出 → Excel 成绩导入 → 基础分析 → 备份恢复
-```
+## 文档导航
 
-当前代码和合同已覆盖该闭环的非现场产品化路径，但发布判断不能只看 synthetic fixture 或局部 smoke。真实材料闭环必须继续按 `REAL005` 的 12 项标准补齐逐年逐题证据；现场发布必须继续从 `P001` 开始，后续阶段不得倒插高级功能。
+- 产品与范围：[docs/01_PRD.md](docs/01_PRD.md)、[docs/02_MVP_Scope_and_ScopeControl.md](docs/02_MVP_Scope_and_ScopeControl.md)
+- 架构与领域：[docs/03_Architecture.md](docs/03_Architecture.md)、[docs/05_DomainModel.md](docs/05_DomainModel.md)
+- 测试与恢复：[docs/18_TestStrategy.md](docs/18_TestStrategy.md)、[docs/14_BackupRecoveryMigration.md](docs/14_BackupRecoveryMigration.md)
+- 当前执行：[docs/103_ExecutionControlBoard.md](docs/103_ExecutionControlBoard.md)、[docs/CurrentClosureStatus.md](docs/CurrentClosureStatus.md)
+- 发布裁决：[docs/109_ReleaseGoNoGoCard.md](docs/109_ReleaseGoNoGoCard.md)
+- current evidence：[docs/evidence/index.json](docs/evidence/index.json)
+- 参考依据：[docs/26_References.md](docs/26_References.md)、[tasks/reference-basis-requirements.csv](tasks/reference-basis-requirements.csv)
 
-## 文件结构
-
-```text
-apps/      P0 运行项目：API 与 Web UI
-docs/       需求、架构、UX、数据、AI、备份、安全、测试、路线图
-schemas/    AI 结构化输出 JSON Schema 草案
-configs/    默认配置草案：模型路由、标签、保留策略、备份策略等
-diagrams/   Mermaid 架构图、ER 图、工作流图
-runbooks/   运维与应急恢复指南
-tasks/      任务拆解 CSV
-prompts/    Codex CLI 交接提示词、AI 任务提示词模板
-sources/    官方文档/最佳实践参考来源；外部浅克隆参考库见 docs/26_References.md 与 D:\CODE\external\k12-question-graph-references
-tools/      P0 门禁、备份、恢复脚本
-workers/    Python document/OCR/AI adapter
-tests/      自动化测试与黄金样本
-```
-
-高优先级治理入口：
-
-- `docs/111_ProjectNavigationOverview.md`：遇到某类问题时先看哪份文档。
-- `docs/103_ExecutionControlBoard.md`：当前 Now / Next / Later 与硬阻断。
-- `docs/104_OpenQuestionsAndAssumptions.md`：尚未拍板但会影响发布与范围的边界。
-- `docs/109_ReleaseGoNoGoCard.md`：`P006` 单页发布裁决入口。
-- `docs/CurrentClosureStatus.md`：当前仓库级 / 非现场 / 现场阻断的稳定短入口；旧 `docs/112_CurrentClosureStatus_20260609.md` 仅作 legacy guard 与历史兼容。
-- `docs/113_LocalRuntimeOperations_20260609.md`：本地 Web/API 联调运行模型、状态语义和排查入口。
-- `tasks/reference-basis-requirements.csv`：高风险任务强制参考依据入口，决定哪些改动必须先补官方与本地参考锚点。
-- `tasks/reference-basis-module-map.csv`：板块级 reference-basis 清单，把 API、Web、export、score-analysis、AI routing、OCR、Windows Service、release pack、搜索、队列、互操作等板块和参考仓映射成机器可读表。
-- `sources/reference-shelf.manifest.snapshot.json`：外部 reference shelf 的仓内快照，供 CI 在无本机 `D:\CODE\external\k12-question-graph-references` 挂载时仍能校验 reference-basis 元数据。
-- `tools/sync-reference-shelf-snapshot.ps1`：从外部 `references.manifest.json` + 当前 hard-rule 任务/模块绑定重建仓内 snapshot，供参考库更新后快速同步。
-- `tasks/live-pilot-closeout-plan.csv`：`REAL005` 与 `P001/P003/P005/P006` 的剩余现场 closeout 最小执行顺序。
-
-## 当前运行入口
-
-- `apps/api`: 已提供 `dotnet run --project apps/api`，健康检查为 `http://localhost:5275/health`。
-- `apps/web`: 已提供 `npm run dev --prefix apps/web`。
-- `workers/document`: 提供 worker smoke entry。
-- `tools/run-verification.ps1`: Quick/Slice/Release 唯一 profile 入口；普通编码默认 Slice，跨栈基线才运行 Quick；onsite/live acceptance 不提供伪自动化 profile。
-- `tools/run-automation-first-feature-contract-guard.ps1`: 功能实现 automation-first 合同守卫，确保待办任务先声明规则、脚本、专用功能和 evidence，再限定 AI/agent 使用范围。
-- `tools/run-reference-basis-guard.ps1`: 高风险任务参考依据守卫，要求架构、Windows Service、PowerShell 运维、OCR/toolchain、export、score-analysis、AI routing、搜索、互操作以及 `P001/P003/P005/P006` 这类 live pilot / release closeout 任务先在 `tasks/reference-basis-requirements.csv` 中登记官方来源与本地参考库锚点；本机若挂载了外部参考库，还会同时核对仓内 snapshot 与外部 manifest 是否同构。
-- `tools/run-c002-dry-run-suite.ps1`: 无数据库的 C002 动态资产 dry-run 入口。
-- `tools/run-d001-model-router-contract.ps1`: D001 draft/test ModelRouter 合同。
-- `tools/run-d003-structured-output-eval.ps1`: D003 draft/test 结构化输出 eval smoke。
-- `tools/run-e001-question-search-contract.ps1`: E001 draft/test 题库检索和题卡合同。
-- `tools/run-e002-paper-request-contract.ps1`: E002 draft/test 自然语言组卷理解合同。
-- `tools/run-e003-question-replacement-contract.ps1`: E003 draft/test 一键换题与撤销合同。
-- `tools/run-e004-paper-export-contract.ps1`: E004 draft/test Word/PDF 导出 MVP 合同。
-- `tools/run-j004-fidelity-regression-contract.ps1`: J004 公式/表格/题图从导入解析、draft question 到导出的保真回归合同。
-- `tools/run-j005-adapter-diagnostic-supply-chain-contract.ps1`: J005 Adapter 版本诊断和工具供应链门禁。
-- `tools/run-j006-import-accuracy-workload-contract.ps1`: J006 导入准确率代理基线与人工工作量报告。
-- `tools/run-k001-active-c002-production-query-contract.ps1`: K001 C002 active v1 生产查询默认知识版本合同。
-- `tools/run-k002-c002r-teacher-revision-ux-contract.ps1`: K002 C002R 教师修订 UX 合同，验证教师只提交 4 项低负担信息，系统生成 candidate、映射、影响报告和回滚快照。
-- `tools/run-k003-mapping-review-workbench-ui-contract.ps1`: K003 映射审核工作台 UI 合同，验证 split/merge/deprecated 等高影响映射并排审核、影响预览、回滚预览和禁止直接 active apply。
-- `tools/run-k004-historical-version-explanation-contract.ps1`: K004 历史题目/试卷/学情报告版本解释合同，验证旧对象保留历史知识版本，同时只读显示当前版本映射。
-- `tools/run-k005-c002-second-revision-drill-contract.ps1`: K005 第二批 C002 修订演练合同，验证 synthetic candidate -> reviewed -> active dry-run 链路、rollback snapshot 和不直接改旧 active。
-- `tools/run-k006-knowledge-asset-health-dashboard-contract.ps1`: K006 知识资产健康面板 UI 合同，验证管理员只读查看 active、candidate、pending mappings、migrations、blockers 和证据摘要。
-- `tools/run-f001-assessment-model-contract.ps1`: F001 draft/test 学生、班级、考试和报名模型合同。
-- `tools/run-f002-score-import-contract.ps1`: F002 draft/test synthetic Excel 字段映射导入合同。
-- `tools/run-f003-knowledge-mastery-analysis-contract.ps1`: F003 draft/test 得分率、区分度和知识点掌握摘要合同。
-- `tools/run-g001-backup-share-contract.ps1`: G001 draft/test 本机备份与共享目录副本 manifest/hash 校验合同。
-- `tools/run-g002-storage-cleanup-contract.ps1`: G002 draft/test 存储看板 API/UI 与配置化缓存清理合同。
-- `tools/run-g003-winpe-emergency-copy-contract.ps1`: G003 draft/test WinPE 应急拷贝脚本生成合同。
-- `tools/run-g004-pgpass-installer-dry-run.ps1`: G004 draft/test PostgreSQL pgpass 非交互凭据初始化 dry-run 合同。
-- `tools/run-guangzhou-2015-real-ingest-slice.ps1`: REAL001 2015 广州真卷 1-18 题真实来源入库 dry-run / apply 入口。
-- `tools/run-guangzhou-2015-visual-region-slice.ps1`: REAL002 2015 第 19-24 题截图级 SourceRegion 与题图资产 dry-run / apply 入口。
-- `tools/run-guangzhou-physics-year-batch-ingest.ps1`: REAL003 2016-2025 广州物理真卷批量 dry-run 入口，记录来源 hash、题数、答案覆盖、接管点和回滚 SQL。
-- `tools/run-real004-guangzhou-2015-review-smoke.ps1`: REAL004 2015 真卷审核队列 API/Web smoke，验证筛选、来源加载、确认、退回、教师修订和 audit。
-- `tools/run-real005-guangzhou-2015-2025-closure-standard.ps1`: REAL005 真卷全流程闭环判定入口；当前应输出 `closureStatus=not_closed`。
-- `tools/run-live-pilot-closeout-plan-guard.ps1`: 校验 `tasks/live-pilot-closeout-plan.csv`、`tasks/backlog.csv`、`docs/109_ReleaseGoNoGoCard.md` 和 legacy closure 投影等入口是否仍保持一致且不夸大现场闭环；稳定 current 入口为 `docs/CurrentClosureStatus.md`。
-- `tools/prepare-c002-candidate-csvs.ps1`: C002 ChatGPT Web 候选 CSV 清洗和预检入口。
-- `tools/import-c002-source-materials.ps1`: C002 原始来源资料 dry-run / evidence-layer 导入入口。
-- `tools/import-c002-candidate-assets.ps1`: C002 cleaned candidate DB dry-run / apply 入口。
-- `tools/run-c002l-candidate-review-readiness.ps1`: C002 candidate/reviewed/active lifecycle readiness 报告入口。
-- `tools/run-c002t-active-switch.ps1`: C002 reviewed 批次进入 active 的 dry-run/apply guard；`-Apply` 必须提供 backup manifest。
-- `tools/run-c002m-candidate-review-apply-contract.ps1`: C002 candidate review decision apply/rollback 合同入口。
-- `tools/run-c002r-versioned-revision-contract.ps1`: C002 active 后知识体系修订 dry-run 合同，验证 candidate 版本、映射、影响报告、审核和回滚演练。
-- `tools/run-domain-asset-activation.ps1`: 后续新学科动态资产激活统一入口，编排 readiness、审核、备份、active switch 和证据报告。
-- `tools/run-subject-activation-workbench-ui-contract.ps1`: 学科激活工作台 UI 合同，确保教师端只做复核和确认，不直接执行激活脚本。
-- `docs/templates/subject-candidate-review-checklist.md` / `docs/templates/subject-activation-approval-form.md`: 教师候选复核和激活前确认模板。
-- `tools/run-local-first-ai-guard.ps1`: 本地优先 AI 消耗削减与中文显示 guard。
-- `tools/run-c002n-source-chunk-cache.ps1`: C002N 来源 PDF 本地 chunk/hash/cache 和中文报告 guard。
-- `tools/run-c002o-candidate-extraction-eval.ps1`: C002O 候选提炼 schema/eval golden smoke。
-- `tools/run-c002p-model-budget-guard.ps1`: C002P L0-L4 模型、reasoning、预算和 fail-closed guard。
-- `tools/run-c002q0-outer-ai-readiness.ps1`: C002Q0 真实模型调用与 outer subagent 编排 readiness guard。
-- `tools/run-c002q-ai-extract-dry-run.ps1`: C002Q 小批量 AI extract contract dry-run guard。
-- `tools/merge-c003-quality-review-package.ps1`: C003 完整包与质量复核完成包 overlay 合并入口。
-- `tools/run-c002s-formalization-precheck.ps1`: C002S 正式化前抽样核对和质量问题阻断 guard，默认自动使用质量复核 overlay。
-
-快速文档/配置门禁：
-
-```powershell
-python -c "import csv; list(csv.DictReader(open('tasks/backlog.csv', encoding='utf-8-sig'))); print('csv ok')"
-python -c "import json, pathlib; [json.loads(p.read_text(encoding='utf-8')) for p in pathlib.Path('schemas').rglob('*.json')]; print('json ok')"
-python -c "import pathlib, yaml; [yaml.safe_load(p.read_text(encoding='utf-8')) for p in pathlib.Path('configs').rglob('*.yaml')]; print('yaml ok')"
-```
-
-关键范围文件：
-
-- `docs/02_MVP_Scope_and_ScopeControl.md`：v0.1 范围与后置边界。
-- `docs/25_FeatureAdmissionCriteria.md`：新功能准入卡。
-- `docs/28_FunctionScopeReview.md`：功能保留、修改、增加、后置与不进 v0.1 的裁决。
-- `docs/58_DynamicEvolvableElements.md`：必须动态化的参数、数据、标签、模板、规则和映射基数清单。
-- `docs/19_Roadmap.md`：动态元素不停工原则和 draft/test 先搭系统的阶段口径。
-- `docs/87_PhaseCloseoutAndFullRoadmap.md`：A-G 完成后的阶段收口、长期路线图和 H-R 下一轮任务清单。
-- `docs/88_EngineeringEndStateExternalReview_20260504.md`：工程终态、技术栈、架构和长期路线图的外部复核与补强项。
-- `docs/99_ProductizationFullRoadmapAndTaskPlan.md`：把合同完成、产品完成和教师验证拆开的长期产品化全程路线图与 S0 任务计划。
-- `docs/101_NonSiteCapabilityImplementationRoadmap.md`：非人工、非现场能力优先落地的长期路线图、实施计划和任务清单总控入口。
-- `tasks/completion-state-dashboard.csv`：当前各能力的完成态、可用性、证据和阻断缺口。
-- `tasks/non-site-implementation-plan.csv`：非现场能力从 planned 到 runtime/non-site 验证的细化机器可读任务清单。
-- `tasks/real-guangzhou-closure-criteria.csv`：REAL005 真卷全流程闭环 12 项机器可读判定标准。
-- `tasks/automation-first-contract.csv`：待办功能的 automation-first 机器可读合同，声明确定性预检、专用功能面、AI/agent 允许范围、例外策略和 evidence 命令。
-- `tasks/reference-basis-requirements.csv`：高风险任务的官方文档、本地参考库和社区样例锚点清单，缺锚点时主 gate 直接失败。
-- `tasks/reference-basis-module-map.csv`：板块级 reference-basis 清单，把 API、Web、export、score-analysis、AI routing、OCR、Windows Service、release pack、搜索、队列、互操作等板块和参考仓映射成机器可读表。
-- `sources/reference-shelf.manifest.snapshot.json`：从外部参考架同步进仓的只读快照，给 CI 和离线审查提供“参考库当时长什么样”的可携带锚点。
-- `docs/78_SubjectDomainAssetActivationRunbook.md`：后续新学科动态资产激活统一 runbook。
-- `docs/79_TeacherCandidateReviewAndActivationGuide.md`：教师候选复核和激活确认操作指南。
-- `docs/80_SubjectActivationWorkbenchV0.md`：学科激活工作台 v0 的教师侧边界、UI 合同和验证方式。
-- `docs/templates/subject-candidate-review-checklist.md`：教师候选复核清单模板。
-- `docs/templates/subject-activation-approval-form.md`：激活前确认表模板。
-
-## 编码原则
-
-1. 先模块化单体，不做复杂微服务。
-2. 前端默认：React + TypeScript + Vite + Ant Design；shadcn/ui 仅作为需要高度定制时的备选。
-3. 后端默认：ASP.NET Core / .NET 10 LTS，Windows Service 部署预留。
-4. 数据库默认：PostgreSQL；自定义字段用 JSONB；全文检索先用 PostgreSQL FTS；向量检索先用 pgvector；图数据库后置。
-5. 任务默认：P0 先用数据库持久化 job 表 + ASP.NET Core BackgroundService；需要仪表盘、复杂重试和定时任务后再引入 Hangfire；RabbitMQ 后置。
-6. Worker：Python，用于 Docling、PaddleOCR、文档/OCR/AI 任务；通过 Adapter 与稳定 JSON 契约隔离。
-7. 大文件不进数据库，进入文件仓库；数据库只保存元数据、路径、hash、引用关系。
-8. 模型路由是内置模块，不是 README 建议。
-9. 普通教师界面默认极简；高级能力隐藏在高级模式。
-10. 所有 AI 结果都要有置信度、来源、prompt 版本、schema 版本、成本记录。
-11. 所有备份恢复能力都不能只依赖主程序 UI，必须有独立脚本/恢复包。
-12. 学生成绩、学生身份信息、题库原始资料和备份包按高风险资产处理；进入真实部署前必须锁定适用辖区、告知/授权、外部模型传输边界、数据保留和删除策略。
-13. 日常推进先看 `docs/103_ExecutionControlBoard.md`，不要同时把多个路线图文档当成并行主入口。
-
-## 许可证与商业使用
-
-- 本项目采用 `MIT License`，见仓库根目录 [LICENSE](LICENSE)。
-- 本项目是个人开源项目，不采用付费商业许可门槛。
-- 允许个人或组织在遵守 MIT 条款前提下免费商用、分发和修改。
+未被 evidence index 指向的旧报告只属于 Git 历史，不参与当前任务选择或默认门禁。

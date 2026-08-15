@@ -5,11 +5,10 @@ import {
   getImportJob,
   getReadyHealth,
   searchQuestionEvidence,
-  searchQuestions,
   getSourceDocumentPreview,
   getSourceMaterials,
 } from './client'
-import type { QuestionEvidenceSearchParams, QuestionSearchParams } from './contracts'
+import type { QuestionEvidenceSearchParams } from './contracts'
 
 export const serverStateQueryKeys = {
   readyHealth: ['server-state', 'ready-health'] as const,
@@ -20,8 +19,6 @@ export const serverStateQueryKeys = {
     ['server-state', 'source-preview', sourceDocumentId] as const,
   cutCandidates: (sourceDocumentId: string) =>
     ['server-state', 'cut-candidates', sourceDocumentId] as const,
-  questionSearch: (params: QuestionSearchParams) =>
-    ['server-state', 'question-search', params] as const,
   questionEvidenceSearch: (params: QuestionEvidenceSearchParams) =>
     ['server-state', 'question-evidence-search', params] as const,
 } as const
@@ -86,16 +83,6 @@ export function useCutCandidatesQuery(sourceDocumentId: string, enabled = true) 
     retry: false,
     staleTime: 10_000,
     enabled: enabled && sourceDocumentId.length > 0,
-  })
-}
-
-export function useQuestionSearchQuery(params: QuestionSearchParams = {}) {
-  const resolvedParams = { ...params, page: params.page ?? 1, limit: params.limit ?? 10 }
-  return useQuery({
-    queryKey: serverStateQueryKeys.questionSearch(resolvedParams),
-    queryFn: () => searchQuestions({ ...resolvedParams, sortBy: 'question_no', order: 'asc' }),
-    retry: false,
-    staleTime: 15_000,
   })
 }
 

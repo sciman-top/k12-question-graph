@@ -196,8 +196,6 @@ export const teacherActions = [
   },
 ]
 
-export type TeacherAction = (typeof teacherActions)[number]
-
 export const jobStates = [
   { state: 'queued', label: '排队中', value: 0 },
   { state: 'running', label: '处理中', value: 0 },
@@ -240,8 +238,6 @@ export const initialSegments = [
     status: 'pending_review',
   },
 ]
-
-export type ReviewSegment = (typeof initialSegments)[number]
 
 export const sharedAssets = ['图 A：滑轮组示意图', '图 B：电路图', '表 1：实验数据']
 export const defaultDifficultyFilterLabel =
@@ -375,12 +371,6 @@ export const scoreWorkbenchActions = [
     label: '导出报告',
     icon: <FileTextOutlined />,
   },
-]
-
-export const teacherAnalysisHighlights = [
-  ['班级得分率', '87.5%', '示例基线'],
-  ['优先讲评', '运动快慢与速度', '薄弱点 1 个'],
-  ['下一步', '加入巩固题', '按当前知识版本选题'],
 ]
 
 export const analysisActions = [

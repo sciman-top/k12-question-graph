@@ -20,7 +20,7 @@
 - evidence policy；
 - rollback、truth boundary 和 next task。
 
-Automation-first 是所有待办的必填合同：每个 open task 必须在 `tasks/automation-first-contract.csv` 中声明 deterministic precheck、dedicated surface、AI/agent 允许范围、exception policy 和 evidence command；缺少覆盖的待办任务不得继续实现。
+Automation-first 是实现原则：确定性检查进入产品代码、schema 或最低充分测试，AI/agent 只处理语义候选、复杂映射、异常复核或外层编排；不再维护重复的横向合同表。
 
 ## 3. 完成条件
 
@@ -41,15 +41,15 @@ Automation-first 是所有待办的必填合同：每个 open task 必须在 `ta
 - 多真源冲突：先核代码、运行事实和 backlog，再修投影。
 - same issue 连续失败两次：转 clarify_required，不继续堆补丁。
 
-## 5. NS1306 AI/agent 工具执行合同
+## 5. AI/agent 工具执行合同
 
-`configs/agent-tool-orchestration.allowlist.json` 是工具与 runbook 准入真源。AI/agent 只承担外层编排、调用、结果汇总和异常分流，只能调用 manifest 中的 allowlisted tool/runbook；所有未列入项默认拒绝，不得从文档描述推导额外权限。
+`tools/run-verification.ps1` 与各工具自身的 `param()`/实现是当前执行真源。AI/agent 只承担调用、结果汇总和异常分流；不得从历史任务或 evidence 反推出已退役入口。
 
 production active write、restore apply、release decision 和真实学生数据外传必须取得明确人工审批。工具不可用、前置条件不满足或输出合同失败时，agent 必须 fail-closed，保留失败证据并回到对应任务，不能自动越过准入、数据、发布或现场验收边界。
 
 ## 6. 当前任务族
 
-- VGOV-001..010：验证治理减负已完成并退出活跃合同；日常入口为 changed-path Slice，Release 为 focused core，legacy monolith 与兼容审计已删除。
+- VGOV-001..010：验证治理减负已完成并退出活跃合同；日常入口为 changed-path Slice，Release 为 focused core，legacy monolith、静态 allowlist 与兼容审计已删除。
 - P001..P006：真实现场与发布闭环。
 - Q001..Q005、R001..R007：P006 后触发式 Later。
 

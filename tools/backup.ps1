@@ -54,8 +54,6 @@ $configSnapshotRelativeRoot = 'configs'
 $configSnapshotRoot = Join-Path $backupDir $configSnapshotRelativeRoot
 $templateSnapshotRelativeRoot = 'templates'
 $templateSnapshotRoot = Join-Path $backupDir $templateSnapshotRelativeRoot
-$evidenceSnapshotRelativeRoot = 'evidence'
-$evidenceSnapshotRoot = Join-Path $backupDir $evidenceSnapshotRelativeRoot
 
 $pgDump = Join-Path $PgBin 'pg_dump.exe'
 if (-not (Test-Path -LiteralPath $pgDump)) {
@@ -99,16 +97,6 @@ $templateFiles = @(
 )
 $templateEntries = Copy-RepoFilesToSnapshot -Paths $templateFiles -SnapshotRoot $templateSnapshotRoot
 
-$evidenceFiles = @(
-    'docs/evidence/20260530-ns701-score-template-mapping-report.json',
-    'docs/evidence/20260530-ns702-item-score-mapping-report.json',
-    'docs/evidence/20260530-ns703-analysis-metrics-report.json',
-    'docs/evidence/20260530-ns704-commentary-report.json',
-    'docs/evidence/20260530-ns705-student-data-privacy-report.json',
-    'docs/evidence/20260529-ns004-non-site-plan-guard-report.json'
-)
-$evidenceEntries = Copy-RepoFilesToSnapshot -Paths $evidenceFiles -SnapshotRoot $evidenceSnapshotRoot
-
 $databaseHash = Get-FileHash -LiteralPath $databaseDump -Algorithm SHA256
 $manifest = [ordered]@{
     version = 1
@@ -129,8 +117,6 @@ $manifest = [ordered]@{
     configs = $configEntries
     templatesSnapshotRoot = $templateSnapshotRelativeRoot
     templates = $templateEntries
-    evidenceSnapshotRoot = $evidenceSnapshotRelativeRoot
-    evidence = $evidenceEntries
 }
 
 $manifestPath = Join-Path $backupDir 'manifest.json'
@@ -143,5 +129,4 @@ $manifest | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $manifestPath -En
     fileCount = @($fileEntries).Count
     configCount = @($configEntries).Count
     templateCount = @($templateEntries).Count
-    evidenceCount = @($evidenceEntries).Count
 } | ConvertTo-Json -Compress

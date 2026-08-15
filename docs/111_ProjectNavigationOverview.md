@@ -12,7 +12,6 @@
 | canonical | `tasks/backlog.csv` | 任务顺序和状态 |
 | canonical | 当前 task spec | AI 可执行合同 |
 | projection | `docs/103_ExecutionControlBoard.md` | Now/Next/Later/Blocked |
-| projection | `tasks/todo.md` | 当前队列 |
 | projection | `docs/CurrentClosureStatus.md` | closure 边界 |
 | authority | `docs/109_ReleaseGoNoGoCard.md` | 发布裁决 |
 | history | `docs/evidence/`、完成切片文档、Git | 历史事实 |
@@ -22,11 +21,10 @@
 固定读取顺序：
 
 1. `AGENTS.md`
-2. `ALL_IN_ONE_EXECUTIVE_SPEC.md`
-3. `docs/103_ExecutionControlBoard.md`
-4. `tasks/backlog.csv` 当前行
-5. 当前 task spec
-6. 相关代码和测试
+2. `docs/103_ExecutionControlBoard.md`
+3. `tasks/backlog.csv` 当前行
+4. 当前 task spec
+5. 相关代码和测试
 
 只有以下情况再扩读：
 
@@ -35,13 +33,12 @@
 - 高风险模块：读 reference-basis requirements/module map。
 - release/onsite：读 release card、closeout plan 和真实 evidence。
 
-## 3. 当前治理减负入口
+## 3. 当前验证入口
 
-- Spec：`docs/specs/verification-governance-simplification-v1.md`
-- Roadmap：`docs/19_Roadmap.md`
-- Task contract：`docs/20_TaskBreakdown.md`
-- Current：`docs/103_ExecutionControlBoard.md`
-- Queue：`tasks/todo.md`
+- 日常切片：`tools/run-verification.ps1 -Profile Slice -ChangedPaths <PATHS>`
+- 无状态基线：`tools/run-verification.ps1 -Profile Quick`
+- 授权发布检查：`tools/run-verification.ps1 -Profile Release -AuthorizeStateful`
+- Slice/Quick 结果只进 `tmp/verification/`；历史 evidence 不参与默认门禁。
 
 ## 4. 按模块导航
 
@@ -65,7 +62,7 @@
 - 不默认通读全部 docs。
 - 不从日期化 evidence 选择下一任务。
 - 不只看 backlog 的“已完成”推断 production/live。
-- 不把旧 `docs/112_CurrentClosureStatus_20260609.md` 当 current；它是历史兼容入口。
+- 不从旧完成切片文档或日期化 evidence 推导 current 状态。
 - 不让 Q/R 未来能力因已有 ADR/模板进入当前实现。
 
 ## 6. 维护规则

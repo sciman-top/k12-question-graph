@@ -8,13 +8,6 @@
   },
   "entries": [
     {
-      "id": "completion-state-dashboard",
-      "currentPath": "docs/evidence/20260506-s001-completion-state-dashboard.json",
-      "authorityLevel": "repo-side",
-      "claimBoundary": "dashboard structure and task projection only",
-      "state": "current"
-    },
-    {
       "id": "reference-basis",
       "currentPath": "docs/evidence/20260801-reference-basis-guard.json",
       "authorityLevel": "repo-side",
@@ -47,13 +40,6 @@
       "currentPath": "docs/evidence/20260731-live-pilot-closeout-plan-guard.json",
       "authorityLevel": "repo-side",
       "claimBoundary": "closeout plan consistency only; no onsite completion",
-      "state": "current"
-    },
-    {
-      "id": "status-sync",
-      "currentPath": "docs/evidence/20260731-ns905-status-sync.md",
-      "authorityLevel": "repo-side",
-      "claimBoundary": "status projection consistency only",
       "state": "current"
     }
   ]

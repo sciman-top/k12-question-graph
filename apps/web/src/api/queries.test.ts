@@ -11,15 +11,12 @@ describe('ready health query policy', () => {
     })
   })
 
-  it('keeps evidence search state separate from the legacy question query', () => {
+  it('keys evidence searches by their normalized parameters', () => {
     const params = { evidenceMode: 'candidate' as const, previewMode: true, page: 1, pageSize: 20 }
     expect(serverStateQueryKeys.questionEvidenceSearch(params)).toEqual([
       'server-state',
       'question-evidence-search',
       params,
     ])
-    expect(serverStateQueryKeys.questionEvidenceSearch(params)).not.toEqual(
-      serverStateQueryKeys.questionSearch({ page: 1, limit: 20 }),
-    )
   })
 })

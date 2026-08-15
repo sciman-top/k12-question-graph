@@ -19,8 +19,8 @@ if (-not $docs.gateNa) { throw 'docs-only selection must be explicit gate_na' }
 Assert-Selection 'export' @('apps/web/src/ui/PaperWorkbenchPanels.tsx') 'pass' @('frontend-tests') | Out-Null
 Assert-Selection 'ai' @('configs/ai/provider.json') 'pass' @('script-quality') | Out-Null
 
-$migration = Assert-Selection 'migration' @('apps/api/Data/Migrations/Next.cs') 'escalated' @()
-if ($migration.escalatedProfile -ne 'Release') { throw 'migration must escalate to Release' }
+$migration = Assert-Selection 'migration' @('apps/api/Data/Migrations/Next.cs') 'pass' @('backend-tests')
+if ($migration.escalatedProfile -ne 'Slice') { throw 'migration CI check must remain stateless Slice' }
 
 $unknown = Assert-Selection 'unknown' @('mystery/new.file') 'blocked' @()
 if ($unknown.unknownPaths.Count -ne 1) { throw 'unknown path must be reported' }
@@ -83,5 +83,5 @@ if (($workerStepIds -join ',') -ne 'slice-worker-compile,slice-worker-tests') {
     status = 'pass'
     cases = @('api', 'web', 'worker', 'docs-gate-na', 'export', 'ai', 'migration', 'unknown', 'empty', 'quoted-comma-bundle', 'docs-execution-plan', 'api-execution-plan', 'web-execution-plan', 'worker-execution-plan')
     unknownPolicy = 'fail-closed'
-    migrationProfile = 'Release'
+    migrationProfile = 'Slice'
 } | ConvertTo-Json -Depth 5

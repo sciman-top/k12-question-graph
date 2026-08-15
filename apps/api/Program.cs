@@ -38,7 +38,6 @@ builder.Services.AddDbContext<KqgDbContext>(options =>
         .UseSnakeCaseNamingConvention());
 builder.Services.AddScoped<IFileStore, LocalFileStore>();
 builder.Services.AddScoped<IDocumentWorkerClient, DocumentWorkerClient>();
-builder.Services.AddScoped<IImportReviewWorkflowService, ImportReviewWorkflowService>();
 builder.Services.AddScoped<ICutCandidateGenerationService, CutCandidateGenerationService>();
 builder.Services.AddScoped<IPaperWorkflowService, PaperWorkflowService>();
 builder.Services.AddScoped<IScoreAnalysisWorkflowService, ScoreAnalysisWorkflowService>();
@@ -3543,6 +3542,27 @@ app.MapPost("/imports/{id:guid}/worker-smoke", async (
         return Results.Conflict(new { error = "input_file_asset_missing" });
     }
 
+    var sourceDocument = await dbContext.SourceDocuments
+        .Where(x => x.FileAssetId == fileAsset.Id)
+        .OrderByDescending(x => x.CreatedAt)
+        .FirstOrDefaultAsync(cancellationToken);
+    if (sourceDocument is not null)
+    {
+        var alreadyMaterialized = await dbContext.CutCandidates
+            .AnyAsync(
+                x => x.SourceDocumentId == sourceDocument.Id &&
+                    EF.Functions.ILike(x.Metadata, "%document_worker_local%"),
+                cancellationToken);
+        if (alreadyMaterialized)
+        {
+            return Results.Conflict(new
+            {
+                error = "worker_replay_requires_new_generation",
+                sourceDocumentId = sourceDocument.Id
+            });
+        }
+    }
+
     var canStartWorker = ImportJobTransitions.IsAllowed(job.Status, JobStatuses.Running);
     var canReplaySucceededJob = job.Status == JobStatuses.Succeeded && simulateFailure != true;
     var canRetryFailedJob = job.Status == JobStatuses.Failed && simulateFailure != true;
@@ -3581,10 +3601,6 @@ app.MapPost("/imports/{id:guid}/worker-smoke", async (
     job.LockedUntil = null;
     job.FinishedAt = DateTimeOffset.UtcNow;
 
-    var sourceDocument = await dbContext.SourceDocuments
-        .Where(x => x.FileAssetId == fileAsset.Id)
-        .OrderByDescending(x => x.CreatedAt)
-        .FirstOrDefaultAsync(cancellationToken);
     var processing = result.ExitCode == 0 && sourceDocument is not null
         ? await SeedLocalImportCandidatesAsync(dbContext, sourceDocument, result.StandardOutput, cancellationToken)
         : ImportWorkerProcessingSummary.Empty;
@@ -3664,29 +3680,6 @@ static async Task<ImportWorkerProcessingSummary> SeedLocalImportCandidatesAsync(
         pages.ValueKind != JsonValueKind.Array)
     {
         return ImportWorkerProcessingSummary.Empty with { AdapterName = adapterName };
-    }
-
-    var previousCandidates = await dbContext.CutCandidates
-        .Where(x => x.SourceDocumentId == sourceDocument.Id)
-        .ToListAsync(cancellationToken);
-    var previousLocalCandidates = previousCandidates
-        .Where(x => x.Metadata.Contains("document_worker_local", StringComparison.OrdinalIgnoreCase))
-        .ToArray();
-    var previousLocalRegionIds = previousLocalCandidates
-        .Where(x => x.SourceRegionId.HasValue)
-        .Select(x => x.SourceRegionId!.Value)
-        .ToArray();
-    if (previousLocalCandidates.Length > 0)
-    {
-        dbContext.CutCandidates.RemoveRange(previousLocalCandidates);
-    }
-
-    if (previousLocalRegionIds.Length > 0)
-    {
-        var previousRegions = await dbContext.SourceRegions
-            .Where(x => previousLocalRegionIds.Contains(x.Id) && x.RegionType == "document_block")
-            .ToListAsync(cancellationToken);
-        dbContext.SourceRegions.RemoveRange(previousRegions);
     }
 
     const int maxCandidates = 120;

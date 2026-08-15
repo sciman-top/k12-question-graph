@@ -40,7 +40,7 @@ cd D:\CODE\external\k12-question-graph-references
 pwsh -NoProfile -ExecutionPolicy Bypass -File tools/sync-reference-shelf-snapshot.ps1
 ```
 
-2026-06-14 最新核对结果：`tools/run-reference-basis-guard.ps1` 已通过，覆盖 20 个高风险任务和 13 个模块面，且 `sources/reference-shelf.manifest.snapshot.json` 与外部 `references.manifest.json` 保持 `snapshot_parity = match`。这说明当前仓内 snapshot、外部参考库和 guard 规则在 repo-side 口径上是一致的。同期新增了 `tasks/reference-basis-policy.json` 与 `tools/run-reference-basis-diff-aware-contract.ps1`，开始把 v2 参考治理从“静态登记完整”升级到“changed paths 能投影到受管模块/任务”的最小可验证形态。
+`tools/run-reference-basis-guard.ps1` 是唯一参考依据守卫；它按 changed paths 投影受影响模块，并在本机存在外部参考库时核对仓内 snapshot 与外部 manifest。历史 closeout/adoption 自证脚本已退役。
 
 已落地仓库：
 
@@ -80,7 +80,7 @@ OpenAI Cookbook 作为在线参考保留：`https://github.com/openai/openai-coo
 
 自 2026-06-09 起，部分高风险任务不再只“建议”查参考，而是受 `tasks/reference-basis-requirements.csv` + `tasks/reference-basis-module-map.csv` + `tasks/reference-basis-policy.json` + `tools/run-reference-basis-guard.ps1` 约束：缺少官方来源或本地参考库锚点时，主 gate 直接失败。当前首批强制覆盖 `S004`、`S010`、`S011`、`REAL010`、`NS1301-NS1308`、`O008`、`P001`、`P003`、`P005`、`P006`、`R001`、`R002`、`R007`，并把 API/Web/export/score-analysis/AI routing/OCR/Windows Service/release pack/search/queue/interop 这些板块映射成机器可读 module map；守卫在本机有外部参考库时还会额外核对 `sources/reference-shelf.manifest.snapshot.json` 与外部 `references.manifest.json` 是否同构，避免“本地能过、CI 假挂”。
 
-`tasks/reference-basis-module-map.csv` 用来回答“哪些代码板块需要参考/复刻/复用哪个官方或社区仓”，其 `adoption_mode` 当前分为 `official_semantics_first`、`official_semantics_plus_selective_pattern_reuse`、`official_semantics_plus_eval_first`、`reference_only_no_copy`。`tasks/reference-basis-policy.json` 则把当前受管 task/module 集与 adoption mode 白名单从 PowerShell 脚本里下沉成单独 policy。`sources/reference-shelf.manifest.snapshot.json` 把外部参考架的最近一次可信快照带回仓内，供 CI 和离线审查读取，而不要求 CI runner 真有 `D:\CODE\external\...`。v2 最小切片新增了 `ChangedPaths` 投影能力：`tools/run-reference-basis-guard.ps1 -ChangedPaths ...` 会报告本轮命中的 `impactedTaskIds`、`impactedModuleIds` 和 `changedPathsOutsideGuardedModules`。在此基础上，`tools/run-reference-basis-adoption-record-contract.ps1` 先把 `P005/P006` 两类 closeout 文档接入 adoption 记录结构；随后 `tools/run-reference-basis-onsite-adoption-contract.ps1` 又把同样的结构前推到 `P001/P003` 的隔离机前置包与现场准入卡。当前新增的补强点有两类：一是为 `R001` 与默认 `PostgreSQL FTS + pg_trgm` 路线补上本地 `postgresql-docs` 官方锚点，避免只靠 `npgsql-doc` 和在线网页；二是为 `R007` 补入 `TAO` 作为更贴近 assessment/QTI 的社区治理参考，而 Moodle/OpenOLAT 继续承担更偏平台治理的边界样例。这仍不是“全仓每个 feature 都强制 adoption 证据”，但已经把现场前后最敏感的几类口径从“纯文案模板”推进成了“必须带参考采纳记录”的受管面。
+`tasks/reference-basis-module-map.csv` 描述生产模块与参考源的映射，`tasks/reference-basis-policy.json` 保留 adoption mode 白名单，`sources/reference-shelf.manifest.snapshot.json` 供 CI 和离线审查读取。P001–P006 的外部采纳与签字事实直接记录在对应模板和现场证据中，不再另设重复 contract。
 
 ## 1. AI 与 API
 

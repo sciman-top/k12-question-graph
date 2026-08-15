@@ -26,8 +26,8 @@ docs/templates/subject-activation-approval-form.md
 这两个模板可以复制成某一学科的实际记录，例如：
 
 ```text
-docs/evidence/chemistry-2026-review-checklist.md
-docs/evidence/chemistry-2026-activation-approval.md
+docs/evidence/<subject>-<date>-review-checklist.md
+docs/evidence/<subject>-<date>-activation-approval.md
 ```
 
 ## 3. 推荐操作过程

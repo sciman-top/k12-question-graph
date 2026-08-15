@@ -18,7 +18,6 @@ security:
     persist_plaintext_key: false
 references:
   pgpass_config: "configs\\installer_credentials.defaults.yaml"
-  pgpass_gate: "tools\\run-g004-pgpass-installer-dry-run.ps1"
   worker_profile_diagnostic_gate: "tools\\run-worker-profile-diagnostic-contract.ps1"
   host_capability_diagnostic_gate: "tools\\run-host-capability-diagnostic-contract.ps1"
 worker_profiles:

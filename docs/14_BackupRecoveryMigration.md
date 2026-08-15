@@ -80,7 +80,6 @@ Windows 无法进入时，用 WinPE/启动 U 盘进入磁盘，复制 `D:\KQG_Da
 tools/backup.ps1
 tools/restore.ps1
 tools/verify-backup.ps1
-tools/export-pack.ps1
 ```
 
 这些脚本不依赖 Web UI。

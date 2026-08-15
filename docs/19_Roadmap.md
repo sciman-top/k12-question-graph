@@ -66,4 +66,4 @@ VGOV-010 已抽取 Score/Admin AI endpoint seam，并保留既有 KnowledgeEvide
 - 未来能力不得仅因“以后可能需要”进入当前实施或默认门禁。
 - repo-side、release-side、onsite 和 live accepted 必须分开陈述。
 
-所有待办继续遵守 automation-first：确定性检查优先由规则、脚本、schema、测试和专用 UI/API 承接；AI 只做语义候选、风险复核或外层编排。机器合同为 `tasks/automation-first-contract.csv`，守卫为 `tools/run-automation-first-feature-contract-guard.ps1`。
+所有待办继续遵守 automation-first：确定性检查优先由产品代码、schema、最低充分测试和专用 UI/API 承接；AI 只做语义候选、风险复核或外层编排，不另设横向自证守卫。

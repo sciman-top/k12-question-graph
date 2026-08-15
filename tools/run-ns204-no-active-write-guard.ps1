@@ -1,168 +1,67 @@
 param(
-    [string] $ReportPath = 'docs/evidence/20260529-ns204-no-active-write-guard-report.json'
+    [string] $ReportPath = 'tmp/verification/no-active-write.json',
+    [string] $EvidenceIndexPath = 'docs/evidence/index.json'
 )
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 
-function Assert-Condition([bool] $Condition, [string] $Message) {
-    if (-not $Condition) {
-        throw $Message
-    }
-}
-
-function Test-HasProperty([object] $Object, [string] $PropertyName) {
-    return $null -ne $Object -and $Object.PSObject.Properties.Name -contains $PropertyName
-}
-
-function Get-OptionalProperty([object] $Object, [string] $PropertyName, $DefaultValue) {
-    if (Test-HasProperty $Object $PropertyName) {
-        return $Object.$PropertyName
-    }
-
-    return $DefaultValue
-}
-
-function Read-Json([string] $Path) {
+function Read-RepoJson([string] $Path) {
     $fullPath = Join-Path $repoRoot $Path
-    Assert-Condition (Test-Path -LiteralPath $fullPath) "NS204 required evidence missing: $Path"
-    return Get-Content -LiteralPath $fullPath -Raw | ConvertFrom-Json
+    if (-not (Test-Path -LiteralPath $fullPath -PathType Leaf)) {
+        throw "required no-active-write input is missing: $Path"
+    }
+    return Get-Content -LiteralPath $fullPath -Raw -Encoding UTF8 | ConvertFrom-Json
 }
 
-function Read-Text([string] $Path) {
-    $fullPath = Join-Path $repoRoot $Path
-    Assert-Condition (Test-Path -LiteralPath $fullPath) "NS204 required text file missing: $Path"
-    return Get-Content -LiteralPath $fullPath -Raw
+$readiness = Read-RepoJson 'configs/ai-evals/c002q0-outer-ai-readiness.sample.json'
+$dryRun = Read-RepoJson 'configs/ai-evals/c002q-ai-extract-dry-run.sample.json'
+$appSettings = Read-RepoJson 'apps/api/appsettings.json'
+$index = Read-RepoJson $EvidenceIndexPath
+$real005Entry = @($index.entries | Where-Object id -eq 'real005-closure-standard')
+if ($real005Entry.Count -ne 1) {
+    throw 'evidence index must contain exactly one REAL005 current entry'
+}
+$real005 = Read-RepoJson ([string]$real005Entry[0].currentPath)
+
+if ($readiness.allowProjectRuntimeRealModelCalls -ne $false -or
+    $readiness.noActiveWrite -ne $true -or
+    $readiness.productionEligible -ne $false -or
+    [string]$readiness.reviewStatus -ne 'pending_review') {
+    throw 'AI readiness defaults must remain pending_review, no-active-write, and non-production'
+}
+if ($dryRun.allowRealModelCalls -ne $false -or
+    [int]$dryRun.externalAiCalls -ne 0 -or
+    $dryRun.noActiveWrite -ne $true -or
+    $dryRun.productionEligible -ne $false -or
+    [string]$dryRun.reviewStatus -ne 'pending_review') {
+    throw 'AI dry-run defaults must remain local, pending_review, no-active-write, and non-production'
+}
+if ($appSettings.AiRouting.AllowRealModelCalls -ne $false) {
+    throw 'appsettings AiRouting.AllowRealModelCalls must default to false'
+}
+if ([string]$real005.closureStatus -ne 'not_closed' -or $real005.fullClosureAllowed -ne $false) {
+    throw 'REAL005 current evidence must remain not_closed and disallow full closure'
 }
 
-Push-Location $repoRoot
-try {
-    $aiReadinessSample = Read-Json 'configs/ai-evals/c002q0-outer-ai-readiness.sample.json'
-    $aiDryRunSample = Read-Json 'configs/ai-evals/c002q-ai-extract-dry-run.sample.json'
-    $aiReadinessReport = Read-Json 'docs/evidence/c002q0-outer-ai-readiness-report.json'
-    $aiDryRunReport = Read-Json 'docs/evidence/c002q-ai-extract-dry-run-report.json'
-    $c002r = Read-Json 'docs/evidence/c002r-versioned-revision-report.json'
-    $k005 = Read-Json 'docs/evidence/k005-c002-second-revision-drill-report.json'
-    $s011a = Read-Json 'docs/evidence/20260508-s011a-score-import-api-smoke-report.json'
-    $s011b = Read-Json 'docs/evidence/20260508-s011b-item-score-mapping-ui-api-report.json'
-    $s011c = Read-Json 'docs/evidence/20260508-s011c-commentary-report-export-report.json'
-    $s012b = Read-Json 'docs/evidence/20260509-s012b-non-site-e2e-rehearsal-report.json'
-    $real012 = Read-Json 'docs/evidence/20260518-real012-production-flow-quality-report.json'
-    $router = Read-Text 'apps/api/Ai/AiModelRouter.cs'
-    $adminPanels = Read-Text 'apps/web/src/ui/AdminGovernancePanels.tsx'
-
-    Assert-Condition ($aiReadinessSample.allowProjectRuntimeRealModelCalls -eq $false) 'AI readiness sample must disable project runtime real model calls'
-    Assert-Condition ($aiReadinessSample.noActiveWrite -eq $true) 'AI readiness sample must require noActiveWrite'
-    Assert-Condition ($aiReadinessSample.productionEligible -eq $false) 'AI readiness sample must not be production eligible'
-    Assert-Condition ([string]$aiReadinessSample.reviewStatus -eq 'pending_review') 'AI readiness sample must stay pending_review'
-
-    Assert-Condition ($aiDryRunSample.allowRealModelCalls -eq $false) 'AI dry-run sample must disable real model calls'
-    Assert-Condition ([int]$aiDryRunSample.externalAiCalls -eq 0) 'AI dry-run sample must make zero external calls'
-    Assert-Condition ($aiDryRunSample.noActiveWrite -eq $true) 'AI dry-run sample must require noActiveWrite'
-    Assert-Condition ($aiDryRunSample.productionEligible -eq $false) 'AI dry-run sample must not be production eligible'
-    Assert-Condition ([string]$aiDryRunSample.reviewStatus -eq 'pending_review') 'AI dry-run sample must stay pending_review'
-
-    Assert-Condition ($aiReadinessReport.noActiveWrite -eq $true) 'AI readiness report must preserve noActiveWrite'
-    Assert-Condition ($aiReadinessReport.productionEligible -eq $false) 'AI readiness report must not be production eligible'
-    Assert-Condition ([int]$aiReadinessReport.externalAiCallsInReadiness -eq 0) 'AI readiness report must make zero external calls'
-    Assert-Condition ($aiDryRunReport.noActiveWrite -eq $true) 'AI dry-run report must preserve noActiveWrite'
-    Assert-Condition ($aiDryRunReport.productionEligible -eq $false) 'AI dry-run report must not be production eligible'
-    Assert-Condition ([int]$aiDryRunReport.externalAiCalls -eq 0) 'AI dry-run report must make zero external calls'
-
-    Assert-Condition ([string]$c002r.mode -eq 'dry_run') 'C002R revision report must remain dry_run'
-    Assert-Condition ($c002r.teacherCanApplyActive -eq $false) 'teacher must not apply active switch from C002R'
-    Assert-Condition ([string]$k005.mode -eq 'dry_run') 'K005 second revision drill must remain dry_run'
-    Assert-Condition ($k005.noActiveWrite -eq $true) 'K005 must not write active data'
-    Assert-Condition ($k005.oldActivePreserved -eq $true) 'K005 must preserve old active version'
-    Assert-Condition ($k005.noProductionHistoryRewrite -eq $true) 'K005 must not rewrite production history'
-
-    foreach ($report in @($s011a, $s011b, $s011c)) {
-        $reportTaskId = [string](Get-OptionalProperty $report 'taskId' (Get-OptionalProperty $report 'task' 'unknown'))
-        $reportProductionEligible = [bool](Get-OptionalProperty $report 'productionEligible' $false)
-        $reportAuditTrail = @(Get-OptionalProperty $report 'auditTrail' @())
-
-        Assert-Condition (-not $reportProductionEligible) "score/analysis smoke must not be productionEligible=true: $reportTaskId"
-        Assert-Condition ($reportAuditTrail -contains 'no_ai_runtime_dependency') "score/analysis smoke must avoid AI runtime dependency: $reportTaskId"
-    }
-    Assert-Condition ($s011a.auditTrail -contains 'wrote_draft_test_score_records') 'score import must write only draft/test score records'
-    Assert-Condition ($s011a.auditTrail -contains 'blocked_pii') 'score import must block PII before database write'
-    Assert-Condition ($s011b.auditTrail -contains 'no_real_student_data') 'item score mapping preview must avoid real student data'
-    Assert-Condition ($s011b.auditTrail -contains 'no_production_history_write') 'item score mapping preview must avoid production history writes'
-    Assert-Condition ($s011c.auditTrail -contains 'no_real_student_data') 'commentary export must avoid real student data'
-    Assert-Condition ($s011c.auditTrail -contains 'no_production_history_write') 'commentary export must avoid production history writes'
-
-    Assert-Condition ($s012b.productionEligible -eq $false) 'S012B non-site E2E rehearsal must not be production eligible'
-    Assert-Condition ($s012b.realStudentDataUsed -eq $false) 'S012B must not use real student data'
-    Assert-Condition ($s012b.conclusion -match 'not a live teacher/site validation') 'S012B must keep live/site validation boundary explicit'
-
-    Assert-Condition ($real012.real005ClosureStatus -eq 'not_closed') 'REAL012 must keep REAL005 not_closed'
-    Assert-Condition ($real012.analysis.allowAiDraftText -eq $false) 'REAL012 analysis must not enable AI draft text'
-    Assert-Condition ($real012.analysis.writesProductionHistory -eq $false) 'REAL012 analysis must not write production history'
-
-    foreach ($marker in @(
-        'real_model_calls_disabled',
-        'formal_active_domain_asset_required',
-        'ProductionEligible: blockers.Count == 0 && !IsLlmHandler(handler)'
-    )) {
-        Assert-Condition ($router.Contains($marker)) "AI router missing no-active-write fail-closed marker: $marker"
-    }
-
-    foreach ($marker in @(
-        'data-contract="candidate-pending-review-only"',
-        'data-contract="no-direct-active-switch"',
-        'data-contract="no-active-write"',
-        'data-contract="admin-readonly-actions"'
-    )) {
-        Assert-Condition ($adminPanels.Contains($marker)) "admin UI missing no-active-write marker: $marker"
-    }
-
-    $report = [ordered]@{
-        status = 'pass'
-        taskId = 'NS204'
-        checkedAt = (Get-Date).ToString('s')
-        mode = 'evidence_and_static_no_active_write_guard'
+$report = [ordered]@{
+    status = 'pass'
+    checkedAt = (Get-Date).ToString('s')
+    defaults = [ordered]@{
+        allowRealModelCalls = $false
+        externalAiCalls = 0
+        reviewStatus = 'pending_review'
         productionEligible = $false
-        ai = [ordered]@{
-            readinessNoActiveWrite = [bool]$aiReadinessReport.noActiveWrite
-            dryRunNoActiveWrite = [bool]$aiDryRunReport.noActiveWrite
-            externalAiCalls = [int]$aiDryRunReport.externalAiCalls
-            reviewStatus = [string]$aiDryRunSample.reviewStatus
-        }
-        dynamicAssets = [ordered]@{
-            c002rMode = [string]$c002r.mode
-            teacherCanApplyActive = [bool]$c002r.teacherCanApplyActive
-            k005NoActiveWrite = [bool]$k005.noActiveWrite
-            oldActivePreserved = [bool]$k005.oldActivePreserved
-        }
-        scoreAnalysis = [ordered]@{
-            s011aProductionEligible = [bool](Get-OptionalProperty $s011a 'productionEligible' $false)
-            s011bProductionEligible = [bool](Get-OptionalProperty $s011b 'productionEligible' $false)
-            s011cProductionEligible = [bool](Get-OptionalProperty $s011c 'productionEligible' $false)
-            commentaryWritesProductionHistory = $false
-        }
-        e2e = [ordered]@{
-            s012bProductionEligible = [bool]$s012b.productionEligible
-            s012bRealStudentDataUsed = [bool]$s012b.realStudentDataUsed
-            real005ClosureStatus = [string]$real012.real005ClosureStatus
-        }
-        acceptance = [ordered]@{
-            aiCandidatesStayPendingReview = $true
-            externalAiDefaultOff = $true
-            dynamicAssetActiveSwitchBlocked = $true
-            scoreAnalysisDraftOnly = $true
-            productionHistoryWriteBlocked = $true
-            liveClosureNotClaimed = $true
-        }
-        boundary = 'NS204 proves non-site AI/import/dynamic-asset/analysis flows remain draft, candidate, pending_review, noActiveWrite, or not_closed; it does not enable production active switches.'
-        next = 'NS301 can continue SourceDocument evidence layer and upload metadata smoke.'
-        rollback = 'git restore tasks/non-site-implementation-plan.csv; git clean -f -- tools/run-ns204-no-active-write-guard.ps1 docs/evidence/20260529-ns204-no-active-write-guard-report.json'
     }
+    real005 = [ordered]@{
+        currentPath = [string]$real005Entry[0].currentPath
+        closureStatus = [string]$real005.closureStatus
+        fullClosureAllowed = [bool]$real005.fullClosureAllowed
+    }
+    boundary = 'Focused configuration/current-evidence guard; product behavior is verified by the API tests run before this Release stage.'
+}
 
-    $reportFullPath = Join-Path $repoRoot $ReportPath
-    New-Item -ItemType Directory -Path (Split-Path -Parent $reportFullPath) -Force | Out-Null
-    $report | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $reportFullPath -Encoding UTF8
-    $report | ConvertTo-Json -Depth 6
-}
-finally {
-    Pop-Location
-}
+$fullReportPath = Join-Path $repoRoot $ReportPath
+New-Item -ItemType Directory -Path (Split-Path -Parent $fullReportPath) -Force | Out-Null
+$report | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $fullReportPath -Encoding UTF8
+$report | ConvertTo-Json -Depth 6

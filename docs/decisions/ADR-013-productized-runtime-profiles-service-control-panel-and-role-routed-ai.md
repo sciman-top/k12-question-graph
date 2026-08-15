@@ -58,7 +58,7 @@
 ## 影响
 
 - `docs/19_Roadmap.md`、`docs/20_TaskBreakdown.md`、`docs/99_ProductizationFullRoadmapAndTaskPlan.md` 和 `docs/101_NonSiteCapabilityImplementationRoadmap.md` 增加 NS13 产品化运行形态波次。
-- `tasks/backlog.csv`、`tasks/non-site-implementation-plan.csv`、`tasks/productization-roadmap.csv` 和 `tasks/automation-first-contract.csv` 增加 NS1301-NS1308。
+- `tasks/backlog.csv` 曾记录 NS1301-NS1308；完成后的横向合同与中间路线图已退役并保留在 Git 历史。
 - `P001` 进入隔离机/现场前，需要先通过 NS13 的结构瘦身、安装/profile、服务控制面板、AI role routing、自动化代理和 release evidence pack。
 
 ## 回滚

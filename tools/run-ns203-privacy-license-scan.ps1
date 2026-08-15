@@ -271,7 +271,7 @@ try {
     })
     $report.Add('boundary', 'NS203 scans tracked repo text and raw staging policy for PII/secret/source-license blockers. It cannot certify external untracked staging directories or legal sufficiency of third-party materials.')
     $report.Add('next', 'NS204 can continue no-active-write guard for AI candidates, imports, dynamic assets, and production history.')
-    $report.Add('rollback', 'git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns203-privacy-license-scan.ps1 docs/evidence/20260529-ns203-privacy-license-scan-report.json')
+    $report.Add('rollback', 'git restore tools/run-ns203-privacy-license-scan.ps1; git clean -f -- docs/evidence/20260529-ns203-privacy-license-scan-report.json')
 
     $reportFullPath = Join-Path $repoRoot $ReportPath
     New-Item -ItemType Directory -Path (Split-Path -Parent $reportFullPath) -Force | Out-Null

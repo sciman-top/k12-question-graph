@@ -115,11 +115,7 @@ exam_context
 
 ## 8. F003 当前合同
 
-F003 已完成 draft/test 最小合同：
-
-- 入口：`tools/run-f003-knowledge-mastery-analysis-contract.ps1`。
-- 证据：`docs/evidence/f003-knowledge-mastery-analysis-report.json`。
-- 输入：synthetic 小题分和当前 active 知识版本引用。
+知识掌握分析由 `ScoreAnalysisWorkflowService` 与对应 API 测试承接；历史 F003 专用脚本和日期化自证报告已退役。
 - 输出：班级总分得分率、知识点得分率、区分度、薄弱知识点和学生掌握摘要。
 - 边界：`productionEligible=false`、`realStudentDataUsed=false`、`noProductionHistoryWrite=true`。
 

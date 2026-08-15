@@ -1,138 +1,47 @@
-# 109 · 发布 Go / No-Go 卡
+# 发布 Go / No-Go 卡
 
-> 当前稳定状态入口为 `docs/CurrentClosureStatus.md`。本卡只负责发布裁决，不作为日常任务、roadmap 或 verifier 选择真源。
+本卡只负责当前发布裁决；任务状态来自 `tasks/backlog.csv`，repo-side closure 来自 `docs/CurrentClosureStatus.md`，current evidence 来自 `docs/evidence/index.json`。
 
-日期：2026-07-29。状态证据核对到 2026-07-29。
+## 当前裁决
 
-## 1. 当前默认结论
+**No-Go**
 
-截至当前版本，当前裁决为 `No-Go`。
+原因：
 
-当前未关闭的关键原因：
+- `REAL005=not_closed`，`fullClosureAllowed=false`。
+- P001–P006 均为待办。
+- 隔离机安装、学校网络、打印、权限域、真实教师使用和操作者签字未完成。
+- 自动提炼仍为 `candidate/pending_review/productionEligible=false`，没有因 repo-side 通过而切换 production active。
 
-- `P003` 现场数据授权、支持负责人和回滚记录未闭合。
-- `P005` 反馈分流未闭合。
-- `P006` 正式发布裁决未留痕。
+## 发布前必须关闭
 
-2026-06-23 最新 repo-side 刷新后，这个结论仍然不变：完整 `full gate`、reference-basis、closeout plan、repo-side audit、status sync、future scope-freeze 和 CI preflight 的最新证据都只证明仓库侧口径更一致了，没有把现场事实阻断自动消掉。`REAL005A/B/C/D 的 repo-side closeout 已完成`，但 `REAL005` 仍然保持 `not_closed`，当前不再把 repo-side 文案收口留作 next open，而只剩现场 / 人工链路待关闭。
+1. P001：隔离机安装、备份恢复、权限审计和四入口 smoke。
+2. P002：授权或脱敏材料的教师代理试点。
+3. P003：现场数据授权、支持负责人和回滚责任。
+4. P004：真实教师操作、耗时、卡点和回滚记录。
+5. P005：反馈进入 keep / modify / defer / do_not_do 决策。
+6. P006：签字后的正式发布裁决与 tag candidate。
 
-2026-07-29 再次刷新后裁决仍为 `No-Go`：234 道广州真题和 CEK-01..16 已闭环到本机 candidate/review 层，但 234 题、444 个 AssessmentTarget 和 273 个课程要求/分面候选都未获教师批准，`productionEligible=false`。CEK-17..35、P001/P003/P005/P006、隔离机和正式发布签字继续开放。新增代码后的 full gate 已走完子步骤并产生最终备份，但外层 Windows 管道未交回最终 exit code，因此不能把本次运行写成新的 `RUN_GATES_EXIT=0` 基线。
+最小执行顺序见 `tasks/live-pilot-closeout-plan.csv`。
 
-## 2. 用途
+## 发布前验证
 
-本卡是 `P006` 的单页裁决入口。它不替代证据包，但要求把分散证据压缩成可签字的发布判断。
+- `tools/run-verification.ps1 -Profile Quick`
+- 获得当前任务授权后运行 `tools/run-verification.ps1 -Profile Release -AuthorizeStateful`
+- backup manifest 可验证，隔离 restore 成功，migration/数据库形状/FileStore 对账无意外变化
+- `docs/evidence/index.json` 无悬空 current path
+- REAL005 current evidence 仍如实反映现场关闭状态
 
-若需要继续追踪 `REAL005`、`P001`、`P003`、`P005`、`P006` 的最小关闭步骤，请同时查看 `tasks/live-pilot-closeout-plan.csv`；本卡只做最终裁决，不承担子项排程。
+Quick/Release 的 repo-side pass 只是发布输入，不会自动改变本卡裁决。
 
-自 2026-06-09 起，`P005/P006` 的结构变化还受 `tasks/reference-basis-requirements.csv` + `tools/run-reference-basis-guard.ps1` 约束；缺少官方来源或本地参考锚点时，不允许把反馈分流、发布卡、tag candidate 或 rollback 口径写成“可发布”。
+## Go 条件
 
-## 3. 当前裁决卡
+只有同时满足以下条件，才允许把本卡改为 `Go`：
 
-### 发布身份
+- P001–P006 在 backlog 和 closeout plan 中全部关闭；
+- 真实环境、操作者、输入、时间和签字证据齐全；
+- backup/restore、隐私、权限、教师效率和回滚均通过；
+- REAL005 current evidence 允许完整关闭；
+- 发布负责人明确签署 release decision。
 
-| 字段 | 必填说明 |
-|---|---|
-| release candidate | `未创建`。当前仅形成 No-Go 裁决底稿，不创建 tag candidate。 |
-| target milestone | `P001 readiness -> P003/P005/P006 closeout -> v0.1 live pilot release decision` |
-| deployment mode | 当前默认假设为 `离线优先`；云 API 增强和本地增强都不是首个试点默认值。 |
-| hardware baseline | `未锁定最终现场基线`。当前只有 host capability / worker profile 只读诊断证据，缺隔离机实跑、打印、网络和权限域记录。 |
-| data boundary | 真实学生数据外部模型传输默认 `禁止`；现场试点前继续使用 synthetic/anonymized 路径，直到数据授权记录完成。 |
-
-### 硬门禁快照
-
-| 项目 | 通过标准 | 当前状态 |
-|---|---|---|
-| build / test / contract / hotspot | 全通过或有效 N/A | `开发机通过，但不足以构成发布结论`。2026-06-23 完整 `full gate` 已通过，2026-06-18 `repo preflight -Mode Ci` 已通过 16 步，`future scope-freeze` 已通过；但仍缺现场链路、签字和发布裁决证据。 |
-| reference basis | `P005/P006` 高风险变更已登记官方与本地参考锚点 | `repo-side 通过`。2026-06-15 最新 `reference-basis guard` 已覆盖 20 个受管任务、13 个模块，且 external/snapshot `parity = match`；缺少参考依据时不得改发布口径。 |
-| automation / visual surrogate preflight | 非现场客观检查尽量闭合 | `非现场通过`。`NS906`、`NS904`、`NS801-NS806` 已覆盖 route smoke、artifact、source screenshot、backup/restore、visual surrogate；但它们不能替代隔离机、打印、权限域、真实网络和签字。 |
-| backup | manifest 可验证 | `非现场通过`。`G001-G004`、`O003` 和 `NS801-NS806` 证据存在，但隔离机实跑未完成。 |
-| restore | restore drill 通过 | `非现场通过 / 现场未验证`。`docs/evidence/20260505-o003-recovery-drill-upgrade.md` 已证明隔离恢复演练，现场恢复窗口和操作者签收未完成。 |
-| teacher efficiency | 达标或有已批准例外 | `未通过发布口径`。已有 `M006` 十分钟组卷与 `S012B` 非现场链路证据，但缺现场教师观察和已批准例外。 |
-| privacy / authorization | 已锁定边界且证据完备 | `部分通过 / 仍阻断`。`N001` 已锁定默认边界，但 `P003` 明确缺数据授权记录、支持负责人和反馈模板。 |
-| auth / audit | 高风险动作 fail-closed | `非现场通过 / 现场未验证`。`O004B` 已完成 fail-closed 与结构化审计，隔离机角色审计和现场高风险动作记录未完成。 |
-| closeout / status sync | backlog、dashboard、closeout plan、release card 保持一致且不夸大闭环 | `repo-side 通过`。`docs/evidence/20260623-live-pilot-closeout-plan-guard.md`、`docs/evidence/20260623-live-pilot-closeout-repo-side-audit.md` 与最新 `NS905` status sync 证据已确认 26 行 closeout 计划、`REAL005 = not_closed`、`REAL005A/B/C/D = 已完成/pass`、`REAL005` 的 repo-side next open = `none`、`P001/P003/P005/P006` 仍待办、`release_ready_count = 0`。 |
-| onsite blockers | 仅剩现场事实阻断 | `未通过`。`P001`、`P003`、`P005`、`P006` 仍为 `待办`，且 `REAL005` 仍为 `not_closed`。 |
-
-当前发布判断应尽量把剩余阻断收口为“真实现场事实和责任签字”，而不是把本可由自动化闭合的客观检查继续留给人工现场。
-
-### 关键证据锚点
-
-| 主题 | 证据 |
-|---|---|
-| P001 readiness pack | `docs/evidence/20260623-ns904-p001-readiness.json` |
-| P001 preflight report | `docs/evidence/20260623-p001-live-pilot-readiness-preflight-report.json` |
-| P001 isolated-machine evidence template | `docs/templates/p001-isolated-machine-evidence-template.md` |
-| NS906 visual surrogate | `docs/evidence/20260528-ns906-visual-surrogate-review-report.json` |
-| NS1308 release evidence pack | `docs/evidence/20260607-ns1308-release-evidence-pack.json` |
-| reference basis guard | `docs/evidence/20260623-reference-basis-guard.json` |
-| reference/preflight closeout | `docs/evidence/20260611-reference-basis-preflight-closeout.md` |
-| closeout plan guard | `docs/evidence/20260623-live-pilot-closeout-plan-guard.json` |
-| closeout repo-side audit | `docs/evidence/20260623-live-pilot-closeout-repo-side-audit.json` |
-| status sync audit | `docs/evidence/20260623-ns905-status-sync.md` |
-| P003 admission preflight | `docs/evidence/20260623-p003-onsite-pilot-admission-report.json` |
-| P005 feedback triage preflight | `docs/evidence/20260623-p005-pilot-feedback-backlog-admission-report.json` |
-| P005 feedback triage template | `docs/templates/p005-pilot-feedback-triage-template.json` |
-| P005 feedback triage record | `docs/templates/p005-pilot-feedback-triage-record.md` |
-| P006 release decision preflight | `docs/evidence/20260623-p006-release-decision-admission-report.json` |
-| P006 release decision template | `docs/templates/p006-release-decision-record-template.json` |
-| P006 release decision record | `docs/templates/p006-release-decision-record.md` |
-| REAL005 closure standard | `docs/evidence/20260623-real005-guangzhou-2015-2025-closure-standard-report.json` |
-| REAL005B question structure diagnostics | `docs/evidence/20260623-real005b-question-structure-diagnostics.json` |
-| 角色与审计 | `docs/evidence/20260505-o004b-role-audit-closure.md` |
-| 隐私边界 | `docs/evidence/20260505-n001-real-privacy-boundary-admission.md` |
-| 恢复演练 | `docs/evidence/20260505-o003-recovery-drill-upgrade.md` |
-| 全量 gate 基线 | `docs/evidence/20260504-h0-full-gate-evidence.md` |
-
-### 残余风险
-
-| 风险 | 影响 | 可接受条件 | owner |
-|---|---|---|---|
-| 隔离机实跑未执行 | 无法证明已由非现场证据之外的现场事实，例如安装、打印、网络和权限域，在目标环境可用 | 完成 `P001` 现场前置包 | 试点支持负责人 |
-| 现场数据授权与支持负责人缺失 | 现场试点与真实数据处理无责任闭环 | 关闭 `P003` | 数据责任方代表 + 试点支持负责人 |
-| 试点反馈未分流 | 无法把真实反馈转成 keep/modify/defer/do_not_do 决策 | 关闭 `P005` | 产品负责人 |
-| 发布裁决记录未形成 | 无法合法创建 tag candidate 或对外宣称 release-ready | 关闭 `P006` | 发布负责人 |
-| `REAL005 = not_closed` | 不能宣称 2015-2025 真卷全流程已闭环 | 保持如实披露，或补齐逐年逐题证据后再改口径 | 题库/导入负责人 |
-
-### 发布裁决
-
-| 字段 | 说明 |
-|---|---|
-| decision | `No-Go` |
-| rationale | 当前证据只证明“非现场能力和 preflight 包已较完整”，不能证明“现场可发布”。`NS13` 已完成并把仓内前置包收口到可执行状态；2026-06-23 的完整 `full gate` 与 repo-side 守卫刷新又证明文档、closeout 计划、future scope-freeze 和状态看板没有继续漂移，但 `P001/P003/P005/P006` 均未关闭，且 `REAL005` 明确保持 `not_closed`。当前 `REAL005A/B/C/D 的 repo-side closeout 已完成`，它只证明对外文案已经 truthfully 收口，不代表真卷全流程已闭环。 |
-| rollback window | 当前不进入发布执行，因此不进入现场回滚窗口；继续沿用既有 backup manifest、restore drill 和 disable-switch 证据作为预案。 |
-| tag candidate plan | `不创建`。只有在 `P005` 反馈分流完成、`P006` 裁决记录签字、并满足 release-ready 证据后才创建。 |
-| disable switch | 若现场前置演练中出现异常，优先禁用云 API/profile 切换、高风险 admin 写入、active switch 与真实数据链路，回退到离线优先和人工接管路径。 |
-
-### 最低签字角色
-
-- 发布负责人
-- 管理员负责人
-- 数据责任方代表
-- 试点支持负责人
-
-## 4. Go with Exceptions 规则
-
-只有满足以下条件时，才允许 `Go with named exceptions`：
-
-1. 例外不涉及真实学生数据外发。
-2. 例外不涉及无法回滚的生产写入。
-3. 例外有明确 owner、expires_at 和 recovery plan。
-4. 普通教师可继续完成主链路。
-
-## 5. 与现有清单的关系
-
-- 证据来源仍来自 `docs/evidence/`、`tasks/completion-state-dashboard.csv` 和 `P001-P006`。
-- `P005/P006` 的强制参考依据入口由 `tasks/reference-basis-requirements.csv` 承接。
-- 现场 closeout 的更细执行顺序由 `tasks/live-pilot-closeout-plan.csv` 承接。
-- repo-side closeout 计划与入口文档的一致性由 `tools/run-live-pilot-closeout-plan-guard.ps1` 与其 2026-06-23 evidence 承接。
-- `docs/templates/p006-release-decision-checklist.md` 负责逐项核对。
-- 本卡负责最终一页式裁决，不再只靠分散 preflight 结论。
-
-## 6. 解锁条件
-
-只有同时满足以下条件，当前裁决才允许从 `No-Go` 进入下一轮复核：
-
-1. `P001` 只剩隔离机安装、打印、网络、权限域和操作者签收等现场事实，并已完成对应签收。
-2. `P003` 数据授权、支持负责人、回滚方案和反馈模板完成。
-3. `P005` 反馈完成 keep / modify / defer / do_not_do 分流。
-4. `P006` 形成正式 release decision record，并明确 tag candidate 与 rollback window。
+当前未满足，故保持 **No-Go**。

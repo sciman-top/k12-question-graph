@@ -46,7 +46,7 @@ AI 成本：低/中/高/无
 
 教师侧流程和 UI 还必须满足：步骤更少、选择更少、术语更少、下一步明确、失败接管明确。若只是把后台复杂度换成页面上的复杂表单或说明，不算通过。
 
-工程实现还必须满足 automation-first：先证明确定性规则、脚本、schema、SQL、hash/cache、Adapter、专用 API/UI、typed client、模板或 contract 能覆盖可确定部分；AI/agent 只能处理语义候选、复杂映射、高风险复核或外层编排，输出默认进入 `candidate`、`pending_review`、`draft/test` 或人工确认队列。没有 `tasks/automation-first-contract.csv` 覆盖和对应 guard 证据的新功能，不得进入当前实现阶段。
+工程实现还必须满足 automation-first：确定性部分由代码、schema、SQL、typed client 或最低充分测试覆盖；AI/agent 只能处理语义候选、复杂映射、高风险复核或外层编排，输出默认进入 `candidate`、`pending_review`、`draft/test` 或人工确认队列。不再要求为每个功能维护重复合同和专用 guard。
 
 ## 3. 自动后置条件
 

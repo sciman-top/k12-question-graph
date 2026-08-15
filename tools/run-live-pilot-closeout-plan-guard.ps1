@@ -2,359 +2,101 @@ param(
     [string] $PlanPath = 'tasks/live-pilot-closeout-plan.csv',
     [string] $BacklogPath = 'tasks/backlog.csv',
     [string] $ReleaseCardPath = 'docs/109_ReleaseGoNoGoCard.md',
-    [string] $ClosureSummaryPath = 'docs/112_CurrentClosureStatus_20260609.md',
-    [string] $DetailedTreePath = 'docs/115_REAL005_DetailedSliceTree.md',
-    [string] $ExecutionBoardPath = 'docs/103_ExecutionControlBoard.md',
-    [string] $NavigationPath = 'docs/111_ProjectNavigationOverview.md',
-    [string] $ReadmePath = 'README.md',
+    [string] $ClosureSummaryPath = 'docs/CurrentClosureStatus.md',
     [string] $Real005ReportPath = '',
-    [string] $JsonReportPath = '',
-    [string] $MarkdownReportPath = ''
+    [string] $JsonReportPath = 'tmp/verification/live-pilot-closeout-plan.json',
+    [string] $MarkdownReportPath = 'tmp/verification/live-pilot-closeout-plan.md'
 )
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
-$runDate = Get-Date -Format 'yyyyMMdd'
 
-function Assert-True([bool] $Condition, [string] $Message) {
-    if (-not $Condition) { throw $Message }
+function Resolve-RepoPath([string] $Path) {
+    $fullPath = Join-Path $repoRoot $Path
+    if (-not (Test-Path -LiteralPath $fullPath -PathType Leaf)) { throw "missing closeout input: $Path" }
+    return $fullPath
 }
 
-function Resolve-InRepoPath([string] $RelativePath) {
-    return Join-Path $repoRoot $RelativePath
+if ([string]::IsNullOrWhiteSpace($Real005ReportPath)) {
+    $entry = & (Join-Path $PSScriptRoot 'get-current-evidence.ps1') -Id 'real005-closure-standard' | ConvertFrom-Json
+    $Real005ReportPath = [string]$entry.currentPath
 }
 
-function Get-RequiredRow([object[]] $Rows, [string] $Value, [string] $Column = 'id') {
-    $matches = @($Rows | Where-Object { [string] $_.$Column -eq $Value })
-    Assert-True ($matches.Count -eq 1) "expected exactly one $Column=$Value row"
-    return $matches[0]
+$plan = @(Import-Csv -LiteralPath (Resolve-RepoPath $PlanPath) -Encoding UTF8)
+$backlog = @(Import-Csv -LiteralPath (Resolve-RepoPath $BacklogPath) -Encoding UTF8)
+$real005 = Get-Content -LiteralPath (Resolve-RepoPath $Real005ReportPath) -Raw -Encoding UTF8 | ConvertFrom-Json
+$releaseCard = Get-Content -LiteralPath (Resolve-RepoPath $ReleaseCardPath) -Raw -Encoding UTF8
+$closureSummary = Get-Content -LiteralPath (Resolve-RepoPath $ClosureSummaryPath) -Raw -Encoding UTF8
+
+$requiredColumns = @('id', 'parent_id', 'wave', 'category', 'slice', 'status', 'depends_on', 'acceptance', 'verification', 'evidence_anchor', 'owner_role')
+$actualColumns = @($plan[0].PSObject.Properties.Name)
+$missingColumns = @($requiredColumns | Where-Object { $actualColumns -notcontains $_ })
+if ($missingColumns.Count -gt 0) { throw "closeout plan columns missing: $($missingColumns -join ', ')" }
+if ($plan.Count -ne 26) { throw "closeout plan must contain 26 rows, actual=$($plan.Count)" }
+
+$expectedCompleted = @('REAL005A', 'REAL005B', 'REAL005C', 'REAL005D')
+$expectedParents = @('REAL005', 'P001', 'P003', 'P005', 'P006')
+$planById = @{}
+foreach ($row in $plan) {
+    if ($planById.ContainsKey([string]$row.id)) { throw "duplicate closeout slice: $($row.id)" }
+    if ([string]$row.parent_id -notin $expectedParents) { throw "unsupported closeout parent for $($row.id): $($row.parent_id)" }
+    if ([string]$row.status -notin @('已完成', '待办')) { throw "unsupported closeout status for $($row.id): $($row.status)" }
+    $planById[[string]$row.id] = $row
 }
-
-function Get-ReferencedPaths([string] $Text) {
-    if ([string]::IsNullOrWhiteSpace($Text)) {
-        return @()
-    }
-
-    $matches = [regex]::Matches($Text, '(docs|tasks|tools)[\\/][A-Za-z0-9_\-./]+')
-    $paths = New-Object System.Collections.Generic.List[string]
-    foreach ($match in $matches) {
-        $candidate = $match.Value.Replace('\', '/')
-        if (-not $paths.Contains($candidate)) {
-            $paths.Add($candidate)
-        }
-    }
-    return $paths
+foreach ($id in $expectedCompleted) {
+    if (-not $planById.ContainsKey($id) -or [string]$planById[$id].status -ne '已完成') { throw "$id must remain repo-side complete" }
 }
-
-function Test-InRepoPathExists([string] $RelativePath) {
-    $fullPath = Resolve-InRepoPath $RelativePath
-    return Test-Path -LiteralPath $fullPath
-}
-
-function Read-Json([string] $RelativePath) {
-    $fullPath = Resolve-InRepoPath $RelativePath
-    Assert-True (Test-Path -LiteralPath $fullPath) "missing JSON report: $RelativePath"
-    return Get-Content -LiteralPath $fullPath -Raw | ConvertFrom-Json
-}
-
-function Resolve-LatestReal005ReportPath([string] $PreferredPath) {
-    if (-not [string]::IsNullOrWhiteSpace($PreferredPath)) {
-        return $PreferredPath
-    }
-
-    $evidenceRoot = Resolve-InRepoPath 'docs/evidence'
-    Assert-True (Test-Path -LiteralPath $evidenceRoot) 'missing docs/evidence directory'
-    $latest = @(
-        Get-ChildItem -LiteralPath $evidenceRoot -Filter '*-real005-guangzhou-2015-2025-closure-standard-report.json' -File |
-            Sort-Object Name -Descending |
-            Select-Object -First 1
-    )
-    Assert-True ($latest.Count -eq 1) 'missing REAL005 closure standard report under docs/evidence'
-    return [System.IO.Path]::GetRelativePath($repoRoot, $latest[0].FullName).Replace('\', '/')
-}
-
-$requiredColumns = @(
-    'id',
-    'parent_id',
-    'wave',
-    'category',
-    'slice',
-    'status',
-    'depends_on',
-    'acceptance',
-    'verification',
-    'evidence_anchor',
-    'owner_role'
-)
-
-$expectedRows = @(
-    @{ id = 'REAL005A'; parent = 'REAL005'; wave = 'W0' },
-    @{ id = 'REAL005B'; parent = 'REAL005'; wave = 'W0' },
-    @{ id = 'REAL005C'; parent = 'REAL005'; wave = 'W0' },
-    @{ id = 'REAL005D'; parent = 'REAL005'; wave = 'W0' },
-    @{ id = 'P001A'; parent = 'P001'; wave = 'W1' },
-    @{ id = 'P001B'; parent = 'P001'; wave = 'W1' },
-    @{ id = 'P001C'; parent = 'P001'; wave = 'W1' },
-    @{ id = 'P001D'; parent = 'P001'; wave = 'W1' },
-    @{ id = 'P001E'; parent = 'P001'; wave = 'W1' },
-    @{ id = 'P001F'; parent = 'P001'; wave = 'W1' },
-    @{ id = 'P001G'; parent = 'P001'; wave = 'W1' },
-    @{ id = 'P001H'; parent = 'P001'; wave = 'W1' },
-    @{ id = 'P003A'; parent = 'P003'; wave = 'W2' },
-    @{ id = 'P003B'; parent = 'P003'; wave = 'W2' },
-    @{ id = 'P003C'; parent = 'P003'; wave = 'W2' },
-    @{ id = 'P003D'; parent = 'P003'; wave = 'W2' },
-    @{ id = 'P003E'; parent = 'P003'; wave = 'W2' },
-    @{ id = 'P005A'; parent = 'P005'; wave = 'W3' },
-    @{ id = 'P005B'; parent = 'P005'; wave = 'W3' },
-    @{ id = 'P005C'; parent = 'P005'; wave = 'W3' },
-    @{ id = 'P005D'; parent = 'P005'; wave = 'W3' },
-    @{ id = 'P006A'; parent = 'P006'; wave = 'W4' },
-    @{ id = 'P006B'; parent = 'P006'; wave = 'W4' },
-    @{ id = 'P006C'; parent = 'P006'; wave = 'W4' },
-    @{ id = 'P006D'; parent = 'P006'; wave = 'W4' },
-    @{ id = 'P006E'; parent = 'P006'; wave = 'W4' }
-)
-
-$docReferences = @(
-    @{ path = $ReleaseCardPath; keywords = @('No-Go', 'tasks/live-pilot-closeout-plan.csv', 'REAL005', 'P001', 'P003', 'P005', 'P006') },
-    @{ path = $ClosureSummaryPath; keywords = @('REAL005', 'not_closed', 'P001', '现场') },
-    @{ path = $DetailedTreePath; keywords = @('REAL005B1', 'REAL005C5', 'REAL005D', 'not_closed') },
-    @{ path = $ExecutionBoardPath; keywords = @('REAL005', 'P001', 'P005/P006', 'No-Go') },
-    @{ path = $NavigationPath; keywords = @('tasks/live-pilot-closeout-plan.csv', 'P001', 'P003', 'P005', 'P006', 'REAL005', 'not_closed', 'No-Go') },
-    @{ path = $ReadmePath; keywords = @('tasks/live-pilot-closeout-plan.csv', 'REAL005', 'P001/P003/P005/P006') }
-)
-
-$planFullPath = Resolve-InRepoPath $PlanPath
-$backlogFullPath = Resolve-InRepoPath $BacklogPath
-
-if ([string]::IsNullOrWhiteSpace($JsonReportPath)) {
-    $JsonReportPath = ('docs/evidence/{0}-live-pilot-closeout-plan-guard.json' -f $runDate)
-}
-
-if ([string]::IsNullOrWhiteSpace($MarkdownReportPath)) {
-    $MarkdownReportPath = ('docs/evidence/{0}-live-pilot-closeout-plan-guard.md' -f $runDate)
-}
-
-$jsonReportFullPath = Resolve-InRepoPath $JsonReportPath
-$markdownReportFullPath = Resolve-InRepoPath $MarkdownReportPath
-
-Assert-True (Test-Path -LiteralPath $planFullPath) "missing closeout plan: $PlanPath"
-Assert-True (Test-Path -LiteralPath $backlogFullPath) "missing backlog: $BacklogPath"
-
-$planRows = @(Import-Csv -LiteralPath $planFullPath -Encoding UTF8)
-$backlogRows = @(Import-Csv -LiteralPath $backlogFullPath -Encoding UTF8)
-Assert-True ($planRows.Count -eq $expectedRows.Count) "unexpected closeout row count: expected $($expectedRows.Count), actual $($planRows.Count)"
-
-foreach ($column in $requiredColumns) {
-    Assert-True ($planRows.Count -gt 0 -and $planRows[0].PSObject.Properties.Name -contains $column) "closeout plan missing column: $column"
+if (@($plan | Where-Object status -eq '已完成').Count -ne 4 -or @($plan | Where-Object status -eq '待办').Count -ne 22) {
+    throw 'closeout plan must preserve 4 repo-side complete slices and 22 open onsite/manual slices'
 }
 
 $backlogById = @{}
-foreach ($row in $backlogRows) {
-    $backlogById[[string] $row.id] = $row
+foreach ($row in $backlog) { $backlogById[[string]$row.id] = $row }
+foreach ($id in @('P001', 'P002', 'P003', 'P004', 'P005', 'P006')) {
+    if (-not $backlogById.ContainsKey($id) -or [string]$backlogById[$id].status -ne '待办') { throw "$id must remain open in backlog" }
+}
+if ([string]$real005.closureStatus -ne 'not_closed' -or $real005.fullClosureAllowed -ne $false) {
+    throw 'REAL005 current evidence must remain not_closed and fullClosureAllowed=false'
+}
+if ($releaseCard -notmatch 'No-Go' -or $closureSummary -notmatch 'REAL005\s*=\s*not_closed') {
+    throw 'release/closure docs must preserve No-Go and REAL005 not_closed'
 }
 
-foreach ($requiredId in @('REAL005', 'P001', 'P002', 'P003', 'P004', 'P005', 'P006', 'NS1308')) {
-    Assert-True ($backlogById.ContainsKey($requiredId)) "backlog missing required task: $requiredId"
+$nextOpen = [ordered]@{}
+foreach ($parent in $expectedParents) {
+    $next = @($plan | Where-Object { $_.parent_id -eq $parent -and $_.status -eq '待办' } | Select-Object -First 1)
+    $nextOpen[$parent] = if ($next.Count -eq 1) { [string]$next[0].id } else { $null }
 }
 
-for ($i = 0; $i -lt $expectedRows.Count; $i++) {
-    $expected = $expectedRows[$i]
-    $actual = $planRows[$i]
-    Assert-True ([string] $actual.id -eq $expected.id) "closeout row order drift at position $($i + 1): expected $($expected.id), actual $($actual.id)"
-    Assert-True ([string] $actual.parent_id -eq $expected.parent) "closeout row parent mismatch for $($expected.id)"
-    Assert-True ([string] $actual.wave -eq $expected.wave) "closeout row wave mismatch for $($expected.id)"
-    Assert-True ($backlogById.ContainsKey([string] $actual.parent_id)) "closeout row parent missing from backlog: $($actual.id) -> $($actual.parent_id)"
-    foreach ($fieldName in @('category','slice','status','acceptance','verification','evidence_anchor','owner_role')) {
-        Assert-True (-not [string]::IsNullOrWhiteSpace([string] $actual.$fieldName)) "closeout row missing ${fieldName}: $($actual.id)"
-    }
-}
-
-$allowedStatuses = @('待办', '进行中', '已完成', 'blocked_by_onsite')
-foreach ($row in $planRows) {
-    Assert-True ($allowedStatuses -contains [string] $row.status) "unsupported closeout status for $($row.id): $($row.status)"
-}
-
-$real005Row = $backlogById['REAL005']
-$p001Row = $backlogById['P001']
-$p003Row = $backlogById['P003']
-$p005Row = $backlogById['P005']
-$p006Row = $backlogById['P006']
-$p002Row = $backlogById['P002']
-$p004Row = $backlogById['P004']
-
-Assert-True ([string] $real005Row.status -eq '已完成') 'REAL005 must remain completed as the closure-standard definition task'
-foreach ($taskRow in @($p001Row, $p003Row, $p005Row, $p006Row)) {
-    Assert-True ([string] $taskRow.status -eq '待办') "$($taskRow.id) must remain todo before onsite closeout"
-    Assert-True ([string] $taskRow.acceptance -match 'live-pilot-closeout-plan\.csv') "$($taskRow.id) acceptance must reference live-pilot-closeout-plan.csv"
-}
-Assert-True ([string] $p002Row.status -eq '待办') 'P002 must remain todo before P003 closeout'
-Assert-True ([string] $p004Row.status -eq '待办') 'P004 must remain todo before P005 closeout'
-
-Assert-True (([string] $p001Row.depends_on -split ';') -contains 'NS1308') 'P001 must still depend on NS1308'
-Assert-True ([string] (Get-RequiredRow $planRows 'P001A').depends_on -eq 'NS1308') 'P001A must start from NS1308'
-Assert-True ([string] (Get-RequiredRow $planRows 'P001H').depends_on -eq 'P001E;P001F;P001G') 'P001H must wait for printer/network/domain facts'
-Assert-True ([string] (Get-RequiredRow $planRows 'P003A').depends_on -eq 'P002') 'P003A must depend on P002'
-Assert-True ([string] (Get-RequiredRow $planRows 'P005A').depends_on -eq 'P004') 'P005A must depend on P004'
-Assert-True ([string] (Get-RequiredRow $planRows 'P006A').depends_on -eq 'P005D') 'P006A must depend on P005D'
-
-$Real005ReportPath = Resolve-LatestReal005ReportPath $Real005ReportPath
-$real005Report = Read-Json $Real005ReportPath
-Assert-True ([string] $real005Report.status -eq 'pass') 'REAL005 report must pass as a guard definition'
-Assert-True ([string] $real005Report.closureStatus -eq 'not_closed') 'REAL005 report must stay not_closed'
-Assert-True (-not [bool] $real005Report.fullClosureAllowed) 'REAL005 fullClosureAllowed must remain false'
-$real005SliceCoverage = $real005Report.sliceCoverage
-Assert-True ($null -ne $real005SliceCoverage) 'REAL005 report must expose sliceCoverage'
-$real005NextSlice = $real005SliceCoverage.REAL005A
-Assert-True ($null -ne $real005NextSlice) 'REAL005 report must expose sliceCoverage.REAL005A'
-Assert-True ((@($real005NextSlice.criteriaIds)) -contains 'RG001') 'REAL005A must keep RG001 in slice coverage'
-Assert-True ((@($real005NextSlice.criteriaIds)) -contains 'RG002') 'REAL005A must keep RG002 in slice coverage'
-$real005APlanRow = Get-RequiredRow $planRows 'REAL005A'
-$real005ASliceStatus = [string] $real005NextSlice.status
-if ($real005ASliceStatus -eq 'pass') {
-    Assert-True ([string] $real005APlanRow.status -eq '已完成') 'REAL005A plan row must be completed when RG001/RG002 pass'
-    Assert-True (@($real005NextSlice.blockers).Count -eq 0) 'REAL005A must not list blockers when RG001/RG002 pass'
-}
-else {
-    Assert-True ($real005ASliceStatus -in @('blocked', 'partial')) 'REAL005A must be pass, blocked, or partial while closeout stays open'
-    Assert-True ([string] $real005APlanRow.status -ne '已完成') 'REAL005A plan row cannot be completed while RG001/RG002 remain blocked or partial'
-    Assert-True (@($real005NextSlice.blockers).Count -ge 1) 'REAL005A must list blockers while RG001/RG002 remain blocked or partial'
-}
-
-foreach ($entry in $docReferences) {
-    $fullPath = Resolve-InRepoPath $entry.path
-    Assert-True (Test-Path -LiteralPath $fullPath) "missing referenced document: $($entry.path)"
-    $text = Get-Content -LiteralPath $fullPath -Raw
-    foreach ($keyword in $entry.keywords) {
-        Assert-True ($text.Contains($keyword)) "$($entry.path) missing keyword: $keyword"
-    }
-}
-
-$missingAnchors = New-Object System.Collections.Generic.List[string]
-foreach ($row in $planRows) {
-    foreach ($fieldValue in @([string] $row.verification, [string] $row.evidence_anchor)) {
-        foreach ($reference in (Get-ReferencedPaths $fieldValue)) {
-            if (-not (Test-InRepoPathExists $reference)) {
-                $missingAnchors.Add("$($row.id):$reference")
-            }
-        }
-    }
-}
-Assert-True ($missingAnchors.Count -eq 0) ("closeout plan references missing repo paths: " + ($missingAnchors -join ', '))
-
-$statusCounts = [ordered]@{}
-foreach ($group in ($planRows | Group-Object status | Sort-Object Name)) {
-    $statusCounts[$group.Name] = $group.Count
-}
-
-$parentCounts = [ordered]@{}
-foreach ($group in ($planRows | Group-Object parent_id | Sort-Object Name)) {
-    $parentCounts[$group.Name] = $group.Count
-}
-
-$nextOpenByParent = [ordered]@{}
-foreach ($parent in @('REAL005','P001','P003','P005','P006')) {
-    $nextOpen = @($planRows | Where-Object { [string] $_.parent_id -eq $parent -and [string] $_.status -ne '已完成' } | Select-Object -First 1)
-    $nextOpenByParent[$parent] = if ($nextOpen.Count -gt 0) { [string] $nextOpen[0].id } else { 'none' }
-}
-$real005BSliceStatus = [string] $real005SliceCoverage.REAL005B.status
-$real005CSliceStatus = [string] $real005SliceCoverage.REAL005C.status
-$real005DSliceStatus = [string] $real005SliceCoverage.REAL005D.status
-$expectedReal005NextOpen = if ($real005ASliceStatus -ne 'pass') {
-    'REAL005A'
-}
-elseif ($real005BSliceStatus -ne 'pass') {
-    'REAL005B'
-}
-elseif ($real005CSliceStatus -ne 'pass') {
-    'REAL005C'
-}
-elseif ($real005DSliceStatus -ne 'pass') {
-    'REAL005D'
-}
-else {
-    'none'
-}
-Assert-True ($nextOpenByParent['REAL005'] -eq $expectedReal005NextOpen) "closeout plan REAL005 next open mismatch: expected $expectedReal005NextOpen, actual $($nextOpenByParent['REAL005'])"
-if ($expectedReal005NextOpen -eq 'none') {
-    Assert-True ($real005DSliceStatus -eq 'pass') 'REAL005D must pass once repo-side truthful wording is refreshed'
-    Assert-True (@($real005SliceCoverage.REAL005D.blockers).Count -eq 0) 'REAL005D blockers must be empty once repo-side closeout is complete'
-}
-
-$checkedAt = (Get-Date).ToString('s')
 $report = [ordered]@{
     status = 'pass'
-    taskId = 'LIVE_CLOSEOUT_GUARD'
-    checkedAt = $checkedAt
-    planPath = $PlanPath
-    backlogPath = $BacklogPath
-    releaseCardPath = $ReleaseCardPath
-    closureSummaryPath = $ClosureSummaryPath
-    real005ReportPath = $Real005ReportPath
-    real005ClosureStatus = [string] $real005Report.closureStatus
-    fullClosureAllowed = [bool] $real005Report.fullClosureAllowed
-    real005aSlice = [ordered]@{
-        id = 'REAL005A'
-        status = [string] $real005NextSlice.status
-        criteriaIds = @($real005NextSlice.criteriaIds)
-        blockers = @($real005NextSlice.blockers)
+    checkedAt = (Get-Date).ToString('s')
+    rowCount = $plan.Count
+    completedCount = 4
+    openCount = 22
+    real005 = [ordered]@{
+        currentPath = $Real005ReportPath
+        closureStatus = [string]$real005.closureStatus
+        fullClosureAllowed = [bool]$real005.fullClosureAllowed
     }
-    real005NextOpen = [string] $nextOpenByParent['REAL005']
-    rowCount = $planRows.Count
-    statusCounts = $statusCounts
-    parentCounts = $parentCounts
-    nextOpenByParent = $nextOpenByParent
-    backlogStatuses = [ordered]@{
-        REAL005 = [string] $real005Row.status
-        P001 = [string] $p001Row.status
-        P003 = [string] $p003Row.status
-        P005 = [string] $p005Row.status
-        P006 = [string] $p006Row.status
-    }
-    boundary = 'closeout plan guard only; it keeps REAL005 not_closed and does not create onsite evidence'
+    nextOpen = $nextOpen
+    releaseDecision = 'No-Go'
+    boundary = 'Repo-side plan consistency only; onsite environment, operator action, timing, and signatures remain external.'
 }
 
-New-Item -ItemType Directory -Path (Split-Path -Parent $jsonReportFullPath) -Force | Out-Null
-$report | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $jsonReportFullPath -Encoding UTF8
-
-$lines = New-Object System.Collections.Generic.List[string]
-$lines.Add('# Live Pilot Closeout Plan Guard')
-$lines.Add('')
-$lines.Add("- status: pass")
-$lines.Add("- checked_at: $checkedAt")
-$lines.Add("- plan_path: $PlanPath")
-$lines.Add("- row_count: $($planRows.Count)")
-$lines.Add("- real005_report_path: $Real005ReportPath")
-$lines.Add("- real005_closure_status: $($real005Report.closureStatus)")
-$lines.Add("- full_closure_allowed: $([bool] $real005Report.fullClosureAllowed)")
-$lines.Add('')
-$lines.Add('## Backlog Status')
-foreach ($entry in $report.backlogStatuses.GetEnumerator()) {
-    $lines.Add("- $($entry.Key): $($entry.Value)")
-}
-$lines.Add('')
-$lines.Add('## Status Counts')
-foreach ($entry in $statusCounts.GetEnumerator()) {
-    $lines.Add("- $($entry.Key): $($entry.Value)")
-}
-$lines.Add('')
-$lines.Add('## Next Open Slice By Parent')
-foreach ($entry in $nextOpenByParent.GetEnumerator()) {
-    $lines.Add("- $($entry.Key): $($entry.Value)")
-}
-$lines.Add('')
-$lines.Add('## REAL005A Slice')
-$lines.Add("- id: REAL005A")
-$lines.Add("- status: $($real005NextSlice.status)")
-$lines.Add("- criteria: $(@($real005NextSlice.criteriaIds) -join ', ')")
-$lines.Add("- blockers: $(if (@($real005NextSlice.blockers).Count -eq 0) { '无' } else { @($real005NextSlice.blockers) -join ' | ' })")
-$lines.Add("- real005_next_open: $($nextOpenByParent['REAL005'])")
-$lines.Add('')
-$lines.Add('## Boundary')
-$lines.Add('This guard validates the repo-side closeout plan, path anchors, and truthful No-Go wording. It does not execute isolated-machine work, printer/network/domain checks, onsite pilot observation, or final signoff.')
-
-New-Item -ItemType Directory -Path (Split-Path -Parent $markdownReportFullPath) -Force | Out-Null
-$lines | Set-Content -LiteralPath $markdownReportFullPath -Encoding UTF8
-
-$report | ConvertTo-Json -Depth 8
+$jsonFullPath = Join-Path $repoRoot $JsonReportPath
+$markdownFullPath = Join-Path $repoRoot $MarkdownReportPath
+New-Item -ItemType Directory -Path (Split-Path -Parent $jsonFullPath) -Force | Out-Null
+New-Item -ItemType Directory -Path (Split-Path -Parent $markdownFullPath) -Force | Out-Null
+$report | ConvertTo-Json -Depth 7 | Set-Content -LiteralPath $jsonFullPath -Encoding UTF8
+@(
+    '# Live pilot closeout plan'
+    ''
+    '- status: pass'
+    '- REAL005: not_closed'
+    '- release: No-Go'
+    '- repo-side complete: REAL005A, REAL005B, REAL005C, REAL005D'
+    '- onsite/manual open: 22'
+    '- boundary: repo-side plan consistency only'
+) | Set-Content -LiteralPath $markdownFullPath -Encoding UTF8
+$report | ConvertTo-Json -Depth 7

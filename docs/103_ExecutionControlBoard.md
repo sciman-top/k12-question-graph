@@ -6,7 +6,7 @@
 
 **P001：隔离机部署与真实环境 preflight**
 
-- repo-side 前置：VGOV-001..010 已完成；默认 Release 已收缩为聚焦 core；legacy inventory 当前 208 steps、unmapped=0，仅作显式兼容审计。
+- repo-side 前置：默认 Release 已收缩为 migration/privacy/no-active-write、隔离备份恢复和 current truth 聚焦检查；历史门禁不再参与当前执行。
 - 现场目标：验证安装、服务、PostgreSQL、FileStore、backup/restore、权限、学校网络、打印和四个教师入口。
 - AI 允许：准备执行包、运行确定性 precheck、汇总脱敏日志、导入真实 evidence、标记阻断和 rollback。
 - AI 禁止：代替操作者、教师或负责人签字；把 readiness/repo-side pass 写成 onsite/live accepted；自动切 production active。
@@ -21,9 +21,9 @@ P002 -> P003 -> P004 -> P005 -> P006，严格按 `tasks/backlog.csv` 和 `tasks/
 - VGOV-001..010：全部 repo-side complete，没有剩余 VGOV 编码任务。
 - 日常入口：`tools/run-verification.ps1 -Profile Quick|Slice`。
 - 默认 Release：`tools/run-verification.ps1 -Profile Release -AuthorizeStateful`，只运行聚焦 core，报告/恢复工件进入 `tmp/verification/`，共享 FileStore 必须无写入。
-- legacy monolith、inventory 与兼容审计已退役；Git 历史只用于取证，不参与当前任务选择。
+- legacy monolith、inventory、兼容审计和历史 roadmap 复算已退役；Git 历史只用于取证，不参与当前任务选择。
 - current evidence：只由 `docs/evidence/index.json` 指向；隔离 Release 的日期化 evidence 不回拷主仓。
-- hotspot：Score/Admin AI endpoint seam 已抽取，其余稳定模块由单一预算守卫阻止重新膨胀；无真实增长不继续拆分。
+- 代码体量不设静态预算守卫；只有真实调用、故障或维护成本证据才触发拆分。
 
 ## Blocked / external
 

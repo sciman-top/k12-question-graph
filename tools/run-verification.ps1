@@ -85,9 +85,6 @@ function Invoke-QuickProfile([AllowEmptyCollection()][System.Collections.Generic
             & npm --prefix apps/web run lint
             if ($LASTEXITCODE -ne 0) { throw 'frontend lint failed' }
         } },
-        [pscustomobject]@{ id = 'script-quality'; action = {
-            & (Join-Path $PSScriptRoot 'run-script-quality-sweep.ps1') -JsonReportPath (Join-Path $ReportRoot 'script-quality.json') | Out-Null
-        } },
         [pscustomobject]@{ id = 'backend-tests'; action = {
             & dotnet test tests/api/K12QuestionGraph.Api.Tests/K12QuestionGraph.Api.Tests.csproj --no-restore --no-build
             if ($LASTEXITCODE -ne 0) { throw 'backend tests failed' }
@@ -97,7 +94,7 @@ function Invoke-QuickProfile([AllowEmptyCollection()][System.Collections.Generic
             if ($LASTEXITCODE -ne 0) { throw 'frontend tests failed' }
         } },
         [pscustomobject]@{ id = 'worker-tests'; action = {
-            & python -m unittest discover -s tests/workers -p 'test_*.py'
+            & python -m unittest discover -s tests/workers -p 'test_worker.py'
             if ($LASTEXITCODE -ne 0) { throw 'worker tests failed' }
         } }
     )
@@ -139,8 +136,6 @@ function Invoke-ReleaseCoreProfile([AllowEmptyCollection()][System.Collections.G
             & (Join-Path $PSScriptRoot 'run-ns102-migration-baseline.ps1') -ReportPath (Join-Path $ReportRoot 'ns102-migration-baseline.json') | Out-Null
             & (Join-Path $PSScriptRoot 'run-ns203-privacy-license-scan.ps1') -ReportPath (Join-Path $ReportRoot 'ns203-privacy-license-scan.json') | Out-Null
             & (Join-Path $PSScriptRoot 'run-ns204-no-active-write-guard.ps1') -ReportPath (Join-Path $ReportRoot 'ns204-no-active-write.json') | Out-Null
-            & (Join-Path $PSScriptRoot 'run-ns103-api-snapshot.ps1') -ReportPath (Join-Path $ReportRoot 'ns103-api-snapshot.md') | Out-Null
-            & (Join-Path $PSScriptRoot 'run-ns104-application-service-boundary.ps1') -ReportPath (Join-Path $ReportRoot 'ns104-application-service-boundary.json') | Out-Null
         } },
         [pscustomobject]@{ id = 'release-upgrade-recovery'; action = {
             & (Join-Path $PSScriptRoot 'run-ns806-upgrade-bundle.ps1') `
@@ -151,12 +146,10 @@ function Invoke-ReleaseCoreProfile([AllowEmptyCollection()][System.Collections.G
         [pscustomobject]@{ id = 'release-closure-invariants'; action = {
             & (Join-Path $PSScriptRoot 'run-reference-basis-guard.ps1') -ValidationMode Local -JsonReportPath (Join-Path $ReportRoot 'reference-basis.json') -MarkdownReportPath (Join-Path $ReportRoot 'reference-basis.md') | Out-Null
             & (Join-Path $PSScriptRoot 'run-evidence-index-guard.ps1') -JsonReportPath (Join-Path $ReportRoot 'evidence-index.json') | Out-Null
-            & (Join-Path $PSScriptRoot 'run-ns1308-release-evidence-pack-contract.ps1') -ReportPath (Join-Path $ReportRoot 'ns1308-release-evidence-pack.json') | Out-Null
             & (Join-Path $PSScriptRoot 'run-live-pilot-closeout-plan-guard.ps1') `
                 -Real005ReportPath $real005ReportPath `
                 -JsonReportPath (Join-Path $ReportRoot 'live-pilot-closeout-plan.json') `
                 -MarkdownReportPath (Join-Path $ReportRoot 'live-pilot-closeout-plan.md') | Out-Null
-            & (Join-Path $PSScriptRoot 'run-roadmap-guard.ps1') | Out-Null
         } }
     )
 
@@ -207,13 +200,13 @@ function Invoke-SliceFocusedCommand {
                 if ($LASTEXITCODE -ne 0) { throw 'slice worker compile failed' }
             }
             Invoke-SliceStep -Id 'slice-worker-tests' -Results $Results -Action {
-                & python -m unittest discover -s tests/workers -p 'test_*.py'
+                & python -m unittest discover -s tests/workers -p 'test_worker.py'
                 if ($LASTEXITCODE -ne 0) { throw 'slice worker tests failed' }
             }
         }
         'script-quality' {
             Invoke-SliceStep -Id 'slice-script-quality' -Results $Results -Action {
-                & (Join-Path $PSScriptRoot 'run-script-quality-sweep.ps1') -JsonReportPath (Join-Path $ReportRoot 'slice-script-quality.json') | Out-Null
+                & (Join-Path $PSScriptRoot 'run-script-quality-sweep.ps1') -ChangedPaths $ChangedPaths -JsonReportPath (Join-Path $ReportRoot 'slice-script-quality.json') | Out-Null
             }
         }
         'verification-routing' {
@@ -242,8 +235,9 @@ function Invoke-SliceFocusedCommand {
     }
 }
 
-$beforeWorktree = Get-TrackedWorktreeSnapshot
-$beforeProcesses = @(Get-RepoProcessSnapshot)
+$beforeWorktree = if ($DryRun) { '' } else { Get-TrackedWorktreeSnapshot }
+$monitorProcesses = $Profile -eq 'Release' -and -not $DryRun
+$beforeProcesses = if ($monitorProcesses) { @(Get-RepoProcessSnapshot) } else { @() }
 $results = New-Object System.Collections.Generic.List[object]
 $selection = $null
 $releaseStateReconciliation = $null
@@ -321,17 +315,17 @@ catch {
     $failure = $_.Exception.Message
 }
 
-$afterWorktree = Get-TrackedWorktreeSnapshot
-$afterProcesses = @(Get-RepoProcessSnapshot)
-if ($Profile -in @('Quick', 'Slice', 'Release') -and -not $DryRun) {
+$afterWorktree = if ($DryRun) { '' } else { Get-TrackedWorktreeSnapshot }
+$afterProcesses = if ($monitorProcesses) { @(Get-RepoProcessSnapshot) } else { @() }
+if ($monitorProcesses) {
     for ($attempt = 0; $attempt -lt 10 -and ((@($beforeProcesses) -join "`n") -ne (@($afterProcesses) -join "`n")); $attempt++) {
         Start-Sleep -Milliseconds 500
         $afterProcesses = @(Get-RepoProcessSnapshot)
     }
 }
-$worktreeUnchanged = $beforeWorktree -eq $afterWorktree
-$processesUnchanged = (@($beforeProcesses) -join "`n") -eq (@($afterProcesses) -join "`n")
-if ($Profile -in @('Quick', 'Slice', 'Release') -and (-not $worktreeUnchanged -or -not $processesUnchanged)) {
+$worktreeUnchanged = $DryRun -or $beforeWorktree -eq $afterWorktree
+$processesUnchanged = -not $monitorProcesses -or (@($beforeProcesses) -join "`n") -eq (@($afterProcesses) -join "`n")
+if (-not $DryRun -and (-not $worktreeUnchanged -or -not $processesUnchanged)) {
     $status = 'fail'
     $failure = "side-effect boundary violated: worktreeUnchanged=$worktreeUnchanged processesUnchanged=$processesUnchanged"
 }

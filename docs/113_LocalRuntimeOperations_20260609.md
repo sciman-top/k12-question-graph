@@ -59,7 +59,7 @@
 - PID 与日志写入 `logs/dev-api/`
 - 优先读取本机 `KQG_CONNECTION_STRING`
 - 若未提供连接串，则回退到 `PGPASSWORD` / 脚本参数拼接本地 PostgreSQL 连接
-- 2026-06-09 起，`tools/run-gates.ps1` 若检测到这个标准本地 API 正在占用默认 Release 输出，会在 full gate 期间自动暂停并在结束后恢复，不再要求人工先停后启
+- 当前 Quick/Slice 不扫描或停止常驻 API/Web 进程；有状态 Release 只在明确授权后运行，并要求执行前后进程状态一致。
 
 若完全没有数据库凭据，脚本会直接报错，而不是假启动。
 
@@ -119,16 +119,14 @@
 - 看数据库队列、审核区、服务状态、分析工作区
 - 做浏览器 walkthrough 或联调 smoke
 
-2026-06-09 已验证的可见结果：
+历史验证曾覆盖以下可见结果：
 
 - 页面顶部显示 `服务状态 正常`
 - 真卷复核区可切到 `数据库队列 / 24 题待复核`
 - 教师四入口都能落到主要工作区
 - 控制台错误为 `0`
 
-对应证据：
-
-- `docs/evidence/20260609-teacher-visible-walkthrough.md`
+历史截图与 walkthrough 从 Git 取证；不再作为 current evidence。
 
 ### 5.3 管理员 AI 设置 / 结构化 smoke
 
@@ -208,8 +206,7 @@ Invoke-WebRequest -UseBasicParsing http://127.0.0.1:5275/health/ready
 
 ## 8. 推荐搭配阅读
 
-1. `docs/112_CurrentClosureStatus_20260609.md`
-2. `docs/evidence/20260609-teacher-visible-walkthrough.md`
-3. `docs/109_ReleaseGoNoGoCard.md`
-4. `tasks/live-pilot-closeout-plan.csv`
-5. `docs/evidence/20260609-ns1305a-admin-ai-settings-dialog.json`
+1. `docs/CurrentClosureStatus.md`
+2. `docs/109_ReleaseGoNoGoCard.md`
+3. `tasks/live-pilot-closeout-plan.csv`
+4. `docs/evidence/index.json`

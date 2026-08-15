@@ -1,4 +1,5 @@
 param(
+    [string[]] $ChangedPaths = @(),
     [string] $JsonReportPath = ''
 )
 
@@ -6,10 +7,11 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 . (Join-Path $PSScriptRoot 'script-quality-helpers.ps1')
 
-$powershellResult = Invoke-KqgPowerShellParseSweep -RepoRoot $repoRoot
+$normalizedPaths = @($ChangedPaths | ForEach-Object { [string]$_ -split ',' } | ForEach-Object { $_.Trim() } | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+$powershellResult = Invoke-KqgPowerShellParseSweep -RepoRoot $repoRoot -ChangedPaths $normalizedPaths
 Assert-KqgQualitySweepPassed -Result $powershellResult -Label 'PowerShell parse sweep'
 
-$pythonResult = Invoke-KqgPythonCompileSweep -RepoRoot $repoRoot
+$pythonResult = Invoke-KqgPythonCompileSweep -RepoRoot $repoRoot -ChangedPaths $normalizedPaths
 Assert-KqgQualitySweepPassed -Result $pythonResult -Label 'Python compile sweep'
 
 $report = [ordered]@{
