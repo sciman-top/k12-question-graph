@@ -22,6 +22,8 @@ public sealed class AdminInternalRoleAuditOptions
 
 public static class AdminInternalEndpointGuard
 {
+    private static readonly SemaphoreSlim AuditWriteLock = new(1, 1);
+
     public const string HeaderName = "X-KQG-Admin-Key";
     public const string RoleHeaderName = "X-KQG-Operator-Role";
     public const string OperatorIdHeaderName = "X-KQG-Operator-Id";
@@ -59,11 +61,11 @@ public static class AdminInternalEndpointGuard
                 ? rollbackValues.FirstOrDefault()?.Trim() ?? string.Empty
                 : string.Empty;
 
-            Task AuditAsync(int statusCode, string decision)
+            async Task AuditAsync(int statusCode, string decision)
             {
                 if (!roleAuditOptions.Enabled || !roleAuditOptions.EnableAuditLog)
                 {
-                    return Task.CompletedTask;
+                    return;
                 }
 
                 try
@@ -84,14 +86,35 @@ public static class AdminInternalEndpointGuard
                         statusCode
                     };
                     var line = JsonSerializer.Serialize(payload) + Environment.NewLine;
-                    File.AppendAllText(logPath, line, Encoding.UTF8);
+                    await AuditWriteLock.WaitAsync(CancellationToken.None);
+                    try
+                    {
+                        await File.AppendAllTextAsync(logPath, line, Encoding.UTF8, CancellationToken.None);
+                    }
+                    finally
+                    {
+                        AuditWriteLock.Release();
+                    }
                 }
                 catch
                 {
                     // 审计写入失败不能压垮管理员接口可用性，保持 fail-open 但仍保留其余鉴权边界。
                 }
+            }
 
-                return Task.CompletedTask;
+            async Task ContinueAndAuditAsync(string decision)
+            {
+                try
+                {
+                    await next();
+                }
+                catch
+                {
+                    await AuditAsync(StatusCodes.Status500InternalServerError, $"{decision}_endpoint_failed");
+                    throw;
+                }
+
+                await AuditAsync(context.Response.StatusCode, decision);
             }
 
             if (string.IsNullOrWhiteSpace(configuredKey))
@@ -99,8 +122,7 @@ public static class AdminInternalEndpointGuard
                 if (draftTestBypassAllowed)
                 {
                     context.Response.Headers[DraftTestHeaderName] = DraftTestHeaderValue;
-                    await AuditAsync(StatusCodes.Status200OK, "allow_draft_test_bypass");
-                    await next();
+                    await ContinueAndAuditAsync("allow_draft_test_bypass");
                     return;
                 }
 
@@ -155,22 +177,27 @@ public static class AdminInternalEndpointGuard
                 return;
             }
 
-            await AuditAsync(StatusCodes.Status200OK, "allow");
-            await next();
+            await ContinueAndAuditAsync("allow");
         });
 
         return app;
     }
 
-    private static bool RequiresGuard(PathString path) =>
+    internal static bool RequiresGuard(PathString path) =>
         path.StartsWithSegments("/api/admin", StringComparison.OrdinalIgnoreCase) ||
-        path.StartsWithSegments("/internal/ai", StringComparison.OrdinalIgnoreCase);
+        path.StartsWithSegments("/internal/ai", StringComparison.OrdinalIgnoreCase) ||
+        IsSourceAuthorizationPath(path);
 
     private static bool IsRoleAuthorized(PathString path, string method, string role)
     {
         if (string.IsNullOrWhiteSpace(role))
         {
             return false;
+        }
+
+        if (IsSourceAuthorizationPath(path))
+        {
+            return role == "admin";
         }
 
         if (path.StartsWithSegments("/internal/ai", StringComparison.OrdinalIgnoreCase))
@@ -189,6 +216,16 @@ public static class AdminInternalEndpointGuard
         }
 
         return false;
+    }
+
+    private static bool IsSourceAuthorizationPath(PathString path)
+    {
+        if (!path.StartsWithSegments("/source-documents", out var remaining))
+        {
+            return false;
+        }
+
+        return remaining.Value?.EndsWith("/authorization", StringComparison.OrdinalIgnoreCase) == true;
     }
 
     private static bool IsHighRiskWrite(string method) =>

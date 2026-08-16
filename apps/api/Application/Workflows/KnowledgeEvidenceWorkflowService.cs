@@ -1,6 +1,7 @@
 using K12QuestionGraph.Api.Application.Workflows.Contracts;
 using K12QuestionGraph.Api.Data;
 using K12QuestionGraph.Api.Domain;
+using K12QuestionGraph.Api.Infrastructure.Queries;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
@@ -114,8 +115,9 @@ public sealed class KnowledgeEvidenceWorkflowService(KqgDbContext dbContext) : I
         ValidateQuestionEvidenceSearchRequest(request);
         var mode = NormalizeEvidenceMode(request.EvidenceMode);
         var previewMode = mode != "active";
-        var page = Math.Max(request.Page, 1);
-        var pageSize = Math.Clamp(request.PageSize, 1, 50);
+        var pagination = PaginationWindow.Create(request.Page, request.PageSize, defaultPageSize: 20, maxPageSize: 50);
+        var page = pagination.Page;
+        var pageSize = pagination.PageSize;
 
         var targetQuery = dbContext.AssessmentTargets.AsNoTracking().AsQueryable();
         targetQuery = mode switch
@@ -275,7 +277,7 @@ public sealed class KnowledgeEvidenceWorkflowService(KqgDbContext dbContext) : I
         var questions = await questionQuery
             .OrderByDescending(question => question.UpdatedAt)
             .ThenBy(question => question.Id)
-            .Skip((page - 1) * pageSize)
+            .Skip(pagination.Offset)
             .Take(pageSize)
             .ToArrayAsync(cancellationToken);
         var questionIds = questions.Select(question => question.Id).ToArray();
@@ -840,8 +842,9 @@ public sealed class KnowledgeEvidenceWorkflowService(KqgDbContext dbContext) : I
         CurriculumEvidenceReviewListRequest request,
         CancellationToken cancellationToken)
     {
-        var page = Math.Max(request.Page, 1);
-        var pageSize = NormalizeTake(request.PageSize);
+        var pagination = PaginationWindow.Create(request.Page, request.PageSize, defaultPageSize: 100, maxPageSize: 500);
+        var page = pagination.Page;
+        var pageSize = pagination.PageSize;
         var allItems = await BuildCurriculumEvidenceReviewItemsAsync(cancellationToken);
         if (!string.IsNullOrWhiteSpace(request.GroupId))
         {
@@ -853,7 +856,7 @@ public sealed class KnowledgeEvidenceWorkflowService(KqgDbContext dbContext) : I
 
         var ordered = OrderReviewItems(allItems);
         var totalPages = ordered.Count == 0 ? 0 : (int)Math.Ceiling(ordered.Count / (double)pageSize);
-        var pageItems = ordered.Skip((page - 1) * pageSize).Take(pageSize).ToArray();
+        var pageItems = ordered.Skip(pagination.Offset).Take(pageSize).ToArray();
         return new CurriculumEvidenceReviewListResponse(
             pageItems,
             page,

@@ -57,6 +57,22 @@ public class SourceDocumentMetadataPolicyTests
 
         var pendingReview = normalized with { LicenseOrPermission = "pending_source_workbench_review" };
         Assert.False(SourceDocumentMetadataPolicy.ComputeExternalAiAllowed(pendingReview));
+
+        var noAuthorizedPurpose = normalized with
+        {
+            MayUseForKnowledgeExtraction = false,
+            MayUseForExamPointExtraction = false,
+            MayUseForTrendAnalysis = false,
+        };
+        Assert.False(SourceDocumentMetadataPolicy.ComputeExternalAiAllowed(noAuthorizedPurpose));
+        Assert.Throws<ArgumentException>(() => SourceDocumentMetadataPolicy.ResolveExternalAiAllowed(
+            noAuthorizedPurpose,
+            currentlyAllowed: false,
+            requestedAllowed: true));
+        Assert.True(SourceDocumentMetadataPolicy.ResolveExternalAiAllowed(
+            normalized,
+            currentlyAllowed: false,
+            requestedAllowed: true));
     }
 
     [Fact]
@@ -93,6 +109,33 @@ public class SourceDocumentMetadataPolicyTests
         Assert.True(knowledgeAuthorized.MayUseForKnowledgeExtraction);
         Assert.False(knowledgeAuthorized.MayUseForExamPointExtraction);
         Assert.False(knowledgeAuthorized.MayUseForTrendAnalysis);
+    }
+
+    [Fact]
+    public void Normalize_BoundsValuesToThePersistedSchema()
+    {
+        var oversized = SourceDocumentMetadata.Defaults("paper.pdf") with
+        {
+            SourceType = new string('s', 80),
+            SourceTitle = new string('t', 300),
+            Region = new string('r', 150),
+            GradeOrScope = new string('g', 150),
+            EditionOrVersion = new string('e', 150),
+            MaterialBatchKey = new string('b', 180),
+            OwnerScope = new string('o', 80),
+            LicenseOrPermission = new string('l', 300),
+        };
+
+        var normalized = SourceDocumentMetadataPolicy.Normalize(oversized);
+
+        Assert.Equal(64, normalized.SourceType.Length);
+        Assert.Equal(260, normalized.SourceTitle.Length);
+        Assert.Equal(128, normalized.Region.Length);
+        Assert.Equal(128, normalized.GradeOrScope.Length);
+        Assert.Equal(128, normalized.EditionOrVersion.Length);
+        Assert.Equal(160, normalized.MaterialBatchKey.Length);
+        Assert.Equal(64, normalized.OwnerScope.Length);
+        Assert.Equal(256, normalized.LicenseOrPermission.Length);
     }
 
     [Theory]

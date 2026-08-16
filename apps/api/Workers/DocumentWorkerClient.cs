@@ -47,20 +47,58 @@ public sealed class DocumentWorkerClient(
         using var process = Process.Start(startInfo)
             ?? throw new InvalidOperationException("Failed to start document worker.");
 
-        var stdoutTask = process.StandardOutput.ReadToEndAsync(cancellationToken);
-        var stderrTask = process.StandardError.ReadToEndAsync(cancellationToken);
-        var waitForExit = process.WaitForExitAsync(cancellationToken);
+        var stdoutTask = process.StandardOutput.ReadToEndAsync();
+        var stderrTask = process.StandardError.ReadToEndAsync();
         var timeout = TimeSpan.FromSeconds(Math.Max(1, workerOptions.TimeoutSeconds));
-        var completed = await Task.WhenAny(waitForExit, Task.Delay(timeout, cancellationToken));
-        if (completed != waitForExit)
+        using var timeoutSource = new CancellationTokenSource(timeout);
+        using var linkedSource = CancellationTokenSource.CreateLinkedTokenSource(
+            cancellationToken,
+            timeoutSource.Token);
+
+        try
         {
-            process.Kill(entireProcessTree: true);
+            await process.WaitForExitAsync(linkedSource.Token);
+        }
+        catch (OperationCanceledException) when (timeoutSource.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
+        {
+            await TerminateAsync(process);
+            await Task.WhenAll(stdoutTask, stderrTask);
             return new DocumentWorkerResult(-1, string.Empty, "document worker timeout");
+        }
+        catch
+        {
+            await TerminateAsync(process);
+            await Task.WhenAll(stdoutTask, stderrTask);
+            throw;
         }
 
         var stdout = await stdoutTask;
         var stderr = await stderrTask;
 
         return new DocumentWorkerResult(process.ExitCode, stdout.Trim(), stderr.Trim());
+    }
+
+    private static async Task TerminateAsync(Process process)
+    {
+        try
+        {
+            if (!process.HasExited)
+            {
+                process.Kill(entireProcessTree: true);
+            }
+        }
+        catch (InvalidOperationException)
+        {
+            return;
+        }
+
+        try
+        {
+            await process.WaitForExitAsync(CancellationToken.None);
+        }
+        catch (InvalidOperationException)
+        {
+            // The process exited between the state check and the wait.
+        }
     }
 }

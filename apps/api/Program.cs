@@ -8,6 +8,7 @@ using K12QuestionGraph.Api.Endpoints;
 using K12QuestionGraph.Api.FileStore;
 using K12QuestionGraph.Api.Infrastructure.Health;
 using K12QuestionGraph.Api.Infrastructure.Json;
+using K12QuestionGraph.Api.Infrastructure.Queries;
 using K12QuestionGraph.Api.Infrastructure.Storage;
 using K12QuestionGraph.Api.Infrastructure.Workers;
 using K12QuestionGraph.Api.ImportJobs;
@@ -28,6 +29,7 @@ builder.Host.UseWindowsService();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddProblemDetails();
 builder.Services.AddDataProtection();
 builder.Services.Configure<KqgPathsOptions>(builder.Configuration.GetSection("KqgPaths"));
 builder.Services.Configure<PythonWorkerOptions>(builder.Configuration.GetSection("PythonWorker"));
@@ -48,6 +50,11 @@ builder.Services.AddSingleton<IAiProviderSettingsStore, FileAiProviderSettingsSt
 builder.Services.AddHttpClient<IAiProviderSmokeTestService, OpenAiCompatibleSmokeTestService>();
 
 var app = builder.Build();
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler();
+}
 
 app.UseAdminInternalEndpointGuard();
 
@@ -925,6 +932,13 @@ app.MapPost("/files", async (HttpRequest request, IFileStore fileStore, Cancella
         return Results.BadRequest(new { error = "empty_file" });
     }
 
+    if (file.Length > UploadStoragePolicy.MaxUploadBytes)
+    {
+        return Results.Json(
+            new { error = "file_too_large", maxBytes = UploadStoragePolicy.MaxUploadBytes },
+            statusCode: StatusCodes.Status413PayloadTooLarge);
+    }
+
     await using var stream = file.OpenReadStream();
     var stored = await fileStore.StoreOriginalAsync(
         stream,
@@ -1020,10 +1034,6 @@ app.MapPatch("/source-documents/{id:guid}/authorization", async (
     {
         sourceDocument.AnonymizationStatus = NormalizeToken(request.AnonymizationStatus, "not_applicable");
     }
-    if (request.ExternalAiAllowed.HasValue)
-    {
-        sourceDocument.ExternalAiAllowed = request.ExternalAiAllowed.Value;
-    }
     if (request.MayUseForKnowledgeExtraction.HasValue)
     {
         sourceDocument.MayUseForKnowledgeExtraction = request.MayUseForKnowledgeExtraction.Value;
@@ -1036,6 +1046,50 @@ app.MapPatch("/source-documents/{id:guid}/authorization", async (
     {
         sourceDocument.MayUseForTrendAnalysis = request.MayUseForTrendAnalysis.Value;
     }
+
+    var normalizedAuthorization = SourceDocumentMetadataPolicy.Normalize(new SourceDocumentMetadata(
+        sourceDocument.SourceType,
+        sourceDocument.SourceTitle,
+        sourceDocument.Region,
+        sourceDocument.Year,
+        sourceDocument.GradeOrScope,
+        sourceDocument.EditionOrVersion,
+        sourceDocument.MaterialBatchKey,
+        sourceDocument.OwnerScope,
+        sourceDocument.LicenseOrPermission,
+        sourceDocument.SharingAllowed,
+        sourceDocument.ContainsStudentPii,
+        sourceDocument.AnonymizationStatus,
+        sourceDocument.MayUseForKnowledgeExtraction,
+        sourceDocument.MayUseForExamPointExtraction,
+        sourceDocument.MayUseForTrendAnalysis));
+    bool externalAiAllowed;
+    try
+    {
+        externalAiAllowed = SourceDocumentMetadataPolicy.ResolveExternalAiAllowed(
+            normalizedAuthorization,
+            sourceDocument.ExternalAiAllowed,
+            request.ExternalAiAllowed);
+    }
+    catch (ArgumentException exception) when (exception.Message.Contains("external_ai_policy_not_satisfied", StringComparison.Ordinal))
+    {
+        return Results.BadRequest(new { error = "external_ai_policy_not_satisfied" });
+    }
+
+    sourceDocument.SourceType = normalizedAuthorization.SourceType;
+    sourceDocument.SourceTitle = normalizedAuthorization.SourceTitle;
+    sourceDocument.Region = normalizedAuthorization.Region;
+    sourceDocument.GradeOrScope = normalizedAuthorization.GradeOrScope;
+    sourceDocument.EditionOrVersion = normalizedAuthorization.EditionOrVersion;
+    sourceDocument.MaterialBatchKey = normalizedAuthorization.MaterialBatchKey;
+    sourceDocument.OwnerScope = normalizedAuthorization.OwnerScope;
+    sourceDocument.LicenseOrPermission = normalizedAuthorization.LicenseOrPermission;
+    sourceDocument.SharingAllowed = normalizedAuthorization.SharingAllowed;
+    sourceDocument.AnonymizationStatus = normalizedAuthorization.AnonymizationStatus;
+    sourceDocument.MayUseForKnowledgeExtraction = normalizedAuthorization.MayUseForKnowledgeExtraction;
+    sourceDocument.MayUseForExamPointExtraction = normalizedAuthorization.MayUseForExamPointExtraction;
+    sourceDocument.MayUseForTrendAnalysis = normalizedAuthorization.MayUseForTrendAnalysis;
+    sourceDocument.ExternalAiAllowed = externalAiAllowed;
 
     var now = DateTimeOffset.UtcNow;
     var after = SourceMaterialResponse.From(sourceDocument, file);
@@ -1078,6 +1132,13 @@ app.MapPost("/imports", async (HttpRequest request, IFileStore fileStore, KqgDbC
     if (file.Length <= 0)
     {
         return Results.BadRequest(new { error = "empty_file" });
+    }
+
+    if (file.Length > UploadStoragePolicy.MaxUploadBytes)
+    {
+        return Results.Json(
+            new { error = "file_too_large", maxBytes = UploadStoragePolicy.MaxUploadBytes },
+            statusCode: StatusCodes.Status413PayloadTooLarge);
     }
 
     await using var stream = file.OpenReadStream();
@@ -1363,6 +1424,7 @@ app.MapGet("/source-documents/{id:guid}/quality-report", async (
     var openReviewItems = await dbContext.ReviewQueueItems
         .AsNoTracking()
         .Where(x => x.Status == ReviewStatuses.Open)
+        .Select(x => new { x.ReviewType, x.Payload })
         .ToListAsync(cancellationToken);
     var relatedOpenReviewItems = openReviewItems
         .Where(x => ReviewQueuePayloadReferences(x.Payload, id, questionIdSet))
@@ -2395,29 +2457,40 @@ app.MapGet("/questions", async (
             : query.Where(x => !imageQuestionIds.Contains(x.Id));
     }
 
-    var pageSize = Math.Clamp(limit ?? 20, 1, 50);
-    var pageIndex = Math.Max(1, page ?? 1);
-    var offset = (pageIndex - 1) * pageSize;
+    var pagination = PaginationWindow.Create(page, limit, defaultPageSize: 20, maxPageSize: 50);
+    var pageSize = pagination.PageSize;
+    var pageIndex = pagination.Page;
+    var offset = pagination.Offset;
     var normalizedSortBy = NormalizeToken(sortBy ?? string.Empty, "updated_at");
     var sortDescending = string.Equals(NormalizeToken(order ?? string.Empty, "desc"), "desc", StringComparison.OrdinalIgnoreCase);
     int total;
     List<QuestionItem> items;
     if (normalizedSortBy is "question_no" or "exam_question_no")
     {
-        var allItems = await query.ToListAsync(cancellationToken);
-        total = allItems.Count;
+        var sortableItems = await query
+            .Select(x => new { x.Id, x.CustomFields, x.UpdatedAt, x.CreatedAt })
+            .ToListAsync(cancellationToken);
+        total = sortableItems.Count;
         var sorted = sortDescending
-            ? allItems
+            ? sortableItems
                 .OrderByDescending(x => TryGetIntCustomField(x.CustomFields, "questionNo") ?? int.MinValue)
                 .ThenByDescending(x => x.UpdatedAt)
                 .ThenByDescending(x => x.CreatedAt)
-            : allItems
+            : sortableItems
                 .OrderBy(x => TryGetIntCustomField(x.CustomFields, "questionNo") ?? int.MaxValue)
                 .ThenBy(x => x.UpdatedAt)
                 .ThenBy(x => x.CreatedAt);
-        items = sorted
+        var pageIds = sorted
             .Skip(offset)
             .Take(pageSize)
+            .Select(x => x.Id)
+            .ToArray();
+        var pageItemsById = await query
+            .Where(x => pageIds.Contains(x.Id))
+            .ToDictionaryAsync(x => x.Id, cancellationToken);
+        items = pageIds
+            .Where(pageItemsById.ContainsKey)
+            .Select(id => pageItemsById[id])
             .ToList();
     }
     else

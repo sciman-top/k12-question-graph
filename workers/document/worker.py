@@ -23,6 +23,10 @@ WORD_NS = {
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[2]
 WORKER_TEMP_ROOT = REPO_ROOT / "tmp" / "worker-temp"
+MAX_INPUT_BYTES = 128 * 1024 * 1024
+MAX_DOCX_DOCUMENT_XML_BYTES = 32 * 1024 * 1024
+MAX_DOCX_RELATIONSHIPS_XML_BYTES = 4 * 1024 * 1024
+MAX_DOCX_DOCUMENT_XML_COMPRESSION_RATIO = 200
 
 
 def sha256_file(path: pathlib.Path) -> str:
@@ -48,6 +52,20 @@ def read_text_preview(path: pathlib.Path) -> str:
 def create_worker_temp_dir(prefix: str) -> pathlib.Path:
     WORKER_TEMP_ROOT.mkdir(parents=True, exist_ok=True)
     return pathlib.Path(tempfile.mkdtemp(prefix=prefix, dir=str(WORKER_TEMP_ROOT)))
+
+
+def resolve_input_path(file_root: pathlib.Path, relative_path: str) -> pathlib.Path:
+    root = file_root.resolve()
+    relative = pathlib.PurePosixPath(relative_path)
+    if not relative.parts or relative.is_absolute() or any(part in {"", ".", ".."} for part in relative.parts):
+        raise ValueError("input path must be a normalized relative path")
+
+    target = (root / pathlib.Path(*relative.parts)).resolve()
+    try:
+        target.relative_to(root)
+    except ValueError as exc:
+        raise ValueError("input path escapes the configured file root") from exc
+    return target
 
 
 def element_text(element: ET.Element) -> str:
@@ -97,19 +115,40 @@ def parse_docx_blocks(target: pathlib.Path) -> tuple[list[dict], list[str]]:
     warnings: list[str] = []
     blocks: list[dict] = []
 
-    with zipfile.ZipFile(target) as docx:
-        document_xml = docx.read("word/document.xml")
-        rel_targets: dict[str, str] = {}
-        if "word/_rels/document.xml.rels" in docx.namelist():
-            rels_root = ET.fromstring(docx.read("word/_rels/document.xml.rels"))
-            for rel in rels_root:
-                rel_id = rel.attrib.get("Id")
-                target_attr = rel.attrib.get("Target")
-                rel_type = rel.attrib.get("Type", "")
-                if rel_id and target_attr and rel_type.endswith("/image"):
-                    rel_targets[rel_id] = target_attr
+    try:
+        with zipfile.ZipFile(target) as docx:
+            document_info = docx.getinfo("word/document.xml")
+            compression_ratio = document_info.file_size / max(document_info.compress_size, 1)
+            if document_info.file_size > MAX_DOCX_DOCUMENT_XML_BYTES:
+                return [], ["OpenXML document.xml exceeds the safe uncompressed size limit"]
+            if compression_ratio > MAX_DOCX_DOCUMENT_XML_COMPRESSION_RATIO:
+                return [], ["OpenXML document.xml exceeds the safe compression ratio"]
 
-    root = ET.fromstring(document_xml)
+            document_xml = docx.read(document_info)
+            rel_targets: dict[str, str] = {}
+            try:
+                rels_info = docx.getinfo("word/_rels/document.xml.rels")
+            except KeyError:
+                rels_info = None
+            if rels_info is not None:
+                rels_ratio = rels_info.file_size / max(rels_info.compress_size, 1)
+                if (
+                    rels_info.file_size > MAX_DOCX_RELATIONSHIPS_XML_BYTES
+                    or rels_ratio > MAX_DOCX_DOCUMENT_XML_COMPRESSION_RATIO
+                ):
+                    warnings.append("OpenXML relationships exceed safe archive limits; image links require review")
+                else:
+                    rels_root = ET.fromstring(docx.read(rels_info))
+                    for rel in rels_root:
+                        rel_id = rel.attrib.get("Id")
+                        target_attr = rel.attrib.get("Target")
+                        rel_type = rel.attrib.get("Type", "")
+                        if rel_id and target_attr and rel_type.endswith("/image"):
+                            rel_targets[rel_id] = target_attr
+
+        root = ET.fromstring(document_xml)
+    except (zipfile.BadZipFile, zipfile.LargeZipFile, KeyError, ET.ParseError, OSError) as exc:
+        return [], [f"Invalid OpenXML document: {exc}"]
     body = root.find("w:body", WORD_NS)
     if body is None:
         return blocks, ["OpenXML document body missing"]
@@ -341,11 +380,17 @@ def parse_pdf_with_pdftotext(target: pathlib.Path) -> tuple[list[dict], list[str
     tmp_dir = create_worker_temp_dir("kqg-pdftotext-")
     try:
         output_path = tmp_dir / "document.txt"
-        completed = subprocess.run(
-            [pdftotext, "-layout", "-enc", "UTF-8", str(target), str(output_path)],
-            text=True,
-            capture_output=True,
-        )
+        try:
+            completed = subprocess.run(
+                [pdftotext, "-layout", "-enc", "UTF-8", str(target), str(output_path)],
+                text=True,
+                capture_output=True,
+                timeout=60,
+            )
+        except subprocess.TimeoutExpired:
+            return [], ["pdftotext timed out while extracting PDF text"]
+        except OSError as exc:
+            return [], [f"pdftotext failed to start: {exc}"]
         if completed.returncode != 0:
             warning = completed.stderr.strip() or completed.stdout.strip() or "pdftotext failed"
             return [], [warning]
@@ -724,11 +769,17 @@ def main() -> int:
         print("simulated worker failure", file=sys.stderr)
         return 2
 
-    file_root = pathlib.Path(args.file_root)
-    target = file_root / pathlib.PurePosixPath(args.relative_path)
-    if not target.exists():
+    try:
+        target = resolve_input_path(pathlib.Path(args.file_root), args.relative_path)
+    except ValueError as exc:
+        print(f"invalid input path: {exc}", file=sys.stderr)
+        return 4
+    if not target.is_file():
         print(f"input file missing: {target}", file=sys.stderr)
         return 3
+    if target.stat().st_size > MAX_INPUT_BYTES:
+        print(f"input file exceeds {MAX_INPUT_BYTES} bytes", file=sys.stderr)
+        return 5
 
     document_model = build_document_model(args.job_id, args.relative_path, target)
     adapter = document_model.pop("_adapter")

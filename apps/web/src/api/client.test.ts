@@ -30,6 +30,7 @@ import {
 const originalFetch = globalThis.fetch
 
 afterEach(() => {
+  vi.useRealTimers()
   vi.restoreAllMocks()
   globalThis.fetch = originalFetch
 })
@@ -82,6 +83,24 @@ describe('api client error handling', () => {
     }
     expect(result.error.code).toBe('network_error')
     expect(result.error.message).toContain('socket closed')
+  })
+
+  it('aborts a request that exceeds the shared timeout', async () => {
+    vi.useFakeTimers()
+    globalThis.fetch = vi.fn((_input, init) => new Promise<Response>((_resolve, reject) => {
+      init?.signal?.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')))
+    })) as typeof fetch
+
+    const resultPromise = getReadyHealth()
+    await vi.advanceTimersByTimeAsync(30_000)
+    const result = await resultPromise
+
+    expect(result.ok).toBe(false)
+    if (result.ok) {
+      throw new Error('expected error result')
+    }
+    expect(result.error.code).toBe('network_error')
+    expect(result.error.message).toBe('Request timed out after 30000ms')
   })
 
   it('maps upload requests through the shared invalid_response guard', async () => {

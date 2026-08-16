@@ -1,5 +1,6 @@
 import pathlib
 import sys
+import tempfile
 import unittest
 from unittest import mock
 
@@ -13,11 +14,39 @@ import worker  # noqa: E402
 
 
 class WorkerHelpersTests(unittest.TestCase):
+    def test_resolve_input_path_rejects_absolute_and_parent_traversal(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = pathlib.Path(temporary_directory)
+            expected = root / "original" / "aa" / "paper.pdf"
+            expected.parent.mkdir(parents=True)
+            expected.touch()
+
+            self.assertEqual(
+                worker.resolve_input_path(root, "original/aa/paper.pdf"),
+                expected.resolve(),
+            )
+            with self.assertRaises(ValueError):
+                worker.resolve_input_path(root, "../outside.pdf")
+            with self.assertRaises(ValueError):
+                worker.resolve_input_path(root, "/outside.pdf")
+            with self.assertRaises(ValueError):
+                worker.resolve_input_path(root, "")
+
     def test_sha256_json_is_stable_across_key_order(self) -> None:
         left = {"jobId": "a", "pages": [{"pageNumber": 1, "text": "ok"}]}
         right = {"pages": [{"text": "ok", "pageNumber": 1}], "jobId": "a"}
 
         self.assertEqual(worker.sha256_json(left), worker.sha256_json(right))
+
+    def test_parse_docx_blocks_returns_reviewable_warning_for_invalid_zip(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            target = pathlib.Path(temporary_directory) / "invalid.docx"
+            target.write_bytes(b"not-a-zip")
+
+            blocks, warnings = worker.parse_docx_blocks(target)
+
+        self.assertEqual(blocks, [])
+        self.assertTrue(any("Invalid OpenXML document" in warning for warning in warnings))
 
     def test_split_pdf_text_blocks_marks_question_and_answer_boundaries(self) -> None:
         text = "\n".join(

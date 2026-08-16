@@ -2,6 +2,16 @@ namespace K12QuestionGraph.Api.FileStore;
 
 public static class SourceDocumentMetadataPolicy
 {
+    private const int SourceTypeMaxLength = 64;
+    private const int SourceTitleMaxLength = 260;
+    private const int RegionMaxLength = 128;
+    private const int GradeOrScopeMaxLength = 128;
+    private const int EditionOrVersionMaxLength = 128;
+    private const int MaterialBatchKeyMaxLength = 160;
+    private const int OwnerScopeMaxLength = 64;
+    private const int LicenseOrPermissionMaxLength = 256;
+    private const int AnonymizationStatusMaxLength = 64;
+
     private static readonly HashSet<string> AllowedAnonymizationStatuses = new(StringComparer.OrdinalIgnoreCase)
     {
         "none",
@@ -12,15 +22,15 @@ public static class SourceDocumentMetadataPolicy
 
     public static SourceDocumentMetadata Normalize(SourceDocumentMetadata metadata)
     {
-        var sourceType = NormalizeToken(metadata.SourceType, "unknown");
-        var sourceTitle = string.IsNullOrWhiteSpace(metadata.SourceTitle) ? "untitled source" : metadata.SourceTitle.Trim();
-        var region = string.IsNullOrWhiteSpace(metadata.Region) ? string.Empty : metadata.Region.Trim();
-        var gradeOrScope = string.IsNullOrWhiteSpace(metadata.GradeOrScope) ? string.Empty : metadata.GradeOrScope.Trim();
-        var editionOrVersion = string.IsNullOrWhiteSpace(metadata.EditionOrVersion) ? string.Empty : metadata.EditionOrVersion.Trim();
-        var materialBatchKey = NormalizeToken(metadata.MaterialBatchKey, string.Empty);
-        var ownerScope = NormalizeToken(metadata.OwnerScope, "teacher_private");
-        var license = string.IsNullOrWhiteSpace(metadata.LicenseOrPermission) ? "unknown" : metadata.LicenseOrPermission.Trim();
-        var anonymizationStatus = NormalizeToken(metadata.AnonymizationStatus, "not_applicable");
+        var sourceType = NormalizeToken(metadata.SourceType, "unknown", SourceTypeMaxLength);
+        var sourceTitle = NormalizeText(metadata.SourceTitle, "untitled source", SourceTitleMaxLength);
+        var region = NormalizeText(metadata.Region, string.Empty, RegionMaxLength);
+        var gradeOrScope = NormalizeText(metadata.GradeOrScope, string.Empty, GradeOrScopeMaxLength);
+        var editionOrVersion = NormalizeText(metadata.EditionOrVersion, string.Empty, EditionOrVersionMaxLength);
+        var materialBatchKey = NormalizeToken(metadata.MaterialBatchKey, string.Empty, MaterialBatchKeyMaxLength);
+        var ownerScope = NormalizeToken(metadata.OwnerScope, "teacher_private", OwnerScopeMaxLength);
+        var license = NormalizeText(metadata.LicenseOrPermission, "unknown", LicenseOrPermissionMaxLength);
+        var anonymizationStatus = NormalizeToken(metadata.AnonymizationStatus, "not_applicable", AnonymizationStatusMaxLength);
 
         if (!AllowedAnonymizationStatuses.Contains(anonymizationStatus))
         {
@@ -83,16 +93,52 @@ public static class SourceDocumentMetadataPolicy
             return false;
         }
 
+        if (!metadata.MayUseForKnowledgeExtraction
+            && !metadata.MayUseForExamPointExtraction
+            && !metadata.MayUseForTrendAnalysis)
+        {
+            return false;
+        }
+
         return true;
     }
 
-    private static string NormalizeToken(string value, string fallback)
+    public static bool ResolveExternalAiAllowed(
+        SourceDocumentMetadata metadata,
+        bool currentlyAllowed,
+        bool? requestedAllowed)
     {
-        if (string.IsNullOrWhiteSpace(value))
+        var policyAllows = ComputeExternalAiAllowed(metadata);
+        if (requestedAllowed == true && !policyAllows)
         {
-            return fallback;
+            throw new ArgumentException("external_ai_policy_not_satisfied", nameof(requestedAllowed));
         }
 
-        return value.Trim().ToLowerInvariant().Replace('-', '_').Replace(' ', '_');
+        return policyAllows && (requestedAllowed ?? currentlyAllowed);
+    }
+
+    private static string NormalizeToken(string value, string fallback, int maxLength)
+    {
+        return NormalizeText(value, fallback, maxLength)
+            .ToLowerInvariant()
+            .Replace('-', '_')
+            .Replace(' ', '_');
+    }
+
+    private static string NormalizeText(string value, string fallback, int maxLength)
+    {
+        var normalized = string.IsNullOrWhiteSpace(value) ? fallback : value.Trim();
+        if (normalized.Length <= maxLength)
+        {
+            return normalized;
+        }
+
+        var length = maxLength;
+        if (char.IsHighSurrogate(normalized[length - 1]) && char.IsLowSurrogate(normalized[length]))
+        {
+            length -= 1;
+        }
+
+        return normalized[..length];
     }
 }

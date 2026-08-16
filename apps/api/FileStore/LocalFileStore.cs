@@ -19,89 +19,140 @@ public sealed class LocalFileStore(KqgDbContext dbContext, IOptions<KqgPathsOpti
         CancellationToken cancellationToken)
     {
         var paths = pathsOptions.Value;
-        var safeName = Path.GetFileName(originalFileName);
-        if (string.IsNullOrWhiteSpace(safeName))
-        {
-            safeName = "upload.bin";
-        }
+        var uploadIdentity = UploadStoragePolicy.Normalize(originalFileName, contentType);
+        UploadStoragePolicy.ValidateDeclaredLength(sizeBytes);
 
         Directory.CreateDirectory(paths.FileStoreRoot);
 
         var tempPath = Path.Combine(paths.FileStoreRoot, $".upload-{Guid.NewGuid():N}.tmp");
-        string sha256;
-
-        await using (var target = File.Create(tempPath))
+        try
         {
-            using var hash = SHA256.Create();
-            await content.CopyToAsync(target, cancellationToken);
-            await target.FlushAsync(cancellationToken);
-            target.Position = 0;
-            sha256 = Convert.ToHexString(await hash.ComputeHashAsync(target, cancellationToken)).ToLowerInvariant();
-        }
-
-        var extension = Path.GetExtension(safeName);
-        var shard = Path.Combine("original", sha256[..2], sha256[2..4]);
-        var relativePath = Path.Combine(shard, $"{sha256}{extension}").Replace('\\', '/');
-
-        var normalizedSourceMetadata = Normalize(sourceMetadata);
-        var existingByHash = await dbContext.FileAssets
-            .FirstOrDefaultAsync(x => x.StorageScope == "original" && x.Sha256 == sha256 && x.SizeBytes == sizeBytes, cancellationToken);
-        if (existingByHash is not null)
-        {
-            OriginalBlobMaterializer.Reconcile(
-                paths.FileStoreRoot,
-                existingByHash.RelativePath,
-                tempPath,
-                sha256,
-                sizeBytes);
-            var sourceDocument = await AddSourceDocumentAsync(existingByHash.Id, normalizedSourceMetadata, cancellationToken);
-            return ToResponse(existingByHash, isDuplicate: true, duplicateOfFileAssetId: existingByHash.Id, sourceDocument);
-        }
-
-        OriginalBlobMaterializer.Reconcile(paths.FileStoreRoot, relativePath, tempPath, sha256, sizeBytes);
-
-        var existing = await dbContext.FileAssets
-            .FirstOrDefaultAsync(x => x.StorageScope == "original" && x.RelativePath == relativePath, cancellationToken);
-        if (existing is not null)
-        {
-            var sourceDocument = await AddSourceDocumentAsync(existing.Id, normalizedSourceMetadata, cancellationToken);
-            return ToResponse(existing, isDuplicate: true, duplicateOfFileAssetId: existing.Id, sourceDocument);
-        }
-
-        var asset = new FileAsset
-        {
-            OriginalFileName = safeName,
-            RelativePath = relativePath,
-            StorageScope = "original",
-            ContentType = string.IsNullOrWhiteSpace(contentType) ? "application/octet-stream" : contentType,
-            Sha256 = sha256,
-            SizeBytes = sizeBytes,
-            SourceMetadata = JsonSerializer.Serialize(new
+            string sha256;
+            await using (var target = File.Create(tempPath))
             {
-                normalizedSourceMetadata.SourceType,
-                normalizedSourceMetadata.SourceTitle,
-                normalizedSourceMetadata.Region,
-                normalizedSourceMetadata.Year,
-                normalizedSourceMetadata.GradeOrScope,
-                normalizedSourceMetadata.EditionOrVersion,
-                normalizedSourceMetadata.MaterialBatchKey,
-                normalizedSourceMetadata.OwnerScope,
-                normalizedSourceMetadata.LicenseOrPermission,
-                normalizedSourceMetadata.SharingAllowed,
-                normalizedSourceMetadata.ContainsStudentPii,
-                normalizedSourceMetadata.AnonymizationStatus,
-                normalizedSourceMetadata.MayUseForKnowledgeExtraction,
-                normalizedSourceMetadata.MayUseForExamPointExtraction,
-                normalizedSourceMetadata.MayUseForTrendAnalysis
-            })
-        };
+                var copyResult = await CopyAndHashAsync(content, target, cancellationToken);
+                sha256 = copyResult.Sha256;
+                await target.FlushAsync(cancellationToken);
+                if (copyResult.Length != sizeBytes)
+                {
+                    throw new InvalidDataException($"Upload stream length {copyResult.Length} does not match declared length {sizeBytes}.");
+                }
+            }
 
-        dbContext.FileAssets.Add(asset);
-        await dbContext.SaveChangesAsync(cancellationToken);
+            var shard = Path.Combine("original", sha256[..2], sha256[2..4]);
+            var relativePath = Path.Combine(shard, $"{sha256}{uploadIdentity.StorageExtension}").Replace('\\', '/');
 
-        var createdSourceDocument = await AddSourceDocumentAsync(asset.Id, normalizedSourceMetadata, cancellationToken);
+            var normalizedSourceMetadata = Normalize(sourceMetadata);
+            var existingByHash = await dbContext.FileAssets
+                .FirstOrDefaultAsync(x => x.StorageScope == "original" && x.Sha256 == sha256 && x.SizeBytes == sizeBytes, cancellationToken);
+            if (existingByHash is not null)
+            {
+                OriginalBlobMaterializer.Reconcile(
+                    paths.FileStoreRoot,
+                    existingByHash.RelativePath,
+                    tempPath,
+                    sha256,
+                    sizeBytes);
+                var sourceDocument = await AddSourceDocumentAsync(existingByHash.Id, normalizedSourceMetadata, cancellationToken);
+                return ToResponse(existingByHash, isDuplicate: true, duplicateOfFileAssetId: existingByHash.Id, sourceDocument);
+            }
 
-        return ToResponse(asset, isDuplicate: false, duplicateOfFileAssetId: null, createdSourceDocument);
+            OriginalBlobMaterializer.Reconcile(paths.FileStoreRoot, relativePath, tempPath, sha256, sizeBytes);
+
+            var existing = await dbContext.FileAssets
+                .FirstOrDefaultAsync(x => x.StorageScope == "original" && x.RelativePath == relativePath, cancellationToken);
+            if (existing is not null)
+            {
+                var sourceDocument = await AddSourceDocumentAsync(existing.Id, normalizedSourceMetadata, cancellationToken);
+                return ToResponse(existing, isDuplicate: true, duplicateOfFileAssetId: existing.Id, sourceDocument);
+            }
+
+            var asset = new FileAsset
+            {
+                OriginalFileName = uploadIdentity.OriginalFileName,
+                RelativePath = relativePath,
+                StorageScope = "original",
+                ContentType = uploadIdentity.ContentType,
+                Sha256 = sha256,
+                SizeBytes = sizeBytes,
+                SourceMetadata = JsonSerializer.Serialize(new
+                {
+                    normalizedSourceMetadata.SourceType,
+                    normalizedSourceMetadata.SourceTitle,
+                    normalizedSourceMetadata.Region,
+                    normalizedSourceMetadata.Year,
+                    normalizedSourceMetadata.GradeOrScope,
+                    normalizedSourceMetadata.EditionOrVersion,
+                    normalizedSourceMetadata.MaterialBatchKey,
+                    normalizedSourceMetadata.OwnerScope,
+                    normalizedSourceMetadata.LicenseOrPermission,
+                    normalizedSourceMetadata.SharingAllowed,
+                    normalizedSourceMetadata.ContainsStudentPii,
+                    normalizedSourceMetadata.AnonymizationStatus,
+                    normalizedSourceMetadata.MayUseForKnowledgeExtraction,
+                    normalizedSourceMetadata.MayUseForExamPointExtraction,
+                    normalizedSourceMetadata.MayUseForTrendAnalysis
+                })
+            };
+
+            dbContext.FileAssets.Add(asset);
+            await dbContext.SaveChangesAsync(cancellationToken);
+
+            var createdSourceDocument = await AddSourceDocumentAsync(asset.Id, normalizedSourceMetadata, cancellationToken);
+
+            return ToResponse(asset, isDuplicate: false, duplicateOfFileAssetId: null, createdSourceDocument);
+        }
+        finally
+        {
+            TryDeleteTempFile(tempPath);
+        }
+    }
+
+    private static async Task<(long Length, string Sha256)> CopyAndHashAsync(
+        Stream source,
+        Stream destination,
+        CancellationToken cancellationToken)
+    {
+        var buffer = GC.AllocateUninitializedArray<byte>(81920);
+        long length = 0;
+        using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+
+        while (true)
+        {
+            var bytesRead = await source.ReadAsync(buffer, cancellationToken);
+            if (bytesRead == 0)
+            {
+                break;
+            }
+
+            if (length > UploadStoragePolicy.MaxUploadBytes - bytesRead)
+            {
+                throw new InvalidDataException($"Upload stream exceeds the {UploadStoragePolicy.MaxUploadBytes} byte limit.");
+            }
+
+            await destination.WriteAsync(buffer.AsMemory(0, bytesRead), cancellationToken);
+            hash.AppendData(buffer, 0, bytesRead);
+            length += bytesRead;
+        }
+
+        var sha256 = Convert.ToHexString(hash.GetHashAndReset()).ToLowerInvariant();
+        return (length, sha256);
+    }
+
+    private static void TryDeleteTempFile(string tempPath)
+    {
+        try
+        {
+            File.Delete(tempPath);
+        }
+        catch (IOException)
+        {
+            // Best-effort cleanup must not hide the upload or persistence failure.
+        }
+        catch (UnauthorizedAccessException)
+        {
+            // Best-effort cleanup must not hide the upload or persistence failure.
+        }
     }
 
     private async Task<SourceDocument> AddSourceDocumentAsync(

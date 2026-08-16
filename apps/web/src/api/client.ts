@@ -71,7 +71,11 @@ type JsonRequestInit = {
   headers?: HeadersInit
   body?: BodyInit | null
   includeJsonContentType?: boolean
+  timeoutMs?: number
 }
+
+const defaultRequestTimeoutMs = 30_000
+const longRunningRequestTimeoutMs = 120_000
 
 function buildApiUrl(path: string) {
   if (!apiBaseUrl) {
@@ -120,6 +124,9 @@ async function requestResponse(
   init?: JsonRequestInit,
 ): Promise<ApiResult<Response>> {
   const includeJsonContentType = init?.includeJsonContentType ?? true
+  const timeoutMs = Math.max(1, init?.timeoutMs ?? defaultRequestTimeoutMs)
+  const abortController = new AbortController()
+  const timeoutHandle = globalThis.setTimeout(() => abortController.abort(), timeoutMs)
 
   try {
     const response = await fetch(buildApiUrl(path), {
@@ -130,6 +137,7 @@ async function requestResponse(
         ...(init?.headers ?? {}),
       },
       body: init?.body ?? null,
+      signal: abortController.signal,
     })
 
     if (!response.ok) {
@@ -143,8 +151,12 @@ async function requestResponse(
   } catch (error) {
     return buildErrorResult(
       'network_error',
-      error instanceof Error ? error.message : 'Unknown network error',
+      abortController.signal.aborted
+        ? `Request timed out after ${timeoutMs}ms`
+        : error instanceof Error ? error.message : 'Unknown network error',
     )
+  } finally {
+    globalThis.clearTimeout(timeoutHandle)
   }
 }
 
@@ -200,11 +212,13 @@ async function postAdminJson<T>(
   path: string,
   body: unknown,
   normalize: (value: unknown) => T,
+  timeoutMs = defaultRequestTimeoutMs,
 ): Promise<ApiResult<T>> {
   return requestJson(path, normalize, {
     method: 'POST',
     headers: adminHeaders(),
     body: JSON.stringify(body),
+    timeoutMs,
   })
 }
 
@@ -254,6 +268,7 @@ export async function testAdminAiProviderSettings(request: {
     '/api/admin/ai/provider-settings/test',
     request,
     normalizeAdminAiProviderSettingsTestResponse,
+    longRunningRequestTimeoutMs,
   )
 }
 
@@ -282,6 +297,7 @@ export async function uploadImportFile(file: File): Promise<ApiResult<ImportJobC
     method: 'POST',
     body: form,
     includeJsonContentType: false,
+    timeoutMs: longRunningRequestTimeoutMs,
   })
 }
 
