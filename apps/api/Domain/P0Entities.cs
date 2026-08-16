@@ -595,6 +595,10 @@ public sealed class ReviewQueueItem
 
     public string Payload { get; set; } = "{}";
 
+    public Guid? SourceDocumentId { get; private set; }
+
+    public Guid? QuestionItemId { get; private set; }
+
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     public DateTimeOffset? ResolvedAt { get; set; }
@@ -642,6 +646,8 @@ public sealed class QuestionItem
     public string Blocks { get; set; } = "[]";
 
     public string CustomFields { get; set; } = "{}";
+
+    public int? QuestionNo { get; private set; }
 
     public string QualitySignals { get; set; } = "{}";
 

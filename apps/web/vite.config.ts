@@ -1,10 +1,21 @@
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
+import type { ProxyOptions } from 'vite'
+import { ADMIN_INTERNAL_KEY_HEADER, requiresAdminProxyKey } from './vite/adminProxyPolicy.ts'
 
 const localApiProxy = {
   target: process.env.VITE_KQG_API_PROXY_TARGET ?? 'http://127.0.0.1:5275',
   changeOrigin: true,
-}
+  configure(proxy) {
+    const adminInternalKey = process.env.KQG_ADMIN_INTERNAL_KEY?.trim()
+    proxy.on('proxyReq', (proxyRequest, request) => {
+      proxyRequest.removeHeader(ADMIN_INTERNAL_KEY_HEADER)
+      if (adminInternalKey && requiresAdminProxyKey(request.url ?? '')) {
+        proxyRequest.setHeader(ADMIN_INTERNAL_KEY_HEADER, adminInternalKey)
+      }
+    })
+  },
+} satisfies ProxyOptions
 
 const antdAdminComponentMarkers = [
   '/antd/es/form',

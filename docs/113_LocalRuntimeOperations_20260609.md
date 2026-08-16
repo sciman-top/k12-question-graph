@@ -59,6 +59,9 @@
 - PID 与日志写入 `logs/dev-api/`
 - 优先读取本机 `KQG_CONNECTION_STRING`
 - 若未提供连接串，则回退到 `PGPASSWORD` / 脚本参数拼接本地 PostgreSQL 连接
+- 管理员 guard 优先读取 ASP.NET Core 原生 `AdminInternalGuard__ApiKey`；本地启动脚本可从根 `.env` 的 `KQG_ADMIN_INTERNAL_KEY` 做进程级投影。
+- Vite 只在服务器端代理阶段向 `/api/admin`、`/internal/ai` 和来源授权路由注入该密钥；不得使用 `VITE_*` 命名，否则会进入浏览器 bundle。
+- 脱离本地 Vite 代理的部署默认保持 fail-closed，生产身份认证应由可信 reverse proxy、session/BFF 或等价服务器端机制承担。
 - 当前 Quick/Slice 不扫描或停止常驻 API/Web 进程；有状态 Release 只在明确授权后运行，并要求执行前后进程状态一致。
 
 若完全没有数据库凭据，脚本会直接报错，而不是假启动。

@@ -78,7 +78,7 @@ function Get-ItemCount($Items) {
 
 Push-Location $repoRoot
 try {
-    $policyPath = 'docs/102_NonSiteFixturePrivacyPolicy.md'
+    $policyPath = 'docs/17_SecurityPrivacyCompliance.md'
     $fixturePolicyPath = 'tests/golden-import/privacy_and_license.md'
     $rawIgnorePath = 'sources/raw/.gitignore'
     foreach ($path in @($policyPath, $fixturePolicyPath, $rawIgnorePath)) {
@@ -86,7 +86,12 @@ try {
     }
 
     $policy = Get-Content -LiteralPath $policyPath -Raw
-    foreach ($marker in @('real_student_data', 'authorized_anonymized_material', 'sources/raw/', '不得进入 Git', '不得发送给外部 AI')) {
+    foreach ($marker in @(
+        'fixture_data_policy: synthetic_or_anonymized_only',
+        'student_pii_allowed_in_external_ai: no by default',
+        '真实试卷来源必须记录版权/授权和传播限制',
+        '备份校验失败不报告成功'
+    )) {
         Assert-Condition ($policy.Contains($marker)) "fixture privacy policy missing marker: $marker"
     }
 

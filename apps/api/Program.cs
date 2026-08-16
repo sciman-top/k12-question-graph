@@ -1420,15 +1420,15 @@ app.MapGet("/source-documents/{id:guid}/quality-report", async (
         .Where(x => x.SourceDocumentId == id)
         .ToListAsync(cancellationToken);
 
-    var questionIdSet = questionIds.ToHashSet();
     var openReviewItems = await dbContext.ReviewQueueItems
         .AsNoTracking()
-        .Where(x => x.Status == ReviewStatuses.Open)
+        .Where(x =>
+            x.Status == ReviewStatuses.Open &&
+            (x.SourceDocumentId == id ||
+             (x.QuestionItemId.HasValue && questionIds.Contains(x.QuestionItemId.Value))))
         .Select(x => new { x.ReviewType, x.Payload })
         .ToListAsync(cancellationToken);
-    var relatedOpenReviewItems = openReviewItems
-        .Where(x => ReviewQueuePayloadReferences(x.Payload, id, questionIdSet))
-        .ToArray();
+    var relatedOpenReviewItems = openReviewItems.ToArray();
 
     var questionNumbers = questions
         .Select(x => TryGetIntCustomField(x.CustomFields, "questionNo"))
@@ -2467,31 +2467,20 @@ app.MapGet("/questions", async (
     List<QuestionItem> items;
     if (normalizedSortBy is "question_no" or "exam_question_no")
     {
-        var sortableItems = await query
-            .Select(x => new { x.Id, x.CustomFields, x.UpdatedAt, x.CreatedAt })
-            .ToListAsync(cancellationToken);
-        total = sortableItems.Count;
-        var sorted = sortDescending
-            ? sortableItems
-                .OrderByDescending(x => TryGetIntCustomField(x.CustomFields, "questionNo") ?? int.MinValue)
+        total = await query.CountAsync(cancellationToken);
+        var sortedQuery = sortDescending
+            ? query
+                .OrderByDescending(x => x.QuestionNo ?? int.MinValue)
                 .ThenByDescending(x => x.UpdatedAt)
                 .ThenByDescending(x => x.CreatedAt)
-            : sortableItems
-                .OrderBy(x => TryGetIntCustomField(x.CustomFields, "questionNo") ?? int.MaxValue)
+            : query
+                .OrderBy(x => x.QuestionNo ?? int.MaxValue)
                 .ThenBy(x => x.UpdatedAt)
                 .ThenBy(x => x.CreatedAt);
-        var pageIds = sorted
+        items = await sortedQuery
             .Skip(offset)
             .Take(pageSize)
-            .Select(x => x.Id)
-            .ToArray();
-        var pageItemsById = await query
-            .Where(x => pageIds.Contains(x.Id))
-            .ToDictionaryAsync(x => x.Id, cancellationToken);
-        items = pageIds
-            .Where(pageItemsById.ContainsKey)
-            .Select(id => pageItemsById[id])
-            .ToList();
+            .ToListAsync(cancellationToken);
     }
     else
     {
@@ -4260,46 +4249,6 @@ static string MergeQuestionCustomFields(
 static bool QuestionCustomFieldHasValue(string json, string propertyName)
 {
     return QuestionCustomFieldHelpers.HasMeaningfulValue(json, propertyName);
-}
-
-static bool ReviewQueuePayloadReferences(string payload, Guid sourceDocumentId, IReadOnlySet<Guid> questionIds)
-{
-    try
-    {
-        using var document = JsonDocument.Parse(payload);
-        var root = document.RootElement;
-        if (root.ValueKind != JsonValueKind.Object)
-        {
-            return false;
-        }
-
-        if (JsonPropertyEqualsGuid(root, "sourceDocumentId", sourceDocumentId))
-        {
-            return true;
-        }
-
-        if (root.TryGetProperty("questionItemId", out var questionElement) &&
-            questionElement.ValueKind == JsonValueKind.String &&
-            Guid.TryParse(questionElement.GetString(), out var questionId) &&
-            questionIds.Contains(questionId))
-        {
-            return true;
-        }
-
-        return false;
-    }
-    catch (JsonException)
-    {
-        return false;
-    }
-}
-
-static bool JsonPropertyEqualsGuid(JsonElement root, string propertyName, Guid expected)
-{
-    return root.TryGetProperty(propertyName, out var element) &&
-        element.ValueKind == JsonValueKind.String &&
-        Guid.TryParse(element.GetString(), out var actual) &&
-        actual == expected;
 }
 
 static bool QuestionBlockLooksLikeRetainedNoise(QuestionBlock block)

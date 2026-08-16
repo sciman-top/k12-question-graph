@@ -192,11 +192,21 @@ if ($null -ne $listener) {
 $resolvedConnectionString = Resolve-ConnectionString
 $previousConnectionString = $env:KQG_CONNECTION_STRING
 $previousEnvironment = $env:ASPNETCORE_ENVIRONMENT
+$previousAdminInternalKey = $env:AdminInternalGuard__ApiKey
+$adminInternalKey = if (-not [string]::IsNullOrWhiteSpace($previousAdminInternalKey)) {
+    $previousAdminInternalKey
+}
+else {
+    $env:KQG_ADMIN_INTERNAL_KEY
+}
 
 try {
     Ensure-ApiBinary
     $env:KQG_CONNECTION_STRING = $resolvedConnectionString
     $env:ASPNETCORE_ENVIRONMENT = $Environment
+    if (-not [string]::IsNullOrWhiteSpace($adminInternalKey)) {
+        $env:AdminInternalGuard__ApiKey = $adminInternalKey
+    }
 
     Set-Content -LiteralPath $stdoutPath -Value ''
     Set-Content -LiteralPath $stderrPath -Value ''
@@ -245,4 +255,5 @@ try {
 finally {
     $env:KQG_CONNECTION_STRING = $previousConnectionString
     $env:ASPNETCORE_ENVIRONMENT = $previousEnvironment
+    $env:AdminInternalGuard__ApiKey = $previousAdminInternalKey
 }

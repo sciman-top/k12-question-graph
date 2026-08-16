@@ -39,6 +39,8 @@ Web：
 
 默认地址为 API `http://127.0.0.1:5275`、Web `http://127.0.0.1:5173`。停止或重启使用启动脚本的 `-Stop` / `-Restart`。详见 [docs/113_LocalRuntimeOperations_20260609.md](docs/113_LocalRuntimeOperations_20260609.md)。
 
+管理员接口使用服务器端代理密钥：在忽略跟踪的根 `.env` 中配置 `KQG_ADMIN_INTERNAL_KEY`，API 启动脚本会将其投影到 ASP.NET Core guard，Vite 代理只对受保护路由注入。禁止改成 `VITE_*` 变量或写入前端源码；不经过可信代理的生产部署必须继续 fail-closed，直到接入正式 session/BFF 或反向代理身份认证。
+
 ## AI 配置边界
 
 - 根目录 `.env` 只提供本地 bootstrap；模板见 `.env.example`。

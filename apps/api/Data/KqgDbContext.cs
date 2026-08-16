@@ -438,10 +438,18 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
         entity.ToTable("review_queue_items");
         entity.HasKey(x => x.Id);
         entity.HasIndex(x => x.Status);
+        entity.HasIndex(x => x.SourceDocumentId);
+        entity.HasIndex(x => x.QuestionItemId);
         entity.Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
         entity.Property(x => x.ReviewType).HasMaxLength(64).IsRequired();
         entity.Property(x => x.Status).HasMaxLength(32).HasDefaultValue(ReviewStatuses.Open);
         entity.Property(x => x.Payload).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.Property(x => x.SourceDocumentId).HasComputedColumnSql(
+            "CASE WHEN payload ->> 'sourceDocumentId' ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' THEN (payload ->> 'sourceDocumentId')::uuid ELSE NULL END",
+            stored: true);
+        entity.Property(x => x.QuestionItemId).HasComputedColumnSql(
+            "CASE WHEN payload ->> 'questionItemId' ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' THEN (payload ->> 'questionItemId')::uuid ELSE NULL END",
+            stored: true);
         entity.ToTable(x => x.HasCheckConstraint("ck_review_queue_items_status", "status in ('open','resolved','dismissed')"));
     }
 
@@ -463,6 +471,7 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
         entity.ToTable("question_items");
         entity.HasKey(x => x.Id);
         entity.HasIndex(x => new { x.Subject, x.Stage, x.Status });
+        entity.HasIndex(x => x.QuestionNo);
         entity.Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
         entity.Property(x => x.Subject).HasMaxLength(64).HasDefaultValue("physics");
         entity.Property(x => x.Stage).HasMaxLength(64).HasDefaultValue("junior_middle_school");
@@ -471,6 +480,9 @@ public sealed class KqgDbContext(DbContextOptions<KqgDbContext> options) : DbCon
         entity.Property(x => x.Status).HasMaxLength(32).HasDefaultValue(QuestionStatuses.Draft);
         entity.Property(x => x.Blocks).HasColumnType("jsonb").HasDefaultValueSql("'[]'::jsonb");
         entity.Property(x => x.CustomFields).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        entity.Property(x => x.QuestionNo).HasComputedColumnSql(
+            "CASE WHEN custom_fields ->> 'questionNo' ~ '^-?[0-9]+$' AND length(custom_fields ->> 'questionNo') <= 11 THEN CASE WHEN (custom_fields ->> 'questionNo')::bigint BETWEEN -2147483648 AND 2147483647 THEN (custom_fields ->> 'questionNo')::integer ELSE NULL END ELSE NULL END",
+            stored: true);
         entity.Property(x => x.QualitySignals).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
         entity.HasOne<KnowledgeNode>().WithMany().HasForeignKey(x => x.PrimaryKnowledgeId).OnDelete(DeleteBehavior.SetNull);
         entity.ToTable(x => x.HasCheckConstraint("ck_question_items_status", "status in ('draft','pending_review','usable','recommended','needs_improvement','paused','retired')"));

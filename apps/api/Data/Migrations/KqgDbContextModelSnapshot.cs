@@ -2532,6 +2532,12 @@ namespace K12QuestionGraph.Api.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("primary_knowledge_id");
 
+                    b.Property<int?>("QuestionNo")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("integer")
+                        .HasColumnName("question_no")
+                        .HasComputedColumnSql("CASE WHEN custom_fields ->> 'questionNo' ~ '^-?[0-9]+$' AND length(custom_fields ->> 'questionNo') <= 11 THEN CASE WHEN (custom_fields ->> 'questionNo')::bigint BETWEEN -2147483648 AND 2147483647 THEN (custom_fields ->> 'questionNo')::integer ELSE NULL END ELSE NULL END", true);
+
                     b.Property<string>("QualitySignals")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
@@ -2578,6 +2584,9 @@ namespace K12QuestionGraph.Api.Data.Migrations
                     b.HasIndex("PrimaryKnowledgeId")
                         .HasDatabaseName("ix_question_items_primary_knowledge_id");
 
+                    b.HasIndex("QuestionNo")
+                        .HasDatabaseName("ix_question_items_question_no");
+
                     b.HasIndex("Subject", "Stage", "Status")
                         .HasDatabaseName("ix_question_items_subject_stage_status");
 
@@ -2606,6 +2615,12 @@ namespace K12QuestionGraph.Api.Data.Migrations
                         .HasColumnName("payload")
                         .HasDefaultValueSql("'{}'::jsonb");
 
+                    b.Property<Guid?>("QuestionItemId")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("uuid")
+                        .HasColumnName("question_item_id")
+                        .HasComputedColumnSql("CASE WHEN payload ->> 'questionItemId' ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' THEN (payload ->> 'questionItemId')::uuid ELSE NULL END", true);
+
                     b.Property<DateTimeOffset?>("ResolvedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("resolved_at");
@@ -2615,6 +2630,12 @@ namespace K12QuestionGraph.Api.Data.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)")
                         .HasColumnName("review_type");
+
+                    b.Property<Guid?>("SourceDocumentId")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("uuid")
+                        .HasColumnName("source_document_id")
+                        .HasComputedColumnSql("CASE WHEN payload ->> 'sourceDocumentId' ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' THEN (payload ->> 'sourceDocumentId')::uuid ELSE NULL END", true);
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -2626,6 +2647,12 @@ namespace K12QuestionGraph.Api.Data.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_review_queue_items");
+
+                    b.HasIndex("QuestionItemId")
+                        .HasDatabaseName("ix_review_queue_items_question_item_id");
+
+                    b.HasIndex("SourceDocumentId")
+                        .HasDatabaseName("ix_review_queue_items_source_document_id");
 
                     b.HasIndex("Status")
                         .HasDatabaseName("ix_review_queue_items_status");
