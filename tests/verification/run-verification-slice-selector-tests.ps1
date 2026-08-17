@@ -18,6 +18,7 @@ $docs = Assert-Selection 'docs' @('docs/18_TestStrategy.md') 'pass' @()
 if (-not $docs.gateNa) { throw 'docs-only selection must be explicit gate_na' }
 Assert-Selection 'export' @('apps/web/src/ui/PaperWorkbenchPanels.tsx') 'pass' @('frontend-tests') | Out-Null
 Assert-Selection 'ai' @('configs/ai/provider.json') 'pass' @('script-quality') | Out-Null
+Assert-Selection 'dependabot' @('.github/dependabot.yml') 'pass' @('verification-routing') | Out-Null
 
 $migration = Assert-Selection 'migration' @('apps/api/Data/Migrations/Next.cs') 'pass' @('backend-tests')
 if ($migration.escalatedProfile -ne 'Slice') { throw 'migration CI check must remain stateless Slice' }
@@ -81,7 +82,7 @@ if (($workerStepIds -join ',') -ne 'slice-worker-compile,slice-worker-tests') {
 
 [ordered]@{
     status = 'pass'
-    cases = @('api', 'web', 'worker', 'docs-gate-na', 'export', 'ai', 'migration', 'unknown', 'empty', 'quoted-comma-bundle', 'docs-execution-plan', 'api-execution-plan', 'web-execution-plan', 'worker-execution-plan')
+    cases = @('api', 'web', 'worker', 'docs-gate-na', 'export', 'ai', 'dependabot', 'migration', 'unknown', 'empty', 'quoted-comma-bundle', 'docs-execution-plan', 'api-execution-plan', 'web-execution-plan', 'worker-execution-plan')
     unknownPolicy = 'fail-closed'
     migrationProfile = 'Slice'
 } | ConvertTo-Json -Depth 5

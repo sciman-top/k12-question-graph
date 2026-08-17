@@ -39,6 +39,8 @@ public sealed class LocalFileStore(KqgDbContext dbContext, IOptions<KqgPathsOpti
                 }
             }
 
+            UploadStoragePolicy.ValidateContent(tempPath, uploadIdentity);
+
             var shard = Path.Combine("original", sha256[..2], sha256[2..4]);
             var relativePath = Path.Combine(shard, $"{sha256}{uploadIdentity.StorageExtension}").Replace('\\', '/');
 

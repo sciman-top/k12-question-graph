@@ -28,6 +28,12 @@ $apiContentRoot = Join-Path $repoRoot 'apps\api'
 . (Join-Path $PSScriptRoot 'database-env.ps1')
 . (Join-Path $PSScriptRoot 'dotenv.ps1')
 Import-KqgDotEnv -RepoRoot $repoRoot
+$resolvedAdminInternalKey = if (-not [string]::IsNullOrWhiteSpace($env:AdminInternalGuard__ApiKey)) {
+    $env:AdminInternalGuard__ApiKey
+}
+else {
+    $env:KQG_ADMIN_INTERNAL_KEY
+}
 
 function Get-ListenerProcess {
     param(
@@ -62,7 +68,8 @@ function Test-ApiReady {
     )
 
     try {
-        $response = Invoke-RestMethod -Uri "$Url/health/ready" -TimeoutSec 2
+        $headers = if ([string]::IsNullOrWhiteSpace($resolvedAdminInternalKey)) { @{} } else { @{ 'X-KQG-Admin-Key' = $resolvedAdminInternalKey } }
+        $response = Invoke-RestMethod -Uri "$Url/health/ready" -Headers $headers -TimeoutSec 2
         return $response.status -eq 'ok'
     }
     catch {
@@ -193,12 +200,7 @@ $resolvedConnectionString = Resolve-ConnectionString
 $previousConnectionString = $env:KQG_CONNECTION_STRING
 $previousEnvironment = $env:ASPNETCORE_ENVIRONMENT
 $previousAdminInternalKey = $env:AdminInternalGuard__ApiKey
-$adminInternalKey = if (-not [string]::IsNullOrWhiteSpace($previousAdminInternalKey)) {
-    $previousAdminInternalKey
-}
-else {
-    $env:KQG_ADMIN_INTERNAL_KEY
-}
+$adminInternalKey = $resolvedAdminInternalKey
 
 try {
     Ensure-ApiBinary

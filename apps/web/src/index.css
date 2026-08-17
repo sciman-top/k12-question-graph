@@ -21,6 +21,36 @@ body {
   margin: 0;
 }
 
+.auth-gate-loading,
+.auth-gate-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  box-sizing: border-box;
+  background:
+    radial-gradient(circle at top left, rgba(35, 112, 90, 0.13), transparent 36%),
+    var(--page-bg);
+}
+
+.auth-gate-card {
+  width: min(100%, 460px);
+  box-shadow: 0 18px 50px rgba(25, 37, 31, 0.12);
+}
+
+.auth-session-strip {
+  min-height: 32px;
+  padding: 4px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  color: var(--muted);
+  background: #edf4f0;
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+}
+
 button,
 input,
 textarea,

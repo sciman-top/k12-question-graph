@@ -14,7 +14,8 @@ param(
     [string] $ManifestPath = '',
     [switch] $VerifyIdempotency,
     [string] $ReportPath = 'docs\evidence\c002-source-material-import-report.json',
-    [string] $BackupManifest = ''
+    [string] $BackupManifest = '',
+    [string] $AdminInternalKey = $env:KQG_ADMIN_INTERNAL_KEY
 )
 
 $ErrorActionPreference = 'Stop'
@@ -30,6 +31,7 @@ $manifestGuard = $null
 $apiProcess = $null
 $previousConnectionString = $env:KQG_CONNECTION_STRING
 $previousFileStoreRoot = $env:KqgPaths__FileStoreRoot
+$previousAdminInternalKey = $env:AdminInternalGuard__ApiKey
 
 function Get-FreeTcpPort {
     $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Parse('127.0.0.1'), 0)
@@ -49,7 +51,8 @@ function Wait-ApiReady([System.Diagnostics.Process] $Process, [string] $ReadyUrl
         }
 
         try {
-            $health = Invoke-RestMethod -Uri "$ReadyUrl/health/ready" -TimeoutSec 2
+            $headers = if ([string]::IsNullOrWhiteSpace($AdminInternalKey)) { @{} } else { @{ 'X-KQG-Admin-Key' = $AdminInternalKey } }
+            $health = Invoke-RestMethod -Uri "$ReadyUrl/health/ready" -Headers $headers -TimeoutSec 2
             if ($health.status -eq 'ok') {
                 return
             }
@@ -270,6 +273,10 @@ function Upload-SourceMaterial([string] $BaseUrl, [object] $Metadata) {
         '-F', "mayUseForTrendAnalysis=$(ConvertTo-CurlBool $Metadata.mayUseForTrendAnalysis)"
     )
 
+    if (-not [string]::IsNullOrWhiteSpace($AdminInternalKey)) {
+        $args += @('-H', "X-KQG-Admin-Key: $AdminInternalKey")
+    }
+
     if ($null -ne $Metadata.year) {
         $args += @('-F', "year=$($Metadata.year)")
     }
@@ -336,6 +343,9 @@ try {
         $logErr = Join-Path $repoRoot 'docs\evidence\c002-source-import-api.err.log'
         $env:KQG_CONNECTION_STRING = "Host=$DatabaseHost;Port=$DatabasePort;Database=$DatabaseName;Username=$DatabaseUser;Password=$DatabasePassword"
         $env:KqgPaths__FileStoreRoot = $FileStoreRoot
+        if (-not [string]::IsNullOrWhiteSpace($AdminInternalKey)) {
+            $env:AdminInternalGuard__ApiKey = $AdminInternalKey
+        }
 
         dotnet ef database update --project apps\api\K12QuestionGraph.Api.csproj --startup-project apps\api\K12QuestionGraph.Api.csproj --configuration Release --no-build | Write-Host
         if ($LASTEXITCODE -ne 0) {
@@ -474,5 +484,6 @@ finally {
     }
     $env:KQG_CONNECTION_STRING = $previousConnectionString
     $env:KqgPaths__FileStoreRoot = $previousFileStoreRoot
+    $env:AdminInternalGuard__ApiKey = $previousAdminInternalKey
     Pop-Location
 }

@@ -17,6 +17,7 @@ using K12QuestionGraph.Api.Questions;
 using K12QuestionGraph.Api.Scores;
 using K12QuestionGraph.Api.Security;
 using K12QuestionGraph.Api.Workers;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting.WindowsServices;
 using System.Globalization;
@@ -31,6 +32,28 @@ builder.Host.UseWindowsService();
 builder.Services.AddOpenApi();
 builder.Services.AddProblemDetails();
 builder.Services.AddDataProtection();
+builder.Services
+    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.Cookie.Name = "KQG.AdminSession";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Strict;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        options.SlidingExpiration = true;
+        options.Events.OnRedirectToLogin = context =>
+        {
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            return Task.CompletedTask;
+        };
+        options.Events.OnRedirectToAccessDenied = context =>
+        {
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            return Task.CompletedTask;
+        };
+    });
+builder.Services.AddAuthorization();
 builder.Services.Configure<KqgPathsOptions>(builder.Configuration.GetSection("KqgPaths"));
 builder.Services.Configure<PythonWorkerOptions>(builder.Configuration.GetSection("PythonWorker"));
 builder.Services.Configure<AiRoutingOptions>(builder.Configuration.GetSection("AiRouting"));
@@ -56,20 +79,33 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler();
 }
 
+app.UseDefaultFiles();
+app.UseStaticFiles();
+app.UseAuthentication();
 app.UseAdminInternalEndpointGuard();
+app.UseAuthorization();
+
+app.MapAdminSessionEndpoints();
 
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
 
-app.MapGet("/health", (IWebHostEnvironment environment, IConfiguration configuration) =>
+app.MapGet("/health", () =>
+    Results.Ok(new HealthResponse(
+        Status: "ok",
+        Service: "K12QuestionGraph.Api")))
+.AllowAnonymous()
+.WithName("Health");
+
+app.MapGet("/health/details", (IWebHostEnvironment environment, IConfiguration configuration) =>
 {
     var paths = configuration.GetSection("KqgPaths").Get<KqgPathsOptions>() ?? new KqgPathsOptions();
     var contentRoot = Path.GetFullPath(environment.ContentRootPath);
     var dataRoot = Path.GetFullPath(paths.DataRoot);
 
-    return Results.Ok(new HealthResponse
+    return Results.Ok(new HealthDetailsResponse
     (
         Status: "ok",
         Service: "K12QuestionGraph.Api",
@@ -81,7 +117,7 @@ app.MapGet("/health", (IWebHostEnvironment environment, IConfiguration configura
         ProgramDataSeparated: !string.Equals(contentRoot, dataRoot, StringComparison.OrdinalIgnoreCase)
     ));
 })
-.WithName("Health");
+.WithName("HealthDetails");
 
 app.MapGet("/health/db", async (KqgDbContext dbContext, CancellationToken cancellationToken) =>
 {
@@ -939,14 +975,24 @@ app.MapPost("/files", async (HttpRequest request, IFileStore fileStore, Cancella
             statusCode: StatusCodes.Status413PayloadTooLarge);
     }
 
-    await using var stream = file.OpenReadStream();
-    var stored = await fileStore.StoreOriginalAsync(
-        stream,
-        file.FileName,
-        file.ContentType,
-        file.Length,
-        SourceMetadataFromForm(form, file.FileName),
-        cancellationToken);
+    FileAssetResponse stored;
+    try
+    {
+        await using var stream = file.OpenReadStream();
+        stored = await fileStore.StoreOriginalAsync(
+            stream,
+            file.FileName,
+            file.ContentType,
+            file.Length,
+            SourceMetadataFromForm(form, file.FileName),
+            cancellationToken);
+    }
+    catch (UnsupportedUploadTypeException exception)
+    {
+        return Results.Json(
+            new { error = exception.Code },
+            statusCode: StatusCodes.Status415UnsupportedMediaType);
+    }
 
     return Results.Created($"/files/{stored.Id}", stored);
 })
@@ -1141,14 +1187,24 @@ app.MapPost("/imports", async (HttpRequest request, IFileStore fileStore, KqgDbC
             statusCode: StatusCodes.Status413PayloadTooLarge);
     }
 
-    await using var stream = file.OpenReadStream();
-    var stored = await fileStore.StoreOriginalAsync(
-        stream,
-        file.FileName,
-        file.ContentType,
-        file.Length,
-        SourceMetadataFromForm(form, file.FileName),
-        cancellationToken);
+    FileAssetResponse stored;
+    try
+    {
+        await using var stream = file.OpenReadStream();
+        stored = await fileStore.StoreOriginalAsync(
+            stream,
+            file.FileName,
+            file.ContentType,
+            file.Length,
+            SourceMetadataFromForm(form, file.FileName),
+            cancellationToken);
+    }
+    catch (UnsupportedUploadTypeException exception)
+    {
+        return Results.Json(
+            new { error = exception.Code },
+            statusCode: StatusCodes.Status415UnsupportedMediaType);
+    }
 
     var idempotencyKey = $"import:original:{stored.Sha256}";
     var existing = await dbContext.ImportJobs
@@ -1263,6 +1319,11 @@ app.MapPatch("/source-regions/{id:guid}", async (
         return Results.NotFound(new { error = "source_region_not_found" });
     }
 
+    if (request.ClearScreenshot is true && request.ScreenshotRelativePath is not null)
+    {
+        return Results.BadRequest(new { error = "source_region_screenshot_clear_conflict" });
+    }
+
     var next = new SourceRegionCreateRequest(
         request.PageNumber ?? region.PageNumber,
         request.X ?? region.X,
@@ -1270,7 +1331,7 @@ app.MapPatch("/source-regions/{id:guid}", async (
         request.Width ?? region.Width,
         request.Height ?? region.Height,
         request.CoordinateUnit ?? region.CoordinateUnit,
-        request.ScreenshotRelativePath ?? region.ScreenshotRelativePath,
+        request.ClearScreenshot is true ? null : request.ScreenshotRelativePath ?? region.ScreenshotRelativePath,
         request.RegionType ?? region.RegionType);
     var validationError = ValidateSourceRegionRequest(next);
     if (validationError is not null)
@@ -2068,6 +2129,7 @@ app.MapPost("/review-workbench/actions", async (
 
                 var question = new QuestionItem
                 {
+                    Id = Guid.NewGuid(),
                     Subject = "physics",
                     Stage = "junior_middle_school",
                     Status = QuestionStatuses.Draft,
@@ -2082,16 +2144,14 @@ app.MapPost("/review-workbench/actions", async (
                     UpdatedAt = now
                 };
 
-                dbContext.QuestionItems.Add(question);
-                await dbContext.SaveChangesAsync(cancellationToken);
-                createdQuestionId = question.Id;
-
                 foreach (var block in blocks)
                 {
                     block.QuestionItemId = question.Id;
                 }
 
+                dbContext.QuestionItems.Add(question);
                 dbContext.QuestionBlocks.AddRange(blocks);
+                createdQuestionId = question.Id;
                 foreach (var candidate in candidates)
                 {
                     candidate.Status = CutCandidateStatuses.Accepted;
@@ -2864,6 +2924,11 @@ app.MapPatch("/questions/{id:guid}", async (
     var nextSortOrder = blocks.Count == 0 ? 0 : blocks.Max(x => x.SortOrder) + 1;
     foreach (var blockPatch in requestedBlocks)
     {
+        if (blockPatch.ClearSourceRegion is true && blockPatch.SourceRegionId.HasValue)
+        {
+            return Results.BadRequest(new { error = "question_block_source_region_clear_conflict" });
+        }
+
         QuestionBlock block;
         if (blockPatch.Id.HasValue)
         {
@@ -2898,7 +2963,11 @@ app.MapPatch("/questions/{id:guid}", async (
         {
             block.Content = SerializeJson(blockPatch.Content.Value);
         }
-        if (blockPatch.SourceRegionId.HasValue)
+        if (blockPatch.ClearSourceRegion is true)
+        {
+            block.SourceRegionId = null;
+        }
+        else if (blockPatch.SourceRegionId.HasValue)
         {
             block.SourceRegionId = blockPatch.SourceRegionId;
         }
@@ -3550,6 +3619,17 @@ app.MapPost("/imports/{id:guid}/status", async (
         return Results.NotFound();
     }
 
+    var now = DateTimeOffset.UtcNow;
+    if (job.LockedUntil > now &&
+        !string.Equals(job.LockedBy, request.LockedBy, StringComparison.Ordinal))
+    {
+        return Results.Conflict(new
+        {
+            error = "import_job_lease_owned",
+            lockedUntil = job.LockedUntil
+        });
+    }
+
     if (!ImportJobTransitions.IsAllowed(job.Status, request.Status))
     {
         return Results.Conflict(new
@@ -3566,7 +3646,6 @@ app.MapPost("/imports/{id:guid}/status", async (
     job.LastErrorCode = request.LastErrorCode;
     job.LastErrorMessage = request.LastErrorMessage;
 
-    var now = DateTimeOffset.UtcNow;
     if (request.Status == JobStatuses.Running)
     {
         job.StartedAt ??= now;
@@ -3625,27 +3704,51 @@ app.MapPost("/imports/{id:guid}/worker-smoke", async (
         }
     }
 
-    var canStartWorker = ImportJobTransitions.IsAllowed(job.Status, JobStatuses.Running);
-    var canReplaySucceededJob = job.Status == JobStatuses.Succeeded && simulateFailure != true;
-    var canRetryFailedJob = job.Status == JobStatuses.Failed && simulateFailure != true;
-    if (!canStartWorker && !canReplaySucceededJob && !canRetryFailedJob)
+    var now = DateTimeOffset.UtcNow;
+    if (!ImportJobLeaseService.CanAcquire(
+        job.Status,
+        simulateFailure == true,
+        job.AttemptCount,
+        job.MaxAttempts,
+        job.LockedUntil,
+        now))
     {
-        return Results.Conflict(new { error = "invalid_status_transition", from = job.Status, to = JobStatuses.Running });
+        return Results.Conflict(new
+        {
+            error = job.LockedUntil > now ? "worker_lease_unavailable" : "invalid_status_transition",
+            from = job.Status,
+            to = JobStatuses.Running,
+            lockedUntil = job.LockedUntil
+        });
     }
 
-    var now = DateTimeOffset.UtcNow;
-    if (canStartWorker || canRetryFailedJob)
+    var lease = await ImportJobLeaseService.TryAcquireAsync(
+        dbContext,
+        job.Id,
+        simulateFailure == true,
+        now,
+        cancellationToken);
+    if (!lease.Acquired || string.IsNullOrWhiteSpace(lease.LeaseOwner))
     {
-        job.Status = JobStatuses.Running;
-        job.StartedAt ??= now;
-        job.FinishedAt = null;
-        job.AttemptCount += 1;
-        job.LockedBy = "document-worker-smoke";
-        job.LockedUntil = now.AddMinutes(5);
-        await dbContext.SaveChangesAsync(cancellationToken);
+        return Results.Conflict(new { error = "worker_lease_unavailable" });
     }
+
+    dbContext.Entry(job).State = EntityState.Detached;
+    job = await dbContext.ImportJobs.SingleAsync(x => x.Id == id, cancellationToken);
 
     var result = await workerClient.RunSmokeAsync(job.Id, fileAsset.RelativePath, simulateFailure == true, cancellationToken);
+    var ownsMaterializationLease = await ImportJobLeaseService.RenewForMaterializationAsync(
+        dbContext,
+        job.Id,
+        lease.LeaseOwner,
+        DateTimeOffset.UtcNow,
+        cancellationToken);
+    if (!ownsMaterializationLease)
+    {
+        return Results.Conflict(new { error = "worker_lease_lost" });
+    }
+
+    await dbContext.Entry(job).ReloadAsync(cancellationToken);
     if (result.ExitCode == 0)
     {
         job.Status = JobStatuses.Succeeded;
@@ -3664,7 +3767,12 @@ app.MapPost("/imports/{id:guid}/worker-smoke", async (
     job.FinishedAt = DateTimeOffset.UtcNow;
 
     var processing = result.ExitCode == 0 && sourceDocument is not null
-        ? await SeedLocalImportCandidatesAsync(dbContext, sourceDocument, result.StandardOutput, cancellationToken)
+        ? await SeedLocalImportCandidatesAsync(
+            dbContext,
+            sourceDocument,
+            result.StandardOutput,
+            lease.LeaseOwner,
+            cancellationToken)
         : ImportWorkerProcessingSummary.Empty;
 
     await dbContext.SaveChangesAsync(cancellationToken);
@@ -3680,6 +3788,8 @@ app.MapPost("/imports/{id:guid}/worker-smoke", async (
     });
 })
 .WithName("RunDocumentWorkerSmoke");
+
+app.MapFallbackToFile("index.html").AllowAnonymous();
 
 app.Run();
 
@@ -3727,6 +3837,7 @@ static async Task<ImportWorkerProcessingSummary> SeedLocalImportCandidatesAsync(
     KqgDbContext dbContext,
     SourceDocument sourceDocument,
     string workerOutput,
+    string generationId,
     CancellationToken cancellationToken)
 {
     if (string.IsNullOrWhiteSpace(workerOutput))
@@ -3809,6 +3920,7 @@ static async Task<ImportWorkerProcessingSummary> SeedLocalImportCandidatesAsync(
                     blockType,
                     textPreview,
                     takeoverRequired,
+                    generationId,
                     sourceRegionId = region.Id
                 }),
                 FailureReason = takeoverRequired ? "requires_manual_review" : string.Empty,
@@ -3817,6 +3929,7 @@ static async Task<ImportWorkerProcessingSummary> SeedLocalImportCandidatesAsync(
                 {
                     generatedBy = "document_worker_local",
                     generatedAt = now,
+                    generationId,
                     adapterName,
                     source = "ImportJob.worker-smoke"
                 }),
@@ -3836,6 +3949,7 @@ static async Task<ImportWorkerProcessingSummary> SeedLocalImportCandidatesAsync(
                         sourceDocumentId = sourceDocument.Id,
                         sourceRegionId = region.Id,
                         candidateId = candidate.Id,
+                        generationId,
                         confidence,
                         requiredAction = "manual_review",
                         reason = "document_worker_low_confidence_or_header",

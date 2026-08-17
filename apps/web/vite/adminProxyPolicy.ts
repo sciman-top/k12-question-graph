@@ -1,12 +1,8 @@
 export const ADMIN_INTERNAL_KEY_HEADER = 'X-KQG-Admin-Key'
-
-function startsWithSegment(path: string, segment: string) {
-  return path === segment || path.startsWith(`${segment}/`)
-}
+export const OPERATOR_ROLE_HEADER = 'X-KQG-Operator-Role'
+export const OPERATOR_ID_HEADER = 'X-KQG-Operator-Id'
 
 export function requiresAdminProxyKey(requestUrl: string) {
   const path = requestUrl.split(/[?#]/, 1)[0].toLowerCase()
-  return startsWithSegment(path, '/api/admin')
-    || startsWithSegment(path, '/internal/ai')
-    || (startsWithSegment(path, '/source-documents') && path.endsWith('/authorization'))
+  return path !== '/health' && path.startsWith('/')
 }

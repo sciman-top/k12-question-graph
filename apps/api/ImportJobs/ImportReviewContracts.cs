@@ -23,6 +23,7 @@ public sealed record SourceRegionUpdateRequest(
     decimal? Height,
     string? CoordinateUnit,
     string? ScreenshotRelativePath,
+    bool? ClearScreenshot,
     string? RegionType,
     string ReviewedBy,
     string Reason);

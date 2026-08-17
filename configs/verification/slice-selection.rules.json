@@ -29,6 +29,7 @@
     { "pattern": "schemas/verification/evidence-index.schema.json", "owner": "evidence", "profile": "Slice", "commands": ["evidence-index"], "reason": "current evidence index schema changed" },
     { "pattern": "schemas/verification/*", "owner": "verification", "profile": "Slice", "commands": ["verification-routing"], "reason": "verification-only schema changed" },
     { "pattern": "tests/verification/*", "owner": "verification", "profile": "Slice", "commands": ["verification-routing"], "reason": "verification routing regression changed" },
+    { "pattern": ".github/dependabot.yml", "owner": "verification", "profile": "Slice", "commands": ["verification-routing"], "reason": "dependency update policy changed" },
     { "pattern": ".github/workflows/*", "owner": "verification", "profile": "Slice", "commands": ["verification-routing"], "reason": "CI verification entry changed" },
     { "pattern": "tools/README.md", "owner": "reference-basis", "profile": "Slice", "commands": ["reference-basis"], "reason": "reference and operator navigation changed" },
     { "pattern": "tasks/reference-basis-*", "owner": "reference-basis", "profile": "Slice", "commands": ["reference-basis"], "reason": "reference policy or module mapping changed" },

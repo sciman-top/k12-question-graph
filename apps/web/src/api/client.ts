@@ -67,7 +67,7 @@ const configuredApiBaseUrl = import.meta.env.VITE_KQG_API_BASE_URL ?? ''
 const apiBaseUrl = import.meta.env.DEV ? '' : configuredApiBaseUrl
 
 type JsonRequestInit = {
-  method?: 'GET' | 'POST' | 'PATCH'
+  method?: 'GET' | 'POST' | 'PATCH' | 'DELETE'
   headers?: HeadersInit
   body?: BodyInit | null
   includeJsonContentType?: boolean
@@ -76,6 +76,13 @@ type JsonRequestInit = {
 
 const defaultRequestTimeoutMs = 30_000
 const longRunningRequestTimeoutMs = 120_000
+
+export type AdminSessionContract = {
+  authenticated: boolean
+  operatorId: string | null
+  role: string | null
+  expiresAt: string | null
+}
 
 function buildApiUrl(path: string) {
   if (!apiBaseUrl) {
@@ -131,6 +138,7 @@ async function requestResponse(
   try {
     const response = await fetch(buildApiUrl(path), {
       method: init?.method,
+      credentials: 'same-origin',
       headers: {
         Accept: 'application/json',
         ...(includeJsonContentType && init?.body ? { 'Content-Type': 'application/json' } : {}),
@@ -173,15 +181,6 @@ async function requestJson<T>(
   return parseJsonResponse(response.data, normalize)
 }
 
-function adminHeaders() {
-  return {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
-    'X-KQG-Operator-Role': 'admin',
-    'X-KQG-Operator-Id': 'codex-admin',
-  }
-}
-
 async function postJson<T>(
   path: string,
   body: unknown,
@@ -205,7 +204,7 @@ async function patchJson<T>(
 }
 
 async function requestAdminJson<T>(path: string, normalize: (value: unknown) => T): Promise<ApiResult<T>> {
-  return requestJson(path, normalize, { headers: adminHeaders() })
+  return requestJson(path, normalize)
 }
 
 async function postAdminJson<T>(
@@ -216,10 +215,32 @@ async function postAdminJson<T>(
 ): Promise<ApiResult<T>> {
   return requestJson(path, normalize, {
     method: 'POST',
-    headers: adminHeaders(),
     body: JSON.stringify(body),
     timeoutMs,
   })
+}
+
+function normalizeAdminSession(value: unknown): AdminSessionContract {
+  const record = value && typeof value === 'object' ? value as Record<string, unknown> : {}
+  return {
+    authenticated: record.authenticated === true,
+    operatorId: typeof record.operatorId === 'string' ? record.operatorId : null,
+    role: typeof record.role === 'string' ? record.role : null,
+    expiresAt: typeof record.expiresAt === 'string' ? record.expiresAt : null,
+  }
+}
+
+export async function getAdminSession(): Promise<ApiResult<AdminSessionContract>> {
+  return requestJson('/auth/session', normalizeAdminSession)
+}
+
+export async function createAdminSession(apiKey: string): Promise<ApiResult<AdminSessionContract>> {
+  return postJson('/auth/session', { apiKey }, normalizeAdminSession)
+}
+
+export async function deleteAdminSession(): Promise<ApiResult<null>> {
+  const response = await requestResponse('/auth/session', { method: 'DELETE' })
+  return response.ok ? { ok: true, data: null } : response
 }
 
 export async function getReadyHealth(): Promise<ApiResult<ReadyHealthContract>> {
@@ -525,6 +546,7 @@ export async function updateQuestion(
       sortOrder?: number
       content?: Record<string, unknown>
       sourceRegionId?: string | null
+      clearSourceRegion?: boolean
     }>
     answer?: Record<string, unknown>
     solution?: Record<string, unknown>
@@ -532,9 +554,15 @@ export async function updateQuestion(
     knowledgeTags?: string[]
   },
 ): Promise<ApiResult<QuestionRevisionContract>> {
+  const normalizedRequest = {
+    ...request,
+    blocks: request.blocks?.map((block) => block.sourceRegionId === null
+      ? { ...block, sourceRegionId: undefined, clearSourceRegion: true }
+      : block),
+  }
   return patchJson(
     `/questions/${encodeURIComponent(questionId)}`,
-    request,
+    normalizedRequest,
     normalizeQuestionRevisionResponse,
   )
 }
@@ -549,14 +577,18 @@ export async function updateSourceRegion(
     height?: number
     coordinateUnit?: string
     screenshotRelativePath?: string | null
+    clearScreenshot?: boolean
     regionType?: string
     reviewedBy: string
     reason: string
   },
 ): Promise<ApiResult<SourceRegionRevisionContract>> {
+  const normalizedRequest = request.screenshotRelativePath === null
+    ? { ...request, screenshotRelativePath: undefined, clearScreenshot: true }
+    : request
   return patchJson(
     `/source-regions/${encodeURIComponent(regionId)}`,
-    request,
+    normalizedRequest,
     normalizeSourceRegionRevisionResponse,
   )
 }

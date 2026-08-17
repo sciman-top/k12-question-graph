@@ -8,7 +8,8 @@ param(
     [string]$DatabaseUser = 'postgres',
     [string]$DatabaseHost = '127.0.0.1',
     [int]$DatabasePort = 5432,
-    [string]$DatabasePassword = $env:PGPASSWORD
+    [string]$DatabasePassword = $env:PGPASSWORD,
+    [string]$AdminInternalKey
 )
 
 $ErrorActionPreference = 'Stop'
@@ -17,7 +18,7 @@ $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 $DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword
 $packageRoot = Join-Path $repoRoot $OutputRoot
 $apiPublishRoot = Join-Path $packageRoot 'api'
-$webPublishRoot = Join-Path $packageRoot 'web'
+$webPublishRoot = Join-Path $apiPublishRoot 'wwwroot'
 $workerPublishRoot = Join-Path $apiPublishRoot 'worker/document'
 $workerFallbackRoot = Join-Path $packageRoot 'workers/document'
 
@@ -73,9 +74,10 @@ try {
             Pop-Location
         }
 
-        New-Item -ItemType Directory -Path $webPublishRoot -Force | Out-Null
-        Copy-Item -Path (Join-Path $repoRoot 'apps/web/dist/*') -Destination $webPublishRoot -Recurse -Force
     }
+
+    $webDistRoot = Join-Path $repoRoot 'apps/web/dist'
+    Assert-True (Test-Path -LiteralPath (Join-Path $webDistRoot 'index.html')) 'web dist is missing index.html; run without -SkipWebBuild or build the web app first'
 
     $publishArgs = @(
         'publish',
@@ -97,6 +99,9 @@ try {
 
     dotnet @publishArgs | Write-Host
     if ($LASTEXITCODE -ne 0) { throw 'dotnet publish failed' }
+
+    New-Item -ItemType Directory -Path $webPublishRoot -Force | Out-Null
+    Copy-Item -Path (Join-Path $webDistRoot '*') -Destination $webPublishRoot -Recurse -Force
 
     New-Item -ItemType Directory -Path $workerPublishRoot, $workerFallbackRoot -Force | Out-Null
     $workerSource = Join-Path $repoRoot 'workers/document/worker.py'
@@ -128,19 +133,34 @@ try {
 
     $previousAspNetCoreEnvironment = $env:ASPNETCORE_ENVIRONMENT
     $previousConnectionString = $env:KQG_CONNECTION_STRING
+    $previousAdminInternalKey = $env:AdminInternalGuard__ApiKey
+    $effectiveAdminInternalKey = if ([string]::IsNullOrWhiteSpace($AdminInternalKey)) {
+        [Convert]::ToHexString([Security.Cryptography.RandomNumberGenerator]::GetBytes(32)).ToLowerInvariant()
+    }
+    else {
+        $AdminInternalKey.Trim()
+    }
     $env:ASPNETCORE_ENVIRONMENT = 'Production'
     $env:KQG_CONNECTION_STRING = "Host=$DatabaseHost;Port=$DatabasePort;Database=$DatabaseName;Username=$DatabaseUser;Password=$DatabasePassword"
+    $env:AdminInternalGuard__ApiKey = $effectiveAdminInternalKey
     $process = Start-Process -FilePath $apiExe -ArgumentList @('--urls', $apiUrl, '--contentRoot', $apiPublishRoot) -WorkingDirectory $tempRunDir -PassThru -WindowStyle Hidden -RedirectStandardOutput $stdoutLog -RedirectStandardError $stderrLog
     try {
         $health = Wait-Health -Process $process -HealthUrl "$apiUrl/health"
-        $ready = Invoke-RestMethod -Uri "$apiUrl/health/ready" -TimeoutSec 5
+        $authHeaders = @{ 'X-KQG-Admin-Key' = $effectiveAdminInternalKey }
+        $unauthorizedReady = Invoke-WebRequest -Uri "$apiUrl/health/ready" -SkipHttpErrorCheck -TimeoutSec 5
+        Assert-True ($unauthorizedReady.StatusCode -eq 401) "protected readiness must reject unauthenticated requests, got: $($unauthorizedReady.StatusCode)"
+        $details = Invoke-RestMethod -Uri "$apiUrl/health/details" -Headers $authHeaders -TimeoutSec 5
+        $ready = Invoke-RestMethod -Uri "$apiUrl/health/ready" -Headers $authHeaders -TimeoutSec 5
+        $webResponse = Invoke-WebRequest -Uri "$apiUrl/" -TimeoutSec 5
+        Assert-True ($webResponse.StatusCode -eq 200) "published teacher web returned: $($webResponse.StatusCode)"
+        Assert-True ($webResponse.Content -match '<div\s+id="root"') 'published teacher web does not contain the React root element'
 
         $workerCheck = @($ready.checks | Where-Object { $_.name -eq 'document_worker_script' })
         Assert-True ($workerCheck.Count -eq 1) 'missing document_worker_script readiness check'
         Assert-True ([bool]$workerCheck[0].ok) ('document worker script check failed: ' + [string]$workerCheck[0].detail)
 
-        $healthContentRoot = [string]$health.contentRoot
-        $healthDataRoot = [string]$health.dataRoot
+        $healthContentRoot = [string]$details.contentRoot
+        $healthDataRoot = [string]$details.dataRoot
         Assert-True ($healthContentRoot -eq (Resolve-Path -LiteralPath $apiPublishRoot).Path) "content root mismatch: $healthContentRoot"
         Assert-True ($healthDataRoot -ne $healthContentRoot) 'program and data roots must be separated'
 
@@ -160,6 +180,8 @@ try {
                 contentRoot = $healthContentRoot
                 dataRoot = $healthDataRoot
                 workerScriptCheck = $workerCheck[0]
+                teacherWebStatus = $webResponse.StatusCode
+                unauthenticatedReadinessStatus = $unauthorizedReady.StatusCode
             }
             evidence = [ordered]@{
                 stdoutLog = $stdoutLog
@@ -174,6 +196,7 @@ try {
         Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
         $env:ASPNETCORE_ENVIRONMENT = $previousAspNetCoreEnvironment
         $env:KQG_CONNECTION_STRING = $previousConnectionString
+        $env:AdminInternalGuard__ApiKey = $previousAdminInternalKey
     }
 }
 finally {

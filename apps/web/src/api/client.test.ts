@@ -138,6 +138,35 @@ describe('api client error handling', () => {
     expect(result.error.status).toBe(503)
   })
 
+  it('serializes explicit nullable relation clears as unambiguous API actions', async () => {
+    const requests: RequestInit[] = []
+    globalThis.fetch = vi.fn((_input, init) => {
+      requests.push(init ?? {})
+      return Promise.resolve(new Response('{', {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }))
+    }) as typeof fetch
+
+    await updateQuestion('question-1', {
+      reviewedBy: 'teacher-1',
+      reason: 'remove incorrect source',
+      blocks: [{ id: 'block-1', sourceRegionId: null }],
+    })
+    await updateSourceRegion('region-1', {
+      reviewedBy: 'teacher-1',
+      reason: 'remove stale screenshot',
+      screenshotRelativePath: null,
+    })
+
+    const questionBody = JSON.parse(String(requests[0].body))
+    expect(questionBody.blocks[0]).toMatchObject({ id: 'block-1', clearSourceRegion: true })
+    expect(questionBody.blocks[0]).not.toHaveProperty('sourceRegionId')
+    const regionBody = JSON.parse(String(requests[1].body))
+    expect(regionBody).toMatchObject({ clearScreenshot: true })
+    expect(regionBody).not.toHaveProperty('screenshotRelativePath')
+  })
+
   it('maps review workbench post failures through shared network_error handling', async () => {
     globalThis.fetch = vi.fn().mockRejectedValue(new Error('connection reset')) as typeof fetch
 

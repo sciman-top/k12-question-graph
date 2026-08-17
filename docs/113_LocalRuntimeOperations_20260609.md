@@ -23,7 +23,8 @@
 
 - Web：`http://127.0.0.1:5173/`
 - API：`http://127.0.0.1:5275`
-- API readiness：`http://127.0.0.1:5275/health/ready`
+- API liveness（公开、无路径信息）：`http://127.0.0.1:5275/health`
+- API readiness（需认证）：`http://127.0.0.1:5275/health/ready`
 
 ## 3. 最常用命令
 
@@ -59,7 +60,7 @@
 - PID 与日志写入 `logs/dev-api/`
 - 优先读取本机 `KQG_CONNECTION_STRING`
 - 若未提供连接串，则回退到 `PGPASSWORD` / 脚本参数拼接本地 PostgreSQL 连接
-- 管理员 guard 优先读取 ASP.NET Core 原生 `AdminInternalGuard__ApiKey`；本地启动脚本可从根 `.env` 的 `KQG_ADMIN_INTERNAL_KEY` 做进程级投影。
+- 管理员 guard 优先读取 ASP.NET Core 原生 `AdminInternalGuard__ApiKey`；本地启动脚本可从根 `.env` 的 `KQG_ADMIN_INTERNAL_KEY` 做进程级投影。浏览器不再发送角色/操作者身份头，而是通过 `/auth/session` 建立服务端签发的 HttpOnly 会话；远程登录必须使用 HTTPS。
 - Vite 只在服务器端代理阶段向 `/api/admin`、`/internal/ai` 和来源授权路由注入该密钥；不得使用 `VITE_*` 命名，否则会进入浏览器 bundle。
 - 脱离本地 Vite 代理的部署默认保持 fail-closed，生产身份认证应由可信 reverse proxy、session/BFF 或等价服务器端机制承担。
 - 当前 Quick/Slice 不扫描或停止常驻 API/Web 进程；有状态 Release 只在明确授权后运行，并要求执行前后进程状态一致。
@@ -184,7 +185,7 @@
 再看 API readiness：
 
 ```powershell
-Invoke-WebRequest -UseBasicParsing http://127.0.0.1:5275/health/ready
+Invoke-WebRequest -UseBasicParsing http://127.0.0.1:5275/health
 ```
 
 如果还是不确定，再打开浏览器看：

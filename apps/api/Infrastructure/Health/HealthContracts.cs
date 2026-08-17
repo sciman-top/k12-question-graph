@@ -2,6 +2,10 @@ namespace K12QuestionGraph.Api.Infrastructure.Health;
 
 public sealed record HealthResponse(
     string Status,
+    string Service);
+
+public sealed record HealthDetailsResponse(
+    string Status,
     string Service,
     string ContentRoot,
     string DataRoot,

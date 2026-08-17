@@ -126,6 +126,14 @@ class WorkerHelpersTests(unittest.TestCase):
         self.assertTrue(pages[0]["layoutBlocks"][0]["takeoverRequired"])
         self.assertEqual(pages[1]["layoutBlocks"][0]["sourceRegion"]["pageObject"], 12)
 
+    def test_build_document_model_rejects_unsupported_document_type(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            target = pathlib.Path(temporary_directory) / "payload.exe"
+            target.write_bytes(b"MZ")
+
+            with self.assertRaisesRegex(ValueError, "unsupported_document_type"):
+                worker.build_document_model("job-1", "original/payload.exe", target)
+
     def test_sparse_pdf_text_requires_ocr_fallback(self) -> None:
         sparse_pages = [
             {

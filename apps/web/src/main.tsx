@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { QueryClientProvider } from '@tanstack/react-query'
 import './index.css'
 import App from './App.tsx'
+import { AdminSessionGate } from './auth/AdminSessionGate'
 import { createAppQueryClient } from './state/queryClient'
 
 const queryClient = createAppQueryClient()
@@ -10,7 +11,9 @@ const queryClient = createAppQueryClient()
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <App />
+      <AdminSessionGate>
+        <App />
+      </AdminSessionGate>
     </QueryClientProvider>
   </StrictMode>,
 )

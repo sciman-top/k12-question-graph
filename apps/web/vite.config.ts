@@ -1,7 +1,12 @@
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import type { ProxyOptions } from 'vite'
-import { ADMIN_INTERNAL_KEY_HEADER, requiresAdminProxyKey } from './vite/adminProxyPolicy.ts'
+import {
+  ADMIN_INTERNAL_KEY_HEADER,
+  OPERATOR_ID_HEADER,
+  OPERATOR_ROLE_HEADER,
+  requiresAdminProxyKey,
+} from './vite/adminProxyPolicy.ts'
 
 const localApiProxy = {
   target: process.env.VITE_KQG_API_PROXY_TARGET ?? 'http://127.0.0.1:5275',
@@ -10,6 +15,8 @@ const localApiProxy = {
     const adminInternalKey = process.env.KQG_ADMIN_INTERNAL_KEY?.trim()
     proxy.on('proxyReq', (proxyRequest, request) => {
       proxyRequest.removeHeader(ADMIN_INTERNAL_KEY_HEADER)
+      proxyRequest.removeHeader(OPERATOR_ROLE_HEADER)
+      proxyRequest.removeHeader(OPERATOR_ID_HEADER)
       if (adminInternalKey && requiresAdminProxyKey(request.url ?? '')) {
         proxyRequest.setHeader(ADMIN_INTERNAL_KEY_HEADER, adminInternalKey)
       }
@@ -63,15 +70,23 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/api/admin': localApiProxy,
+      '/auth': localApiProxy,
+      '/api': localApiProxy,
+      '/internal': localApiProxy,
       '/health': localApiProxy,
       '/knowledge-evidence': localApiProxy,
+      '/knowledge-version-explanations': localApiProxy,
+      '/ai-suggestions': localApiProxy,
+      '/feedback-events': localApiProxy,
+      '/files': localApiProxy,
       '/imports': localApiProxy,
       '/source-documents': localApiProxy,
       '/source-regions': localApiProxy,
       '/questions': localApiProxy,
       '/review-queue': localApiProxy,
       '/review-workbench': localApiProxy,
+      '/paper-baskets': localApiProxy,
+      '/paper-requests': localApiProxy,
       '/paper-blueprints': localApiProxy,
       '/assessments': localApiProxy,
       '/score-imports': localApiProxy,

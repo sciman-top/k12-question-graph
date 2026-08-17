@@ -44,7 +44,8 @@ public sealed record QuestionBlockUpdateRequest(
     string? BlockType,
     int? SortOrder,
     JsonElement? Content,
-    Guid? SourceRegionId);
+    Guid? SourceRegionId,
+    bool? ClearSourceRegion);
 
 public sealed record QuestionAssetCreateRequest(
     Guid? FileAssetId,

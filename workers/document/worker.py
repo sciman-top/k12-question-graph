@@ -672,7 +672,7 @@ def pdf_text_is_too_sparse(pages: list[dict]) -> bool:
 
 def build_document_model(job_id: str, relative_path: str, target: pathlib.Path) -> dict:
     warnings = []
-    adapter_name = "placeholder_document_adapter"
+    adapter_name = "unsupported_document_adapter"
     adapter_version = "0.1"
     pages = None
 
@@ -710,17 +710,7 @@ def build_document_model(job_id: str, relative_path: str, target: pathlib.Path) 
             warnings = warnings + review_warnings
             adapter_name = "scanned_ocr_review_adapter"
     else:
-        preview = read_text_preview(target)
-        blocks = [
-            {
-                "id": "block_0001",
-                "pageNumber": 1,
-                "blockType": "raw_document",
-                "textPreview": preview,
-                "sourceRegion": None,
-            }
-        ]
-        warnings = ["placeholder adapter: no Docling/OpenXML/PaddleOCR parsing executed"]
+        raise ValueError(f"unsupported_document_type:{target.suffix.lower() or '<none>'}")
 
     if pages is None:
         pages = [
