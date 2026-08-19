@@ -66,6 +66,8 @@ builder.Services.AddScoped<IDocumentWorkerClient, DocumentWorkerClient>();
 builder.Services.AddScoped<ICutCandidateGenerationService, CutCandidateGenerationService>();
 builder.Services.AddScoped<IPaperWorkflowService, PaperWorkflowService>();
 builder.Services.AddScoped<IScoreAnalysisWorkflowService, ScoreAnalysisWorkflowService>();
+builder.Services.AddScoped<ScoreSpreadsheetImportAdapter>();
+builder.Services.AddScoped<PaperArtifactService>();
 builder.Services.AddScoped<IKnowledgeEvidenceWorkflowService, KnowledgeEvidenceWorkflowService>();
 builder.Services.AddSingleton<IAiModelRouter, AiModelRouter>();
 builder.Services.AddSingleton<IAiProvider, StubAiProvider>();
@@ -3364,6 +3366,39 @@ app.MapPost("/paper-baskets/{id:guid}/export-preflight", async (
     return Results.Ok(PaperExportPreflightResponse.From(result));
 })
 .WithName("RunPaperExportPreflight");
+
+app.MapGet("/paper-baskets/{id:guid}/export", async (
+    Guid id,
+    string? format,
+    string? variant,
+    PaperArtifactService artifactService,
+    CancellationToken cancellationToken) =>
+{
+    var result = await artifactService.GenerateAsync(id, format ?? "docx", variant ?? "teacher", cancellationToken);
+    if (result is null)
+    {
+        return Results.NotFound();
+    }
+
+    if (result.Status == "blocked")
+    {
+        return Results.Conflict(new
+        {
+            status = result.Status,
+            format = result.Format,
+            errorCode = result.ErrorCode,
+            teacherMessage = result.TeacherMessage,
+            auditTrail = result.AuditTrail
+        });
+    }
+
+    return Results.File(result.Bytes!, result.Format == "pdf"
+        ? "application/pdf"
+        : "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        result.FileName,
+        enableRangeProcessing: false);
+})
+.WithName("ExportPaperArtifact");
 
 app.MapPost("/paper-requests/parse", (PaperRequestParseRequest request, IPaperWorkflowService workflowService) =>
 {

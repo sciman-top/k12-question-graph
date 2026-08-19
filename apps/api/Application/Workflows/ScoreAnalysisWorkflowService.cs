@@ -177,6 +177,7 @@ public sealed class ScoreAnalysisWorkflowService(KqgDbContext dbContext) : IScor
             ProductionEligible: false,
             RealStudentDataUsed: false,
             ContainsStudentPii: false,
+            FieldMapping: request.FieldMapping,
             AssessmentId: assessment.Id,
             TemplateId: template.Id,
             BatchId: batch.Id,
@@ -253,6 +254,16 @@ public sealed class ScoreAnalysisWorkflowService(KqgDbContext dbContext) : IScor
         var primaryKnowledge = knowledgeRows
             .GroupBy(x => x.QuestionItemId)
             .ToDictionary(x => x.Key, x => x.OrderByDescending(row => row.Version).First());
+        var directKnowledgeIds = questions.Values
+            .Select(x => x.PrimaryKnowledgeId)
+            .Where(x => x.HasValue)
+            .Select(x => x!.Value)
+            .Distinct()
+            .ToArray();
+        var directKnowledge = await dbContext.KnowledgeNodes
+            .AsNoTracking()
+            .Where(x => directKnowledgeIds.Contains(x.Id))
+            .ToDictionaryAsync(x => x.Id, cancellationToken);
 
         var rows = new List<ItemScoreMappingPreviewRow>();
         foreach (var scoreGroup in groupedScores)
@@ -274,6 +285,14 @@ public sealed class ScoreAnalysisWorkflowService(KqgDbContext dbContext) : IScor
                     knowledgeRow.Title,
                     knowledgeRow.Status,
                     knowledgeRow.Version);
+            }
+            else if (question?.PrimaryKnowledgeId is { } directKnowledgeId && directKnowledge.TryGetValue(directKnowledgeId, out var directKnowledgeRow))
+            {
+                knowledge = new ItemScoreKnowledgePreview(
+                    directKnowledgeRow.Id,
+                    directKnowledgeRow.Title,
+                    directKnowledgeRow.Status,
+                    directKnowledgeRow.Version);
             }
 
             var issueCodes = new List<string>();
@@ -860,6 +879,7 @@ public sealed class ScoreAnalysisWorkflowService(KqgDbContext dbContext) : IScor
             ProductionEligible: false,
             RealStudentDataUsed: false,
             ContainsStudentPii: request.ContainsStudentPii,
+            FieldMapping: request.FieldMapping,
             AssessmentId: null,
             TemplateId: null,
             BatchId: null,
@@ -1096,6 +1116,7 @@ public sealed record ScoreImportServiceResult(
     bool ProductionEligible,
     bool RealStudentDataUsed,
     bool ContainsStudentPii,
+    ScoreImportFieldMapping FieldMapping,
     Guid? AssessmentId,
     Guid? TemplateId,
     Guid? BatchId,

@@ -34,6 +34,7 @@ public sealed record ScoreImportResponse(
     bool ProductionEligible,
     bool RealStudentDataUsed,
     bool ContainsStudentPii,
+    ScoreImportFieldMappingResponse FieldMapping,
     Guid? AssessmentId,
     Guid? TemplateId,
     Guid? BatchId,
@@ -52,6 +53,7 @@ public sealed record ScoreImportResponse(
             result.ProductionEligible,
             result.RealStudentDataUsed,
             result.ContainsStudentPii,
+            ScoreImportFieldMappingResponse.From(result.FieldMapping),
             result.AssessmentId,
             result.TemplateId,
             result.BatchId,
@@ -62,6 +64,15 @@ public sealed record ScoreImportResponse(
             result.TeacherMessage,
             result.AuditTrail);
     }
+}
+
+public sealed record ScoreImportFieldMappingResponse(
+    string StudentKey,
+    string TotalScore,
+    IReadOnlyDictionary<string, string> ItemScores)
+{
+    public static ScoreImportFieldMappingResponse From(ScoreImportFieldMapping mapping) =>
+        new(mapping.StudentKey, mapping.TotalScore, mapping.ItemScores);
 }
 
 public sealed record ScoreImportRowErrorResponse(

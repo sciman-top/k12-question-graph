@@ -8,6 +8,51 @@ public static class ScoreEndpoints
 {
     public static IEndpointRouteBuilder MapScoreEndpoints(this IEndpointRouteBuilder endpoints)
     {
+        endpoints.MapPost("/score-imports/xlsx", async (
+            HttpRequest request,
+            ScoreSpreadsheetImportAdapter spreadsheetAdapter,
+            IScoreAnalysisWorkflowService workflowService,
+            CancellationToken cancellationToken) =>
+        {
+            var form = await request.ReadFormAsync(cancellationToken);
+            var file = form.Files.GetFile("file");
+            if (file is null)
+            {
+                return Results.BadRequest(new { error = "missing_file" });
+            }
+
+            var containsStudentPii = bool.TryParse(form["containsStudentPii"], out var pii) && pii;
+            try
+            {
+                await using var stream = file.OpenReadStream();
+                var serviceRequest = await spreadsheetAdapter.ParseAsync(
+                    stream,
+                    file.FileName,
+                    containsStudentPii,
+                    cancellationToken);
+                var result = await workflowService.ImportScoresAsync(serviceRequest, cancellationToken);
+                var response = ScoreImportResponse.From(result);
+                return result.Status == "blocked"
+                    ? Results.BadRequest(response)
+                    : Results.Created($"/score-imports/{result.BatchId}", response);
+            }
+            catch (ScoreSpreadsheetImportException ex)
+            {
+                return Results.Json(new
+                {
+                    status = "blocked",
+                    mode = "draft_test",
+                    productionEligible = false,
+                    realStudentDataUsed = false,
+                    containsStudentPii,
+                    teacherMessage = ex.Message,
+                    errors = new[] { new { rowNumber = 0, code = ex.Code, message = ex.Message, fields = Array.Empty<string>() } },
+                    auditTrail = new[] { "blocked_invalid_xlsx", "no_production_history_write" }
+                }, statusCode: ex.StatusCode);
+            }
+        })
+        .WithName("ImportScoreSpreadsheet");
+
         endpoints.MapPost("/score-imports", async (
             ScoreImportRequest request,
             IScoreAnalysisWorkflowService workflowService,

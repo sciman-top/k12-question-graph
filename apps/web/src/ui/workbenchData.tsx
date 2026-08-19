@@ -294,13 +294,6 @@ export const paperWorkbenchSteps = [
   ['导出', 'Word/PDF 草稿可打印'],
 ]
 
-export const scoreFieldMappings = [
-  ['student_key', '学生编号'],
-  ['total_score', '总分'],
-  ['q1_score', '第 1 题'],
-  ['q2_score', '第 2 题'],
-]
-
 export const scoreAnalysisHighlights = [
   ['87.5%', '班级得分率'],
   ['运动快慢与速度', '薄弱点 1 个'],

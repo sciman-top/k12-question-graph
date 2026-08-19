@@ -30,6 +30,7 @@ import {
   confirmPaperBlueprintReview,
   createPaperBlueprintReview,
   createScoreImport,
+  downloadPaperArtifact,
   exportCommentaryReport,
   generateCutCandidates,
   getCutCandidates,
@@ -42,6 +43,7 @@ import {
   replacePaperQuestion,
   resolveReviewQueueItem,
   runDocumentWorkerSmoke,
+  searchQuestions,
   updateQuestion,
   updateSourceRegion,
   uploadImportFile,
@@ -51,6 +53,7 @@ import type {
   QuestionEvidenceCardContract,
   QuestionSourceRegionContract,
   ReviewQueueItemContract,
+  ScoreImportContract,
 } from './api/contracts'
 import {
   useCutCandidatesQuery,
@@ -156,7 +159,10 @@ function App() {
   const [itemScoreMappingPreview, setItemScoreMappingPreview] = useState(initialItemScoreMappingPreview)
   const [commentaryReportPreview, setCommentaryReportPreview] = useState(initialCommentaryReportPreview)
   const [scoreEvidenceAnalysis, setScoreEvidenceAnalysis] = useState(initialScoreEvidenceAnalysis)
+  const [scoreImportPreview, setScoreImportPreview] = useState<ScoreImportContract | null>(null)
   const [scoreWorkflowBusy, setScoreWorkflowBusy] = useState(false)
+  const [scoreQuestionMappings, setScoreQuestionMappings] = useState<Record<string, string | null>>({})
+  const [scoreQuestionOptions, setScoreQuestionOptions] = useState<Array<{ value: string; label: string }>>([])
   const [analysisMessage, setAnalysisMessage] = useState('点击查看摘要后，会聚焦当前讲评建议和导出状态。')
   const [importStartedAt] = useState<Date>(() => new Date())
   const [nowMs, setNowMs] = useState<number>(() => Date.now())
@@ -1121,28 +1127,44 @@ function App() {
     appendLog('已撤销换题并恢复原题')
   }
 
-  const importSampleScores = async () => {
+  const importScoreSheet = async (file: File) => {
     setScoreWorkflowBusy(true)
-    setScoreMappingMessage('正在导入样例成绩并生成可复用字段映射...')
-    const result = await createScoreImport()
+    setScoreMappingMessage(`正在读取 ${file.name} 并生成字段映射...`)
+    const result = await createScoreImport(file)
     setScoreWorkflowBusy(false)
 
     if (!result.ok) {
-      setScoreMappingMessage(`样例成绩导入失败：${result.error.message}`)
-      appendLog(`样例成绩导入失败：${result.error.message}`)
+      setScoreImportPreview(null)
+      setScoreMappingMessage(`Excel 导入失败：${result.error.message}`)
+      appendLog(`Excel 导入失败：${result.error.message}`)
       return ''
     }
 
     const assessmentId = result.data.assessmentId ?? ''
+    setScoreImportPreview(result.data)
     setScoreMappingAssessmentId(assessmentId)
     setScoreMappingMessage(
       `${result.data.teacherMessage} 已导入 ${result.data.importedCount}/${result.data.rowCount} 行，异常 ${result.data.errorCount} 行。`,
     )
-    appendLog(`已导入样例成绩：${result.data.importedCount} 行，异常 ${result.data.errorCount} 行`)
+    appendLog(`已导入 Excel 成绩：${result.data.importedCount} 行，异常 ${result.data.errorCount} 行`)
+    const mappingPreview = await previewScoreMappings(assessmentId, {})
+    const candidates = await searchQuestions({ limit: 50, sortBy: 'question_no', order: 'asc' })
+    if (candidates.ok) {
+      setScoreQuestionOptions(candidates.data.items.map((item) => ({
+        value: item.id,
+        label: `第 ${item.questionNo ?? '?'} 题 · ${item.preview || item.questionType || '题目预览'}`,
+      })))
+    }
+    if (mappingPreview) {
+      setScoreQuestionMappings(Object.fromEntries(mappingPreview.rows.map((row) => [row.questionNo, null])))
+    }
     return assessmentId
   }
 
-  const previewScoreMappings = async (overrideAssessmentId?: string) => {
+  const previewScoreMappings = async (
+    overrideAssessmentId?: string,
+    overrideMappings: Record<string, string | null> = scoreQuestionMappings,
+  ) => {
     const assessmentId = (overrideAssessmentId ?? scoreMappingAssessmentId).trim()
     if (!assessmentId) {
       setScoreMappingMessage('请先输入成绩批次 ID，再预览小题映射。')
@@ -1151,10 +1173,7 @@ function App() {
 
     const result = await previewItemScoreMappings({
       assessmentId,
-      mappings: [
-        { questionNo: 'Q1', questionItemId: null },
-        { questionNo: 'Q2', questionItemId: null },
-      ],
+      mappings: Object.entries(overrideMappings).map(([questionNo, questionItemId]) => ({ questionNo, questionItemId })),
     })
     if (!result.ok) {
       setScoreMappingMessage(`映射预览失败：${result.error.message}`)
@@ -1187,13 +1206,9 @@ function App() {
   }
 
   const generateScoreAnalysis = async () => {
-    let assessmentId = scoreMappingAssessmentId.trim()
-    if (!scoreMappingAssessmentId.trim()) {
-      assessmentId = await importSampleScores()
-    }
-
+    const assessmentId = scoreMappingAssessmentId.trim()
     if (!assessmentId) {
-      setScoreMappingMessage('请先完成样例成绩导入，再生成分析。')
+      setScoreMappingMessage('请先选择并上传 Excel 成绩表，再生成分析。')
       return
     }
 
@@ -1204,10 +1219,7 @@ function App() {
     const result = await previewScoreEvidenceAnalysis({
       assessmentId,
       containsStudentPii: false,
-      mappings: mappingPreview.rows.map((row) => ({
-        questionNo: row.questionNo,
-        questionItemId: row.questionItemId,
-      })),
+      mappings: Object.entries(scoreQuestionMappings).map(([questionNo, questionItemId]) => ({ questionNo, questionItemId })),
     })
     if (!result.ok) {
       setScoreEvidenceAnalysis(initialScoreEvidenceAnalysis)
@@ -1236,8 +1248,7 @@ function App() {
       format: 'md',
       allowAiDraftText: false,
       mappings: [
-        { questionNo: 'Q1', questionItemId: null },
-        { questionNo: 'Q2', questionItemId: null },
+        ...Object.entries(scoreQuestionMappings).map(([questionNo, questionItemId]) => ({ questionNo, questionItemId })),
       ],
     })
     if (!result.ok) {
@@ -1259,11 +1270,6 @@ function App() {
   }
 
   const handleScoreWorkbenchAction = (action: string) => {
-    if (action === 'upload-score-sheet') {
-      void importSampleScores()
-      return
-    }
-
     if (action === 'generate-score-analysis') {
       void generateScoreAnalysis()
       return
@@ -1296,7 +1302,7 @@ function App() {
   const runStarterDemo = (step: StarterDemoStep) => {
     openTeacherView(step.view)
     if (step.view === 'scores') {
-      setScoreMappingMessage('已切到样例成绩工作台，可点击“上传 Excel”导入内置样例。')
+      setScoreMappingMessage('已切到成绩工作台，可点击“上传 Excel”选择本机成绩表。')
     }
     if (step.view === 'analysis') {
       openAnalysisSummary()
@@ -1307,8 +1313,27 @@ function App() {
     appendLog(`已打开新手示例：${step.title}`)
   }
 
-  const exportPaper = (format: 'docx' | 'pdf') => {
-    appendLog(`已生成 ${format.toUpperCase()} 示例导出工件`)
+  const exportPaper = async (format: 'docx' | 'pdf') => {
+    if (!paperBasketId) {
+      setPaperWorkflowMessage('请先确认细目表并保存题篮，再导出试卷。')
+      return
+    }
+    setPaperWorkflowBusy(true)
+    const result = await downloadPaperArtifact(paperBasketId, format)
+    setPaperWorkflowBusy(false)
+    if (!result.ok) {
+      setPaperWorkflowMessage(`导出被阻断：${result.error.message}`)
+      appendLog(`${format.toUpperCase()} 导出失败：${result.error.message}`)
+      return
+    }
+    const url = URL.createObjectURL(result.data.blob)
+    const anchor = document.createElement('a')
+    anchor.href = url
+    anchor.download = result.data.fileName
+    anchor.click()
+    URL.revokeObjectURL(url)
+    setPaperWorkflowMessage(`${result.data.fileName} 已生成并开始下载。`)
+    appendLog(`已下载真实 ${format.toUpperCase()} 试卷工件`)
   }
 
   return (
@@ -1854,8 +1879,8 @@ function App() {
                 </Typography.Text>
               </div>
               <Space size="small" wrap>
-                <Tag color="green" data-contract="synthetic-score-fixture">
-                  示例数据
+                <Tag color="green" data-contract="local-score-xlsx">
+                  本机 Excel
                 </Tag>
                 <Tag data-contract="score-productionEligible=false">
                   正式启用前预览
@@ -1869,6 +1894,13 @@ function App() {
               scoreMappingMessage={scoreMappingMessage}
               itemScoreMappingPreview={itemScoreMappingPreview}
               commentaryReportPreview={commentaryReportPreview}
+              scoreImportPreview={scoreImportPreview}
+              scoreQuestionMappings={scoreQuestionMappings}
+              scoreQuestionOptions={scoreQuestionOptions}
+              onScoreQuestionMappingChange={(questionNo, questionItemId) =>
+                setScoreQuestionMappings((current) => ({ ...current, [questionNo]: questionItemId }))
+              }
+              onUploadScoreSheet={(file) => void importScoreSheet(file)}
               onHandleScoreWorkbenchAction={handleScoreWorkbenchAction}
               onPreviewScoreMappings={() => void previewScoreMappings()}
             />

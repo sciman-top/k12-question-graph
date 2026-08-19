@@ -1093,12 +1093,39 @@
   align-items: flex-start;
 }
 
+.score-file-upload {
+  display: inline-flex;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding: 4px 15px;
+  color: #fff;
+  background: #23705a;
+  border: 1px solid #23705a;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.score-file-upload input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.001;
+  cursor: pointer;
+}
+
 .score-field-mapping,
 .score-exception-list,
 .item-score-mapping-preview,
 .score-report-path {
   display: grid;
   gap: 10px;
+}
+
+.item-score-mapping-preview {
+  grid-column: 1 / -1;
 }
 
 .score-field-mapping,
@@ -1113,6 +1140,10 @@
   align-items: center;
   gap: 10px;
   min-height: 36px;
+}
+
+.exception-row {
+  grid-template-columns: minmax(64px, auto) minmax(0, 1fr) auto;
 }
 
 .mapping-row code {
@@ -1143,7 +1174,7 @@
 
 .item-score-mapping-row {
   display: grid;
-  grid-template-columns: minmax(64px, 0.6fr) minmax(0, 1.4fr) auto;
+  grid-template-columns: minmax(96px, 0.6fr) minmax(180px, 1.4fr) minmax(180px, 1fr) auto;
   gap: 10px;
   align-items: center;
   padding-top: 8px;
@@ -1154,6 +1185,10 @@
   min-width: 0;
   display: grid;
   gap: 2px;
+}
+
+.teacher-step.score-teacher-step {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .commentary-section-list {

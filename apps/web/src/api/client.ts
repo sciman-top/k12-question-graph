@@ -326,65 +326,37 @@ export async function runDocumentWorkerSmoke(id: string): Promise<ApiResult<Impo
   return postJson(`/imports/${encodeURIComponent(id)}/worker-smoke`, {}, normalizeImportJobResponse)
 }
 
-export async function createScoreImport(): Promise<ApiResult<ScoreImportContract>> {
-  return postJson(
-    '/score-imports',
-    {
-      assessmentKey: `sample-score-${Date.now()}`,
-      assessmentTitle: '初二物理样例测验',
-      subject: 'physics',
-      stage: 'junior_middle_school',
-      grade: '八年级',
-      templateKey: 'sample-score-template-v1',
-      templateDisplayName: '样例成绩模板',
-      sourceFileName: 'sample-score.xlsx',
-      containsStudentPii: false,
-      productionEligible: false,
-      maxTotalScore: 100,
-      fieldMapping: {
-        studentKey: 'student_code',
-        totalScore: 'total_score',
-        itemScores: {
-          Q1: 'q1_score',
-          Q2: 'q2_score',
-        },
-      },
-      itemMaxScores: {
-        Q1: 5,
-        Q2: 5,
-      },
-      rows: [
-        {
-          rowNumber: 2,
-          values: {
-            student_code: 'S001',
-            total_score: '8',
-            q1_score: '4',
-            q2_score: '4',
-          },
-        },
-        {
-          rowNumber: 3,
-          values: {
-            student_code: 'S002',
-            total_score: '7',
-            q1_score: '3',
-            q2_score: '4',
-          },
-        },
-        {
-          rowNumber: 4,
-          values: {
-            student_code: 'S003',
-            total_score: '12',
-            q1_score: '5',
-            q2_score: '7',
-          },
-        },
-      ],
-    },
-    normalizeScoreImportResponse,
+export async function createScoreImport(file: File): Promise<ApiResult<ScoreImportContract>> {
+  const form = new FormData()
+  form.append('file', file)
+  form.append('containsStudentPii', 'false')
+  return requestJson('/score-imports/xlsx', normalizeScoreImportResponse, {
+    method: 'POST',
+    body: form,
+    includeJsonContentType: false,
+    timeoutMs: longRunningRequestTimeoutMs,
+  })
+}
+
+export async function downloadPaperArtifact(
+  paperBasketId: string,
+  format: 'docx' | 'pdf',
+): Promise<ApiResult<{ blob: Blob; fileName: string }>> {
+  const response = await requestResponse(
+    `/paper-baskets/${encodeURIComponent(paperBasketId)}/export?format=${format}&variant=teacher`,
+    { headers: { Accept: format === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' } },
   )
+  if (!response.ok) return response
+  const disposition = response.data.headers.get('content-disposition') ?? ''
+  const encoded = disposition.match(/filename\*=UTF-8''([^;]+)/i)?.[1]
+  const fallback = disposition.match(/filename="?([^";]+)"?/i)?.[1]
+  return {
+    ok: true,
+    data: {
+      blob: await response.data.blob(),
+      fileName: encoded ? decodeURIComponent(encoded) : fallback ?? `paper.${format}`,
+    },
+  }
 }
 
 export async function getSourceDocumentPreview(id: string): Promise<ApiResult<SourceDocumentPreviewContract>> {

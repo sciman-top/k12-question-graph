@@ -3,7 +3,9 @@ import {
   applyReviewWorkbenchAction,
   confirmPaperBlueprintReview,
   createPaperBlueprintReview,
+  createScoreImport,
   decideCurriculumEvidence,
+  downloadPaperArtifact,
   exportCommentaryReport,
   generateCutCandidates,
   getCurriculumEvidenceReviews,
@@ -396,6 +398,54 @@ describe('api client error handling', () => {
       ['/assessments/assessment-1/score-evidence-analysis/preview', 'POST'],
       ['/assessments/assessment-1/commentary-report/export', 'POST'],
     ])
+  })
+})
+
+describe('binary teacher workflow clients', () => {
+  it('uploads the selected xlsx as multipart instead of posting sample json', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(Response.json({
+      status: 'imported',
+      assessmentId: 'assessment-1',
+      fieldMapping: {
+        studentKey: 'student_code',
+        totalScore: 'total_score',
+        itemScores: { Q1: 'Q1(5分)' },
+      },
+      errors: [],
+      auditTrail: [],
+    }, { status: 201 }))
+    globalThis.fetch = fetchMock as typeof fetch
+    const file = new File(['xlsx-bytes'], 'scores.xlsx', {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    })
+
+    const result = await createScoreImport(file)
+
+    expect(result.ok).toBe(true)
+    expect(result.ok && result.data.fieldMapping).toEqual({
+      studentKey: 'student_code',
+      totalScore: 'total_score',
+      itemScores: { Q1: 'Q1(5分)' },
+    })
+    const [url, init] = fetchMock.mock.calls[0]
+    expect(url).toBe('/score-imports/xlsx')
+    expect(init.method).toBe('POST')
+    expect(init.body).toBeInstanceOf(FormData)
+    expect(init.headers['Content-Type']).toBeUndefined()
+    expect((init.body as FormData).get('file')).toBe(file)
+  })
+
+  it('downloads a generated paper and preserves the server filename', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response('pdf-bytes', {
+      headers: { 'Content-Disposition': "attachment; filename*=UTF-8''%E6%B5%8B%E8%AF%95%E5%8D%B7.pdf" },
+    }))
+    globalThis.fetch = fetchMock as typeof fetch
+
+    const result = await downloadPaperArtifact('basket-1', 'pdf')
+
+    expect(result.ok && result.data.fileName).toBe('测试卷.pdf')
+    expect(result.ok && result.data.blob.size).toBeGreaterThan(0)
+    expect(fetchMock.mock.calls[0][0]).toBe('/paper-baskets/basket-1/export?format=pdf&variant=teacher')
   })
 })
 

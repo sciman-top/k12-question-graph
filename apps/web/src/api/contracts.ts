@@ -520,6 +520,11 @@ export interface ScoreImportContract {
   productionEligible: boolean
   realStudentDataUsed: boolean
   containsStudentPii: boolean
+  fieldMapping: {
+    studentKey: string
+    totalScore: string
+    itemScores: Record<string, string>
+  }
   assessmentId: string | null
   templateId: string | null
   batchId: string | null
@@ -911,12 +916,21 @@ export function normalizeImportJobResponse(value: unknown): ImportJobContract {
 }
 
 export function normalizeScoreImportResponse(value: unknown): ScoreImportContract {
+  const fieldMapping = readObjectField(value, 'fieldMapping')
+  const itemScores = readObjectField(fieldMapping, 'itemScores') ?? {}
   return {
     status: readStringField(value, 'status') ?? 'unknown',
     mode: readStringField(value, 'mode') ?? 'unknown',
     productionEligible: readBooleanField(value, 'productionEligible'),
     realStudentDataUsed: readBooleanField(value, 'realStudentDataUsed'),
     containsStudentPii: readBooleanField(value, 'containsStudentPii'),
+    fieldMapping: {
+      studentKey: readStringField(fieldMapping, 'studentKey') ?? '',
+      totalScore: readStringField(fieldMapping, 'totalScore') ?? '',
+      itemScores: Object.fromEntries(
+        Object.entries(itemScores).filter(([, field]) => typeof field === 'string'),
+      ) as Record<string, string>,
+    },
     assessmentId: readNullableStringField(value, 'assessmentId'),
     templateId: readNullableStringField(value, 'templateId'),
     batchId: readNullableStringField(value, 'batchId'),

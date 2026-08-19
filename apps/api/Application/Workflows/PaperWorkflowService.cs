@@ -198,6 +198,31 @@ public sealed class PaperWorkflowService(
             .OrderBy(x => x.QuestionType)
             .ThenBy(x => x.CreatedAt)
             .ToListAsync(cancellationToken);
+        var questionPoolIds = questionPool.Select(x => x.Id).ToArray();
+        var authorizedSourceQuestionIds = await (
+            from block in dbContext.QuestionBlocks.AsNoTracking()
+            where questionPoolIds.Contains(block.QuestionItemId) && block.SourceRegionId != null
+            join region in dbContext.SourceRegions.AsNoTracking() on block.SourceRegionId!.Value equals region.Id
+            join document in dbContext.SourceDocuments.AsNoTracking() on region.SourceDocumentId equals document.Id
+            where document.SharingAllowed
+                && document.LicenseOrPermission != "unknown"
+                && document.LicenseOrPermission != "none"
+                && (!document.ContainsStudentPii
+                    || document.AnonymizationStatus == "anonymized"
+                    || document.AnonymizationStatus == "not_applicable")
+            select block.QuestionItemId)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+        var authorizedSourceQuestionIdSet = authorizedSourceQuestionIds.ToHashSet();
+        questionPool = questionPool
+            .OrderByDescending(question =>
+                question.PrimaryKnowledgeId.HasValue
+                && QuestionCustomFieldHelpers.HasMeaningfulValue(question.CustomFields, "answer")
+                && QuestionCustomFieldHelpers.HasMeaningfulValue(question.CustomFields, "solution")
+                && authorizedSourceQuestionIdSet.Contains(question.Id))
+            .ThenBy(x => x.QuestionType)
+            .ThenBy(x => x.CreatedAt)
+            .ToList();
         var questions = evidenceSnapshot is null
             ? questionPool.Take(requiredCount).ToList()
             : SelectQuestionsForBlueprint(questionPool, blueprint);

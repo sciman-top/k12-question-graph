@@ -1,10 +1,9 @@
-import { Alert, Button, Input, Tag, Typography } from 'antd'
+import { Alert, Button, Input, Select, Tag, Typography } from 'antd'
 import { LinkOutlined } from '@ant-design/icons'
 import {
   initialCommentaryReportPreview,
   initialItemScoreMappingPreview,
   scoreAnalysisHighlights,
-  scoreFieldMappings,
   scoreWorkbenchActions,
   scoreWorkbenchSteps,
 } from './workbenchData'
@@ -17,6 +16,21 @@ type ScoreWorkbenchPanelContentProps = {
   scoreMappingMessage: string
   itemScoreMappingPreview: typeof initialItemScoreMappingPreview
   commentaryReportPreview: typeof initialCommentaryReportPreview
+  scoreImportPreview: {
+    fieldMapping: {
+      studentKey: string
+      totalScore: string
+      itemScores: Record<string, string>
+    }
+    errors: Array<{ rowNumber: number; code: string; message: string; fields: string[] }>
+    rowCount: number
+    importedCount: number
+    errorCount: number
+  } | null
+  scoreQuestionMappings: Record<string, string | null>
+  scoreQuestionOptions: Array<{ value: string; label: string }>
+  onScoreQuestionMappingChange: (questionNo: string, questionItemId: string | null) => void
+  onUploadScoreSheet: (file: File) => void
   onHandleScoreWorkbenchAction: (action: string) => void
   onPreviewScoreMappings: () => void
 }
@@ -28,6 +42,11 @@ export function ScoreWorkbenchPanelContent({
   scoreMappingMessage,
   itemScoreMappingPreview,
   commentaryReportPreview,
+  scoreImportPreview,
+  scoreQuestionMappings,
+  scoreQuestionOptions,
+  onScoreQuestionMappingChange,
+  onUploadScoreSheet,
   onHandleScoreWorkbenchAction,
   onPreviewScoreMappings,
 }: ScoreWorkbenchPanelContentProps) {
@@ -35,7 +54,21 @@ export function ScoreWorkbenchPanelContent({
     <>
       <div className="score-workbench" data-flow="score-analysis-workbench">
         <div className="score-upload-lane">
-          {scoreWorkbenchActions.map((item) => (
+          <label className="score-file-upload" data-action="upload-score-sheet">
+            <span>上传 Excel</span>
+            <input
+              type="file"
+              accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+              aria-label="选择 Excel 成绩表"
+              disabled={scoreWorkflowBusy}
+              onChange={(event) => {
+                const file = event.target.files?.[0]
+                if (file) onUploadScoreSheet(file)
+                event.target.value = ''
+              }}
+            />
+          </label>
+          {scoreWorkbenchActions.filter((item) => item.action !== 'upload-score-sheet').map((item) => (
             <Button
               key={item.action}
               type={item.kind === 'primary' ? 'primary' : 'default'}
@@ -51,7 +84,14 @@ export function ScoreWorkbenchPanelContent({
 
         <div className="score-field-mapping" data-contract="excel-field-mapping-preview">
           <Typography.Text type="secondary">字段映射预览</Typography.Text>
-          {scoreFieldMappings.map(([field, label]) => (
+          {(scoreImportPreview
+            ? [
+                [scoreImportPreview.fieldMapping.studentKey, '学生编号'],
+                [scoreImportPreview.fieldMapping.totalScore, '总分'],
+                ...Object.entries(scoreImportPreview.fieldMapping.itemScores).map(([questionNo, field]) => [field, `第 ${questionNo} 题`] as const),
+              ].filter(([field]) => Boolean(field))
+            : []
+          ).map(([field, label]) => (
             <div className="mapping-row" key={field}>
               <code>{field}</code>
               <span>{label}</span>
@@ -62,12 +102,16 @@ export function ScoreWorkbenchPanelContent({
 
         <div className="score-exception-list" data-contract="score-exception-rows">
           <Typography.Text type="secondary">异常行</Typography.Text>
-          <div className="exception-row">
-            <strong>第 3 行</strong>
-            <span>q2_score 超过满分，暂不导入</span>
-            <Tag color="orange">需确认</Tag>
-          </div>
-          <small>有效记录 2 行，异常 1 行；教师只处理异常，不重填整张表。</small>
+          {scoreImportPreview?.errors.length ? scoreImportPreview.errors.map((error) => (
+            <div className="exception-row" key={`${error.rowNumber}-${error.code}-${error.fields.join(',')}`}>
+              <strong>{error.rowNumber > 0 ? `第 ${error.rowNumber} 行` : '导入'}</strong>
+              <span>{error.message}{error.fields.length ? `（${error.fields.join('、')}）` : ''}</span>
+              <Tag color="orange">需确认</Tag>
+            </div>
+          )) : (
+            <small>{scoreImportPreview ? '未发现异常行。' : '选择真实 Excel 文件后，这里会显示实际异常行。'}</small>
+          )}
+          {scoreImportPreview && <small>有效记录 {scoreImportPreview.importedCount} 行，异常 {scoreImportPreview.errorCount} 行；教师只处理异常，不重填整张表。</small>}
         </div>
 
         <div
@@ -132,6 +176,17 @@ export function ScoreWorkbenchPanelContent({
                       : '知识点待确认'}
                   </small>
                 </span>
+                <Select
+                  aria-label={`${row.questionNo} 对应题目`}
+                  placeholder="请选择对应题目"
+                  value={scoreQuestionMappings[row.questionNo] ?? undefined}
+                  options={scoreQuestionOptions}
+                  allowClear
+                  showSearch
+                  optionFilterProp="label"
+                  onChange={(value) => onScoreQuestionMappingChange(row.questionNo, value ?? null)}
+                  data-action={`map-${row.questionNo.toLowerCase()}-question`}
+                />
                 <Tag color={row.status === 'mapped' ? 'green' : 'orange'}>
                   {row.status === 'mapped' ? '已映射' : '需确认'}
                 </Tag>
@@ -182,7 +237,7 @@ export function ScoreWorkbenchPanelContent({
 
       <div className="teacher-step-list">
         {scoreWorkbenchSteps.map(([title, detail]) => (
-          <div className="teacher-step" key={title}>
+          <div className="teacher-step score-teacher-step" key={title}>
             <span>
               <strong>{title}</strong>
               <small>{detail}</small>
