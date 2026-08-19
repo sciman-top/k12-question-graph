@@ -63,7 +63,7 @@ export function AdminSessionGate({ children }: AdminSessionGateProps) {
   }
 
   if (loading) {
-    return <div className="auth-gate-loading"><Spin size="large" tip="正在检查安全会话" /></div>
+    return <div className="auth-gate-loading"><Spin size="large" description="正在检查安全会话" /></div>
   }
 
   if (!session?.authenticated) {

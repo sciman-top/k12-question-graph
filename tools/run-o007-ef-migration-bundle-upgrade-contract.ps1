@@ -28,25 +28,41 @@ try {
 
     $workRoot = Join-Path $repoRoot 'tmp/o007'
     $bundleRoot = Join-Path $workRoot 'bundle'
+    $isolatedBuildRoot = Join-Path $workRoot 'release-build'
     $releaseRoot = Join-Path $workRoot 'release-package'
     $migrationsPackageRoot = Join-Path $releaseRoot 'migrations'
     $backupRoot = Join-Path $workRoot 'backup-root'
 
     Remove-Item -LiteralPath $workRoot -Recurse -Force -ErrorAction SilentlyContinue
-    New-Item -ItemType Directory -Path $bundleRoot, $migrationsPackageRoot, $backupRoot -Force | Out-Null
+    New-Item -ItemType Directory -Path $bundleRoot, $isolatedBuildRoot, $migrationsPackageRoot, $backupRoot -Force | Out-Null
 
     dotnet tool restore | Write-Host
     Assert-Condition ($LASTEXITCODE -eq 0) 'dotnet tool restore failed'
 
     $bundleExe = Join-Path $bundleRoot 'efbundle.exe'
-    dotnet build apps/api/K12QuestionGraph.Api.csproj --configuration Release --no-restore | Write-Host
-    Assert-Condition ($LASTEXITCODE -eq 0) 'dotnet release build failed before ef migrations list'
+    $isolatedOutputPath = $isolatedBuildRoot.TrimEnd('\') + '\'
+    $previousOutputPath = $env:OutputPath
+    $previousAppendTargetFrameworkToOutputPath = $env:AppendTargetFrameworkToOutputPath
+    try {
+        # The local API may legitimately be running from bin/Release. Build the
+        # migration input elsewhere so verification neither stops the process
+        # nor collides with its loaded assembly.
+        dotnet build apps/api/K12QuestionGraph.Api.csproj --configuration Release --no-restore "-p:OutputPath=$isolatedOutputPath" '-p:AppendTargetFrameworkToOutputPath=false' | Write-Host
+        Assert-Condition ($LASTEXITCODE -eq 0) 'dotnet isolated release build failed before ef migrations list'
 
-    dotnet ef migrations list --project apps/api/K12QuestionGraph.Api.csproj --startup-project apps/api/K12QuestionGraph.Api.csproj --configuration Release --no-build | Write-Host
-    Assert-Condition ($LASTEXITCODE -eq 0) 'dotnet ef migrations list failed'
+        $env:OutputPath = $isolatedOutputPath
+        $env:AppendTargetFrameworkToOutputPath = 'false'
 
-    dotnet ef migrations bundle --project apps/api/K12QuestionGraph.Api.csproj --startup-project apps/api/K12QuestionGraph.Api.csproj --configuration Release --target-runtime win-x64 --output $bundleExe --no-build | Write-Host
-    Assert-Condition ($LASTEXITCODE -eq 0) 'dotnet ef migrations bundle failed'
+        dotnet ef migrations list --project apps/api/K12QuestionGraph.Api.csproj --startup-project apps/api/K12QuestionGraph.Api.csproj --configuration Release --no-build | Write-Host
+        Assert-Condition ($LASTEXITCODE -eq 0) 'dotnet ef migrations list failed'
+
+        dotnet ef migrations bundle --project apps/api/K12QuestionGraph.Api.csproj --startup-project apps/api/K12QuestionGraph.Api.csproj --configuration Release --target-runtime win-x64 --output $bundleExe --no-build | Write-Host
+        Assert-Condition ($LASTEXITCODE -eq 0) 'dotnet ef migrations bundle failed'
+    }
+    finally {
+        $env:OutputPath = $previousOutputPath
+        $env:AppendTargetFrameworkToOutputPath = $previousAppendTargetFrameworkToOutputPath
+    }
     Assert-Condition (Test-Path -LiteralPath $bundleExe) 'efbundle.exe not found after bundle generation'
 
     Copy-Item -LiteralPath $bundleExe -Destination (Join-Path $migrationsPackageRoot 'efbundle.exe') -Force
@@ -83,6 +99,7 @@ try {
         productionEligible = $false
         migrationBundle = [ordered]@{
             bundleExe = To-Relative -Base $repoRoot -Path $bundleExe
+            isolatedBuildRoot = To-Relative -Base $repoRoot -Path $isolatedBuildRoot
             releasePackageRoot = To-Relative -Base $repoRoot -Path $releaseRoot
             packageFiles = @(
                 'migrations/efbundle.exe',

@@ -43,6 +43,9 @@ function Invoke-VerifiedStep {
     $logPath = Join-Path $reportRootFullPath "$Id.log"
     $started = Get-Date
     $capturedOutput = New-Object System.Collections.Generic.List[object]
+    # A successful step may intentionally emit no output. Clear the receipt
+    # first so an older failure cannot survive beside a fresh pass result.
+    Set-Content -LiteralPath $logPath -Value '' -Encoding UTF8
     try {
         # Buffer in memory so child processes never retain the log handle and
         # partial native output survives a terminating wrapper error.
