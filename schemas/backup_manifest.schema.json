@@ -4,70 +4,68 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "backup_id",
-    "backup_time",
-    "app_version",
-    "database_version",
-    "backup_type",
-    "includes",
-    "files",
-    "checksums"
+    "version",
+    "createdAt",
+    "database",
+    "fileStore",
+    "configsSnapshotRoot",
+    "configs",
+    "templatesSnapshotRoot",
+    "templates"
   ],
   "properties": {
-    "backup_id": {
-      "type": "string"
-    },
-    "backup_time": {
-      "type": "string",
-      "format": "date-time"
-    },
-    "app_version": {
-      "type": "string"
-    },
-    "database_version": {
-      "type": "string"
-    },
-    "backup_type": {
-      "type": "string",
-      "enum": [
-        "lightweight",
-        "full",
-        "cold_archive",
-        "emergency"
-      ]
-    },
-    "includes": {
-      "type": "array",
-      "items": {
-        "type": "string"
+    "version": { "const": 1 },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "database": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["engine", "databaseName", "dump", "sha256"],
+      "properties": {
+        "engine": { "const": "postgresql" },
+        "databaseName": { "type": "string", "minLength": 1 },
+        "dump": { "$ref": "#/$defs/relativePath" },
+        "sha256": { "$ref": "#/$defs/sha256" }
       }
     },
-    "files": {
+    "fileStore": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["snapshotRoot", "files"],
+      "properties": {
+        "snapshotRoot": { "$ref": "#/$defs/relativePath" },
+        "sourceRoot": { "type": "string" },
+        "root": { "type": "string" },
+        "files": { "$ref": "#/$defs/fileEntries" }
+      }
+    },
+    "configsSnapshotRoot": { "$ref": "#/$defs/relativePath" },
+    "configs": { "$ref": "#/$defs/fileEntries" },
+    "templatesSnapshotRoot": { "$ref": "#/$defs/relativePath" },
+    "templates": { "$ref": "#/$defs/fileEntries" },
+    "evidenceSnapshotRoot": { "$ref": "#/$defs/relativePath" },
+    "evidence": { "$ref": "#/$defs/fileEntries" }
+  },
+  "$defs": {
+    "relativePath": {
+      "type": "string",
+      "minLength": 1,
+      "not": { "pattern": "^(?:[A-Za-z]:|[\\\\/])" }
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{64}$"
+    },
+    "fileEntries": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": [
-          "path",
-          "size",
-          "sha256"
-        ],
+        "additionalProperties": false,
+        "required": ["path", "bytes", "sha256"],
         "properties": {
-          "path": {
-            "type": "string"
-          },
-          "size": {
-            "type": "integer"
-          },
-          "sha256": {
-            "type": "string"
-          }
+          "path": { "$ref": "#/$defs/relativePath" },
+          "bytes": { "type": "integer", "minimum": 0 },
+          "sha256": { "$ref": "#/$defs/sha256" }
         }
-      }
-    },
-    "checksums": {
-      "type": "object",
-      "additionalProperties": {
-        "type": "string"
       }
     }
   }

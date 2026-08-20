@@ -2,6 +2,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Net;
 using K12QuestionGraph.Api.Configuration;
 using Microsoft.AspNetCore.Authorization;
 
@@ -50,7 +51,11 @@ public static class AdminInternalEndpointGuard
                 .Get<AdminInternalRoleAuditOptions>() ?? new AdminInternalRoleAuditOptions();
             var paths = app.Configuration.GetSection("KqgPaths").Get<KqgPathsOptions>() ?? new KqgPathsOptions();
             var configuredKey = options.ApiKey?.Trim();
-            var draftTestBypassAllowed = app.Environment.IsDevelopment() && options.AllowUnguardedDraftTest;
+            var draftTestBypassAllowed = IsDraftTestBypassAllowed(
+                app.Environment.IsDevelopment(),
+                options.AllowUnguardedDraftTest,
+                context.Connection.LocalIpAddress,
+                context.Connection.RemoteIpAddress);
             var isHighRiskWrite = IsHighRiskWrite(context.Request.Method);
 
             if (!HasCurrentCredential(context.User, configuredKey))
@@ -203,6 +208,16 @@ public static class AdminInternalEndpointGuard
             return role == "admin";
         }
 
+        if (IsCurriculumEvidenceDecisionPath(path))
+        {
+            return role is "admin" or "group_lead";
+        }
+
+        if (IsImportStatusPath(path))
+        {
+            return role == "admin";
+        }
+
         if (path.StartsWithSegments("/api/admin", StringComparison.OrdinalIgnoreCase))
         {
             return HttpMethods.IsGet(method) || HttpMethods.IsHead(method)
@@ -212,7 +227,36 @@ public static class AdminInternalEndpointGuard
 
         return HttpMethods.IsGet(method) || HttpMethods.IsHead(method)
             ? role is "admin" or "group_lead" or "teacher"
-            : role is "admin" or "teacher";
+            : role is "admin" or "group_lead" or "teacher";
+    }
+
+    internal static bool IsDraftTestBypassAllowed(
+        bool isDevelopment,
+        bool allowUnguardedDraftTest,
+        IPAddress? localAddress,
+        IPAddress? remoteAddress) =>
+        isDevelopment &&
+        allowUnguardedDraftTest &&
+        localAddress is not null &&
+        remoteAddress is not null &&
+        IPAddress.IsLoopback(localAddress) &&
+        IPAddress.IsLoopback(remoteAddress);
+
+    internal static (string Reviewer, string ActorRole) ResolveReviewIdentity(ClaimsPrincipal principal)
+    {
+        if (!IsAuthenticated(principal))
+        {
+            throw new InvalidOperationException("authenticated_reviewer_required");
+        }
+
+        var reviewer = principal.FindFirstValue(ClaimTypes.NameIdentifier)?.Trim();
+        var role = NormalizeRole(principal.FindFirstValue(ClaimTypes.Role));
+        if (string.IsNullOrWhiteSpace(reviewer) || role is not ("admin" or "group_lead"))
+        {
+            throw new InvalidOperationException("authorized_reviewer_identity_required");
+        }
+
+        return (reviewer, role == "admin" ? "administrator" : role);
     }
 
     internal static ClaimsPrincipal CreateTrustedPrincipal(
@@ -286,6 +330,20 @@ public static class AdminInternalEndpointGuard
         }
 
         return remaining.Value?.EndsWith("/authorization", StringComparison.OrdinalIgnoreCase) == true;
+    }
+
+    private static bool IsCurriculumEvidenceDecisionPath(PathString path) =>
+        path.StartsWithSegments("/knowledge-evidence/reviews/decisions", StringComparison.OrdinalIgnoreCase) ||
+        path.StartsWithSegments("/knowledge-evidence/reviews/batch-approve", StringComparison.OrdinalIgnoreCase);
+
+    private static bool IsImportStatusPath(PathString path)
+    {
+        if (!path.StartsWithSegments("/imports", out var remaining))
+        {
+            return false;
+        }
+
+        return remaining.Value?.EndsWith("/status", StringComparison.OrdinalIgnoreCase) == true;
     }
 
     private static bool IsHighRiskWrite(string method) =>

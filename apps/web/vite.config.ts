@@ -5,21 +5,16 @@ import {
   ADMIN_INTERNAL_KEY_HEADER,
   OPERATOR_ID_HEADER,
   OPERATOR_ROLE_HEADER,
-  requiresAdminProxyKey,
 } from './vite/adminProxyPolicy.ts'
 
 const localApiProxy = {
   target: process.env.VITE_KQG_API_PROXY_TARGET ?? 'http://127.0.0.1:5275',
   changeOrigin: true,
   configure(proxy) {
-    const adminInternalKey = process.env.KQG_ADMIN_INTERNAL_KEY?.trim()
-    proxy.on('proxyReq', (proxyRequest, request) => {
+    proxy.on('proxyReq', (proxyRequest) => {
       proxyRequest.removeHeader(ADMIN_INTERNAL_KEY_HEADER)
       proxyRequest.removeHeader(OPERATOR_ROLE_HEADER)
       proxyRequest.removeHeader(OPERATOR_ID_HEADER)
-      if (adminInternalKey && requiresAdminProxyKey(request.url ?? '')) {
-        proxyRequest.setHeader(ADMIN_INTERNAL_KEY_HEADER, adminInternalKey)
-      }
     })
   },
 } satisfies ProxyOptions

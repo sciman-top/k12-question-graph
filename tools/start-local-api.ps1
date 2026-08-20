@@ -202,6 +202,10 @@ $previousEnvironment = $env:ASPNETCORE_ENVIRONMENT
 $previousAdminInternalKey = $env:AdminInternalGuard__ApiKey
 $adminInternalKey = $resolvedAdminInternalKey
 
+if ([string]::IsNullOrWhiteSpace($adminInternalKey)) {
+    throw 'Admin API key is required. Set KQG_ADMIN_INTERNAL_KEY or AdminInternalGuard__ApiKey before starting the API.'
+}
+
 try {
     Ensure-ApiBinary
     $env:KQG_CONNECTION_STRING = $resolvedConnectionString

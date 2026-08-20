@@ -120,7 +120,12 @@ $manifest = [ordered]@{
 }
 
 $manifestPath = Join-Path $backupDir 'manifest.json'
-$manifest | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $manifestPath -Encoding UTF8
+$manifestJson = $manifest | ConvertTo-Json -Depth 8
+$schemaPath = Join-Path $PSScriptRoot '..\schemas\backup_manifest.schema.json'
+if (-not (Test-Json -Json $manifestJson -SchemaFile $schemaPath -ErrorAction SilentlyContinue)) {
+    throw 'generated backup manifest failed schema validation'
+}
+$manifestJson | Set-Content -LiteralPath $manifestPath -Encoding UTF8
 
 [pscustomobject]@{
     backupDir = $backupDir

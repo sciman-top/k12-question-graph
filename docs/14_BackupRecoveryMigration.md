@@ -60,8 +60,8 @@ AI 反馈样本
 → pg_dump 数据库
 → 复制文件仓库
 → 导出配置/模板/教师偏好/prompt/规则
-→ 生成 manifest.json
-→ 生成 checksums.sha256
+→ 生成 manifest.json（内含逐文件 SHA-256）
+→ 按 schemas/backup_manifest.schema.json 验证合同
 → 验证备份
 → 复制到目标目录
 → 清理过期备份
@@ -99,7 +99,7 @@ tools/verify-backup.ps1
 | 主程序不可用 | <= 24 小时 | <= 4 小时 | 独立脚本可运行 |
 | Windows 无法启动 | 最近一次成功备份 | 半天内 | WinPE 拷贝数据目录与备份目录 |
 
-P0 只要求生成 manifest/hash 并能校验；P6 再做完整恢复演练。
+P0 只要求生成包含逐文件 hash 的 manifest 并能校验；P6 再做完整恢复演练。
 
 ## 10. 备份失败阻断
 
@@ -108,6 +108,6 @@ P0 只要求生成 manifest/hash 并能校验；P6 再做完整恢复演练。
 - `pg_dump` 失败或退出码非 0。
 - 文件仓库清单生成失败。
 - manifest schema version 缺失。
-- `checksums.sha256` 缺失或校验不通过。
+- manifest 内任一 SHA-256 缺失或校验不通过。
 - 备份目标目录不可写。
 - 敏感配置被明文写入可导出的备份包。

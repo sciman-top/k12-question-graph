@@ -1,4 +1,5 @@
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using K12QuestionGraph.Api.Configuration;
@@ -7,6 +8,7 @@ using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
 namespace K12QuestionGraph.Api.Ai;
+
 public sealed record AdminAiProviderSettingsContract(
     string Status,
     string Mode,
@@ -219,6 +221,7 @@ public sealed class FileAiProviderSettingsStore(
     private const string LegacyFallbackImageEnvSecretName = "IMAGE_PROVIDER_FALLBACK_1_API_KEY_1";
     private const string LegacyFallbackImageEnvBaseUrlName = "IMAGE_PROVIDER_FALLBACK_1_BASE_URL";
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web) { WriteIndented = true };
+    private static readonly SemaphoreSlim SettingsWriteLock = new(1, 1);
     private readonly IDataProtector protector = dataProtectionProvider.CreateProtector("k12-question-graph.admin-ai-provider-settings.v0.1");
 
     public async Task<AdminAiProviderSettingsContract> GetAsync(CancellationToken cancellationToken)
@@ -232,81 +235,79 @@ public sealed class FileAiProviderSettingsStore(
         CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
+        await SettingsWriteLock.WaitAsync(cancellationToken);
 
-        var existing = await LoadStoredAsync(cancellationToken);
-        var normalizedSecret = request.ApiKey?.Trim();
-        var normalizedImageSecret = request.ImageApiKey?.Trim();
-        var normalizedFallbackSecret = request.FallbackApiKey?.Trim();
-        var normalizedFallbackImageSecret = request.FallbackImageApiKey?.Trim();
-        var secretCiphertext = string.IsNullOrWhiteSpace(normalizedSecret)
-            ? existing.SecretCiphertext
-            : ProtectSecret(normalizedSecret);
-        var imageSecretCiphertext = normalizedImageSecret is null
-            ? existing.ImageSecretCiphertext
-            : string.IsNullOrWhiteSpace(normalizedImageSecret)
-                ? string.Empty
-                : ProtectSecret(normalizedImageSecret);
-        var fallbackSecretCiphertext = string.IsNullOrWhiteSpace(normalizedFallbackSecret)
-            ? existing.FallbackSecretCiphertext
-            : ProtectSecret(normalizedFallbackSecret);
-        var fallbackImageSecretCiphertext = normalizedFallbackImageSecret is null
-            ? existing.FallbackImageSecretCiphertext
-            : string.IsNullOrWhiteSpace(normalizedFallbackImageSecret)
-                ? string.Empty
-                : ProtectSecret(normalizedFallbackImageSecret);
-        var now = DateTimeOffset.UtcNow;
-        var stored = new StoredAdminAiProviderSettings(
-            SchemaVersion,
-            Normalize(request.ProviderProfileId, DefaultProviderProfileId),
-            DefaultProviderType,
-            NormalizeBaseUrl(request.BaseUrl),
-            NormalizeOptionalBaseUrl(request.ImageBaseUrl),
-            DefaultCredentialMode,
-            secretCiphertext,
-            imageSecretCiphertext,
-            NormalizeOptionalBaseUrl(request.FallbackBaseUrl),
-            NormalizeOptionalBaseUrl(request.FallbackImageBaseUrl),
-            fallbackSecretCiphertext,
-            fallbackImageSecretCiphertext,
-            NormalizeRange(request.MaxConcurrency, 1, 8, fallback: existing.MaxConcurrency),
-            NormalizeRange(request.MonthlyBudgetCny, 0, 100000, fallback: existing.MonthlyBudgetCny),
-            request.DisabledByDefault,
-            request.AllowRealModelCalls,
-            Normalize(request.DefaultSmokeTaskType, existing.DefaultSmokeTaskType),
-            Normalize(request.DefaultSmokeModel, existing.DefaultSmokeModel),
-            now,
-            Normalize(request.OperatorNote, existing.LastOperatorNote));
+        try
+        {
+            var existing = await LoadStoredAsync(cancellationToken);
+            var normalizedSecret = request.ApiKey?.Trim();
+            var normalizedImageSecret = request.ImageApiKey?.Trim();
+            var normalizedFallbackSecret = request.FallbackApiKey?.Trim();
+            var normalizedFallbackImageSecret = request.FallbackImageApiKey?.Trim();
+            var secretCiphertext = string.IsNullOrWhiteSpace(normalizedSecret)
+                ? existing.SecretCiphertext
+                : ProtectSecret(normalizedSecret);
+            var imageSecretCiphertext = normalizedImageSecret is null
+                ? existing.ImageSecretCiphertext
+                : string.IsNullOrWhiteSpace(normalizedImageSecret)
+                    ? string.Empty
+                    : ProtectSecret(normalizedImageSecret);
+            var fallbackSecretCiphertext = string.IsNullOrWhiteSpace(normalizedFallbackSecret)
+                ? existing.FallbackSecretCiphertext
+                : ProtectSecret(normalizedFallbackSecret);
+            var fallbackImageSecretCiphertext = normalizedFallbackImageSecret is null
+                ? existing.FallbackImageSecretCiphertext
+                : string.IsNullOrWhiteSpace(normalizedFallbackImageSecret)
+                    ? string.Empty
+                    : ProtectSecret(normalizedFallbackImageSecret);
+            var now = DateTimeOffset.UtcNow;
+            var stored = new StoredAdminAiProviderSettings(
+                SchemaVersion,
+                Normalize(request.ProviderProfileId, DefaultProviderProfileId),
+                DefaultProviderType,
+                NormalizeBaseUrl(request.BaseUrl),
+                NormalizeOptionalBaseUrl(request.ImageBaseUrl),
+                DefaultCredentialMode,
+                secretCiphertext,
+                imageSecretCiphertext,
+                NormalizeOptionalBaseUrl(request.FallbackBaseUrl),
+                NormalizeOptionalBaseUrl(request.FallbackImageBaseUrl),
+                fallbackSecretCiphertext,
+                fallbackImageSecretCiphertext,
+                NormalizeRange(request.MaxConcurrency, 1, 8, fallback: existing.MaxConcurrency),
+                NormalizeRange(request.MonthlyBudgetCny, 0, 100000, fallback: existing.MonthlyBudgetCny),
+                request.DisabledByDefault,
+                request.AllowRealModelCalls,
+                Normalize(request.DefaultSmokeTaskType, existing.DefaultSmokeTaskType),
+                Normalize(request.DefaultSmokeModel, existing.DefaultSmokeModel),
+                now,
+                Normalize(request.OperatorNote, existing.LastOperatorNote));
 
-        Directory.CreateDirectory(Path.GetDirectoryName(GetSettingsFilePath())!);
-        await File.WriteAllTextAsync(
-            GetSettingsFilePath(),
-            JsonSerializer.Serialize(stored, JsonOptions),
-            Encoding.UTF8,
-            cancellationToken);
+            await WriteStoredAtomicallyAsync(stored, cancellationToken);
 
-        var plaintextPrimarySecret = UnprotectSecret(stored.SecretCiphertext);
-        var plaintextImageSecret = ResolveEffectiveImageSecret(plaintextPrimarySecret, stored.ImageSecretCiphertext);
-        var plaintextFallbackSecret = UnprotectSecret(stored.FallbackSecretCiphertext);
-        var plaintextFallbackImageSecret = ResolveEffectiveImageSecret(plaintextFallbackSecret, stored.FallbackImageSecretCiphertext);
-        return new AdminAiProviderSettingsSaveResult(
-            Status: "ok",
-            Mode: "draft_test",
-            ProductionEligible: false,
-            ProviderProfileId: stored.ProviderProfileId,
-            SecretConfigured: !string.IsNullOrWhiteSpace(plaintextPrimarySecret),
-            MaskedSecret: MaskSecret(plaintextPrimarySecret),
-            ImageSecretConfigured: !string.IsNullOrWhiteSpace(plaintextImageSecret),
-            MaskedImageSecret: MaskSecret(plaintextImageSecret),
-            ImageUsesPrimarySecret: string.IsNullOrWhiteSpace(UnprotectSecret(stored.ImageSecretCiphertext)),
-            FallbackSecretConfigured: !string.IsNullOrWhiteSpace(plaintextFallbackSecret),
-            MaskedFallbackSecret: MaskSecret(plaintextFallbackSecret),
-            FallbackImageSecretConfigured: !string.IsNullOrWhiteSpace(plaintextFallbackImageSecret),
-            MaskedFallbackImageSecret: MaskSecret(plaintextFallbackImageSecret),
-            FallbackImageUsesPrimarySecret: string.IsNullOrWhiteSpace(UnprotectSecret(stored.FallbackImageSecretCiphertext)),
-            LastUpdatedAt: stored.UpdatedAtUtc.ToString("O"),
-            TeacherMessage: "管理员 AI 设置已保存；主备网关按顺序自动试跑，图片专用 key 留空时会复用同一路文本 key；本机仍只保留加密副本，试跑保持 pending_review。",
-            AuditTrail: [
-                "save_admin_ai_provider_settings",
+            var plaintextPrimarySecret = UnprotectSecret(stored.SecretCiphertext);
+            var plaintextImageSecret = ResolveEffectiveImageSecret(plaintextPrimarySecret, stored.ImageSecretCiphertext);
+            var plaintextFallbackSecret = UnprotectSecret(stored.FallbackSecretCiphertext);
+            var plaintextFallbackImageSecret = ResolveEffectiveImageSecret(plaintextFallbackSecret, stored.FallbackImageSecretCiphertext);
+            return new AdminAiProviderSettingsSaveResult(
+                Status: "ok",
+                Mode: "draft_test",
+                ProductionEligible: false,
+                ProviderProfileId: stored.ProviderProfileId,
+                SecretConfigured: !string.IsNullOrWhiteSpace(plaintextPrimarySecret),
+                MaskedSecret: MaskSecret(plaintextPrimarySecret),
+                ImageSecretConfigured: !string.IsNullOrWhiteSpace(plaintextImageSecret),
+                MaskedImageSecret: MaskSecret(plaintextImageSecret),
+                ImageUsesPrimarySecret: string.IsNullOrWhiteSpace(UnprotectSecret(stored.ImageSecretCiphertext)),
+                FallbackSecretConfigured: !string.IsNullOrWhiteSpace(plaintextFallbackSecret),
+                MaskedFallbackSecret: MaskSecret(plaintextFallbackSecret),
+                FallbackImageSecretConfigured: !string.IsNullOrWhiteSpace(plaintextFallbackImageSecret),
+                MaskedFallbackImageSecret: MaskSecret(plaintextFallbackImageSecret),
+                FallbackImageUsesPrimarySecret: string.IsNullOrWhiteSpace(UnprotectSecret(stored.FallbackImageSecretCiphertext)),
+                LastUpdatedAt: stored.UpdatedAtUtc.ToString("O"),
+                TeacherMessage: "管理员 AI 设置已保存；主备网关按顺序自动试跑，图片专用 key 留空时会复用同一路文本 key；本机仍只保留加密副本，试跑保持 pending_review。",
+                AuditTrail: [
+                    "save_admin_ai_provider_settings",
                 $"provider_profile={stored.ProviderProfileId}",
                 $"allow_real_model_calls={stored.AllowRealModelCalls.ToString().ToLowerInvariant()}",
                 $"secret_configured={(!string.IsNullOrWhiteSpace(plaintextPrimarySecret)).ToString().ToLowerInvariant()}",
@@ -315,7 +316,12 @@ public sealed class FileAiProviderSettingsStore(
                 $"fallback_secret_configured={(!string.IsNullOrWhiteSpace(plaintextFallbackSecret)).ToString().ToLowerInvariant()}",
                 $"fallback_image_secret_configured={(!string.IsNullOrWhiteSpace(plaintextFallbackImageSecret)).ToString().ToLowerInvariant()}",
                 $"fallback_image_uses_primary_secret={(string.IsNullOrWhiteSpace(UnprotectSecret(stored.FallbackImageSecretCiphertext))).ToString().ToLowerInvariant()}"
-            ]);
+                ]);
+        }
+        finally
+        {
+            SettingsWriteLock.Release();
+        }
     }
 
     public async Task<string> GetPlaintextSecretAsync(CancellationToken cancellationToken)
@@ -350,11 +356,70 @@ public sealed class FileAiProviderSettingsStore(
         {
             var json = await File.ReadAllTextAsync(path, cancellationToken);
             var loaded = JsonSerializer.Deserialize<StoredAdminAiProviderSettings>(json, JsonOptions);
-            return loaded is null ? BuildDefault() : NormalizeLoaded(loaded);
+            return loaded is null
+                ? throw new InvalidDataException($"AI provider settings file contains JSON null: {path}")
+                : NormalizeLoaded(loaded);
         }
-        catch
+        catch (OperationCanceledException)
         {
-            return BuildDefault();
+            throw;
+        }
+        catch (Exception exception) when (exception is JsonException or IOException or UnauthorizedAccessException)
+        {
+            throw new InvalidDataException(
+                $"AI provider settings could not be loaded. Inspect the primary file and its .bak recovery copy: {path}",
+                exception);
+        }
+    }
+
+    private async Task WriteStoredAtomicallyAsync(
+        StoredAdminAiProviderSettings stored,
+        CancellationToken cancellationToken)
+    {
+        var path = GetSettingsFilePath();
+        var directory = Path.GetDirectoryName(path)!;
+        Directory.CreateDirectory(directory);
+        var tempPath = Path.Combine(directory, $".{Path.GetFileName(path)}.{Guid.NewGuid():N}.tmp");
+        var backupPath = path + ".bak";
+        var json = JsonSerializer.Serialize(stored, JsonOptions);
+        _ = JsonSerializer.Deserialize<StoredAdminAiProviderSettings>(json, JsonOptions)
+            ?? throw new InvalidDataException("AI provider settings serialization produced JSON null.");
+
+        try
+        {
+            await using (var stream = new FileStream(
+                tempPath,
+                FileMode.CreateNew,
+                FileAccess.Write,
+                FileShare.None,
+                4096,
+                FileOptions.Asynchronous | FileOptions.WriteThrough))
+            {
+                var bytes = Encoding.UTF8.GetBytes(json);
+                await stream.WriteAsync(bytes, cancellationToken);
+                await stream.FlushAsync(cancellationToken);
+                stream.Flush(flushToDisk: true);
+            }
+
+            var candidateJson = await File.ReadAllTextAsync(tempPath, cancellationToken);
+            _ = JsonSerializer.Deserialize<StoredAdminAiProviderSettings>(candidateJson, JsonOptions)
+                ?? throw new InvalidDataException("AI provider settings candidate contains JSON null.");
+
+            if (File.Exists(path))
+            {
+                File.Replace(tempPath, path, backupPath, ignoreMetadataErrors: true);
+            }
+            else
+            {
+                File.Move(tempPath, path);
+            }
+        }
+        finally
+        {
+            if (File.Exists(tempPath))
+            {
+                File.Delete(tempPath);
+            }
         }
     }
 
@@ -627,9 +692,11 @@ public sealed class FileAiProviderSettingsStore(
         {
             return protector.Unprotect(value);
         }
-        catch
+        catch (CryptographicException exception)
         {
-            return string.Empty;
+            throw new CryptographicException(
+                "AI provider secret could not be decrypted with the current Data Protection key ring.",
+                exception);
         }
     }
 

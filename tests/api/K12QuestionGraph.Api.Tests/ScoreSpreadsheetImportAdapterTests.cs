@@ -1,4 +1,5 @@
 using K12QuestionGraph.Api.Scores;
+using System.IO.Compression;
 
 namespace K12QuestionGraph.Api.Tests;
 
@@ -36,5 +37,42 @@ public sealed class ScoreSpreadsheetImportAdapterTests
 
         Assert.Equal("xlsx_invalid", error.Code);
         Assert.Equal(400, error.StatusCode);
+    }
+
+    [Fact]
+    public void RejectsArchiveWithExcessiveEntryCountBeforeClosedXmlLoadsIt()
+    {
+        using var stream = new MemoryStream();
+        using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            for (var index = 0; index < 513; index++)
+            {
+                archive.CreateEntry($"xl/worksheets/sheet-{index}.xml");
+            }
+        }
+
+        var error = Assert.Throws<ScoreSpreadsheetImportException>(() =>
+            ScoreSpreadsheetImportAdapter.ValidateWorkbookArchive(stream));
+
+        Assert.Equal("xlsx_resource_limit", error.Code);
+        Assert.Equal(413, error.StatusCode);
+    }
+
+    [Fact]
+    public void RejectsSuspiciousCompressionRatioBeforeClosedXmlLoadsIt()
+    {
+        using var stream = new MemoryStream();
+        using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            var entry = archive.CreateEntry("xl/sharedStrings.xml", CompressionLevel.SmallestSize);
+            using var entryStream = entry.Open();
+            entryStream.Write(new byte[2 * 1024 * 1024]);
+        }
+
+        var error = Assert.Throws<ScoreSpreadsheetImportException>(() =>
+            ScoreSpreadsheetImportAdapter.ValidateWorkbookArchive(stream));
+
+        Assert.Equal("xlsx_resource_limit", error.Code);
+        Assert.Equal(413, error.StatusCode);
     }
 }

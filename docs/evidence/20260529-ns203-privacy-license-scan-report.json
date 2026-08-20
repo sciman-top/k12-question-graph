@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "taskId": "NS203",
-  "checkedAt": "2026-07-31T20:15:12",
+  "checkedAt": "2026-08-20T23:38:09",
   "mode": "tracked_text_privacy_license_scan",
   "productionEligible": false,
   "scanScope": {
@@ -18,21 +18,21 @@
       "README.md",
       "ALL_IN_ONE_EXECUTIVE_SPEC.md"
     ],
-    "trackedFileCount": 1836,
-    "policyPath": "docs/102_NonSiteFixturePrivacyPolicy.md",
+    "trackedFileCount": 591,
+    "policyPath": "docs/17_SecurityPrivacyCompliance.md",
     "fixturePolicyPath": "tests/golden-import/privacy_and_license.md",
     "rawIgnorePath": "sources/raw/.gitignore"
   },
   "counts": {
-    "secretLikeHits": 166,
+    "secretLikeHits": 75,
     "blockingSecretHits": 0,
     "piiValueHits": 0,
     "blockingPiiHits": 0,
-    "trackedBinaryFiles": 8,
+    "trackedBinaryFiles": 14,
     "blockingTrackedBinaryFiles": 0,
     "trackedRawSourceBlockers": 0,
     "localRawSourceFiles": 0,
-    "policyMentionCount": 861,
+    "policyMentionCount": 203,
     "copyrightRawPathMarkers": 0,
     "excludedGeneratedScanReports": 1
   },
@@ -41,7 +41,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 255,
+        "line": 243,
         "excerpt": "var normalizedSecret = request.ApiKey?.Trim();",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -49,7 +49,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 256,
+        "line": 244,
         "excerpt": "var normalizedImageSecret = request.ImageApiKey?.Trim();",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -57,7 +57,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 257,
+        "line": 245,
         "excerpt": "var normalizedFallbackSecret = request.FallbackApiKey?.Trim();",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -65,7 +65,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 258,
+        "line": 246,
         "excerpt": "var normalizedFallbackImageSecret = request.FallbackImageApiKey?.Trim();",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -73,7 +73,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 305,
+        "line": 288,
         "excerpt": "var plaintextPrimarySecret = UnprotectSecret(stored.SecretCiphertext);",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -81,7 +81,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 306,
+        "line": 289,
         "excerpt": "var plaintextImageSecret = ResolveEffectiveImageSecret(plaintextPrimarySecret, stored.ImageSecretCiphertext);",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -89,7 +89,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 307,
+        "line": 290,
         "excerpt": "var plaintextFallbackSecret = UnprotectSecret(stored.FallbackSecretCiphertext);",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -97,7 +97,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 308,
+        "line": 291,
         "excerpt": "var plaintextFallbackImageSecret = ResolveEffectiveImageSecret(plaintextFallbackSecret, stored.FallbackImageSecretCiphertext);",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -105,7 +105,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 318,
+        "line": 301,
         "excerpt": "ImageUsesPrimarySecret: string.IsNullOrWhiteSpace(UnprotectSecret(stored.ImageSecretCiphertext)),",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -113,7 +113,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 323,
+        "line": 306,
         "excerpt": "FallbackImageUsesPrimarySecret: string.IsNullOrWhiteSpace(UnprotectSecret(stored.FallbackImageSecretCiphertext)),",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -121,7 +121,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 348,
+        "line": 336,
         "excerpt": "var plaintextPrimarySecret = UnprotectSecret(stored.SecretCiphertext);",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -129,7 +129,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 381,
+        "line": 428,
         "excerpt": "var plaintextSecret = UnprotectSecret(settings.SecretCiphertext);",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -137,7 +137,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 382,
+        "line": 429,
         "excerpt": "var plaintextImageSecret = ResolveEffectiveImageSecret(plaintextSecret, settings.ImageSecretCiphertext);",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -145,7 +145,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 383,
+        "line": 430,
         "excerpt": "var explicitImageSecret = UnprotectSecret(settings.ImageSecretCiphertext);",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -153,7 +153,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 384,
+        "line": 431,
         "excerpt": "var plaintextFallbackSecret = UnprotectSecret(settings.FallbackSecretCiphertext);",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -161,7 +161,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 385,
+        "line": 432,
         "excerpt": "var plaintextFallbackImageSecret = ResolveEffectiveImageSecret(plaintextFallbackSecret, settings.FallbackImageSecretCiphertext);",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -169,7 +169,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 386,
+        "line": 433,
         "excerpt": "var explicitFallbackImageSecret = UnprotectSecret(settings.FallbackImageSecretCiphertext);",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -177,7 +177,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 400,
+        "line": 447,
         "excerpt": "ImageUsesPrimarySecret: string.IsNullOrWhiteSpace(explicitImageSecret),",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -185,7 +185,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 413,
+        "line": 460,
         "excerpt": "FallbackImageUsesPrimarySecret: string.IsNullOrWhiteSpace(explicitFallbackImageSecret),",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -193,7 +193,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 433,
+        "line": 480,
         "excerpt": "var envPrimarySecret = ReadFirstEnvironmentValue(PrimaryEnvSecretName, LegacyPrimaryEnvSecretName);",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -201,7 +201,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 434,
+        "line": 481,
         "excerpt": "var envImageSecret = ReadFirstEnvironmentValue(ImageEnvSecretName, LegacyImageEnvSecretName);",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -209,7 +209,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 437,
+        "line": 484,
         "excerpt": "var envFallbackSecret = ReadFirstEnvironmentValue(FallbackEnvSecretName, LegacyFallbackEnvSecretName);",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -217,7 +217,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 439,
+        "line": 486,
         "excerpt": "var envFallbackImageSecret = ReadFirstEnvironmentValue(FallbackImageEnvSecretName, LegacyFallbackImageEnvSecretName);",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -225,7 +225,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 554,
+        "line": 601,
         "excerpt": "var primarySecret = UnprotectSecret(settings.SecretCiphertext);",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -233,7 +233,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 555,
+        "line": 602,
         "excerpt": "var primaryImageSecret = ResolveEffectiveImageSecret(primarySecret, settings.ImageSecretCiphertext);",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -241,7 +241,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 556,
+        "line": 603,
         "excerpt": "var explicitPrimaryImageSecret = UnprotectSecret(settings.ImageSecretCiphertext);",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -249,7 +249,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 557,
+        "line": 604,
         "excerpt": "var fallbackSecret = UnprotectSecret(settings.FallbackSecretCiphertext);",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -257,7 +257,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 558,
+        "line": 605,
         "excerpt": "var fallbackImageSecret = ResolveEffectiveImageSecret(fallbackSecret, settings.FallbackImageSecretCiphertext);",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -265,7 +265,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 559,
+        "line": 606,
         "excerpt": "var explicitFallbackImageSecret = UnprotectSecret(settings.FallbackImageSecretCiphertext);",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -273,7 +273,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 572,
+        "line": 619,
         "excerpt": "ImageUsesTextSecret: string.IsNullOrWhiteSpace(explicitPrimaryImageSecret))",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -281,7 +281,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 590,
+        "line": 637,
         "excerpt": "ImageUsesTextSecret: string.IsNullOrWhiteSpace(explicitFallbackImageSecret)));",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -289,7 +289,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 598,
+        "line": 645,
         "excerpt": "var primarySecret = UnprotectSecret(settings.SecretCiphertext);",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -297,7 +297,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 599,
+        "line": 646,
         "excerpt": "var primaryImageSecret = ResolveEffectiveImageSecret(primarySecret, settings.ImageSecretCiphertext);",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -305,7 +305,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 600,
+        "line": 647,
         "excerpt": "var fallbackSecret = UnprotectSecret(settings.FallbackSecretCiphertext);",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -313,7 +313,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 601,
+        "line": 648,
         "excerpt": "var fallbackImageSecret = ResolveEffectiveImageSecret(fallbackSecret, settings.FallbackImageSecretCiphertext);",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -321,7 +321,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 609,
+        "line": 656,
         "excerpt": "Secret: primarySecret,",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -329,7 +329,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 611,
+        "line": 658,
         "excerpt": "ImageSecret: primaryImageSecret)",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -337,7 +337,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 624,
+        "line": 671,
         "excerpt": "Secret: fallbackSecret,",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -345,7 +345,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 626,
+        "line": 673,
         "excerpt": "ImageSecret: fallbackImageSecret));",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -353,7 +353,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 672,
+        "line": 721,
         "excerpt": "var explicitImageSecret = UnprotectSecret(imageSecretCiphertext);",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -361,7 +361,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/api/Ai/AdminAiProviderSettings.cs",
-        "line": 673,
+        "line": 722,
         "excerpt": "return string.IsNullOrWhiteSpace(explicitImageSecret) ? primarySecret : explicitImageSecret;",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -369,7 +369,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/web/src/api/contracts.ts",
-        "line": 1452,
+        "line": 1470,
         "excerpt": "undoToken: readStringField(undo, 'undoToken') ?? '',",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -377,7 +377,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/web/src/api/contracts.ts",
-        "line": 1637,
+        "line": 1655,
         "excerpt": "maskedSecret: readStringField(value, 'maskedSecret') ?? '',",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -385,7 +385,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/web/src/api/contracts.ts",
-        "line": 1639,
+        "line": 1657,
         "excerpt": "maskedImageSecret: readStringField(value, 'maskedImageSecret') ?? '',",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -393,7 +393,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/web/src/api/contracts.ts",
-        "line": 1641,
+        "line": 1659,
         "excerpt": "imageUsesPrimarySecret: readBooleanField(value, 'imageUsesPrimarySecret'),",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -401,7 +401,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/web/src/api/contracts.ts",
-        "line": 1650,
+        "line": 1668,
         "excerpt": "maskedFallbackSecret: readStringField(value, 'maskedFallbackSecret') ?? '',",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -409,7 +409,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/web/src/api/contracts.ts",
-        "line": 1652,
+        "line": 1670,
         "excerpt": "maskedFallbackImageSecret: readStringField(value, 'maskedFallbackImageSecret') ?? '',",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -417,7 +417,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/web/src/api/contracts.ts",
-        "line": 1654,
+        "line": 1672,
         "excerpt": "fallbackImageUsesPrimarySecret: readBooleanField(value, 'fallbackImageUsesPrimarySecret'),",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -425,40 +425,8 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/web/src/api/contracts.ts",
-        "line": 1669,
+        "line": 1687,
         "excerpt": "maskedSecret: readStringField(value, 'maskedSecret') ?? '',",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "apps/web/src/api/contracts.ts",
-        "line": 1671,
-        "excerpt": "maskedImageSecret: readStringField(value, 'maskedImageSecret') ?? '',",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "apps/web/src/api/contracts.ts",
-        "line": 1673,
-        "excerpt": "imageUsesTextSecret: readBooleanField(value, 'imageUsesTextSecret'),",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "apps/web/src/api/contracts.ts",
-        "line": 1686,
-        "excerpt": "maskedSecret: readStringField(value, 'maskedSecret') ?? '',",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "apps/web/src/api/contracts.ts",
-        "line": 1688,
-        "excerpt": "maskedImageSecret: readStringField(value, 'maskedImageSecret') ?? '',",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
       },
@@ -466,7 +434,7 @@
         "kind": "credential_assignment_like",
         "path": "apps/web/src/api/contracts.ts",
         "line": 1689,
-        "excerpt": "imageUsesPrimarySecret: readBooleanField(value, 'imageUsesPrimarySecret'),",
+        "excerpt": "maskedImageSecret: readStringField(value, 'maskedImageSecret') ?? '',",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
       },
@@ -474,6 +442,38 @@
         "kind": "credential_assignment_like",
         "path": "apps/web/src/api/contracts.ts",
         "line": 1691,
+        "excerpt": "imageUsesTextSecret: readBooleanField(value, 'imageUsesTextSecret'),",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "apps/web/src/api/contracts.ts",
+        "line": 1704,
+        "excerpt": "maskedSecret: readStringField(value, 'maskedSecret') ?? '',",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "apps/web/src/api/contracts.ts",
+        "line": 1706,
+        "excerpt": "maskedImageSecret: readStringField(value, 'maskedImageSecret') ?? '',",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "apps/web/src/api/contracts.ts",
+        "line": 1707,
+        "excerpt": "imageUsesPrimarySecret: readBooleanField(value, 'imageUsesPrimarySecret'),",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "apps/web/src/api/contracts.ts",
+        "line": 1709,
         "excerpt": "maskedFallbackSecret: readStringField(value, 'maskedFallbackSecret') ?? '',",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -481,7 +481,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/web/src/api/contracts.ts",
-        "line": 1693,
+        "line": 1711,
         "excerpt": "maskedFallbackImageSecret: readStringField(value, 'maskedFallbackImageSecret') ?? '',",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -489,7 +489,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/web/src/api/contracts.ts",
-        "line": 1694,
+        "line": 1712,
         "excerpt": "fallbackImageUsesPrimarySecret: readBooleanField(value, 'fallbackImageUsesPrimarySecret'),",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -497,7 +497,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/web/src/App.tsx",
-        "line": 1135,
+        "line": 1120,
         "excerpt": "undoToken: result.data.undo.undoToken,",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -505,7 +505,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/web/src/ui/AiRoutingControlPanel.tsx",
-        "line": 198,
+        "line": 199,
         "excerpt": "apiKey: values.apiKey,",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -513,7 +513,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/web/src/ui/AiRoutingControlPanel.tsx",
-        "line": 200,
+        "line": 201,
         "excerpt": "imageApiKey: values.imageApiKey,",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -521,7 +521,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/web/src/ui/AiRoutingControlPanel.tsx",
-        "line": 202,
+        "line": 203,
         "excerpt": "fallbackApiKey: values.fallbackApiKey,",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -529,40 +529,8 @@
       {
         "kind": "credential_assignment_like",
         "path": "apps/web/src/ui/AiRoutingControlPanel.tsx",
-        "line": 204,
+        "line": 205,
         "excerpt": "fallbackImageApiKey: values.fallbackImageApiKey,",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "tests/workers/test_guangzhou_v2_materialize.py",
-        "line": 23,
-        "excerpt": "without_password = reviewed_materialize.build_connection_kwargs(",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "tests/workers/test_guangzhou_v2_materialize.py",
-        "line": 26,
-        "excerpt": "with_password = reviewed_materialize.build_connection_kwargs(",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "tests/workers/test_guangzhou_v2_tagging.py",
-        "line": 16,
-        "excerpt": "without_password = tagging.build_connection_kwargs(",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "tests/workers/test_guangzhou_v2_tagging.py",
-        "line": 19,
-        "excerpt": "with_password = tagging.build_connection_kwargs(",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
       },
@@ -576,25 +544,9 @@
       },
       {
         "kind": "credential_assignment_like",
-        "path": "tools/guangzhou_physics_v2_asset_diagnostics.py",
-        "line": 68,
-        "excerpt": "password = os.environ.get(\"PGPASSWORD\", \"\")",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "tools/guangzhou_physics_v2_tagging.py",
-        "line": 239,
-        "excerpt": "password = os.environ.get(\"PGPASSWORD\", \"\")",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "tools/guangzhou_physics_year_batch_ingest.py",
-        "line": 279,
-        "excerpt": "password=args.password,",
+        "path": "tools/get-release-state-fingerprint.ps1",
+        "line": 15,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
       },
@@ -609,47 +561,7 @@
       {
         "kind": "credential_assignment_like",
         "path": "tools/import-c002-source-materials.ps1",
-        "line": 23,
-        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "tools/real005b_reviewed_question_materialize.py",
-        "line": 659,
-        "excerpt": "password = os.environ.get(\"PGPASSWORD\", \"\")",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "tools/run-c001-contract.ps1",
-        "line": 13,
-        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "tools/run-c002-seed-validation.ps1",
-        "line": 14,
-        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "tools/run-c002a-domain-asset-contract.ps1",
-        "line": 13,
-        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
-        "allowed": true,
-        "reason": "placeholder/test contract value or header constant"
-      },
-      {
-        "kind": "credential_assignment_like",
-        "path": "tools/run-c002i-source-material-workbench-contract.ps1",
-        "line": 13,
+        "line": 24,
         "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
@@ -677,9 +589,57 @@
         "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
         "allowed": true,
         "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-curriculum-exam-c002r-isolated-drill.ps1",
+        "line": 28,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-ns806-upgrade-bundle.ps1",
+        "line": 18,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-o001-windows-service-publish-contract.ps1",
+        "line": 18,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-o003-recovery-drill-contract.ps1",
+        "line": 17,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/run-o007-ef-migration-bundle-upgrade-contract.ps1",
+        "line": 15,
+        "excerpt": "$DatabasePassword = Use-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
+      },
+      {
+        "kind": "credential_assignment_like",
+        "path": "tools/start-local-api.ps1",
+        "line": 127,
+        "excerpt": "$resolvedPassword = Resolve-KqgDatabasePassword -DatabasePassword $DatabasePassword",
+        "allowed": true,
+        "reason": "placeholder/test contract value or header constant"
       }
     ],
-    "allowedCredentialLikeHitCount": 166,
+    "allowedCredentialLikeHitCount": 75,
     "allowedCredentialLikeHitSampleLimit": 80,
     "allowedTrackedBinaryFiles": [
       {
@@ -692,43 +652,79 @@
         "path": "docs/evidence/20260512-real004-guangzhou-2015-review-ui.png",
         "extension": ".png",
         "allowed": true,
-        "reason": "generated UI evidence screenshot, not raw source material"
+        "reason": "generated UI evidence screenshot, visually reviewed as no raw source page, secret, or student PII"
       },
       {
         "path": "docs/evidence/20260609-teacher-visible-walkthrough/20260609-analysis-summary.png",
         "extension": ".png",
         "allowed": true,
-        "reason": "generated UI evidence screenshot, not raw source material"
+        "reason": "generated UI evidence screenshot, visually reviewed as no raw source page, secret, or student PII"
       },
       {
         "path": "docs/evidence/20260609-teacher-visible-walkthrough/20260609-analysis.png",
         "extension": ".png",
         "allowed": true,
-        "reason": "generated UI evidence screenshot, not raw source material"
+        "reason": "generated UI evidence screenshot, visually reviewed as no raw source page, secret, or student PII"
       },
       {
         "path": "docs/evidence/20260609-teacher-visible-walkthrough/20260609-compose.png",
         "extension": ".png",
         "allowed": true,
-        "reason": "generated UI evidence screenshot, not raw source material"
+        "reason": "generated UI evidence screenshot, visually reviewed as no raw source page, secret, or student PII"
       },
       {
         "path": "docs/evidence/20260609-teacher-visible-walkthrough/20260609-home.png",
         "extension": ".png",
         "allowed": true,
-        "reason": "generated UI evidence screenshot, not raw source material"
+        "reason": "generated UI evidence screenshot, visually reviewed as no raw source page, secret, or student PII"
       },
       {
         "path": "docs/evidence/20260609-teacher-visible-walkthrough/20260609-import.png",
         "extension": ".png",
         "allowed": true,
-        "reason": "generated UI evidence screenshot, not raw source material"
+        "reason": "generated UI evidence screenshot, visually reviewed as no raw source page, secret, or student PII"
       },
       {
         "path": "docs/evidence/20260609-teacher-visible-walkthrough/20260609-score-import.png",
         "extension": ".png",
         "allowed": true,
-        "reason": "generated UI evidence screenshot, not raw source material"
+        "reason": "generated UI evidence screenshot, visually reviewed as no raw source page, secret, or student PII"
+      },
+      {
+        "path": "docs/evidence/cek033-desktop-analysis.png",
+        "extension": ".png",
+        "allowed": true,
+        "reason": "generated UI evidence screenshot, visually reviewed as no raw source page, secret, or student PII"
+      },
+      {
+        "path": "docs/evidence/cek033-desktop-candidate-search.png",
+        "extension": ".png",
+        "allowed": true,
+        "reason": "generated UI evidence screenshot, visually reviewed as no raw source page, secret, or student PII"
+      },
+      {
+        "path": "docs/evidence/cek033-mobile-analysis.png",
+        "extension": ".png",
+        "allowed": true,
+        "reason": "generated UI evidence screenshot, visually reviewed as no raw source page, secret, or student PII"
+      },
+      {
+        "path": "docs/evidence/cek033-mobile-candidate-search.png",
+        "extension": ".png",
+        "allowed": true,
+        "reason": "generated UI evidence screenshot, visually reviewed as no raw source page, secret, or student PII"
+      },
+      {
+        "path": "docs/evidence/cek033-mobile-review.png",
+        "extension": ".png",
+        "allowed": true,
+        "reason": "generated UI evidence screenshot, visually reviewed as no raw source page, secret, or student PII"
+      },
+      {
+        "path": "tests/fixtures/scores/sample-synthetic-score-import.xlsx",
+        "extension": ".xlsx",
+        "allowed": true,
+        "reason": "synthetic local score-import fixture covered by tests/golden-import/privacy_and_license.md"
       }
     ],
     "policyMentionsSample": [
@@ -739,6 +735,14 @@
       {
         "path": "apps/api/Application/Workflows/ScoreAnalysisWorkflowService.cs",
         "term": "真实学生"
+      },
+      {
+        "path": "apps/api/Endpoints/ScoreEndpoints.cs",
+        "term": "containsStudentPii"
+      },
+      {
+        "path": "apps/api/Endpoints/ScoreEndpoints.cs",
+        "term": "realStudentDataUsed"
       },
       {
         "path": "apps/api/Program.cs",
@@ -753,6 +757,14 @@
         "term": "containsStudentPii"
       },
       {
+        "path": "apps/api/Scores/ScoreSpreadsheetImportAdapter.cs",
+        "term": "学号"
+      },
+      {
+        "path": "apps/api/Scores/ScoreSpreadsheetImportAdapter.cs",
+        "term": "containsStudentPii"
+      },
+      {
         "path": "apps/web/src/api/client.ts",
         "term": "containsStudentPii"
       },
@@ -763,10 +775,6 @@
       {
         "path": "apps/web/src/api/contracts.ts",
         "term": "realStudentDataUsed"
-      },
-      {
-        "path": "apps/web/src/App.tsx",
-        "term": "真实学生"
       },
       {
         "path": "apps/web/src/App.tsx",
@@ -789,28 +797,16 @@
         "term": "学号"
       },
       {
+        "path": "apps/web/src/ui/AnalysisPanelContent.test.tsx",
+        "term": "realStudentDataUsed"
+      },
+      {
         "path": "apps/web/src/ui/ScoreWorkbenchPanelContent.tsx",
         "term": "真实学生"
       },
       {
         "path": "apps/web/src/ui/workbenchData.tsx",
         "term": "realStudentDataUsed"
-      },
-      {
-        "path": "configs/knowledge/source-material-manifest.example.json",
-        "term": "containsStudentPii"
-      },
-      {
-        "path": "docs/01_PRD.md",
-        "term": "真实学生"
-      },
-      {
-        "path": "docs/01_PRD.md",
-        "term": "授权"
-      },
-      {
-        "path": "docs/03_Architecture.md",
-        "term": "真实学生"
       }
     ],
     "copyrightRawPathMarkers": [],
@@ -831,5 +827,5 @@
   },
   "boundary": "NS203 scans tracked repo text and raw staging policy for PII/secret/source-license blockers. It cannot certify external untracked staging directories or legal sufficiency of third-party materials.",
   "next": "NS204 can continue no-active-write guard for AI candidates, imports, dynamic assets, and production history.",
-  "rollback": "git restore tasks/non-site-implementation-plan.csv tools/run-gates.ps1; git clean -f -- tools/run-ns203-privacy-license-scan.ps1 docs/evidence/20260529-ns203-privacy-license-scan-report.json"
+  "rollback": "git restore tools/run-ns203-privacy-license-scan.ps1; git clean -f -- docs/evidence/20260529-ns203-privacy-license-scan-report.json"
 }

@@ -10,13 +10,14 @@ public class OriginalBlobMaterializerTests
     {
         using var fixture = new BlobFixture("physics-source");
 
-        OriginalBlobMaterializer.Reconcile(
+        var created = OriginalBlobMaterializer.Reconcile(
             fixture.Root,
             fixture.RelativePath,
             fixture.Upload,
             fixture.Sha256,
             fixture.SizeBytes);
 
+        Assert.True(created);
         Assert.False(File.Exists(fixture.Upload));
         Assert.Equal("physics-source", File.ReadAllText(fixture.Target));
     }
@@ -28,15 +29,32 @@ public class OriginalBlobMaterializerTests
         Directory.CreateDirectory(Path.GetDirectoryName(fixture.Target)!);
         File.Copy(fixture.Upload, fixture.Target);
 
-        OriginalBlobMaterializer.Reconcile(
+        var created = OriginalBlobMaterializer.Reconcile(
             fixture.Root,
             fixture.RelativePath,
             fixture.Upload,
             fixture.Sha256,
             fixture.SizeBytes);
 
+        Assert.False(created);
         Assert.False(File.Exists(fixture.Upload));
         Assert.Equal("same-content", File.ReadAllText(fixture.Target));
+    }
+
+    [Fact]
+    public void DeleteIfMatches_RemovesOnlyTheExpectedCompensationBlob()
+    {
+        using var fixture = new BlobFixture("transaction-failed");
+        Directory.CreateDirectory(Path.GetDirectoryName(fixture.Target)!);
+        File.Copy(fixture.Upload, fixture.Target);
+
+        OriginalBlobMaterializer.DeleteIfMatches(
+            fixture.Root,
+            fixture.RelativePath,
+            fixture.Sha256,
+            fixture.SizeBytes);
+
+        Assert.False(File.Exists(fixture.Target));
     }
 
     [Fact]

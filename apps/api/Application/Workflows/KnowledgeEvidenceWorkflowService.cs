@@ -239,14 +239,14 @@ public sealed class KnowledgeEvidenceWorkflowService(KqgDbContext dbContext)
             .ToArrayAsync(cancellationToken);
         var questionIds = questions.Select(question => question.Id).ToArray();
         var targets = await (mode switch
-            {
-                "active" => dbContext.AssessmentTargets.AsNoTracking().Where(target => target.Status == "active"
-                    && target.ReviewStatus == "approved" && target.ProductionEligible),
-                "reviewed" => dbContext.AssessmentTargets.AsNoTracking().Where(target => target.Status == "reviewed"
-                    && target.ReviewStatus == "approved" && !target.ProductionEligible),
-                _ => dbContext.AssessmentTargets.AsNoTracking().Where(target => target.Status == "candidate"
-                    && target.ReviewStatus != "rejected" && !target.ProductionEligible),
-            })
+        {
+            "active" => dbContext.AssessmentTargets.AsNoTracking().Where(target => target.Status == "active"
+                && target.ReviewStatus == "approved" && target.ProductionEligible),
+            "reviewed" => dbContext.AssessmentTargets.AsNoTracking().Where(target => target.Status == "reviewed"
+                && target.ReviewStatus == "approved" && !target.ProductionEligible),
+            _ => dbContext.AssessmentTargets.AsNoTracking().Where(target => target.Status == "candidate"
+                && target.ReviewStatus != "rejected" && !target.ProductionEligible),
+        })
             .Where(target => questionIds.Contains(target.QuestionItemId))
             .OrderByDescending(target => target.IsPrimaryTarget)
             .ThenBy(target => target.StableKey)
@@ -1257,12 +1257,12 @@ public sealed class KnowledgeEvidenceWorkflowService(KqgDbContext dbContext)
                 target.TargetStatement,
                 target.ScopeType,
                 target.QuestionItemId,
-                 target.QuestionBlockId,
-                 target.Status,
-                 primaryKnowledge = ProjectKnowledge(target.Id, "primary"),
-                 secondaryKnowledge = ProjectKnowledge(target.Id, "secondary"),
-                 estimatedDifficulty = questionDifficulties.GetValueOrDefault(target.QuestionItemId),
-                 observedDifficulty = observedDifficultyLookup[target.Id]
+                target.QuestionBlockId,
+                target.Status,
+                primaryKnowledge = ProjectKnowledge(target.Id, "primary"),
+                secondaryKnowledge = ProjectKnowledge(target.Id, "secondary"),
+                estimatedDifficulty = questionDifficulties.GetValueOrDefault(target.QuestionItemId),
+                observedDifficulty = observedDifficultyLookup[target.Id]
                      .Select(evidence => new
                      {
                          value = evidence.DifficultyObserved,
@@ -1271,7 +1271,7 @@ public sealed class KnowledgeEvidenceWorkflowService(KqgDbContext dbContext)
                          evidence.SourceRegionId,
                      })
                      .ToArray(),
-             }),
+            }),
             ParseJsonElement(target.Metadata))));
 
         var alignments = await dbContext.CurriculumAlignments.AsNoTracking().ToArrayAsync(cancellationToken);
@@ -1582,109 +1582,109 @@ public sealed class KnowledgeEvidenceWorkflowService(KqgDbContext dbContext)
         switch (entityKind)
         {
             case "domain_asset_version":
-            {
-                var asset = await dbContext.DomainAssetVersions.FirstOrDefaultAsync(row => row.Id == candidateId, cancellationToken)
-                    ?? throw new KeyNotFoundException("curriculum_evidence_candidate_not_found");
-                var current = expectedAfter.TryGetProperty("updatedAt", out _)
-                    ? JsonSerializer.SerializeToElement(new
-                    {
-                        entityKind = "domain_asset_version",
-                        status = asset.Status,
-                        metadata = ParseJsonElement(asset.Metadata),
-                        updatedAt = asset.UpdatedAt,
-                    })
-                    : JsonSerializer.SerializeToElement(new
-                    {
-                        entityKind = "domain_asset_version",
-                        status = asset.Status,
-                        metadata = ParseJsonElement(asset.Metadata),
-                    });
-                if (ShouldRestoreSnapshot(expectedAfter, before, current))
                 {
-                    asset.Status = GetRequiredProperty(before, "status", "Status").GetString()!;
-                    asset.Metadata = before.GetProperty("metadata").GetRawText();
-                    asset.UpdatedAt = before.TryGetProperty("updatedAt", out var updatedAt)
-                        ? updatedAt.GetDateTimeOffset()
-                        : asset.UpdatedAt;
+                    var asset = await dbContext.DomainAssetVersions.FirstOrDefaultAsync(row => row.Id == candidateId, cancellationToken)
+                        ?? throw new KeyNotFoundException("curriculum_evidence_candidate_not_found");
+                    var current = expectedAfter.TryGetProperty("updatedAt", out _)
+                        ? JsonSerializer.SerializeToElement(new
+                        {
+                            entityKind = "domain_asset_version",
+                            status = asset.Status,
+                            metadata = ParseJsonElement(asset.Metadata),
+                            updatedAt = asset.UpdatedAt,
+                        })
+                        : JsonSerializer.SerializeToElement(new
+                        {
+                            entityKind = "domain_asset_version",
+                            status = asset.Status,
+                            metadata = ParseJsonElement(asset.Metadata),
+                        });
+                    if (ShouldRestoreSnapshot(expectedAfter, before, current))
+                    {
+                        asset.Status = GetRequiredProperty(before, "status", "Status").GetString()!;
+                        asset.Metadata = before.GetProperty("metadata").GetRawText();
+                        asset.UpdatedAt = before.TryGetProperty("updatedAt", out var updatedAt)
+                            ? updatedAt.GetDateTimeOffset()
+                            : asset.UpdatedAt;
+                    }
+                    break;
                 }
-                break;
-            }
             case "assessment_target":
-            {
-                var target = await dbContext.AssessmentTargets.FirstOrDefaultAsync(row => row.Id == candidateId, cancellationToken)
-                    ?? throw new KeyNotFoundException("curriculum_evidence_candidate_not_found");
-                var current = expectedAfter.TryGetProperty("updatedAt", out _)
-                    ? JsonSerializer.SerializeToElement(new
-                    {
-                        entityKind = "assessment_target",
-                        status = target.Status,
-                        reviewStatus = target.ReviewStatus,
-                        productionEligible = target.ProductionEligible,
-                        updatedAt = target.UpdatedAt,
-                    })
-                    : JsonSerializer.SerializeToElement(new
-                    {
-                        entityKind = "assessment_target",
-                        status = target.Status,
-                        reviewStatus = target.ReviewStatus,
-                        productionEligible = target.ProductionEligible,
-                    });
-                if (ShouldRestoreSnapshot(expectedAfter, before, current))
                 {
-                    target.Status = GetRequiredProperty(before, "status", "Status").GetString()!;
-                    target.ReviewStatus = before.GetProperty("reviewStatus").GetString()!;
-                    target.ProductionEligible = GetRequiredProperty(before, "productionEligible", "ProductionEligible").GetBoolean();
-                    target.UpdatedAt = before.TryGetProperty("updatedAt", out var updatedAt)
-                        ? updatedAt.GetDateTimeOffset()
-                        : target.UpdatedAt;
+                    var target = await dbContext.AssessmentTargets.FirstOrDefaultAsync(row => row.Id == candidateId, cancellationToken)
+                        ?? throw new KeyNotFoundException("curriculum_evidence_candidate_not_found");
+                    var current = expectedAfter.TryGetProperty("updatedAt", out _)
+                        ? JsonSerializer.SerializeToElement(new
+                        {
+                            entityKind = "assessment_target",
+                            status = target.Status,
+                            reviewStatus = target.ReviewStatus,
+                            productionEligible = target.ProductionEligible,
+                            updatedAt = target.UpdatedAt,
+                        })
+                        : JsonSerializer.SerializeToElement(new
+                        {
+                            entityKind = "assessment_target",
+                            status = target.Status,
+                            reviewStatus = target.ReviewStatus,
+                            productionEligible = target.ProductionEligible,
+                        });
+                    if (ShouldRestoreSnapshot(expectedAfter, before, current))
+                    {
+                        target.Status = GetRequiredProperty(before, "status", "Status").GetString()!;
+                        target.ReviewStatus = before.GetProperty("reviewStatus").GetString()!;
+                        target.ProductionEligible = GetRequiredProperty(before, "productionEligible", "ProductionEligible").GetBoolean();
+                        target.UpdatedAt = before.TryGetProperty("updatedAt", out var updatedAt)
+                            ? updatedAt.GetDateTimeOffset()
+                            : target.UpdatedAt;
+                    }
+                    break;
                 }
-                break;
-            }
             case "curriculum_alignment":
-            {
-                var alignment = await dbContext.CurriculumAlignments.FirstOrDefaultAsync(row => row.Id == candidateId, cancellationToken)
-                    ?? throw new KeyNotFoundException("curriculum_evidence_candidate_not_found");
-                var current = JsonSerializer.SerializeToElement(new
                 {
-                    entityKind = "curriculum_alignment",
-                    status = alignment.Status,
-                    reviewStatus = alignment.ReviewStatus,
-                    productionEligible = alignment.ProductionEligible,
-                    curriculumAssetVersionId = alignment.CurriculumAssetVersionId,
-                });
-                if (ShouldRestoreSnapshot(expectedAfter, before, current))
-                {
-                    alignment.Status = GetRequiredProperty(before, "status", "Status").GetString()!;
-                    alignment.ReviewStatus = before.GetProperty("reviewStatus").GetString()!;
-                    alignment.ProductionEligible = GetRequiredProperty(before, "productionEligible", "ProductionEligible").GetBoolean();
-                    alignment.CurriculumAssetVersionId = GetRequiredProperty(before, "curriculumAssetVersionId", "CurriculumAssetVersionId").GetGuid();
+                    var alignment = await dbContext.CurriculumAlignments.FirstOrDefaultAsync(row => row.Id == candidateId, cancellationToken)
+                        ?? throw new KeyNotFoundException("curriculum_evidence_candidate_not_found");
+                    var current = JsonSerializer.SerializeToElement(new
+                    {
+                        entityKind = "curriculum_alignment",
+                        status = alignment.Status,
+                        reviewStatus = alignment.ReviewStatus,
+                        productionEligible = alignment.ProductionEligible,
+                        curriculumAssetVersionId = alignment.CurriculumAssetVersionId,
+                    });
+                    if (ShouldRestoreSnapshot(expectedAfter, before, current))
+                    {
+                        alignment.Status = GetRequiredProperty(before, "status", "Status").GetString()!;
+                        alignment.ReviewStatus = before.GetProperty("reviewStatus").GetString()!;
+                        alignment.ProductionEligible = GetRequiredProperty(before, "productionEligible", "ProductionEligible").GetBoolean();
+                        alignment.CurriculumAssetVersionId = GetRequiredProperty(before, "curriculumAssetVersionId", "CurriculumAssetVersionId").GetGuid();
+                    }
+                    break;
                 }
-                break;
-            }
             case "domain_asset_mapping":
-            {
-                var mapping = await dbContext.DomainAssetMappings.FirstOrDefaultAsync(row => row.Id == candidateId, cancellationToken)
-                    ?? throw new KeyNotFoundException("curriculum_evidence_candidate_not_found");
-                var current = JsonSerializer.SerializeToElement(new
                 {
-                    entityKind = "domain_asset_mapping",
-                    reviewStatus = mapping.ReviewStatus,
-                    targetAssetVersionId = mapping.TargetAssetVersionId,
-                    reviewedAt = NormalizeDatabaseTimestamp(mapping.ReviewedAt),
-                    autoApplied = mapping.AutoApplied,
-                });
-                if (ShouldRestoreSnapshot(expectedAfter, before, current))
-                {
-                    mapping.ReviewStatus = before.GetProperty("reviewStatus").GetString()!;
-                    mapping.TargetAssetVersionId = GetRequiredProperty(before, "targetAssetVersionId", "TargetAssetVersionId").GetGuid();
-                    mapping.AutoApplied = GetRequiredProperty(before, "autoApplied", "AutoApplied").GetBoolean();
-                    var reviewedAt = GetRequiredProperty(before, "reviewedAt", "ReviewedAt");
-                    mapping.ReviewedAt = reviewedAt.ValueKind == JsonValueKind.Null
-                        ? null
-                        : reviewedAt.GetDateTimeOffset();
+                    var mapping = await dbContext.DomainAssetMappings.FirstOrDefaultAsync(row => row.Id == candidateId, cancellationToken)
+                        ?? throw new KeyNotFoundException("curriculum_evidence_candidate_not_found");
+                    var current = JsonSerializer.SerializeToElement(new
+                    {
+                        entityKind = "domain_asset_mapping",
+                        reviewStatus = mapping.ReviewStatus,
+                        targetAssetVersionId = mapping.TargetAssetVersionId,
+                        reviewedAt = NormalizeDatabaseTimestamp(mapping.ReviewedAt),
+                        autoApplied = mapping.AutoApplied,
+                    });
+                    if (ShouldRestoreSnapshot(expectedAfter, before, current))
+                    {
+                        mapping.ReviewStatus = before.GetProperty("reviewStatus").GetString()!;
+                        mapping.TargetAssetVersionId = GetRequiredProperty(before, "targetAssetVersionId", "TargetAssetVersionId").GetGuid();
+                        mapping.AutoApplied = GetRequiredProperty(before, "autoApplied", "AutoApplied").GetBoolean();
+                        var reviewedAt = GetRequiredProperty(before, "reviewedAt", "ReviewedAt");
+                        mapping.ReviewedAt = reviewedAt.ValueKind == JsonValueKind.Null
+                            ? null
+                            : reviewedAt.GetDateTimeOffset();
+                    }
+                    break;
                 }
-                break;
-            }
             default:
                 throw new InvalidOperationException($"unsupported_decision_snapshot:{candidateType}:{entityKind}");
         }
@@ -1759,7 +1759,7 @@ public sealed class KnowledgeEvidenceWorkflowService(KqgDbContext dbContext)
         }
 
         var role = actorRole?.Trim().ToLowerInvariant();
-        if (role is not ("teacher" or "administrator"))
+        if (role is not ("teacher" or "group_lead" or "administrator"))
         {
             throw new ArgumentException("invalid_actor_role", nameof(actorRole));
         }

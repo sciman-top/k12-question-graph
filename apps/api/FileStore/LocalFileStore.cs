@@ -10,6 +10,10 @@ namespace K12QuestionGraph.Api.FileStore;
 
 public sealed class LocalFileStore(KqgDbContext dbContext, IOptions<KqgPathsOptions> pathsOptions)
 {
+    private static readonly SemaphoreSlim[] BlobLocks = Enumerable.Range(0, 64)
+        .Select(static _ => new SemaphoreSlim(1, 1))
+        .ToArray();
+
     public async Task<FileAssetResponse> StoreOriginalAsync(
         Stream content,
         string originalFileName,
@@ -45,64 +49,103 @@ public sealed class LocalFileStore(KqgDbContext dbContext, IOptions<KqgPathsOpti
             var relativePath = Path.Combine(shard, $"{sha256}{uploadIdentity.StorageExtension}").Replace('\\', '/');
 
             var normalizedSourceMetadata = Normalize(sourceMetadata);
-            var existingByHash = await dbContext.FileAssets
-                .FirstOrDefaultAsync(x => x.StorageScope == "original" && x.Sha256 == sha256 && x.SizeBytes == sizeBytes, cancellationToken);
-            if (existingByHash is not null)
+            var blobLock = BlobLocks[(sha256.GetHashCode(StringComparison.OrdinalIgnoreCase) & int.MaxValue) % BlobLocks.Length];
+            await blobLock.WaitAsync(cancellationToken);
+            try
             {
-                OriginalBlobMaterializer.Reconcile(
-                    paths.FileStoreRoot,
-                    existingByHash.RelativePath,
-                    tempPath,
-                    sha256,
-                    sizeBytes);
-                var sourceDocument = await AddSourceDocumentAsync(existingByHash.Id, normalizedSourceMetadata, cancellationToken);
-                return ToResponse(existingByHash, isDuplicate: true, duplicateOfFileAssetId: existingByHash.Id, sourceDocument);
-            }
-
-            OriginalBlobMaterializer.Reconcile(paths.FileStoreRoot, relativePath, tempPath, sha256, sizeBytes);
-
-            var existing = await dbContext.FileAssets
-                .FirstOrDefaultAsync(x => x.StorageScope == "original" && x.RelativePath == relativePath, cancellationToken);
-            if (existing is not null)
-            {
-                var sourceDocument = await AddSourceDocumentAsync(existing.Id, normalizedSourceMetadata, cancellationToken);
-                return ToResponse(existing, isDuplicate: true, duplicateOfFileAssetId: existing.Id, sourceDocument);
-            }
-
-            var asset = new FileAsset
-            {
-                OriginalFileName = uploadIdentity.OriginalFileName,
-                RelativePath = relativePath,
-                StorageScope = "original",
-                ContentType = uploadIdentity.ContentType,
-                Sha256 = sha256,
-                SizeBytes = sizeBytes,
-                SourceMetadata = JsonSerializer.Serialize(new
+                await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+                var existingByHash = await dbContext.FileAssets
+                    .FirstOrDefaultAsync(x => x.StorageScope == "original" && x.Sha256 == sha256 && x.SizeBytes == sizeBytes, cancellationToken);
+                if (existingByHash is not null)
                 {
-                    normalizedSourceMetadata.SourceType,
-                    normalizedSourceMetadata.SourceTitle,
-                    normalizedSourceMetadata.Region,
-                    normalizedSourceMetadata.Year,
-                    normalizedSourceMetadata.GradeOrScope,
-                    normalizedSourceMetadata.EditionOrVersion,
-                    normalizedSourceMetadata.MaterialBatchKey,
-                    normalizedSourceMetadata.OwnerScope,
-                    normalizedSourceMetadata.LicenseOrPermission,
-                    normalizedSourceMetadata.SharingAllowed,
-                    normalizedSourceMetadata.ContainsStudentPii,
-                    normalizedSourceMetadata.AnonymizationStatus,
-                    normalizedSourceMetadata.MayUseForKnowledgeExtraction,
-                    normalizedSourceMetadata.MayUseForExamPointExtraction,
-                    normalizedSourceMetadata.MayUseForTrendAnalysis
-                })
-            };
+                    OriginalBlobMaterializer.Reconcile(
+                        paths.FileStoreRoot,
+                        existingByHash.RelativePath,
+                        tempPath,
+                        sha256,
+                        sizeBytes);
+                    var sourceDocument = await AddSourceDocumentAsync(existingByHash.Id, normalizedSourceMetadata, cancellationToken);
+                    await dbContext.SaveChangesAsync(cancellationToken);
+                    await transaction.CommitAsync(cancellationToken);
+                    return ToResponse(existingByHash, isDuplicate: true, duplicateOfFileAssetId: existingByHash.Id, sourceDocument);
+                }
 
-            dbContext.FileAssets.Add(asset);
-            await dbContext.SaveChangesAsync(cancellationToken);
+                var createdBlob = OriginalBlobMaterializer.Reconcile(paths.FileStoreRoot, relativePath, tempPath, sha256, sizeBytes);
+                var commitAttempted = false;
 
-            var createdSourceDocument = await AddSourceDocumentAsync(asset.Id, normalizedSourceMetadata, cancellationToken);
+                try
+                {
+                    var existing = await dbContext.FileAssets
+                        .FirstOrDefaultAsync(x => x.StorageScope == "original" && x.RelativePath == relativePath, cancellationToken);
+                    if (existing is not null)
+                    {
+                        var sourceDocument = await AddSourceDocumentAsync(existing.Id, normalizedSourceMetadata, cancellationToken);
+                        await dbContext.SaveChangesAsync(cancellationToken);
+                        await transaction.CommitAsync(cancellationToken);
+                        return ToResponse(existing, isDuplicate: true, duplicateOfFileAssetId: existing.Id, sourceDocument);
+                    }
 
-            return ToResponse(asset, isDuplicate: false, duplicateOfFileAssetId: null, createdSourceDocument);
+                    var asset = new FileAsset
+                    {
+                        Id = Guid.NewGuid(),
+                        OriginalFileName = uploadIdentity.OriginalFileName,
+                        RelativePath = relativePath,
+                        StorageScope = "original",
+                        ContentType = uploadIdentity.ContentType,
+                        Sha256 = sha256,
+                        SizeBytes = sizeBytes,
+                        SourceMetadata = JsonSerializer.Serialize(new
+                        {
+                            normalizedSourceMetadata.SourceType,
+                            normalizedSourceMetadata.SourceTitle,
+                            normalizedSourceMetadata.Region,
+                            normalizedSourceMetadata.Year,
+                            normalizedSourceMetadata.GradeOrScope,
+                            normalizedSourceMetadata.EditionOrVersion,
+                            normalizedSourceMetadata.MaterialBatchKey,
+                            normalizedSourceMetadata.OwnerScope,
+                            normalizedSourceMetadata.LicenseOrPermission,
+                            normalizedSourceMetadata.SharingAllowed,
+                            normalizedSourceMetadata.ContainsStudentPii,
+                            normalizedSourceMetadata.AnonymizationStatus,
+                            normalizedSourceMetadata.MayUseForKnowledgeExtraction,
+                            normalizedSourceMetadata.MayUseForExamPointExtraction,
+                            normalizedSourceMetadata.MayUseForTrendAnalysis
+                        })
+                    };
+
+                    dbContext.FileAssets.Add(asset);
+                    var createdSourceDocument = await AddSourceDocumentAsync(asset.Id, normalizedSourceMetadata, cancellationToken);
+                    await dbContext.SaveChangesAsync(cancellationToken);
+                    commitAttempted = true;
+                    await transaction.CommitAsync(cancellationToken);
+
+                    return ToResponse(asset, isDuplicate: false, duplicateOfFileAssetId: null, createdSourceDocument);
+                }
+                catch
+                {
+                    if (createdBlob && !commitAttempted)
+                {
+                    try
+                    {
+                        OriginalBlobMaterializer.DeleteIfMatches(
+                            paths.FileStoreRoot,
+                            relativePath,
+                            sha256,
+                            sizeBytes);
+                    }
+                    catch (Exception cleanupException) when (cleanupException is IOException or UnauthorizedAccessException)
+                    {
+                        // Best-effort compensation must not hide the database failure.
+                    }
+                }
+                    throw;
+                }
+            }
+            finally
+            {
+                blobLock.Release();
+            }
         }
         finally
         {
@@ -213,7 +256,6 @@ public sealed class LocalFileStore(KqgDbContext dbContext, IOptions<KqgPathsOpti
         };
 
         dbContext.SourceDocuments.Add(sourceDocument);
-        await dbContext.SaveChangesAsync(cancellationToken);
         return sourceDocument;
     }
 

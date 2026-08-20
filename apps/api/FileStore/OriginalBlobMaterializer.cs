@@ -4,7 +4,7 @@ namespace K12QuestionGraph.Api.FileStore;
 
 internal static class OriginalBlobMaterializer
 {
-    public static void Reconcile(
+    public static bool Reconcile(
         string fileStoreRoot,
         string relativePath,
         string uploadPath,
@@ -29,11 +29,35 @@ internal static class OriginalBlobMaterializer
             }
 
             File.Delete(uploadPath);
-            return;
+            return false;
         }
 
         Directory.CreateDirectory(Path.GetDirectoryName(target)!);
         File.Move(uploadPath, target);
+        return true;
+    }
+
+    public static void DeleteIfMatches(
+        string fileStoreRoot,
+        string relativePath,
+        string expectedSha256,
+        long expectedSizeBytes)
+    {
+        var root = Path.GetFullPath(fileStoreRoot);
+        var target = Path.GetFullPath(Path.Combine(root, relativePath.Replace('/', Path.DirectorySeparatorChar)));
+        var rootPrefix = root.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
+        var comparison = OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+        if (!target.StartsWith(rootPrefix, comparison) || !File.Exists(target))
+        {
+            return;
+        }
+
+        var targetInfo = new FileInfo(target);
+        if (targetInfo.Length == expectedSizeBytes &&
+            string.Equals(Sha256File(target), expectedSha256, StringComparison.OrdinalIgnoreCase))
+        {
+            File.Delete(target);
+        }
     }
 
     private static string Sha256File(string path)

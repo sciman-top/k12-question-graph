@@ -337,12 +337,19 @@ app.MapGet("/knowledge-evidence/reviews/readiness", async (
 
 app.MapPost("/knowledge-evidence/reviews/decisions", async Task<IResult> (
     CurriculumEvidenceDecisionRequest request,
+    HttpContext httpContext,
     KnowledgeEvidenceWorkflowService workflowService,
     CancellationToken cancellationToken) =>
 {
     try
     {
-        return Results.Ok(await workflowService.DecideCurriculumEvidenceAsync(request, cancellationToken));
+        var identity = AdminInternalEndpointGuard.ResolveReviewIdentity(httpContext.User);
+        var authenticatedRequest = request with
+        {
+            Reviewer = identity.Reviewer,
+            ActorRole = identity.ActorRole
+        };
+        return Results.Ok(await workflowService.DecideCurriculumEvidenceAsync(authenticatedRequest, cancellationToken));
     }
     catch (ArgumentException exception)
     {
@@ -361,12 +368,19 @@ app.MapPost("/knowledge-evidence/reviews/decisions", async Task<IResult> (
 
 app.MapPost("/knowledge-evidence/reviews/batch-approve", async Task<IResult> (
     CurriculumEvidenceBatchDecisionRequest request,
+    HttpContext httpContext,
     KnowledgeEvidenceWorkflowService workflowService,
     CancellationToken cancellationToken) =>
 {
     try
     {
-        return Results.Ok(await workflowService.BatchApproveCurriculumEvidenceAsync(request, cancellationToken));
+        var identity = AdminInternalEndpointGuard.ResolveReviewIdentity(httpContext.User);
+        var authenticatedRequest = request with
+        {
+            Reviewer = identity.Reviewer,
+            ActorRole = identity.ActorRole
+        };
+        return Results.Ok(await workflowService.BatchApproveCurriculumEvidenceAsync(authenticatedRequest, cancellationToken));
     }
     catch (ArgumentException exception)
     {
@@ -386,14 +400,21 @@ app.MapPost("/knowledge-evidence/reviews/batch-approve", async Task<IResult> (
 app.MapPost("/knowledge-evidence/reviews/decisions/{decisionId:guid}/undo", async Task<IResult> (
     Guid decisionId,
     CurriculumEvidenceUndoRequest request,
+    HttpContext httpContext,
     KnowledgeEvidenceWorkflowService workflowService,
     CancellationToken cancellationToken) =>
 {
     try
     {
+        var identity = AdminInternalEndpointGuard.ResolveReviewIdentity(httpContext.User);
+        var authenticatedRequest = request with
+        {
+            Reviewer = identity.Reviewer,
+            ActorRole = identity.ActorRole
+        };
         return Results.Ok(await workflowService.UndoCurriculumEvidenceDecisionAsync(
             decisionId,
-            request,
+            authenticatedRequest,
             cancellationToken));
     }
     catch (ArgumentException exception)
@@ -3654,12 +3675,16 @@ app.MapPost("/imports/{id:guid}/status", async (
     }
 
     var now = DateTimeOffset.UtcNow;
-    if (job.LockedUntil > now &&
-        !string.Equals(job.LockedBy, request.LockedBy, StringComparison.Ordinal))
+    if (request.LockedBy is not null || request.LockedUntil.HasValue)
+    {
+        return Results.BadRequest(new { error = "lease_fields_server_managed" });
+    }
+
+    if (job.LockedUntil > now)
     {
         return Results.Conflict(new
         {
-            error = "import_job_lease_owned",
+            error = "worker_lease_active",
             lockedUntil = job.LockedUntil
         });
     }
@@ -3675,8 +3700,6 @@ app.MapPost("/imports/{id:guid}/status", async (
     }
 
     job.Status = request.Status;
-    job.LockedBy = request.LockedBy;
-    job.LockedUntil = request.LockedUntil?.ToUniversalTime();
     job.LastErrorCode = request.LastErrorCode;
     job.LastErrorMessage = request.LastErrorMessage;
 
@@ -3690,6 +3713,8 @@ app.MapPost("/imports/{id:guid}/status", async (
     if (request.Status is JobStatuses.Succeeded or JobStatuses.Failed or JobStatuses.Cancelled)
     {
         job.FinishedAt = now;
+        job.LockedBy = null;
+        job.LockedUntil = null;
     }
 
     await dbContext.SaveChangesAsync(cancellationToken);
@@ -4488,3 +4513,5 @@ static bool IsAllowedQuestionBlockType(string blockType)
         "chart" or
         "group_ref";
 }
+
+public partial class Program;

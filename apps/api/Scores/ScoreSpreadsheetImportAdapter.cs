@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.IO.Compression;
 using System.Text.RegularExpressions;
 using ClosedXML.Excel;
 using K12QuestionGraph.Api.Application.Workflows;
@@ -7,6 +8,15 @@ namespace K12QuestionGraph.Api.Scores;
 
 public sealed class ScoreSpreadsheetImportAdapter
 {
+    private const long MaxCompressedBytes = 8 * 1024 * 1024;
+    private const long MaxUncompressedBytes = 64 * 1024 * 1024;
+    private const long MaxEntryUncompressedBytes = 32 * 1024 * 1024;
+    private const int MaxArchiveEntries = 512;
+    private const int MaxWorksheets = 16;
+    private const int MaxRows = 10_000;
+    private const int MaxColumns = 512;
+    private const long MaxCells = 500_000;
+    private const double MaxCompressionRatio = 200;
     private static readonly Regex ItemHeader = new(
         "^(?:q|question|第)?\\s*(?<number>\\d+)(?:题)?(?:[_\\s-]*(?:score|得分))?(?:\\s*[\\(（]\\s*(?<max>\\d+(?:\\.\\d+)?)\\s*分?\\s*[\\)）])?$",
         RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -17,13 +27,9 @@ public sealed class ScoreSpreadsheetImportAdapter
         bool containsStudentPii,
         CancellationToken cancellationToken)
     {
-        if (workbookStream.Length > 8 * 1024 * 1024)
-        {
-            throw new ScoreSpreadsheetImportException("file_too_large", "成绩表超过 8 MB，已阻断导入。", 413);
-        }
-
         await using var buffer = new MemoryStream();
-        await workbookStream.CopyToAsync(buffer, cancellationToken);
+        await CopyCompressedWorkbookAsync(workbookStream, buffer, cancellationToken);
+        ValidateWorkbookArchive(buffer);
         buffer.Position = 0;
         XLWorkbook workbook;
         try
@@ -37,6 +43,11 @@ public sealed class ScoreSpreadsheetImportAdapter
 
         using (workbook)
         {
+            if (workbook.Worksheets.Count > MaxWorksheets)
+            {
+                throw ResourceLimitExceeded($"Excel 工作表数量超过 {MaxWorksheets}，已阻断导入。");
+            }
+
             var worksheet = workbook.Worksheets.FirstOrDefault();
             if (worksheet is null)
             {
@@ -47,6 +58,14 @@ public sealed class ScoreSpreadsheetImportAdapter
             if (used is null || used.RowCount() < 2)
             {
                 throw new ScoreSpreadsheetImportException("rows_required", "Excel 至少需要一行表头和一行成绩。", 400);
+            }
+
+            var rowCount = used.RowCount();
+            var columnCount = used.ColumnCount();
+            if (rowCount > MaxRows || columnCount > MaxColumns || (long)rowCount * columnCount > MaxCells)
+            {
+                throw ResourceLimitExceeded(
+                    $"Excel 使用区域超过安全上限（{MaxRows} 行、{MaxColumns} 列、{MaxCells} 单元格），已阻断导入。");
             }
 
             var headerRow = used.FirstRow();
@@ -123,6 +142,80 @@ public sealed class ScoreSpreadsheetImportAdapter
                 rows);
         }
     }
+
+    private static async Task CopyCompressedWorkbookAsync(
+        Stream source,
+        Stream destination,
+        CancellationToken cancellationToken)
+    {
+        var copyBuffer = GC.AllocateUninitializedArray<byte>(81920);
+        long total = 0;
+        while (true)
+        {
+            var read = await source.ReadAsync(copyBuffer, cancellationToken);
+            if (read == 0)
+            {
+                break;
+            }
+
+            total += read;
+            if (total > MaxCompressedBytes)
+            {
+                throw new ScoreSpreadsheetImportException("file_too_large", "成绩表超过 8 MB，已阻断导入。", 413);
+            }
+
+            await destination.WriteAsync(copyBuffer.AsMemory(0, read), cancellationToken);
+        }
+    }
+
+    internal static void ValidateWorkbookArchive(Stream workbook)
+    {
+        workbook.Position = 0;
+        try
+        {
+            using var archive = new ZipArchive(workbook, ZipArchiveMode.Read, leaveOpen: true);
+            if (archive.Entries.Count > MaxArchiveEntries)
+            {
+                throw ResourceLimitExceeded($"Excel 压缩包条目超过 {MaxArchiveEntries}，已阻断导入。");
+            }
+
+            long totalUncompressed = 0;
+            foreach (var entry in archive.Entries)
+            {
+                if (entry.Length > MaxEntryUncompressedBytes)
+                {
+                    throw ResourceLimitExceeded("Excel 单个压缩条目解压后过大，已阻断导入。");
+                }
+
+                totalUncompressed = checked(totalUncompressed + entry.Length);
+                if (totalUncompressed > MaxUncompressedBytes)
+                {
+                    throw ResourceLimitExceeded("Excel 解压后总大小超过 64 MB，已阻断导入。");
+                }
+
+                var ratio = entry.Length / (double)Math.Max(1, entry.CompressedLength);
+                if (entry.Length > 1024 * 1024 && ratio > MaxCompressionRatio)
+                {
+                    throw ResourceLimitExceeded("Excel 压缩比异常，已阻断疑似压缩炸弹。");
+                }
+            }
+        }
+        catch (ScoreSpreadsheetImportException)
+        {
+            throw;
+        }
+        catch (Exception exception) when (exception is InvalidDataException or IOException or OverflowException)
+        {
+            throw new ScoreSpreadsheetImportException("xlsx_invalid", "无法读取 Excel 压缩结构，请确认文件未损坏。", 400, exception);
+        }
+        finally
+        {
+            workbook.Position = 0;
+        }
+    }
+
+    private static ScoreSpreadsheetImportException ResourceLimitExceeded(string message) =>
+        new("xlsx_resource_limit", message, 413);
 
     private static bool IsStudentHeader(string header) => Normalize(header) is "studentcode" or "studentkey" or "学号" or "学生编号";
 

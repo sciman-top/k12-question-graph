@@ -83,10 +83,10 @@ P005 反馈摘要（只做确定性去重/聚类/统计，不自动裁决）：
 ```powershell
 .\tools\backup.ps1
 .\tools\verify-backup.ps1
-.\tools\restore.ps1 -WhatIf
+.\tools\restore.ps1 -ManifestPath '<backup>\manifest.json' -ApplyDatabase -ApplyFileStore -DryRun
 ```
 
-restore apply、migration、active switch 和真实数据操作必须先声明 snapshot、rollback 与验收证据并获得授权。
+restore apply、migration、active switch 和真实数据操作必须先声明 snapshot、rollback 与验收证据并获得授权。恢复默认拒绝覆盖非空 FileStore/config 目标；只有已取得 pre-restore snapshot 时才可显式传入 `-AllowOverlay -DryRun:$false`。
 
 ## 查找专用脚本
 
