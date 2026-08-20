@@ -20,6 +20,7 @@
 - [ ] `remote_target_host`：安装、health/readiness、备份恢复、网络探针、域权限和文件目录访问优先通过目标机远程会话执行并留结构化 receipt。
 - [ ] `onsite_exception_only`：仅当目标机不可远程访问，或打印机、学校网络、权限域/文件共享异常无法远程复现时到场。
 - [ ] 所有模式都只减少执行地点和重复检查，不自动关闭 `P001`，不替代操作者和责任人确认。
+- [ ] 目标机和后续阶段证据使用 `accountable-acceptance-bundle-template.json` 绑定当前 commit、文件 SHA-256、最低责任角色和身份系统审计引用；先运行 `tools/run-accountable-acceptance-bundle.ps1 -Mode DryRun`，结构未通过时不得进入正式接受。
 
 ## 1. 安装与初始化
 - [ ] 执行安装向导，记录安装包版本、安装目录、数据目录和备份目录。

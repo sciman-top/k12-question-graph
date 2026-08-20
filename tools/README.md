@@ -27,6 +27,16 @@
 
 该入口汇总 current evidence、Release/roadmap/closeout receipt、目标机诊断、视觉代理和 Word/PDF 工件哈希，并 fail-closed 报告仍需远程目标机事实、真实教师原始反馈、数据授权和责任人电子签收的最小残余面。它不会改 backlog、数据库、FileStore、active、发布卡、签字、tag 或外部服务。
 
+可问责电子确认包（模板允许按当前阶段逐步填写，不要求所有签字人同场）：
+
+```powershell
+.\tools\run-accountable-acceptance-bundle.ps1 -Mode DryRun -BundlePath <filled-bundle.json>
+.\tools\run-accountable-acceptance-bundle.ps1 -Mode Collect -BundlePath <filled-bundle.json>
+.\tools\run-remote-first-evidence-pack.ps1 -Mode Collect -AcceptanceBundleReportPath tmp/verification/accountable-acceptance/current/accountable-acceptance-report.json
+```
+
+模板为 `docs/templates/accountable-acceptance-bundle-template.json`。校验器自动检查阶段最低角色、签署时间、commit、证据文件 SHA-256、身份验证方式和外部审计引用；`pass` 只表示材料结构完整并已绑定当前证据，可交给责任人正式接受。脚本不验证外部身份系统真伪，不代签，也不自动关闭 P001-P006、改变 `No-Go` 或创建 tag。
+
 P005 反馈摘要（只做确定性去重/聚类/统计，不自动裁决）：
 
 ```powershell

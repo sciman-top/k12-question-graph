@@ -21,6 +21,7 @@ P002 -> P003 -> P004 -> P005 -> P006，严格按 `tasks/backlog.csv` 和 `tasks/
 - P003 默认远程 admission card 和电子数据授权；责任边界不清才转现场。
 - P005 自动去重、聚类、统计和提出候选分流，产品负责人只裁决范围/成本/风险影响项，不自动改 backlog。
 - P006 缺硬证据自动保持 `No-Go`；只有转 `Go`、批准 named exception 时要求四责任角色异步电子确认，不要求纸质或同场签字。
+- P001-P006 的异步电子确认统一使用 `docs/templates/accountable-acceptance-bundle-template.json`，并由 `tools/run-accountable-acceptance-bundle.ps1` 校验角色、时间、commit、证据哈希和身份系统引用；责任人仍需在对应身份系统中完成真实确认。
 
 ## Repo-side governance closeout
 

@@ -15,7 +15,8 @@ param(
     [string] $TeacherEvidencePath = '',
     [string] $AdmissionCardPath = '',
     [string] $FeedbackTriagePath = '',
-    [string] $ReleaseDecisionPath = ''
+    [string] $ReleaseDecisionPath = '',
+    [string] $AcceptanceBundleReportPath = ''
 )
 
 Set-StrictMode -Version Latest
@@ -238,11 +239,18 @@ $optionalEvidence = @(
     [pscustomobject]@{ id = 'teacher-human-evidence'; path = $TeacherEvidencePath; category = 'human'; boundary = 'Teacher-authored understanding, timing, friction, and preference evidence; automation does not reinterpret it as accepted.' },
     [pscustomobject]@{ id = 'p003-admission-card'; path = $AdmissionCardPath; category = 'human'; boundary = 'Authorization and accountable-party confirmation supplied for review; AI cannot sign.' },
     [pscustomobject]@{ id = 'p005-feedback-triage'; path = $FeedbackTriagePath; category = 'human'; boundary = 'Candidate triage supplied for product-owner review; it does not update backlog automatically.' },
-    [pscustomobject]@{ id = 'p006-release-decision'; path = $ReleaseDecisionPath; category = 'human'; boundary = 'Signed decision supplied for formal validation; this collector never changes No-Go or creates a tag.' }
+    [pscustomobject]@{ id = 'p006-release-decision'; path = $ReleaseDecisionPath; category = 'human'; boundary = 'Signed decision supplied for formal validation; this collector never changes No-Go or creates a tag.' },
+    [pscustomobject]@{ id = 'accountable-acceptance-report'; path = $AcceptanceBundleReportPath; category = 'human'; boundary = 'Commit-bound and hash-bound electronic confirmations structurally validated for accountable review; identity-provider truth and formal acceptance remain external.' }
 )
 foreach ($candidate in $optionalEvidence) {
     if (-not [string]::IsNullOrWhiteSpace([string] $candidate.path)) {
-        Read-JsonEvidence ([string] $candidate.id) ([string] $candidate.path) ([string] $candidate.boundary) ([string] $candidate.category) | Out-Null
+        $optionalResult = Read-JsonEvidence ([string] $candidate.id) ([string] $candidate.path) ([string] $candidate.boundary) ([string] $candidate.category)
+        if ([string] $candidate.id -eq 'accountable-acceptance-report' -and $null -ne $optionalResult) {
+            Require-True ([string] $optionalResult.data.schemaVersion -eq 'accountable-acceptance-report.v1') 'accountable_acceptance_report_schema_mismatch'
+            Require-True ([string] $optionalResult.data.status -eq 'pass') 'accountable_acceptance_report_not_pass'
+            Require-True ([string] $optionalResult.data.expectedCommit -eq $headCommit) 'accountable_acceptance_report_commit_mismatch'
+            Require-True ([bool] $optionalResult.data.identityVerificationRequired) 'accountable_acceptance_identity_boundary_missing'
+        }
     }
 }
 

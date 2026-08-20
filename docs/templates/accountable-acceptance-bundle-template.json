@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "accountable-acceptance-bundle.v1",
+  "bundleContext": {
+    "commit": "<40-character-git-commit>",
+    "siteId": "<school-or-target-environment-id>",
+    "preparedAt": "<ISO-8601 timestamp>",
+    "includedStages": ["P001"]
+  },
+  "evidence": [
+    {
+      "stage": "P001",
+      "path": "<target-host-evidence.json>",
+      "sha256": "<sha256>"
+    }
+  ],
+  "attestations": [
+    {
+      "stage": "P001",
+      "role": "pilot_support_owner",
+      "signerId": "<stable-account-id>",
+      "signedAt": "<ISO-8601 timestamp>",
+      "decision": "accept_target_evidence|keep_blocked",
+      "commit": "<40-character-git-commit>",
+      "evidenceSha256": [
+        "<sha256>"
+      ],
+      "verificationMethod": "school_sso|verified_email|digital_signature|identity_provider|other_accountable_system",
+      "verificationReference": "<identity-provider-audit-id-or-message-id>"
+    },
+    {
+      "stage": "P001",
+      "role": "admin_owner",
+      "signerId": "<stable-account-id>",
+      "signedAt": "<ISO-8601 timestamp>",
+      "decision": "accept_target_evidence|keep_blocked",
+      "commit": "<40-character-git-commit>",
+      "evidenceSha256": [
+        "<sha256>"
+      ],
+      "verificationMethod": "school_sso|verified_email|digital_signature|identity_provider|other_accountable_system",
+      "verificationReference": "<identity-provider-audit-id-or-message-id>"
+    }
+  ]
+}

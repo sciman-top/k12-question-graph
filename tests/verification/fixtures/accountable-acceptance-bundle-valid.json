@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "accountable-acceptance-bundle.v1",
+  "bundleContext": {
+    "commit": "fixture-commit",
+    "siteId": "fixture-school",
+    "preparedAt": "2026-08-20T12:00:00+08:00",
+    "includedStages": ["P005"]
+  },
+  "evidence": [
+    {
+      "stage": "P005",
+      "path": "tests/verification/fixtures/p005-feedback-summary-smoke.json",
+      "sha256": "d9d94e6d0b4561bc88d9e8fd0e25a7394690a9553ef9308468d85830790376a7"
+    }
+  ],
+  "attestations": [
+    {
+      "stage": "P005",
+      "role": "product_owner",
+      "signerId": "fixture-product-owner",
+      "signedAt": "2026-08-20T12:05:00+08:00",
+      "decision": "approve_triage",
+      "commit": "fixture-commit",
+      "evidenceSha256": ["d9d94e6d0b4561bc88d9e8fd0e25a7394690a9553ef9308468d85830790376a7"],
+      "verificationMethod": "identity_provider",
+      "verificationReference": "fixture-audit-event-001"
+    }
+  ]
+}

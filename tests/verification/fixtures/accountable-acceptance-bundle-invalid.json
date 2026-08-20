@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "accountable-acceptance-bundle.v1",
+  "bundleContext": {
+    "commit": "fixture-commit",
+    "siteId": "fixture-school",
+    "preparedAt": "2026-08-20T12:00:00+08:00",
+    "includedStages": ["P005"]
+  },
+  "evidence": [],
+  "attestations": []
+}
