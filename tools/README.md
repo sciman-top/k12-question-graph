@@ -18,6 +18,15 @@
 - onsite/live acceptance 不提供可执行 profile，只接受外部真实证据。
 - 旧 full-gate monolith、兼容 wrapper、gate group、inventory/parser 与覆盖对账已退役；历史只从 Git 读取。
 
+远程优先证据包（默认 DryRun；`Collect` 只写指定的 `tmp/verification` 输出）：
+
+```powershell
+.\tools\run-remote-first-evidence-pack.ps1 -Mode DryRun
+.\tools\run-remote-first-evidence-pack.ps1 -Mode Collect
+```
+
+该入口汇总 current evidence、Release/roadmap/closeout receipt、目标机诊断、视觉代理和 Word/PDF 工件哈希，并 fail-closed 报告仍需远程目标机事实、真实教师原始反馈、数据授权和责任人电子签收的最小残余面。它不会改 backlog、数据库、FileStore、active、发布卡、签字、tag 或外部服务。
+
 ## 本地运行
 
 ```powershell

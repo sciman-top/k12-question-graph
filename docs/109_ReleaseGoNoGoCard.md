@@ -26,6 +26,8 @@
 
 ## 发布前验证
 
+The rollback window must be explicit in the signed release decision and remain linked to a tested recovery entry.
+
 - `tools/run-verification.ps1 -Profile Quick`
 - 获得当前任务授权后运行 `tools/run-verification.ps1 -Profile Release -AuthorizeStateful`
 - backup manifest 可验证，隔离 restore 成功，migration/数据库形状/FileStore 对账无意外变化

@@ -1,6 +1,6 @@
 # P001 live pilot release checklist
 
-用途：用于 `P001` 试点学校部署预演。该清单只定义执行项与证据锚点，不替代现场执行记录。
+用途：用于 `P001` 试点学校部署预演。默认采用“远程自动证据 -> 目标机远程执行 -> 现场异常补证”模式；该清单只定义执行项与证据锚点，不替代目标环境事实和责任人确认。
 
 ## 0. 执行边界
 - [ ] 目标环境为隔离机器，非开发仓库主机。
@@ -9,10 +9,17 @@
 - [ ] 带上 `REAL001-REAL012` 真卷证据包，尤其是 REAL012 `quality report`；若报告仍为 `not_closed`，不得宣称整卷或 2015-2025 全闭环完成。
 
 ## 0.1 到场前必须已闭合的非现场预检
+- [ ] 先运行 `tools/run-remote-first-evidence-pack.ps1 -Mode Collect`，使用同一 commit 和证据哈希生成远程执行包；自动证据缺失时 fail-closed。
 - [ ] `NS904` readiness pack 已刷新。
 - [ ] `NS906` 视觉代理已刷新，覆盖四入口 route smoke、artifact、source screenshot 和异常报告。
 - [ ] `NS801-NS806` 安装、备份、恢复、升级、健康面板证据已刷新。
 - [ ] 若上述客观项仍未闭合，不允许把它们留到隔离机现场临时手工补做。
+
+## 0.2 证据模式
+- [ ] `remote_automated`：Release、roadmap、closeout、route smoke、artifact、截图和视觉代理由脚本汇总，操作者不重复核对。
+- [ ] `remote_target_host`：安装、health/readiness、备份恢复、网络探针、域权限和文件目录访问优先通过目标机远程会话执行并留结构化 receipt。
+- [ ] `onsite_exception_only`：仅当目标机不可远程访问，或打印机、学校网络、权限域/文件共享异常无法远程复现时到场。
+- [ ] 所有模式都只减少执行地点和重复检查，不自动关闭 `P001`，不替代操作者和责任人确认。
 
 ## 1. 安装与初始化
 - [ ] 执行安装向导，记录安装包版本、安装目录、数据目录和备份目录。
@@ -37,8 +44,13 @@
 - [ ] 分析入口可完成班级讲评摘要查看基本路径。
 - [ ] 本节只验证隔离机特有事实；路线、工件和版面客观检查应以前置 automation/visual surrogate 结果为主。
 
+## 4.1 学校环境事实
+- [ ] 学校网络与异常网络路径可由目标机远程探针证明；仅异常未解释时转现场。
+- [ ] 域权限、本机账号和文件目录/共享访问可由专用测试账号远程验证；不得使用生产管理员常驻凭据。
+- [ ] 若发布承诺包含真实纸张交付，必须完成真实打印；否则可接受驱动、队列、页面尺寸、分页和 spool/PDF 的等价打印预检，并明确记录未出纸边界。
+
 ## 5. 证据归档
 - [ ] 在 `docs/evidence/` 写入本轮 evidence（含命令、退出码、关键输出、风险、回滚）。
-- [ ] 使用 `docs/templates/p001-isolated-machine-evidence-template.md` 回填现场事实、四入口耗时/卡点、打印/网络/权限域结果和操作者签收。
+- [ ] 使用 `docs/templates/p001-isolated-machine-evidence-template.md` 回填目标环境事实、四入口耗时/卡点、打印/网络/权限域结果、证据模式和操作者电子签收。
 - [ ] 记录 `platform_na` / `gate_na`（如有）：reason / alternative_verification / evidence_link / expires_at。
 - [ ] 更新 `tasks/backlog.csv` 的 P001 状态（仅当现场证据闭环完成时）。
