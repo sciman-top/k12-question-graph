@@ -2,13 +2,13 @@
 **项目契约**: 2.0
 **全局规则复核**: 9.77
 **类型**: K-12 teacher-first question graph platform
-**最后更新**: 2026-08-19
+**最后更新**: 2026-08-20
 
 ## 1. 当前落点与目标归宿
 - 当前落点：本仓是校本题谱平台，当前聚焦初中物理，已有 API、Web、Worker、PostgreSQL、FileStore、备份与版本化领域资产。
 - 目标归宿：以 teacher-first vertical slice 降低题库、组卷、导入和学情诊断工作量，同时保持 Word/Excel 兼容、数据可迁移与生产切换可回滚。
 - 下一最小里程碑：按 `tasks/backlog.csv` 与当前证据真相交付首个未闭合切片；候选或本地证据不得写成 onsite/live 验收。
-- task 状态、active 版本、部署和 onsite/live 结论从 backlog、数据库/运行探针及 `docs/evidence/` fresh read；根规则不复制计数或阶段快照。
+- task 状态、active 版本、部署和 onsite/live 结论从 backlog、数据库/运行探针及 `docs/evidence/index.json` 指向的 current evidence fresh read；除定点历史取证外不全量扫描 evidence，根规则不复制计数或阶段快照。
 
 ## A. 仓库事实与模块边界
 - `apps/`：API 与 Web；`workers/document`：文档、OCR 和 AI adapter；`tools/`：gate、backup 和 restore；`tests/`：回归；`schemas/`：结构合同。
@@ -23,6 +23,7 @@
 - AI 输出默认 `draft/test/pending_review`，不得自动写生产或绕过人工审核。
 - 大文件与程序分离，数据库只存 metadata、path、hash 和 status。
 - `tools/run-verification.ps1 -Profile Release -AuthorizeStateful` 会使用 PostgreSQL 并执行隔离备份恢复演练；只能在当前任务明确授权后运行，不能当无副作用 quick gate。
+- 首个未闭合切片若只缺目标机、真实教师、授权或责任人输入，则报告 `external_blocker` 并停止 repo 编码；不得以未来阶段 helper、证据聚合器或重复审计替代外部事实。
 - 新功能说明减少的教师步骤、维护负担、失败继续路径及成本、隐私和备份影响。
 - Markdown 规则只指导教师价值与风险；权限、schema、active switch、备份恢复和 gate 选择由 API/DB 约束、脚本、测试与 CI 强制。
 

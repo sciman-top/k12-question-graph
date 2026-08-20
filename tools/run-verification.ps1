@@ -136,7 +136,7 @@ function Invoke-ReleaseCoreProfile([AllowEmptyCollection()][System.Collections.G
 
     $steps = @(
         [pscustomobject]@{ id = 'release-contracts'; action = {
-            & (Join-Path $PSScriptRoot 'run-ns102-migration-baseline.ps1') -ReportPath (Join-Path $ReportRoot 'ns102-migration-baseline.json') | Out-Null
+            & (Join-Path $PSScriptRoot 'run-ns102-migration-baseline.ps1') -NoBuild -ReportPath (Join-Path $ReportRoot 'ns102-migration-baseline.json') | Out-Null
             & (Join-Path $PSScriptRoot 'run-ns203-privacy-license-scan.ps1') -ReportPath (Join-Path $ReportRoot 'ns203-privacy-license-scan.json') | Out-Null
             & (Join-Path $PSScriptRoot 'run-ns204-no-active-write-guard.ps1') -ReportPath (Join-Path $ReportRoot 'ns204-no-active-write.json') | Out-Null
         } },
@@ -265,7 +265,10 @@ try {
                 $selection = Get-VerificationSelection -RepoRoot $repoRoot -ChangedPaths $ChangedPaths
                 $selection | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $reportRootFullPath 'slice-selection.json') -Encoding UTF8
                 if ($selection.status -ne 'pass') {
-                    throw "Slice selection blocked or requires $($selection.escalatedProfile): unknown=$($selection.unknownPaths.Count) release=$($selection.releasePaths.Count) empty=$($selection.noSelection)"
+                    if ($selection.unknownPaths.Count -gt 0 -or $selection.noSelection) {
+                        throw "Slice selection blocked: unmapped=$($selection.unknownPaths.Count) empty=$($selection.noSelection). Add or correct a Slice path rule; stateful Release is not a fallback for missing routing."
+                    }
+                    throw "Slice selection requires $($selection.escalatedProfile): release=$($selection.releasePaths.Count)"
                 }
                 foreach ($selected in $selection.selected) {
                     Invoke-SliceFocusedCommand -Id ([string]$selected.id) -Results $results

@@ -31,6 +31,11 @@
     { "pattern": "tests/verification/*", "owner": "verification", "profile": "Slice", "commands": ["verification-routing"], "reason": "verification routing regression changed" },
     { "pattern": ".github/dependabot.yml", "owner": "verification", "profile": "Slice", "commands": ["verification-routing"], "reason": "dependency update policy changed" },
     { "pattern": ".github/workflows/*", "owner": "verification", "profile": "Slice", "commands": ["verification-routing"], "reason": "CI verification entry changed" },
+    { "pattern": "global.json", "owner": "api", "profile": "Slice", "commands": ["backend-tests"], "reason": ".NET SDK selection changed" },
+    { "pattern": "dotnet-tools.json", "owner": "operations", "profile": "Slice", "commands": ["backend-tests"], "reason": ".NET tool manifest changed; stateful migration rehearsal remains explicit Release work" },
+    { "pattern": ".env.example", "owner": "configuration", "profile": "Slice", "commands": [], "reason": "gate_na: local bootstrap template has no executable repository gate; review names and secret placeholders in the diff" },
+    { "pattern": "diagrams/*", "owner": "documentation", "profile": "Slice", "commands": [], "reason": "gate_na: diagram-only change" },
+    { "pattern": "LICENSE", "owner": "documentation", "profile": "Slice", "commands": [], "reason": "gate_na: license text only" },
     { "pattern": "tools/README.md", "owner": "reference-basis", "profile": "Slice", "commands": ["reference-basis"], "reason": "reference and operator navigation changed" },
     { "pattern": "tasks/reference-basis-*", "owner": "reference-basis", "profile": "Slice", "commands": ["reference-basis"], "reason": "reference policy or module mapping changed" },
     { "pattern": "docs/26_References.md", "owner": "reference-basis", "profile": "Slice", "commands": ["reference-basis"], "reason": "reference source documentation changed" },
@@ -42,7 +47,6 @@
     { "pattern": "schemas/*", "owner": "schema", "profile": "Slice", "commands": ["backend-tests", "worker-tests"], "reason": "shared schema changed" },
     { "pattern": "configs/*", "owner": "configuration", "profile": "Slice", "commands": ["script-quality"], "reason": "runtime or policy configuration changed" },
     { "pattern": "sources/*", "owner": "reference-basis", "profile": "Slice", "commands": ["reference-basis"], "reason": "reference basis changed" },
-    { "pattern": "*.md", "owner": "documentation", "profile": "Slice", "commands": [], "reason": "gate_na: documentation-only change" },
-    { "pattern": "AGENTS.md", "owner": "documentation", "profile": "Slice", "commands": [], "reason": "gate_na: execution contract text only" }
+    { "pattern": "*.md", "owner": "documentation", "profile": "Slice", "commands": [], "reason": "gate_na: documentation-only change" }
   ]
 }

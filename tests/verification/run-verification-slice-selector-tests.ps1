@@ -19,15 +19,42 @@ if (-not $docs.gateNa) { throw 'docs-only selection must be explicit gate_na' }
 Assert-Selection 'export' @('apps/web/src/ui/PaperWorkbenchPanels.tsx') 'pass' @('frontend-tests') | Out-Null
 Assert-Selection 'ai' @('configs/ai/provider.json') 'pass' @('script-quality') | Out-Null
 Assert-Selection 'dependabot' @('.github/dependabot.yml') 'pass' @('verification-routing') | Out-Null
+Assert-Selection 'global-json' @('global.json') 'pass' @('backend-tests') | Out-Null
+Assert-Selection 'dotnet-tools' @('dotnet-tools.json') 'pass' @('backend-tests') | Out-Null
+
+foreach ($gateNaCase in @(
+    [pscustomobject]@{ name = 'env-template'; path = '.env.example' },
+    [pscustomobject]@{ name = 'diagram'; path = 'diagrams/architecture.mmd' }
+)) {
+    $gateNaSelection = Assert-Selection $gateNaCase.name @($gateNaCase.path) 'pass' @()
+    if (-not $gateNaSelection.gateNa) { throw "$($gateNaCase.name) must be explicit gate_na" }
+}
 
 $migration = Assert-Selection 'migration' @('apps/api/Data/Migrations/Next.cs') 'pass' @('backend-tests')
 if ($migration.escalatedProfile -ne 'Slice') { throw 'migration CI check must remain stateless Slice' }
 
 $unknown = Assert-Selection 'unknown' @('mystery/new.file') 'blocked' @()
 if ($unknown.unknownPaths.Count -ne 1) { throw 'unknown path must be reported' }
+if ($null -ne $unknown.escalatedProfile) { throw 'unknown path must not escalate to a stateful profile' }
 
 $empty = Get-VerificationSelection -RepoRoot $repoRoot -ChangedPaths @()
 if ($empty.status -ne 'blocked') { throw 'empty Slice selection must fail closed' }
+if ($null -ne $empty.escalatedProfile) { throw 'empty Slice selection must not escalate to a stateful profile' }
+
+$unknownRunnerError = $null
+try {
+    & (Join-Path $repoRoot 'tools/run-verification.ps1') `
+        -Profile Slice `
+        -ChangedPaths 'mystery/new.file' `
+        -DryRun `
+        -ReportRoot 'tmp/verification/tests/unknown-slice-plan' | Out-Null
+}
+catch {
+    $unknownRunnerError = $_.Exception.Message
+}
+if ([string]::IsNullOrWhiteSpace($unknownRunnerError)) { throw 'unknown Slice runner case must fail closed' }
+if ($unknownRunnerError -match 'requires Release') { throw 'unknown Slice runner must not recommend stateful Release' }
+if ($unknownRunnerError -notmatch 'unmapped') { throw "unknown Slice runner must identify mapping gap: $unknownRunnerError" }
 
 $quotedBundle = Get-VerificationSelection `
     -RepoRoot $repoRoot `
@@ -82,7 +109,7 @@ if (($workerStepIds -join ',') -ne 'slice-worker-compile,slice-worker-tests') {
 
 [ordered]@{
     status = 'pass'
-    cases = @('api', 'web', 'worker', 'docs-gate-na', 'export', 'ai', 'dependabot', 'migration', 'unknown', 'empty', 'quoted-comma-bundle', 'docs-execution-plan', 'api-execution-plan', 'web-execution-plan', 'worker-execution-plan')
+    cases = @('api', 'web', 'worker', 'docs-gate-na', 'export', 'ai', 'dependabot', 'global-json', 'dotnet-tools', 'env-template-gate-na', 'diagram-gate-na', 'migration', 'unknown', 'unknown-runner', 'empty', 'quoted-comma-bundle', 'docs-execution-plan', 'api-execution-plan', 'web-execution-plan', 'worker-execution-plan')
     unknownPolicy = 'fail-closed'
     migrationProfile = 'Slice'
 } | ConvertTo-Json -Depth 5

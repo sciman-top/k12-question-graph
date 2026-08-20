@@ -76,7 +76,15 @@ function Get-VerificationSelection {
 
     $noSelection = $selected.Count -eq 0 -and $pathDecisions.Count -eq 0
     $gateNa = $selected.Count -eq 0 -and $pathDecisions.Count -gt 0 -and $unknownPaths.Count -eq 0 -and $releasePaths.Count -eq 0
-    $escalatedProfile = if ($unknownPaths.Count -gt 0 -or $releasePaths.Count -gt 0) { 'Release' } else { 'Slice' }
+    $escalatedProfile = if ($unknownPaths.Count -gt 0 -or $noSelection) {
+        $null
+    }
+    elseif ($releasePaths.Count -gt 0) {
+        'Release'
+    }
+    else {
+        'Slice'
+    }
     return [pscustomobject][ordered]@{
         schemaVersion = 1
         status = if ($unknownPaths.Count -gt 0 -or $noSelection) { 'blocked' } elseif ($releasePaths.Count -gt 0) { 'escalated' } else { 'pass' }

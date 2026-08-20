@@ -6,7 +6,8 @@ param(
     [int] $DatabasePort = 5432,
     [string] $DatabaseName = 'k12_question_graph',
     [string] $DatabaseUser = 'postgres',
-    [string] $PgBin = 'C:\Program Files\PostgreSQL\17\bin'
+    [string] $PgBin = 'C:\Program Files\PostgreSQL\17\bin',
+    [switch] $NoBuild
 )
 
 $ErrorActionPreference = 'Stop'
@@ -57,8 +58,17 @@ try {
         Sort-Object Name |
         ForEach-Object { $_.BaseName })
 
-    $buildResult = Invoke-Capture 'dotnet' @('build', $Project)
-    Assert-Condition ($buildResult.exitCode -eq 0) 'dotnet build failed before migration baseline'
+    $buildResult = if ($NoBuild) {
+        [ordered]@{
+            exitCode = 0
+            output = 'skipped: caller supplied the prebuilt Debug output; dotnet ef --no-build validates its availability'
+        }
+    }
+    else {
+        $result = Invoke-Capture 'dotnet' @('build', $Project)
+        Assert-Condition ($result.exitCode -eq 0) 'dotnet build failed before migration baseline'
+        $result
+    }
 
     $efList = Invoke-Capture 'dotnet' @(
         'ef', 'migrations', 'list',
@@ -115,6 +125,7 @@ union all select 'score_records', count(*), count(*) filter (where contains_stud
         task = 'NS102 migration baseline'
         checkedAt = (Get-Date).ToString('s')
         mode = 'read_only'
+        buildMode = if ($NoBuild) { 'reuse_prebuilt_debug_output' } else { 'build_before_check' }
         project = $Project
         startupProject = $StartupProject
         database = [ordered]@{
