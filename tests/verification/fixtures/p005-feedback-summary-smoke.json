@@ -1,0 +1,46 @@
+{
+  "items": [
+    {
+      "id": "feedback-001",
+      "title": "导入提示不清",
+      "sourceStep": "import",
+      "description": "导入失败后下一步提示不清楚",
+      "teacherEfficiencyImpact": "high",
+      "frequency": "single",
+      "risk": "medium",
+      "cost": "low",
+      "decision": "",
+      "owner": "",
+      "targetArtifact": "",
+      "rollbackOrFallback": "保留旧入口"
+    },
+    {
+      "id": "feedback-002",
+      "title": "导入提示不清",
+      "sourceStep": "import",
+      "description": "导入失败后下一步提示不清楚",
+      "teacherEfficiencyImpact": "high",
+      "frequency": "single",
+      "risk": "medium",
+      "cost": "low",
+      "decision": "",
+      "owner": "",
+      "targetArtifact": "",
+      "rollbackOrFallback": "保留旧入口"
+    },
+    {
+      "id": "feedback-003",
+      "title": "权限错误",
+      "sourceStep": "install",
+      "description": "权限域错误需要人工接管",
+      "teacherEfficiencyImpact": "medium",
+      "frequency": "single",
+      "risk": "high",
+      "cost": "medium",
+      "decision": "",
+      "owner": "",
+      "targetArtifact": "",
+      "rollbackOrFallback": "回滚到上一版本"
+    }
+  ]
+}

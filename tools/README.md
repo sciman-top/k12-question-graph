@@ -27,6 +27,13 @@
 
 该入口汇总 current evidence、Release/roadmap/closeout receipt、目标机诊断、视觉代理和 Word/PDF 工件哈希，并 fail-closed 报告仍需远程目标机事实、真实教师原始反馈、数据授权和责任人电子签收的最小残余面。它不会改 backlog、数据库、FileStore、active、发布卡、签字、tag 或外部服务。
 
+P005 反馈摘要（只做确定性去重/聚类/统计，不自动裁决）：
+
+```powershell
+.\tools\run-p005-feedback-summary.ps1 -Mode DryRun -InputPath docs/templates/p005-pilot-feedback-triage-template.json
+.\tools\run-p005-feedback-summary.ps1 -Mode Collect -InputPath <p004-or-p005-json>
+```
+
 ## 本地运行
 
 ```powershell
