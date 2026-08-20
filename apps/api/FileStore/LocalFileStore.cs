@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 
 namespace K12QuestionGraph.Api.FileStore;
 
-public sealed class LocalFileStore(KqgDbContext dbContext, IOptions<KqgPathsOptions> pathsOptions) : IFileStore
+public sealed class LocalFileStore(KqgDbContext dbContext, IOptions<KqgPathsOptions> pathsOptions)
 {
     public async Task<FileAssetResponse> StoreOriginalAsync(
         Stream content,

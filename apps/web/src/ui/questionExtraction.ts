@@ -1,12 +1,12 @@
 import type { QuestionBlockContract, QuestionDetailContract, QuestionSourceRegionContract } from '../api/contracts'
 
-export type TeacherQuestionOption = {
+type TeacherQuestionOption = {
   label: 'A' | 'B' | 'C' | 'D'
   text: string
   blockId?: string
 }
 
-export type TeacherQuestionExtraction = {
+type TeacherQuestionExtraction = {
   stem: string
   options: TeacherQuestionOption[]
   isChoiceQuestion: boolean

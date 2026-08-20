@@ -61,18 +61,18 @@ builder.Services.AddDbContext<KqgDbContext>(options =>
     options
         .UseNpgsql(builder.Configuration.GetKqgConnectionString())
         .UseSnakeCaseNamingConvention());
-builder.Services.AddScoped<IFileStore, LocalFileStore>();
-builder.Services.AddScoped<IDocumentWorkerClient, DocumentWorkerClient>();
-builder.Services.AddScoped<ICutCandidateGenerationService, CutCandidateGenerationService>();
-builder.Services.AddScoped<IPaperWorkflowService, PaperWorkflowService>();
-builder.Services.AddScoped<IScoreAnalysisWorkflowService, ScoreAnalysisWorkflowService>();
+builder.Services.AddScoped<LocalFileStore>();
+builder.Services.AddScoped<DocumentWorkerClient>();
+builder.Services.AddScoped<CutCandidateGenerationService>();
+builder.Services.AddScoped<PaperWorkflowService>();
+builder.Services.AddScoped<ScoreAnalysisWorkflowService>();
 builder.Services.AddScoped<ScoreSpreadsheetImportAdapter>();
 builder.Services.AddScoped<PaperArtifactService>();
-builder.Services.AddScoped<IKnowledgeEvidenceWorkflowService, KnowledgeEvidenceWorkflowService>();
-builder.Services.AddSingleton<IAiModelRouter, AiModelRouter>();
-builder.Services.AddSingleton<IAiProvider, StubAiProvider>();
-builder.Services.AddSingleton<IAiProviderSettingsStore, FileAiProviderSettingsStore>();
-builder.Services.AddHttpClient<IAiProviderSmokeTestService, OpenAiCompatibleSmokeTestService>();
+builder.Services.AddScoped<KnowledgeEvidenceWorkflowService>();
+builder.Services.AddSingleton<AiModelRouter>();
+builder.Services.AddSingleton<StubAiProvider>();
+builder.Services.AddSingleton<FileAiProviderSettingsStore>();
+builder.Services.AddHttpClient<OpenAiCompatibleSmokeTestService>();
 
 var app = builder.Build();
 
@@ -165,7 +165,7 @@ app.MapGet("/health/ready", async (
 app.MapGet("/knowledge-evidence/assessment-targets", async Task<IResult> (
     string? reviewStatus,
     int? take,
-    IKnowledgeEvidenceWorkflowService workflowService,
+    KnowledgeEvidenceWorkflowService workflowService,
     CancellationToken cancellationToken) =>
 {
     try
@@ -186,7 +186,7 @@ app.MapGet("/knowledge-evidence/observed-exam-evidence", async Task<IResult> (
     string? reviewStatus,
     Guid? assessmentTargetId,
     int? take,
-    IKnowledgeEvidenceWorkflowService workflowService,
+    KnowledgeEvidenceWorkflowService workflowService,
     CancellationToken cancellationToken) =>
 {
     try
@@ -205,7 +205,7 @@ app.MapGet("/knowledge-evidence/observed-exam-evidence", async Task<IResult> (
 
 app.MapGet("/knowledge-evidence/regional-exam-profiles/{stableId}", async Task<IResult> (
     string stableId,
-    IKnowledgeEvidenceWorkflowService workflowService,
+    KnowledgeEvidenceWorkflowService workflowService,
     CancellationToken cancellationToken) =>
 {
     var result = await workflowService.GetRegionalExamProfileAsync(stableId, cancellationToken);
@@ -233,7 +233,7 @@ app.MapGet("/knowledge-evidence/questions", async Task<IResult> (
     string? sourceType,
     int? page,
     int? pageSize,
-    IKnowledgeEvidenceWorkflowService workflowService,
+    KnowledgeEvidenceWorkflowService workflowService,
     CancellationToken cancellationToken) =>
 {
     try
@@ -302,7 +302,7 @@ app.MapGet("/knowledge-evidence/reviews", async Task<IResult> (
     string? groupId,
     int? page,
     int? pageSize,
-    IKnowledgeEvidenceWorkflowService workflowService,
+    KnowledgeEvidenceWorkflowService workflowService,
     CancellationToken cancellationToken) =>
 {
     var result = await workflowService.ListCurriculumEvidenceReviewsAsync(
@@ -314,7 +314,7 @@ app.MapGet("/knowledge-evidence/reviews", async Task<IResult> (
 
 app.MapGet("/knowledge-evidence/reviews/{candidateId:guid}/replacement-options", async Task<IResult> (
     Guid candidateId,
-    IKnowledgeEvidenceWorkflowService workflowService,
+    KnowledgeEvidenceWorkflowService workflowService,
     CancellationToken cancellationToken) =>
 {
     var result = await workflowService.GetCurriculumEvidenceReplacementOptionsAsync(
@@ -327,7 +327,7 @@ app.MapGet("/knowledge-evidence/reviews/{candidateId:guid}/replacement-options",
 .WithName("ListCurriculumEvidenceReplacementOptions");
 
 app.MapGet("/knowledge-evidence/reviews/readiness", async (
-    IKnowledgeEvidenceWorkflowService workflowService,
+    KnowledgeEvidenceWorkflowService workflowService,
     CancellationToken cancellationToken) =>
 {
     var result = await workflowService.GetCurriculumEvidenceReadinessAsync(cancellationToken);
@@ -337,7 +337,7 @@ app.MapGet("/knowledge-evidence/reviews/readiness", async (
 
 app.MapPost("/knowledge-evidence/reviews/decisions", async Task<IResult> (
     CurriculumEvidenceDecisionRequest request,
-    IKnowledgeEvidenceWorkflowService workflowService,
+    KnowledgeEvidenceWorkflowService workflowService,
     CancellationToken cancellationToken) =>
 {
     try
@@ -361,7 +361,7 @@ app.MapPost("/knowledge-evidence/reviews/decisions", async Task<IResult> (
 
 app.MapPost("/knowledge-evidence/reviews/batch-approve", async Task<IResult> (
     CurriculumEvidenceBatchDecisionRequest request,
-    IKnowledgeEvidenceWorkflowService workflowService,
+    KnowledgeEvidenceWorkflowService workflowService,
     CancellationToken cancellationToken) =>
 {
     try
@@ -386,7 +386,7 @@ app.MapPost("/knowledge-evidence/reviews/batch-approve", async Task<IResult> (
 app.MapPost("/knowledge-evidence/reviews/decisions/{decisionId:guid}/undo", async Task<IResult> (
     Guid decisionId,
     CurriculumEvidenceUndoRequest request,
-    IKnowledgeEvidenceWorkflowService workflowService,
+    KnowledgeEvidenceWorkflowService workflowService,
     CancellationToken cancellationToken) =>
 {
     try
@@ -443,7 +443,7 @@ app.MapPost("/api/admin/cache/cleanup", (CacheCleanupRequest request, IConfigura
 
 app.MapAdminAiEndpoints();
 
-app.MapPost("/internal/ai/model-route", (AiRouteRequest request, IAiModelRouter router) =>
+app.MapPost("/internal/ai/model-route", (AiRouteRequest request, AiModelRouter router) =>
 {
     try
     {
@@ -456,16 +456,16 @@ app.MapPost("/internal/ai/model-route", (AiRouteRequest request, IAiModelRouter 
 })
 .WithName("RouteAiModel");
 
-app.MapGet("/internal/ai/providers", (IEnumerable<IAiProvider> providers) =>
+app.MapGet("/internal/ai/providers", (StubAiProvider provider) =>
 {
-    return Results.Ok(providers.Select(x => new AiProviderInfo(x.ProviderId, x.SupportsRealModelCalls)));
+    return Results.Ok(new[] { new AiProviderInfo(provider.ProviderId, provider.SupportsRealModelCalls) });
 })
 .WithName("ListAiProviders");
 
 app.MapPost("/internal/ai/jobs/stub", async (
     AiJobCreateRequest request,
-    IAiModelRouter router,
-    IEnumerable<IAiProvider> providers,
+    AiModelRouter router,
+    StubAiProvider provider,
     KqgDbContext dbContext,
     CancellationToken cancellationToken) =>
 {
@@ -489,8 +489,7 @@ app.MapPost("/internal/ai/jobs/stub", async (
         return Results.Conflict(new { error = "real_model_calls_not_allowed_in_draft_test" });
     }
 
-    var provider = providers.FirstOrDefault(x => x.ProviderId == route.Provider);
-    if (provider is null)
+    if (!string.Equals(provider.ProviderId, route.Provider, StringComparison.Ordinal))
     {
         return Results.BadRequest(new { error = "ai_provider_not_registered", provider = route.Provider });
     }
@@ -956,7 +955,7 @@ app.MapPost("/ai-suggestions/{id:guid}/undo-confirm", async (
 })
 .WithName("UndoConfirmAiSuggestionToQuestion");
 
-app.MapPost("/files", async (HttpRequest request, IFileStore fileStore, CancellationToken cancellationToken) =>
+app.MapPost("/files", async (HttpRequest request, LocalFileStore fileStore, CancellationToken cancellationToken) =>
 {
     var form = await request.ReadFormAsync(cancellationToken);
     var file = form.Files.GetFile("file");
@@ -1168,7 +1167,7 @@ app.MapPatch("/source-documents/{id:guid}/authorization", async (
 })
 .WithName("UpdateSourceDocumentAuthorization");
 
-app.MapPost("/imports", async (HttpRequest request, IFileStore fileStore, KqgDbContext dbContext, CancellationToken cancellationToken) =>
+app.MapPost("/imports", async (HttpRequest request, LocalFileStore fileStore, KqgDbContext dbContext, CancellationToken cancellationToken) =>
 {
     var form = await request.ReadFormAsync(cancellationToken);
     var file = form.Files.GetFile("file");
@@ -1494,7 +1493,7 @@ app.MapGet("/source-documents/{id:guid}/quality-report", async (
     var relatedOpenReviewItems = openReviewItems.ToArray();
 
     var questionNumbers = questions
-        .Select(x => TryGetIntCustomField(x.CustomFields, "questionNo"))
+        .Select(x => QuestionCustomFieldHelpers.TryGetIntField(x.CustomFields, "questionNo"))
         .Where(x => x.HasValue)
         .Select(x => x!.Value)
         .Distinct()
@@ -1518,13 +1517,13 @@ app.MapGet("/source-documents/{id:guid}/quality-report", async (
         .Select(x => x.Id)
         .ToArray();
 
-    var answerCoveredCount = questions.Count(x => QuestionCustomFieldHasValue(x.CustomFields, "answer"));
-    var solutionCoveredCount = questions.Count(x => QuestionCustomFieldHasValue(x.CustomFields, "solution"));
+    var answerCoveredCount = questions.Count(x => QuestionCustomFieldHelpers.HasMeaningfulValue(x.CustomFields, "answer"));
+    var solutionCoveredCount = questions.Count(x => QuestionCustomFieldHelpers.HasMeaningfulValue(x.CustomFields, "solution"));
     var tableCount = blocks.Count(x => string.Equals(x.BlockType, "table", StringComparison.OrdinalIgnoreCase));
     var formulaCount = blocks.Count(x => string.Equals(x.BlockType, "formula", StringComparison.OrdinalIgnoreCase));
     var imageAssets = assets.Where(x => string.Equals(x.AssetType, "image", StringComparison.OrdinalIgnoreCase)).ToArray();
     var imageMatchedQuestionCount = imageAssets.Select(x => x.QuestionItemId).Distinct().Count();
-    var externalAiCalls = questions.Sum(x => TryGetIntCustomField(x.QualitySignals, "externalAiCalls") ?? 0);
+    var externalAiCalls = questions.Sum(x => QuestionCustomFieldHelpers.TryGetIntField(x.QualitySignals, "externalAiCalls") ?? 0);
     var noiseRetainedBlockCount = blocks.Count(QuestionBlockLooksLikeRetainedNoise);
 
     var gaps = new List<string>();
@@ -1729,7 +1728,7 @@ app.MapGet("/source-documents/{id:guid}/pages/{pageNumber:int:min(1)}/screenshot
 
 app.MapPost("/source-documents/{id:guid}/cut-candidates/generate", async (
     Guid id,
-    ICutCandidateGenerationService service,
+    CutCandidateGenerationService service,
     CancellationToken cancellationToken) =>
 {
     try
@@ -2697,7 +2696,7 @@ app.MapGet("/questions", async (
             item.DefaultScore,
             item.DifficultyEstimated,
             item.Status,
-            TryGetIntCustomField(item.CustomFields, "questionNo"),
+            QuestionCustomFieldHelpers.TryGetIntField(item.CustomFields, "questionNo"),
             primaryKnowledge,
             candidateTags,
             GetQuestionPreview(itemBlocks ?? []),
@@ -2977,11 +2976,11 @@ app.MapPatch("/questions/{id:guid}", async (
 
     var answer = request.Answer.HasValue
         ? request.Answer.Value.Clone()
-        : TryGetCustomFieldElement(item.CustomFields, "answer");
+        : QuestionCustomFieldHelpers.TryGetElement(item.CustomFields, "answer");
     var solution = request.Solution.HasValue
         ? request.Solution.Value.Clone()
-        : TryGetCustomFieldElement(item.CustomFields, "solution");
-    item.CustomFields = MergeQuestionCustomFields(
+        : QuestionCustomFieldHelpers.TryGetElement(item.CustomFields, "solution");
+    item.CustomFields = QuestionCustomFieldHelpers.Merge(
         item.CustomFields,
         answer,
         solution,
@@ -3351,7 +3350,7 @@ app.MapScoreEndpoints();
 app.MapPost("/paper-baskets/{id:guid}/export-preflight", async (
     Guid id,
     PaperExportPreflightRequest request,
-    IPaperWorkflowService workflowService,
+    PaperWorkflowService workflowService,
     CancellationToken cancellationToken) =>
 {
     var result = await workflowService.RunExportPreflightAsync(
@@ -3400,7 +3399,7 @@ app.MapGet("/paper-baskets/{id:guid}/export", async (
 })
 .WithName("ExportPaperArtifact");
 
-app.MapPost("/paper-requests/parse", (PaperRequestParseRequest request, IPaperWorkflowService workflowService) =>
+app.MapPost("/paper-requests/parse", (PaperRequestParseRequest request, PaperWorkflowService workflowService) =>
 {
     if (string.IsNullOrWhiteSpace(request.TeacherRequest))
     {
@@ -3431,7 +3430,7 @@ app.MapPost("/paper-requests/parse", (PaperRequestParseRequest request, IPaperWo
 
 app.MapPost("/paper-blueprints", async (
     PaperBlueprintReviewCreateRequest request,
-    IPaperWorkflowService workflowService,
+    PaperWorkflowService workflowService,
     CancellationToken cancellationToken) =>
 {
     if (string.IsNullOrWhiteSpace(request.TeacherRequest))
@@ -3478,7 +3477,7 @@ app.MapPost("/paper-blueprints", async (
 app.MapPost("/paper-blueprints/{id:guid}/confirm", async (
     Guid id,
     PaperBlueprintConfirmRequest request,
-    IPaperWorkflowService workflowService,
+    PaperWorkflowService workflowService,
     CancellationToken cancellationToken) =>
 {
     if (string.IsNullOrWhiteSpace(request.TeacherConfirmedBy))
@@ -3514,7 +3513,7 @@ app.MapPost("/paper-blueprints/{id:guid}/confirm", async (
 })
 .WithName("ConfirmPaperBlueprintReview");
 
-app.MapPost("/paper-requests/replace-question", (PaperQuestionReplacementRequest request, IPaperWorkflowService workflowService) =>
+app.MapPost("/paper-requests/replace-question", (PaperQuestionReplacementRequest request, PaperWorkflowService workflowService) =>
 {
     if (request.CurrentQuestion is null)
     {
@@ -3576,7 +3575,7 @@ app.MapPost("/paper-requests/replace-question", (PaperQuestionReplacementRequest
 })
 .WithName("ReplacePaperQuestion");
 
-app.MapPost("/knowledge-version-explanations/resolve", (KnowledgeVersionExplanationRequest request, IPaperWorkflowService workflowService) =>
+app.MapPost("/knowledge-version-explanations/resolve", (KnowledgeVersionExplanationRequest request, PaperWorkflowService workflowService) =>
 {
     if (string.IsNullOrWhiteSpace(request.ArtifactType))
     {
@@ -3703,7 +3702,7 @@ app.MapPost("/imports/{id:guid}/worker-smoke", async (
     Guid id,
     bool? simulateFailure,
     KqgDbContext dbContext,
-    IDocumentWorkerClient workerClient,
+    DocumentWorkerClient workerClient,
     CancellationToken cancellationToken) =>
 {
     var job = await dbContext.ImportJobs.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
@@ -4373,31 +4372,6 @@ static double? TryGetDoubleProperty(JsonElement root, string propertyName)
         double.TryParse(property.GetString(), NumberStyles.Float, CultureInfo.InvariantCulture, out number)
         ? number
         : null;
-}
-
-static JsonElement? TryGetCustomFieldElement(string json, string propertyName)
-{
-    return QuestionCustomFieldHelpers.TryGetElement(json, propertyName);
-}
-
-static int? TryGetIntCustomField(string json, string propertyName)
-{
-    return QuestionCustomFieldHelpers.TryGetIntField(json, propertyName);
-}
-
-static string MergeQuestionCustomFields(
-    string json,
-    JsonElement? answer,
-    JsonElement? solution,
-    string? primaryKnowledgeLabel = null,
-    IReadOnlyList<string>? knowledgeTags = null)
-{
-    return QuestionCustomFieldHelpers.Merge(json, answer, solution, primaryKnowledgeLabel, knowledgeTags);
-}
-
-static bool QuestionCustomFieldHasValue(string json, string propertyName)
-{
-    return QuestionCustomFieldHelpers.HasMeaningfulValue(json, propertyName);
 }
 
 static bool QuestionBlockLooksLikeRetainedNoise(QuestionBlock block)

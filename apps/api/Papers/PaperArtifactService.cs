@@ -11,9 +11,9 @@ namespace K12QuestionGraph.Api.Papers;
 public sealed class PaperArtifactService
 {
     private readonly KqgDbContext dbContext;
-    private readonly IPaperWorkflowService workflowService;
+    private readonly PaperWorkflowService workflowService;
 
-    public PaperArtifactService(KqgDbContext dbContext, IPaperWorkflowService workflowService)
+    public PaperArtifactService(KqgDbContext dbContext, PaperWorkflowService workflowService)
     {
         this.dbContext = dbContext;
         this.workflowService = workflowService;

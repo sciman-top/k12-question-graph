@@ -24,7 +24,7 @@
 | H0.7 | VGOV-007 UI 合同迁移 | 高价值边界保留，低信号检查行为化 |
 | H0.8 | VGOV-008 evidence 生命周期 | 日常结果进 tmp，current evidence 有索引 |
 | H0.9 | VGOV-009 Release 覆盖对账 | stateful gate 无丢失，可退役重复默认执行 |
-| H0.10 | VGOV-010 产品热点收口 | 真实 endpoint seam 抽取，稳定模块受单一 hotspot budget 保护 |
+| H0.10 | VGOV-010 产品热点收口 | 真实 endpoint seam 抽取；迁移期静态 hotspot budget 完成使命后退役 |
 
 H0 已完成 repo-side 收口：日常入口为 changed-path Slice，跨栈基线为 Quick；Release 为 3 个风险聚焦阶段与状态对账。legacy monolith、inventory、兼容 wrapper 与未来治理节点已删除，只从 Git 历史取证。H0 不改变教师功能、数据库 schema、active 数据或 release 状态。
 
@@ -56,7 +56,7 @@ Q/R 不是当前执行队列：
 
 ## 5. 产品代码结构演进
 
-VGOV-010 已抽取 Score/Admin AI endpoint seam，并保留既有 KnowledgeEvidence/Paper/Score workflow 与 Web panel；一个 canonical budget 防止热点重新增长。后续仅在真实职责漂移或预算触发时继续拆分，每次保持 API、payload、schema、数据和教师行为兼容，不引入新的通用平台。
+VGOV-010 已抽取 Score/Admin AI endpoint seam，并保留既有 KnowledgeEvidence/Paper/Score workflow 与 Web panel；不保留永久 canonical budget。后续仅在观察到真实职责漂移或增长时继续拆分，每次保持 API、payload、schema、数据和教师行为兼容，不引入新的通用平台。
 
 ## 6. 路线图维护规则
 

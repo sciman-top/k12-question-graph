@@ -7,15 +7,7 @@ using System.Text.Json;
 
 namespace K12QuestionGraph.Api.Application.Workflows;
 
-public interface IScoreAnalysisWorkflowService
-{
-    Task<ScoreImportServiceResult> ImportScoresAsync(ScoreImportServiceRequest request, CancellationToken cancellationToken);
-    Task<ItemScoreMappingPreviewServiceResult?> PreviewItemScoreMappingsAsync(Guid assessmentId, ItemScoreMappingPreviewServiceRequest request, CancellationToken cancellationToken);
-    Task<ScoreEvidenceAnalysisServiceResult?> PreviewScoreEvidenceAnalysisAsync(Guid assessmentId, ScoreEvidenceAnalysisServiceRequest request, CancellationToken cancellationToken);
-    Task<CommentaryReportExportServiceResult?> ExportCommentaryReportAsync(Guid assessmentId, CommentaryReportExportServiceRequest request, CancellationToken cancellationToken);
-}
-
-public sealed class ScoreAnalysisWorkflowService(KqgDbContext dbContext) : IScoreAnalysisWorkflowService
+public sealed class ScoreAnalysisWorkflowService(KqgDbContext dbContext)
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 

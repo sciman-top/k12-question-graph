@@ -278,33 +278,3 @@ public static class ReviewWorkbenchMutationHelpers
         }
     }
 }
-
-internal static class QuestionJsonMetadata
-{
-    public static int? TryGetIntField(string json, string propertyName)
-    {
-        try
-        {
-            using var document = JsonDocument.Parse(json);
-            if (document.RootElement.ValueKind != JsonValueKind.Object ||
-                !document.RootElement.TryGetProperty(propertyName, out var property))
-            {
-                return null;
-            }
-
-            if (property.ValueKind == JsonValueKind.Number && property.TryGetInt32(out var number))
-            {
-                return number;
-            }
-
-            return property.ValueKind == JsonValueKind.String &&
-                int.TryParse(property.GetString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out number)
-                ? number
-                : null;
-        }
-        catch (JsonException)
-        {
-            return null;
-        }
-    }
-}

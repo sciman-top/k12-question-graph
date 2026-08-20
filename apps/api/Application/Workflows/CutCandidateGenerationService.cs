@@ -5,18 +5,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace K12QuestionGraph.Api.Application.Workflows;
 
-public interface ICutCandidateGenerationService
-{
-    Task<CutCandidateGenerationResult> GenerateAsync(Guid sourceDocumentId, CancellationToken cancellationToken);
-}
-
 public sealed record CutCandidateGenerationResult(
     Guid SourceDocumentId,
     int GeneratedCount,
     int LowConfidenceReviewQueueCount,
     decimal LowConfidenceThreshold);
 
-public sealed class CutCandidateGenerationService(KqgDbContext dbContext) : ICutCandidateGenerationService
+public sealed class CutCandidateGenerationService(KqgDbContext dbContext)
 {
     private const decimal LowConfidenceThreshold = 0.85m;
 

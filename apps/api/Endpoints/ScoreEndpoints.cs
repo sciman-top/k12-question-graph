@@ -11,7 +11,7 @@ public static class ScoreEndpoints
         endpoints.MapPost("/score-imports/xlsx", async (
             HttpRequest request,
             ScoreSpreadsheetImportAdapter spreadsheetAdapter,
-            IScoreAnalysisWorkflowService workflowService,
+            ScoreAnalysisWorkflowService workflowService,
             CancellationToken cancellationToken) =>
         {
             var form = await request.ReadFormAsync(cancellationToken);
@@ -55,7 +55,7 @@ public static class ScoreEndpoints
 
         endpoints.MapPost("/score-imports", async (
             ScoreImportRequest request,
-            IScoreAnalysisWorkflowService workflowService,
+            ScoreAnalysisWorkflowService workflowService,
             CancellationToken cancellationToken) =>
         {
             var fieldMapping = request.FieldMapping ?? new ScoreImportFieldMappingRequest(
@@ -96,7 +96,7 @@ public static class ScoreEndpoints
         endpoints.MapPost("/assessments/{assessmentId:guid}/item-score-mappings/preview", async (
             Guid assessmentId,
             ItemScoreMappingPreviewRequest request,
-            IScoreAnalysisWorkflowService workflowService,
+            ScoreAnalysisWorkflowService workflowService,
             CancellationToken cancellationToken) =>
         {
             var result = await workflowService.PreviewItemScoreMappingsAsync(
@@ -118,7 +118,7 @@ public static class ScoreEndpoints
         endpoints.MapPost("/assessments/{assessmentId:guid}/score-evidence-analysis/preview", async (
             Guid assessmentId,
             ScoreEvidenceAnalysisPreviewRequest request,
-            IScoreAnalysisWorkflowService workflowService,
+            ScoreAnalysisWorkflowService workflowService,
             CancellationToken cancellationToken) =>
         {
             var result = await workflowService.PreviewScoreEvidenceAnalysisAsync(
@@ -141,7 +141,7 @@ public static class ScoreEndpoints
         endpoints.MapPost("/assessments/{assessmentId:guid}/commentary-report/export", async (
             Guid assessmentId,
             CommentaryReportExportRequest request,
-            IScoreAnalysisWorkflowService workflowService,
+            ScoreAnalysisWorkflowService workflowService,
             CancellationToken cancellationToken) =>
         {
             var result = await workflowService.ExportCommentaryReportAsync(

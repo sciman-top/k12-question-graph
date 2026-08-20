@@ -60,7 +60,7 @@ export const initialScoreEvidenceAnalysis: ScoreEvidenceAnalysisContract = {
   auditTrail: [],
 }
 
-export const inlineMathPattern = /(\\\[[\s\S]+?\\\]|\\\([\s\S]+?\\\)|\$\$[\s\S]+?\$\$|\$[^$\n]+?\$)/g
+const inlineMathPattern = /(\\\[[\s\S]+?\\\]|\\\([\s\S]+?\\\)|\$\$[\s\S]+?\$\$|\$[^$\n]+?\$)/g
 
 export function renderMathAwareText(value: string): ReactNode[] {
   const nodes: ReactNode[] = []
@@ -240,7 +240,7 @@ export const initialSegments = [
 ]
 
 export const sharedAssets = ['图 A：滑轮组示意图', '图 B：电路图', '表 1：实验数据']
-export const defaultDifficultyFilterLabel =
+const defaultDifficultyFilterLabel =
   teacherDifficultyRangeLabelFor('0.4-0.7')
 
 export const starterDemoSteps = [

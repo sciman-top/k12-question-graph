@@ -2,12 +2,7 @@ using Microsoft.Extensions.Options;
 
 namespace K12QuestionGraph.Api.Ai;
 
-public interface IAiModelRouter
-{
-    AiRouteDecision Route(AiRouteRequest request);
-}
-
-public sealed class AiModelRouter(IOptions<AiRoutingOptions> options, IWebHostEnvironment environment) : IAiModelRouter
+public sealed class AiModelRouter(IOptions<AiRoutingOptions> options, IWebHostEnvironment environment)
 {
     private readonly AiRoutingOptions options = options.Value;
 

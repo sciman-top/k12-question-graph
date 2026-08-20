@@ -1,21 +1,5 @@
 Set-StrictMode -Version Latest
 
-function Get-KqgRepoRoot {
-    param(
-        [Parameter(Mandatory = $true)][string] $ScriptRoot
-    )
-
-    return (Resolve-Path -LiteralPath (Join-Path $ScriptRoot '..')).Path
-}
-
-function Test-KqgScriptPath {
-    param(
-        [Parameter(Mandatory = $true)][string] $Path
-    )
-
-    return Test-Path -LiteralPath $Path
-}
-
 function Invoke-KqgPowerShellParseSweep {
     param(
         [Parameter(Mandatory = $true)][string] $RepoRoot,
@@ -59,7 +43,6 @@ function Invoke-KqgPowerShellParseSweep {
         errors = $errors
     }
 }
-
 function Invoke-KqgPythonCompileSweep {
     param(
         [Parameter(Mandatory = $true)][string] $RepoRoot,
@@ -110,42 +93,4 @@ function Assert-KqgQualitySweepPassed {
         $json = $Result.errors | ConvertTo-Json -Depth 6
         throw "$Label failed: $json"
     }
-}
-
-function Get-KqgFreeTcpPort {
-    $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, 0)
-    try {
-        $listener.Start()
-        return $listener.LocalEndpoint.Port
-    }
-    finally {
-        $listener.Stop()
-    }
-}
-
-function Wait-KqgApiReady {
-    param(
-        [Parameter(Mandatory = $true)][string] $ApiUrl,
-        [int] $Attempts = 40,
-        [int] $DelayMilliseconds = 500,
-        [int] $TimeoutSeconds = 2,
-        [string] $AdminInternalKey = $env:KQG_ADMIN_INTERNAL_KEY
-    )
-
-    for ($i = 0; $i -lt $Attempts; $i++) {
-        try {
-            $headers = if ([string]::IsNullOrWhiteSpace($AdminInternalKey)) { @{} } else { @{ 'X-KQG-Admin-Key' = $AdminInternalKey } }
-            $health = Invoke-RestMethod -Uri "$ApiUrl/health/ready" -Headers $headers -TimeoutSec $TimeoutSeconds
-            if ($health.status -eq 'ok') {
-                return $true
-            }
-        }
-        catch {
-            # 探活期间允许短暂失败，统一由调用方在超时后决定是否中止。
-        }
-
-        Start-Sleep -Milliseconds $DelayMilliseconds
-    }
-
-    return $false
 }

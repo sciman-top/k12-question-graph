@@ -127,11 +127,11 @@ v0.1 的每个用户故事必须同时给出功能验收和教师效率验收。
 
 ## 6. v0.1 首批实现边界
 
-v0.1 是完整教师闭环。P0/P1 历史骨架和导入链已落地，当前编码顺序以 `tasks/backlog.csv` 为准：先完成 VGOV 验证治理减负，再进入 P001-P006 现场与发布闭环；Q/R 未来能力保持停放。
+v0.1 是完整教师闭环。P0/P1 历史骨架、导入链和 VGOV 验证治理减负已完成，当前从 `tasks/backlog.csv` 的 P001 开始推进 P001-P006 现场与发布闭环；Q/R 未来能力保持停放。
 
 | 阶段 | 必须可运行的最小闭环 | 阶段退出门禁 | 不做 |
 |---|---|---|---|
-| P0 | 登录占位、上传文件、创建 ImportJob、写 PostgreSQL、文件入仓、健康检查、最小备份 manifest | build/test/contract/hotspot 全部有命令；无代码子项目必须记录 gate_na | OCR、AI 切题、真实组卷 |
+| P0 | 登录占位、上传文件、创建 ImportJob、写 PostgreSQL、文件入仓、健康检查、最小备份 manifest | build/test/contract 有命令；hotspot 仅在真实增长或职责漂移时定点审计；无代码子项目必须记录 gate_na | OCR、AI 切题、真实组卷 |
 | P1 | 文档解析/OCR Adapter 占位、页面预览、SourceRegion、ReviewQueue、人工切题校正、单题入库、来源回看 | 至少一份黄金样本可从上传进入确认队列并保存题目 | 全自动准确切题、复杂知识图谱、正式导出引擎 |
 
 功能范围裁决见 `docs/28_FunctionScopeReview.md`。如果新功能未被归入 Must/Should/Later/Never，且未进入当前 backlog task，不得直接实施。

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "unknownPathPolicy": "fail",
   "commandCatalog": [
-    { "id": "backend-tests", "command": "dotnet build API test project and referenced API then dotnet test --no-build", "sideEffects": "ignored bin/obj only" },
+    { "id": "backend-tests", "command": "dotnet build API test project and referenced API then dotnet test --no-build, both under the verification report artifact path", "sideEffects": "tmp/verification only" },
     { "id": "frontend-tests", "command": "npm build, lint, then test for apps/web", "sideEffects": "ignored dist only" },
     { "id": "worker-tests", "command": "python compileall workers then unittest tests/workers", "sideEffects": "ignored __pycache__ and temporary test files only" },
     { "id": "verification-routing", "command": "selector regression tests", "sideEffects": "tmp/verification only" },

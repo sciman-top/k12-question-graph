@@ -7,7 +7,7 @@ public static class AdminAiEndpoints
     public static IEndpointRouteBuilder MapAdminAiEndpoints(this IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet("/api/admin/ai/provider-settings", async (
-            IAiProviderSettingsStore settingsStore,
+            FileAiProviderSettingsStore settingsStore,
             CancellationToken cancellationToken) =>
         {
             var settings = await settingsStore.GetAsync(cancellationToken);
@@ -17,7 +17,7 @@ public static class AdminAiEndpoints
 
         endpoints.MapPost("/api/admin/ai/provider-settings", async (
             AdminAiProviderSettingsSaveRequest request,
-            IAiProviderSettingsStore settingsStore,
+            FileAiProviderSettingsStore settingsStore,
             CancellationToken cancellationToken) =>
         {
             var result = await settingsStore.SaveAsync(request, cancellationToken);
@@ -27,8 +27,8 @@ public static class AdminAiEndpoints
 
         endpoints.MapPost("/api/admin/ai/provider-settings/test", async (
             AdminAiProviderSettingsTestRequest request,
-            IAiProviderSettingsStore settingsStore,
-            IAiProviderSmokeTestService smokeTestService,
+            FileAiProviderSettingsStore settingsStore,
+            OpenAiCompatibleSmokeTestService smokeTestService,
             CancellationToken cancellationToken) =>
         {
             var settings = await settingsStore.GetAsync(cancellationToken);

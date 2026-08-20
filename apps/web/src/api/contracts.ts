@@ -19,7 +19,7 @@ export type ApiResult<T> =
       }
     }
 
-export type ReadyHealthStatus = 'ok' | 'unknown'
+type ReadyHealthStatus = 'ok' | 'unknown'
 
 export interface ReadyHealthContract {
   status: ReadyHealthStatus
@@ -27,7 +27,7 @@ export interface ReadyHealthContract {
   checkedAtIso: string
 }
 
-export interface SourceMaterialContract {
+interface SourceMaterialContract {
   sourceDocumentId: string
   fileAssetId: string
   sourceType: string
@@ -43,7 +43,7 @@ export interface SourceMaterialListContract {
   sourceDocuments: SourceMaterialContract[]
 }
 
-export interface SourcePreviewRegionContract {
+interface SourcePreviewRegionContract {
   id: string
   sourceDocumentId: string
   pageNumber: number
@@ -53,7 +53,7 @@ export interface SourcePreviewRegionContract {
   pageScreenshotUrl: string | null
 }
 
-export interface SourcePreviewPageContract {
+interface SourcePreviewPageContract {
   pageNumber: number
   regions: SourcePreviewRegionContract[]
 }
@@ -63,7 +63,7 @@ export interface SourceDocumentPreviewContract {
   pages: SourcePreviewPageContract[]
 }
 
-export interface CutCandidateContract {
+interface CutCandidateContract {
   id: string
   sourceDocumentId: string
   sourceRegionId: string | null
@@ -98,7 +98,7 @@ export interface ReviewWorkbenchActionContract {
   createdQuestionId: string | null
 }
 
-export interface ReviewQueuePayloadContract {
+interface ReviewQueuePayloadContract {
   sourceWorkflowKey: string
   materialBatchKey: string
   year: number
@@ -253,7 +253,7 @@ export interface QuestionSourceReviewContract {
   sourceRegions: QuestionSourceRegionContract[]
 }
 
-export interface QuestionCardContract {
+interface QuestionCardContract {
   id: string
   questionType: string
   defaultScore: number | null
@@ -340,7 +340,7 @@ export interface QuestionEvidenceSearchParams {
   pageSize?: number
 }
 
-export interface QuestionEvidenceKnowledgeContract {
+interface QuestionEvidenceKnowledgeContract {
   stableId: string
   displayName: string
   role: string
@@ -349,7 +349,7 @@ export interface QuestionEvidenceKnowledgeContract {
   reviewStatus: string
 }
 
-export interface QuestionEvidenceRequirementContract {
+interface QuestionEvidenceRequirementContract {
   stableId: string
   displayName: string
   alignmentType: string
@@ -363,7 +363,7 @@ export interface QuestionEvidenceRequirementContract {
   curriculumSourcePageNumber: number | null
 }
 
-export interface QuestionObservedDifficultyContract {
+interface QuestionObservedDifficultyContract {
   value: number
   direction: string
   sampleScope: string
@@ -372,14 +372,14 @@ export interface QuestionObservedDifficultyContract {
   reviewStatus: string
 }
 
-export interface QuestionEvidenceProfileContract {
+interface QuestionEvidenceProfileContract {
   stableId: string
   displayName: string
   status: string
   trendStatus: string | null
 }
 
-export interface QuestionAssessmentTargetEvidenceContract {
+interface QuestionAssessmentTargetEvidenceContract {
   id: string
   stableKey: string
   scopeType: string
@@ -426,7 +426,7 @@ export interface QuestionEvidenceSearchContract {
   completionBoundary: string
 }
 
-export interface PaperBlueprintRowContract {
+interface PaperBlueprintRowContract {
   questionType: string
   count: number
   score: number
@@ -541,7 +541,7 @@ export interface ScoreImportContract {
   auditTrail: string[]
 }
 
-export interface ItemScoreMappingPreviewRowContract {
+interface ItemScoreMappingPreviewRowContract {
   questionNo: string
   fieldNames: string[]
   scoreRecordCount: number
@@ -632,7 +632,7 @@ export interface ScoreEvidenceAnalysisContract {
   auditTrail: string[]
 }
 
-export interface ScoreEvidenceDimensionContract {
+interface ScoreEvidenceDimensionContract {
   stableId: string
   displayName: string
   scoreRate: number
@@ -696,7 +696,7 @@ export interface AdminAiProviderSettingsContract {
   auditTrail: string[]
 }
 
-export interface AdminAiProviderEndpointContract {
+interface AdminAiProviderEndpointContract {
   endpointId: string
   label: string
   isFallback: boolean
@@ -729,7 +729,7 @@ export interface AdminAiProviderSettingsSaveContract {
   auditTrail: string[]
 }
 
-export interface AdminAiProviderProbeAttemptContract {
+interface AdminAiProviderProbeAttemptContract {
   providerEndpointId: string
   baseUrl: string
   routeKind: string
@@ -741,7 +741,7 @@ export interface AdminAiProviderProbeAttemptContract {
   message: string
 }
 
-export interface AdminAiProviderImageProbeAttemptContract {
+interface AdminAiProviderImageProbeAttemptContract {
   providerEndpointId: string
   baseUrl: string
   routeKind: string
@@ -753,7 +753,7 @@ export interface AdminAiProviderImageProbeAttemptContract {
   message: string
 }
 
-export interface AdminAiProviderImageProbeResultContract {
+interface AdminAiProviderImageProbeResultContract {
   attempted: boolean
   passed: boolean
   effectiveProviderEndpointId: string

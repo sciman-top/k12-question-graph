@@ -10,50 +10,7 @@ using System.Text.Json.Nodes;
 
 namespace K12QuestionGraph.Api.Application.Workflows;
 
-public interface IKnowledgeEvidenceWorkflowService
-{
-    Task<KnowledgeEvidenceListResponse> ListAssessmentTargetsAsync(
-        KnowledgeEvidenceListRequest request,
-        CancellationToken cancellationToken);
-
-    Task<ObservedEvidenceListResponse> ListObservedEvidenceAsync(
-        ObservedEvidenceListRequest request,
-        CancellationToken cancellationToken);
-
-    Task<RegionalExamProfileDetailResponse?> GetRegionalExamProfileAsync(
-        string stableId,
-        CancellationToken cancellationToken);
-
-    Task<QuestionEvidenceSearchResponse> SearchQuestionsAsync(
-        QuestionEvidenceSearchRequest request,
-        CancellationToken cancellationToken);
-
-    Task<CurriculumEvidenceReviewListResponse> ListCurriculumEvidenceReviewsAsync(
-        CurriculumEvidenceReviewListRequest request,
-        CancellationToken cancellationToken);
-
-    Task<CurriculumEvidenceReplacementOptionsResponse?> GetCurriculumEvidenceReplacementOptionsAsync(
-        Guid candidateId,
-        CancellationToken cancellationToken);
-
-    Task<CurriculumEvidenceDecisionResponse> DecideCurriculumEvidenceAsync(
-        CurriculumEvidenceDecisionRequest request,
-        CancellationToken cancellationToken);
-
-    Task<CurriculumEvidenceBatchDecisionResponse> BatchApproveCurriculumEvidenceAsync(
-        CurriculumEvidenceBatchDecisionRequest request,
-        CancellationToken cancellationToken);
-
-    Task<CurriculumEvidenceDecisionResponse> UndoCurriculumEvidenceDecisionAsync(
-        Guid decisionId,
-        CurriculumEvidenceUndoRequest request,
-        CancellationToken cancellationToken);
-
-    Task<CurriculumEvidenceReadinessSummary> GetCurriculumEvidenceReadinessAsync(
-        CancellationToken cancellationToken);
-}
-
-public sealed class KnowledgeEvidenceWorkflowService(KqgDbContext dbContext) : IKnowledgeEvidenceWorkflowService
+public sealed class KnowledgeEvidenceWorkflowService(KqgDbContext dbContext)
 {
     private const string CurriculumRequirementImportKey = "cek009_curriculum_requirements_2022_2025_v1";
     private const string RegionalProfileImportKey = "cek023_regional_exam_profile_candidate_v1";

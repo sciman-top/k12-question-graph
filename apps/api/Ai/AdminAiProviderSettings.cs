@@ -181,15 +181,6 @@ internal sealed record StoredAdminAiProviderSettings(
     DateTimeOffset UpdatedAtUtc,
     string LastOperatorNote);
 
-public interface IAiProviderSettingsStore
-{
-    Task<AdminAiProviderSettingsContract> GetAsync(CancellationToken cancellationToken);
-    Task<AdminAiProviderSettingsSaveResult> SaveAsync(AdminAiProviderSettingsSaveRequest request, CancellationToken cancellationToken);
-    Task<string> GetPlaintextSecretAsync(CancellationToken cancellationToken);
-    Task<string> GetPlaintextImageSecretAsync(CancellationToken cancellationToken);
-    Task<IReadOnlyList<AiProviderRuntimeEndpoint>> GetRuntimeEndpointsAsync(CancellationToken cancellationToken);
-}
-
 public sealed record AiProviderRuntimeEndpoint(
     string EndpointId,
     string Label,
@@ -199,19 +190,10 @@ public sealed record AiProviderRuntimeEndpoint(
     string ImageBaseUrl,
     string ImageSecret);
 
-public interface IAiProviderSmokeTestService
-{
-    Task<AdminAiProviderSettingsTestResult> RunAsync(
-        AdminAiProviderSettingsContract settings,
-        AdminAiProviderSettingsTestRequest request,
-        CancellationToken cancellationToken);
-}
-
 public sealed class FileAiProviderSettingsStore(
     IConfiguration configuration,
     IDataProtectionProvider dataProtectionProvider,
     IWebHostEnvironment environment)
-    : IAiProviderSettingsStore
 {
     private const string SchemaVersion = "admin-ai-provider-settings.v0.1";
     private const string DefaultProviderProfileId = "cloud_openai_candidate";
@@ -695,9 +677,8 @@ public sealed class FileAiProviderSettingsStore(
 
 public sealed class OpenAiCompatibleSmokeTestService(
     HttpClient httpClient,
-    IAiProviderSettingsStore settingsStore,
+    FileAiProviderSettingsStore settingsStore,
     IWebHostEnvironment environment)
-    : IAiProviderSmokeTestService
 {
     private const string ImageProbePrompt = "Generate a simple flat icon of a blue paper plane on a white background.";
     private const string ImageProbeFallbackModel = "gpt-image-2";

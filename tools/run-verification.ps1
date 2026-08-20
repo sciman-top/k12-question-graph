@@ -11,6 +11,7 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 $reportRootFullPath = Join-Path $repoRoot $ReportRoot
 New-Item -ItemType Directory -Path $reportRootFullPath -Force | Out-Null
+$dotnetArtifactsPath = Join-Path $reportRootFullPath 'dotnet-artifacts'
 
 function Get-TrackedWorktreeSnapshot {
     return @(
@@ -77,7 +78,7 @@ function Invoke-VerifiedStep {
 function Invoke-QuickProfile([AllowEmptyCollection()][System.Collections.Generic.List[object]] $Results) {
     $steps = @(
         [pscustomobject]@{ id = 'backend-build'; action = {
-            & dotnet build tests/api/K12QuestionGraph.Api.Tests/K12QuestionGraph.Api.Tests.csproj --no-restore
+            & dotnet build tests/api/K12QuestionGraph.Api.Tests/K12QuestionGraph.Api.Tests.csproj --artifacts-path $dotnetArtifactsPath
             if ($LASTEXITCODE -ne 0) { throw 'backend build failed' }
         } },
         [pscustomobject]@{ id = 'frontend-build'; action = {
@@ -89,7 +90,7 @@ function Invoke-QuickProfile([AllowEmptyCollection()][System.Collections.Generic
             if ($LASTEXITCODE -ne 0) { throw 'frontend lint failed' }
         } },
         [pscustomobject]@{ id = 'backend-tests'; action = {
-            & dotnet test tests/api/K12QuestionGraph.Api.Tests/K12QuestionGraph.Api.Tests.csproj --no-restore --no-build
+            & dotnet test tests/api/K12QuestionGraph.Api.Tests/K12QuestionGraph.Api.Tests.csproj --no-restore --no-build --artifacts-path $dotnetArtifactsPath
             if ($LASTEXITCODE -ne 0) { throw 'backend tests failed' }
         } },
         [pscustomobject]@{ id = 'frontend-tests'; action = {
@@ -175,11 +176,11 @@ function Invoke-SliceFocusedCommand {
     switch ($Id) {
         'backend-tests' {
             Invoke-SliceStep -Id 'slice-backend-build' -Results $Results -Action {
-                & dotnet build tests/api/K12QuestionGraph.Api.Tests/K12QuestionGraph.Api.Tests.csproj --no-restore
+                & dotnet build tests/api/K12QuestionGraph.Api.Tests/K12QuestionGraph.Api.Tests.csproj --artifacts-path $dotnetArtifactsPath
                 if ($LASTEXITCODE -ne 0) { throw 'slice backend build failed' }
             }
             Invoke-SliceStep -Id 'slice-backend-tests' -Results $Results -Action {
-                & dotnet test tests/api/K12QuestionGraph.Api.Tests/K12QuestionGraph.Api.Tests.csproj --no-restore --no-build
+                & dotnet test tests/api/K12QuestionGraph.Api.Tests/K12QuestionGraph.Api.Tests.csproj --no-restore --no-build --artifacts-path $dotnetArtifactsPath
                 if ($LASTEXITCODE -ne 0) { throw 'slice backend tests failed' }
             }
         }

@@ -9,7 +9,7 @@ namespace K12QuestionGraph.Api.Workers;
 public sealed class DocumentWorkerClient(
     IOptions<PythonWorkerOptions> options,
     IOptions<KqgPathsOptions> pathsOptions,
-    IHostEnvironment environment) : IDocumentWorkerClient
+    IHostEnvironment environment)
 {
     public async Task<DocumentWorkerResult> RunSmokeAsync(
         Guid jobId,

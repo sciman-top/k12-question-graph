@@ -7,29 +7,9 @@ using System.Text.Json;
 
 namespace K12QuestionGraph.Api.Application.Workflows;
 
-public interface IPaperWorkflowService
-{
-    Task<PaperBlueprintReviewServiceResult> CreateBlueprintReviewAsync(
-        string teacherRequest,
-        string? textbookVersion,
-        PaperEvidenceConstraintServiceRequest? evidenceConstraints,
-        CancellationToken cancellationToken);
-    Task<PaperBlueprintConfirmServiceResult?> ConfirmBlueprintReviewAsync(
-        Guid blueprintReviewId,
-        string teacherConfirmedBy,
-        CancellationToken cancellationToken);
-    Task<PaperExportPreflightServiceResult?> RunExportPreflightAsync(
-        Guid paperBasketId,
-        string exportFormat,
-        CancellationToken cancellationToken);
-    PaperRequestParseServiceResult ParsePaperRequest(string teacherRequest, string? textbookVersion);
-    PaperReplaceServiceResult ReplaceQuestion(PaperReplaceRequest request);
-    KnowledgeVersionExplanationServiceResult ResolveKnowledgeVersionExplanation(KnowledgeVersionExplanationServiceRequest request);
-}
-
 public sealed class PaperWorkflowService(
     KqgDbContext dbContext,
-    IKnowledgeEvidenceWorkflowService knowledgeEvidenceWorkflowService) : IPaperWorkflowService
+    KnowledgeEvidenceWorkflowService knowledgeEvidenceWorkflowService)
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 

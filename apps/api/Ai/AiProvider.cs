@@ -4,16 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
-public interface IAiProvider
-{
-    string ProviderId { get; }
-
-    bool SupportsRealModelCalls { get; }
-
-    Task<AiProviderResult> CompleteStructuredAsync(AiProviderRequest request, CancellationToken cancellationToken);
-}
-
-public sealed class StubAiProvider : IAiProvider
+public sealed class StubAiProvider
 {
     public string ProviderId => "stub_llm";
 

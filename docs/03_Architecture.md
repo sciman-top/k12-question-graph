@@ -309,6 +309,6 @@ task/backlog + changed paths + risk
 
 ## 12. 当前结构热点和后置拆分
 
-`Program.cs`、`App.tsx`、KnowledgeEvidence/Paper/Score workflow 和 Admin AI settings 是已识别热点。VGOV-010 已按真实 seam 抽出 Score/Admin AI endpoint，并为其余稳定模块设置单一 hotspot budget；后续只有真实增长或职责漂移触发时才继续拆分，且必须保持 API、payload、schema、数据库和教师行为兼容，不引入新消息总线或通用插件平台。
+`Program.cs`、`App.tsx`、KnowledgeEvidence/Paper/Score workflow 和 Admin AI settings 是已识别热点。VGOV-010 已按真实 seam 抽出 Score/Admin AI endpoint；静态 hotspot budget 已随治理收口退役，后续只有观察到真实增长或职责漂移时才定点审计和继续拆分，且必须保持 API、payload、schema、数据库和教师行为兼容，不引入新消息总线或通用插件平台。
 | Kubernetes | 校本/LAN 场景运维负担过高 |
 | 公网 SaaS | 数据、采购、隐私和网络约束不匹配 |

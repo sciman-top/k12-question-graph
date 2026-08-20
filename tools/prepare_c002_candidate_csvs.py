@@ -65,7 +65,6 @@ def join_multi(values):
 
 
 def slug_material_id(name, index):
-    lower = name.lower()
     if "课程标准" in name:
         prefix = "curriculum"
     elif "教材" in name:
