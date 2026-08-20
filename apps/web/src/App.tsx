@@ -173,6 +173,7 @@ function App() {
   const localIdRef = useRef(0)
   const uploadInputRef = useRef<HTMLInputElement | null>(null)
   const uploadDropzoneRef = useRef<HTMLButtonElement | null>(null)
+  const workspaceRef = useRef<HTMLElement | null>(null)
   const realExamAutoLoadStartedRef = useRef(false)
   const realExamLoadRequestRef = useRef(0)
 
@@ -334,7 +335,15 @@ function App() {
         uploadDropzoneRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
         uploadDropzoneRef.current?.focus({ preventScroll: true })
       })
+      return
     }
+
+    // Navigation swaps panels in one long page. Reset the scroll position so
+    // the selected workbench heading is visible instead of preserving the
+    // previous panel's mid-page position.
+    window.requestAnimationFrame(() => {
+      workspaceRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
   }
 
   const selectEvidenceQuestion = (item: RealExamPreviewRow) => {
@@ -1373,7 +1382,7 @@ function App() {
           </Space>
         </header>
 
-        <main className={`workspace teacher-view-${activeTeacherView}`}>
+        <main ref={workspaceRef} className={`workspace teacher-view-${activeTeacherView}`}>
           <section
             className="primary-panel"
             aria-label="普通教师入口"

@@ -86,7 +86,7 @@ describe('AnalysisPanelContent', () => {
     expect(screen.getByText('先复核变量控制，再比较实验数据。')).toBeInTheDocument()
   })
 
-  it('shows fail-closed issue codes instead of a formal diagnosis', () => {
+  it('shows teacher-readable fail-closed blockers instead of a formal diagnosis', () => {
     render(<AnalysisPanelContent
       analysisMessage="分析被阻断。"
       analysis={analysis({
@@ -98,7 +98,8 @@ describe('AnalysisPanelContent', () => {
     />)
 
     expect(screen.getByText('分析暂未生成')).toBeInTheDocument()
-    expect(screen.getByText(/assessment_target_not_reviewed/)).toBeInTheDocument()
+    expect(screen.getByText(/Q1：考查目标尚未审核/)).toBeInTheDocument()
+    expect(screen.queryByText(/assessment_target_not_reviewed/)).not.toBeInTheDocument()
     expect(screen.getByText('暂无可用数据')).toBeInTheDocument()
   })
 })

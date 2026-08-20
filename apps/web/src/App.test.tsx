@@ -11,9 +11,14 @@ describe('App navigation smoke', () => {
       unobserve() {}
       disconnect() {}
     })
+    const scrollIntoView = vi.fn()
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+      callback(0)
+      return 1
+    })
     Object.defineProperty(Element.prototype, 'scrollIntoView', {
       configurable: true,
-      value: vi.fn(),
+      value: scrollIntoView,
     })
 
     render(
@@ -39,6 +44,8 @@ describe('App navigation smoke', () => {
       expect(appHeading).toBeInTheDocument()
       expect(workspace).toHaveClass(`teacher-view-${view}`)
     }
+
+    expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' })
   }, 15_000)
 
   it('keeps exam navigation teacher-facing and hides internal diagnostics by default', () => {

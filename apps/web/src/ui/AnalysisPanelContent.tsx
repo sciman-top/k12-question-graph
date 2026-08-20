@@ -2,6 +2,26 @@ import { Alert, Button, Tag, Typography } from 'antd'
 import type { ScoreEvidenceAnalysisContract } from '../api/contracts'
 import { analysisActions } from './workbenchData'
 
+const teacherIssueLabels: Record<string, string> = {
+  question_mapping_missing: '题目尚未完成映射',
+  question_mapping_ambiguous: '题目映射存在多个候选',
+  question_not_found: '找不到对应题目',
+  knowledge_mapping_missing: '知识点尚未完成映射',
+  knowledge_version_mapping_missing: '知识点版本尚未完成映射',
+  knowledge_version_ambiguous: '知识点版本存在歧义',
+  assessment_target_mapping_missing: '考查目标尚未完成映射',
+  assessment_target_not_reviewed: '考查目标尚未审核',
+  assessment_target_ambiguous: '考查目标存在歧义',
+  student_pii_detected: '检测到学生隐私字段',
+  score_rows_missing: '没有可分析的成绩行',
+}
+
+function formatBlockingIssue(scope: string, codes: string[]) {
+  const teacherScope = scope === 'assessment' ? '本次成绩' : scope
+  const labels = codes.map((code) => teacherIssueLabels[code] ?? code).join('、')
+  return `${teacherScope}：${labels}`
+}
+
 type AnalysisPanelContentProps = {
   analysisMessage: string
   analysis: ScoreEvidenceAnalysisContract
@@ -45,7 +65,7 @@ export function AnalysisPanelContent({
           showIcon
           title="分析暂未生成"
           description={analysis.blockingIssues
-            .map((issue) => `${issue.scope}: ${issue.codes.join('、')}`)
+            .map((issue) => formatBlockingIssue(issue.scope, issue.codes))
             .join('；')}
           data-state="score-evidence-analysis-blocked"
         />
