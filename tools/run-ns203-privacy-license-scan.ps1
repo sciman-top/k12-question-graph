@@ -156,11 +156,12 @@ try {
             $isAllowedTeacherVisibleWalkthroughScreenshot = $normalized -match '^docs/evidence/\d{8}-teacher-visible-walkthrough/[^/]+\.png$'
             $isAllowedCek033UiScreenshot = $normalized -match '^docs/evidence/cek033-(desktop|mobile)-(candidate-search|analysis|review)\.png$'
             $isAllowedAppAsset = $normalized -eq 'apps/web/src/assets/hero.png'
+            $isAllowedSyntheticScoreFixture = $normalized -eq 'tests/fixtures/scores/sample-synthetic-score-import.xlsx'
             $trackedBinaryFiles.Add([ordered]@{
                 path = $relativePath
                 extension = $extension
-                allowed = ($isAllowedEvidenceScreenshot -or $isAllowedTeacherVisibleWalkthroughScreenshot -or $isAllowedCek033UiScreenshot -or $isAllowedAppAsset)
-                reason = if ($isAllowedEvidenceScreenshot -or $isAllowedTeacherVisibleWalkthroughScreenshot -or $isAllowedCek033UiScreenshot) { 'generated UI evidence screenshot, visually reviewed as no raw source page, secret, or student PII' } elseif ($isAllowedAppAsset) { 'application visual asset, not raw source/student material' } else { 'tracked binary requires explicit source/license review' }
+                allowed = ($isAllowedEvidenceScreenshot -or $isAllowedTeacherVisibleWalkthroughScreenshot -or $isAllowedCek033UiScreenshot -or $isAllowedAppAsset -or $isAllowedSyntheticScoreFixture)
+                reason = if ($isAllowedEvidenceScreenshot -or $isAllowedTeacherVisibleWalkthroughScreenshot -or $isAllowedCek033UiScreenshot) { 'generated UI evidence screenshot, visually reviewed as no raw source page, secret, or student PII' } elseif ($isAllowedAppAsset) { 'application visual asset, not raw source/student material' } elseif ($isAllowedSyntheticScoreFixture) { 'synthetic local score-import fixture covered by tests/golden-import/privacy_and_license.md' } else { 'tracked binary requires explicit source/license review' }
             })
             continue
         }

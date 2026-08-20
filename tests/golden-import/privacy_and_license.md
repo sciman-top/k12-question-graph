@@ -4,6 +4,8 @@ Policy source: `docs/102_NonSiteFixturePrivacyPolicy.md`.
 
 All B007 golden import samples are `synthetic_fixture` placeholders created for local regression.
 
+`tests/fixtures/scores/sample-synthetic-score-import.xlsx` is also a synthetic local regression fixture. It contains no real student, school, or exam data and is allowed only for local parser/API tests.
+
 Rules:
 
 - No real student name, student ID, class roster, grade sheet, or education record.
