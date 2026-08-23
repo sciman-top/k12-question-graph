@@ -3,6 +3,7 @@ import sys
 import tempfile
 import unittest
 import xml.etree.ElementTree as ET
+import zipfile
 from unittest import mock
 
 
@@ -48,6 +49,22 @@ class WorkerHelpersTests(unittest.TestCase):
 
         self.assertEqual(blocks, [])
         self.assertTrue(any("Invalid OpenXML document" in warning for warning in warnings))
+
+    def test_parse_docx_blocks_rejects_dtd_or_entity_declarations(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            target = pathlib.Path(temporary_directory) / "entity.docx"
+            with zipfile.ZipFile(target, "w") as docx:
+                docx.writestr("[Content_Types].xml", "<Types/>")
+                docx.writestr("_rels/.rels", "<Relationships/>")
+                docx.writestr(
+                    "word/document.xml",
+                    "<!DOCTYPE w [<!ENTITY laugh 'ha'>]><w:document>&laugh;</w:document>",
+                )
+
+            blocks, warnings = worker.parse_docx_blocks(target)
+
+        self.assertEqual(blocks, [])
+        self.assertTrue(any("DTD or entities" in warning for warning in warnings))
 
     def test_formula_payload_counts_display_formula_once(self) -> None:
         paragraph = ET.fromstring(

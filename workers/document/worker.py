@@ -158,6 +158,10 @@ def parse_docx_blocks(target: pathlib.Path) -> tuple[list[dict], list[str]]:
                 return [], ["OpenXML document.xml exceeds the safe compression ratio"]
 
             document_xml = docx.read(document_info)
+            # docx 的 document.xml/rels 不应携带 DTD 或实体声明;stdlib ET
+            # 对实体展开仅有限防护,这里直接拒绝解析(纵深防御,非已证实漏洞)。
+            if b"<!DOCTYPE" in document_xml or b"<!ENTITY" in document_xml:
+                return [], ["OpenXML document.xml declares DTD or entities; parsing rejected"]
             rel_targets: dict[str, str] = {}
             try:
                 rels_info = docx.getinfo("word/_rels/document.xml.rels")
@@ -171,13 +175,17 @@ def parse_docx_blocks(target: pathlib.Path) -> tuple[list[dict], list[str]]:
                 ):
                     warnings.append("OpenXML relationships exceed safe archive limits; image links require review")
                 else:
-                    rels_root = ET.fromstring(docx.read(rels_info))
-                    for rel in rels_root:
-                        rel_id = rel.attrib.get("Id")
-                        target_attr = rel.attrib.get("Target")
-                        rel_type = rel.attrib.get("Type", "")
-                        if rel_id and target_attr and rel_type.endswith("/image"):
-                            rel_targets[rel_id] = target_attr
+                    rels_bytes = docx.read(rels_info)
+                    if b"<!DOCTYPE" in rels_bytes or b"<!ENTITY" in rels_bytes:
+                        warnings.append("OpenXML relationships declare DTD or entities; image links require review")
+                    else:
+                        rels_root = ET.fromstring(rels_bytes)
+                        for rel in rels_root:
+                            rel_id = rel.attrib.get("Id")
+                            target_attr = rel.attrib.get("Target")
+                            rel_type = rel.attrib.get("Type", "")
+                            if rel_id and target_attr and rel_type.endswith("/image"):
+                                rel_targets[rel_id] = target_attr
 
         root = ET.fromstring(document_xml)
     except (zipfile.BadZipFile, zipfile.LargeZipFile, KeyError, ET.ParseError, OSError) as exc:
