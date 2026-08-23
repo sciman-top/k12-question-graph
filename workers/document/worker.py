@@ -96,7 +96,31 @@ def paragraph_type(text: str) -> str:
 
 def formula_payload(element: ET.Element) -> dict:
     formulas = []
-    for formula in element.findall(".//m:oMath", WORD_NS) + element.findall(".//m:oMathPara", WORD_NS):
+    # oMathPara(display 公式)会内嵌 oMath;.//m:oMath 会同时命中两者,
+    # 必须先消费 oMathPara 内的 oMath,只把未被其包含的裸 oMath 作为独立公式输出。
+    consumed = set()
+    for para in element.findall(".//m:oMathPara", WORD_NS):
+        for nested in para.findall(".//m:oMath", WORD_NS):
+            consumed.add(id(nested))
+        omml = ET.tostring(para, encoding="unicode")
+        text = element_text(para)
+        if not omml:
+            continue
+        formulas.append(
+            {
+                "sourceFormat": "omml",
+                "omml": omml,
+                "latex": text,
+                "mathml": "",
+                "text": text,
+                "confidence": 1.0,
+                "reviewStatus": "verified",
+                "fallbackImageRequired": False,
+            }
+        )
+    for formula in element.findall(".//m:oMath", WORD_NS):
+        if id(formula) in consumed:
+            continue
         omml = ET.tostring(formula, encoding="unicode")
         text = element_text(formula)
         if not omml:

@@ -2,6 +2,7 @@ import pathlib
 import sys
 import tempfile
 import unittest
+import xml.etree.ElementTree as ET
 from unittest import mock
 
 
@@ -47,6 +48,46 @@ class WorkerHelpersTests(unittest.TestCase):
 
         self.assertEqual(blocks, [])
         self.assertTrue(any("Invalid OpenXML document" in warning for warning in warnings))
+
+    def test_formula_payload_counts_display_formula_once(self) -> None:
+        paragraph = ET.fromstring(
+            "<w:p xmlns:w='http://schemas.openxmlformats.org/wordprocessingml/2006/main' "
+            "xmlns:m='http://schemas.openxmlformats.org/officeDocument/2006/math'>"
+            "<m:oMathPara><m:oMath><m:r><m:t>v=s/t</m:t></m:r></m:oMath></m:oMathPara></w:p>"
+        )
+
+        payload = worker.formula_payload(paragraph)
+
+        self.assertEqual(len(payload["formulas"]), 1)
+        self.assertIn("oMathPara", payload["formulas"][0]["omml"])
+
+    def test_formula_payload_counts_inline_formula_once(self) -> None:
+        paragraph = ET.fromstring(
+            "<w:p xmlns:w='http://schemas.openxmlformats.org/wordprocessingml/2006/main' "
+            "xmlns:m='http://schemas.openxmlformats.org/officeDocument/2006/math'>"
+            "<m:oMath><m:r><m:t>F=ma</m:t></m:r></m:oMath></w:p>"
+        )
+
+        payload = worker.formula_payload(paragraph)
+
+        self.assertEqual(len(payload["formulas"]), 1)
+        self.assertNotIn("oMathPara", payload["formulas"][0]["omml"])
+
+    def test_formula_payload_mixed_display_and_inline_formulas_do_not_duplicate(self) -> None:
+        paragraph = ET.fromstring(
+            "<w:p xmlns:w='http://schemas.openxmlformats.org/wordprocessingml/2006/main' "
+            "xmlns:m='http://schemas.openxmlformats.org/officeDocument/2006/math'>"
+            "<m:oMathPara><m:oMath><m:r><m:t>v=s/t</m:t></m:r></m:oMath></m:oMathPara>"
+            "<m:oMath><m:r><m:t>F=ma</m:t></m:r></m:oMath></w:p>"
+        )
+
+        payload = worker.formula_payload(paragraph)
+
+        self.assertEqual(len(payload["formulas"]), 2)
+        self.assertEqual(
+            sum(1 for formula in payload["formulas"] if "oMathPara" in formula["omml"]),
+            1,
+        )
 
     def test_split_pdf_text_blocks_marks_question_and_answer_boundaries(self) -> None:
         text = "\n".join(
