@@ -50,6 +50,9 @@ function Test-AllowlistedCredentialLine([string] $Line) {
         $Line -match '(?i)\b(with|without)_password\s*=\s*[A-Za-z_][A-Za-z0-9_.]*build_connection_kwargs\s*\(' -or
         $Line -match '(?i)\bpassword\s*=\s*os\.environ\.get\(["'']PGPASSWORD["'']' -or
         $Line -match '(?i)(ApiKey|Password|Token|Secret)["'']?\s*[:=]\s*["'']?\s*["'']?\s*(,|$)' -or
+        # 测试工厂常量的成员引用(如 KqgWebFactory.ApiKey)不含密文;常量声明行
+        # 本身若跟踪了真实密文仍会被其他规则拦截。与 values.apiKey 同一推理。
+        $Line -match '(?i)\b[A-Za-z]+Factory\.ApiKey\b' -or
         $Line -match '(?i)(HeaderName|RoleHeaderName|OperatorIdHeaderName|RollbackRefHeaderName)'
 }
 
