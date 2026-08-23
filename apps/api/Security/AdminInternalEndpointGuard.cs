@@ -265,6 +265,23 @@ public static class AdminInternalEndpointGuard
         return (reviewer, role == "admin" ? "administrator" : role);
     }
 
+    // 所有受保护写操作的审计身份来源:接受 guard 已知的全部角色,与
+    // ResolveReviewIdentity(仅审批角色)区分。业务审计的 reviewedBy 必须取自
+    // 此处,请求体中的 ReviewedBy 字段仅作兼容保留,不再作为身份来源。
+    internal static (string OperatorId, string Role) ResolveActorIdentity(ClaimsPrincipal principal)
+    {
+        var operatorId = principal.FindFirstValue(ClaimTypes.NameIdentifier)?.Trim();
+        var role = NormalizeRole(principal.FindFirstValue(ClaimTypes.Role));
+        if (!IsAuthenticated(principal) ||
+            string.IsNullOrWhiteSpace(operatorId) ||
+            role is not ("admin" or "group_lead" or "teacher"))
+        {
+            throw new InvalidOperationException("authenticated_actor_required");
+        }
+
+        return (operatorId, role);
+    }
+
     internal static ClaimsPrincipal CreateTrustedPrincipal(
         AdminInternalGuardOptions options,
         string configuredKey,

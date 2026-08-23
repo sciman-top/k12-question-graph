@@ -36,7 +36,7 @@ public sealed record QuestionUpdateRequest(
     JsonElement? Solution,
     string? PrimaryKnowledgeLabel,
     IReadOnlyList<string>? KnowledgeTags,
-    string ReviewedBy,
+    string? ReviewedBy,
     string Reason);
 
 public sealed record QuestionBlockUpdateRequest(
@@ -60,7 +60,7 @@ public sealed record QuestionAssetAssociationRequest(
     string? AssetType,
     string? Purpose,
     JsonElement Metadata,
-    string ReviewedBy,
+    string? ReviewedBy,
     string Reason);
 
 public sealed record QuestionResponse(

@@ -474,14 +474,10 @@ app.MapGet("/source-documents", async (
 app.MapPatch("/source-documents/{id:guid}/authorization", async (
     Guid id,
     SourceDocumentAuthorizationUpdateRequest request,
+    HttpContext httpContext,
     KqgDbContext dbContext,
     CancellationToken cancellationToken) =>
 {
-    if (string.IsNullOrWhiteSpace(request.ReviewedBy))
-    {
-        return Results.BadRequest(new { error = "reviewed_by_required" });
-    }
-
     if (string.IsNullOrWhiteSpace(request.Reason))
     {
         return Results.BadRequest(new { error = "reason_required" });
@@ -576,6 +572,7 @@ app.MapPatch("/source-documents/{id:guid}/authorization", async (
     sourceDocument.ExternalAiAllowed = externalAiAllowed;
 
     var now = DateTimeOffset.UtcNow;
+    var auditedActor = ResolveAuditedActor(httpContext);
     var after = SourceMaterialResponse.From(sourceDocument, file);
     var audit = new ReviewQueueItem
     {
@@ -590,7 +587,7 @@ app.MapPatch("/source-documents/{id:guid}/authorization", async (
             after,
             reviewAudit = new
             {
-                reviewedBy = request.ReviewedBy.Trim(),
+                reviewedBy = auditedActor,
                 decision = "source_document_authorization_updated",
                 reason = request.Reason.Trim(),
                 reviewedAt = now.ToString("O")
@@ -737,15 +734,11 @@ app.MapPost("/source-documents/{id:guid}/regions", async (
 app.MapPatch("/source-regions/{id:guid}", async (
     Guid id,
     SourceRegionUpdateRequest request,
+    HttpContext httpContext,
     KqgDbContext dbContext,
     IConfiguration configuration,
     CancellationToken cancellationToken) =>
 {
-    if (string.IsNullOrWhiteSpace(request.ReviewedBy))
-    {
-        return Results.BadRequest(new { error = "reviewed_by_required" });
-    }
-
     if (string.IsNullOrWhiteSpace(request.Reason))
     {
         return Results.BadRequest(new { error = "reason_required" });
@@ -805,6 +798,7 @@ app.MapPatch("/source-regions/{id:guid}", async (
     region.RegionType = string.IsNullOrWhiteSpace(next.RegionType) ? "preview" : NormalizeToken(next.RegionType, "preview");
 
     var now = DateTimeOffset.UtcNow;
+    var auditedActor = ResolveAuditedActor(httpContext);
     var audit = new ReviewQueueItem
     {
         ReviewType = "source_region_revision",
@@ -819,7 +813,7 @@ app.MapPatch("/source-regions/{id:guid}", async (
             after = SourceRegionResponse.From(region),
             reviewAudit = new
             {
-                reviewedBy = request.ReviewedBy.Trim(),
+                reviewedBy = auditedActor,
                 decision = "source_region_updated",
                 reason = request.Reason.Trim(),
                 reviewedAt = now.ToString("O")
@@ -1259,6 +1253,7 @@ app.MapGet("/review-queue", async (
 
 app.MapPost("/review-queue/batch-resolve", async (
     ReviewQueueBatchResolveRequest request,
+    HttpContext httpContext,
     KqgDbContext dbContext,
     CancellationToken cancellationToken) =>
 {
@@ -1267,15 +1262,12 @@ app.MapPost("/review-queue/batch-resolve", async (
         return Results.BadRequest(new { error = "item_ids_required" });
     }
 
-    if (string.IsNullOrWhiteSpace(request.ReviewedBy))
-    {
-        return Results.BadRequest(new { error = "reviewed_by_required" });
-    }
-
     if (string.IsNullOrWhiteSpace(request.Reason))
     {
         return Results.BadRequest(new { error = "reason_required" });
     }
+
+    var auditedActor = ResolveAuditedActor(httpContext);
 
     var itemIds = request.ItemIds.Distinct().ToArray();
     var rows = await dbContext.ReviewQueueItems
@@ -1303,7 +1295,7 @@ app.MapPost("/review-queue/batch-resolve", async (
         row.ResolvedAt = now;
         row.Payload = ReviewQueuePayloadHelpers.WithReviewAudit(
             row.Payload,
-            request.ReviewedBy.Trim(),
+            auditedActor,
             request.Decision,
             request.Reason.Trim(),
             now);
@@ -1318,18 +1310,16 @@ app.MapPost("/review-queue/batch-resolve", async (
 app.MapPost("/review-queue/{id:guid}/resolve", async (
     Guid id,
     ReviewQueueResolveRequest request,
+    HttpContext httpContext,
     KqgDbContext dbContext,
     CancellationToken cancellationToken) =>
 {
-    if (string.IsNullOrWhiteSpace(request.ReviewedBy))
-    {
-        return Results.BadRequest(new { error = "reviewed_by_required" });
-    }
-
     if (string.IsNullOrWhiteSpace(request.Reason))
     {
         return Results.BadRequest(new { error = "reason_required" });
     }
+
+    var auditedActor = ResolveAuditedActor(httpContext);
 
     var row = await dbContext.ReviewQueueItems.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     if (row is null)
@@ -1347,7 +1337,7 @@ app.MapPost("/review-queue/{id:guid}/resolve", async (
     row.ResolvedAt = now;
     row.Payload = ReviewQueuePayloadHelpers.WithReviewAudit(
         row.Payload,
-        request.ReviewedBy.Trim(),
+        auditedActor,
         request.Decision,
         request.Reason.Trim(),
         now,
@@ -1361,18 +1351,16 @@ app.MapPost("/review-queue/{id:guid}/resolve", async (
 app.MapPost("/review-queue/{id:guid}/reopen", async (
     Guid id,
     ReviewQueueReopenRequest request,
+    HttpContext httpContext,
     KqgDbContext dbContext,
     CancellationToken cancellationToken) =>
 {
-    if (string.IsNullOrWhiteSpace(request.ReviewedBy))
-    {
-        return Results.BadRequest(new { error = "reviewed_by_required" });
-    }
-
     if (string.IsNullOrWhiteSpace(request.Reason))
     {
         return Results.BadRequest(new { error = "reason_required" });
     }
+
+    var auditedActor = ResolveAuditedActor(httpContext);
 
     var row = await dbContext.ReviewQueueItems.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     if (row is null)
@@ -1390,7 +1378,7 @@ app.MapPost("/review-queue/{id:guid}/reopen", async (
     row.ResolvedAt = null;
     row.Payload = ReviewQueuePayloadHelpers.WithReviewAudit(
         row.Payload,
-        request.ReviewedBy.Trim(),
+        auditedActor,
         "reopened",
         request.Reason.Trim(),
         now);
@@ -1402,6 +1390,7 @@ app.MapPost("/review-queue/{id:guid}/reopen", async (
 
 app.MapPost("/review-workbench/actions", async (
     ReviewWorkbenchActionRequest request,
+    HttpContext httpContext,
     KqgDbContext dbContext,
     CancellationToken cancellationToken) =>
 {
@@ -1624,7 +1613,7 @@ app.MapPost("/review-workbench/actions", async (
         row.ResolvedAt = now;
         row.Payload = ReviewQueuePayloadHelpers.WithReviewAudit(
             row.Payload,
-            string.IsNullOrWhiteSpace(request.ReviewedBy) ? "workbench" : request.ReviewedBy.Trim(),
+            ResolveAuditedActor(httpContext),
             normalizedAction,
             string.IsNullOrWhiteSpace(request.Reason) ? "workbench_action" : request.Reason.Trim(),
             now);
@@ -2189,18 +2178,16 @@ app.MapGet("/questions/{id:guid}", async (Guid id, KqgDbContext dbContext, Cance
 app.MapPatch("/questions/{id:guid}", async (
     Guid id,
     QuestionUpdateRequest request,
+    HttpContext httpContext,
     KqgDbContext dbContext,
     CancellationToken cancellationToken) =>
 {
-    if (string.IsNullOrWhiteSpace(request.ReviewedBy))
-    {
-        return Results.BadRequest(new { error = "reviewed_by_required" });
-    }
-
     if (string.IsNullOrWhiteSpace(request.Reason))
     {
         return Results.BadRequest(new { error = "reason_required" });
     }
+
+    var auditedActor = ResolveAuditedActor(httpContext);
 
     var item = await dbContext.QuestionItems.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     if (item is null)
@@ -2313,7 +2300,7 @@ app.MapPatch("/questions/{id:guid}", async (
                 Evidence = SerializeJson(new
                 {
                     source = "question_update",
-                    reviewedBy = request.ReviewedBy.Trim(),
+                    reviewedBy = auditedActor,
                     reason = request.Reason.Trim()
                 }),
                 CreatedAt = DateTimeOffset.UtcNow
@@ -2328,7 +2315,7 @@ app.MapPatch("/questions/{id:guid}", async (
             targetMapping.Evidence = SerializeJson(new
             {
                 source = "question_update",
-                reviewedBy = request.ReviewedBy.Trim(),
+                reviewedBy = auditedActor,
                 reason = request.Reason.Trim()
             });
         }
@@ -2446,7 +2433,7 @@ app.MapPatch("/questions/{id:guid}", async (
             after = QuestionResponse.From(item, blocks.OrderBy(x => x.SortOrder).ToList(), assets),
             reviewAudit = new
             {
-                reviewedBy = request.ReviewedBy.Trim(),
+                reviewedBy = auditedActor,
                 decision = "question_updated",
                 reason = request.Reason.Trim(),
                 reviewedAt = now.ToString("O")
@@ -2468,18 +2455,16 @@ app.MapPatch("/questions/{id:guid}", async (
 app.MapPost("/questions/{id:guid}/assets", async (
     Guid id,
     QuestionAssetAssociationRequest request,
+    HttpContext httpContext,
     KqgDbContext dbContext,
     CancellationToken cancellationToken) =>
 {
-    if (string.IsNullOrWhiteSpace(request.ReviewedBy))
-    {
-        return Results.BadRequest(new { error = "reviewed_by_required" });
-    }
-
     if (string.IsNullOrWhiteSpace(request.Reason))
     {
         return Results.BadRequest(new { error = "reason_required" });
     }
+
+    var auditedActor = ResolveAuditedActor(httpContext);
 
     var itemExists = await dbContext.QuestionItems.AsNoTracking().AnyAsync(x => x.Id == id, cancellationToken);
     if (!itemExists)
@@ -2536,7 +2521,7 @@ app.MapPost("/questions/{id:guid}/assets", async (
             decision = "question_asset_associated",
             reviewAudit = new
             {
-                reviewedBy = request.ReviewedBy.Trim(),
+                reviewedBy = auditedActor,
                 decision = "question_asset_associated",
                 reason = request.Reason.Trim(),
                 reviewedAt = now.ToString("O")
@@ -2553,20 +2538,18 @@ app.MapPost("/questions/{id:guid}/assets", async (
 app.MapDelete("/questions/{id:guid}/assets/{assetId:guid}", async (
     Guid id,
     Guid assetId,
-    string reviewedBy,
+    string? reviewedBy,
     string reason,
+    HttpContext httpContext,
     KqgDbContext dbContext,
     CancellationToken cancellationToken) =>
 {
-    if (string.IsNullOrWhiteSpace(reviewedBy))
-    {
-        return Results.BadRequest(new { error = "reviewed_by_required" });
-    }
-
     if (string.IsNullOrWhiteSpace(reason))
     {
         return Results.BadRequest(new { error = "reason_required" });
     }
+
+    var auditedActor = ResolveAuditedActor(httpContext);
 
     var asset = await dbContext.QuestionAssets.FirstOrDefaultAsync(x => x.Id == assetId && x.QuestionItemId == id, cancellationToken);
     if (asset is null)
@@ -2598,7 +2581,7 @@ app.MapDelete("/questions/{id:guid}/assets/{assetId:guid}", async (
             decision = "question_asset_unlinked",
             reviewAudit = new
             {
-                reviewedBy = reviewedBy.Trim(),
+                reviewedBy = auditedActor,
                 decision = "question_asset_unlinked",
                 reason = reason.Trim(),
                 reviewedAt = now.ToString("O")
@@ -3267,6 +3250,11 @@ app.MapPost("/imports/{id:guid}/worker-smoke", async (
 app.MapFallbackToFile("index.html").AllowAnonymous();
 
 app.Run();
+
+// 业务审计的 reviewedBy 统一取认证 actor 身份;请求体 ReviewedBy 仅兼容保留,
+// 不再作为身份来源(2026-08-23 审计 M1 定案)。
+static string ResolveAuditedActor(HttpContext httpContext) =>
+    AdminInternalEndpointGuard.ResolveActorIdentity(httpContext.User).OperatorId;
 
 static SourceDocumentMetadata SourceMetadataFromForm(IFormCollection form, string originalFileName)
 {

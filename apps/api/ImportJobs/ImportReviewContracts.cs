@@ -25,7 +25,7 @@ public sealed record SourceRegionUpdateRequest(
     string? ScreenshotRelativePath,
     bool? ClearScreenshot,
     string? RegionType,
-    string ReviewedBy,
+    string? ReviewedBy,
     string Reason);
 
 public sealed record SourceRegionUpdateResponse(SourceRegionResponse Region, Guid AuditId);
@@ -118,7 +118,7 @@ public sealed record SourceDocumentAuthorizationUpdateRequest(
     bool? MayUseForKnowledgeExtraction,
     bool? MayUseForExamPointExtraction,
     bool? MayUseForTrendAnalysis,
-    string ReviewedBy,
+    string? ReviewedBy,
     string Reason);
 
 public sealed record SourceDocumentAuthorizationUpdateResponse(
@@ -265,7 +265,7 @@ public sealed record ReviewQueueItemResponse(
 
 public sealed record ReviewQueueBatchResolveRequest(
     IReadOnlyList<Guid> ItemIds,
-    string ReviewedBy,
+    string? ReviewedBy,
     string Decision,
     string Reason);
 
@@ -274,13 +274,13 @@ public sealed record ReviewQueueBatchResolveResponse(
     IReadOnlyList<Guid> SkippedHighRiskIds);
 
 public sealed record ReviewQueueResolveRequest(
-    string ReviewedBy,
+    string? ReviewedBy,
     string Decision,
     string Reason,
     ReviewQueueRevisionRequest? Revision);
 
 public sealed record ReviewQueueReopenRequest(
-    string ReviewedBy,
+    string? ReviewedBy,
     string Reason);
 
 public sealed record ReviewWorkbenchActionRequest(

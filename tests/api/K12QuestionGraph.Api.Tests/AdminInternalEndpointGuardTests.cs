@@ -98,4 +98,45 @@ public class AdminInternalEndpointGuardTests
         Assert.Equal("teacher", principal.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value);
         Assert.NotNull(principal.FindFirst(AdminInternalEndpointGuard.CredentialFingerprintClaim));
     }
+
+    [Theory]
+    [InlineData("admin")]
+    [InlineData("group_lead")]
+    [InlineData("teacher")]
+    public void ResolveActorIdentity_AcceptsAllGuardKnownRoles(string role)
+    {
+        var principal = AdminInternalEndpointGuard.CreateTrustedPrincipal(
+            new AdminInternalGuardOptions { TrustedRole = role, TrustedOperatorId = "operator-1" },
+            "server-secret",
+            "test");
+
+        var actor = AdminInternalEndpointGuard.ResolveActorIdentity(principal);
+
+        Assert.Equal("operator-1", actor.OperatorId);
+        Assert.Equal(role, actor.Role);
+    }
+
+    [Fact]
+    public void ResolveActorIdentity_RejectsUnauthenticatedPrincipal()
+    {
+        var principal = new System.Security.Claims.ClaimsPrincipal(
+            new System.Security.Claims.ClaimsIdentity());
+
+        Assert.Throws<InvalidOperationException>(
+            () => AdminInternalEndpointGuard.ResolveActorIdentity(principal));
+    }
+
+    [Fact]
+    public void ResolveActorIdentity_RejectsUnknownRole()
+    {
+        var identity = new System.Security.Claims.ClaimsIdentity(
+        [
+            new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.NameIdentifier, "operator-1"),
+            new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Role, "superuser")
+        ], "test");
+        var principal = new System.Security.Claims.ClaimsPrincipal(identity);
+
+        Assert.Throws<InvalidOperationException>(
+            () => AdminInternalEndpointGuard.ResolveActorIdentity(principal));
+    }
 }
