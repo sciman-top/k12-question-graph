@@ -62,5 +62,3 @@ public sealed record AiProviderResult(
     string OutputHash,
     int LatencyMs,
     string ReviewStatus);
-
-public sealed record AiProviderInfo(string ProviderId, bool SupportsRealModelCalls);

@@ -286,7 +286,7 @@ Windows-first 不等于把数据写进程序目录。P0 起必须区分：
 
 ## 11. Verification architecture
 
-验证属于 repo-local 工程能力，不进入产品运行时。详细合同见 `docs/specs/verification-governance-simplification-v1.md` 和 `docs/18_TestStrategy.md`。
+验证属于 repo-local 工程能力，不进入产品运行时。详细合同见 `docs/18_TestStrategy.md`。
 
 ```text
 task/backlog + changed paths + risk

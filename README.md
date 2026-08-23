@@ -80,7 +80,6 @@ Release 只增加 migration/privacy/no-active-write、隔离备份恢复、refer
 .\tools\backup.ps1
 .\tools\verify-backup.ps1
 .\tools\restore.ps1
-.\tools\run-c002-dry-run-suite.ps1
 .\tools\prepare-c002-candidate-csvs.ps1
 .\tools\import-c002-source-materials.ps1
 .\tools\import-c002-candidate-assets.ps1

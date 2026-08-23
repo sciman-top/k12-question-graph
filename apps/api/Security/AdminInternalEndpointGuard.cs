@@ -225,9 +225,7 @@ public static class AdminInternalEndpointGuard
                 : role == "admin";
         }
 
-        return HttpMethods.IsGet(method) || HttpMethods.IsHead(method)
-            ? role is "admin" or "group_lead" or "teacher"
-            : role is "admin" or "group_lead" or "teacher";
+        return role is "admin" or "group_lead" or "teacher";
     }
 
     internal static bool IsDraftTestBypassAllowed(

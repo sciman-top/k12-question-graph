@@ -71,8 +71,6 @@ export default defineConfig({
       '/health': localApiProxy,
       '/knowledge-evidence': localApiProxy,
       '/knowledge-version-explanations': localApiProxy,
-      '/ai-suggestions': localApiProxy,
-      '/feedback-events': localApiProxy,
       '/files': localApiProxy,
       '/imports': localApiProxy,
       '/source-documents': localApiProxy,

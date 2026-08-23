@@ -36,6 +36,8 @@
     { "pattern": ".env.example", "owner": "configuration", "profile": "Slice", "commands": [], "reason": "gate_na: local bootstrap template has no executable repository gate; review names and secret placeholders in the diff" },
     { "pattern": "diagrams/*", "owner": "documentation", "profile": "Slice", "commands": [], "reason": "gate_na: diagram-only change" },
     { "pattern": "LICENSE", "owner": "documentation", "profile": "Slice", "commands": [], "reason": "gate_na: license text only" },
+    { "pattern": ".playwright-mcp/*", "owner": "verification", "profile": "Slice", "commands": [], "reason": "gate_na: ignored local debug snapshot area, no executable gate" },
+    { "pattern": "ns602-*", "owner": "documentation", "profile": "Slice", "commands": [], "reason": "gate_na: one-off debug residue files, no executable gate" },
     { "pattern": "tools/README.md", "owner": "reference-basis", "profile": "Slice", "commands": ["reference-basis"], "reason": "reference and operator navigation changed" },
     { "pattern": "tasks/reference-basis-*", "owner": "reference-basis", "profile": "Slice", "commands": ["reference-basis"], "reason": "reference policy or module mapping changed" },
     { "pattern": "docs/26_References.md", "owner": "reference-basis", "profile": "Slice", "commands": ["reference-basis"], "reason": "reference source documentation changed" },
