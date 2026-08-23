@@ -1242,14 +1242,12 @@ app.MapGet("/review-queue", async (
         query = query.Where(x => x.ReviewType == normalizedReviewType);
     }
 
-    // question_no/year/risk 排序键派生自 JSON payload,无法下推 SQL;
-    // 只对最近 maxScanRows 行做内存排序,total 用独立 COUNT 保持真实总数。
-    const int maxScanRows = 2000;
-    var totalCount = await query.CountAsync(cancellationToken);
-    var rows = await query
-        .OrderByDescending(x => x.CreatedAt)
-        .Take(maxScanRows)
-        .ToListAsync(cancellationToken);
+    // question_no/year/risk 排序键派生自 JSON payload,无法下推 SQL,只能全量
+    // 载入后内存排序。曾尝试只扫最近 2000 行,但 order=asc 时更早的记录将永远
+    // 不可达,破坏全匹配集排序契约(真题跨年审核走 year_question_no asc),
+    // 已按独立评审回退。正确的性能修复需要把年/题号/风险投影为可索引列并
+    // 引入真实分页/游标,属带 schema 的后续切片;当前校本题量下全量加载可承受。
+    var rows = await query.ToListAsync(cancellationToken);
     var mapped = rows.Select(ReviewQueueItemResponse.From).ToList();
     mapped = normalizedSortBy switch
     {
@@ -1271,7 +1269,7 @@ app.MapGet("/review-queue", async (
             : mapped.OrderBy(x => x.CreatedAt).ToList(),
     };
 
-    return Results.Ok(new ReviewQueueListResponse(mapped.Take(takeCount).ToArray(), totalCount));
+    return Results.Ok(new ReviewQueueListResponse(mapped.Take(takeCount).ToArray(), mapped.Count));
 })
 .WithName("ListReviewQueueItems");
 
