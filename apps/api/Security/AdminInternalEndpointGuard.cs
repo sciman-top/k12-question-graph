@@ -184,6 +184,8 @@ public static class AdminInternalEndpointGuard
         path != "/health" &&
         !path.StartsWithSegments("/auth/session", StringComparison.OrdinalIgnoreCase);
 
+    internal const long MaxAuditLogBytes = 64L * 1024 * 1024;
+
     internal static async Task WriteAuditEntryAsync(
         KqgPathsOptions paths,
         string logFileName,
@@ -191,6 +193,7 @@ public static class AdminInternalEndpointGuard
     {
         Directory.CreateDirectory(paths.LogsRoot);
         var logPath = Path.Combine(paths.LogsRoot, logFileName);
+        RotateAuditLogIfOversized(logPath, MaxAuditLogBytes);
         var line = JsonSerializer.Serialize(payload) + Environment.NewLine;
         await AuditWriteLock.WaitAsync(CancellationToken.None);
         try
@@ -200,6 +203,31 @@ public static class AdminInternalEndpointGuard
         finally
         {
             AuditWriteLock.Release();
+        }
+    }
+
+    internal static void RotateAuditLogIfOversized(string logPath, long maxBytes)
+    {
+        try
+        {
+            var info = new FileInfo(logPath);
+            if (!info.Exists || info.Length < maxBytes)
+            {
+                return;
+            }
+
+            var rotatedPath = logPath + "." + DateTime.UtcNow.ToString("yyyyMMddHHmmss") + ".rotated";
+            if (!File.Exists(rotatedPath))
+            {
+                File.Move(logPath, rotatedPath);
+            }
+        }
+        catch (IOException)
+        {
+            // 轮转失败不阻断审计写入;下一轮写入会再次尝试。
+        }
+        catch (UnauthorizedAccessException)
+        {
         }
     }
 

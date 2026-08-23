@@ -139,4 +139,39 @@ public class AdminInternalEndpointGuardTests
         Assert.Throws<InvalidOperationException>(
             () => AdminInternalEndpointGuard.ResolveActorIdentity(principal));
     }
+
+    [Fact]
+    public void RotateAuditLog_MovesOversizedFileAndKeepsWritingPath()
+    {
+        var directory = Path.Combine(Path.GetTempPath(), $"kqg-audit-rotate-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(directory);
+        try
+        {
+            var logPath = Path.Combine(directory, "admin-internal-audit.jsonl");
+            File.WriteAllText(logPath, "x");
+
+            AdminInternalEndpointGuard.RotateAuditLogIfOversized(logPath, maxBytes: 1);
+
+            Assert.False(File.Exists(logPath));
+            var rotated = Directory.GetFiles(directory, "admin-internal-audit.jsonl.*.rotated");
+            Assert.Single(rotated);
+
+            // 未超限时不得轮转。
+            File.WriteAllText(rotated[0], "kept");
+            AdminInternalEndpointGuard.RotateAuditLogIfOversized(rotated[0], maxBytes: 1024);
+            Assert.Equal("kept", File.ReadAllText(rotated[0]));
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void RotateAuditLog_IsNoOpWhenFileMissing()
+    {
+        var missing = Path.Combine(Path.GetTempPath(), $"kqg-missing-{Guid.NewGuid():N}.jsonl");
+        AdminInternalEndpointGuard.RotateAuditLogIfOversized(missing, maxBytes: 1);
+        Assert.False(File.Exists(missing));
+    }
 }
