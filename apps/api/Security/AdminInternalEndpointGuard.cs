@@ -104,8 +104,6 @@ public static class AdminInternalEndpointGuard
 
                 try
                 {
-                    Directory.CreateDirectory(paths.LogsRoot);
-                    var logPath = Path.Combine(paths.LogsRoot, roleAuditOptions.AuditLogFileName);
                     var payload = new
                     {
                         timestampUtc = DateTimeOffset.UtcNow.ToString("O"),
@@ -119,16 +117,7 @@ public static class AdminInternalEndpointGuard
                         decision,
                         statusCode
                     };
-                    var line = JsonSerializer.Serialize(payload) + Environment.NewLine;
-                    await AuditWriteLock.WaitAsync(CancellationToken.None);
-                    try
-                    {
-                        await File.AppendAllTextAsync(logPath, line, Encoding.UTF8, CancellationToken.None);
-                    }
-                    finally
-                    {
-                        AuditWriteLock.Release();
-                    }
+                    await WriteAuditEntryAsync(paths, roleAuditOptions.AuditLogFileName, payload);
                 }
                 catch
                 {
@@ -194,6 +183,25 @@ public static class AdminInternalEndpointGuard
         path != "/" &&
         path != "/health" &&
         !path.StartsWithSegments("/auth/session", StringComparison.OrdinalIgnoreCase);
+
+    internal static async Task WriteAuditEntryAsync(
+        KqgPathsOptions paths,
+        string logFileName,
+        object payload)
+    {
+        Directory.CreateDirectory(paths.LogsRoot);
+        var logPath = Path.Combine(paths.LogsRoot, logFileName);
+        var line = JsonSerializer.Serialize(payload) + Environment.NewLine;
+        await AuditWriteLock.WaitAsync(CancellationToken.None);
+        try
+        {
+            await File.AppendAllTextAsync(logPath, line, Encoding.UTF8, CancellationToken.None);
+        }
+        finally
+        {
+            AuditWriteLock.Release();
+        }
+    }
 
     internal static bool IsRoleAuthorized(PathString path, string method, string role)
     {

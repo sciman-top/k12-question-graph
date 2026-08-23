@@ -33,4 +33,52 @@ public class AdminSessionEndpointsTests
 
         Assert.True(AdminSessionEndpoints.IsSecureSessionRequest(context, new AdminInternalGuardOptions()));
     }
+
+    [Fact]
+    public void LoginRateLimiter_AllowsFewFailures_ThenLocksOutAtThreshold()
+    {
+        var clientKey = $"unit-{Guid.NewGuid():N}";
+        var now = DateTimeOffset.UtcNow;
+
+        for (var i = 0; i < 4; i++)
+        {
+            AdminLoginRateLimiter.RecordFailure(clientKey, now.AddSeconds(i));
+        }
+        Assert.False(AdminLoginRateLimiter.IsLockedOut(clientKey, now.AddSeconds(4)));
+
+        AdminLoginRateLimiter.RecordFailure(clientKey, now.AddSeconds(5));
+        Assert.True(AdminLoginRateLimiter.IsLockedOut(clientKey, now.AddSeconds(5).AddMilliseconds(500)));
+    }
+
+    [Fact]
+    public void LoginRateLimiter_SuccessClearsFailureCount()
+    {
+        var clientKey = $"unit-{Guid.NewGuid():N}";
+        var now = DateTimeOffset.UtcNow;
+
+        for (var i = 0; i < 5; i++)
+        {
+            AdminLoginRateLimiter.RecordFailure(clientKey, now.AddSeconds(i));
+        }
+        AdminLoginRateLimiter.RecordSuccess(clientKey);
+
+        Assert.False(AdminLoginRateLimiter.IsLockedOut(clientKey, now.AddSeconds(5)));
+        Assert.Equal(TimeSpan.Zero, AdminLoginRateLimiter.GetLockoutRemaining(clientKey, now.AddSeconds(5)));
+    }
+
+    [Fact]
+    public void LoginRateLimiter_LockoutDelayStaysBounded()
+    {
+        var clientKey = $"unit-{Guid.NewGuid():N}";
+        var now = DateTimeOffset.UtcNow;
+
+        for (var i = 0; i < 50; i++)
+        {
+            AdminLoginRateLimiter.RecordFailure(clientKey, now.AddSeconds(i));
+        }
+
+        var remaining = AdminLoginRateLimiter.GetLockoutRemaining(clientKey, now.AddSeconds(50));
+        Assert.True(remaining > TimeSpan.Zero);
+        Assert.True(remaining <= TimeSpan.FromSeconds(60));
+    }
 }
