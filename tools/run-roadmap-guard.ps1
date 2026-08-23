@@ -41,16 +41,15 @@ foreach ($id in @('REAL005', 'P001', 'P002', 'P003', 'P004', 'P005', 'P006')) {
     if (-not $byId.ContainsKey($id)) { throw "required closeout task missing: $id" }
 }
 if ([string]$byId['REAL005'].status -ne '已完成') { throw 'REAL005 backlog row must preserve repo-side completion' }
-foreach ($id in @('P001', 'P002', 'P003', 'P004', 'P005', 'P006')) {
-    if ([string]$byId[$id].status -ne '待办') { throw "$id must remain open until onsite/manual evidence closes it" }
-}
 
 $currentStatus = Get-Content -LiteralPath (Resolve-RepoPath $CurrentStatusPath) -Raw -Encoding UTF8
 $releaseCard = Get-Content -LiteralPath (Resolve-RepoPath $ReleaseCardPath) -Raw -Encoding UTF8
-if ($currentStatus -notmatch 'REAL005\s*=\s*not_closed' -or $currentStatus -notmatch 'P001-P006') {
-    throw 'current closure status must preserve REAL005 not_closed and P001-P006 open'
-}
-if ($releaseCard -notmatch 'No-Go') { throw 'release card must remain No-Go' }
+
+$real005Entry = & (Join-Path $PSScriptRoot 'get-current-evidence.ps1') -Id 'real005-closure-standard' | ConvertFrom-Json
+$real005 = Get-Content -LiteralPath (Join-Path $repoRoot ([string]$real005Entry.currentPath)) -Raw -Encoding UTF8 | ConvertFrom-Json
+Import-Module (Join-Path $PSScriptRoot 'verification/CloseoutInvariants.psm1') -Force
+Test-ReleaseCloseoutInvariants -BacklogById $byId -Real005Evidence $real005 -ReleaseCardText $releaseCard -ClosureSummaryText $currentStatus
+if ($currentStatus -notmatch 'P001-P006') { throw 'current closure status must reference P001-P006 open waves' }
 
 $report = [ordered]@{
     status = 'pass'

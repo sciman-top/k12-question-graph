@@ -28,6 +28,15 @@ MAX_DOCX_DOCUMENT_XML_BYTES = 32 * 1024 * 1024
 MAX_DOCX_RELATIONSHIPS_XML_BYTES = 4 * 1024 * 1024
 MAX_DOCX_DOCUMENT_XML_COMPRESSION_RATIO = 200
 
+# 置信度阈值单一来源(worker 侧)。注意与 API 侧 CutConfidenceDefaults 的关系:
+# - PDFTOTEXT_STEM/OTHER_CONFIDENCE 镜像 API 的缺省启发式(见 Program.cs SeedLocalImportCandidatesAsync);
+# - OCR_TAKEOVER_CONFIDENCE 是 OCR 行/区域接管阈,worker 输出 takeoverRequired 时以此为准;
+#   API 仅在 worker 未提供该标志时才回退到 0.85。两侧数值若要统一,必须先定义统一业务语义,
+#   不得只改一处数字。
+PDFTOTEXT_STEM_CONFIDENCE = 0.88
+PDFTOTEXT_OTHER_CONFIDENCE = 0.78
+OCR_TAKEOVER_CONFIDENCE = 0.9
+
 
 def sha256_file(path: pathlib.Path) -> str:
     digest = hashlib.sha256()
@@ -358,7 +367,7 @@ def split_pdf_text_blocks(text: str, page_number: int, body_started: bool) -> tu
                 "pageNumber": page_number,
                 "blockType": block_type,
                 "textPreview": preview[:1000],
-                "confidence": 0.88 if block_type == "question_stem" else 0.78,
+                "confidence": PDFTOTEXT_STEM_CONFIDENCE if block_type == "question_stem" else PDFTOTEXT_OTHER_CONFIDENCE,
                 "reviewStatus": "pending_review",
                 "takeoverRequired": block_type != "question_stem",
                 "sourceRegion": {
@@ -504,7 +513,7 @@ def normalize_rapidocr_result(result) -> list[dict]:
             "source": "rapidocr_onnxruntime",
             "confidence": round(confidence_value, 4),
             "reviewStatus": "pending_review",
-            "takeoverRequired": confidence_value < 0.9,
+            "takeoverRequired": confidence_value < OCR_TAKEOVER_CONFIDENCE,
         }
         if xs and ys:
             source_region.update(
@@ -542,7 +551,7 @@ def ocr_lines_to_pages(page_lines: list[list[dict]], source: str) -> list[dict]:
                     "textPreview": line["text"][:500],
                     "confidence": round(confidence, 4),
                     "reviewStatus": "pending_review",
-                    "takeoverRequired": confidence < 0.9,
+                    "takeoverRequired": confidence < OCR_TAKEOVER_CONFIDENCE,
                     "sourceRegion": line["sourceRegion"] | {"pageNumber": page_number, "source": source},
                 }
             )

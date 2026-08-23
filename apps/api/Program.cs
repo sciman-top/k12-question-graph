@@ -3361,8 +3361,11 @@ static async Task<ImportWorkerProcessingSummary> SeedLocalImportCandidatesAsync(
                 continue;
             }
 
-            var confidence = ReadDecimal(block, "confidence", blockType == "question_stem" ? 0.88m : 0.78m);
-            var takeoverRequired = ReadBool(block, "takeoverRequired", confidence < 0.85m);
+            var confidence = ReadDecimal(
+                block,
+                "confidence",
+                blockType == "question_stem" ? CutConfidenceDefaults.SeedStemConfidence : CutConfidenceDefaults.SeedOtherConfidence);
+            var takeoverRequired = ReadBool(block, "takeoverRequired", confidence < CutConfidenceDefaults.FallbackTakeoverThreshold);
             var region = new SourceRegion
             {
                 Id = Guid.NewGuid(),

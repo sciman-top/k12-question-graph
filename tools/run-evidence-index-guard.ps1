@@ -33,9 +33,11 @@ foreach ($entry in @($index.entries)) {
 $real005Entry = @($index.entries | Where-Object id -eq 'real005-closure-standard')
 if ($real005Entry.Count -ne 1) { throw 'REAL005 current evidence entry is required' }
 $real005 = Get-Content -LiteralPath (Join-Path $repoRoot $real005Entry[0].currentPath) -Raw -Encoding UTF8 | ConvertFrom-Json
-if ($real005.closureStatus -ne 'not_closed' -or $real005.fullClosureAllowed -ne $false) {
-    throw 'REAL005 evidence index must preserve not_closed/fullClosureAllowed=false'
-}
+
+$releaseCard = Get-Content -LiteralPath (Join-Path $repoRoot 'docs/109_ReleaseGoNoGoCard.md') -Raw -Encoding UTF8
+$closureSummary = Get-Content -LiteralPath (Join-Path $repoRoot 'docs/CurrentClosureStatus.md') -Raw -Encoding UTF8
+Import-Module (Join-Path $PSScriptRoot 'verification/CloseoutInvariants.psm1') -Force
+Test-ReleaseCloseoutInvariants -Real005Evidence $real005 -ReleaseCardText $releaseCard -ClosureSummaryText $closureSummary
 
 $report = [ordered]@{
     schemaVersion = 2

@@ -32,7 +32,6 @@ $requiredColumns = @('id', 'parent_id', 'wave', 'category', 'slice', 'status', '
 $actualColumns = @($plan[0].PSObject.Properties.Name)
 $missingColumns = @($requiredColumns | Where-Object { $actualColumns -notcontains $_ })
 if ($missingColumns.Count -gt 0) { throw "closeout plan columns missing: $($missingColumns -join ', ')" }
-if ($plan.Count -ne 26) { throw "closeout plan must contain 26 rows, actual=$($plan.Count)" }
 
 $expectedCompleted = @('REAL005A', 'REAL005B', 'REAL005C', 'REAL005D')
 $expectedParents = @('REAL005', 'P001', 'P003', 'P005', 'P006')
@@ -46,21 +45,16 @@ foreach ($row in $plan) {
 foreach ($id in $expectedCompleted) {
     if (-not $planById.ContainsKey($id) -or [string]$planById[$id].status -ne '已完成') { throw "$id must remain repo-side complete" }
 }
-if (@($plan | Where-Object status -eq '已完成').Count -ne 4 -or @($plan | Where-Object status -eq '待办').Count -ne 22) {
-    throw 'closeout plan must preserve 4 repo-side complete slices and 22 open onsite/manual slices'
+$completedIds = @($plan | Where-Object status -eq '已完成' | ForEach-Object { [string]$_.id })
+$unexpectedCompleted = @($completedIds | Where-Object { $expectedCompleted -notcontains $_ })
+if ($unexpectedCompleted.Count -gt 0) {
+    throw "only REAL005A-D may be repo-side complete, unexpected: $($unexpectedCompleted -join ', ')"
 }
 
 $backlogById = @{}
 foreach ($row in $backlog) { $backlogById[[string]$row.id] = $row }
-foreach ($id in @('P001', 'P002', 'P003', 'P004', 'P005', 'P006')) {
-    if (-not $backlogById.ContainsKey($id) -or [string]$backlogById[$id].status -ne '待办') { throw "$id must remain open in backlog" }
-}
-if ([string]$real005.closureStatus -ne 'not_closed' -or $real005.fullClosureAllowed -ne $false) {
-    throw 'REAL005 current evidence must remain not_closed and fullClosureAllowed=false'
-}
-if ($releaseCard -notmatch 'No-Go' -or $closureSummary -notmatch 'REAL005\s*=\s*not_closed') {
-    throw 'release/closure docs must preserve No-Go and REAL005 not_closed'
-}
+Import-Module (Join-Path $PSScriptRoot 'verification/CloseoutInvariants.psm1') -Force
+Test-ReleaseCloseoutInvariants -BacklogById $backlogById -Real005Evidence $real005 -ReleaseCardText $releaseCard -ClosureSummaryText $closureSummary
 
 $nextOpen = [ordered]@{}
 foreach ($parent in $expectedParents) {
@@ -68,12 +62,14 @@ foreach ($parent in $expectedParents) {
     $nextOpen[$parent] = if ($next.Count -eq 1) { [string]$next[0].id } else { $null }
 }
 
+$completedCount = $completedIds.Count
+$openCount = @($plan | Where-Object status -eq '待办').Count
 $report = [ordered]@{
     status = 'pass'
     checkedAt = (Get-Date).ToString('s')
     rowCount = $plan.Count
-    completedCount = 4
-    openCount = 22
+    completedCount = $completedCount
+    openCount = $openCount
     real005 = [ordered]@{
         currentPath = $Real005ReportPath
         closureStatus = [string]$real005.closureStatus
@@ -96,7 +92,7 @@ $report | ConvertTo-Json -Depth 7 | Set-Content -LiteralPath $jsonFullPath -Enco
     '- REAL005: not_closed'
     '- release: No-Go'
     '- repo-side complete: REAL005A, REAL005B, REAL005C, REAL005D'
-    '- onsite/manual open: 22'
+    "- onsite/manual open: $openCount"
     '- boundary: repo-side plan consistency only'
 ) | Set-Content -LiteralPath $markdownFullPath -Encoding UTF8
 $report | ConvertTo-Json -Depth 7

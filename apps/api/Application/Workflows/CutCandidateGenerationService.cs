@@ -13,7 +13,7 @@ public sealed record CutCandidateGenerationResult(
 
 public sealed class CutCandidateGenerationService(KqgDbContext dbContext)
 {
-    private const decimal LowConfidenceThreshold = 0.85m;
+    private const decimal LowConfidenceThreshold = CutConfidenceDefaults.LowConfidenceReviewThreshold;
 
     public async Task<CutCandidateGenerationResult> GenerateAsync(Guid sourceDocumentId, CancellationToken cancellationToken)
     {

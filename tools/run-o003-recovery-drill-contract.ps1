@@ -7,7 +7,11 @@ param(
     [int]$DatabasePort = 5432,
     [string]$DatabaseUser = 'postgres',
     [string]$DatabasePassword = $env:PGPASSWORD,
-    [string]$ReportPath = 'docs/evidence/o003-recovery-drill-report.json'
+    [string]$ReportPath = 'docs/evidence/o003-recovery-drill-report.json',
+    # 复用同一次 Release 运行中已生成并校验过的备份 manifest(如 O007),跳过重复的
+    # pg_dump 与 FileStore 全量拷贝。传入后本脚本仍会对该 manifest 重新执行
+    # verify-backup 校验,再进入恢复演练;留空则保持原行为:自行备份。
+    [string]$ReuseBackupManifest = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -61,14 +65,33 @@ try {
     New-Item -ItemType Directory -Path $BackupRoot -Force | Out-Null
     New-Item -ItemType Directory -Path $drillRoot -Force | Out-Null
 
-    $backupJson = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'backup.ps1') -BackupRoot $BackupRoot -FileStoreRoot $FileStoreRoot -PgBin $PgBin -DatabaseName $DatabaseName -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabaseUser $DatabaseUser
-    Assert-Condition ($LASTEXITCODE -eq 0) 'backup.ps1 failed during O003 drill'
-    $backup = $backupJson | ConvertFrom-Json
+    if (-not [string]::IsNullOrWhiteSpace($ReuseBackupManifest)) {
+        $reusedManifestPath = if ([System.IO.Path]::IsPathRooted($ReuseBackupManifest)) { $ReuseBackupManifest } else { Join-Path $repoRoot $ReuseBackupManifest }
+        Assert-Condition (Test-Path -LiteralPath $reusedManifestPath) "reused backup manifest not found: $ReuseBackupManifest"
 
-    & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'verify-backup.ps1') -ManifestPath $backup.manifest | Out-Null
-    Assert-Condition ($LASTEXITCODE -eq 0) 'verify-backup.ps1 failed during O003 drill'
+        & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'verify-backup.ps1') -ManifestPath $reusedManifestPath | Out-Null
+        Assert-Condition ($LASTEXITCODE -eq 0) 'verify-backup.ps1 failed during O003 drill (reused manifest)'
 
-    $manifest = Get-Content -LiteralPath $backup.manifest -Raw | ConvertFrom-Json
+        $manifest = Get-Content -LiteralPath $reusedManifestPath -Raw | ConvertFrom-Json
+        $reusedBackupDir = Split-Path -Parent $reusedManifestPath
+        $backup = [pscustomobject]@{
+            manifest = $reusedManifestPath
+            backupDir = $reusedBackupDir
+            databaseDump = Join-Path $reusedBackupDir ([string]$manifest.database.dump)
+            fileCount = @($manifest.fileStore.files).Count
+            configCount = @($manifest.configs).Count
+        }
+    }
+    else {
+        $backupJson = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'backup.ps1') -BackupRoot $BackupRoot -FileStoreRoot $FileStoreRoot -PgBin $PgBin -DatabaseName $DatabaseName -DatabaseHost $DatabaseHost -DatabasePort $DatabasePort -DatabaseUser $DatabaseUser
+        Assert-Condition ($LASTEXITCODE -eq 0) 'backup.ps1 failed during O003 drill'
+        $backup = $backupJson | ConvertFrom-Json
+
+        & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'verify-backup.ps1') -ManifestPath $backup.manifest | Out-Null
+        Assert-Condition ($LASTEXITCODE -eq 0) 'verify-backup.ps1 failed during O003 drill'
+
+        $manifest = Get-Content -LiteralPath $backup.manifest -Raw | ConvertFrom-Json
+    }
     $fileStoreBackupRoot = Resolve-FileStoreBackupRoot -Manifest $manifest -ManifestPath $backup.manifest
 
     $pgRestore = Join-Path $PgBin 'pg_restore.exe'
@@ -125,6 +148,7 @@ try {
         task = 'O003'
         mode = 'draft_test'
         productionEligible = $false
+        backupReused = (-not [string]::IsNullOrWhiteSpace($ReuseBackupManifest))
         backup = [ordered]@{
             manifest = Convert-ToRelative -Base $repoRoot -Path $backup.manifest
             backupDir = Convert-ToRelative -Base $repoRoot -Path $backup.backupDir
@@ -160,7 +184,11 @@ try {
             }
         }
         rollback = [ordered]@{
-            deleteBackupRoot = "Remove-Item -LiteralPath '$((Resolve-Path -LiteralPath $BackupRoot).Path)' -Recurse -Force"
+            deleteBackupRoot = $(if ([string]::IsNullOrWhiteSpace($ReuseBackupManifest)) {
+                "Remove-Item -LiteralPath '$((Resolve-Path -LiteralPath $BackupRoot).Path)' -Recurse -Force"
+            } else {
+                "reused manifest owned by caller; delete via caller's rollback, not here"
+            })
             deleteDrillRoot = "Remove-Item -LiteralPath '$drillRoot' -Recurse -Force"
         }
         summaryChinese = [ordered]@{
