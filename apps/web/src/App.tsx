@@ -48,6 +48,7 @@ import {
   updateSourceRegion,
   uploadImportFile,
 } from './api/client'
+import { triggerBrowserDownload } from './api/download'
 import type {
   QuestionDetailContract,
   QuestionEvidenceCardContract,
@@ -1335,12 +1336,7 @@ function App() {
       appendLog(`${format.toUpperCase()} 导出失败：${result.error.message}`)
       return
     }
-    const url = URL.createObjectURL(result.data.blob)
-    const anchor = document.createElement('a')
-    anchor.href = url
-    anchor.download = result.data.fileName
-    anchor.click()
-    URL.revokeObjectURL(url)
+    triggerBrowserDownload(result.data.blob, result.data.fileName)
     setPaperWorkflowMessage(`${result.data.fileName} 已生成并开始下载。`)
     appendLog(`已下载真实 ${format.toUpperCase()} 试卷工件`)
   }
