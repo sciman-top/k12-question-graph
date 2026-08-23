@@ -661,7 +661,24 @@ app.MapPost("/imports", async (HttpRequest request, LocalFileStore fileStore, Kq
     };
 
     dbContext.ImportJobs.Add(job);
-    await dbContext.SaveChangesAsync(cancellationToken);
+    try
+    {
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+    catch (DbUpdateException)
+    {
+        // 并发上传同一文件可能同时通过存在性检查,此处撞 IdempotencyKey 唯一索引;
+        // 重查返回既有 job,而不是让第二次上传收到 500。
+        var raced = await dbContext.ImportJobs
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.IdempotencyKey == idempotencyKey, cancellationToken);
+        if (raced is null)
+        {
+            throw;
+        }
+
+        return Results.Ok(ImportJobResponse.From(raced, stored));
+    }
 
     return Results.Created($"/imports/{job.Id}", ImportJobResponse.From(job, stored));
 })
@@ -1225,7 +1242,14 @@ app.MapGet("/review-queue", async (
         query = query.Where(x => x.ReviewType == normalizedReviewType);
     }
 
-    var rows = await query.ToListAsync(cancellationToken);
+    // question_no/year/risk 排序键派生自 JSON payload,无法下推 SQL;
+    // 只对最近 maxScanRows 行做内存排序,total 用独立 COUNT 保持真实总数。
+    const int maxScanRows = 2000;
+    var totalCount = await query.CountAsync(cancellationToken);
+    var rows = await query
+        .OrderByDescending(x => x.CreatedAt)
+        .Take(maxScanRows)
+        .ToListAsync(cancellationToken);
     var mapped = rows.Select(ReviewQueueItemResponse.From).ToList();
     mapped = normalizedSortBy switch
     {
@@ -1247,7 +1271,7 @@ app.MapGet("/review-queue", async (
             : mapped.OrderBy(x => x.CreatedAt).ToList(),
     };
 
-    return Results.Ok(new ReviewQueueListResponse(mapped.Take(takeCount).ToArray(), mapped.Count));
+    return Results.Ok(new ReviewQueueListResponse(mapped.Take(takeCount).ToArray(), totalCount));
 })
 .WithName("ListReviewQueueItems");
 
@@ -2707,6 +2731,8 @@ app.MapPost("/paper-baskets", async (
         CreatedAt = now,
         UpdatedAt = now
     };
+    // 篮子与条目必须同事务落库,第二步失败时不再留下空篮子孤儿记录。
+    await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
     dbContext.PaperBaskets.Add(basket);
     await dbContext.SaveChangesAsync(cancellationToken);
 
@@ -2739,6 +2765,7 @@ app.MapPost("/paper-baskets", async (
     }).ToArray();
     dbContext.PaperBasketItems.AddRange(basketItems);
     await dbContext.SaveChangesAsync(cancellationToken);
+    await transaction.CommitAsync(cancellationToken);
 
     return Results.Created($"/paper-baskets/{basket.Id}", PaperBasketResponse.From(basket, basketItems));
 })
