@@ -641,46 +641,17 @@ app.MapPost("/imports", async (HttpRequest request, LocalFileStore fileStore, Kq
             statusCode: StatusCodes.Status415UnsupportedMediaType);
     }
 
-    var idempotencyKey = $"import:original:{stored.Sha256}";
-    var existing = await dbContext.ImportJobs
-        .FirstOrDefaultAsync(x => x.IdempotencyKey == idempotencyKey, cancellationToken);
-
-    if (existing is not null)
+    var creation = await ImportJobCreation.CreateOrGetAsync(
+        dbContext,
+        stored,
+        dbContext.SaveChangesAsync,
+        cancellationToken);
+    if (creation.ExistingJob is not null)
     {
-        return Results.Ok(ImportJobResponse.From(existing, stored));
+        return Results.Ok(ImportJobResponse.From(creation.ExistingJob, stored));
     }
 
-    var job = new ImportJob
-    {
-        InputFileAssetId = stored.Id,
-        Status = JobStatuses.Queued,
-        IdempotencyKey = idempotencyKey,
-        Input = $$"""
-        {"fileAssetId":"{{stored.Id}}","relativePath":"{{stored.RelativePath}}","sha256":"{{stored.Sha256}}"}
-        """
-    };
-
-    dbContext.ImportJobs.Add(job);
-    try
-    {
-        await dbContext.SaveChangesAsync(cancellationToken);
-    }
-    catch (DbUpdateException)
-    {
-        // 并发上传同一文件可能同时通过存在性检查,此处撞 IdempotencyKey 唯一索引;
-        // 重查返回既有 job,而不是让第二次上传收到 500。
-        var raced = await dbContext.ImportJobs
-            .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.IdempotencyKey == idempotencyKey, cancellationToken);
-        if (raced is null)
-        {
-            throw;
-        }
-
-        return Results.Ok(ImportJobResponse.From(raced, stored));
-    }
-
-    return Results.Created($"/imports/{job.Id}", ImportJobResponse.From(job, stored));
+    return Results.Created($"/imports/{creation.CreatedJob!.Id}", ImportJobResponse.From(creation.CreatedJob, stored));
 })
 .DisableAntiforgery()
 .WithName("CreateImportJob");
