@@ -3221,7 +3221,7 @@ app.MapPost("/imports/{id:guid}/worker-smoke", async (
     job.FinishedAt = DateTimeOffset.UtcNow;
 
     var processing = result.ExitCode == 0 && sourceDocument is not null
-        ? await SeedLocalImportCandidatesAsync(
+        ? await ImportWorkerCandidateSeeder.SeedAsync(
             dbContext,
             sourceDocument,
             result.StandardOutput,
@@ -3292,205 +3292,13 @@ static bool FormBool(IFormCollection form, string key, bool fallback)
         : fallback;
 }
 
-static async Task<ImportWorkerProcessingSummary> SeedLocalImportCandidatesAsync(
-    KqgDbContext dbContext,
-    SourceDocument sourceDocument,
-    string workerOutput,
-    string generationId,
-    CancellationToken cancellationToken)
-{
-    if (string.IsNullOrWhiteSpace(workerOutput))
-    {
-        return ImportWorkerProcessingSummary.Empty;
-    }
-
-    using var document = JsonDocument.Parse(workerOutput);
-    var root = document.RootElement;
-    var adapterName = ReadFirstAdapterName(root);
-    if (!root.TryGetProperty("documentModel", out var documentModel) ||
-        !documentModel.TryGetProperty("pages", out var pages) ||
-        pages.ValueKind != JsonValueKind.Array)
-    {
-        return ImportWorkerProcessingSummary.Empty with { AdapterName = adapterName };
-    }
-
-    const int maxCandidates = 120;
-    var now = DateTimeOffset.UtcNow;
-    var sequenceNo = 1;
-    var regions = new List<SourceRegion>();
-    var candidates = new List<CutCandidate>();
-    var queueItems = new List<ReviewQueueItem>();
-
-    foreach (var page in pages.EnumerateArray())
-    {
-        var pageNumber = ReadInt(page, "pageNumber", 1);
-        if (!page.TryGetProperty("layoutBlocks", out var blocks) ||
-            blocks.ValueKind != JsonValueKind.Array)
-        {
-            continue;
-        }
-
-        var blockIndex = 0;
-        foreach (var block in blocks.EnumerateArray())
-        {
-            if (candidates.Count >= maxCandidates)
-            {
-                break;
-            }
-
-            var textPreview = ReadString(block, "textPreview", string.Empty).Trim();
-            var blockType = NormalizeToken(ReadString(block, "blockType", "document_block"), "document_block");
-            if (string.IsNullOrWhiteSpace(textPreview))
-            {
-                continue;
-            }
-
-            var confidence = ReadDecimal(
-                block,
-                "confidence",
-                blockType == "question_stem" ? CutConfidenceDefaults.SeedStemConfidence : CutConfidenceDefaults.SeedOtherConfidence);
-            var takeoverRequired = ReadBool(block, "takeoverRequired", confidence < CutConfidenceDefaults.FallbackTakeoverThreshold);
-            var region = new SourceRegion
-            {
-                Id = Guid.NewGuid(),
-                SourceDocumentId = sourceDocument.Id,
-                PageNumber = pageNumber,
-                X = 0,
-                Y = Math.Min(95, blockIndex * 6),
-                Width = 100,
-                Height = 5,
-                CoordinateUnit = "percent",
-                RegionType = "document_block",
-                CreatedAt = now
-            };
-            regions.Add(region);
-
-            var candidate = new CutCandidate
-            {
-                Id = Guid.NewGuid(),
-                SourceDocumentId = sourceDocument.Id,
-                SourceRegionId = region.Id,
-                Status = CutCandidateStatuses.PendingReview,
-                Confidence = confidence,
-                SegmentType = blockType,
-                SequenceNo = sequenceNo++,
-                CandidatePayload = JsonSerializer.Serialize(new
-                {
-                    extractionMode = "document_worker_local",
-                    adapterName,
-                    pageNumber,
-                    blockType,
-                    textPreview,
-                    takeoverRequired,
-                    generationId,
-                    sourceRegionId = region.Id
-                }),
-                FailureReason = takeoverRequired ? "requires_manual_review" : string.Empty,
-                TakeoverAction = takeoverRequired ? "manual_review" : "skip",
-                Metadata = JsonSerializer.Serialize(new
-                {
-                    generatedBy = "document_worker_local",
-                    generatedAt = now,
-                    generationId,
-                    adapterName,
-                    source = "ImportJob.worker-smoke"
-                }),
-                CreatedAt = now,
-                UpdatedAt = now
-            };
-            candidates.Add(candidate);
-
-            if (takeoverRequired)
-            {
-                queueItems.Add(new ReviewQueueItem
-                {
-                    ReviewType = "cut_candidate",
-                    Status = ReviewStatuses.Open,
-                    Payload = JsonSerializer.Serialize(new
-                    {
-                        sourceDocumentId = sourceDocument.Id,
-                        sourceRegionId = region.Id,
-                        candidateId = candidate.Id,
-                        generationId,
-                        confidence,
-                        requiredAction = "manual_review",
-                        reason = "document_worker_low_confidence_or_header",
-                        textPreview
-                    }),
-                    CreatedAt = now
-                });
-            }
-
-            blockIndex += 1;
-        }
-    }
-
-    if (regions.Count == 0 || candidates.Count == 0)
-    {
-        return ImportWorkerProcessingSummary.Empty with { AdapterName = adapterName };
-    }
-
-    dbContext.SourceRegions.AddRange(regions);
-    dbContext.CutCandidates.AddRange(candidates);
-    if (queueItems.Count > 0)
-    {
-        dbContext.ReviewQueueItems.AddRange(queueItems);
-    }
-
-    return new ImportWorkerProcessingSummary(
-        AdapterName: adapterName,
-        SourceRegionCount: regions.Count,
-        CutCandidateCount: candidates.Count,
-        LowConfidenceReviewQueueCount: queueItems.Count);
-}
-
-static string ReadFirstAdapterName(JsonElement root)
-{
-    if (root.TryGetProperty("adapterDiagnostics", out var diagnostics) &&
-        diagnostics.ValueKind == JsonValueKind.Array &&
-        diagnostics.GetArrayLength() > 0)
-    {
-        return ReadString(diagnostics[0], "adapterName", string.Empty);
-    }
-
-    return string.Empty;
-}
-
-static string ReadString(JsonElement element, string propertyName, string fallback)
-{
-    return element.TryGetProperty(propertyName, out var value) && value.ValueKind == JsonValueKind.String
-        ? value.GetString() ?? fallback
-        : fallback;
-}
-
-static int ReadInt(JsonElement element, string propertyName, int fallback)
-{
-    return element.TryGetProperty(propertyName, out var value) && value.TryGetInt32(out var parsed)
-        ? parsed
-        : fallback;
-}
-
-static decimal ReadDecimal(JsonElement element, string propertyName, decimal fallback)
-{
-    return element.TryGetProperty(propertyName, out var value) && value.TryGetDecimal(out var parsed)
-        ? parsed
-        : fallback;
-}
-
-static bool ReadBool(JsonElement element, string propertyName, bool fallback)
-{
-    return element.TryGetProperty(propertyName, out var value) && value.ValueKind is JsonValueKind.True or JsonValueKind.False
-        ? value.GetBoolean()
-        : fallback;
-}
-
 static string ResolveCandidateText(CutCandidate candidate)
 {
     try
     {
         using var document = JsonDocument.Parse(candidate.CandidatePayload);
         var root = document.RootElement;
-        var textPreview = ReadString(root, "textPreview", string.Empty).Trim();
+        var textPreview = JsonElementReaders.ReadString(root, "textPreview", string.Empty).Trim();
         if (!string.IsNullOrWhiteSpace(textPreview))
         {
             return textPreview;

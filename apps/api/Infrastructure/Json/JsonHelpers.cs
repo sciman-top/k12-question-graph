@@ -23,6 +23,37 @@ public static class JsonHelpers
     }
 }
 
+public static class JsonElementReaders
+{
+    public static string ReadString(JsonElement element, string propertyName, string fallback)
+    {
+        return element.TryGetProperty(propertyName, out var value) && value.ValueKind == JsonValueKind.String
+            ? value.GetString() ?? fallback
+            : fallback;
+    }
+
+    public static int ReadInt(JsonElement element, string propertyName, int fallback)
+    {
+        return element.TryGetProperty(propertyName, out var value) && value.TryGetInt32(out var parsed)
+            ? parsed
+            : fallback;
+    }
+
+    public static decimal ReadDecimal(JsonElement element, string propertyName, decimal fallback)
+    {
+        return element.TryGetProperty(propertyName, out var value) && value.TryGetDecimal(out var parsed)
+            ? parsed
+            : fallback;
+    }
+
+    public static bool ReadBool(JsonElement element, string propertyName, bool fallback)
+    {
+        return element.TryGetProperty(propertyName, out var value) && value.ValueKind is JsonValueKind.True or JsonValueKind.False
+            ? value.GetBoolean()
+            : fallback;
+    }
+}
+
 public static class ReviewQueuePayloadHelpers
 {
     public static string ResolveRiskLevel(string payloadJson)
