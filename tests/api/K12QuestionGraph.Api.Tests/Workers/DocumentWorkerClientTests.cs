@@ -96,6 +96,70 @@ public class DocumentWorkerClientTests : IDisposable
     }
 
     [Fact]
+    public async Task RunSmokeAsync_RunsRealWorkerAndRejectsParentTraversalPath()
+    {
+        var fileStoreRoot = WorkerTestHarness.CreateTempDirectory();
+        var client = CreateClient(WorkerTestHarness.WorkerScript.Value, 60, _contentRoot, fileStoreRoot);
+
+        var result = await client.RunSmokeAsync(Guid.NewGuid(), "../escape.docx", simulateFailure: false, CancellationToken.None);
+
+        Assert.Equal(4, result.ExitCode);
+        Assert.Contains("invalid input path", result.StandardError);
+    }
+
+    [Fact]
+    public async Task RunSmokeAsync_RunsRealWorkerAndRejectsOversizedInput()
+    {
+        var fileStoreRoot = WorkerTestHarness.CreateTempDirectory();
+        Directory.CreateDirectory(Path.Combine(fileStoreRoot, "original"));
+        var oversizedPath = Path.Combine(fileStoreRoot, "original", "oversized.docx");
+        // NTFS 只扩展长度不落盘数据,128MB 上限检查看 stat().st_size,无需真实写入。
+        using (var stream = new FileStream(oversizedPath, FileMode.CreateNew, FileAccess.Write))
+        {
+            stream.SetLength(128L * 1024 * 1024 + 1);
+        }
+
+        var client = CreateClient(WorkerTestHarness.WorkerScript.Value, 60, _contentRoot, fileStoreRoot);
+
+        var result = await client.RunSmokeAsync(Guid.NewGuid(), "original/oversized.docx", simulateFailure: false, CancellationToken.None);
+
+        Assert.Equal(5, result.ExitCode);
+        Assert.Contains("exceeds", result.StandardError);
+    }
+
+    [Fact]
+    public async Task RunSmokeAsync_PassesThroughNonJsonStdoutWithoutParsing()
+    {
+        WorkerTestHarness.WriteStubScript(
+            _contentRoot,
+            "garbage_stub.py",
+            "import sys\nsys.stdout.write('not-json {{{ partial')\nsys.stdout.flush()\n");
+
+        var client = CreateClient("garbage_stub.py", 30, _contentRoot, WorkerTestHarness.CreateTempDirectory());
+
+        var result = await client.RunSmokeAsync(Guid.NewGuid(), "unused.docx", simulateFailure: false, CancellationToken.None);
+
+        Assert.Equal(0, result.ExitCode);
+        Assert.Equal("not-json {{{ partial", result.StandardOutput);
+    }
+
+    [Fact]
+    public async Task RunSmokeAsync_PropagatesRequestCancellation()
+    {
+        WorkerTestHarness.WriteStubScript(
+            _contentRoot,
+            "slow_cancel_stub.py",
+            "import time\ntime.sleep(30)\n");
+
+        var client = CreateClient("slow_cancel_stub.py", 60, _contentRoot, WorkerTestHarness.CreateTempDirectory());
+        using var cancellationTokenSource = new CancellationTokenSource();
+        await cancellationTokenSource.CancelAsync();
+
+        await Assert.ThrowsAsync<OperationCanceledException>(() =>
+            client.RunSmokeAsync(Guid.NewGuid(), "unused.docx", simulateFailure: false, cancellationTokenSource.Token));
+    }
+
+    [Fact]
     public void PythonWorkerOptions_DefaultTimeoutCoversWorkerSubprocessBudget()
     {
         // worker 内部对 pdftotext/pdftoppm 每个子进程预算 60s;

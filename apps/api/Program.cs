@@ -63,6 +63,7 @@ builder.Services.AddDbContext<KqgDbContext>(options =>
         .UseSnakeCaseNamingConvention());
 builder.Services.AddScoped<LocalFileStore>();
 builder.Services.AddScoped<DocumentWorkerClient>();
+builder.Services.AddSingleton<IImportJobLeaseStore, ImportJobLeaseStore>();
 builder.Services.AddScoped<CutCandidateGenerationService>();
 builder.Services.AddScoped<PaperWorkflowService>();
 builder.Services.AddScoped<ScoreAnalysisWorkflowService>();
@@ -3123,6 +3124,7 @@ app.MapPost("/imports/{id:guid}/worker-smoke", async (
     bool? simulateFailure,
     KqgDbContext dbContext,
     DocumentWorkerClient workerClient,
+    IImportJobLeaseStore leaseStore,
     CancellationToken cancellationToken) =>
 {
     var job = await dbContext.ImportJobs.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
@@ -3146,7 +3148,7 @@ app.MapPost("/imports/{id:guid}/worker-smoke", async (
         var alreadyMaterialized = await dbContext.CutCandidates
             .AnyAsync(
                 x => x.SourceDocumentId == sourceDocument.Id &&
-                    EF.Functions.ILike(x.Metadata, "%document_worker_local%"),
+                    x.Metadata.Contains("document_worker_local"),
                 cancellationToken);
         if (alreadyMaterialized)
         {
@@ -3176,7 +3178,7 @@ app.MapPost("/imports/{id:guid}/worker-smoke", async (
         });
     }
 
-    var lease = await ImportJobLeaseService.TryAcquireAsync(
+    var lease = await leaseStore.TryAcquireAsync(
         dbContext,
         job.Id,
         simulateFailure == true,
@@ -3191,7 +3193,7 @@ app.MapPost("/imports/{id:guid}/worker-smoke", async (
     job = await dbContext.ImportJobs.SingleAsync(x => x.Id == id, cancellationToken);
 
     var result = await workerClient.RunSmokeAsync(job.Id, fileAsset.RelativePath, simulateFailure == true, cancellationToken);
-    var ownsMaterializationLease = await ImportJobLeaseService.RenewForMaterializationAsync(
+    var ownsMaterializationLease = await leaseStore.RenewForMaterializationAsync(
         dbContext,
         job.Id,
         lease.LeaseOwner,
@@ -3220,14 +3222,29 @@ app.MapPost("/imports/{id:guid}/worker-smoke", async (
     job.LockedUntil = null;
     job.FinishedAt = DateTimeOffset.UtcNow;
 
-    var processing = result.ExitCode == 0 && sourceDocument is not null
-        ? await ImportWorkerCandidateSeeder.SeedAsync(
-            dbContext,
-            sourceDocument,
-            result.StandardOutput,
-            lease.LeaseOwner,
-            cancellationToken)
-        : ImportWorkerProcessingSummary.Empty;
+    var processing = ImportWorkerProcessingSummary.Empty;
+    if (result.ExitCode == 0 && sourceDocument is not null)
+    {
+        try
+        {
+            processing = await ImportWorkerCandidateSeeder.SeedAsync(
+                dbContext,
+                sourceDocument,
+                result.StandardOutput,
+                lease.LeaseOwner,
+                cancellationToken);
+        }
+        catch (JsonException)
+        {
+            // worker 声明成功但输出不是合法 JSON 时,任务必须落入可重试的失败终态,
+            // 而不是 500 加悬挂租约。
+            job.Status = JobStatuses.Failed;
+            job.LastErrorCode = "worker_output_invalid_json";
+            job.LastErrorMessage = result.StandardOutput.Length > 512
+                ? result.StandardOutput[..512]
+                : result.StandardOutput;
+        }
+    }
 
     await dbContext.SaveChangesAsync(cancellationToken);
 
