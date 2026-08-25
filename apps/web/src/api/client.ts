@@ -76,6 +76,8 @@ type JsonRequestInit = {
 
 const defaultRequestTimeoutMs = 30_000
 const longRunningRequestTimeoutMs = 120_000
+// 与服务端 PythonWorker.TimeoutSeconds 保持同一下限,扫描 PDF 的逐页 OCR 会占用整个请求周期。
+const workerExecutionRequestTimeoutMs = 300_000
 
 export type AdminSessionContract = {
   authenticated: boolean
@@ -185,10 +187,12 @@ async function postJson<T>(
   path: string,
   body: unknown,
   normalize: (value: unknown) => T,
+  timeoutMs = defaultRequestTimeoutMs,
 ): Promise<ApiResult<T>> {
   return requestJson(path, normalize, {
     method: 'POST',
     body: JSON.stringify(body),
+    timeoutMs,
   })
 }
 
@@ -326,7 +330,12 @@ export async function uploadImportFile(file: File): Promise<ApiResult<ImportJobC
 }
 
 export async function runDocumentWorkerSmoke(id: string): Promise<ApiResult<ImportJobContract>> {
-  return postJson(`/imports/${encodeURIComponent(id)}/worker-smoke`, {}, normalizeImportJobResponse)
+  return postJson(
+    `/imports/${encodeURIComponent(id)}/worker-smoke`,
+    {},
+    normalizeImportJobResponse,
+    workerExecutionRequestTimeoutMs,
+  )
 }
 
 export async function createScoreImport(file: File): Promise<ApiResult<ScoreImportContract>> {
