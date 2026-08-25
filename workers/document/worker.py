@@ -110,12 +110,14 @@ def formula_payload(element: ET.Element) -> dict:
             {
                 "sourceFormat": "omml",
                 "omml": omml,
-                "latex": text,
+                # latex/mathml 转换尚未实现:不伪造 latex,text 仅作纯文本替身;
+                # 置信度按"已捕获未转换"占位计,渲染必须回退 OMML 原文。
+                "latex": "",
                 "mathml": "",
                 "text": text,
-                "confidence": 1.0,
-                "reviewStatus": "verified",
-                "fallbackImageRequired": False,
+                "confidence": 0.5,
+                "reviewStatus": "pending_conversion",
+                "fallbackImageRequired": True,
             }
         )
     for formula in element.findall(".//m:oMath", WORD_NS):
@@ -129,12 +131,14 @@ def formula_payload(element: ET.Element) -> dict:
             {
                 "sourceFormat": "omml",
                 "omml": omml,
-                "latex": text,
+                # latex/mathml 转换尚未实现:不伪造 latex,text 仅作纯文本替身;
+                # 置信度按"已捕获未转换"占位计,渲染必须回退 OMML 原文。
+                "latex": "",
                 "mathml": "",
                 "text": text,
-                "confidence": 1.0,
-                "reviewStatus": "verified",
-                "fallbackImageRequired": False,
+                "confidence": 0.5,
+                "reviewStatus": "pending_conversion",
+                "fallbackImageRequired": True,
             }
         )
     return {

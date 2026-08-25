@@ -106,6 +106,25 @@ class WorkerHelpersTests(unittest.TestCase):
             1,
         )
 
+    def test_formula_payload_marks_conversion_pending(self) -> None:
+        # latex/mathml 转换未实现:占位必须声明 pending_conversion,
+        # 不得以伪 latex + verified 语义超claim。
+        paragraph = ET.fromstring(
+            "<w:p xmlns:w='http://schemas.openxmlformats.org/wordprocessingml/2006/main' "
+            "xmlns:m='http://schemas.openxmlformats.org/officeDocument/2006/math'>"
+            "<m:oMath><m:r><m:t>v=s/t</m:t></m:r></m:oMath></w:p>"
+        )
+
+        payload = worker.formula_payload(paragraph)
+
+        self.assertEqual(len(payload["formulas"]), 1)
+        formula = payload["formulas"][0]
+        self.assertEqual(formula["reviewStatus"], "pending_conversion")
+        self.assertEqual(formula["latex"], "")
+        self.assertEqual(formula["mathml"], "")
+        self.assertEqual(formula["text"], "v=s/t")
+        self.assertTrue(formula["fallbackImageRequired"])
+
     def test_split_pdf_text_blocks_marks_question_and_answer_boundaries(self) -> None:
         text = "\n".join(
             [
