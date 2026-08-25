@@ -240,6 +240,8 @@ export function AiRoutingControlPanel() {
       imageBaseUrlOverride: values.imageBaseUrl,
       fallbackBaseUrlOverride: values.fallbackBaseUrl,
       fallbackImageBaseUrlOverride: values.fallbackImageBaseUrl,
+      routingMode: 'balanced',
+      useModelRouting: true,
     })
     setTestBusy(false)
 
@@ -275,7 +277,7 @@ export function AiRoutingControlPanel() {
   const structuredProbeAttemptsSummary = lastTestResult?.attempts
     .map(
       (attempt) =>
-        `${attempt.providerEndpointId} | ${attempt.baseUrl} | ${attempt.routeKind} | ${attempt.endpointPath} | ${attempt.model} | HTTP ${attempt.httpStatusCode} | ${attempt.latencyMs}ms | ${attempt.passed ? 'passed' : 'failed'} | ${attempt.message}`,
+        `${attempt.providerEndpointId} | ${attempt.baseUrl} | ${attempt.routeKind} | ${attempt.endpointPath} | ${attempt.model} | ${attempt.reasoningEffort} | HTTP ${attempt.httpStatusCode} | ${attempt.latencyMs}ms | ${attempt.passed ? 'passed' : 'failed'} | ${attempt.message}`,
     )
     .join('\n')
 
@@ -408,6 +410,12 @@ export function AiRoutingControlPanel() {
           <span><Typography.Text type="secondary">并发</Typography.Text><strong>{providerSettingsCard.maxConcurrency}</strong></span>
           <span><Typography.Text type="secondary">预算</Typography.Text><strong>{providerSettingsCard.monthlyBudgetCny} 元 / 月</strong></span>
           <span><Typography.Text type="secondary">默认试跑</Typography.Text><code>{providerSettingsCard.defaultSmokeTaskType} / {providerSettingsCard.defaultSmokeModel}</code></span>
+          {lastTestResult ? (
+            <span data-contract="ai-effective-route">
+              <Typography.Text type="secondary">生效路由</Typography.Text>
+              <code>{lastTestResult.taskType} / {lastTestResult.model} / {lastTestResult.effectiveReasoningEffort} / {lastTestResult.routingMode}</code>
+            </span>
+          ) : null}
         </div>
         {providerSettingsCard.endpoints.length > 0 ? (
           <div className="ai-provider-meta" data-contract="ai-provider-endpoint-order">

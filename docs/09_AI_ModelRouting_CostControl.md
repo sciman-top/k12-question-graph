@@ -70,6 +70,8 @@ L0 不调用外部 AI。能由 CSV parser、JSON/YAML/schema、SQL、hash、rege
 
 配置真源为 `configs/model_routing.defaults.yaml`，运行时投影为 `apps/api/appsettings.json`。`terra/high` 与 `terra/xhigh` 的项目准入基于其图像输入、Structured Outputs 和 reasoning 支持，但视觉质量仍须由真实题卷 eval 验证；配置存在不等于 live accepted。路由结果必须记录 `stage`、`modelRole`、`modelName`、`reasoningEffort`、升级目标、prompt/schema 版本和输入证据。模型输出默认保持 `candidate/pending_review/productionEligible=false`，不得直接改变 active 资产。
 
+管理员 provider smoke 默认调用同一 `AiModelRouter`，把 `effectiveModelName` 和 `effectiveReasoningEffort` 写入 Responses 请求及审计记录；只有显式 `UseModelRouting=false` 才允许手动模型探针，并固定标记 `routing_source=manual_model_override`。任一全局/管理员真实调用门禁未满足时，探针 fail-closed，不发起 provider 请求。
+
 运行时同时返回默认路线和最终生效路线。`low_cost` 仅在当前任务声明的显式风险信号命中时升级；`balanced` 还会在置信度低于任务阈值时升级；`high_accuracy` 可对显式 opt-in 的普通路线预防性提前一级。风险信号按任务 allowlist 过滤，未知 mode fail-closed，确定性任务和没有升级目标的最高档任务永不隐式升级。`question_solving` 是明确例外：默认和最终路由始终固定为 `gpt-5.6-sol/xhigh`，不配置替代路线；题目难度和复杂度只影响复核优先级，不参与解题模型降档或换档。当前信号包括 `cross_page`、`shared_visual`、`formula_or_table`、`semantic_conflict`、`multiple_constraints`、`formal_exam` 和 `source_evidence_conflict`。返回值中的 `effectiveModelRole`、`effectiveModelName`、`effectiveReasoningEffort`、`escalated` 和 `escalationReasons` 是实际执行选择；原 `model*` 字段保留默认路线用于审计。
 
 ## 3.2 Codex 外层校验模型矩阵
@@ -87,31 +89,29 @@ L0 不调用外部 AI。能由 CSV parser、JSON/YAML/schema、SQL、hash、rege
 → 正式激活仍必须保留人工审核
 ```
 
-`gpt-5.4-mini`、`gpt-5.3-codex`、`gpt-5.4`、`gpt-5.5` 只是当前默认映射。模型价格、可用性或质量变化时，只更新 `configs/model_routing.defaults.yaml` 的映射；不得改变“规则优先、低成本批筛、按风险升级、人工兜底”的策略语义。
+当前四档映射固定为 `gpt-5.6-terra / high`（批量初筛）、`gpt-5.6-sol / medium`（工程与常规语义复核）、`gpt-5.6-terra / xhigh`（视觉/版面专项）和 `gpt-5.6-sol / xhigh`（高风险语义裁决）。机械清洗保持本地确定性执行（`none`），只有出现语义判断时才升级到 `terra / high`。模型价格、可用性或质量变化时，应同时更新 `configs/model_routing.defaults.yaml` 的 `role_to_model` 与 `role_to_reasoning_effort`，并通过代表性 eval 与 YAML→`appsettings.json` parity guard；不得改变“规则优先、低成本批筛、按风险升级、人工兜底”的策略语义。
 
 | 任务 | 默认模型 | 升级条件 | 成本口径 |
 |---|---|---|---|
-| CSV/Excel 格式检查、字段完整性、枚举、重复 ID、空来源字段 | `gpt-5.4-mini` | 批量失败原因不清时升 `gpt-5.3-codex` | 低 |
-| ChatGPT Web 输出的候选表批量初筛 | `gpt-5.4-mini` | 出现知识点/考点/章节/课标混淆时抽样升 `gpt-5.3-codex` | 低 |
-| 来源证据抽样核验、页码/题号/章节一致性复核 | `gpt-5.3-codex` | 高价值正式激活前抽样争议升 `gpt-5.4` | 中 |
-| 知识点、考点、教材章节、课标条目的复杂映射判断 | `gpt-5.3-codex` | 一拆多、多合一、多对多、低置信度且影响组卷/学情时升 `gpt-5.4` | 中 |
-| 大批量 CSV 清洗、拆分、重命名、机械格式转换 | `gpt-5.3-codex-spark` | 出现语义判断需求时升 `gpt-5.4-mini` 或 `gpt-5.3-codex` | 低 |
-| 导入脚本、gate、migration impact、回滚脚本实现 | `gpt-5.3-codex` | 跨模块架构或数据迁移风险高时升 `gpt-5.4` | 中 |
-| 正式激活前的高风险最终复核报告 | `gpt-5.4` | 涉及政策口径、长期学情口径或大量人工争议时升 `gpt-5.5` | 高 |
-| 架构级争议、跨学科通用模型、重大 schema/路由策略重构 | `gpt-5.4` | 只有在影响长期系统边界且成本可接受时用 `gpt-5.5` | 高 |
+| CSV/Excel 格式检查、字段完整性、枚举、重复 ID、空来源字段 | 本地脚本/schema；异常批筛 `gpt-5.6-terra / high` | 批量失败原因不清时升 `gpt-5.6-sol / medium` | 低 |
+| ChatGPT Web 输出的候选表批量初筛 | `gpt-5.6-terra / high` | 出现知识点/考点/章节/课标混淆时抽样升 `gpt-5.6-sol / medium` | 低 |
+| 来源证据抽样核验、页码/题号/章节一致性复核 | `gpt-5.6-sol / medium` | 高价值正式激活前抽样争议升 `gpt-5.6-sol / xhigh` | 中 |
+| 知识点、考点、教材章节、课标条目的复杂映射判断 | `gpt-5.6-sol / medium` | 一拆多、多合一、多对多、低置信度且影响组卷/学情时升 `gpt-5.6-sol / xhigh` | 中 |
+| 大批量 CSV 清洗、拆分、重命名、机械格式转换 | 本地确定性 / `none` | 出现语义判断需求时升 `gpt-5.6-terra / high` | 低 |
+| 导入脚本、gate、migration impact、回滚脚本实现 | `gpt-5.6-sol / medium` | 跨模块架构或数据迁移风险高时升 `gpt-5.6-sol / xhigh` | 中 |
+| 正式激活前的高风险最终复核报告 | `gpt-5.6-sol / xhigh` | 仍存在长期口径争议时保留人工裁决，不自动越过审批 | 高 |
+| 架构级争议、跨学科通用模型、重大 schema/路由策略重构 | `gpt-5.6-sol / xhigh` | 需要外部决策或不可逆口径时停止并请求人工决定 | 高 |
 
 默认组合：
 
 ```text
-第一层 gpt-5.4-mini：便宜批量筛查
-第二层 gpt-5.3-codex：工程导入、抽样核验、复杂映射
-第三层 gpt-5.4：正式激活前高风险复核、跨模块改动
-第四层 gpt-5.5：少量最高风险的架构/政策/长期口径裁决
+第一层 gpt-5.6-terra / high：批量初筛和普通结构化
+第二层 gpt-5.6-sol / medium：工程导入、抽样核验、常规复杂映射
+第三层 gpt-5.6-terra / xhigh：视觉、图表、版面专项复核
+第四层 gpt-5.6-sol / xhigh：高风险语义、政策边界和不可轻易回滚裁决
 ```
 
-`gpt-5.5` 不作为常规批量模型。它只用于少量、低频、不可轻易回滚且影响长期口径的判断，例如：新旧课标口径冲突、地区考点体系重大重构、正式学情指标口径迁移、跨学科动态资产模型变更。
-
-`gpt-5.4` 的合理使用位置是质量兜底，不是替代所有批量工作。凡是可用规则、schema、SQL、CSV parser 或 `gpt-5.4-mini` 解决的任务，不升级。
+四档不是质量承诺：`medium/high/xhigh` 的提升必须由代表性 paired eval 证明，真实 provider 默认关闭；配置与 parity 通过只证明 `repo_verified`/`filesystem_projected`，不等于 `host_loaded` 或 `live_accepted`。凡是可用规则、schema、SQL、CSV parser 或本地脚本解决的任务，不升级模型。
 
 来源核验不得只依赖更强模型。进入正式激活链路的来源证据必须可追溯到 `source_id`、页码/题号/章节、原文片段或 hash；模型只辅助判断一致性和风险，不替代证据锚点。
 

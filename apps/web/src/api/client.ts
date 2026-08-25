@@ -284,6 +284,9 @@ export async function testAdminAiProviderSettings(request: {
   imageBaseUrlOverride?: string
   fallbackBaseUrlOverride?: string
   fallbackImageBaseUrlOverride?: string
+  routingMode?: string
+  expectedConfidence?: number
+  useModelRouting?: boolean
 }): Promise<ApiResult<AdminAiProviderSettingsTestContract>> {
   return postAdminJson(
     '/api/admin/ai/provider-settings/test',

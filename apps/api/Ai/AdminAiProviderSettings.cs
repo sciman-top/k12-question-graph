@@ -97,7 +97,11 @@ public sealed record AdminAiProviderSettingsTestRequest(
     string? BaseUrlOverride,
     string? ImageBaseUrlOverride,
     string? FallbackBaseUrlOverride,
-    string? FallbackImageBaseUrlOverride);
+    string? FallbackImageBaseUrlOverride,
+    string? RoutingMode = null,
+    AiRouteRiskSignals? RiskSignals = null,
+    decimal? ExpectedConfidence = null,
+    bool UseModelRouting = true);
 
 public sealed record AdminAiProviderProbeAttempt(
     string ProviderEndpointId,
@@ -105,6 +109,7 @@ public sealed record AdminAiProviderProbeAttempt(
     string RouteKind,
     string EndpointPath,
     string Model,
+    string ReasoningEffort,
     bool Passed,
     int HttpStatusCode,
     int LatencyMs,
@@ -143,6 +148,9 @@ public sealed record AdminAiProviderSettingsTestResult(
     string ProviderType,
     string Model,
     string TaskType,
+    string EffectiveReasoningEffort,
+    string RoutingMode,
+    bool UsedModelRouting,
     string ReviewStatus,
     bool Passed,
     bool CombinedPassed,
@@ -745,7 +753,8 @@ public sealed class FileAiProviderSettingsStore(
 public sealed class OpenAiCompatibleSmokeTestService(
     HttpClient httpClient,
     FileAiProviderSettingsStore settingsStore,
-    IWebHostEnvironment environment)
+    IWebHostEnvironment environment,
+    AiModelRouter modelRouter)
 {
     private const string ImageProbePrompt = "Generate a simple flat icon of a blue paper plane on a white background.";
     private const string ImageProbeFallbackModel = "gpt-image-2";
@@ -758,8 +767,12 @@ public sealed class OpenAiCompatibleSmokeTestService(
         AdminAiProviderSettingsTestRequest request,
         CancellationToken cancellationToken)
     {
-        var normalizedModel = NormalizeModel(request.Model, settings.DefaultSmokeModel);
         var normalizedTaskType = NormalizeTaskType(request.TaskType, settings.DefaultSmokeTaskType);
+        var normalizedModel = NormalizeModel(request.Model, settings.DefaultSmokeModel);
+        var effectiveReasoningEffort = "medium";
+        var routingMode = NormalizeRoutingMode(request.RoutingMode);
+        var usedModelRouting = request.UseModelRouting;
+        var routingAudit = new List<string>();
         var runtimeEndpoints = ApplyEndpointOverrides(
             await settingsStore.GetRuntimeEndpointsAsync(cancellationToken),
             request);
@@ -781,44 +794,81 @@ public sealed class OpenAiCompatibleSmokeTestService(
 
         if (blockers.Count > 0)
         {
-            return new AdminAiProviderSettingsTestResult(
-                Status: "blocked",
-                Mode: "draft_test",
-                ProductionEligible: false,
-                ProviderProfileId: settings.ProviderProfileId,
-                ProviderType: settings.ProviderType,
-                Model: normalizedModel,
-                TaskType: normalizedTaskType,
-                ReviewStatus: "pending_review",
-                Passed: false,
-                CombinedPassed: false,
-                EffectiveProviderEndpointId: "",
-                EffectiveBaseUrl: "",
-                HttpStatusCode: 0,
-                Message: "管理员 AI 设置未满足真实试跑前置条件；请启用 provider、配置密钥并明确允许 draft/test 试跑。",
-                OutputJson: "{}",
-                InputTokens: 0,
-                OutputTokens: 0,
-                CachedTokens: 0,
-                Cost: 0,
-                LatencyMs: 0,
-                Blockers: blockers,
-                Attempts: [],
-                ImageProbe: CreateNotAttemptedImageProbe(
-                    GetFirstImageBaseUrl(runtimeEndpoints),
-                    "主配置前置条件未满足，未执行图片链路探针。",
-                    blockers),
-                AuditTrail: [
+            return CreateBlockedResult(
+                settings,
+                normalizedModel,
+                normalizedTaskType,
+                effectiveReasoningEffort,
+                routingMode,
+                runtimeEndpoints,
+                blockers,
+                [
                     "test_admin_ai_provider_settings_blocked",
+                    "routing_not_evaluated_before_provider_preconditions",
                     ..blockers
-                ]);
+                ],
+                usedModelRouting: false,
+                "管理员 AI 设置未满足真实试跑前置条件；请启用 provider、配置密钥并明确允许 draft/test 试跑。");
+        }
+
+        if (request.UseModelRouting)
+        {
+            var route = modelRouter.Route(new(
+                normalizedTaskType,
+                routingMode,
+                "active",
+                request.ExpectedConfidence,
+                request.RiskSignals));
+            normalizedModel = route.EffectiveModelName;
+            effectiveReasoningEffort = route.EffectiveReasoningEffort;
+            routingAudit.AddRange([
+                $"routing_source=effective_route",
+                $"routing_task_type={route.TaskType}",
+                $"routing_mode={route.Mode}",
+                $"routing_model_role={route.EffectiveModelRole}",
+                $"routing_model={route.EffectiveModelName}",
+                $"routing_reasoning_effort={route.EffectiveReasoningEffort}",
+                $"routing_escalated={route.Escalated.ToString().ToLowerInvariant()}",
+                $"routing_escalation_reasons={string.Join(',', route.EscalationReasons)}"
+            ]);
+
+            if (route.Blockers.Count > 0)
+            {
+                return CreateBlockedResult(
+                    settings,
+                    normalizedModel,
+                    normalizedTaskType,
+                    effectiveReasoningEffort,
+                    routingMode,
+                    runtimeEndpoints,
+                    route.Blockers,
+                    [
+                        "test_admin_ai_provider_settings_blocked",
+                        "routing_blocked_before_provider_request",
+                        ..routingAudit,
+                        ..route.Blockers
+                    ],
+                    usedModelRouting: true,
+                    "当前路由未满足真实试跑门禁，未执行 provider 请求。"
+                );
+            }
+        }
+        else
+        {
+            routingAudit.AddRange([
+                "routing_source=manual_model_override",
+                $"routing_model={normalizedModel}",
+                $"routing_reasoning_effort={effectiveReasoningEffort}"
+            ]);
         }
 
         var smokeResult = await RunStructuredSmokeWithFallbackAsync(
             runtimeEndpoints,
             normalizedModel,
             normalizedTaskType,
+            effectiveReasoningEffort,
             request.InputJson,
+            routingAudit,
             cancellationToken);
         var imageProbe = await RunImageProbeAsync(runtimeEndpoints, cancellationToken);
 
@@ -848,6 +898,9 @@ public sealed class OpenAiCompatibleSmokeTestService(
             ProviderType: settings.ProviderType,
             Model: normalizedModel,
             TaskType: normalizedTaskType,
+            EffectiveReasoningEffort: effectiveReasoningEffort,
+            RoutingMode: routingMode,
+            UsedModelRouting: usedModelRouting,
             ReviewStatus: "pending_review",
             Passed: smokeResult.Passed,
             CombinedPassed: combinedPassed,
@@ -876,7 +929,9 @@ public sealed class OpenAiCompatibleSmokeTestService(
         IReadOnlyList<AiProviderRuntimeEndpoint> endpoints,
         string model,
         string taskType,
+        string reasoningEffort,
         string? inputJson,
+        IReadOnlyList<string> routingAudit,
         CancellationToken cancellationToken)
     {
         var attempts = new List<AdminAiProviderProbeAttempt>();
@@ -892,6 +947,7 @@ public sealed class OpenAiCompatibleSmokeTestService(
                     RouteKind: "responses_structured",
                     EndpointPath: "/responses",
                     Model: model,
+                    ReasoningEffort: reasoningEffort,
                     Passed: false,
                     HttpStatusCode: 0,
                     LatencyMs: 0,
@@ -904,7 +960,9 @@ public sealed class OpenAiCompatibleSmokeTestService(
                 endpoint,
                 model,
                 taskType,
+                reasoningEffort,
                 inputJson,
+                routingAudit,
                 cancellationToken);
             attempts.Add(new AdminAiProviderProbeAttempt(
                 ProviderEndpointId: endpoint.EndpointId,
@@ -912,6 +970,7 @@ public sealed class OpenAiCompatibleSmokeTestService(
                 RouteKind: "responses_structured",
                 EndpointPath: "/responses",
                 Model: model,
+                ReasoningEffort: reasoningEffort,
                 Passed: result.Passed,
                 HttpStatusCode: result.HttpStatusCode,
                 LatencyMs: result.LatencyMs,
@@ -946,7 +1005,9 @@ public sealed class OpenAiCompatibleSmokeTestService(
         AiProviderRuntimeEndpoint endpoint,
         string model,
         string taskType,
+        string reasoningEffort,
         string? inputJson,
+        IReadOnlyList<string> routingAudit,
         CancellationToken cancellationToken)
     {
         using var schema = LoadSchemaForTaskType(taskType);
@@ -956,7 +1017,7 @@ public sealed class OpenAiCompatibleSmokeTestService(
             store = false,
             reasoning = new
             {
-                effort = "medium"
+                effort = reasoningEffort
             },
             input = NormalizeInputJson(inputJson, taskType),
             text = new
@@ -997,6 +1058,7 @@ public sealed class OpenAiCompatibleSmokeTestService(
                 Attempts: [],
                 AuditTrail: [
                     "test_admin_ai_provider_settings",
+                    ..routingAudit,
                     $"task_type={taskType}",
                     $"provider_endpoint={endpoint.EndpointId}",
                     $"http_status={(int)response.StatusCode}",
@@ -1268,11 +1330,59 @@ public sealed class OpenAiCompatibleSmokeTestService(
         return $"{primarySummary}；{imageSummary}。结果仅作 pending_review 候选验证。";
     }
 
+    private static AdminAiProviderSettingsTestResult CreateBlockedResult(
+        AdminAiProviderSettingsContract settings,
+        string model,
+        string taskType,
+        string reasoningEffort,
+        string routingMode,
+        IReadOnlyList<AiProviderRuntimeEndpoint> endpoints,
+        IReadOnlyList<string> blockers,
+        IReadOnlyList<string> auditTrail,
+        bool usedModelRouting,
+        string message)
+    {
+        return new AdminAiProviderSettingsTestResult(
+            Status: "blocked",
+            Mode: "draft_test",
+            ProductionEligible: false,
+            ProviderProfileId: settings.ProviderProfileId,
+            ProviderType: settings.ProviderType,
+            Model: model,
+            TaskType: taskType,
+            EffectiveReasoningEffort: reasoningEffort,
+            RoutingMode: routingMode,
+            UsedModelRouting: usedModelRouting,
+            ReviewStatus: "pending_review",
+            Passed: false,
+            CombinedPassed: false,
+            EffectiveProviderEndpointId: "",
+            EffectiveBaseUrl: "",
+            HttpStatusCode: 0,
+            Message: message,
+            OutputJson: "{}",
+            InputTokens: 0,
+            OutputTokens: 0,
+            CachedTokens: 0,
+            Cost: 0,
+            LatencyMs: 0,
+            Blockers: blockers,
+            Attempts: [],
+            ImageProbe: CreateNotAttemptedImageProbe(
+                GetFirstImageBaseUrl(endpoints),
+                "当前门禁未满足，未执行图片链路探针。",
+                blockers),
+            AuditTrail: auditTrail);
+    }
+
     private static string NormalizeTaskType(string? value, string fallback) =>
         string.IsNullOrWhiteSpace(value) ? fallback : value.Trim();
 
     private static string NormalizeModel(string? value, string fallback) =>
         string.IsNullOrWhiteSpace(value) ? fallback : value.Trim();
+
+    private static string NormalizeRoutingMode(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? "balanced" : value.Trim().ToLowerInvariant();
 
     private static void ApplyGatewayCompatibilityHeaders(HttpRequestMessage message)
     {

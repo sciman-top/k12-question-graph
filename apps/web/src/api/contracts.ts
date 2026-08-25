@@ -735,6 +735,7 @@ interface AdminAiProviderProbeAttemptContract {
   routeKind: string
   endpointPath: string
   model: string
+  reasoningEffort: string
   passed: boolean
   httpStatusCode: number
   latencyMs: number
@@ -776,6 +777,9 @@ export interface AdminAiProviderSettingsTestContract {
   providerType: string
   model: string
   taskType: string
+  effectiveReasoningEffort: string
+  routingMode: string
+  usedModelRouting: boolean
   reviewStatus: string
   passed: boolean
   combinedPassed: boolean
@@ -1725,6 +1729,7 @@ function normalizeAdminAiProviderProbeAttemptResponse(
     routeKind: readStringField(value, 'routeKind') ?? 'unknown',
     endpointPath: readStringField(value, 'endpointPath') ?? '',
     model: readStringField(value, 'model') ?? '',
+    reasoningEffort: readStringField(value, 'reasoningEffort') ?? '',
     passed: readBooleanField(value, 'passed'),
     httpStatusCode: readNumberField(value, 'httpStatusCode'),
     latencyMs: readNumberField(value, 'latencyMs'),
@@ -1779,6 +1784,9 @@ export function normalizeAdminAiProviderSettingsTestResponse(
     providerType: readStringField(value, 'providerType') ?? '',
     model: readStringField(value, 'model') ?? '',
     taskType: readStringField(value, 'taskType') ?? '',
+    effectiveReasoningEffort: readStringField(value, 'effectiveReasoningEffort') ?? '',
+    routingMode: readStringField(value, 'routingMode') ?? '',
+    usedModelRouting: readBooleanField(value, 'usedModelRouting'),
     reviewStatus: readStringField(value, 'reviewStatus') ?? '',
     passed: readBooleanField(value, 'passed'),
     combinedPassed: readBooleanField(value, 'combinedPassed'),

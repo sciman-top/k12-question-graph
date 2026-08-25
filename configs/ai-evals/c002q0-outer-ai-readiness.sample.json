@@ -65,32 +65,32 @@
     {
       "layer": "L1",
       "modelRole": "bulk_prefilter_model",
-      "model": "gpt-5.4-mini",
-      "reasoningEffort": "low",
+      "model": "gpt-5.6-terra",
+      "reasoningEffort": "high",
       "externalAiAllowed": true
     },
     {
       "layer": "L2",
       "modelRole": "bulk_prefilter_model",
-      "model": "gpt-5.4-mini",
-      "reasoningEffort": "medium",
+      "model": "gpt-5.6-terra",
+      "reasoningEffort": "high",
       "externalAiAllowed": true
     },
     {
       "layer": "L3",
       "modelRole": "engineering_review_model",
-      "model": "gpt-5.3-codex",
-      "reasoningEffort": "high",
+      "model": "gpt-5.6-sol",
+      "reasoningEffort": "medium",
       "externalAiAllowed": true
     },
     {
       "layer": "L4",
       "modelRole": "high_risk_review_model",
-      "model": "gpt-5.4",
-      "reasoningEffort": "high",
+      "model": "gpt-5.6-sol",
+      "reasoningEffort": "xhigh",
       "externalAiAllowed": true,
       "escalateToRole": "highest_risk_decision_model",
-      "escalateTo": "gpt-5.5",
+      "escalateTo": "gpt-5.6-sol",
       "escalateReasoningEffort": "xhigh"
     }
   ],

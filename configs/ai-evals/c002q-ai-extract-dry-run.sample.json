@@ -42,22 +42,22 @@
       "layer": "L1",
       "purpose": "low_cost_prefilter",
       "modelRole": "bulk_prefilter_model",
-      "model": "gpt-5.4-mini",
-      "reasoningEffort": "low"
+      "model": "gpt-5.6-terra",
+      "reasoningEffort": "high"
     },
     {
       "layer": "L2",
       "purpose": "structured_candidate_extraction",
       "modelRole": "bulk_prefilter_model",
-      "model": "gpt-5.4-mini",
-      "reasoningEffort": "medium"
+      "model": "gpt-5.6-terra",
+      "reasoningEffort": "high"
     },
     {
       "layer": "L3",
       "purpose": "taxonomy_merge_and_mapping_review",
       "modelRole": "engineering_review_model",
-      "model": "gpt-5.3-codex",
-      "reasoningEffort": "high"
+      "model": "gpt-5.6-sol",
+      "reasoningEffort": "medium"
     }
   ],
   "outputArtifacts": [
