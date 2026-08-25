@@ -31,6 +31,8 @@ Current adapter order:
 
 Formula recognition for scanned/image-only formulas is not implemented here yet;
 formula-heavy image blocks must stay in teacher review until a dedicated formula
-adapter is integrated. OMML formulas from `.docx` are captured as raw Open XML with
-`latex`/`mathml` left empty and `reviewStatus: pending_conversion` — the plain-text
-stand-in lives in `text`, and rendering must fall back to the OMML payload.
+adapter is integrated. OMML formulas from `.docx` are captured verbatim as raw
+Open XML: `reviewStatus: verified` and `confidence` describe source capture only,
+`conversionStatus: pending_conversion` states that `latex`/`mathml` are `null`
+until a conversion adapter exists, the plain-text stand-in lives in `text`, and
+rendering must fall back to the OMML payload.

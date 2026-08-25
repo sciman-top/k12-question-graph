@@ -110,13 +110,15 @@ def formula_payload(element: ET.Element) -> dict:
             {
                 "sourceFormat": "omml",
                 "omml": omml,
-                # latex/mathml 转换尚未实现:不伪造 latex,text 仅作纯文本替身;
-                # 置信度按"已捕获未转换"占位计,渲染必须回退 OMML 原文。
-                "latex": "",
-                "mathml": "",
+                # latex/mathml 转换尚未实现:置 null 不伪造,text 仅作纯文本替身。
+                # confidence/reviewStatus 只陈述"OMML 原文已完整抓取";
+                # 转换进度由 conversionStatus 单独表达,渲染必须回退 OMML 原文。
+                "latex": None,
+                "mathml": None,
                 "text": text,
-                "confidence": 0.5,
-                "reviewStatus": "pending_conversion",
+                "confidence": 1.0,
+                "reviewStatus": "verified",
+                "conversionStatus": "pending_conversion",
                 "fallbackImageRequired": True,
             }
         )
@@ -131,13 +133,15 @@ def formula_payload(element: ET.Element) -> dict:
             {
                 "sourceFormat": "omml",
                 "omml": omml,
-                # latex/mathml 转换尚未实现:不伪造 latex,text 仅作纯文本替身;
-                # 置信度按"已捕获未转换"占位计,渲染必须回退 OMML 原文。
-                "latex": "",
-                "mathml": "",
+                # latex/mathml 转换尚未实现:置 null 不伪造,text 仅作纯文本替身。
+                # confidence/reviewStatus 只陈述"OMML 原文已完整抓取";
+                # 转换进度由 conversionStatus 单独表达,渲染必须回退 OMML 原文。
+                "latex": None,
+                "mathml": None,
                 "text": text,
-                "confidence": 0.5,
-                "reviewStatus": "pending_conversion",
+                "confidence": 1.0,
+                "reviewStatus": "verified",
+                "conversionStatus": "pending_conversion",
                 "fallbackImageRequired": True,
             }
         )

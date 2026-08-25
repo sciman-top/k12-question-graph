@@ -107,8 +107,9 @@ class WorkerHelpersTests(unittest.TestCase):
         )
 
     def test_formula_payload_marks_conversion_pending(self) -> None:
-        # latex/mathml 转换未实现:占位必须声明 pending_conversion,
-        # 不得以伪 latex + verified 语义超claim。
+        # 抓取保真(OMML 原文完整捕获)与转换进度是两个维度:
+        # reviewStatus 只陈述抓取;latex/mathml 未转换必须为 null,
+        # 转换进度由 conversionStatus 表达,渲染需回退 OMML 原文。
         paragraph = ET.fromstring(
             "<w:p xmlns:w='http://schemas.openxmlformats.org/wordprocessingml/2006/main' "
             "xmlns:m='http://schemas.openxmlformats.org/officeDocument/2006/math'>"
@@ -119,9 +120,10 @@ class WorkerHelpersTests(unittest.TestCase):
 
         self.assertEqual(len(payload["formulas"]), 1)
         formula = payload["formulas"][0]
-        self.assertEqual(formula["reviewStatus"], "pending_conversion")
-        self.assertEqual(formula["latex"], "")
-        self.assertEqual(formula["mathml"], "")
+        self.assertEqual(formula["reviewStatus"], "verified")
+        self.assertEqual(formula["conversionStatus"], "pending_conversion")
+        self.assertIsNone(formula["latex"])
+        self.assertIsNone(formula["mathml"])
         self.assertEqual(formula["text"], "v=s/t")
         self.assertTrue(formula["fallbackImageRequired"])
 
