@@ -1,0 +1,70 @@
+{
+  "case": "pdf-sparse-ocr-takeover",
+  "normalizedSha256": "019f8adaeb775d03c50ef4168a3d226472860591c3431c27387fa0ae6be76459",
+  "normalized": {
+    "adapterName": "scanned_ocr_review_adapter",
+    "adapterVersion": "0.1",
+    "warnings": [
+      "PDF text layer is empty or too sparse; RapidOCR fallback selected",
+      "rapidocr_onnxruntime unavailable: golden-test-forced",
+      "OCR engine unavailable; scanned PDF page requires manual review takeover",
+      "PDF has no extractable text stream or detectable image XObject"
+    ],
+    "documentModel": {
+      "schemaVersion": "document-model.v0.1",
+      "source": {
+        "relativePath": "original/sparse-scanned.pdf"
+      },
+      "pages": [
+        {
+          "pageNumber": 1,
+          "width": null,
+          "height": null,
+          "unit": "unknown",
+          "layoutBlocks": [
+            {
+              "id": "block_0001",
+              "pageNumber": 1,
+              "blockType": "ocr_candidate",
+              "textPreview": "OCR engine unavailable; scanned PDF page requires manual review takeover",
+              "confidence": 0.0,
+              "reviewStatus": "pending_review",
+              "takeoverRequired": true,
+              "sourceRegion": {
+                "source": "pdf_scanned_ocr_review",
+                "confidence": 0.0,
+                "reviewStatus": "pending_review",
+                "takeoverRequired": true,
+                "pageObject": 3
+              }
+            }
+          ]
+        },
+        {
+          "pageNumber": 2,
+          "width": null,
+          "height": null,
+          "unit": "unknown",
+          "layoutBlocks": [
+            {
+              "id": "block_0001",
+              "pageNumber": 2,
+              "blockType": "ocr_candidate",
+              "textPreview": "OCR engine unavailable; scanned PDF page requires manual review takeover",
+              "confidence": 0.0,
+              "reviewStatus": "pending_review",
+              "takeoverRequired": true,
+              "sourceRegion": {
+                "source": "pdf_scanned_ocr_review",
+                "confidence": 0.0,
+                "reviewStatus": "pending_review",
+                "takeoverRequired": true,
+                "pageObject": 5
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

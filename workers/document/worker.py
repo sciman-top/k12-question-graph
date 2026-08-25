@@ -281,7 +281,12 @@ def parse_docx_blocks(target: pathlib.Path) -> tuple[list[dict], list[str]]:
 
 
 def decode_pdf_literal(raw: bytes) -> str:
-    text = raw.decode("latin-1")
+    # PDF literal string 编码未定;中文材料以 UTF-8 居多,先按 UTF-8 解,
+    # 失败再退 latin-1(任意字节都合法),避免中文题干/答案变乱码。
+    try:
+        text = raw.decode("utf-8")
+    except UnicodeDecodeError:
+        text = raw.decode("latin-1")
     text = text.replace("\\(", "(").replace("\\)", ")").replace("\\\\", "\\")
     return text
 

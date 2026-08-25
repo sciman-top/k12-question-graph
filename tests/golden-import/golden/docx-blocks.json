@@ -1,0 +1,138 @@
+{
+  "case": "docx-blocks",
+  "normalizedSha256": "a4875b01265d790f17989078ff2a8df89b2743d11d5f0f0c8eaf1ddf53083d45",
+  "normalized": {
+    "adapterName": "openxml_docx_adapter",
+    "adapterVersion": "0.1",
+    "warnings": [],
+    "documentModel": {
+      "schemaVersion": "document-model.v0.1",
+      "source": {
+        "relativePath": "original/capability.docx"
+      },
+      "pages": [
+        {
+          "pageNumber": 1,
+          "width": null,
+          "height": null,
+          "unit": "unknown",
+          "layoutBlocks": [
+            {
+              "id": "block_0001",
+              "pageNumber": 1,
+              "blockType": "question_stem",
+              "textPreview": "1. 下列关于声现象的说法正确的是",
+              "sourceRegion": {
+                "source": "openxml",
+                "element": "w:p",
+                "index": 0
+              }
+            },
+            {
+              "id": "block_0002",
+              "pageNumber": 1,
+              "blockType": "option",
+              "textPreview": "A. 声音由物体振动产生",
+              "sourceRegion": {
+                "source": "openxml",
+                "element": "w:p",
+                "index": 1
+              }
+            },
+            {
+              "id": "block_0003",
+              "pageNumber": 1,
+              "blockType": "answer",
+              "textPreview": "答案:B",
+              "sourceRegion": {
+                "source": "openxml",
+                "element": "w:p",
+                "index": 2
+              }
+            },
+            {
+              "id": "block_0004",
+              "pageNumber": 1,
+              "blockType": "explanation",
+              "textPreview": "解析:声音由振动产生。",
+              "sourceRegion": {
+                "source": "openxml",
+                "element": "w:p",
+                "index": 3
+              }
+            },
+            {
+              "id": "block_0005",
+              "pageNumber": 1,
+              "blockType": "table",
+              "textPreview": "[[\"装置\", \"现象\"], [\"音叉\", \"发声时轻球被弹开\"]]",
+              "sourceRegion": {
+                "source": "openxml",
+                "element": "w:tbl",
+                "index": 4
+              },
+              "table": {
+                "rows": [
+                  [
+                    "装置",
+                    "现象"
+                  ],
+                  [
+                    "音叉",
+                    "发声时轻球被弹开"
+                  ]
+                ]
+              }
+            },
+            {
+              "id": "block_0006",
+              "pageNumber": 1,
+              "blockType": "formula",
+              "textPreview": "v=s/t",
+              "sourceRegion": {
+                "source": "openxml",
+                "element": "w:p",
+                "index": 5
+              },
+              "formula": {
+                "source": "openxml",
+                "sourceFormat": "omml",
+                "formulas": [
+                  {
+                    "sourceFormat": "omml",
+                    "omml": "<ns0:oMathPara xmlns:ns0=\"http://schemas.openxmlformats.org/officeDocument/2006/math\"><ns0:oMath><ns0:r><ns0:t>v=s/t</ns0:t></ns0:r></ns0:oMath></ns0:oMathPara>",
+                    "latex": null,
+                    "mathml": null,
+                    "text": "v=s/t",
+                    "confidence": 1.0,
+                    "reviewStatus": "verified",
+                    "conversionStatus": "pending_conversion",
+                    "fallbackImageRequired": true
+                  }
+                ]
+              }
+            },
+            {
+              "id": "block_0007",
+              "pageNumber": 1,
+              "blockType": "image",
+              "textPreview": "rId7",
+              "sourceRegion": {
+                "source": "openxml",
+                "element": "w:drawing",
+                "relationshipId": "rId7",
+                "target": null,
+                "index": 6
+              },
+              "asset": {
+                "relationshipId": "rId7",
+                "target": null,
+                "assetType": "image"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

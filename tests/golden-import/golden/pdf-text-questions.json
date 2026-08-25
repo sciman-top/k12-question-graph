@@ -1,0 +1,97 @@
+{
+  "case": "pdf-text-questions",
+  "normalizedSha256": "411d0ba9e15a8831178870a075c40d5ffcb63c392654423f632b0adc1d33f69d",
+  "normalized": {
+    "adapterName": "pdf_text_adapter",
+    "adapterVersion": "0.1",
+    "warnings": [],
+    "documentModel": {
+      "schemaVersion": "document-model.v0.1",
+      "source": {
+        "relativePath": "original/text-questions.pdf"
+      },
+      "pages": [
+        {
+          "pageNumber": 1,
+          "width": null,
+          "height": null,
+          "unit": "unknown",
+          "layoutBlocks": [
+            {
+              "id": "block_0001",
+              "pageNumber": 1,
+              "blockType": "question_stem",
+              "textPreview": "2016 学年学业水平检测",
+              "sourceRegion": {
+                "source": "pdf_text",
+                "pageObject": 3,
+                "contentObject": 4,
+                "textIndex": 0
+              }
+            },
+            {
+              "id": "block_0002",
+              "pageNumber": 1,
+              "blockType": "question_stem",
+              "textPreview": "1. 关于声现象,下列说法正确的是",
+              "sourceRegion": {
+                "source": "pdf_text",
+                "pageObject": 3,
+                "contentObject": 4,
+                "textIndex": 1
+              }
+            },
+            {
+              "id": "block_0003",
+              "pageNumber": 1,
+              "blockType": "option",
+              "textPreview": "A. 声音由物体振动产生",
+              "sourceRegion": {
+                "source": "pdf_text",
+                "pageObject": 3,
+                "contentObject": 4,
+                "textIndex": 2
+              }
+            },
+            {
+              "id": "block_0004",
+              "pageNumber": 1,
+              "blockType": "option",
+              "textPreview": "B. 声音可以在真空中传播",
+              "sourceRegion": {
+                "source": "pdf_text",
+                "pageObject": 3,
+                "contentObject": 4,
+                "textIndex": 3
+              }
+            },
+            {
+              "id": "block_0005",
+              "pageNumber": 1,
+              "blockType": "answer",
+              "textPreview": "答案 A",
+              "sourceRegion": {
+                "source": "pdf_text",
+                "pageObject": 3,
+                "contentObject": 4,
+                "textIndex": 4
+              }
+            },
+            {
+              "id": "block_0006",
+              "pageNumber": 1,
+              "blockType": "explanation",
+              "textPreview": "解析:真空不能传声。",
+              "sourceRegion": {
+                "source": "pdf_text",
+                "pageObject": 3,
+                "contentObject": 4,
+                "textIndex": 5
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
