@@ -175,8 +175,9 @@ public sealed class LocalFileStore(KqgDbContext dbContext, IOptions<KqgPathsOpti
     }
 
     // PostgreSQL unique_violation(23505):file_assets 的 (Sha256, SizeBytes) 与
-    // (StorageScope, RelativePath) 唯一索引并发冲突时按幂等重复处理。
-    private static bool IsUniqueViolation(DbUpdateException exception) =>
+    // (StorageScope, RelativePath) 唯一索引并发冲突时按幂等重复处理。internal
+    // 供真库冒烟测试断言异常形状识别。
+    internal static bool IsUniqueViolation(DbUpdateException exception) =>
         exception.InnerException is PostgresException
         {
             SqlState: PostgresErrorCodes.UniqueViolation

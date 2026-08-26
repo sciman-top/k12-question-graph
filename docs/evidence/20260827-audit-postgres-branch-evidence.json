@@ -1,0 +1,54 @@
+{
+  "id": "audit-remediation-postgres-branch-evidence",
+  "schemaVersion": 1,
+  "authorityLevel": "repo-side",
+  "createdAt": "2026-08-27T00:00:00Z+08:00",
+  "commitUnderVerification": "dc0e3e1 + pending internal-visibility/pg-smoke test slice",
+  "claimBoundary": "database-branch evidence for audit findings M1 concurrency, L1 single-transaction restore, L4 unique-violation predicate; not onsite or live acceptance; production database untouched (isolated temporary databases only)",
+  "releaseGate": {
+    "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-verification.ps1 -Profile Release -AuthorizeStateful",
+    "status": "pass",
+    "steps": [
+      "backend-build",
+      "frontend-build",
+      "frontend-lint",
+      "backend-tests",
+      "frontend-tests",
+      "worker-tests",
+      "release-contracts",
+      "release-upgrade-recovery",
+      "release-closure-invariants"
+    ],
+    "note": "authorized run 2026-08-27; worktreeUnchanged=true, processesUnchanged=true"
+  },
+  "m1ConcurrencyClaim": {
+    "evidence": "tests/api/K12QuestionGraph.Api.Tests/PostgresGatedSmokeTests.cs with KQG_PG_SMOKE=1 against local PostgreSQL 17, isolated temp database kqg_pg_smoke_*",
+    "results": [
+      "production-default PaperBlueprintConfirmClaimStore conditional ExecuteUpdate translates and executes on real Npgsql (previously InMemory-mirror only)",
+      "two concurrent claims on the same pending_review row: exactly one wins",
+      "claim inside a transaction followed by rollback restores row to pending_review"
+    ],
+    "status": "proven_repo_postgres"
+  },
+  "l1SingleTransactionRestore": {
+    "drillTarget": "kqg_restore_apply_drill (isolated temp database, dropped after evidence collection)",
+    "sourceManifest": "tmp/o007/backup-root/20260827-012755/manifest.json (sha256 verified)",
+    "applySuccess": {
+      "result": "37 public tables, 18 __EFMigrationsHistory rows, 11534 question_items restored via pg_restore --single-transaction with -PreRestoreSnapshotTaken gate"
+    },
+    "faultInjection": {
+      "method": "truncated 4096-byte dump with manifest sha256 rewritten to match (bypassing the hash pre-gate deliberately to exercise pg_restore itself)",
+      "result": "restore.ps1 exited 1; drill database remained at 37 tables / 11534 question_items — no half-restored state",
+      "status": "proven_repo_postgres"
+    }
+  },
+  "l4UniqueViolationPredicate": {
+    "evidence": "real PostgreSQL (Sha256,SizeBytes) duplicate insert raised DbUpdateException whose InnerException is PostgresException sqlstate 23505 and LocalFileStore.IsUniqueViolation recognized it",
+    "status": "proven_repo_postgres"
+  },
+  "residual": [
+    "onsite/live acceptance remains external",
+    "PostgresGatedSmokeTests skipped silently in default Quick/Slice runs; enabled by KQG_PG_SMOKE=1 + KQG_CONNECTION_STRING for future Release or ad-hoc verification"
+  ],
+  "rollback": "git revert of this slice; drill databases dropped (verified count=0 like kqg_%drill%/kqg_pg_smoke_%)"
+}
