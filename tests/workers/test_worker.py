@@ -1,6 +1,8 @@
 import pathlib
 import sys
 import tempfile
+import threading
+import time
 import unittest
 import xml.etree.ElementTree as ET
 import zipfile
@@ -254,6 +256,50 @@ class WorkerHelpersTests(unittest.TestCase):
 
         self.assertEqual(resolved, candidates["pdftoppm.exe"])
         which.assert_called_once_with("pdftoppm.exe")
+
+    def test_parse_image_rapidocr_timeout_returns_review_fallback_promptly(self) -> None:
+        release = threading.Event()
+
+        def hanging_engine(_path: str):
+            release.wait(timeout=5)
+            return [], 0
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            target = pathlib.Path(temporary_directory) / "scan.png"
+            target.touch()
+            started = time.monotonic()
+            try:
+                with (
+                    mock.patch.object(worker, "load_rapidocr_engine", return_value=(hanging_engine, "")),
+                    mock.patch.object(worker, "OCR_CALL_TIMEOUT_SECONDS", 0.02),
+                ):
+                    pages, warnings = worker.parse_image_with_rapidocr(target)
+            finally:
+                release.set()
+
+        self.assertEqual(pages, [])
+        self.assertTrue(any("timed out" in warning for warning in warnings))
+        self.assertLess(time.monotonic() - started, 1)
+
+    def test_scanned_pdf_rapidocr_timeout_discards_partial_results(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            target = pathlib.Path(temporary_directory) / "scan.pdf"
+            page = pathlib.Path(temporary_directory) / "page-1.png"
+            target.touch()
+            page.touch()
+            with (
+                mock.patch.object(worker, "load_rapidocr_engine", return_value=(object(), "")),
+                mock.patch.object(worker, "render_pdf_pages_with_pdftoppm", return_value=([page], [])),
+                mock.patch.object(
+                    worker,
+                    "run_rapidocr_with_timeout",
+                    side_effect=TimeoutError("RapidOCR recognition timed out after 60s"),
+                ),
+            ):
+                pages, warnings = worker.parse_scanned_pdf_with_rapidocr(target)
+
+        self.assertEqual(pages, [])
+        self.assertTrue(any("page-1.png" in warning and "timed out" in warning for warning in warnings))
 
 
 if __name__ == "__main__":

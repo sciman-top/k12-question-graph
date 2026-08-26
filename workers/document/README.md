@@ -29,6 +29,11 @@ Current adapter order:
 4. scanned image: local `rapidocr_onnxruntime`.
 5. missing/failed OCR engine: fail-closed `pending_review` takeover block.
 
+Each RapidOCR image/page call has a worker-local 60-second deadline. A timeout
+discards partial OCR for that document and routes it to the same
+`pending_review` takeover path; the API process timeout remains an outer guard,
+not a prerequisite for direct worker safety.
+
 Formula recognition for scanned/image-only formulas is not implemented here yet;
 formula-heavy image blocks must stay in teacher review until a dedicated formula
 adapter is integrated. OMML formulas from `.docx` are captured verbatim as raw

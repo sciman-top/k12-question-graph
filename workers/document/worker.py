@@ -3,10 +3,12 @@ import hashlib
 import json
 import pathlib
 import platform
+import queue
 import re
 import shutil
 import subprocess
 import sys
+import threading
 import time
 import tempfile
 import zipfile
@@ -36,6 +38,7 @@ MAX_DOCX_DOCUMENT_XML_COMPRESSION_RATIO = 200
 PDFTOTEXT_STEM_CONFIDENCE = 0.88
 PDFTOTEXT_OTHER_CONFIDENCE = 0.78
 OCR_TAKEOVER_CONFIDENCE = 0.9
+OCR_CALL_TIMEOUT_SECONDS = 60
 
 
 def sha256_file(path: pathlib.Path) -> str:
@@ -536,6 +539,36 @@ def load_rapidocr_engine():
         return None, f"RapidOCR initialization failed: {exc}"
 
 
+def run_rapidocr_with_timeout(engine, image_path: pathlib.Path):
+    """Run native OCR with a worker-local deadline.
+
+    RapidOCR/ONNX does not expose a cancellation API. A daemon thread prevents
+    direct worker invocations from hanging forever; this worker handles one job
+    per process, so a timed-out native call cannot keep the process alive after
+    the review fallback has been emitted.
+    """
+    result_queue: queue.Queue = queue.Queue(maxsize=1)
+
+    def invoke() -> None:
+        try:
+            result_queue.put((True, engine(str(image_path))))
+        except Exception as exc:
+            result_queue.put((False, exc))
+
+    thread = threading.Thread(target=invoke, name="rapidocr-call", daemon=True)
+    thread.start()
+    try:
+        succeeded, payload = result_queue.get(timeout=OCR_CALL_TIMEOUT_SECONDS)
+    except queue.Empty as exc:
+        raise TimeoutError(
+            f"RapidOCR recognition timed out after {OCR_CALL_TIMEOUT_SECONDS}s"
+        ) from exc
+
+    if not succeeded:
+        raise payload
+    return payload
+
+
 def normalize_rapidocr_result(result) -> list[dict]:
     lines: list[dict] = []
     if not result:
@@ -618,7 +651,9 @@ def parse_image_with_rapidocr(target: pathlib.Path) -> tuple[list[dict], list[st
         return [], [error]
 
     try:
-        result, elapsed = engine(str(target))
+        result, elapsed = run_rapidocr_with_timeout(engine, target)
+    except TimeoutError as exc:
+        return [], [str(exc)]
     except Exception as exc:
         return [], [f"RapidOCR image recognition failed: {exc}"]
 
@@ -674,7 +709,12 @@ def parse_scanned_pdf_with_rapidocr(target: pathlib.Path) -> tuple[list[dict], l
         page_lines: list[list[dict]] = []
         for page_image in page_images:
             try:
-                result, elapsed = engine(str(page_image))
+                result, elapsed = run_rapidocr_with_timeout(engine, page_image)
+            except TimeoutError as exc:
+                # The native call may still own the engine in its daemon
+                # thread. Discard all partial OCR and route the whole document
+                # to review instead of reusing that engine for later pages.
+                return [], warnings + [f"{page_image.name}: {exc}"]
             except Exception as exc:
                 warnings.append(f"RapidOCR PDF page recognition failed for {page_image.name}: {exc}")
                 page_lines.append([])
