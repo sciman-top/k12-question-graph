@@ -76,6 +76,61 @@ public class OriginalBlobMaterializerTests
         Assert.Equal("different-content", File.ReadAllText(fixture.Target));
     }
 
+    [Fact]
+    public void Reconcile_TreatsMoveRaceAsDuplicateWhenWinnerBlobMatches()
+    {
+        // 竞态窗口:Exists 检查后、Move 前,同 hash 并发上传者先落了同名 blob。
+        // 用 MoveFiles 接缝确定性地模拟:Move 抛 IOException 且赢家 blob 已就位。
+        using var fixture = new BlobFixture("race-winner-content");
+        Directory.CreateDirectory(Path.GetDirectoryName(fixture.Target)!);
+        var originalMove = OriginalBlobMaterializer.MoveFiles;
+        OriginalBlobMaterializer.MoveFiles = (source, destination) =>
+        {
+            File.Copy(fixture.Upload, fixture.Target);
+            throw new IOException("simulated concurrent target creation");
+        };
+        try
+        {
+            var created = OriginalBlobMaterializer.Reconcile(
+                fixture.Root,
+                fixture.RelativePath,
+                fixture.Upload,
+                fixture.Sha256,
+                fixture.SizeBytes);
+
+            Assert.False(created);
+            Assert.False(File.Exists(fixture.Upload));
+            Assert.Equal("race-winner-content", File.ReadAllText(fixture.Target));
+        }
+        finally
+        {
+            OriginalBlobMaterializer.MoveFiles = originalMove;
+        }
+    }
+
+    [Fact]
+    public void Reconcile_FailsClosedWhenMoveRaceWinnerBlobDoesNotMatch()
+    {
+        using var fixture = new BlobFixture("expected-content");
+        Directory.CreateDirectory(Path.GetDirectoryName(fixture.Target)!);
+        var originalMove = OriginalBlobMaterializer.MoveFiles;
+        OriginalBlobMaterializer.MoveFiles = (_, _) => throw new IOException("simulated concurrent target creation");
+        try
+        {
+            // 竞态赢家 blob 缺失:IOException 的 when 过滤不命中,原样冒泡。
+            Assert.Throws<IOException>(() => OriginalBlobMaterializer.Reconcile(
+                fixture.Root,
+                fixture.RelativePath,
+                fixture.Upload,
+                fixture.Sha256,
+                fixture.SizeBytes));
+        }
+        finally
+        {
+            OriginalBlobMaterializer.MoveFiles = originalMove;
+        }
+    }
+
     private sealed class BlobFixture : IDisposable
     {
         public BlobFixture(string content)

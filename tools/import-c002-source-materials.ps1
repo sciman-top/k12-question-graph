@@ -442,7 +442,7 @@ try {
         apiUrl = $baseUrl
         backupManifest = if ($Apply) { $BackupManifest } else { '' }
         backupVerified = $backupVerified
-        restoreCommand = if ($Apply) { "pwsh -NoProfile -ExecutionPolicy Bypass -File tools\restore.ps1 -ManifestPath '$BackupManifest' -ApplyDatabase -ApplyFileStore -DryRun:`$false" } else { '' }
+        restoreCommand = if ($Apply) { "pwsh -NoProfile -ExecutionPolicy Bypass -File tools\restore.ps1 -ManifestPath '$BackupManifest' -ApplyDatabase -ApplyFileStore -PreRestoreSnapshotTaken -DryRun:`$false" } else { '' }
         databaseSnapshotBefore = $databaseSnapshotBefore
         databaseSnapshotAfter = $databaseSnapshotAfter
         c002ActiveWrite = $false

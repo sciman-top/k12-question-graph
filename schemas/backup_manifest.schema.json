@@ -43,7 +43,28 @@
     "templatesSnapshotRoot": { "$ref": "#/$defs/relativePath" },
     "templates": { "$ref": "#/$defs/fileEntries" },
     "evidenceSnapshotRoot": { "$ref": "#/$defs/relativePath" },
-    "evidence": { "$ref": "#/$defs/fileEntries" }
+    "evidence": { "$ref": "#/$defs/fileEntries" },
+    "runtimeConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "area",
+        "exclusionPolicy",
+        "aiRoutingSettings",
+        "providerSecrets",
+        "postRestoreAiState"
+      ],
+      "properties": {
+        "area": { "const": "data_root_config" },
+        "exclusionPolicy": { "const": "manual_re_entry_required" },
+        "aiRoutingSettings": { "const": "manual_re_entry_required" },
+        "providerSecrets": {
+          "enum": ["manual_re_entry_required", "controlled_secret_source_injection"]
+        },
+        "postRestoreAiState": { "const": "disabled_pending_review" },
+        "note": { "type": "string", "minLength": 1 }
+      }
+    }
   },
   "$defs": {
     "relativePath": {

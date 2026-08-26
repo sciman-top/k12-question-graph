@@ -66,6 +66,7 @@ builder.Services.AddScoped<DocumentWorkerClient>();
 builder.Services.AddSingleton<IImportJobLeaseStore, ImportJobLeaseStore>();
 builder.Services.AddScoped<CutCandidateGenerationService>();
 builder.Services.AddScoped<PaperWorkflowService>();
+builder.Services.AddSingleton<IPaperBlueprintConfirmClaimStore, PaperBlueprintConfirmClaimStore>();
 builder.Services.AddScoped<ScoreAnalysisWorkflowService>();
 builder.Services.AddScoped<ScoreSpreadsheetImportAdapter>();
 builder.Services.AddScoped<PaperArtifactService>();
@@ -3205,7 +3206,17 @@ app.MapPost("/imports/{id:guid}/worker-smoke", async (
     }
 
     await dbContext.Entry(job).ReloadAsync(cancellationToken);
-    if (result.ExitCode == 0)
+    if (result.OutputTruncated)
+    {
+        // worker 输出超过字节上限已被整树终止;必须落入可重试失败终态,而非
+        // 把截断文本当成功输出解析。
+        job.Status = JobStatuses.Failed;
+        job.LastErrorCode = "worker_output_oversized";
+        job.LastErrorMessage = result.StandardError.Length > 0
+            ? result.StandardError
+            : (result.StandardOutput.Length > 512 ? result.StandardOutput[..512] : result.StandardOutput);
+    }
+    else if (result.ExitCode == 0)
     {
         job.Status = JobStatuses.Succeeded;
         job.LastErrorCode = null;

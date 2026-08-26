@@ -160,6 +160,41 @@ public class DocumentWorkerClientTests : IDisposable
     }
 
     [Fact]
+    public async Task RunSmokeAsync_TruncatesAndKillsWorkerWhenOutputExceedsLimit()
+    {
+        // 写超上限的 stdout 后持续睡眠,验证截断看门狗立即整树终止,
+        // 而不是等总超时或把截断文本当正常输出返回。
+        WorkerTestHarness.WriteStubScript(
+            _contentRoot,
+            "oversized_stub.py",
+            "import sys\n" +
+            "sys.stdout.write('x' * (1024 * 1024))\n" +
+            "sys.stdout.flush()\n" +
+            "import time\n" +
+            "time.sleep(60)\n");
+        var client = new DocumentWorkerClient(
+            Options.Create(new PythonWorkerOptions
+            {
+                PythonExecutable = WorkerTestHarness.PythonExecutable.Value,
+                DocumentWorkerScript = "oversized_stub.py",
+                TimeoutSeconds = 60,
+                MaxOutputBytes = 64 * 1024,
+            }),
+            Options.Create(new KqgPathsOptions { FileStoreRoot = WorkerTestHarness.CreateTempDirectory() }),
+            new FakeHostEnvironment { ContentRootPath = _contentRoot });
+        var stopwatch = Stopwatch.StartNew();
+
+        var result = await client.RunSmokeAsync(Guid.NewGuid(), "unused.docx", simulateFailure: false, CancellationToken.None);
+
+        stopwatch.Stop();
+        Assert.True(result.OutputTruncated, "oversized output must be flagged as truncated");
+        Assert.NotEqual(0, result.ExitCode);
+        Assert.Contains("byte limit", result.StandardError);
+        Assert.True(stopwatch.Elapsed < TimeSpan.FromSeconds(30),
+            $"truncation kill took {stopwatch.Elapsed}; expected prompt termination without waiting for the 60s timeout");
+    }
+
+    [Fact]
     public void PythonWorkerOptions_DefaultTimeoutCoversWorkerSubprocessBudget()
     {
         // worker 内部对 pdftotext/pdftoppm 每个子进程预算 60s;

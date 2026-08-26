@@ -5,6 +5,7 @@ using K12QuestionGraph.Api.Data;
 using K12QuestionGraph.Api.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Npgsql;
 
 namespace K12QuestionGraph.Api.FileStore;
 
@@ -122,6 +123,26 @@ public sealed class LocalFileStore(KqgDbContext dbContext, IOptions<KqgPathsOpti
 
                     return ToResponse(asset, isDuplicate: false, duplicateOfFileAssetId: null, createdSourceDocument);
                 }
+                catch (DbUpdateException exception) when (!commitAttempted && IsUniqueViolation(exception))
+                {
+                    // 跨进程竞态:同 (Sha256,SizeBytes) 的并发上传者已抢先提交,撞
+                    // 唯一索引。失败事务先回滚(PostgreSQL 中止态不能再查询),清理
+                    // 跟踪状态后重查赢家 asset,补建本方 SourceDocument 并按重复返回;
+                    // 磁盘 blob 由赢家 DB 行引用,不得当作本方产物删除。
+                    await transaction.RollbackAsync(cancellationToken);
+                    dbContext.ChangeTracker.Clear();
+                    var winner = await dbContext.FileAssets
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(x => x.StorageScope == "original" && x.Sha256 == sha256 && x.SizeBytes == sizeBytes, cancellationToken);
+                    if (winner is null)
+                    {
+                        throw;
+                    }
+
+                    var winnerSourceDocument = await AddSourceDocumentAsync(winner.Id, normalizedSourceMetadata, cancellationToken);
+                    await dbContext.SaveChangesAsync(cancellationToken);
+                    return ToResponse(winner, isDuplicate: true, duplicateOfFileAssetId: winner.Id, winnerSourceDocument);
+                }
                 catch
                 {
                     if (createdBlob && !commitAttempted)
@@ -152,6 +173,14 @@ public sealed class LocalFileStore(KqgDbContext dbContext, IOptions<KqgPathsOpti
             TryDeleteTempFile(tempPath);
         }
     }
+
+    // PostgreSQL unique_violation(23505):file_assets 的 (Sha256, SizeBytes) 与
+    // (StorageScope, RelativePath) 唯一索引并发冲突时按幂等重复处理。
+    private static bool IsUniqueViolation(DbUpdateException exception) =>
+        exception.InnerException is PostgresException
+        {
+            SqlState: PostgresErrorCodes.UniqueViolation
+        };
 
     private static async Task<(long Length, string Sha256)> CopyAndHashAsync(
         Stream source,

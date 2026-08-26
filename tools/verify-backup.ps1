@@ -71,6 +71,20 @@ if (-not (Test-Json -Json $manifestJson -SchemaFile $schemaPath -ErrorAction Sil
 }
 $manifest = $manifestJson | ConvertFrom-Json
 
+# 策略 (b) 受控排除声明必须存在且形状正确:缺失意味着这份备份产生于策略定案前,
+# 或备份脚本漂移,恢复后 AI 密文配置的处置将无从追溯,fail-closed。
+if (-not ($manifest.PSObject.Properties.Name -contains 'runtimeConfig')) {
+    throw 'runtimeConfig exclusion declaration missing: backup predates policy b or backup.ps1 drifted; re-run backup.ps1 to regenerate the manifest'
+}
+$runtimeConfig = $manifest.runtimeConfig
+if ([string]$runtimeConfig.area -ne 'data_root_config' -or
+    [string]$runtimeConfig.exclusionPolicy -ne 'manual_re_entry_required' -or
+    [string]$runtimeConfig.aiRoutingSettings -ne 'manual_re_entry_required' -or
+    @('manual_re_entry_required', 'controlled_secret_source_injection') -notcontains [string]$runtimeConfig.providerSecrets -or
+    [string]$runtimeConfig.postRestoreAiState -ne 'disabled_pending_review') {
+    throw 'runtimeConfig exclusion declaration invalid: area/exclusionPolicy/aiRoutingSettings/providerSecrets/postRestoreAiState must follow policy b'
+}
+
 Assert-Hash -Path (Resolve-ContainedPath -Root $manifestDir -RelativePath ([string]$manifest.database.dump) -Description 'database.dump') -ExpectedHash $manifest.database.sha256
 
 $fileStoreBackupRoot = Resolve-ContainedPath -Root $manifestDir -RelativePath ([string]$manifest.fileStore.snapshotRoot) -Description 'fileStore.snapshotRoot'

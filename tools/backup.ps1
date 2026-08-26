@@ -117,6 +117,18 @@ $manifest = [ordered]@{
     configs = $configEntries
     templatesSnapshotRoot = $templateSnapshotRelativeRoot
     templates = $templateEntries
+    # 策略 (b) 安全重配:运行时密文配置(DataRoot/config,含 ai-provider-settings
+    # 密文与 Data Protection key ring)按受控排除处理,不进备份。恢复后 AI 保持
+    # disabled/pending_review,管理员重新录入或从受控 secret source 注入;仅当
+    # 部署方明确提出“AI 无人工恢复”RTO 后才另立切片切换到 (a) 密文+key 备份。
+    runtimeConfig = [ordered]@{
+        area = 'data_root_config'
+        exclusionPolicy = 'manual_re_entry_required'
+        aiRoutingSettings = 'manual_re_entry_required'
+        providerSecrets = 'manual_re_entry_required'
+        postRestoreAiState = 'disabled_pending_review'
+        note = 'DataRoot/config (ai-provider-settings local ciphertext and Data Protection key ring) is excluded by policy b; re-enter AI routing settings and provider secrets after restore before any real model calls.'
+    }
 }
 
 $manifestPath = Join-Path $backupDir 'manifest.json'
