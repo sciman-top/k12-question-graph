@@ -40,6 +40,25 @@ function Assert-EmptyTargetOrOverlayAuthorized([string] $TargetRoot, [bool] $Ove
 
 $manifestRoot = $validated.ManifestRoot
 
+function Assert-RuntimeConfigTargetClear([string] $TargetRoot) {
+    $runtimeConfigRoot = Resolve-BackupContainedPath -Root $TargetRoot -RelativePath 'config' -Description 'runtime config target'
+    if (-not (Test-Path -LiteralPath $runtimeConfigRoot)) {
+        return
+    }
+
+    $hasEntries = $null -ne (Get-ChildItem -LiteralPath $runtimeConfigRoot -Force | Select-Object -First 1)
+    Assert-Condition (-not $hasEntries) "target DataRoot/config must be absent or empty for policy-b restore; clear or quarantine existing runtime AI settings before retrying: $runtimeConfigRoot"
+}
+
+# Policy (b) excludes DataRoot/config from the backup. An overlay restore must
+# therefore fail closed when an old runtime settings file is still present;
+# emitting a recovery note alone would leave stale provider ciphertext and
+# allowRealModelCalls state active after the restored database is applied.
+if ($ApplyDatabase -or $ApplyFileStore -or $ApplyConfigs) {
+    $targetDataRootFull = [System.IO.Path]::GetFullPath($TargetDataRoot)
+    Assert-RuntimeConfigTargetClear -TargetRoot $targetDataRootFull
+}
+
 $actions = [System.Collections.Generic.List[object]]::new()
 
 if ($ApplyFileStore) {

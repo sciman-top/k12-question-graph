@@ -4,7 +4,7 @@ $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..\..')
 $restoreScript = Join-Path $repoRoot 'tools\restore.ps1'
 $testRoot = Join-Path $repoRoot 'tmp\restore-manifest-security-tests'
 
-function Write-TestManifest([string] $Root, [string] $FilePath, [switch] $LegacyNoRuntimeConfig) {
+function Write-TestManifest([string] $Root, [string] $FilePath, [switch] $LegacyNoRuntimeConfig, [switch] $EmptyFileStore) {
     $dumpPath = Join-Path $Root 'database.dump'
     $fileStoreRoot = Join-Path $Root 'file_store'
     $configRoot = Join-Path $Root 'configs'
@@ -12,11 +12,19 @@ function Write-TestManifest([string] $Root, [string] $FilePath, [switch] $Legacy
     New-Item -ItemType Directory -Path $configRoot -Force | Out-Null
     Set-Content -LiteralPath $dumpPath -Value 'synthetic-dump' -NoNewline
     $dumpHash = (Get-FileHash -LiteralPath $dumpPath -Algorithm SHA256).Hash.ToLowerInvariant()
-    $fileHash = '0' * 64
-    if ($FilePath -eq 'safe.txt') {
-        $safePath = Join-Path $fileStoreRoot $FilePath
-        Set-Content -LiteralPath $safePath -Value 'x' -NoNewline
-        $fileHash = (Get-FileHash -LiteralPath $safePath -Algorithm SHA256).Hash.ToLowerInvariant()
+    $fileEntries = @()
+    if (-not $EmptyFileStore) {
+        $fileHash = '0' * 64
+        if ($FilePath -eq 'safe.txt') {
+            $safePath = Join-Path $fileStoreRoot $FilePath
+            Set-Content -LiteralPath $safePath -Value 'x' -NoNewline
+            $fileHash = (Get-FileHash -LiteralPath $safePath -Algorithm SHA256).Hash.ToLowerInvariant()
+        }
+        $fileEntries = @([ordered]@{
+            path = $FilePath
+            bytes = 1
+            sha256 = $fileHash
+        })
     }
 
     $manifest = [ordered]@{
@@ -32,11 +40,7 @@ function Write-TestManifest([string] $Root, [string] $FilePath, [switch] $Legacy
             snapshotRoot = 'file_store'
             sourceRoot = 'synthetic'
             root = 'synthetic'
-            files = @([ordered]@{
-                path = $FilePath
-                bytes = 1
-                sha256 = $fileHash
-            })
+            files = $fileEntries
         }
         configsSnapshotRoot = 'configs'
         configs = @()
@@ -74,6 +78,20 @@ try {
         throw "restore output is missing the in-place validation receipt fields: $validOutput"
     }
 
+    # 策略 b 不应只靠输出声明:overlay 到已有 DataRoot 时,旧的 AI 密文配置
+    # 必须先由运维隔离/清除,否则 restore 不得继续。
+    $overlayTargetRoot = Join-Path $testRoot 'overlay-target'
+    New-Item -ItemType Directory -Path (Join-Path $overlayTargetRoot 'config\admin') -Force | Out-Null
+    Set-Content -LiteralPath (Join-Path $overlayTargetRoot 'config\admin\ai-provider-settings.local.json') -Value '{}' -NoNewline
+    $overlayOutput = & pwsh -NoProfile -ExecutionPolicy Bypass -File $restoreScript `
+        -ManifestPath (Join-Path $testRoot 'manifest.json') `
+        -TargetDataRoot $overlayTargetRoot `
+        -ApplyFileStore `
+        -DryRun 2>&1 | Out-String
+    if ($LASTEXITCODE -eq 0 -or $overlayOutput -notmatch 'target DataRoot/config must be absent or empty') {
+        throw "overlay restore did not fail closed on existing runtime config: $overlayOutput"
+    }
+
     # verify-backup 的 receipt 是旁证;它绝不能替代 restore 的现场强制验证。
     # 缺 runtimeConfig 的 legacy manifest 即使 verify 曾"通过",restore 也必须拒绝。
     Write-TestManifest -Root $testRoot -FilePath 'safe.txt' -LegacyNoRuntimeConfig
@@ -108,6 +126,14 @@ try {
         throw "path traversal manifest was not rejected as expected: $output"
     }
 
+    # 空 FileStore 对新部署是合法备份状态;validator 不得把 [] 误判为缺少 entries。
+    Write-TestManifest -Root $testRoot -FilePath 'unused.txt' -EmptyFileStore
+    $emptyFileStoreOutput = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $repoRoot 'tools\verify-backup.ps1') `
+        -ManifestPath (Join-Path $testRoot 'manifest.json') 2>&1 | Out-String
+    if ($LASTEXITCODE -ne 0 -or $emptyFileStoreOutput -notmatch '"status":\s*"pass"' -or $emptyFileStoreOutput -notmatch '"fileCount":0') {
+        throw "empty FileStore manifest was rejected: $emptyFileStoreOutput"
+    }
+
     Write-TestManifest -Root $testRoot -FilePath 'C:outside.txt'
     $driveRelativeOutput = & pwsh -NoProfile -ExecutionPolicy Bypass -File $restoreScript `
         -ManifestPath (Join-Path $testRoot 'manifest.json') `
@@ -126,6 +152,8 @@ try {
         verifyPassReceiptPresent = $true
         traversalRejected = $true
         driveRelativePathRejected = $true
+        emptyFileStoreAccepted = $true
+        overlayRuntimeConfigBlocked = $true
         applyPerformed = $false
     } | ConvertTo-Json -Compress
 }

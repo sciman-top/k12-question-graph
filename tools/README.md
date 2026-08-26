@@ -88,6 +88,8 @@ P005 反馈摘要（只做确定性去重/聚类/统计，不自动裁决）：
 
 restore apply、migration、active switch 和真实数据操作必须先声明 snapshot、rollback 与验收证据并获得授权。恢复默认拒绝覆盖非空 FileStore/config 目标；只有已取得 pre-restore snapshot 时才可显式传入 `-AllowOverlay -DryRun:$false`。
 
+策略 b 还要求目标 `TargetDataRoot\config` 不存在或为空；该目录中的运行时 AI 密文与 Data Protection key ring 不在备份内，overlay 恢复遇到旧配置时会 fail-closed，须先人工隔离/清除并保留回滚证据。
+
 备份恢复共用 `tools/backup-manifest-policy.ps1` 的 fail-closed 验证器：verify-backup 产出 receipt（仅旁证），restore 在任何破坏性动作前现场强制重验。缺 runtimeConfig 声明的 legacy manifest 统一拒绝（`unsupported_legacy_manifest`）；确需挽救时走显式授权的 reissue 入口，禁止在 restore 中静默兼容：
 
 ```powershell

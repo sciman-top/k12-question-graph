@@ -127,10 +127,13 @@ function Read-ValidatedBackupManifest([Parameter(Mandatory)] [string] $ManifestP
     Assert-BackupManifestCondition (Test-Json -Json $manifestJson -SchemaFile $script:BackupManifestSchemaPath -ErrorAction SilentlyContinue) 'unsupported_legacy_manifest: backup manifest schema validation failed against the current contract'
     $runtimeConfigPolicyDigest = Test-BackupRuntimeConfigPolicy -Manifest $manifest
 
-    # fileStore.files is nested and required by schema; the flat optional
-    # groups go through Get-BackupManifestEntries so absent properties do not
-    # turn into null entries.
-    Assert-UniqueBackupEntryPaths -Entries (@($manifest.fileStore.files) | Where-Object { $null -ne $_ }) -Description 'fileStore.files'
+    # fileStore.files is nested and required by schema; an empty file store is
+    # valid for a fresh deployment, so preserve [] instead of piping it through
+    # Where-Object (which turns the empty collection into a null argument).
+    $fileStoreEntries = @($manifest.fileStore.files)
+    if ($fileStoreEntries.Count -gt 0) {
+        Assert-UniqueBackupEntryPaths -Entries $fileStoreEntries -Description 'fileStore.files'
+    }
     Assert-UniqueBackupEntryPaths -Entries (@(Get-BackupManifestEntries -Manifest $manifest -PropertyName 'configs')) -Description 'configs'
     Assert-UniqueBackupEntryPaths -Entries (@(Get-BackupManifestEntries -Manifest $manifest -PropertyName 'templates')) -Description 'templates'
     Assert-UniqueBackupEntryPaths -Entries (@(Get-BackupManifestEntries -Manifest $manifest -PropertyName 'evidence')) -Description 'evidence'
@@ -140,7 +143,7 @@ function Read-ValidatedBackupManifest([Parameter(Mandatory)] [string] $ManifestP
 
     $fileStoreBackupRoot = Resolve-BackupContainedPath -Root $manifestRoot -RelativePath ([string]$manifest.fileStore.snapshotRoot) -Description 'fileStore.snapshotRoot'
     $fileStoreSources = @()
-    foreach ($file in @($manifest.fileStore.files | Where-Object { $null -ne $_ })) {
+    foreach ($file in $fileStoreEntries) {
         $src = Resolve-BackupContainedPath -Root $fileStoreBackupRoot -RelativePath ([string]$file.path) -Description 'fileStore.files.path'
         Assert-BackupFileMatchesHash -Path $src -ExpectedHash $file.sha256 -Description 'file store source file'
         $fileStoreSources += [pscustomobject]@{ RelativePath = [string]$file.path; SourcePath = $src }

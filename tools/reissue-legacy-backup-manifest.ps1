@@ -85,7 +85,9 @@ try {
     reason = ''
     sourceManifest = $ManifestPath
     sourceManifestHash = Get-FileContentSha256 -Path $ManifestPath
-    manifest = $validated.ManifestPath
+    # Validation runs against the sibling pending file; after promotion the
+    # receipt must identify the durable output path, never the deleted temp.
+    manifest = $outputFull
     manifestHash = $validated.ManifestHash
     validatorContractVersion = $validated.ValidatorContractVersion
     runtimeConfigPolicyDigest = $validated.RuntimeConfigPolicyDigest

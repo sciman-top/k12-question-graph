@@ -61,6 +61,11 @@ try {
     if ($LASTEXITCODE -ne 0 -or $output -notmatch '"action":\s*"legacy_manifest_reissue"' -or $output -notmatch 'runtimeConfigPolicyDigest') {
         throw "legacy reissue failed: $output"
     }
+    $reissueReceipt = $output | ConvertFrom-Json
+    if ($reissueReceipt.manifest -ne (Join-Path $legacyDir 'manifest.reissued.json') -or
+        -not (Test-Path -LiteralPath $reissueReceipt.manifest)) {
+        throw "legacy reissue receipt does not identify the durable output manifest: $output"
+    }
 
     $verifyOutput = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $repoRoot 'tools\verify-backup.ps1') `
         -ManifestPath (Join-Path $legacyDir 'manifest.reissued.json') 2>&1 | Out-String
@@ -114,6 +119,7 @@ try {
         status = 'pass'
         attestationRequired = $true
         legacyReissuePassesSharedValidator = $true
+        receiptPointsToDurableOutput = $true
         alreadySupportedRefused = $true
         tamperedPayloadAbortsCleanly = $true
     } | ConvertTo-Json -Compress
