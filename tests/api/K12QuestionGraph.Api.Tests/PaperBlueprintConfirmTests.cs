@@ -98,6 +98,58 @@ public sealed class PaperBlueprintConfirmTests
         Assert.Equal(0, await fresh.PaperBasketItems.AsNoTracking().CountAsync());
     }
 
+    [Theory]
+    [InlineData("blueprint_empty")]
+    [InlineData("preview_blueprint_cannot_create_formal_basket")]
+    [InlineData("evidence_constraints_insufficient")]
+    public async Task Confirm_ValidationEarlyReturn_KeepsReviewPendingInResponseAndDatabase(string expectedError)
+    {
+        const string previewConstraints = "{\"evidence\":{\"evidenceMode\":\"active\",\"previewMode\":true,\"matchedQuestionIds\":[],\"versionReferences\":[],\"explanation\":[],\"shortages\":[],\"retrospectiveAlignmentCount\":0}}";
+        const string shortageConstraints = "{\"evidence\":{\"evidenceMode\":\"active\",\"previewMode\":false,\"matchedQuestionIds\":[],\"versionReferences\":[],\"explanation\":[],\"shortages\":[{\"dimension\":\"knowledge\",\"required\":3,\"available\":0,\"reason\":\"insufficient\"}],\"retrospectiveAlignmentCount\":0}}";
+        var constraintsJson = expectedError switch
+        {
+            "preview_blueprint_cannot_create_formal_basket" => previewConstraints,
+            "evidence_constraints_insufficient" => shortageConstraints,
+            _ => null,
+        };
+        using var context = CreateContext();
+        var (_, reviewId) = await CreateReviewWithPoolAsync(
+            context,
+            questionCount: 1,
+            blueprintJson: expectedError == "blueprint_empty" ? "[]" : null,
+            constraintsJson: constraintsJson);
+        var service = new PaperWorkflowService(context, null!, new InMemoryPaperBlueprintConfirmClaimStore());
+
+        var result = await service.ConfirmBlueprintReviewAsync(reviewId, "teacher-1", CancellationToken.None);
+
+        Assert.NotNull(result);
+        Assert.False(result.Confirmed);
+        Assert.Equal(expectedError, result.ErrorCode);
+        // 早退发生在抢占之前:响应与数据库都必须保持 pending_review。
+        Assert.Equal(WorkflowReviewStatuses.PendingReview, result.Status);
+        var review = await context.PaperBlueprintReviews.AsNoTracking().SingleAsync(x => x.Id == reviewId);
+        Assert.Equal(WorkflowReviewStatuses.PendingReview, review.Status);
+        Assert.Equal(0, await context.PaperBaskets.AsNoTracking().CountAsync());
+    }
+
+    [Fact]
+    public async Task Confirm_WhenQuestionPoolInsufficient_KeepsReviewPendingWithoutClaimOrBasket()
+    {
+        using var context = CreateContext();
+        var (_, reviewId) = await CreateReviewWithPoolAsync(context, questionCount: 1, blueprintCount: 3);
+        var service = new PaperWorkflowService(context, null!, new InMemoryPaperBlueprintConfirmClaimStore());
+
+        var result = await service.ConfirmBlueprintReviewAsync(reviewId, "teacher-1", CancellationToken.None);
+
+        Assert.NotNull(result);
+        Assert.False(result.Confirmed);
+        Assert.Equal("question_pool_insufficient", result.ErrorCode);
+        Assert.Equal(WorkflowReviewStatuses.PendingReview, result.Status);
+        var review = await context.PaperBlueprintReviews.AsNoTracking().SingleAsync(x => x.Id == reviewId);
+        Assert.Equal(WorkflowReviewStatuses.PendingReview, review.Status);
+        Assert.Equal(0, await context.PaperBaskets.AsNoTracking().CountAsync());
+    }
+
     private static KqgDbContext CreateContext(string? name = null)
     {
         var options = new DbContextOptionsBuilder<KqgDbContext>()
@@ -109,7 +161,10 @@ public sealed class PaperBlueprintConfirmTests
 
     private static async Task<(PaperWorkflowService Service, Guid ReviewId)> CreateReviewWithPoolAsync(
         KqgDbContext context,
-        int questionCount)
+        int questionCount,
+        string? blueprintJson = null,
+        string? constraintsJson = null,
+        int blueprintCount = -1)
     {
         var review = new PaperBlueprintReview
         {
@@ -118,10 +173,10 @@ public sealed class PaperBlueprintConfirmTests
             Subject = "physics",
             Stage = "junior_middle_school",
             Status = WorkflowReviewStatuses.PendingReview,
-            Blueprint = $$"""
-                [{"questionType":"single_choice","count":{{questionCount}},"score":3,"scope":["力学"],"assetStatus":"draft","reviewStatus":"usable"}]
+            Blueprint = blueprintJson ?? $$"""
+                [{"questionType":"single_choice","count":{{(blueprintCount < 0 ? questionCount : blueprintCount)}},"score":3,"scope":["力学"],"assetStatus":"draft","reviewStatus":"usable"}]
                 """,
-            Constraints = "{}",
+            Constraints = constraintsJson ?? "{}",
             ReviewQuestions = "[]",
             CreatedAt = DateTimeOffset.UtcNow,
             UpdatedAt = DateTimeOffset.UtcNow

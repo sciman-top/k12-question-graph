@@ -114,37 +114,9 @@ public sealed class PaperWorkflowService(
                 []);
         }
 
-        // 确认必须原子:pending_review 判定、抢占、篮子/条目创建与状态更新同事务。
-        // 抢占用条件 ExecuteUpdate 串行化同一 review 的并发确认;抢占后任何早退或
-        // 失败路径都通过事务回滚把 review 恢复为 pending_review,不留孤儿篮子。
-        await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
-        var now = DateTimeOffset.UtcNow;
-        var confirmedBy = teacherConfirmedBy.Trim();
-        var claimed = await confirmClaimStore.TryClaimAsync(dbContext, blueprintReviewId, confirmedBy, now, cancellationToken);
-        if (!claimed)
-        {
-            await transaction.RollbackAsync(cancellationToken);
-            await dbContext.Entry(review).ReloadAsync(cancellationToken);
-            return new PaperBlueprintConfirmServiceResult(
-                review.Id,
-                review.Status,
-                false,
-                review.ConfirmedPaperBasketId,
-                0,
-                "blueprint_already_closed",
-                "此细目表已经处理过，不能重复确认取题。",
-                ["no_duplicate_confirm"],
-                [],
-                [],
-                []);
-        }
-
-        // 抢占语句绕过跟踪实体;同步跟踪态,使最终 SaveChanges 与 DB 行保持一致。
-        review.Status = WorkflowReviewStatuses.Confirmed;
-        review.TeacherConfirmedBy = confirmedBy;
-        review.TeacherConfirmedAt = now;
-        review.UpdatedAt = now;
-
+        // 业务校验全部前置:空蓝图、preview、证据不足、题库不足的早退发生在任何
+        // 状态变更之前,响应中的 review.Status 与数据库保持 pending_review 一致。
+        // 校验通过后才开事务抢占,确认事务只包含抢占与篮子/条目/状态写入。
         var blueprint = DeserializeBlueprint(review.Blueprint);
         var requiredCount = blueprint.Sum(x => Math.Max(0, x.Count));
         if (requiredCount <= 0)
@@ -257,6 +229,37 @@ public sealed class PaperWorkflowService(
                 evidenceSnapshot?.Shortages ?? []);
         }
 
+        // 确认必须原子:抢占、篮子/条目创建与状态更新同事务。抢占用条件
+        // ExecuteUpdate 串行化同一 review 的并发确认;提交失败时整体回滚,
+        // 不留孤儿篮子或 confirmed 幽灵状态。
+        await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+        var now = DateTimeOffset.UtcNow;
+        var confirmedBy = teacherConfirmedBy.Trim();
+        var claimed = await confirmClaimStore.TryClaimAsync(dbContext, blueprintReviewId, confirmedBy, now, cancellationToken);
+        if (!claimed)
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            await dbContext.Entry(review).ReloadAsync(cancellationToken);
+            return new PaperBlueprintConfirmServiceResult(
+                review.Id,
+                review.Status,
+                false,
+                review.ConfirmedPaperBasketId,
+                0,
+                "blueprint_already_closed",
+                "此细目表已经处理过，不能重复确认取题。",
+                ["no_duplicate_confirm"],
+                [],
+                [],
+                []);
+        }
+
+        // 抢占语句绕过跟踪实体;同步跟踪态,使最终 SaveChanges 与 DB 行保持一致。
+        review.Status = WorkflowReviewStatuses.Confirmed;
+        review.TeacherConfirmedBy = confirmedBy;
+        review.TeacherConfirmedAt = now;
+        review.UpdatedAt = now;
+
         var basket = new PaperBasket
         {
             Id = Guid.NewGuid(),
@@ -272,7 +275,7 @@ public sealed class PaperWorkflowService(
                 blueprintReviewId = review.Id,
                 itemCount = questions.Count,
                 totalScore = blueprint.Sum(x => x.Score),
-                confirmedBy = teacherConfirmedBy.Trim(),
+                confirmedBy,
                 confirmRequiredBeforeQuestionSelection = true,
                 opaqueGenerationAllowed = false,
                 source = "confirmed_blueprint_review",
