@@ -2,8 +2,8 @@
   "id": "audit-remediation-postgres-branch-evidence",
   "schemaVersion": 1,
   "authorityLevel": "repo-side",
-  "createdAt": "2026-08-27T00:00:00Z+08:00",
-  "commitUnderVerification": "dc0e3e1 + pending internal-visibility/pg-smoke test slice",
+  "createdAt": "2026-08-27T00:00:00+08:00",
+  "commitUnderVerification": "a5d78da9af409cf2079ee7dd62d6ce7e8b38413f",
   "claimBoundary": "database-branch evidence for audit findings M1 concurrency, L1 single-transaction restore, L4 unique-violation predicate; not onsite or live acceptance; production database untouched (isolated temporary databases only)",
   "releaseGate": {
     "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/run-verification.ps1 -Profile Release -AuthorizeStateful",
@@ -48,7 +48,7 @@
   },
   "residual": [
     "onsite/live acceptance remains external",
-    "PostgresGatedSmokeTests skipped silently in default Quick/Slice runs; enabled by KQG_PG_SMOKE=1 + KQG_CONNECTION_STRING for future Release or ad-hoc verification"
+    "PostgresGatedSmokeTests are explicitly reported as skipped in default Quick/Slice runs; enabled by KQG_PG_SMOKE=1 + KQG_CONNECTION_STRING for future Release or ad-hoc verification"
   ],
   "rollback": "git revert of this slice; drill databases dropped (verified count=0 like kqg_%drill%/kqg_pg_smoke_%)"
 }

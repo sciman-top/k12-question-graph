@@ -41,6 +41,13 @@
       "authorityLevel": "repo-side",
       "claimBoundary": "closeout plan consistency only; no onsite completion",
       "state": "current"
+    },
+    {
+      "id": "audit-remediation-postgres-branch-evidence",
+      "currentPath": "docs/evidence/20260827-audit-postgres-branch-evidence.json",
+      "authorityLevel": "repo-side",
+      "claimBoundary": "isolated PostgreSQL evidence for M1 concurrency, L1 atomic restore, and L4 unique-violation handling; no onsite or live acceptance",
+      "state": "current"
     }
   ]
 }

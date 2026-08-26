@@ -23,115 +23,121 @@ public sealed class PostgresGatedSmokeTests
     public async Task ClaimStore_ConcurrentClaimsOnlyOneWinsAndRollbackRestoresPending()
     {
         var connection = await CreateTemporaryDatabaseAsync();
-
-        // 1) 默认实现翻译与单次抢占。
-        var reviewId = await SeedPendingReviewAsync(connection);
-        await using (var context = CreateContext(connection))
+        try
         {
-            var claimStore = new PaperBlueprintConfirmClaimStore();
-            var claimed = await claimStore.TryClaimAsync(
-                context, reviewId, "teacher-first", DateTimeOffset.UtcNow, CancellationToken.None);
-            Assert.True(claimed, "first sequential claim must succeed on real PostgreSQL");
-        }
+            // 1) 默认实现翻译与单次抢占。
+            var reviewId = await SeedPendingReviewAsync(connection);
+            await using (var context = CreateContext(connection))
+            {
+                var claimStore = new PaperBlueprintConfirmClaimStore();
+                var claimed = await claimStore.TryClaimAsync(
+                    context, reviewId, "teacher-first", DateTimeOffset.UtcNow, CancellationToken.None);
+                Assert.True(claimed, "first sequential claim must succeed on real PostgreSQL");
+            }
 
-        await using (var context = CreateContext(connection))
-        {
-            var status = await context.PaperBlueprintReviews.AsNoTracking()
-                .Where(x => x.Id == reviewId)
-                .Select(x => x.Status)
-                .SingleAsync();
-            Assert.Equal(WorkflowReviewStatuses.Confirmed, status);
-        }
+            await using (var context = CreateContext(connection))
+            {
+                var confirmedStatus = await context.PaperBlueprintReviews.AsNoTracking()
+                    .Where(x => x.Id == reviewId)
+                    .Select(x => x.Status)
+                    .SingleAsync();
+                Assert.Equal(WorkflowReviewStatuses.Confirmed, confirmedStatus);
+            }
 
-        // 2) 并发确认恰好一次成功:两个独立 DbContext 同时抢同一行,
-        //    条件 ExecuteUpdate 的行级原子性保证恰有一个 affected=1。
-        var secondReviewId = await SeedPendingReviewAsync(connection);
-        var winnerCount = await Task.WhenAll(Enumerable.Range(0, 2).Select(async _ =>
-        {
-            await using var context = CreateContext(connection);
-            var claimStore = new PaperBlueprintConfirmClaimStore();
-            var claimed = await claimStore.TryClaimAsync(
-                context, secondReviewId, "teacher-racer", DateTimeOffset.UtcNow, CancellationToken.None);
-            return claimed ? 1 : 0;
-        }));
-        Assert.Equal(1, winnerCount.Sum());
+            // 2) 并发确认恰好一次成功:两个独立 DbContext 同时抢同一行,
+            //    条件 ExecuteUpdate 的行级原子性保证恰有一个 affected=1。
+            var secondReviewId = await SeedPendingReviewAsync(connection);
+            var winnerCount = await Task.WhenAll(Enumerable.Range(0, 2).Select(async _ =>
+            {
+                await using var context = CreateContext(connection);
+                var claimStore = new PaperBlueprintConfirmClaimStore();
+                var claimed = await claimStore.TryClaimAsync(
+                    context, secondReviewId, "teacher-racer", DateTimeOffset.UtcNow, CancellationToken.None);
+                return claimed ? 1 : 0;
+            }));
+            Assert.Equal(1, winnerCount.Sum());
 
-        // 3) 回滚恢复:事务内抢占成功后回滚,行必须回到 pending_review。
-        var thirdReviewId = await SeedPendingReviewAsync(connection);
-        await using (var context = CreateContext(connection))
-        {
-            await using var transaction = await context.Database.BeginTransactionAsync();
-            var claimStore = new PaperBlueprintConfirmClaimStore();
-            var claimed = await claimStore.TryClaimAsync(
-                context, thirdReviewId, "teacher-rollback", DateTimeOffset.UtcNow, CancellationToken.None);
-            Assert.True(claimed);
-            await transaction.RollbackAsync();
-        }
+            // 3) 回滚恢复:事务内抢占成功后回滚,行必须回到 pending_review。
+            var thirdReviewId = await SeedPendingReviewAsync(connection);
+            await using (var context = CreateContext(connection))
+            {
+                await using var transaction = await context.Database.BeginTransactionAsync();
+                var claimStore = new PaperBlueprintConfirmClaimStore();
+                var claimed = await claimStore.TryClaimAsync(
+                    context, thirdReviewId, "teacher-rollback", DateTimeOffset.UtcNow, CancellationToken.None);
+                Assert.True(claimed);
+                await transaction.RollbackAsync();
+            }
 
-        await using (var verification = CreateContext(connection))
-        {
+            await using var verification = CreateContext(connection);
             var status = await verification.PaperBlueprintReviews.AsNoTracking()
                 .Where(x => x.Id == thirdReviewId)
                 .Select(x => x.Status)
                 .SingleAsync();
             Assert.Equal(WorkflowReviewStatuses.PendingReview, status);
         }
-
-        await TryDropTemporaryDatabaseAsync();
+        finally
+        {
+            await TryDropTemporaryDatabaseAsync();
+        }
     }
 
     [SkippablePostgresFact]
     public async Task UniqueViolation_ShapeIsRecognizedByFileStorePredicate()
     {
         var connection = await CreateTemporaryDatabaseAsync();
-
-        var sha256 = new string('a', 64);
-        await using (var first = CreateContext(connection))
+        try
         {
-            first.FileAssets.Add(new FileAsset
+            var sha256 = new string('a', 64);
+            await using (var first = CreateContext(connection))
             {
-                Id = Guid.NewGuid(),
-                OriginalFileName = "race-winner.pdf",
-                RelativePath = $"original/aa/bbbb/{sha256}.pdf",
-                StorageScope = "original",
-                ContentType = "application/pdf",
-                Sha256 = sha256,
-                SizeBytes = 128,
-                SourceMetadata = "{}"
-            });
-            await first.SaveChangesAsync();
-        }
+                first.FileAssets.Add(new FileAsset
+                {
+                    Id = Guid.NewGuid(),
+                    OriginalFileName = "race-winner.pdf",
+                    RelativePath = $"original/aa/bbbb/{sha256}.pdf",
+                    StorageScope = "original",
+                    ContentType = "application/pdf",
+                    Sha256 = sha256,
+                    SizeBytes = 128,
+                    SourceMetadata = "{}"
+                });
+                await first.SaveChangesAsync();
+            }
 
-        DbUpdateException? conflict = null;
-        await using (var second = CreateContext(connection))
+            DbUpdateException? conflict = null;
+            await using (var second = CreateContext(connection))
+            {
+                second.FileAssets.Add(new FileAsset
+                {
+                    Id = Guid.NewGuid(),
+                    OriginalFileName = "race-loser.pdf",
+                    RelativePath = $"original/cc/dddd/{sha256}.pdf",
+                    StorageScope = "original",
+                    ContentType = "application/pdf",
+                    Sha256 = sha256,
+                    SizeBytes = 128,
+                    SourceMetadata = "{}"
+                });
+                try
+                {
+                    await second.SaveChangesAsync();
+                }
+                catch (DbUpdateException exception)
+                {
+                    conflict = exception;
+                }
+            }
+
+            Assert.NotNull(conflict);
+            Assert.True(
+                LocalFileStore.IsUniqueViolation(conflict!),
+                "real PostgreSQL unique violation must be recognized as (Sha256,SizeBytes) race branch trigger");
+        }
+        finally
         {
-            second.FileAssets.Add(new FileAsset
-            {
-                Id = Guid.NewGuid(),
-                OriginalFileName = "race-loser.pdf",
-                RelativePath = $"original/cc/dddd/{sha256}.pdf",
-                StorageScope = "original",
-                ContentType = "application/pdf",
-                Sha256 = sha256,
-                SizeBytes = 128,
-                SourceMetadata = "{}"
-            });
-            try
-            {
-                await second.SaveChangesAsync();
-            }
-            catch (DbUpdateException exception)
-            {
-                conflict = exception;
-            }
+            await TryDropTemporaryDatabaseAsync();
         }
-
-        Assert.NotNull(conflict);
-        Assert.True(
-            LocalFileStore.IsUniqueViolation(conflict!),
-            "real PostgreSQL unique violation must be recognized as (Sha256,SizeBytes) race branch trigger");
-
-        await TryDropTemporaryDatabaseAsync();
     }
 
     internal static bool PostgresSmokeEnabled =>
