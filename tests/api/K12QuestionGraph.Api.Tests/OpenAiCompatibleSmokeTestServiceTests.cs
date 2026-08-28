@@ -176,9 +176,9 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task RoutedSmokeAfterTerraFailureChecksSolThenLuna()
+    public async Task RoutedSmokeFallsBackFromSolThroughTerraToLuna()
     {
-        var handler = new RecordingProviderHandler("gpt-5.6-terra", "gpt-5.6-sol");
+        var handler = new RecordingProviderHandler("gpt-5.6-sol", "gpt-5.6-terra");
         using var httpClient = new HttpClient(handler);
         var store = CreateStore();
         await store.SaveAsync(CreateSaveRequest(), CancellationToken.None);
@@ -210,10 +210,10 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
         Assert.Equal("luna", result.EffectivePreset);
         Assert.Equal(
             [
-                "models:gpt-5.6-terra",
-                "responses:gpt-5.6-terra",
                 "models:gpt-5.6-sol",
                 "responses:gpt-5.6-sol",
+                "models:gpt-5.6-terra",
+                "responses:gpt-5.6-terra",
                 "models:gpt-5.6-luna",
                 "responses:gpt-5.6-luna",
                 "images"
@@ -288,8 +288,8 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
                 ModelRole = "bulk_structuring",
                 ExecutionSlot = "bulk_prefilter",
                 ExecutionGrade = "balanced",
-                ModelName = "gpt-5.6-terra",
-                ReasoningEffort = "high",
+                ModelName = "gpt-5.6-sol",
+                ReasoningEffort = "medium",
                 ModelTier = "medium"
             }
         };
@@ -307,11 +307,11 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
                 },
                 ExecutionSlots = new Dictionary<string, AiExecutionSlotOptions>(StringComparer.OrdinalIgnoreCase)
                 {
-                    ["mechanical_cleanup"] = new() { DefaultGrade = "economy", Grades = new() { ["economy"] = "luna", ["balanced"] = "terra", ["quality"] = "sol" } },
-                    ["bulk_prefilter"] = new() { DefaultGrade = "balanced", Grades = new() { ["economy"] = "terra", ["balanced"] = "terra", ["quality"] = "sol" } },
-                    ["engineering_review"] = new() { DefaultGrade = "balanced", Grades = new() { ["economy"] = "terra", ["balanced"] = "sol", ["quality"] = "sol" } },
-                    ["visual_review"] = new() { DefaultGrade = "quality", Grades = new() { ["economy"] = "terra", ["balanced"] = "terra", ["quality"] = "sol" } },
-                    ["high_risk_adjudication"] = new() { DefaultGrade = "quality", Grades = new() { ["economy"] = "sol", ["balanced"] = "sol", ["quality"] = "sol" } }
+                    ["mechanical_cleanup"] = new() { DefaultGrade = "economy" },
+                    ["bulk_prefilter"] = new() { DefaultGrade = "balanced" },
+                    ["engineering_review"] = new() { DefaultGrade = "balanced" },
+                    ["visual_review"] = new() { DefaultGrade = "quality" },
+                    ["high_risk_adjudication"] = new() { DefaultGrade = "quality" }
                 },
                 ModelFailover = new() { PreferredPresetOrder = ["sol", "terra", "luna"] }
             }),

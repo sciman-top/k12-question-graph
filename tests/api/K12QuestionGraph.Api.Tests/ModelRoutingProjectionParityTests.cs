@@ -99,6 +99,10 @@ public sealed class ModelRoutingProjectionParityTests
                     StringComparer.OrdinalIgnoreCase));
         }
 
+        Assert.Equal("gpt-5.6-sol", jsonPresets.GetProperty("sol").GetProperty("ModelName").GetString());
+        Assert.Equal("gpt-5.6-terra", jsonPresets.GetProperty("terra").GetProperty("ModelName").GetString());
+        Assert.Equal("gpt-5.6-luna", jsonPresets.GetProperty("luna").GetProperty("ModelName").GetString());
+
         var yamlFailover = (YamlMappingNode)GetYamlChild(root, "model_failover");
         var jsonFailover = aiRouting.GetProperty("ModelFailover");
         Assert.Equal(ReadYamlValue(yamlFailover, "enabled"), ReadJsonValue(jsonFailover, "Enabled"));
@@ -126,18 +130,9 @@ public sealed class ModelRoutingProjectionParityTests
             Assert.Equal(ReadYamlValue(yamlSlot, "default_grade"), ReadJsonValue(jsonSlot, "DefaultGrade"));
             Assert.Equal(ReadYamlValue(yamlSlot, "description"), ReadJsonValue(jsonSlot, "Description"));
 
-            var yamlGrades = (YamlMappingNode)GetYamlChild(yamlSlot, "grades");
-            var jsonGrades = jsonSlot.GetProperty("Grades");
-            Assert.Equal(
-                yamlGrades.Children.ToDictionary(
-                    pair => ((YamlScalarNode)pair.Key).Value!,
-                    pair => ReadYamlValue(yamlGrades, ((YamlScalarNode)pair.Key).Value!)!,
-                    StringComparer.OrdinalIgnoreCase),
-                jsonGrades.EnumerateObject().ToDictionary(
-                    pair => pair.Name,
-                    pair => pair.Value.GetString()!,
-                    StringComparer.OrdinalIgnoreCase));
-            Assert.Equal(3, yamlGrades.Children.Count);
+            Assert.DoesNotContain(yamlSlot.Children.Keys.OfType<YamlScalarNode>(), key =>
+                string.Equals(key.Value, "grades", StringComparison.OrdinalIgnoreCase));
+            Assert.False(jsonSlot.TryGetProperty("Grades", out _));
         }
     }
 

@@ -74,8 +74,6 @@ public sealed class AiExecutionSlotOptions
     public string Description { get; set; } = string.Empty;
 
     public string DefaultGrade { get; set; } = "balanced";
-
-    public Dictionary<string, string> Grades { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 }
 
 public sealed class AiModelFailoverOptions

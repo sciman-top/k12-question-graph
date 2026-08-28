@@ -324,15 +324,18 @@ public sealed class AiModelRouter(IOptions<AiRoutingOptions> options, IWebHostEn
         string modelName,
         string reasoningEffort)
     {
-        if (options.ExecutionSlots.TryGetValue(executionSlot, out var slot)
-            && slot.Grades.TryGetValue(executionGrade, out var presetId)
-            && !string.IsNullOrWhiteSpace(presetId)
-            && !string.Equals(presetId, "none", StringComparison.OrdinalIgnoreCase)
-            && options.ModelPresets.TryGetValue(presetId.Trim(), out var preset)
+        // Execution slots select a grade only. The active preset selects the
+        // model for every slot, so a Sol-only/Terra-only/Luna-only preset can
+        // never be mixed by a slot-specific model binding.
+        var presetId = options.ModelFailover.PreferredPresetOrder
+            .FirstOrDefault(id => !string.IsNullOrWhiteSpace(id) && options.ModelPresets.ContainsKey(id));
+        presetId ??= options.ModelPresets.Keys.FirstOrDefault();
+        if (!string.IsNullOrWhiteSpace(presetId)
+            && options.ModelPresets.TryGetValue(presetId, out var preset)
             && !string.IsNullOrWhiteSpace(preset.ModelName))
         {
             return new AiModelSelection(
-                presetId.Trim(),
+                presetId,
                 preset.ModelName.Trim(),
                 ResolveSupportedReasoningEffort(preset, reasoningEffort, executionGrade));
         }

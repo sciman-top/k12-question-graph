@@ -83,20 +83,20 @@ const providerProfiles = [
 const modelPresets = [
   {
     id: 'sol',
-    model: 'gpt-5.6-sol',
-    reasoningEfforts: 'xhigh / medium / low',
+    model: 'Sol-only · gpt-5.6-sol',
+    reasoningEfforts: 'quality=sol·xhigh / balanced=sol·medium / economy=sol·low',
     fallback: '首选；故障后 Terra -> Luna',
   },
   {
     id: 'terra',
-    model: 'gpt-5.6-terra',
-    reasoningEfforts: 'xhigh / high / medium',
+    model: 'Terra-only · gpt-5.6-terra',
+    reasoningEfforts: 'quality=terra·xhigh / balanced=terra·high / economy=terra·medium',
     fallback: '次选；故障后 Sol -> Luna',
   },
   {
     id: 'luna',
-    model: 'gpt-5.6-luna',
-    reasoningEfforts: 'xhigh / high / medium',
+    model: 'Luna-only · gpt-5.6-luna',
+    reasoningEfforts: 'quality=luna·xhigh / balanced=luna·high / economy=luna·medium',
     fallback: '末选；故障后 Sol -> Terra',
   },
 ]
@@ -105,27 +105,27 @@ const executionSlots = [
   {
     id: 'mechanical_cleanup',
     purpose: '文件格式、去重和确定性转换；默认不调用外部模型。',
-    grades: 'economy=luna·medium / balanced=terra·high / quality=sol·xhigh',
+    grades: '默认档位：economy；模型由当前完整 preset 统一决定。',
   },
   {
     id: 'bulk_prefilter',
     purpose: '批量结构化、候选预筛和低风险异常分类。',
-    grades: 'economy=terra·medium / balanced=terra·high / quality=sol·xhigh',
+    grades: '默认档位：balanced；模型由当前完整 preset 统一决定。',
   },
   {
     id: 'engineering_review',
     purpose: '来源锚点、结构化候选、一般语义和工程变更复核。',
-    grades: 'economy=terra·medium / balanced=sol·medium / quality=sol·xhigh',
+    grades: '默认档位：balanced；模型由当前完整 preset 统一决定。',
   },
   {
     id: 'visual_review',
     purpose: '跨页、图表、公式、共享题图和导出视觉复核。',
-    grades: 'economy=terra·medium / balanced=terra·high / quality=sol·xhigh',
+    grades: '默认档位：quality；模型由当前完整 preset 统一决定。',
   },
   {
     id: 'high_risk_adjudication',
     purpose: '正式激活、冲突裁决、长期口径和难回滚事项。',
-    grades: 'economy=sol·low / balanced=sol·medium / quality=sol·xhigh',
+    grades: '默认档位：quality；模型由当前完整 preset 统一决定。',
   },
 ]
 

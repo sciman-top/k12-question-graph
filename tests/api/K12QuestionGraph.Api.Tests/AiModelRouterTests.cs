@@ -30,8 +30,8 @@ public sealed class AiModelRouterTests
         var route = CreateRouter().Route(new("knowledge_tagging", "balanced", "draft", 0.79m));
 
         Assert.True(route.Escalated);
-        Assert.Equal("gpt-5.6-terra", route.ModelName);
-        Assert.Equal("high", route.ReasoningEffort);
+        Assert.Equal("gpt-5.6-sol", route.ModelName);
+        Assert.Equal("medium", route.ReasoningEffort);
         Assert.Equal("gpt-5.6-sol", route.EffectiveModelName);
         Assert.Equal("medium", route.EffectiveReasoningEffort);
         Assert.Contains("low_confidence", route.EscalationReasons);
@@ -44,9 +44,9 @@ public sealed class AiModelRouterTests
 
         Assert.Equal("bulk_prefilter", route.ExecutionSlot);
         Assert.Equal("balanced", route.ExecutionGrade);
-        Assert.Equal("terra", route.Preset);
-        Assert.Equal("gpt-5.6-terra", route.ModelName);
-        Assert.Equal("high", route.ReasoningEffort);
+        Assert.Equal("sol", route.Preset);
+        Assert.Equal("gpt-5.6-sol", route.ModelName);
+        Assert.Equal("medium", route.ReasoningEffort);
         Assert.Equal("engineering_review", route.EffectiveExecutionSlot);
         Assert.Equal("balanced", route.EffectiveExecutionGrade);
         Assert.Equal("sol", route.EffectivePreset);
@@ -162,6 +162,56 @@ public sealed class AiModelRouterTests
         });
     }
 
+    [Fact]
+    public void EveryExecutionSlotUsesOnlyTheActiveSolPreset()
+    {
+        var router = CreateRouter();
+        var routes = new[]
+        {
+            router.Route(new("knowledge_tagging", "balanced", "draft", 0.95m)),
+            router.Route(new("crop_candidate_generation", "balanced", "draft", 0.95m)),
+            router.Route(new("question_solving", "balanced", "draft", 0.95m))
+        };
+
+        Assert.All(routes, route =>
+        {
+            Assert.Equal("sol", route.Preset);
+            Assert.Equal("gpt-5.6-sol", route.ModelName);
+        });
+        Assert.Equal(["medium", "xhigh", "xhigh"], routes.Select(route => route.ReasoningEffort).ToArray());
+    }
+
+    [Theory]
+    [InlineData("mechanical_cleanup", "economy", "low", "medium", "medium")]
+    [InlineData("bulk_prefilter", "balanced", "medium", "high", "high")]
+    [InlineData("engineering_review", "balanced", "medium", "high", "high")]
+    [InlineData("visual_review", "quality", "xhigh", "xhigh", "xhigh")]
+    [InlineData("high_risk_adjudication", "quality", "xhigh", "xhigh", "xhigh")]
+    public void EverySlotKeepsItsGradeAcrossSingleModelPresetFailover(
+        string slot,
+        string grade,
+        string solEffort,
+        string terraEffort,
+        string lunaEffort)
+    {
+        var candidates = CreateRouter().GetFailoverCandidates(
+            "gpt-5.6-sol",
+            "medium",
+            slot,
+            grade);
+
+        Assert.Equal(["sol", "terra", "luna"], candidates.Select(candidate => candidate.PresetId).ToArray());
+        Assert.Equal(
+            ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"],
+            candidates.Select(candidate => candidate.ModelName).ToArray());
+        Assert.Equal([solEffort, terraEffort, lunaEffort], candidates.Select(candidate => candidate.ReasoningEffort).ToArray());
+        Assert.All(candidates, candidate =>
+        {
+            Assert.Equal(slot, candidate.ExecutionSlot);
+            Assert.Equal(grade, candidate.ExecutionGrade);
+        });
+    }
+
     private static AiModelRouter CreateRouter()
     {
         var routes = new Dictionary<string, AiRouteOptions>(StringComparer.OrdinalIgnoreCase)
@@ -179,8 +229,8 @@ public sealed class AiModelRouterTests
                 ModelRole = "bulk_structuring",
                 ExecutionSlot = "bulk_prefilter",
                 ExecutionGrade = "balanced",
-                ModelName = "gpt-5.6-terra",
-                ReasoningEffort = "high",
+                ModelName = "gpt-5.6-sol",
+                ReasoningEffort = "medium",
                 EscalateToRole = "general_semantics",
                 EscalateToExecutionSlot = "engineering_review",
                 EscalateToExecutionGrade = "balanced",
@@ -196,7 +246,7 @@ public sealed class AiModelRouterTests
                 ModelRole = "visual_document",
                 ExecutionSlot = "visual_review",
                 ExecutionGrade = "quality",
-                ModelName = "gpt-5.6-terra",
+                ModelName = "gpt-5.6-sol",
                 ReasoningEffort = "xhigh",
                 EscalateToRole = "semantic_decision",
                 EscalateToExecutionSlot = "high_risk_adjudication",
@@ -230,11 +280,11 @@ public sealed class AiModelRouterTests
                 },
                 ExecutionSlots = new Dictionary<string, AiExecutionSlotOptions>(StringComparer.OrdinalIgnoreCase)
                 {
-                    ["mechanical_cleanup"] = new() { DefaultGrade = "economy", Grades = new() { ["economy"] = "luna", ["balanced"] = "terra", ["quality"] = "sol" } },
-                    ["bulk_prefilter"] = new() { DefaultGrade = "balanced", Grades = new() { ["economy"] = "terra", ["balanced"] = "terra", ["quality"] = "sol" } },
-                    ["engineering_review"] = new() { DefaultGrade = "balanced", Grades = new() { ["economy"] = "terra", ["balanced"] = "sol", ["quality"] = "sol" } },
-                    ["visual_review"] = new() { DefaultGrade = "quality", Grades = new() { ["economy"] = "terra", ["balanced"] = "terra", ["quality"] = "sol" } },
-                    ["high_risk_adjudication"] = new() { DefaultGrade = "quality", Grades = new() { ["economy"] = "sol", ["balanced"] = "sol", ["quality"] = "sol" } }
+                    ["mechanical_cleanup"] = new() { DefaultGrade = "economy" },
+                    ["bulk_prefilter"] = new() { DefaultGrade = "balanced" },
+                    ["engineering_review"] = new() { DefaultGrade = "balanced" },
+                    ["visual_review"] = new() { DefaultGrade = "quality" },
+                    ["high_risk_adjudication"] = new() { DefaultGrade = "quality" }
                 },
                 ModelFailover = new() { PreferredPresetOrder = ["sol", "terra", "luna"] }
             }),

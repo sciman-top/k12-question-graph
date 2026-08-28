@@ -46,16 +46,16 @@ L0 不调用外部 AI。能由 CSV parser、JSON/YAML/schema、SQL、hash、rege
 | 业务阶段 | 任务 | 默认路由 | 升级/切换条件 | 执行边界 |
 | --- | --- | --- | --- | --- |
 | 入库 | hash、来源 metadata、页码、硬约束 | 本地确定性处理 | 不升级模型，先修复本地输入 | 可写缓存/候选元数据 |
-| 入库 | 普通题目结构化、选项和小问拆分 | `gpt-5.6-terra / high` | 跨页或结构歧义转 `sol / medium`，高风险冲突再转 `sol / xhigh` | 只能生成候选 |
-| 切图 | 普通题目区域候选 | `gpt-5.6-terra / high` | 共用题图、跨页、复杂图表时转 `terra / xhigh` | 模型只给 `bbox`，确定性工具执行裁切 |
-| 切图 | 疑难图文归属、表格和公式区域复核 | `gpt-5.6-terra / xhigh` | 图文语义仍冲突时转 `sol / xhigh` | 生成复核候选，不执行裁切 |
-| 标签 | 普通知识点、题型、难度候选 | `gpt-5.6-terra / high` | 需结合课标/教材/评价目标时转 `sol / medium` | 不自动写 active 知识节点 |
-| 标签 | 一拆多、多合一、多对多映射 | `gpt-5.6-sol / xhigh` | 证据不足则人工接管 | 保持 `pending_review` |
-| 组卷 | 教师自然语言需求解析 | `gpt-5.6-terra / high` | 需求含多个语义约束或指代不清时转 `sol / medium` | 只生成结构化 blueprint |
-| 组卷 | 候选排序、覆盖面、难度和梯度取舍 | `gpt-5.6-sol / xhigh` | 仅在复杂软约束存在时调用 | 硬约束仍由规则/求解器确认 |
-| 复核 | 图片、公式、裁切和导出版面 | `gpt-5.6-terra / xhigh` | 视觉结果与题干语义冲突时转 `sol / xhigh` | 生成视觉问题报告 |
-| 解题 | AI 独立求解并生成答案、关键步骤和依据 | 固定 `gpt-5.6-sol / xhigh` | 普通题、高难题、复杂题及任意 mode/风险信号均不降档或换档 | 保持 `pending_review`，结构化校验和人工复核仍必需 |
-| 校验 | 普通答案和解析一致性 | `gpt-5.6-sol / medium` | 正式题、分支条件或评分点冲突时转 `sol / xhigh` | 保持 `pending_review` |
+| 入库 | 普通题目结构化、选项和小问拆分 | 当前预设 / `balanced` | 跨页或结构歧义转更高执行槽位 | 只能生成候选 |
+| 切图 | 普通题目区域候选 | 当前预设 / `balanced` | 共用题图、跨页、复杂图表时转 `quality` | 模型只给 `bbox`，确定性工具执行裁切 |
+| 切图 | 疑难图文归属、表格和公式区域复核 | 当前预设 / `quality` | 图文语义仍冲突时转高风险槽位 | 生成复核候选，不执行裁切 |
+| 标签 | 普通知识点、题型、难度候选 | 当前预设 / `balanced` | 需结合课标/教材/评价目标时升级槽位 | 不自动写 active 知识节点 |
+| 标签 | 一拆多、多合一、多对多映射 | 当前预设 / `quality` | 证据不足则人工接管 | 保持 `pending_review` |
+| 组卷 | 教师自然语言需求解析 | 当前预设 / `balanced` | 需求含多个语义约束或指代不清时升级槽位 | 只生成结构化 blueprint |
+| 组卷 | 候选排序、覆盖面、难度和梯度取舍 | 当前预设 / `quality` | 仅在复杂软约束存在时调用 | 硬约束仍由规则/求解器确认 |
+| 复核 | 图片、公式、裁切和导出版面 | 当前预设 / `quality` | 视觉结果与题干语义冲突时转高风险槽位 | 生成视觉问题报告 |
+| 解题 | AI 独立求解并生成答案、关键步骤和依据 | 当前预设 / `quality` | 风险信号只影响复核优先级，不更改此槽位档位 | 保持 `pending_review`，结构化校验和人工复核仍必需 |
+| 校验 | 普通答案和解析一致性 | 当前预设 / `balanced` | 正式题、分支条件或评分点冲突时转 `quality` | 保持 `pending_review` |
 
 运行时模型使用三套完整预设。每套预设同时固定模型名和可用的 reasoning 等级，路由切换时切换整套预设：
 
@@ -65,19 +65,19 @@ L0 不调用外部 AI。能由 CSV parser、JSON/YAML/schema、SQL、hash、rege
 | `terra`（次选） | `gpt-5.6-terra` | `xhigh` / `high` / `medium` |
 | `luna`（末选） | `gpt-5.6-luna` | `xhigh` / `high` / `medium` |
 
-三套预设的三档固定映射为：`sol: quality=xhigh, balanced=medium, economy=low`；`terra: quality=xhigh, balanced=high, economy=medium`；`luna: quality=xhigh, balanced=high, economy=medium`。档位是工作质量/延迟目标，preset 是完整的模型 + effort 集合；故障切换只换 preset，不改变执行槽位和档位。
+三套预设的三档固定映射为：`Sol-only: quality=sol/xhigh, balanced=sol/medium, economy=sol/low`；`Terra-only: quality=terra/xhigh, balanced=terra/high, economy=terra/medium`；`Luna-only: quality=luna/xhigh, balanced=luna/high, economy=luna/medium`。预设是完整的单模型模型+effort 集合：同一预设内绝不混合 Sol、Terra、Luna。故障切换只换完整 preset，不改变执行槽位和档位。
 
 执行槽位是工作性质，不是模型名称。当前五个槽位及其三档 preset 编排如下：
 
-| 执行槽位 | economy | balanced | quality |
-|---|---|---|---|
-| `mechanical_cleanup` | `luna / medium` | `terra / high` | `sol / xhigh` |
-| `bulk_prefilter` | `terra / medium` | `terra / high` | `sol / xhigh` |
-| `engineering_review` | `terra / medium` | `sol / medium` | `sol / xhigh` |
-| `visual_review` | `terra / medium` | `terra / high` | `sol / xhigh` |
-| `high_risk_adjudication` | `sol / low` | `sol / medium` | `sol / xhigh` |
+| 执行槽位 | 默认档位 | 切到 Sol-only | 切到 Terra-only | 切到 Luna-only |
+| --- | --- | --- | --- | --- |
+| `mechanical_cleanup` | `economy` | `sol / low` | `terra / medium` | `luna / medium` |
+| `bulk_prefilter` | `balanced` | `sol / medium` | `terra / high` | `luna / high` |
+| `engineering_review` | `balanced` | `sol / medium` | `terra / high` | `luna / high` |
+| `visual_review` | `quality` | `sol / xhigh` | `terra / xhigh` | `luna / xhigh` |
+| `high_risk_adjudication` | `quality` | `sol / xhigh` | `terra / xhigh` | `luna / xhigh` |
 
-任务路由先选择 `executionSlot + executionGrade`，再由 `execution_slots` 解析当前 preset 和该 preset 的 effort；“默认优选 Sol”是可用性恢复和故障切换的优先级，不覆盖需要批量成本控制的任务级 preset 选择。
+任务路由先选择 `executionSlot + executionGrade`，再由当前完整 preset 解析模型和 effort；`execution_slots` 不再保存或选择任何模型。默认优选 Sol-only；只有连接故障才整套切到 Terra-only，再到 Luna-only。
 
 ```text
 本地确定性处理
@@ -92,7 +92,7 @@ L0 不调用外部 AI。能由 CSV parser、JSON/YAML/schema、SQL、hash、rege
 
 管理员 provider smoke 默认调用同一 `AiModelRouter`，先对当前预设的模型执行 `/models` 可用性探测，再向同一 Cockpit 网关发送 `/responses`；失败后按预设优先级探测下一个完整预设。最终 `effectiveExecutionSlot`、`effectiveExecutionGrade`、`effectivePreset`、`effectiveModelName` 和 `effectiveReasoningEffort` 写入 Responses 请求结果及审计记录。只有显式 `UseModelRouting=false` 才允许手动模型探针，并固定标记 `routing_source=manual_model_override`，手动 override 不隐式切换预设。任一全局/管理员真实调用门禁未满足时，探针 fail-closed，不发起 provider 请求。
 
-运行时同时返回默认路线和最终生效路线。`low_cost` 仅在当前任务声明的显式风险信号命中时升级；`balanced` 还会在置信度低于任务阈值时升级；`high_accuracy` 可对显式 opt-in 的普通路线预防性提前一级。风险信号按任务 allowlist 过滤，未知 mode fail-closed，确定性任务和没有升级目标的最高档任务永不隐式升级。`question_solving` 是明确例外：默认和最终路由始终固定为 `gpt-5.6-sol/xhigh`，不配置替代路线；题目难度和复杂度只影响复核优先级，不参与解题模型降档或换档。当前信号包括 `cross_page`、`shared_visual`、`formula_or_table`、`semantic_conflict`、`multiple_constraints`、`formal_exam` 和 `source_evidence_conflict`。返回值中的 `effectiveExecutionSlot`、`effectiveExecutionGrade`、`effectivePreset`、`effectiveModelRole`、`effectiveModelName`、`effectiveReasoningEffort`、`escalated` 和 `escalationReasons` 是实际执行选择；原 `model*` 字段保留默认路线用于审计。
+运行时同时返回默认路线和最终生效路线。`low_cost` 仅在当前任务声明的显式风险信号命中时升级；`balanced` 还会在置信度低于任务阈值时升级；`high_accuracy` 可对显式 opt-in 的普通路线预防性提前一级。风险信号按任务 allowlist 过滤，未知 mode fail-closed，确定性任务和没有升级目标的最高档任务永不隐式升级。题目难度和复杂度只影响槽位/档位及复核优先级，不得在同一 preset 内直接换到另一种模型。当前信号包括 `cross_page`、`shared_visual`、`formula_or_table`、`semantic_conflict`、`multiple_constraints`、`formal_exam` 和 `source_evidence_conflict`。返回值中的 `effectiveExecutionSlot`、`effectiveExecutionGrade`、`effectivePreset`、`effectiveModelRole`、`effectiveModelName`、`effectiveReasoningEffort`、`escalated` 和 `escalationReasons` 是实际执行选择；原 `model*` 字段保留默认路线用于审计。
 
 ## 3.2 Codex 外层校验模型矩阵
 

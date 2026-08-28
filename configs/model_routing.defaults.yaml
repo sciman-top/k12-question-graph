@@ -12,15 +12,15 @@ model_catalog:
     reasoning_effort: none
     description: "文件、版面、裁切执行和硬约束由本地规则/工具完成，不调用外部模型。"
   bulk_structuring:
-    model: gpt-5.6-terra
-    reasoning_effort: high
+    model: gpt-5.6-sol
+    reasoning_effort: medium
     description: "批量入库结构化、普通题目拆分、常规标签初筛和普通组卷需求解析。"
   general_semantics:
     model: gpt-5.6-sol
     reasoning_effort: medium
     description: "较复杂题目结构确认、一般答案校验和组卷候选语义复核。"
   visual_document:
-    model: gpt-5.6-terra
+    model: gpt-5.6-sol
     reasoning_effort: xhigh
     description: "疑难视觉、版面、图表、公式区域、共享题图和导出视觉复核。"
   semantic_decision:
@@ -63,38 +63,18 @@ execution_slots:
   mechanical_cleanup:
     default_grade: economy
     description: "文件格式、去重、确定性转换；默认不调用外部模型。异常语义仅进入更高槽位。"
-    grades:
-      economy: luna
-      balanced: terra
-      quality: sol
   bulk_prefilter:
     default_grade: balanced
     description: "批量结构化、候选预筛和低风险异常分类。"
-    grades:
-      economy: terra
-      balanced: terra
-      quality: sol
   engineering_review:
     default_grade: balanced
     description: "来源锚点、结构化候选、一般语义和工程变更复核。"
-    grades:
-      economy: terra
-      balanced: sol
-      quality: sol
   visual_review:
     default_grade: quality
     description: "跨页、图表、公式、共享题图和导出视觉复核。"
-    grades:
-      economy: terra
-      balanced: terra
-      quality: sol
   high_risk_adjudication:
     default_grade: quality
     description: "正式激活、冲突裁决、长期口径和难回滚事项；始终需要人工审核。"
-    grades:
-      economy: sol
-      balanced: sol
-      quality: sol
 route_contract:
   task_scoped: true
   local_execution_before_model: true
@@ -140,13 +120,13 @@ routes:
     model_role: bulk_structuring
     execution_slot: bulk_prefilter
     execution_grade: balanced
-    model: gpt-5.6-terra
-    reasoning_effort: high
+    model: gpt-5.6-sol
+    reasoning_effort: medium
     model_tier: medium
     escalate_to_role: visual_document
     escalate_to_execution_slot: visual_review
     escalate_to_execution_grade: quality
-    escalate_to: gpt-5.6-terra
+    escalate_to: gpt-5.6-sol
     escalate_reasoning_effort: xhigh
     escalate_in_high_accuracy: true
     escalation_signals: [cross_page, shared_visual, formula_or_table]
@@ -181,8 +161,8 @@ routes:
     model_role: bulk_structuring
     execution_slot: bulk_prefilter
     execution_grade: balanced
-    model: gpt-5.6-terra
-    reasoning_effort: high
+    model: gpt-5.6-sol
+    reasoning_effort: medium
     model_tier: medium
     escalate_to_role: general_semantics
     escalate_to_execution_slot: engineering_review
@@ -199,8 +179,8 @@ routes:
     model_role: bulk_structuring
     execution_slot: bulk_prefilter
     execution_grade: balanced
-    model: gpt-5.6-terra
-    reasoning_effort: high
+    model: gpt-5.6-sol
+    reasoning_effort: medium
     model_tier: medium
     escalate_to_role: general_semantics
     escalate_to_execution_slot: engineering_review
@@ -229,8 +209,8 @@ routes:
     model_role: bulk_structuring
     execution_slot: bulk_prefilter
     execution_grade: balanced
-    model: gpt-5.6-terra
-    reasoning_effort: high
+    model: gpt-5.6-sol
+    reasoning_effort: medium
     model_tier: medium
     escalate_to_role: general_semantics
     escalate_to_execution_slot: engineering_review
