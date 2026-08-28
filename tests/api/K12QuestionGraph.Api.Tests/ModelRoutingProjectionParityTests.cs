@@ -10,9 +10,13 @@ public sealed class ModelRoutingProjectionParityTests
         ("handler", "Handler"),
         ("stage", "Stage"),
         ("model_role", "ModelRole"),
+        ("execution_slot", "ExecutionSlot"),
+        ("execution_grade", "ExecutionGrade"),
         ("model", "ModelName"),
         ("reasoning_effort", "ReasoningEffort"),
         ("escalate_to_role", "EscalateToRole"),
+        ("escalate_to_execution_slot", "EscalateToExecutionSlot"),
+        ("escalate_to_execution_grade", "EscalateToExecutionGrade"),
         ("escalate_to", "EscalateToModel"),
         ("escalate_reasoning_effort", "EscalateReasoningEffort"),
         ("structured_output_schema", "StructuredOutputSchema"),
@@ -46,6 +50,94 @@ public sealed class ModelRoutingProjectionParityTests
                     string.Equals(yamlValue, jsonValue, StringComparison.Ordinal),
                     $"Route '{routeName}' field '{yamlName}' differs: YAML='{yamlValue ?? "<null>"}', appsettings='{jsonValue ?? "<null>"}'.");
             }
+        }
+    }
+
+    [Fact]
+    public void YamlModelPresetsAndFailoverMatchRuntimeAppsettingsProjection()
+    {
+        var yamlPath = Path.Combine(RepoRoot, "configs", "model_routing.defaults.yaml");
+        var appsettingsPath = Path.Combine(RepoRoot, "apps", "api", "appsettings.json");
+        using var reader = new StringReader(File.ReadAllText(yamlPath));
+        var stream = new YamlStream();
+        stream.Load(reader);
+        var root = (YamlMappingNode)stream.Documents[0].RootNode;
+        var yamlPresets = (YamlMappingNode)GetYamlChild(root, "model_presets");
+        using var appsettings = JsonDocument.Parse(File.ReadAllText(appsettingsPath));
+        var aiRouting = appsettings.RootElement.GetProperty("AiRouting");
+        var jsonPresets = aiRouting.GetProperty("ModelPresets");
+
+        var yamlNames = yamlPresets.Children
+            .Select(pair => ((YamlScalarNode)pair.Key).Value!)
+            .OrderBy(x => x, StringComparer.Ordinal)
+            .ToArray();
+        var jsonNames = jsonPresets.EnumerateObject()
+            .Select(x => x.Name)
+            .OrderBy(x => x, StringComparer.Ordinal)
+            .ToArray();
+        Assert.Equal(yamlNames, jsonNames);
+
+        foreach (var presetName in yamlNames)
+        {
+            var yamlPreset = (YamlMappingNode)yamlPresets.Children.First(pair =>
+                string.Equals(((YamlScalarNode)pair.Key).Value, presetName, StringComparison.Ordinal)).Value;
+            var jsonPreset = jsonPresets.GetProperty(presetName);
+            Assert.Equal(ReadYamlValue(yamlPreset, "model_name"), ReadJsonValue(jsonPreset, "ModelName"));
+            Assert.Equal(ReadYamlValue(yamlPreset, "reasoning_efforts"), ReadJsonValue(jsonPreset, "ReasoningEfforts"));
+            Assert.Equal(ReadYamlValue(yamlPreset, "fallback_reasoning_effort"), ReadJsonValue(jsonPreset, "FallbackReasoningEffort"));
+
+            var yamlGrades = (YamlMappingNode)GetYamlChild(yamlPreset, "grade_to_reasoning_effort");
+            var jsonGrades = jsonPreset.GetProperty("GradeToReasoningEffort");
+            Assert.Equal(
+                yamlGrades.Children.ToDictionary(
+                    pair => ((YamlScalarNode)pair.Key).Value!,
+                    pair => ReadYamlValue(yamlGrades, ((YamlScalarNode)pair.Key).Value!)!,
+                    StringComparer.OrdinalIgnoreCase),
+                jsonGrades.EnumerateObject().ToDictionary(
+                    pair => pair.Name,
+                    pair => pair.Value.GetString()!,
+                    StringComparer.OrdinalIgnoreCase));
+        }
+
+        var yamlFailover = (YamlMappingNode)GetYamlChild(root, "model_failover");
+        var jsonFailover = aiRouting.GetProperty("ModelFailover");
+        Assert.Equal(ReadYamlValue(yamlFailover, "enabled"), ReadJsonValue(jsonFailover, "Enabled"));
+        Assert.Equal(ReadYamlValue(yamlFailover, "preferred_preset_order"), ReadJsonValue(jsonFailover, "PreferredPresetOrder"));
+        Assert.Equal(ReadYamlValue(yamlFailover, "availability_probe_path"), ReadJsonValue(jsonFailover, "AvailabilityProbePath"));
+
+        var yamlSlots = (YamlMappingNode)GetYamlChild(root, "execution_slots");
+        var jsonSlots = aiRouting.GetProperty("ExecutionSlots");
+        var yamlSlotNames = yamlSlots.Children
+            .Select(pair => ((YamlScalarNode)pair.Key).Value!)
+            .OrderBy(x => x, StringComparer.Ordinal)
+            .ToArray();
+        var jsonSlotNames = jsonSlots.EnumerateObject()
+            .Select(x => x.Name)
+            .OrderBy(x => x, StringComparer.Ordinal)
+            .ToArray();
+        Assert.Equal(5, yamlSlotNames.Length);
+        Assert.Equal(yamlSlotNames, jsonSlotNames);
+
+        foreach (var slotName in yamlSlotNames)
+        {
+            var yamlSlot = (YamlMappingNode)yamlSlots.Children.First(pair =>
+                string.Equals(((YamlScalarNode)pair.Key).Value, slotName, StringComparison.Ordinal)).Value;
+            var jsonSlot = jsonSlots.GetProperty(slotName);
+            Assert.Equal(ReadYamlValue(yamlSlot, "default_grade"), ReadJsonValue(jsonSlot, "DefaultGrade"));
+            Assert.Equal(ReadYamlValue(yamlSlot, "description"), ReadJsonValue(jsonSlot, "Description"));
+
+            var yamlGrades = (YamlMappingNode)GetYamlChild(yamlSlot, "grades");
+            var jsonGrades = jsonSlot.GetProperty("Grades");
+            Assert.Equal(
+                yamlGrades.Children.ToDictionary(
+                    pair => ((YamlScalarNode)pair.Key).Value!,
+                    pair => ReadYamlValue(yamlGrades, ((YamlScalarNode)pair.Key).Value!)!,
+                    StringComparer.OrdinalIgnoreCase),
+                jsonGrades.EnumerateObject().ToDictionary(
+                    pair => pair.Name,
+                    pair => pair.Value.GetString()!,
+                    StringComparer.OrdinalIgnoreCase));
+            Assert.Equal(3, yamlGrades.Children.Count);
         }
     }
 

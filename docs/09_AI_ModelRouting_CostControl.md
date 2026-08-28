@@ -57,22 +57,42 @@ L0 不调用外部 AI。能由 CSV parser、JSON/YAML/schema、SQL、hash、rege
 | 解题 | AI 独立求解并生成答案、关键步骤和依据 | 固定 `gpt-5.6-sol / xhigh` | 普通题、高难题、复杂题及任意 mode/风险信号均不降档或换档 | 保持 `pending_review`，结构化校验和人工复核仍必需 |
 | 校验 | 普通答案和解析一致性 | `gpt-5.6-sol / medium` | 正式题、分支条件或评分点冲突时转 `sol / xhigh` | 保持 `pending_review` |
 
-四档由“模型层级 + reasoning”共同定义，形成普通任务链与疑难任务链：
+运行时模型使用三套完整预设。每套预设同时固定模型名和可用的 reasoning 等级，路由切换时切换整套预设：
+
+| 预设 | 模型 | reasoning 等级 |
+|---|---|---|
+| `sol`（默认优选） | `gpt-5.6-sol` | `xhigh` / `medium` / `low` |
+| `terra`（次选） | `gpt-5.6-terra` | `xhigh` / `high` / `medium` |
+| `luna`（末选） | `gpt-5.6-luna` | `xhigh` / `high` / `medium` |
+
+三套预设的三档固定映射为：`sol: quality=xhigh, balanced=medium, economy=low`；`terra: quality=xhigh, balanced=high, economy=medium`；`luna: quality=xhigh, balanced=high, economy=medium`。档位是工作质量/延迟目标，preset 是完整的模型 + effort 集合；故障切换只换 preset，不改变执行槽位和档位。
+
+执行槽位是工作性质，不是模型名称。当前五个槽位及其三档 preset 编排如下：
+
+| 执行槽位 | economy | balanced | quality |
+|---|---|---|---|
+| `mechanical_cleanup` | `luna / medium` | `terra / high` | `sol / xhigh` |
+| `bulk_prefilter` | `terra / medium` | `terra / high` | `sol / xhigh` |
+| `engineering_review` | `terra / medium` | `sol / medium` | `sol / xhigh` |
+| `visual_review` | `terra / medium` | `terra / high` | `sol / xhigh` |
+| `high_risk_adjudication` | `sol / low` | `sol / medium` | `sol / xhigh` |
+
+任务路由先选择 `executionSlot + executionGrade`，再由 `execution_slots` 解析当前 preset 和该 preset 的 effort；“默认优选 Sol”是可用性恢复和故障切换的优先级，不覆盖需要批量成本控制的任务级 preset 选择。
 
 ```text
 本地确定性处理
-  -> terra/high：批量结构化和普通候选
-  -> sol/medium：常规语义复核
-  -> terra/xhigh：视觉/版面/图表专项
-  -> sol/xhigh：复杂语义、约束取舍和一致性裁决
+  -> 当前任务预设及 reasoning 等级
+  -> 当前预设不可用时：Sol -> Terra -> Luna
+  -> Terra 当前不可用时：Sol -> Luna
+  -> Luna 当前不可用时：Sol -> Terra
   -> pending_review / 人工确认
 ```
 
-配置真源为 `configs/model_routing.defaults.yaml`，运行时投影为 `apps/api/appsettings.json`。`terra/high` 与 `terra/xhigh` 的项目准入基于其图像输入、Structured Outputs 和 reasoning 支持，但视觉质量仍须由真实题卷 eval 验证；配置存在不等于 live accepted。路由结果必须记录 `stage`、`modelRole`、`modelName`、`reasoningEffort`、升级目标、prompt/schema 版本和输入证据。模型输出默认保持 `candidate/pending_review/productionEligible=false`，不得直接改变 active 资产。
+配置真源为 `configs/model_routing.defaults.yaml`，运行时投影为 `apps/api/appsettings.json`。provider 默认网关为 Cockpit 本地 API 服务 `http://127.0.0.1:45335/v1`，由 `.env` 的 `KQG_AI_OPENAI_BASE_URL` 和 `KQG_AI_OPENAI_KEY` 注入；外部地址不再作为默认网关。配置存在不等于 live accepted。路由结果必须记录 `stage`、`executionSlot`、`executionGrade`、`preset`、`modelRole`、`modelName`、`reasoningEffort`、升级目标、prompt/schema 版本和输入证据。模型输出默认保持 `candidate/pending_review/productionEligible=false`，不得直接改变 active 资产。
 
-管理员 provider smoke 默认调用同一 `AiModelRouter`，把 `effectiveModelName` 和 `effectiveReasoningEffort` 写入 Responses 请求及审计记录；只有显式 `UseModelRouting=false` 才允许手动模型探针，并固定标记 `routing_source=manual_model_override`。任一全局/管理员真实调用门禁未满足时，探针 fail-closed，不发起 provider 请求。
+管理员 provider smoke 默认调用同一 `AiModelRouter`，先对当前预设的模型执行 `/models` 可用性探测，再向同一 Cockpit 网关发送 `/responses`；失败后按预设优先级探测下一个完整预设。最终 `effectiveExecutionSlot`、`effectiveExecutionGrade`、`effectivePreset`、`effectiveModelName` 和 `effectiveReasoningEffort` 写入 Responses 请求结果及审计记录。只有显式 `UseModelRouting=false` 才允许手动模型探针，并固定标记 `routing_source=manual_model_override`，手动 override 不隐式切换预设。任一全局/管理员真实调用门禁未满足时，探针 fail-closed，不发起 provider 请求。
 
-运行时同时返回默认路线和最终生效路线。`low_cost` 仅在当前任务声明的显式风险信号命中时升级；`balanced` 还会在置信度低于任务阈值时升级；`high_accuracy` 可对显式 opt-in 的普通路线预防性提前一级。风险信号按任务 allowlist 过滤，未知 mode fail-closed，确定性任务和没有升级目标的最高档任务永不隐式升级。`question_solving` 是明确例外：默认和最终路由始终固定为 `gpt-5.6-sol/xhigh`，不配置替代路线；题目难度和复杂度只影响复核优先级，不参与解题模型降档或换档。当前信号包括 `cross_page`、`shared_visual`、`formula_or_table`、`semantic_conflict`、`multiple_constraints`、`formal_exam` 和 `source_evidence_conflict`。返回值中的 `effectiveModelRole`、`effectiveModelName`、`effectiveReasoningEffort`、`escalated` 和 `escalationReasons` 是实际执行选择；原 `model*` 字段保留默认路线用于审计。
+运行时同时返回默认路线和最终生效路线。`low_cost` 仅在当前任务声明的显式风险信号命中时升级；`balanced` 还会在置信度低于任务阈值时升级；`high_accuracy` 可对显式 opt-in 的普通路线预防性提前一级。风险信号按任务 allowlist 过滤，未知 mode fail-closed，确定性任务和没有升级目标的最高档任务永不隐式升级。`question_solving` 是明确例外：默认和最终路由始终固定为 `gpt-5.6-sol/xhigh`，不配置替代路线；题目难度和复杂度只影响复核优先级，不参与解题模型降档或换档。当前信号包括 `cross_page`、`shared_visual`、`formula_or_table`、`semantic_conflict`、`multiple_constraints`、`formal_exam` 和 `source_evidence_conflict`。返回值中的 `effectiveExecutionSlot`、`effectiveExecutionGrade`、`effectivePreset`、`effectiveModelRole`、`effectiveModelName`、`effectiveReasoningEffort`、`escalated` 和 `escalationReasons` 是实际执行选择；原 `model*` 字段保留默认路线用于审计。
 
 ## 3.2 Codex 外层校验模型矩阵
 
@@ -89,7 +109,7 @@ L0 不调用外部 AI。能由 CSV parser、JSON/YAML/schema、SQL、hash、rege
 → 正式激活仍必须保留人工审核
 ```
 
-当前四档映射固定为 `gpt-5.6-terra / high`（批量初筛）、`gpt-5.6-sol / medium`（工程与常规语义复核）、`gpt-5.6-terra / xhigh`（视觉/版面专项）和 `gpt-5.6-sol / xhigh`（高风险语义裁决）。机械清洗保持本地确定性执行（`none`），只有出现语义判断时才升级到 `terra / high`。模型价格、可用性或质量变化时，应同时更新 `configs/model_routing.defaults.yaml` 的 `role_to_model` 与 `role_to_reasoning_effort`，并通过代表性 eval 与 YAML→`appsettings.json` parity guard；不得改变“规则优先、低成本批筛、按风险升级、人工兜底”的策略语义。
+当前外层任务先绑定五个 `execution_slots`，再由 `economy/balanced/quality` 解析 `model_presets`；旧 `role_to_model` 与 `role_to_reasoning_effort` 仅保留为外层角色兼容映射，不是运行时故障 fallback 链的真源。模型价格、可用性或质量变化时，应更新 `model_presets`、`execution_slots` 及对应 route，并通过代表性 eval 与 YAML→`appsettings.json` parity guard；不得改变“规则优先、按任务风险路由、槽位/档位稳定、预设级可用性切换、人工兜底”的策略语义。
 
 | 任务 | 默认模型 | 升级条件 | 成本口径 |
 |---|---|---|---|
@@ -111,7 +131,7 @@ L0 不调用外部 AI。能由 CSV parser、JSON/YAML/schema、SQL、hash、rege
 第四层 gpt-5.6-sol / xhigh：高风险语义、政策边界和不可轻易回滚裁决
 ```
 
-四档不是质量承诺：`medium/high/xhigh` 的提升必须由代表性 paired eval 证明，真实 provider 默认关闭；配置与 parity 通过只证明 `repo_verified`/`filesystem_projected`，不等于 `host_loaded` 或 `live_accepted`。凡是可用规则、schema、SQL、CSV parser 或本地脚本解决的任务，不升级模型。
+三套预设和其中 `medium/high/xhigh/low` 等级不是质量承诺：等级提升必须由代表性 paired eval 证明，真实 provider 默认关闭；配置与 parity 通过只证明 `repo_verified`/`filesystem_projected`，不等于 `host_loaded` 或 `live_accepted`。凡是可用规则、schema、SQL、CSV parser 或本地脚本解决的任务，不升级模型。
 
 来源核验不得只依赖更强模型。进入正式激活链路的来源证据必须可追溯到 `source_id`、页码/题号/章节、原文片段或 hash；模型只辅助判断一致性和风险，不替代证据锚点。
 

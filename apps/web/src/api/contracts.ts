@@ -778,6 +778,9 @@ export interface AdminAiProviderSettingsTestContract {
   model: string
   taskType: string
   effectiveReasoningEffort: string
+  effectiveExecutionSlot: string
+  effectiveExecutionGrade: string
+  effectivePreset: string
   routingMode: string
   usedModelRouting: boolean
   reviewStatus: string
@@ -1785,6 +1788,9 @@ export function normalizeAdminAiProviderSettingsTestResponse(
     model: readStringField(value, 'model') ?? '',
     taskType: readStringField(value, 'taskType') ?? '',
     effectiveReasoningEffort: readStringField(value, 'effectiveReasoningEffort') ?? '',
+    effectiveExecutionSlot: readStringField(value, 'effectiveExecutionSlot') ?? '',
+    effectiveExecutionGrade: readStringField(value, 'effectiveExecutionGrade') ?? '',
+    effectivePreset: readStringField(value, 'effectivePreset') ?? '',
     routingMode: readStringField(value, 'routingMode') ?? '',
     usedModelRouting: readBooleanField(value, 'usedModelRouting'),
     reviewStatus: readStringField(value, 'reviewStatus') ?? '',

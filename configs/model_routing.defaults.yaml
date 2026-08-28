@@ -1,4 +1,4 @@
-version: 0.4
+version: 0.5
 modes:
   low_cost:
     description: "本地工具和小模型优先，强模型只处理高风险异常。"
@@ -27,6 +27,74 @@ model_catalog:
     model: gpt-5.6-sol
     reasoning_effort: xhigh
     description: "复杂映射、跨页语义冲突、组卷软约束和答案一致性裁决。"
+model_presets:
+  sol:
+    model_name: gpt-5.6-sol
+    reasoning_efforts: [xhigh, medium, low]
+    grade_to_reasoning_effort:
+      quality: xhigh
+      balanced: medium
+      economy: low
+    fallback_reasoning_effort: medium
+    description: "首选高质量本地 Cockpit API 模型预设。"
+  terra:
+    model_name: gpt-5.6-terra
+    reasoning_efforts: [xhigh, high, medium]
+    grade_to_reasoning_effort:
+      quality: xhigh
+      balanced: high
+      economy: medium
+    fallback_reasoning_effort: medium
+    description: "Sol 故障时的次选 Cockpit API 模型预设。"
+  luna:
+    model_name: gpt-5.6-luna
+    reasoning_efforts: [xhigh, high, medium]
+    grade_to_reasoning_effort:
+      quality: xhigh
+      balanced: high
+      economy: medium
+    fallback_reasoning_effort: medium
+    description: "Sol 与 Terra 均不可用时的末选 Cockpit API 模型预设。"
+model_failover:
+  enabled: true
+  preferred_preset_order: [sol, terra, luna]
+  availability_probe_path: /models
+execution_slots:
+  mechanical_cleanup:
+    default_grade: economy
+    description: "文件格式、去重、确定性转换；默认不调用外部模型。异常语义仅进入更高槽位。"
+    grades:
+      economy: luna
+      balanced: terra
+      quality: sol
+  bulk_prefilter:
+    default_grade: balanced
+    description: "批量结构化、候选预筛和低风险异常分类。"
+    grades:
+      economy: terra
+      balanced: terra
+      quality: sol
+  engineering_review:
+    default_grade: balanced
+    description: "来源锚点、结构化候选、一般语义和工程变更复核。"
+    grades:
+      economy: terra
+      balanced: sol
+      quality: sol
+  visual_review:
+    default_grade: quality
+    description: "跨页、图表、公式、共享题图和导出视觉复核。"
+    grades:
+      economy: terra
+      balanced: terra
+      quality: sol
+  high_risk_adjudication:
+    default_grade: quality
+    description: "正式激活、冲突裁决、长期口径和难回滚事项；始终需要人工审核。"
+    grades:
+      economy: sol
+      balanced: sol
+      quality: sol
 route_contract:
   task_scoped: true
   local_execution_before_model: true
@@ -70,10 +138,14 @@ routes:
     stage: cutting
     handler: llm
     model_role: bulk_structuring
+    execution_slot: bulk_prefilter
+    execution_grade: balanced
     model: gpt-5.6-terra
     reasoning_effort: high
     model_tier: medium
     escalate_to_role: visual_document
+    escalate_to_execution_slot: visual_review
+    escalate_to_execution_grade: quality
     escalate_to: gpt-5.6-terra
     escalate_reasoning_effort: xhigh
     escalate_in_high_accuracy: true
@@ -84,10 +156,14 @@ routes:
     stage: cutting
     handler: llm
     model_role: visual_document
-    model: gpt-5.6-terra
+    execution_slot: visual_review
+    execution_grade: quality
+    model: gpt-5.6-sol
     reasoning_effort: xhigh
     model_tier: strong
     escalate_to_role: semantic_decision
+    escalate_to_execution_slot: high_risk_adjudication
+    escalate_to_execution_grade: quality
     escalate_to: gpt-5.6-sol
     escalate_reasoning_effort: xhigh
     escalation_signals: [semantic_conflict, source_evidence_conflict]
@@ -103,10 +179,14 @@ routes:
     stage: structuring
     handler: llm
     model_role: bulk_structuring
+    execution_slot: bulk_prefilter
+    execution_grade: balanced
     model: gpt-5.6-terra
     reasoning_effort: high
     model_tier: medium
     escalate_to_role: general_semantics
+    escalate_to_execution_slot: engineering_review
+    escalate_to_execution_grade: balanced
     escalate_to: gpt-5.6-sol
     escalate_reasoning_effort: medium
     escalate_in_high_accuracy: true
@@ -117,10 +197,14 @@ routes:
     handler: llm
     stage: tagging
     model_role: bulk_structuring
+    execution_slot: bulk_prefilter
+    execution_grade: balanced
     model: gpt-5.6-terra
     reasoning_effort: high
     model_tier: medium
     escalate_to_role: general_semantics
+    escalate_to_execution_slot: engineering_review
+    escalate_to_execution_grade: balanced
     escalate_to: gpt-5.6-sol
     escalate_reasoning_effort: medium
     escalate_in_high_accuracy: true
@@ -132,6 +216,8 @@ routes:
     stage: tagging
     handler: llm
     model_role: semantic_decision
+    execution_slot: high_risk_adjudication
+    execution_grade: quality
     model: gpt-5.6-sol
     reasoning_effort: xhigh
     model_tier: strong
@@ -141,10 +227,14 @@ routes:
     handler: llm
     stage: paper_request
     model_role: bulk_structuring
+    execution_slot: bulk_prefilter
+    execution_grade: balanced
     model: gpt-5.6-terra
     reasoning_effort: high
     model_tier: medium
     escalate_to_role: general_semantics
+    escalate_to_execution_slot: engineering_review
+    escalate_to_execution_grade: balanced
     escalate_to: gpt-5.6-sol
     escalate_reasoning_effort: medium
     escalate_in_high_accuracy: true
@@ -161,6 +251,8 @@ routes:
     stage: assembly
     handler: llm
     model_role: semantic_decision
+    execution_slot: high_risk_adjudication
+    execution_grade: quality
     model: gpt-5.6-sol
     reasoning_effort: xhigh
     model_tier: strong
@@ -170,7 +262,9 @@ routes:
     stage: review
     handler: llm
     model_role: visual_document
-    model: gpt-5.6-terra
+    execution_slot: visual_review
+    execution_grade: quality
+    model: gpt-5.6-sol
     reasoning_effort: xhigh
     model_tier: strong
     structured_output_schema: schemas/ai/visual_asset_review.schema.json
@@ -179,7 +273,9 @@ routes:
     stage: review
     handler: llm
     model_role: visual_document
-    model: gpt-5.6-terra
+    execution_slot: visual_review
+    execution_grade: quality
+    model: gpt-5.6-sol
     reasoning_effort: xhigh
     model_tier: strong
     structured_output_schema: schemas/ai/visual_asset_review.schema.json
@@ -188,6 +284,8 @@ routes:
     stage: solving
     handler: llm
     model_role: semantic_decision
+    execution_slot: high_risk_adjudication
+    execution_grade: quality
     model: gpt-5.6-sol
     reasoning_effort: xhigh
     model_tier: strong
@@ -197,10 +295,14 @@ routes:
     handler: llm
     stage: verification
     model_role: general_semantics
+    execution_slot: engineering_review
+    execution_grade: balanced
     model: gpt-5.6-sol
     reasoning_effort: medium
     model_tier: medium
     escalate_to_role: semantic_decision
+    escalate_to_execution_slot: high_risk_adjudication
+    escalate_to_execution_grade: quality
     escalate_to: gpt-5.6-sol
     escalate_reasoning_effort: xhigh
     escalate_in_high_accuracy: true

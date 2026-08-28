@@ -27,8 +27,8 @@ const teacherSimpleModes = [
   },
   {
     id: 'cloud_enhanced',
-    label: '云 API 增强',
-    summary: '管理员单独启用云 provider profile，预算、fallback 和 cache 仍走受控门禁。',
+    label: 'Cockpit 本地 API 增强',
+    summary: '管理员单独启用 Cockpit 本地 API 网关，模型可用性按 Sol、Terra、Luna 受控切换。',
     providerProfile: 'cloud_openai_candidate',
     icon: <CloudServerOutlined />,
   },
@@ -56,13 +56,13 @@ const providerProfiles = [
   },
   {
     id: 'cloud_openai_candidate',
-    label: '云 API 候选',
+    label: 'Cockpit 本地 API 网关',
     providerType: 'openai_compatible',
     credentialRef: 'dialog_secret_local_machine',
-    baseUrl: 'https://api.openai.com/v1',
+    baseUrl: 'http://127.0.0.1:45335/v1',
     concurrency: '2',
-    budget: '300 元 / 月',
-    fallback: 'stub_offline_default_then_pending_review',
+    budget: '0 元 / 月',
+    fallback: 'Sol -> Terra -> Luna -> pending_review',
     status: '默认关闭',
     disabledByDefault: true,
   },
@@ -77,6 +77,55 @@ const providerProfiles = [
     fallback: 'stub_offline_default_then_pending_review',
     status: '默认关闭',
     disabledByDefault: true,
+  },
+]
+
+const modelPresets = [
+  {
+    id: 'sol',
+    model: 'gpt-5.6-sol',
+    reasoningEfforts: 'xhigh / medium / low',
+    fallback: '首选；故障后 Terra -> Luna',
+  },
+  {
+    id: 'terra',
+    model: 'gpt-5.6-terra',
+    reasoningEfforts: 'xhigh / high / medium',
+    fallback: '次选；故障后 Sol -> Luna',
+  },
+  {
+    id: 'luna',
+    model: 'gpt-5.6-luna',
+    reasoningEfforts: 'xhigh / high / medium',
+    fallback: '末选；故障后 Sol -> Terra',
+  },
+]
+
+const executionSlots = [
+  {
+    id: 'mechanical_cleanup',
+    purpose: '文件格式、去重和确定性转换；默认不调用外部模型。',
+    grades: 'economy=luna·medium / balanced=terra·high / quality=sol·xhigh',
+  },
+  {
+    id: 'bulk_prefilter',
+    purpose: '批量结构化、候选预筛和低风险异常分类。',
+    grades: 'economy=terra·medium / balanced=terra·high / quality=sol·xhigh',
+  },
+  {
+    id: 'engineering_review',
+    purpose: '来源锚点、结构化候选、一般语义和工程变更复核。',
+    grades: 'economy=terra·medium / balanced=sol·medium / quality=sol·xhigh',
+  },
+  {
+    id: 'visual_review',
+    purpose: '跨页、图表、公式、共享题图和导出视觉复核。',
+    grades: 'economy=terra·medium / balanced=terra·high / quality=sol·xhigh',
+  },
+  {
+    id: 'high_risk_adjudication',
+    purpose: '正式激活、冲突裁决、长期口径和难回滚事项。',
+    grades: 'economy=sol·low / balanced=sol·medium / quality=sol·xhigh',
   },
 ]
 
@@ -284,8 +333,8 @@ export function AiRoutingControlPanel() {
   const providerSettingsCard = settings ?? {
     providerProfileId: 'cloud_openai_candidate',
     providerType: 'openai_compatible',
-    baseUrl: 'https://api.openai.com/v1',
-    imageBaseUrl: 'https://api.openai.com/v1',
+    baseUrl: 'http://127.0.0.1:45335/v1',
+    imageBaseUrl: 'http://127.0.0.1:45335/v1',
     credentialMode: 'dialog_secret_local_machine',
     maskedSecret: '',
     secretConfigured: false,
@@ -325,7 +374,7 @@ export function AiRoutingControlPanel() {
         <div>
           <Typography.Title level={2}>AI 路由配置</Typography.Title>
           <Typography.Text type="secondary">
-            普通教师只看离线优先、云 API 增强、本地增强等简化模式；provider profile、预算、fallback 和 secret 引用仅管理员可见。
+            普通教师只看离线优先、Cockpit 本地 API 增强、本地增强等简化模式；provider profile、预算、fallback 和 secret 引用仅管理员可见。
           </Typography.Text>
         </div>
         <Space size="small" wrap>
@@ -364,6 +413,32 @@ export function AiRoutingControlPanel() {
               <span><Typography.Text type="secondary">预算</Typography.Text><strong>{profile.budget}</strong></span>
               <span><Typography.Text type="secondary">fallback</Typography.Text><code>{profile.fallback}</code></span>
             </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="ai-role-grid" data-contract="model-presets-and-failover">
+        {modelPresets.map((preset) => (
+          <div className="ai-role-card" key={preset.id} data-model-preset={preset.id}>
+            <span className="ai-routing-icon"><ThunderboltOutlined /></span>
+            <span>
+              <strong>{preset.model}</strong>
+              <small>思考等级：{preset.reasoningEfforts}</small>
+              <code>{preset.fallback}</code>
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <div className="ai-role-grid" data-contract="execution-slots-and-grades">
+        {executionSlots.map((slot) => (
+          <div className="ai-role-card" key={slot.id} data-execution-slot={slot.id}>
+            <span className="ai-routing-icon"><BranchesOutlined /></span>
+            <span>
+              <strong>{slot.id}</strong>
+              <small>{slot.purpose}</small>
+              <code>{slot.grades}</code>
+            </span>
           </div>
         ))}
       </div>
@@ -413,7 +488,7 @@ export function AiRoutingControlPanel() {
           {lastTestResult ? (
             <span data-contract="ai-effective-route">
               <Typography.Text type="secondary">生效路由</Typography.Text>
-              <code>{lastTestResult.taskType} / {lastTestResult.model} / {lastTestResult.effectiveReasoningEffort} / {lastTestResult.routingMode}</code>
+              <code>{lastTestResult.taskType} / {lastTestResult.effectiveExecutionSlot} / {lastTestResult.effectiveExecutionGrade} / {lastTestResult.effectivePreset} / {lastTestResult.model} / {lastTestResult.effectiveReasoningEffort} / {lastTestResult.routingMode}</code>
             </span>
           ) : null}
         </div>
@@ -515,7 +590,7 @@ export function AiRoutingControlPanel() {
             name="imageBaseUrl"
             extra="留空时默认复用主 base URL；只有中继网关把生图单独挂到另一路径时才需要单独填写。"
           >
-            <Input placeholder="https://api.openai.com/v1" />
+            <Input placeholder="http://127.0.0.1:45335/v1" />
           </Form.Item>
           <Form.Item
             label="图片专用 API Key（可选）"
@@ -531,7 +606,7 @@ export function AiRoutingControlPanel() {
               name="fallbackBaseUrl"
               extra="主 responses 路由失败后才会尝试；留空则不启用备用文本路由。"
             >
-              <Input placeholder="https://backup.example.com/v1" />
+              <Input placeholder="留空：使用同一 Cockpit 网关做模型级切换" />
             </Form.Item>
             <Form.Item
               label="备用 API Key"
@@ -545,7 +620,7 @@ export function AiRoutingControlPanel() {
               name="fallbackImageBaseUrl"
               extra="留空时复用备用 base URL；只有备用网关把图片链路挂到另一路径时才需要填写。"
             >
-              <Input placeholder="https://backup.example.com/v1" />
+              <Input placeholder="留空：使用同一 Cockpit 网关" />
             </Form.Item>
             <Form.Item
               label="备用图片 API Key"

@@ -24,11 +24,37 @@ public sealed class AiModelRouter(IOptions<AiRoutingOptions> options, IWebHostEn
         var modelRole = Normalize(route.ModelRole, IsLlmHandler(handler) ? "bulk_structuring" : "local_deterministic");
         var modelName = Normalize(route.ModelName, IsLlmHandler(handler) ? "stub" : "none");
         var reasoningEffort = Normalize(route.ReasoningEffort, IsLlmHandler(handler) ? "medium" : "none");
+        var executionSlot = ResolveExecutionSlot(route.ExecutionSlot, modelRole);
+        var executionGrade = ResolveExecutionGrade(request.ExecutionGrade, route.ExecutionGrade, executionSlot, mode);
+        var initialSelection = IsLlmHandler(handler)
+            ? ResolveModelSelection(
+                executionSlot,
+                executionGrade,
+                modelRole,
+                modelName,
+                reasoningEffort)
+            : new AiModelSelection("", modelName, reasoningEffort);
+        modelName = initialSelection.ModelName;
+        reasoningEffort = initialSelection.ReasoningEffort;
         var escalationReasons = ResolveEscalationReasons(request, route, mode, handler);
         var escalated = escalationReasons.Count > 0;
         var effectiveModelRole = escalated ? Normalize(route.EscalateToRole, modelRole) : modelRole;
-        var effectiveModelName = escalated ? Normalize(route.EscalateToModel, modelName) : modelName;
-        var effectiveReasoningEffort = escalated ? Normalize(route.EscalateReasoningEffort, reasoningEffort) : reasoningEffort;
+        var effectiveExecutionSlot = escalated
+            ? ResolveExecutionSlot(route.EscalateToExecutionSlot, effectiveModelRole, executionSlot)
+            : executionSlot;
+        var effectiveExecutionGrade = escalated
+            ? ResolveExecutionGrade(route.EscalateToExecutionGrade, executionGrade, effectiveExecutionSlot, mode)
+            : executionGrade;
+        var effectiveSelection = escalated
+            ? ResolveModelSelection(
+                effectiveExecutionSlot,
+                effectiveExecutionGrade,
+                effectiveModelRole,
+                Normalize(route.EscalateToModel, modelName),
+                Normalize(route.EscalateReasoningEffort, reasoningEffort))
+            : initialSelection;
+        var effectiveModelName = effectiveSelection.ModelName;
+        var effectiveReasoningEffort = effectiveSelection.ReasoningEffort;
         var schemaExists = string.IsNullOrWhiteSpace(route.StructuredOutputSchema) || SchemaExists(route.StructuredOutputSchema);
         var requiresHumanReview = IsLlmHandler(handler) || (route.RequireHumanReviewBelowConfidence.HasValue && request.ExpectedConfidence < route.RequireHumanReviewBelowConfidence.Value);
         var blockers = new List<string>();
@@ -56,12 +82,18 @@ public sealed class AiModelRouter(IOptions<AiRoutingOptions> options, IWebHostEn
             Handler: handler,
             Provider: provider,
             Stage: Normalize(route.Stage, "unspecified"),
+            ExecutionSlot: executionSlot,
+            ExecutionGrade: executionGrade,
+            Preset: initialSelection.PresetId,
             ModelRole: modelRole,
             ModelName: modelName,
             ReasoningEffort: reasoningEffort,
             EffectiveModelRole: effectiveModelRole,
             EffectiveModelName: effectiveModelName,
             EffectiveReasoningEffort: effectiveReasoningEffort,
+            EffectiveExecutionSlot: effectiveExecutionSlot,
+            EffectiveExecutionGrade: effectiveExecutionGrade,
+            EffectivePreset: effectiveSelection.PresetId,
             Escalated: escalated,
             EscalationReasons: escalationReasons,
             ModelTier: route.ModelTier,
@@ -79,6 +111,64 @@ public sealed class AiModelRouter(IOptions<AiRoutingOptions> options, IWebHostEn
             CostTier: ResolveCostTier(handler, route.ModelTier),
             Blockers: blockers);
     }
+
+    public IReadOnlyList<AiModelFailoverCandidate> GetFailoverCandidates(
+        string modelName,
+        string reasoningEffort,
+        string? executionSlot = null,
+        string? executionGrade = null)
+    {
+        var normalizedModelName = Normalize(modelName, "stub");
+        var normalizedReasoningEffort = Normalize(reasoningEffort, "medium");
+        var normalizedExecutionSlot = Normalize(executionSlot, "");
+        var normalizedExecutionGrade = Normalize(executionGrade, "");
+        if (!options.ModelFailover.Enabled || options.ModelPresets.Count == 0)
+        {
+            return [new("manual", normalizedModelName, normalizedReasoningEffort, false, normalizedExecutionSlot, normalizedExecutionGrade)];
+        }
+
+        var requestedPreset = options.ModelPresets.FirstOrDefault(pair =>
+            string.Equals(pair.Key, normalizedModelName, StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(pair.Value.ModelName, normalizedModelName, StringComparison.OrdinalIgnoreCase));
+        if (string.IsNullOrWhiteSpace(requestedPreset.Key))
+        {
+            return [new("manual", normalizedModelName, normalizedReasoningEffort, false, normalizedExecutionSlot, normalizedExecutionGrade)];
+        }
+
+        var orderedPresetIds = new[] { requestedPreset.Key }
+            .Concat(options.ModelFailover.PreferredPresetOrder)
+            .Where(x => !string.IsNullOrWhiteSpace(x) && options.ModelPresets.ContainsKey(x))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        var candidates = new List<AiModelFailoverCandidate>(orderedPresetIds.Length);
+        foreach (var presetId in orderedPresetIds)
+        {
+            var preset = options.ModelPresets[presetId];
+            if (string.IsNullOrWhiteSpace(preset.ModelName))
+            {
+                continue;
+            }
+
+            var candidateEffort = ResolveSupportedReasoningEffort(
+                preset,
+                normalizedReasoningEffort,
+                normalizedExecutionGrade);
+            candidates.Add(new AiModelFailoverCandidate(
+                PresetId: presetId,
+                ModelName: preset.ModelName.Trim(),
+                ReasoningEffort: candidateEffort,
+                IsFallback: !string.Equals(presetId, requestedPreset.Key, StringComparison.OrdinalIgnoreCase),
+                ExecutionSlot: normalizedExecutionSlot,
+                ExecutionGrade: normalizedExecutionGrade));
+        }
+
+        return candidates.Count > 0
+            ? candidates
+            : [new("manual", normalizedModelName, normalizedReasoningEffort, false, normalizedExecutionSlot, normalizedExecutionGrade)];
+    }
+
+    public string ModelAvailabilityProbePath => NormalizeProbePath(options.ModelFailover.AvailabilityProbePath);
 
     private static IReadOnlyList<string> ResolveEscalationReasons(
         AiRouteRequest request,
@@ -164,6 +254,99 @@ public sealed class AiModelRouter(IOptions<AiRoutingOptions> options, IWebHostEn
     {
         return string.IsNullOrWhiteSpace(value) ? fallback : value.Trim();
     }
+
+    private static string ResolveSupportedReasoningEffort(
+        AiModelPresetOptions preset,
+        string requestedReasoningEffort,
+        string? executionGrade = null)
+    {
+        if (!string.IsNullOrWhiteSpace(executionGrade)
+            && preset.GradeToReasoningEffort.TryGetValue(executionGrade.Trim(), out var gradeEffort)
+            && !string.IsNullOrWhiteSpace(gradeEffort))
+        {
+            return gradeEffort.Trim();
+        }
+
+        var supported = preset.ReasoningEfforts
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Select(x => x.Trim())
+            .ToArray();
+        var exact = supported.FirstOrDefault(x => string.Equals(x, requestedReasoningEffort, StringComparison.OrdinalIgnoreCase));
+        if (!string.IsNullOrWhiteSpace(exact))
+        {
+            return exact;
+        }
+
+        var fallback = supported.FirstOrDefault(x => string.Equals(x, preset.FallbackReasoningEffort, StringComparison.OrdinalIgnoreCase));
+        return fallback ?? supported.FirstOrDefault() ?? requestedReasoningEffort;
+    }
+
+    private string ResolveExecutionSlot(string? configuredSlot, string modelRole, string? fallback = null)
+    {
+        if (!string.IsNullOrWhiteSpace(configuredSlot))
+        {
+            return configuredSlot.Trim();
+        }
+
+        return modelRole.ToLowerInvariant() switch
+        {
+            "mechanical_cleanup_model" or "local_deterministic" => "mechanical_cleanup",
+            "bulk_prefilter_model" or "bulk_structuring" => "bulk_prefilter",
+            "engineering_review_model" or "general_semantics" => "engineering_review",
+            "visual_review_model" or "visual_document" => "visual_review",
+            "high_risk_review_model" or "highest_risk_decision_model" or "semantic_decision" => "high_risk_adjudication",
+            _ => Normalize(fallback, "engineering_review")
+        };
+    }
+
+    private string ResolveExecutionGrade(string? requestedGrade, string? configuredGrade, string executionSlot, string mode)
+    {
+        var defaultGrade = options.ExecutionSlots.TryGetValue(executionSlot, out var slot)
+            ? slot.DefaultGrade
+            : mode switch
+            {
+                "low_cost" => "economy",
+                "high_accuracy" => "quality",
+                _ => "balanced"
+            };
+        var grade = Normalize(requestedGrade, Normalize(configuredGrade, defaultGrade));
+        return grade.ToLowerInvariant() switch
+        {
+            "economy" or "balanced" or "quality" => grade.ToLowerInvariant(),
+            _ => throw new AiRouteException("unknown_execution_grade")
+        };
+    }
+
+    private AiModelSelection ResolveModelSelection(
+        string executionSlot,
+        string executionGrade,
+        string modelRole,
+        string modelName,
+        string reasoningEffort)
+    {
+        if (options.ExecutionSlots.TryGetValue(executionSlot, out var slot)
+            && slot.Grades.TryGetValue(executionGrade, out var presetId)
+            && !string.IsNullOrWhiteSpace(presetId)
+            && !string.Equals(presetId, "none", StringComparison.OrdinalIgnoreCase)
+            && options.ModelPresets.TryGetValue(presetId.Trim(), out var preset)
+            && !string.IsNullOrWhiteSpace(preset.ModelName))
+        {
+            return new AiModelSelection(
+                presetId.Trim(),
+                preset.ModelName.Trim(),
+                ResolveSupportedReasoningEffort(preset, reasoningEffort, executionGrade));
+        }
+
+        return new AiModelSelection("", Normalize(modelName, "stub"), Normalize(reasoningEffort, "medium"));
+    }
+
+    private sealed record AiModelSelection(string PresetId, string ModelName, string ReasoningEffort);
+
+    private static string NormalizeProbePath(string? value)
+    {
+        var normalized = Normalize(value, "/models");
+        return normalized.StartsWith("/", StringComparison.Ordinal) ? normalized : $"/{normalized}";
+    }
 }
 
 public sealed class AiRouteException(string message) : InvalidOperationException(message);
@@ -173,7 +356,8 @@ public sealed record AiRouteRequest(
     string? Mode,
     string? AssetStatus,
     decimal? ExpectedConfidence,
-    AiRouteRiskSignals? RiskSignals = null);
+    AiRouteRiskSignals? RiskSignals = null,
+    string? ExecutionGrade = null);
 
 public sealed record AiRouteRiskSignals(
     bool CrossPage = false,
@@ -206,12 +390,18 @@ public sealed record AiRouteDecision(
     string Handler,
     string Provider,
     string Stage,
+    string ExecutionSlot,
+    string ExecutionGrade,
+    string Preset,
     string ModelRole,
     string ModelName,
     string ReasoningEffort,
     string EffectiveModelRole,
     string EffectiveModelName,
     string EffectiveReasoningEffort,
+    string EffectiveExecutionSlot,
+    string EffectiveExecutionGrade,
+    string EffectivePreset,
     bool Escalated,
     IReadOnlyList<string> EscalationReasons,
     string? ModelTier,

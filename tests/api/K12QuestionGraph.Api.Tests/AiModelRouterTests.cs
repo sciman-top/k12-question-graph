@@ -38,6 +38,21 @@ public sealed class AiModelRouterTests
     }
 
     [Fact]
+    public void RouteResolvesExecutionSlotGradeAndPresetAsOneSelection()
+    {
+        var route = CreateRouter().Route(new("knowledge_tagging", "balanced", "draft", 0.79m));
+
+        Assert.Equal("bulk_prefilter", route.ExecutionSlot);
+        Assert.Equal("balanced", route.ExecutionGrade);
+        Assert.Equal("terra", route.Preset);
+        Assert.Equal("gpt-5.6-terra", route.ModelName);
+        Assert.Equal("high", route.ReasoningEffort);
+        Assert.Equal("engineering_review", route.EffectiveExecutionSlot);
+        Assert.Equal("balanced", route.EffectiveExecutionGrade);
+        Assert.Equal("sol", route.EffectivePreset);
+    }
+
+    [Fact]
     public void HighAccuracyEscalatesOnlyOptedInRoutes()
     {
         var optedIn = CreateRouter().Route(new("knowledge_tagging", "high_accuracy", "draft", 0.95m));
@@ -79,6 +94,9 @@ public sealed class AiModelRouterTests
                 SourceEvidenceConflict: true)));
 
         Assert.Equal("semantic_decision", route.ModelRole);
+        Assert.Equal("high_risk_adjudication", route.ExecutionSlot);
+        Assert.Equal("quality", route.ExecutionGrade);
+        Assert.Equal("sol", route.Preset);
         Assert.Equal("gpt-5.6-sol", route.ModelName);
         Assert.Equal("xhigh", route.ReasoningEffort);
         Assert.Equal(route.ModelRole, route.EffectiveModelRole);
@@ -102,6 +120,48 @@ public sealed class AiModelRouterTests
         Assert.Equal("unknown_routing_mode", exception.Message);
     }
 
+    [Fact]
+    public void FailoverCandidatesPreferSolThenTerraThenLuna()
+    {
+        var candidates = CreateRouter().GetFailoverCandidates("gpt-5.6-sol", "xhigh");
+
+        Assert.Equal(
+            ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"],
+            candidates.Select(x => x.ModelName).ToArray());
+        Assert.Equal(["xhigh", "xhigh", "xhigh"], candidates.Select(x => x.ReasoningEffort).ToArray());
+        Assert.False(candidates[0].IsFallback);
+        Assert.All(candidates.Skip(1), candidate => Assert.True(candidate.IsFallback));
+    }
+
+    [Fact]
+    public void TerraFailureOrderChecksSolBeforeLunaAndFallsBackUnsupportedEffortToMedium()
+    {
+        var candidates = CreateRouter().GetFailoverCandidates("gpt-5.6-terra", "low");
+
+        Assert.Equal(
+            ["gpt-5.6-terra", "gpt-5.6-sol", "gpt-5.6-luna"],
+            candidates.Select(x => x.ModelName).ToArray());
+        Assert.Equal(["medium", "low", "medium"], candidates.Select(x => x.ReasoningEffort).ToArray());
+    }
+
+    [Fact]
+    public void FailoverPreservesSlotAndGradeWhileRebindingPresetEffort()
+    {
+        var candidates = CreateRouter().GetFailoverCandidates(
+            "gpt-5.6-terra",
+            "high",
+            "bulk_prefilter",
+            "balanced");
+
+        Assert.Equal(["terra", "sol", "luna"], candidates.Select(x => x.PresetId).ToArray());
+        Assert.Equal(["high", "medium", "high"], candidates.Select(x => x.ReasoningEffort).ToArray());
+        Assert.All(candidates, candidate =>
+        {
+            Assert.Equal("bulk_prefilter", candidate.ExecutionSlot);
+            Assert.Equal("balanced", candidate.ExecutionGrade);
+        });
+    }
+
     private static AiModelRouter CreateRouter()
     {
         var routes = new Dictionary<string, AiRouteOptions>(StringComparer.OrdinalIgnoreCase)
@@ -117,9 +177,13 @@ public sealed class AiModelRouterTests
             {
                 Handler = "llm",
                 ModelRole = "bulk_structuring",
+                ExecutionSlot = "bulk_prefilter",
+                ExecutionGrade = "balanced",
                 ModelName = "gpt-5.6-terra",
                 ReasoningEffort = "high",
                 EscalateToRole = "general_semantics",
+                EscalateToExecutionSlot = "engineering_review",
+                EscalateToExecutionGrade = "balanced",
                 EscalateToModel = "gpt-5.6-sol",
                 EscalateReasoningEffort = "medium",
                 EscalateInHighAccuracy = true,
@@ -130,9 +194,13 @@ public sealed class AiModelRouterTests
             {
                 Handler = "llm",
                 ModelRole = "visual_document",
+                ExecutionSlot = "visual_review",
+                ExecutionGrade = "quality",
                 ModelName = "gpt-5.6-terra",
                 ReasoningEffort = "xhigh",
                 EscalateToRole = "semantic_decision",
+                EscalateToExecutionSlot = "high_risk_adjudication",
+                EscalateToExecutionGrade = "quality",
                 EscalateToModel = "gpt-5.6-sol",
                 EscalateReasoningEffort = "xhigh",
                 EscalationSignals = ["semantic_conflict"]
@@ -141,6 +209,8 @@ public sealed class AiModelRouterTests
             {
                 Handler = "llm",
                 ModelRole = "semantic_decision",
+                ExecutionSlot = "high_risk_adjudication",
+                ExecutionGrade = "quality",
                 ModelName = "gpt-5.6-sol",
                 ReasoningEffort = "xhigh",
                 ModelTier = "strong",
@@ -149,7 +219,25 @@ public sealed class AiModelRouterTests
         };
 
         return new AiModelRouter(
-            Options.Create(new AiRoutingOptions { Routes = routes }),
+            Options.Create(new AiRoutingOptions
+            {
+                Routes = routes,
+                ModelPresets = new Dictionary<string, AiModelPresetOptions>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["sol"] = new() { ModelName = "gpt-5.6-sol", ReasoningEfforts = ["xhigh", "medium", "low"], GradeToReasoningEffort = new() { ["quality"] = "xhigh", ["balanced"] = "medium", ["economy"] = "low" } },
+                    ["terra"] = new() { ModelName = "gpt-5.6-terra", ReasoningEfforts = ["xhigh", "high", "medium"], GradeToReasoningEffort = new() { ["quality"] = "xhigh", ["balanced"] = "high", ["economy"] = "medium" } },
+                    ["luna"] = new() { ModelName = "gpt-5.6-luna", ReasoningEfforts = ["xhigh", "high", "medium"], GradeToReasoningEffort = new() { ["quality"] = "xhigh", ["balanced"] = "high", ["economy"] = "medium" } }
+                },
+                ExecutionSlots = new Dictionary<string, AiExecutionSlotOptions>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["mechanical_cleanup"] = new() { DefaultGrade = "economy", Grades = new() { ["economy"] = "luna", ["balanced"] = "terra", ["quality"] = "sol" } },
+                    ["bulk_prefilter"] = new() { DefaultGrade = "balanced", Grades = new() { ["economy"] = "terra", ["balanced"] = "terra", ["quality"] = "sol" } },
+                    ["engineering_review"] = new() { DefaultGrade = "balanced", Grades = new() { ["economy"] = "terra", ["balanced"] = "sol", ["quality"] = "sol" } },
+                    ["visual_review"] = new() { DefaultGrade = "quality", Grades = new() { ["economy"] = "terra", ["balanced"] = "terra", ["quality"] = "sol" } },
+                    ["high_risk_adjudication"] = new() { DefaultGrade = "quality", Grades = new() { ["economy"] = "sol", ["balanced"] = "sol", ["quality"] = "sol" } }
+                },
+                ModelFailover = new() { PreferredPresetOrder = ["sol", "terra", "luna"] }
+            }),
             new TestWebHostEnvironment());
     }
 

@@ -149,6 +149,9 @@ public sealed record AdminAiProviderSettingsTestResult(
     string Model,
     string TaskType,
     string EffectiveReasoningEffort,
+    string EffectiveExecutionSlot,
+    string EffectiveExecutionGrade,
+    string EffectivePreset,
     string RoutingMode,
     bool UsedModelRouting,
     string ReviewStatus,
@@ -211,6 +214,7 @@ public sealed class FileAiProviderSettingsStore(
     private const string DefaultCredentialMode = "dialog_secret_local_machine";
     private const string DefaultSmokeTaskType = "knowledge_tagging";
     private const string DefaultSmokeModel = "gpt-5.6-sol";
+    private const string DefaultGatewayBaseUrl = "http://127.0.0.1:45335/v1";
     private const string PrimaryEnvSecretName = "KQG_AI_OPENAI_KEY";
     private const string PrimaryEnvBaseUrlName = "KQG_AI_OPENAI_BASE_URL";
     private const string ImageEnvSecretName = "KQG_AI_IMAGE_OPENAI_KEY";
@@ -544,7 +548,7 @@ public sealed class FileAiProviderSettingsStore(
         var yamlPath = Path.Combine(repoRoot, "configs", "ai-provider-profiles.defaults.yaml");
         if (!File.Exists(yamlPath))
         {
-            return ("https://api.openai.com/v1", 2, 300);
+            return (DefaultGatewayBaseUrl, 2, 300);
         }
 
         try
@@ -556,13 +560,13 @@ public sealed class FileAiProviderSettingsStore(
             var yaml = deserializer.Deserialize<AiProviderProfilesDefaultsDocument>(File.ReadAllText(yamlPath, Encoding.UTF8));
             var profile = yaml?.ProviderProfiles?.FirstOrDefault(x => string.Equals(x.Id, DefaultProviderProfileId, StringComparison.OrdinalIgnoreCase));
             return (
-                profile?.BaseUrl ?? "https://api.openai.com/v1",
+                profile?.BaseUrl ?? DefaultGatewayBaseUrl,
                 profile?.MaxConcurrency ?? 2,
                 profile?.MonthlyBudgetCny ?? 300);
         }
         catch
         {
-            return ("https://api.openai.com/v1", 2, 300);
+            return (DefaultGatewayBaseUrl, 2, 300);
         }
     }
 
@@ -590,7 +594,7 @@ public sealed class FileAiProviderSettingsStore(
 
     private static string NormalizeBaseUrl(string? value)
     {
-        var normalized = Normalize(value, "https://api.openai.com/v1");
+        var normalized = Normalize(value, DefaultGatewayBaseUrl);
         return normalized.TrimEnd('/');
     }
 
@@ -770,6 +774,9 @@ public sealed class OpenAiCompatibleSmokeTestService(
         var normalizedTaskType = NormalizeTaskType(request.TaskType, settings.DefaultSmokeTaskType);
         var normalizedModel = NormalizeModel(request.Model, settings.DefaultSmokeModel);
         var effectiveReasoningEffort = "medium";
+        var effectiveExecutionSlot = "";
+        var effectiveExecutionGrade = "";
+        var effectivePreset = "";
         var routingMode = NormalizeRoutingMode(request.RoutingMode);
         var usedModelRouting = request.UseModelRouting;
         var routingAudit = new List<string>();
@@ -799,6 +806,9 @@ public sealed class OpenAiCompatibleSmokeTestService(
                 normalizedModel,
                 normalizedTaskType,
                 effectiveReasoningEffort,
+                effectiveExecutionSlot,
+                effectiveExecutionGrade,
+                effectivePreset,
                 routingMode,
                 runtimeEndpoints,
                 blockers,
@@ -821,6 +831,9 @@ public sealed class OpenAiCompatibleSmokeTestService(
                 request.RiskSignals));
             normalizedModel = route.EffectiveModelName;
             effectiveReasoningEffort = route.EffectiveReasoningEffort;
+            effectiveExecutionSlot = route.EffectiveExecutionSlot;
+            effectiveExecutionGrade = route.EffectiveExecutionGrade;
+            effectivePreset = route.EffectivePreset;
             routingAudit.AddRange([
                 $"routing_source=effective_route",
                 $"routing_task_type={route.TaskType}",
@@ -828,6 +841,9 @@ public sealed class OpenAiCompatibleSmokeTestService(
                 $"routing_model_role={route.EffectiveModelRole}",
                 $"routing_model={route.EffectiveModelName}",
                 $"routing_reasoning_effort={route.EffectiveReasoningEffort}",
+                $"routing_execution_slot={route.EffectiveExecutionSlot}",
+                $"routing_execution_grade={route.EffectiveExecutionGrade}",
+                $"routing_model_preset={route.EffectivePreset}",
                 $"routing_escalated={route.Escalated.ToString().ToLowerInvariant()}",
                 $"routing_escalation_reasons={string.Join(',', route.EscalationReasons)}"
             ]);
@@ -839,6 +855,9 @@ public sealed class OpenAiCompatibleSmokeTestService(
                     normalizedModel,
                     normalizedTaskType,
                     effectiveReasoningEffort,
+                    effectiveExecutionSlot,
+                    effectiveExecutionGrade,
+                    effectivePreset,
                     routingMode,
                     runtimeEndpoints,
                     route.Blockers,
@@ -869,7 +888,10 @@ public sealed class OpenAiCompatibleSmokeTestService(
             effectiveReasoningEffort,
             request.InputJson,
             routingAudit,
-            cancellationToken);
+            executionSlot: effectiveExecutionSlot,
+            executionGrade: effectiveExecutionGrade,
+            allowModelFailover: request.UseModelRouting,
+            cancellationToken: cancellationToken);
         var imageProbe = await RunImageProbeAsync(runtimeEndpoints, cancellationToken);
 
         var combinedPassed = smokeResult.Passed && imageProbe.Passed;
@@ -896,9 +918,12 @@ public sealed class OpenAiCompatibleSmokeTestService(
             ProductionEligible: false,
             ProviderProfileId: settings.ProviderProfileId,
             ProviderType: settings.ProviderType,
-            Model: normalizedModel,
+            Model: smokeResult.Model,
             TaskType: normalizedTaskType,
-            EffectiveReasoningEffort: effectiveReasoningEffort,
+            EffectiveReasoningEffort: smokeResult.ReasoningEffort,
+            EffectiveExecutionSlot: smokeResult.ExecutionSlot,
+            EffectiveExecutionGrade: smokeResult.ExecutionGrade,
+            EffectivePreset: smokeResult.PresetId,
             RoutingMode: routingMode,
             UsedModelRouting: usedModelRouting,
             ReviewStatus: "pending_review",
@@ -921,7 +946,7 @@ public sealed class OpenAiCompatibleSmokeTestService(
                 ..smokeResult.AuditTrail,
                 ..imageProbe.AuditTrail,
                 $"combined_passed={combinedPassed.ToString().ToLowerInvariant()}",
-                $"fallback_attempt_count={Math.Max(0, smokeResult.Attempts.Count - 1)}"
+                $"fallback_attempt_count={Math.Max(0, smokeResult.Attempts.Select(x => x.Model).Distinct(StringComparer.OrdinalIgnoreCase).Count() - 1)}"
             ]);
     }
 
@@ -932,61 +957,85 @@ public sealed class OpenAiCompatibleSmokeTestService(
         string reasoningEffort,
         string? inputJson,
         IReadOnlyList<string> routingAudit,
+        string executionSlot,
+        string executionGrade,
+        bool allowModelFailover,
         CancellationToken cancellationToken)
     {
         var attempts = new List<AdminAiProviderProbeAttempt>();
         StructuredSmokeExecutionResult? lastResult = null;
+        var modelCandidates = allowModelFailover
+            ? modelRouter.GetFailoverCandidates(model, reasoningEffort, executionSlot, executionGrade)
+            : [new AiModelFailoverCandidate("manual", model, reasoningEffort, false, executionSlot, executionGrade)];
 
-        foreach (var endpoint in endpoints)
+        foreach (var candidate in modelCandidates)
         {
-            if (string.IsNullOrWhiteSpace(endpoint.BaseUrl) || string.IsNullOrWhiteSpace(endpoint.Secret))
+            foreach (var endpoint in endpoints)
             {
-                var skippedAttempt = new AdminAiProviderProbeAttempt(
+                if (string.IsNullOrWhiteSpace(endpoint.BaseUrl) || string.IsNullOrWhiteSpace(endpoint.Secret))
+                {
+                    attempts.Add(new AdminAiProviderProbeAttempt(
+                        ProviderEndpointId: endpoint.EndpointId,
+                        BaseUrl: endpoint.BaseUrl,
+                        RouteKind: "models_availability",
+                        EndpointPath: modelRouter.ModelAvailabilityProbePath,
+                        Model: candidate.ModelName,
+                        ReasoningEffort: candidate.ReasoningEffort,
+                        Passed: false,
+                        HttpStatusCode: 0,
+                        LatencyMs: 0,
+                        Message: "endpoint base URL 或 key 未配置，已跳过。"));
+                    continue;
+                }
+
+                if (!string.Equals(candidate.PresetId, "manual", StringComparison.OrdinalIgnoreCase))
+                {
+                    var availabilityAttempt = await ProbeModelAvailabilityAsync(endpoint, candidate, cancellationToken);
+                    attempts.Add(availabilityAttempt);
+                    if (!availabilityAttempt.Passed)
+                    {
+                        lastResult = CreateModelUnavailableSmokeResult(endpoint, candidate, availabilityAttempt, routingAudit);
+                        continue;
+                    }
+                }
+
+                var result = await RunStructuredSmokeAsync(
+                    endpoint,
+                    candidate,
+                    taskType,
+                    inputJson,
+                    routingAudit,
+                    cancellationToken);
+                attempts.Add(new AdminAiProviderProbeAttempt(
                     ProviderEndpointId: endpoint.EndpointId,
                     BaseUrl: endpoint.BaseUrl,
                     RouteKind: "responses_structured",
                     EndpointPath: "/responses",
-                    Model: model,
-                    ReasoningEffort: reasoningEffort,
-                    Passed: false,
-                    HttpStatusCode: 0,
-                    LatencyMs: 0,
-                    Message: "endpoint base URL 或 key 未配置，已跳过。");
-                attempts.Add(skippedAttempt);
-                continue;
-            }
-
-            var result = await RunStructuredSmokeAsync(
-                endpoint,
-                model,
-                taskType,
-                reasoningEffort,
-                inputJson,
-                routingAudit,
-                cancellationToken);
-            attempts.Add(new AdminAiProviderProbeAttempt(
-                ProviderEndpointId: endpoint.EndpointId,
-                BaseUrl: endpoint.BaseUrl,
-                RouteKind: "responses_structured",
-                EndpointPath: "/responses",
-                Model: model,
-                ReasoningEffort: reasoningEffort,
-                Passed: result.Passed,
-                HttpStatusCode: result.HttpStatusCode,
-                LatencyMs: result.LatencyMs,
-                Message: result.Message));
-            lastResult = result;
-            if (result.Passed)
-            {
-                return result with
+                    Model: candidate.ModelName,
+                    ReasoningEffort: candidate.ReasoningEffort,
+                    Passed: result.Passed,
+                    HttpStatusCode: result.HttpStatusCode,
+                    LatencyMs: result.LatencyMs,
+                    Message: result.Message));
+                lastResult = result;
+                if (result.Passed)
                 {
-                    Attempts = attempts,
-                    AuditTrail = [
-                        ..result.AuditTrail,
-                        $"selected_provider_endpoint={endpoint.EndpointId}",
-                        $"selected_provider_base_url={endpoint.BaseUrl}"
-                    ]
-                };
+                    return result with
+                    {
+                        Attempts = attempts,
+                        AuditTrail = [
+                            ..result.AuditTrail,
+                            $"selected_provider_endpoint={endpoint.EndpointId}",
+                            $"selected_provider_base_url={endpoint.BaseUrl}",
+                            $"selected_model_preset={candidate.PresetId}",
+                            $"selected_execution_slot={candidate.ExecutionSlot}",
+                            $"selected_execution_grade={candidate.ExecutionGrade}",
+                            $"selected_model={candidate.ModelName}",
+                            $"selected_reasoning_effort={candidate.ReasoningEffort}",
+                            $"model_failover_used={candidate.IsFallback.ToString().ToLowerInvariant()}"
+                        ]
+                    };
+                }
             }
         }
 
@@ -1001,11 +1050,93 @@ public sealed class OpenAiCompatibleSmokeTestService(
         };
     }
 
+    private async Task<AdminAiProviderProbeAttempt> ProbeModelAvailabilityAsync(
+        AiProviderRuntimeEndpoint endpoint,
+        AiModelFailoverCandidate candidate,
+        CancellationToken cancellationToken)
+    {
+        using var message = new HttpRequestMessage(HttpMethod.Get, $"{endpoint.BaseUrl}{modelRouter.ModelAvailabilityProbePath}");
+        ApplyGatewayCompatibilityHeaders(message);
+        message.Headers.TryAddWithoutValidation("X-KQG-Model-Probe", candidate.ModelName);
+        message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", endpoint.Secret);
+
+        var startedAt = DateTimeOffset.UtcNow;
+        try
+        {
+            using var response = await httpClient.SendAsync(message, cancellationToken);
+            var body = await response.Content.ReadAsStringAsync(cancellationToken);
+            var latencyMs = (int)Math.Max(1, (DateTimeOffset.UtcNow - startedAt).TotalMilliseconds);
+            var modelListed = response.IsSuccessStatusCode && BodyListsModel(body, candidate.ModelName);
+            var messageText = modelListed
+                ? "模型可用性探测通过。"
+                : response.IsSuccessStatusCode
+                    ? $"模型 {candidate.ModelName} 未出现在可用模型列表中。"
+                    : DescribeResponseFailure(body, (int)response.StatusCode);
+            return new AdminAiProviderProbeAttempt(
+                ProviderEndpointId: endpoint.EndpointId,
+                BaseUrl: endpoint.BaseUrl,
+                RouteKind: "models_availability",
+                EndpointPath: modelRouter.ModelAvailabilityProbePath,
+                Model: candidate.ModelName,
+                ReasoningEffort: candidate.ReasoningEffort,
+                Passed: modelListed,
+                HttpStatusCode: (int)response.StatusCode,
+                LatencyMs: latencyMs,
+                Message: messageText);
+        }
+        catch (Exception ex)
+        {
+            return new AdminAiProviderProbeAttempt(
+                ProviderEndpointId: endpoint.EndpointId,
+                BaseUrl: endpoint.BaseUrl,
+                RouteKind: "models_availability",
+                EndpointPath: modelRouter.ModelAvailabilityProbePath,
+                Model: candidate.ModelName,
+                ReasoningEffort: candidate.ReasoningEffort,
+                Passed: false,
+                HttpStatusCode: 0,
+                LatencyMs: (int)Math.Max(1, (DateTimeOffset.UtcNow - startedAt).TotalMilliseconds),
+                Message: ex.Message);
+        }
+    }
+
+    private static StructuredSmokeExecutionResult CreateModelUnavailableSmokeResult(
+        AiProviderRuntimeEndpoint endpoint,
+        AiModelFailoverCandidate candidate,
+        AdminAiProviderProbeAttempt availabilityAttempt,
+        IReadOnlyList<string> routingAudit)
+    {
+        return new StructuredSmokeExecutionResult(
+            Model: candidate.ModelName,
+            ReasoningEffort: candidate.ReasoningEffort,
+            PresetId: candidate.PresetId,
+            ExecutionSlot: candidate.ExecutionSlot,
+            ExecutionGrade: candidate.ExecutionGrade,
+            ProviderEndpointId: endpoint.EndpointId,
+            BaseUrl: endpoint.BaseUrl,
+            Passed: false,
+            HttpStatusCode: availabilityAttempt.HttpStatusCode,
+            Message: $"模型可用性探测未通过：{availabilityAttempt.Message}",
+            OutputJson: "{}",
+            InputTokens: 0,
+            OutputTokens: 0,
+            CachedTokens: 0,
+            LatencyMs: availabilityAttempt.LatencyMs,
+            Attempts: [],
+            AuditTrail: [
+                "test_admin_ai_model_availability_probe_failed",
+                ..routingAudit,
+                $"provider_endpoint={endpoint.EndpointId}",
+                $"model_preset={candidate.PresetId}",
+                $"model={candidate.ModelName}",
+                $"reasoning_effort={candidate.ReasoningEffort}"
+            ]);
+    }
+
     private async Task<StructuredSmokeExecutionResult> RunStructuredSmokeAsync(
         AiProviderRuntimeEndpoint endpoint,
-        string model,
+        AiModelFailoverCandidate candidate,
         string taskType,
-        string reasoningEffort,
         string? inputJson,
         IReadOnlyList<string> routingAudit,
         CancellationToken cancellationToken)
@@ -1013,11 +1144,11 @@ public sealed class OpenAiCompatibleSmokeTestService(
         using var schema = LoadSchemaForTaskType(taskType);
         var payload = new
         {
-            model,
+            model = candidate.ModelName,
             store = false,
             reasoning = new
             {
-                effort = reasoningEffort
+                effort = candidate.ReasoningEffort
             },
             input = NormalizeInputJson(inputJson, taskType),
             text = new
@@ -1045,6 +1176,11 @@ public sealed class OpenAiCompatibleSmokeTestService(
             var latencyMs = (int)Math.Max(1, (DateTimeOffset.UtcNow - startedAt).TotalMilliseconds);
             var parsed = ParseSmokeResponse(body);
             return new StructuredSmokeExecutionResult(
+                Model: candidate.ModelName,
+                ReasoningEffort: candidate.ReasoningEffort,
+                PresetId: candidate.PresetId,
+                ExecutionSlot: candidate.ExecutionSlot,
+                ExecutionGrade: candidate.ExecutionGrade,
                 ProviderEndpointId: endpoint.EndpointId,
                 BaseUrl: endpoint.BaseUrl,
                 Passed: response.IsSuccessStatusCode,
@@ -1068,6 +1204,11 @@ public sealed class OpenAiCompatibleSmokeTestService(
         catch (Exception ex)
         {
             return new StructuredSmokeExecutionResult(
+                Model: candidate.ModelName,
+                ReasoningEffort: candidate.ReasoningEffort,
+                PresetId: candidate.PresetId,
+                ExecutionSlot: candidate.ExecutionSlot,
+                ExecutionGrade: candidate.ExecutionGrade,
                 ProviderEndpointId: endpoint.EndpointId,
                 BaseUrl: endpoint.BaseUrl,
                 Passed: false,
@@ -1129,6 +1270,11 @@ public sealed class OpenAiCompatibleSmokeTestService(
     private static StructuredSmokeExecutionResult CreateNoEndpointSmokeResult()
     {
         return new StructuredSmokeExecutionResult(
+            Model: "",
+            ReasoningEffort: "",
+            PresetId: "",
+            ExecutionSlot: "",
+            ExecutionGrade: "",
             ProviderEndpointId: "",
             BaseUrl: "",
             Passed: false,
@@ -1335,6 +1481,9 @@ public sealed class OpenAiCompatibleSmokeTestService(
         string model,
         string taskType,
         string reasoningEffort,
+        string executionSlot,
+        string executionGrade,
+        string preset,
         string routingMode,
         IReadOnlyList<AiProviderRuntimeEndpoint> endpoints,
         IReadOnlyList<string> blockers,
@@ -1351,6 +1500,9 @@ public sealed class OpenAiCompatibleSmokeTestService(
             Model: model,
             TaskType: taskType,
             EffectiveReasoningEffort: reasoningEffort,
+            EffectiveExecutionSlot: executionSlot,
+            EffectiveExecutionGrade: executionGrade,
+            EffectivePreset: preset,
             RoutingMode: routingMode,
             UsedModelRouting: usedModelRouting,
             ReviewStatus: "pending_review",
@@ -1487,6 +1639,33 @@ public sealed class OpenAiCompatibleSmokeTestService(
         return false;
     }
 
+    private static bool BodyListsModel(string body, string modelName)
+    {
+        if (string.IsNullOrWhiteSpace(body) || string.IsNullOrWhiteSpace(modelName))
+        {
+            return false;
+        }
+
+        try
+        {
+            using var document = JsonDocument.Parse(body);
+            if (!document.RootElement.TryGetProperty("data", out var data) || data.ValueKind != JsonValueKind.Array)
+            {
+                return false;
+            }
+
+            return data.EnumerateArray().Any(item =>
+                item.ValueKind == JsonValueKind.Object &&
+                item.TryGetProperty("id", out var id) &&
+                id.ValueKind == JsonValueKind.String &&
+                string.Equals(id.GetString(), modelName, StringComparison.OrdinalIgnoreCase));
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
+
     private static string DescribeResponseFailure(string body, int httpStatusCode)
     {
         var errorMessage = TryReadErrorMessage(body);
@@ -1531,6 +1710,11 @@ public sealed class OpenAiCompatibleSmokeTestService(
     }
 
     private sealed record StructuredSmokeExecutionResult(
+        string Model,
+        string ReasoningEffort,
+        string PresetId,
+        string ExecutionSlot,
+        string ExecutionGrade,
         string ProviderEndpointId,
         string BaseUrl,
         bool Passed,

@@ -38,13 +38,13 @@ providerProfiles:
       - "high_risk_review_model"
       - "highest_risk_decision_model"
   - id: "cloud_openai_candidate"
-    displayName: "云 API 候选"
+    displayName: "Cockpit 本地 API 网关"
     providerType: "openai_compatible"
     credentialRef: "env:KQG_AI_OPENAI_KEY"
-    baseUrl: "https://api.openai.com/v1"
+    baseUrl: "http://127.0.0.1:45335/v1"
     maxConcurrency: 2
-    monthlyBudgetCny: 300
-    fallbackPolicy: "stub_offline_default_then_pending_review"
+    monthlyBudgetCny: 0
+    fallbackPolicy: "gpt-5.6-sol_then_gpt-5.6-terra_then_gpt-5.6-luna_then_pending_review"
     disabledByDefault: true
     adminOnly: true
     secretRedaction: "always_masked"

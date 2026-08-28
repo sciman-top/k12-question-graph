@@ -11,6 +11,12 @@ public sealed class AiRoutingOptions
     public string PromptVersion { get; set; } = "prompt.d001.draft-test.v1";
 
     public Dictionary<string, AiRouteOptions> Routes { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
+    public Dictionary<string, AiModelPresetOptions> ModelPresets { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
+    public Dictionary<string, AiExecutionSlotOptions> ExecutionSlots { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
+    public AiModelFailoverOptions ModelFailover { get; set; } = new();
 }
 
 public sealed class AiRouteOptions
@@ -27,11 +33,19 @@ public sealed class AiRouteOptions
 
     public string? ModelTier { get; set; }
 
+    public string? ExecutionSlot { get; set; }
+
+    public string? ExecutionGrade { get; set; }
+
     public string? EscalateToRole { get; set; }
 
     public string? EscalateToModel { get; set; }
 
     public string? EscalateReasoningEffort { get; set; }
+
+    public string? EscalateToExecutionSlot { get; set; }
+
+    public string? EscalateToExecutionGrade { get; set; }
 
     public string? StructuredOutputSchema { get; set; }
 
@@ -43,3 +57,40 @@ public sealed class AiRouteOptions
 
     public string[] EscalationSignals { get; set; } = [];
 }
+
+public sealed class AiModelPresetOptions
+{
+    public string ModelName { get; set; } = string.Empty;
+
+    public string[] ReasoningEfforts { get; set; } = [];
+
+    public Dictionary<string, string> GradeToReasoningEffort { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
+    public string FallbackReasoningEffort { get; set; } = "medium";
+}
+
+public sealed class AiExecutionSlotOptions
+{
+    public string Description { get; set; } = string.Empty;
+
+    public string DefaultGrade { get; set; } = "balanced";
+
+    public Dictionary<string, string> Grades { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+}
+
+public sealed class AiModelFailoverOptions
+{
+    public bool Enabled { get; set; } = true;
+
+    public string[] PreferredPresetOrder { get; set; } = ["sol", "terra", "luna"];
+
+    public string AvailabilityProbePath { get; set; } = "/models";
+}
+
+public sealed record AiModelFailoverCandidate(
+    string PresetId,
+    string ModelName,
+    string ReasoningEffort,
+    bool IsFallback,
+    string ExecutionSlot = "",
+    string ExecutionGrade = "");
