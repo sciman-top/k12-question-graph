@@ -59,6 +59,7 @@ model_failover:
   enabled: true
   preferred_preset_order: [sol, terra, luna]
   availability_probe_path: /models
+  failure_cooldown_seconds: 30
 execution_slots:
   mechanical_cleanup:
     default_grade: economy

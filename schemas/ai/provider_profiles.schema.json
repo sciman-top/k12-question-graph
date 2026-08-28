@@ -18,7 +18,7 @@
     "mode": { "type": "string" },
     "teacherSimpleModes": {
       "type": "array",
-      "minItems": 3,
+      "minItems": 2,
       "items": {
         "type": "object",
         "additionalProperties": false,
@@ -42,7 +42,7 @@
     },
     "providerProfiles": {
       "type": "array",
-      "minItems": 3,
+      "minItems": 2,
       "items": {
         "type": "object",
         "additionalProperties": false,

@@ -10,8 +10,15 @@ public static class AdminAiEndpoints
             FileAiProviderSettingsStore settingsStore,
             CancellationToken cancellationToken) =>
         {
-            var settings = await settingsStore.GetAsync(cancellationToken);
-            return Results.Ok(settings);
+            try
+            {
+                var settings = await settingsStore.GetAsync(cancellationToken);
+                return Results.Ok(settings);
+            }
+            catch (AiProviderSettingsException exception)
+            {
+                return Results.BadRequest(new { error = exception.Message });
+            }
         })
         .WithName("GetAdminAiProviderSettings");
 
@@ -20,8 +27,15 @@ public static class AdminAiEndpoints
             FileAiProviderSettingsStore settingsStore,
             CancellationToken cancellationToken) =>
         {
-            var result = await settingsStore.SaveAsync(request, cancellationToken);
-            return Results.Ok(result);
+            try
+            {
+                var result = await settingsStore.SaveAsync(request, cancellationToken);
+                return Results.Ok(result);
+            }
+            catch (AiProviderSettingsException exception)
+            {
+                return Results.BadRequest(new { error = exception.Message });
+            }
         })
         .WithName("SaveAdminAiProviderSettings");
 
@@ -31,9 +45,16 @@ public static class AdminAiEndpoints
             OpenAiCompatibleSmokeTestService smokeTestService,
             CancellationToken cancellationToken) =>
         {
-            var settings = await settingsStore.GetAsync(cancellationToken);
-            var result = await smokeTestService.RunAsync(settings, request, cancellationToken);
-            return Results.Ok(result);
+            try
+            {
+                var settings = await settingsStore.GetAsync(cancellationToken);
+                var result = await smokeTestService.RunAsync(settings, request, cancellationToken);
+                return Results.Ok(result);
+            }
+            catch (AiProviderSettingsException exception)
+            {
+                return Results.BadRequest(new { error = exception.Message });
+            }
         })
         .WithName("TestAdminAiProviderSettings");
 

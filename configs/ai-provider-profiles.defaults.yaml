@@ -8,18 +8,12 @@ teacherSimpleModes:
     visibleToTeacher: true
     defaultProviderProfile: "stub_offline_default"
     routePolicy: "local_first_rules_then_stub_llm_pending_review"
-  - id: "cloud_enhanced"
-    label: "云 API 增强"
-    summary: "管理员可选启用云 provider profile，但预算和 fallback 仍走受控门禁。"
+  - id: "cockpit_enhanced"
+    label: "Cockpit 本地 API 增强"
+    summary: "管理员可选启用固定 Cockpit 本地网关，模型只按 Sol、Terra、Luna preset 受控切换。"
     visibleToTeacher: true
     defaultProviderProfile: "cloud_openai_candidate"
     routePolicy: "role_routed_cloud_candidate_pending_review"
-  - id: "local_enhanced"
-    label: "本地增强"
-    summary: "管理员可选启用本地量化模型评测网关，不默认下载模型权重。"
-    visibleToTeacher: true
-    defaultProviderProfile: "local_llm_eval_gateway"
-    routePolicy: "role_routed_local_eval_pending_review"
 providerProfiles:
   - id: "stub_offline_default"
     displayName: "离线默认 / stub"
@@ -53,20 +47,6 @@ providerProfiles:
       - "engineering_review_model"
       - "high_risk_review_model"
       - "highest_risk_decision_model"
-  - id: "local_llm_eval_gateway"
-    displayName: "本地模型评测网关"
-    providerType: "custom_http"
-    credentialRef: "env:KQG_AI_LOCAL_GATEWAY_TOKEN"
-    baseUrl: "http://127.0.0.1:11434/v1"
-    maxConcurrency: 1
-    monthlyBudgetCny: 0
-    fallbackPolicy: "stub_offline_default_then_pending_review"
-    disabledByDefault: true
-    adminOnly: true
-    secretRedaction: "always_masked"
-    roleScopes:
-      - "mechanical_cleanup_model"
-      - "bulk_prefilter_model"
 runtimeGuardrails:
   allowRealModelCallsDefault: false
   allOutputsDefaultReviewStatus: "pending_review"

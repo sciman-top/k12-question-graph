@@ -2,9 +2,13 @@ using Microsoft.Extensions.Options;
 
 namespace K12QuestionGraph.Api.Ai;
 
-public sealed class AiModelRouter(IOptions<AiRoutingOptions> options, IWebHostEnvironment environment)
+public sealed class AiModelRouter(
+    IOptions<AiRoutingOptions> options,
+    IWebHostEnvironment environment,
+    AiPresetAvailabilityCoordinator? presetAvailability = null)
 {
     private readonly AiRoutingOptions options = options.Value;
+    private readonly AiPresetAvailabilityCoordinator presetAvailability = presetAvailability ?? new AiPresetAvailabilityCoordinator(options);
 
     public AiRouteDecision Route(AiRouteRequest request)
     {
@@ -122,26 +126,19 @@ public sealed class AiModelRouter(IOptions<AiRoutingOptions> options, IWebHostEn
         var normalizedReasoningEffort = Normalize(reasoningEffort, "medium");
         var normalizedExecutionSlot = Normalize(executionSlot, "");
         var normalizedExecutionGrade = Normalize(executionGrade, "");
-        if (!options.ModelFailover.Enabled || options.ModelPresets.Count == 0)
-        {
-            return [new("manual", normalizedModelName, normalizedReasoningEffort, false, normalizedExecutionSlot, normalizedExecutionGrade)];
-        }
-
         var requestedPreset = options.ModelPresets.FirstOrDefault(pair =>
             string.Equals(pair.Key, normalizedModelName, StringComparison.OrdinalIgnoreCase) ||
             string.Equals(pair.Value.ModelName, normalizedModelName, StringComparison.OrdinalIgnoreCase));
         if (string.IsNullOrWhiteSpace(requestedPreset.Key))
         {
-            return [new("manual", normalizedModelName, normalizedReasoningEffort, false, normalizedExecutionSlot, normalizedExecutionGrade)];
+            throw new AiRouteException("unknown_model_preset");
         }
 
-        var orderedPresetIds = new[] { requestedPreset.Key }
-            .Concat(options.ModelFailover.PreferredPresetOrder)
-            .Where(x => !string.IsNullOrWhiteSpace(x) && options.ModelPresets.ContainsKey(x))
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToArray();
+        var orderedPresetIds = options.ModelFailover.Enabled
+            ? presetAvailability.GetCandidatePresetIds(requestedPreset.Key)
+            : [requestedPreset.Key];
 
-        var candidates = new List<AiModelFailoverCandidate>(orderedPresetIds.Length);
+        var candidates = new List<AiModelFailoverCandidate>(orderedPresetIds.Count);
         foreach (var presetId in orderedPresetIds)
         {
             var preset = options.ModelPresets[presetId];
@@ -163,9 +160,28 @@ public sealed class AiModelRouter(IOptions<AiRoutingOptions> options, IWebHostEn
                 ExecutionGrade: normalizedExecutionGrade));
         }
 
-        return candidates.Count > 0
-            ? candidates
-            : [new("manual", normalizedModelName, normalizedReasoningEffort, false, normalizedExecutionSlot, normalizedExecutionGrade)];
+        if (candidates.Count == 0)
+        {
+            throw new AiRouteException("model_preset_unavailable");
+        }
+
+        return candidates;
+    }
+
+    public void RecordProviderExecutionSuccess(AiModelFailoverCandidate candidate)
+    {
+        if (!string.Equals(candidate.PresetId, "manual", StringComparison.OrdinalIgnoreCase))
+        {
+            presetAvailability.RecordExecutionSuccess(candidate.PresetId);
+        }
+    }
+
+    public void RecordProviderAvailabilityFailure(AiModelFailoverCandidate candidate, int httpStatusCode)
+    {
+        if (!string.Equals(candidate.PresetId, "manual", StringComparison.OrdinalIgnoreCase))
+        {
+            presetAvailability.RecordAvailabilityFailure(candidate.PresetId, httpStatusCode);
+        }
     }
 
     public string ModelAvailabilityProbePath => NormalizeProbePath(options.ModelFailover.AvailabilityProbePath);
@@ -283,20 +299,21 @@ public sealed class AiModelRouter(IOptions<AiRoutingOptions> options, IWebHostEn
 
     private string ResolveExecutionSlot(string? configuredSlot, string modelRole, string? fallback = null)
     {
-        if (!string.IsNullOrWhiteSpace(configuredSlot))
-        {
-            return configuredSlot.Trim();
-        }
+        var requestedSlot = !string.IsNullOrWhiteSpace(configuredSlot)
+            ? configuredSlot.Trim()
+            : modelRole.ToLowerInvariant() switch
+            {
+                "mechanical_cleanup_model" or "local_deterministic" => "mechanical_cleanup",
+                "bulk_prefilter_model" or "bulk_structuring" => "bulk_prefilter",
+                "engineering_review_model" or "general_semantics" => "engineering_review",
+                "visual_review_model" or "visual_document" => "visual_review",
+                "high_risk_review_model" or "highest_risk_decision_model" or "semantic_decision" => "high_risk_adjudication",
+                _ => Normalize(fallback, "engineering_review")
+            };
 
-        return modelRole.ToLowerInvariant() switch
-        {
-            "mechanical_cleanup_model" or "local_deterministic" => "mechanical_cleanup",
-            "bulk_prefilter_model" or "bulk_structuring" => "bulk_prefilter",
-            "engineering_review_model" or "general_semantics" => "engineering_review",
-            "visual_review_model" or "visual_document" => "visual_review",
-            "high_risk_review_model" or "highest_risk_decision_model" or "semantic_decision" => "high_risk_adjudication",
-            _ => Normalize(fallback, "engineering_review")
-        };
+        var canonicalSlot = options.ExecutionSlots.Keys.FirstOrDefault(slot =>
+            string.Equals(slot, requestedSlot, StringComparison.OrdinalIgnoreCase));
+        return canonicalSlot ?? throw new AiRouteException("unknown_execution_slot");
     }
 
     private string ResolveExecutionGrade(string? requestedGrade, string? configuredGrade, string executionSlot, string mode)
@@ -327,11 +344,8 @@ public sealed class AiModelRouter(IOptions<AiRoutingOptions> options, IWebHostEn
         // Execution slots select a grade only. The active preset selects the
         // model for every slot, so a Sol-only/Terra-only/Luna-only preset can
         // never be mixed by a slot-specific model binding.
-        var presetId = options.ModelFailover.PreferredPresetOrder
-            .FirstOrDefault(id => !string.IsNullOrWhiteSpace(id) && options.ModelPresets.ContainsKey(id));
-        presetId ??= options.ModelPresets.Keys.FirstOrDefault();
-        if (!string.IsNullOrWhiteSpace(presetId)
-            && options.ModelPresets.TryGetValue(presetId, out var preset)
+        var presetId = presetAvailability.SelectActivePresetId();
+        if (options.ModelPresets.TryGetValue(presetId, out var preset)
             && !string.IsNullOrWhiteSpace(preset.ModelName))
         {
             return new AiModelSelection(
@@ -340,7 +354,7 @@ public sealed class AiModelRouter(IOptions<AiRoutingOptions> options, IWebHostEn
                 ResolveSupportedReasoningEffort(preset, reasoningEffort, executionGrade));
         }
 
-        return new AiModelSelection("", Normalize(modelName, "stub"), Normalize(reasoningEffort, "medium"));
+        throw new AiRouteException("model_preset_unavailable");
     }
 
     private sealed record AiModelSelection(string PresetId, string ModelName, string ReasoningEffort);

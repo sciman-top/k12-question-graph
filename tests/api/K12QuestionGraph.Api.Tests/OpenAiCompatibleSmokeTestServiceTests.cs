@@ -60,7 +60,7 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task ManualSmokeOverrideKeepsExplicitModelAndMarksRoutingSource()
+    public async Task ManualSmokeOverrideIsRejectedBeforeAnyProviderRequest()
     {
         var handler = new RecordingProviderHandler();
         using var httpClient = new HttpClient(handler);
@@ -87,13 +87,11 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
                 UseModelRouting: false),
             CancellationToken.None);
 
-        Assert.True(result.Passed);
-        Assert.Equal("manual-model", result.Model);
-        Assert.Equal("medium", result.EffectiveReasoningEffort);
+        Assert.Equal("blocked", result.Status);
+        Assert.False(result.Passed);
         Assert.False(result.UsedModelRouting);
-        Assert.Contains("routing_source=manual_model_override", result.AuditTrail);
-        Assert.Equal("manual-model", handler.ResponsesPayload!.Value.GetProperty("model").GetString());
-        Assert.Equal("medium", handler.ResponsesPayload.Value.GetProperty("reasoning").GetProperty("effort").GetString());
+        Assert.Contains("manual_model_override_not_supported", result.Blockers);
+        Assert.Equal(0, handler.RequestCount);
     }
 
     [Fact]
@@ -127,6 +125,60 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
         Assert.Contains("real_model_calls_disabled", result.Blockers);
         Assert.Contains("routing_blocked_before_provider_request", result.AuditTrail);
         Assert.Equal(0, handler.RequestCount);
+    }
+
+    [Fact]
+    public async Task SmokeRejectsRemoteGatewayOverrideBeforeSendingTheCockpitKey()
+    {
+        var handler = new RecordingProviderHandler();
+        using var httpClient = new HttpClient(handler);
+        var store = CreateStore();
+        await store.SaveAsync(CreateSaveRequest(), CancellationToken.None);
+        var settings = await store.GetAsync(CancellationToken.None);
+        var service = new OpenAiCompatibleSmokeTestService(httpClient, store, CreateEnvironment(), CreateRouter());
+
+        var request = new AdminAiProviderSettingsTestRequest(
+            TaskType: "knowledge_tagging",
+            InputJson: "tag this",
+            Model: null,
+            BaseUrlOverride: "https://remote.example.test/v1",
+            ImageBaseUrlOverride: null,
+            FallbackBaseUrlOverride: null,
+            FallbackImageBaseUrlOverride: null,
+            UseModelRouting: true);
+
+        var exception = await Assert.ThrowsAsync<AiProviderSettingsException>(() => service.RunAsync(settings, request, CancellationToken.None));
+
+        Assert.Equal("cockpit_local_gateway_required", exception.Message);
+        Assert.Equal(0, handler.RequestCount);
+    }
+
+    [Fact]
+    public async Task CancellationStopsFailoverInsteadOfBeingRecordedAsProviderFailure()
+    {
+        var handler = new CancellationProviderHandler();
+        using var httpClient = new HttpClient(handler);
+        var store = CreateStore();
+        await store.SaveAsync(CreateSaveRequest(), CancellationToken.None);
+        var settings = await store.GetAsync(CancellationToken.None);
+        var service = new OpenAiCompatibleSmokeTestService(httpClient, store, CreateEnvironment(), CreateRouter());
+        using var cancellation = new CancellationTokenSource(TimeSpan.FromMilliseconds(100));
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => service.RunAsync(
+            settings,
+            new AdminAiProviderSettingsTestRequest(
+                TaskType: "knowledge_tagging",
+                InputJson: "tag this",
+                Model: null,
+                BaseUrlOverride: null,
+                ImageBaseUrlOverride: null,
+                FallbackBaseUrlOverride: null,
+                FallbackImageBaseUrlOverride: null,
+                RoutingMode: "balanced",
+                UseModelRouting: true),
+            cancellation.Token));
+
+        Assert.Equal(1, handler.RequestCount);
     }
 
     [Fact]
@@ -173,6 +225,26 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
             ],
             handler.RequestTrace);
         Assert.Contains("selected_model_preset=terra", result.AuditTrail);
+
+        var steadyState = await service.RunAsync(
+            settings,
+            new AdminAiProviderSettingsTestRequest(
+                TaskType: "question_solving",
+                InputJson: "solve this again",
+                Model: null,
+                BaseUrlOverride: null,
+                ImageBaseUrlOverride: null,
+                FallbackBaseUrlOverride: null,
+                FallbackImageBaseUrlOverride: null,
+                RoutingMode: "balanced",
+                UseModelRouting: true),
+            CancellationToken.None);
+
+        Assert.True(steadyState.Passed);
+        Assert.Equal("terra", steadyState.EffectivePreset);
+        Assert.Equal(
+            ["models:gpt-5.6-terra", "responses:gpt-5.6-terra", "images"],
+            handler.RequestTrace.Skip(5).ToArray());
     }
 
     [Fact]
@@ -248,7 +320,7 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
 
     private static AdminAiProviderSettingsSaveRequest CreateSaveRequest() => new(
         ProviderProfileId: "smoke-test",
-        BaseUrl: "https://provider.test/v1",
+        BaseUrl: CockpitGatewayPolicy.LocalBaseUrl,
         ApiKey: "test-secret",
         ImageBaseUrl: null,
         ImageApiKey: null,
@@ -378,6 +450,20 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
         {
             Content = new StringContent(content, System.Text.Encoding.UTF8, "application/json")
         };
+    }
+
+    private sealed class CancellationProviderHandler : HttpMessageHandler
+    {
+        public int RequestCount { get; private set; }
+
+        protected override async Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request,
+            CancellationToken cancellationToken)
+        {
+            RequestCount++;
+            await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
+            throw new InvalidOperationException("The cancellation test handler should not return a response.");
+        }
     }
 
     private sealed class TestWebHostEnvironment : IWebHostEnvironment

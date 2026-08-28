@@ -214,24 +214,15 @@ public sealed class FileAiProviderSettingsStore(
     private const string DefaultCredentialMode = "dialog_secret_local_machine";
     private const string DefaultSmokeTaskType = "knowledge_tagging";
     private const string DefaultSmokeModel = "gpt-5.6-sol";
-    private const string DefaultGatewayBaseUrl = "http://127.0.0.1:45335/v1";
+    private const string DefaultGatewayBaseUrl = CockpitGatewayPolicy.LocalBaseUrl;
     private const string PrimaryEnvSecretName = "KQG_AI_OPENAI_KEY";
     private const string PrimaryEnvBaseUrlName = "KQG_AI_OPENAI_BASE_URL";
     private const string ImageEnvSecretName = "KQG_AI_IMAGE_OPENAI_KEY";
     private const string ImageEnvBaseUrlName = "KQG_AI_IMAGE_OPENAI_BASE_URL";
     private const string LegacyPrimaryEnvSecretName = "TEXT_PROVIDER_API_KEY";
     private const string LegacyPrimaryEnvBaseUrlName = "TEXT_PROVIDER_BASE_URL";
-    private const string LegacyPrimaryEnvModelName = "TEXT_PROVIDER_MODEL";
     private const string LegacyImageEnvSecretName = "IMAGE_PROVIDER_API_KEY_1";
     private const string LegacyImageEnvBaseUrlName = "IMAGE_PROVIDER_BASE_URL";
-    private const string FallbackEnvSecretName = "KQG_AI_FALLBACK_1_OPENAI_KEY";
-    private const string FallbackEnvBaseUrlName = "KQG_AI_FALLBACK_1_OPENAI_BASE_URL";
-    private const string FallbackImageEnvSecretName = "KQG_AI_FALLBACK_1_IMAGE_OPENAI_KEY";
-    private const string FallbackImageEnvBaseUrlName = "KQG_AI_FALLBACK_1_IMAGE_OPENAI_BASE_URL";
-    private const string LegacyFallbackEnvSecretName = "TEXT_PROVIDER_FALLBACK_1_API_KEY";
-    private const string LegacyFallbackEnvBaseUrlName = "TEXT_PROVIDER_FALLBACK_1_BASE_URL";
-    private const string LegacyFallbackImageEnvSecretName = "IMAGE_PROVIDER_FALLBACK_1_API_KEY_1";
-    private const string LegacyFallbackImageEnvBaseUrlName = "IMAGE_PROVIDER_FALLBACK_1_BASE_URL";
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web) { WriteIndented = true };
     private static readonly SemaphoreSlim SettingsWriteLock = new(1, 1);
     private readonly IDataProtector protector = dataProtectionProvider.CreateProtector("k12-question-graph.admin-ai-provider-settings.v0.1");
@@ -252,10 +243,9 @@ public sealed class FileAiProviderSettingsStore(
         try
         {
             var existing = await LoadStoredAsync(cancellationToken);
+            RejectFallbackConfiguration(request);
             var normalizedSecret = request.ApiKey?.Trim();
             var normalizedImageSecret = request.ImageApiKey?.Trim();
-            var normalizedFallbackSecret = request.FallbackApiKey?.Trim();
-            var normalizedFallbackImageSecret = request.FallbackImageApiKey?.Trim();
             var secretCiphertext = string.IsNullOrWhiteSpace(normalizedSecret)
                 ? existing.SecretCiphertext
                 : ProtectSecret(normalizedSecret);
@@ -264,34 +254,26 @@ public sealed class FileAiProviderSettingsStore(
                 : string.IsNullOrWhiteSpace(normalizedImageSecret)
                     ? string.Empty
                     : ProtectSecret(normalizedImageSecret);
-            var fallbackSecretCiphertext = string.IsNullOrWhiteSpace(normalizedFallbackSecret)
-                ? existing.FallbackSecretCiphertext
-                : ProtectSecret(normalizedFallbackSecret);
-            var fallbackImageSecretCiphertext = normalizedFallbackImageSecret is null
-                ? existing.FallbackImageSecretCiphertext
-                : string.IsNullOrWhiteSpace(normalizedFallbackImageSecret)
-                    ? string.Empty
-                    : ProtectSecret(normalizedFallbackImageSecret);
             var now = DateTimeOffset.UtcNow;
             var stored = new StoredAdminAiProviderSettings(
                 SchemaVersion,
-                Normalize(request.ProviderProfileId, DefaultProviderProfileId),
+                DefaultProviderProfileId,
                 DefaultProviderType,
                 NormalizeBaseUrl(request.BaseUrl),
                 NormalizeOptionalBaseUrl(request.ImageBaseUrl),
                 DefaultCredentialMode,
                 secretCiphertext,
                 imageSecretCiphertext,
-                NormalizeOptionalBaseUrl(request.FallbackBaseUrl),
-                NormalizeOptionalBaseUrl(request.FallbackImageBaseUrl),
-                fallbackSecretCiphertext,
-                fallbackImageSecretCiphertext,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                string.Empty,
                 NormalizeRange(request.MaxConcurrency, 1, 8, fallback: existing.MaxConcurrency),
                 NormalizeRange(request.MonthlyBudgetCny, 0, 100000, fallback: existing.MonthlyBudgetCny),
                 request.DisabledByDefault,
                 request.AllowRealModelCalls,
                 Normalize(request.DefaultSmokeTaskType, existing.DefaultSmokeTaskType),
-                Normalize(request.DefaultSmokeModel, existing.DefaultSmokeModel),
+                NormalizeSmokeModel(request.DefaultSmokeModel, existing.DefaultSmokeModel),
                 now,
                 Normalize(request.OperatorNote, existing.LastOperatorNote));
 
@@ -317,7 +299,7 @@ public sealed class FileAiProviderSettingsStore(
                 MaskedFallbackImageSecret: MaskSecret(plaintextFallbackImageSecret),
                 FallbackImageUsesPrimarySecret: string.IsNullOrWhiteSpace(UnprotectSecret(stored.FallbackImageSecretCiphertext)),
                 LastUpdatedAt: stored.UpdatedAtUtc.ToString("O"),
-                TeacherMessage: "管理员 AI 设置已保存；主备网关按顺序自动试跑，图片专用 key 留空时会复用同一路文本 key；本机仍只保留加密副本，试跑保持 pending_review。",
+                TeacherMessage: "管理员 AI 设置已保存；固定 Cockpit 本地网关将按 preset 可用性顺序试跑，图片专用 key 留空时会复用同一路文本 key；本机仍只保留加密副本，试跑保持 pending_review。",
                 AuditTrail: [
                     "save_admin_ai_provider_settings",
                 $"provider_profile={stored.ProviderProfileId}",
@@ -472,7 +454,7 @@ public sealed class FileAiProviderSettingsStore(
             FallbackImageUsesPrimarySecret: string.IsNullOrWhiteSpace(explicitFallbackImageSecret),
             Endpoints: BuildEndpointContracts(settings),
             LastUpdatedAt: settings.UpdatedAtUtc.ToString("O"),
-            TeacherMessage: "当前为管理员级本机 AI 设置；主备网关会按顺序试跑，图片专用 key 可选覆盖；普通教师侧仍只看到简化模式。",
+            TeacherMessage: "当前为管理员级本机 AI 设置；固定 Cockpit 本地网关会按 preset 可用性顺序试跑，图片专用 key 可选覆盖；普通教师侧仍只看到简化模式。",
             AuditTrail: [
                 "load_admin_ai_provider_settings",
                 $"provider_profile={settings.ProviderProfileId}",
@@ -493,11 +475,6 @@ public sealed class FileAiProviderSettingsStore(
         var envImageSecret = ReadFirstEnvironmentValue(ImageEnvSecretName, LegacyImageEnvSecretName);
         var envPrimaryBaseUrl = ReadFirstEnvironmentValue(PrimaryEnvBaseUrlName, LegacyPrimaryEnvBaseUrlName);
         var envImageBaseUrl = ReadFirstEnvironmentValue(ImageEnvBaseUrlName, LegacyImageEnvBaseUrlName);
-        var envFallbackSecret = ReadFirstEnvironmentValue(FallbackEnvSecretName, LegacyFallbackEnvSecretName);
-        var envFallbackBaseUrl = ReadFirstEnvironmentValue(FallbackEnvBaseUrlName, LegacyFallbackEnvBaseUrlName);
-        var envFallbackImageSecret = ReadFirstEnvironmentValue(FallbackImageEnvSecretName, LegacyFallbackImageEnvSecretName);
-        var envFallbackImageBaseUrl = ReadFirstEnvironmentValue(FallbackImageEnvBaseUrlName, LegacyFallbackImageEnvBaseUrlName);
-        var envDefaultSmokeModel = ReadFirstEnvironmentValue(LegacyPrimaryEnvModelName);
         return new StoredAdminAiProviderSettings(
             SchemaVersion,
             DefaultProviderProfileId,
@@ -507,16 +484,16 @@ public sealed class FileAiProviderSettingsStore(
             DefaultCredentialMode,
             string.IsNullOrWhiteSpace(envPrimarySecret) ? string.Empty : ProtectSecret(envPrimarySecret),
             string.IsNullOrWhiteSpace(envImageSecret) ? string.Empty : ProtectSecret(envImageSecret),
-            NormalizeOptionalBaseUrl(envFallbackBaseUrl),
-            NormalizeOptionalBaseUrl(envFallbackImageBaseUrl),
-            string.IsNullOrWhiteSpace(envFallbackSecret) ? string.Empty : ProtectSecret(envFallbackSecret),
-            string.IsNullOrWhiteSpace(envFallbackImageSecret) ? string.Empty : ProtectSecret(envFallbackImageSecret),
+            string.Empty,
+            string.Empty,
+            string.Empty,
+            string.Empty,
             defaults.maxConcurrency,
             defaults.monthlyBudgetCny,
             true,
             false,
             DefaultSmokeTaskType,
-            Normalize(envDefaultSmokeModel, DefaultSmokeModel),
+            DefaultSmokeModel,
             DateTimeOffset.MinValue,
             string.Empty);
     }
@@ -526,19 +503,19 @@ public sealed class FileAiProviderSettingsStore(
         var defaults = LoadDefaultsFromYaml();
         return loaded with
         {
-            ProviderProfileId = Normalize(loaded.ProviderProfileId, DefaultProviderProfileId),
-            ProviderType = Normalize(loaded.ProviderType, DefaultProviderType),
+            ProviderProfileId = DefaultProviderProfileId,
+            ProviderType = DefaultProviderType,
             BaseUrl = NormalizeBaseUrl(string.IsNullOrWhiteSpace(loaded.BaseUrl) ? defaults.baseUrl : loaded.BaseUrl),
             ImageBaseUrl = NormalizeOptionalBaseUrl(loaded.ImageBaseUrl),
-            FallbackBaseUrl = NormalizeOptionalBaseUrl(loaded.FallbackBaseUrl),
-            FallbackImageBaseUrl = NormalizeOptionalBaseUrl(loaded.FallbackImageBaseUrl),
-            FallbackSecretCiphertext = NormalizeOptionalCiphertext(loaded.FallbackSecretCiphertext),
-            FallbackImageSecretCiphertext = NormalizeOptionalCiphertext(loaded.FallbackImageSecretCiphertext),
+            FallbackBaseUrl = string.Empty,
+            FallbackImageBaseUrl = string.Empty,
+            FallbackSecretCiphertext = string.Empty,
+            FallbackImageSecretCiphertext = string.Empty,
             CredentialMode = Normalize(loaded.CredentialMode, DefaultCredentialMode),
             MaxConcurrency = NormalizeRange(loaded.MaxConcurrency, 1, 8, defaults.maxConcurrency),
             MonthlyBudgetCny = NormalizeRange(loaded.MonthlyBudgetCny, 0, 100000, defaults.monthlyBudgetCny),
             DefaultSmokeTaskType = Normalize(loaded.DefaultSmokeTaskType, DefaultSmokeTaskType),
-            DefaultSmokeModel = Normalize(loaded.DefaultSmokeModel, DefaultSmokeModel),
+            DefaultSmokeModel = DefaultSmokeModel,
         };
     }
 
@@ -582,6 +559,17 @@ public sealed class FileAiProviderSettingsStore(
         return string.IsNullOrWhiteSpace(value) ? fallback : value.Trim();
     }
 
+    private static string NormalizeSmokeModel(string? value, string fallback)
+    {
+        var normalized = Normalize(value, fallback);
+        if (!string.Equals(normalized, DefaultSmokeModel, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new AiProviderSettingsException("single_model_preset_required");
+        }
+
+        return DefaultSmokeModel;
+    }
+
     private static int NormalizeRange(int value, int min, int max, int fallback)
     {
         if (value < min || value > max)
@@ -594,18 +582,23 @@ public sealed class FileAiProviderSettingsStore(
 
     private static string NormalizeBaseUrl(string? value)
     {
-        var normalized = Normalize(value, DefaultGatewayBaseUrl);
-        return normalized.TrimEnd('/');
+        return CockpitGatewayPolicy.NormalizeRequired(Normalize(value, DefaultGatewayBaseUrl));
     }
 
     private static string NormalizeOptionalBaseUrl(string? value)
     {
-        return string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim().TrimEnd('/');
+        return CockpitGatewayPolicy.NormalizeOptional(value);
     }
 
-    private static string NormalizeOptionalCiphertext(string? value)
+    private static void RejectFallbackConfiguration(AdminAiProviderSettingsSaveRequest request)
     {
-        return string.IsNullOrWhiteSpace(value) ? string.Empty : value;
+        if (!string.IsNullOrWhiteSpace(request.FallbackBaseUrl)
+            || !string.IsNullOrWhiteSpace(request.FallbackImageBaseUrl)
+            || !string.IsNullOrWhiteSpace(request.FallbackApiKey)
+            || !string.IsNullOrWhiteSpace(request.FallbackImageApiKey))
+        {
+            throw new AiProviderSettingsException("cockpit_endpoint_fallback_not_supported");
+        }
     }
 
     private IReadOnlyList<AdminAiProviderEndpointContract> BuildEndpointContracts(StoredAdminAiProviderSettings settings)
@@ -613,14 +606,11 @@ public sealed class FileAiProviderSettingsStore(
         var primarySecret = UnprotectSecret(settings.SecretCiphertext);
         var primaryImageSecret = ResolveEffectiveImageSecret(primarySecret, settings.ImageSecretCiphertext);
         var explicitPrimaryImageSecret = UnprotectSecret(settings.ImageSecretCiphertext);
-        var fallbackSecret = UnprotectSecret(settings.FallbackSecretCiphertext);
-        var fallbackImageSecret = ResolveEffectiveImageSecret(fallbackSecret, settings.FallbackImageSecretCiphertext);
-        var explicitFallbackImageSecret = UnprotectSecret(settings.FallbackImageSecretCiphertext);
         var endpoints = new List<AdminAiProviderEndpointContract>
         {
             new(
                 EndpointId: "primary",
-                Label: "主网关",
+                Label: "Cockpit 本地网关",
                 IsFallback: false,
                 BaseUrl: settings.BaseUrl,
                 ImageBaseUrl: ResolveEffectiveImageBaseUrl(settings.BaseUrl, settings.ImageBaseUrl),
@@ -631,24 +621,6 @@ public sealed class FileAiProviderSettingsStore(
                 ImageUsesTextSecret: string.IsNullOrWhiteSpace(explicitPrimaryImageSecret))
         };
 
-        if (!string.IsNullOrWhiteSpace(settings.FallbackBaseUrl) ||
-            !string.IsNullOrWhiteSpace(settings.FallbackImageBaseUrl) ||
-            !string.IsNullOrWhiteSpace(fallbackSecret) ||
-            !string.IsNullOrWhiteSpace(explicitFallbackImageSecret))
-        {
-            endpoints.Add(new AdminAiProviderEndpointContract(
-                EndpointId: "fallback_1",
-                Label: "备用网关 1",
-                IsFallback: true,
-                BaseUrl: settings.FallbackBaseUrl,
-                ImageBaseUrl: ResolveEffectiveImageBaseUrl(settings.FallbackBaseUrl, settings.FallbackImageBaseUrl),
-                MaskedSecret: MaskSecret(fallbackSecret),
-                SecretConfigured: !string.IsNullOrWhiteSpace(fallbackSecret),
-                MaskedImageSecret: MaskSecret(fallbackImageSecret),
-                ImageSecretConfigured: !string.IsNullOrWhiteSpace(fallbackImageSecret),
-                ImageUsesTextSecret: string.IsNullOrWhiteSpace(explicitFallbackImageSecret)));
-        }
-
         return endpoints;
     }
 
@@ -656,34 +628,17 @@ public sealed class FileAiProviderSettingsStore(
     {
         var primarySecret = UnprotectSecret(settings.SecretCiphertext);
         var primaryImageSecret = ResolveEffectiveImageSecret(primarySecret, settings.ImageSecretCiphertext);
-        var fallbackSecret = UnprotectSecret(settings.FallbackSecretCiphertext);
-        var fallbackImageSecret = ResolveEffectiveImageSecret(fallbackSecret, settings.FallbackImageSecretCiphertext);
         var endpoints = new List<AiProviderRuntimeEndpoint>
         {
             new(
                 EndpointId: "primary",
-                Label: "主网关",
+                Label: "Cockpit 本地网关",
                 IsFallback: false,
                 BaseUrl: settings.BaseUrl,
                 Secret: primarySecret,
                 ImageBaseUrl: ResolveEffectiveImageBaseUrl(settings.BaseUrl, settings.ImageBaseUrl),
                 ImageSecret: primaryImageSecret)
         };
-
-        if (!string.IsNullOrWhiteSpace(settings.FallbackBaseUrl) ||
-            !string.IsNullOrWhiteSpace(settings.FallbackImageBaseUrl) ||
-            !string.IsNullOrWhiteSpace(fallbackSecret) ||
-            !string.IsNullOrWhiteSpace(fallbackImageSecret))
-        {
-            endpoints.Add(new AiProviderRuntimeEndpoint(
-                EndpointId: "fallback_1",
-                Label: "备用网关 1",
-                IsFallback: true,
-                BaseUrl: settings.FallbackBaseUrl,
-                Secret: fallbackSecret,
-                ImageBaseUrl: ResolveEffectiveImageBaseUrl(settings.FallbackBaseUrl, settings.FallbackImageBaseUrl),
-                ImageSecret: fallbackImageSecret));
-        }
 
         return endpoints;
     }
@@ -758,13 +713,15 @@ public sealed class OpenAiCompatibleSmokeTestService(
     HttpClient httpClient,
     FileAiProviderSettingsStore settingsStore,
     IWebHostEnvironment environment,
-    AiModelRouter modelRouter)
+    AiModelRouter modelRouter,
+    AiProviderInvocationGate? invocationGate = null)
 {
     private const string ImageProbePrompt = "Generate a simple flat icon of a blue paper plane on a white background.";
     private const string ImageProbeFallbackModel = "gpt-image-2";
     private const string GatewayUserAgent = "codex_exec/k12-question-graph";
     private const string GatewayAcceptHeader = "application/json, text/event-stream";
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
+    private readonly AiProviderInvocationGate invocationGate = invocationGate ?? new AiProviderInvocationGate();
 
     public async Task<AdminAiProviderSettingsTestResult> RunAsync(
         AdminAiProviderSettingsContract settings,
@@ -797,6 +754,11 @@ public sealed class OpenAiCompatibleSmokeTestService(
         if (!settings.AllowRealModelCalls)
         {
             blockers.Add("allow_real_model_calls_false");
+        }
+
+        if (!request.UseModelRouting)
+        {
+            blockers.Add("manual_model_override_not_supported");
         }
 
         if (blockers.Count > 0)
@@ -881,6 +843,7 @@ public sealed class OpenAiCompatibleSmokeTestService(
             ]);
         }
 
+        using var providerPermit = await invocationGate.EnterAsync(settings.MaxConcurrency, cancellationToken);
         var smokeResult = await RunStructuredSmokeWithFallbackAsync(
             runtimeEndpoints,
             normalizedModel,
@@ -994,6 +957,7 @@ public sealed class OpenAiCompatibleSmokeTestService(
                     attempts.Add(availabilityAttempt);
                     if (!availabilityAttempt.Passed)
                     {
+                        modelRouter.RecordProviderAvailabilityFailure(candidate, availabilityAttempt.HttpStatusCode);
                         lastResult = CreateModelUnavailableSmokeResult(endpoint, candidate, availabilityAttempt, routingAudit);
                         continue;
                     }
@@ -1020,6 +984,7 @@ public sealed class OpenAiCompatibleSmokeTestService(
                 lastResult = result;
                 if (result.Passed)
                 {
+                    modelRouter.RecordProviderExecutionSuccess(candidate);
                     return result with
                     {
                         Attempts = attempts,
@@ -1036,6 +1001,23 @@ public sealed class OpenAiCompatibleSmokeTestService(
                         ]
                     };
                 }
+
+                if (!IsRetryableProviderFailure(result.HttpStatusCode))
+                {
+                    return result with
+                    {
+                        Attempts = attempts,
+                        AuditTrail = [
+                            ..result.AuditTrail,
+                            $"selected_provider_endpoint={endpoint.EndpointId}",
+                            $"selected_provider_base_url={endpoint.BaseUrl}",
+                            $"selected_model_preset={candidate.PresetId}",
+                            "model_failover_skipped=non_retryable_provider_response"
+                        ]
+                    };
+                }
+
+                modelRouter.RecordProviderAvailabilityFailure(candidate, result.HttpStatusCode);
             }
         }
 
@@ -1083,6 +1065,10 @@ public sealed class OpenAiCompatibleSmokeTestService(
                 HttpStatusCode: (int)response.StatusCode,
                 LatencyMs: latencyMs,
                 Message: messageText);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception ex)
         {
@@ -1201,6 +1187,10 @@ public sealed class OpenAiCompatibleSmokeTestService(
                     "review_status=pending_review"
                 ]);
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
             return new StructuredSmokeExecutionResult(
@@ -1232,6 +1222,12 @@ public sealed class OpenAiCompatibleSmokeTestService(
         IReadOnlyList<AiProviderRuntimeEndpoint> endpoints,
         AdminAiProviderSettingsTestRequest request)
     {
+        if (!string.IsNullOrWhiteSpace(request.FallbackBaseUrlOverride)
+            || !string.IsNullOrWhiteSpace(request.FallbackImageBaseUrlOverride))
+        {
+            throw new AiProviderSettingsException("cockpit_endpoint_fallback_not_supported");
+        }
+
         return endpoints
             .Select(endpoint =>
             {
@@ -1239,17 +1235,6 @@ public sealed class OpenAiCompatibleSmokeTestService(
                 {
                     var baseUrl = NormalizeBaseUrl(request.BaseUrlOverride, endpoint.BaseUrl);
                     var imageBaseUrl = NormalizeBaseUrl(request.ImageBaseUrlOverride, endpoint.ImageBaseUrl);
-                    return endpoint with
-                    {
-                        BaseUrl = baseUrl,
-                        ImageBaseUrl = imageBaseUrl
-                    };
-                }
-
-                if (endpoint.EndpointId == "fallback_1")
-                {
-                    var baseUrl = NormalizeBaseUrl(request.FallbackBaseUrlOverride, endpoint.BaseUrl);
-                    var imageBaseUrl = NormalizeBaseUrl(request.FallbackImageBaseUrlOverride, endpoint.ImageBaseUrl);
                     return endpoint with
                     {
                         BaseUrl = baseUrl,
@@ -1354,7 +1339,7 @@ public sealed class OpenAiCompatibleSmokeTestService(
             EffectiveModel: ImageProbeFallbackModel,
             HttpStatusCode: lastAttempt?.HttpStatusCode ?? 0,
             LatencyMs: lastAttempt?.LatencyMs ?? 0,
-            Message: $"图片链路探针未通过：已尝试 {attempts.Count} 条主备图片路径。",
+            Message: $"图片链路探针未通过：已尝试 {attempts.Count} 次 Cockpit 图片链路。",
             Blockers: ["image_probe_failed"],
             Attempts: attempts,
             AuditTrail: [
@@ -1422,6 +1407,10 @@ public sealed class OpenAiCompatibleSmokeTestService(
                 HttpStatusCode: (int)response.StatusCode,
                 LatencyMs: latencyMs,
                 Message: failureMessage);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception ex)
         {
@@ -1530,6 +1519,15 @@ public sealed class OpenAiCompatibleSmokeTestService(
     private static string NormalizeTaskType(string? value, string fallback) =>
         string.IsNullOrWhiteSpace(value) ? fallback : value.Trim();
 
+    private static bool IsRetryableProviderFailure(int httpStatusCode)
+    {
+        return httpStatusCode == 0
+            || httpStatusCode == StatusCodes.Status404NotFound
+            || httpStatusCode == StatusCodes.Status408RequestTimeout
+            || httpStatusCode == StatusCodes.Status429TooManyRequests
+            || httpStatusCode >= StatusCodes.Status500InternalServerError;
+    }
+
     private static string NormalizeModel(string? value, string fallback) =>
         string.IsNullOrWhiteSpace(value) ? fallback : value.Trim();
 
@@ -1548,7 +1546,7 @@ public sealed class OpenAiCompatibleSmokeTestService(
     private static string NormalizeBaseUrl(string? overrideValue, string fallback)
     {
         var source = string.IsNullOrWhiteSpace(overrideValue) ? fallback : overrideValue.Trim();
-        return source.TrimEnd('/');
+        return CockpitGatewayPolicy.NormalizeRequired(source);
     }
 
     private static string NormalizeInputJson(string? value, string taskType)

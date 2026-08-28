@@ -53,6 +53,15 @@ public sealed class AiModelRouterTests
     }
 
     [Fact]
+    public void UnknownConfiguredExecutionSlotFailsClosed()
+    {
+        var exception = Assert.Throws<AiRouteException>(() =>
+            CreateRouter("removed_slot").Route(new("knowledge_tagging", "balanced", "draft", 0.95m)));
+
+        Assert.Equal("unknown_execution_slot", exception.Message);
+    }
+
+    [Fact]
     public void HighAccuracyEscalatesOnlyOptedInRoutes()
     {
         var optedIn = CreateRouter().Route(new("knowledge_tagging", "high_accuracy", "draft", 0.95m));
@@ -212,7 +221,7 @@ public sealed class AiModelRouterTests
         });
     }
 
-    private static AiModelRouter CreateRouter()
+    private static AiModelRouter CreateRouter(string? knowledgeTaggingExecutionSlot = null)
     {
         var routes = new Dictionary<string, AiRouteOptions>(StringComparer.OrdinalIgnoreCase)
         {
@@ -227,7 +236,7 @@ public sealed class AiModelRouterTests
             {
                 Handler = "llm",
                 ModelRole = "bulk_structuring",
-                ExecutionSlot = "bulk_prefilter",
+                ExecutionSlot = knowledgeTaggingExecutionSlot ?? "bulk_prefilter",
                 ExecutionGrade = "balanced",
                 ModelName = "gpt-5.6-sol",
                 ReasoningEffort = "medium",

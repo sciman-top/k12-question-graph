@@ -108,6 +108,7 @@ public sealed class ModelRoutingProjectionParityTests
         Assert.Equal(ReadYamlValue(yamlFailover, "enabled"), ReadJsonValue(jsonFailover, "Enabled"));
         Assert.Equal(ReadYamlValue(yamlFailover, "preferred_preset_order"), ReadJsonValue(jsonFailover, "PreferredPresetOrder"));
         Assert.Equal(ReadYamlValue(yamlFailover, "availability_probe_path"), ReadJsonValue(jsonFailover, "AvailabilityProbePath"));
+        Assert.Equal(ReadYamlValue(yamlFailover, "failure_cooldown_seconds"), ReadJsonValue(jsonFailover, "FailureCooldownSeconds"));
 
         var yamlSlots = (YamlMappingNode)GetYamlChild(root, "execution_slots");
         var jsonSlots = aiRouting.GetProperty("ExecutionSlots");

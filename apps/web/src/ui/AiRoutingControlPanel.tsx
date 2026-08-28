@@ -26,18 +26,11 @@ const teacherSimpleModes = [
     icon: <LockOutlined />,
   },
   {
-    id: 'cloud_enhanced',
+    id: 'cockpit_enhanced',
     label: 'Cockpit 本地 API 增强',
     summary: '管理员单独启用 Cockpit 本地 API 网关，模型可用性按 Sol、Terra、Luna 受控切换。',
     providerProfile: 'cloud_openai_candidate',
     icon: <CloudServerOutlined />,
-  },
-  {
-    id: 'local_enhanced',
-    label: '本地增强',
-    summary: '只作为本地量化模型评测入口，不默认下载权重，也不直接切生产默认。',
-    providerProfile: 'local_llm_eval_gateway',
-    icon: <ThunderboltOutlined />,
   },
 ]
 
@@ -63,18 +56,6 @@ const providerProfiles = [
     concurrency: '2',
     budget: '0 元 / 月',
     fallback: 'Sol -> Terra -> Luna -> pending_review',
-    status: '默认关闭',
-    disabledByDefault: true,
-  },
-  {
-    id: 'local_llm_eval_gateway',
-    label: '本地模型评测网关',
-    providerType: 'custom_http',
-    credentialRef: 'env:KQG_AI_LOCAL_GATEWAY_TOKEN',
-    baseUrl: 'http://127.0.0.1:11434/v1',
-    concurrency: '1',
-    budget: '0 元 / 月',
-    fallback: 'stub_offline_default_then_pending_review',
     status: '默认关闭',
     disabledByDefault: true,
   },
@@ -139,8 +120,8 @@ const roleRoutingPolicies = [
   {
     role: 'mechanical_cleanup_model',
     purpose: '机械清洗 / 格式整理 / 非语义任务',
-    providerProfile: 'local_llm_eval_gateway',
-    fallback: 'bulk_prefilter_model',
+    providerProfile: 'local_deterministic',
+    fallback: '异常才转入 bulk_prefilter',
   },
   {
     role: 'engineering_review_model',
@@ -189,10 +170,6 @@ type SettingsFormValues = {
   apiKey: string
   imageBaseUrl: string
   imageApiKey: string
-  fallbackBaseUrl: string
-  fallbackApiKey: string
-  fallbackImageBaseUrl: string
-  fallbackImageApiKey: string
   maxConcurrency: number
   monthlyBudgetCny: number
   disabledByDefault: boolean
@@ -225,10 +202,6 @@ export function AiRoutingControlPanel() {
       apiKey: '',
       imageBaseUrl: settings.imageBaseUrl,
       imageApiKey: '',
-      fallbackBaseUrl: settings.fallbackBaseUrl,
-      fallbackApiKey: '',
-      fallbackImageBaseUrl: settings.fallbackImageBaseUrl,
-      fallbackImageApiKey: '',
       maxConcurrency: settings.maxConcurrency,
       monthlyBudgetCny: settings.monthlyBudgetCny,
       disabledByDefault: settings.disabledByDefault,
@@ -248,10 +221,6 @@ export function AiRoutingControlPanel() {
       apiKey: values.apiKey,
       imageBaseUrl: values.imageBaseUrl,
       imageApiKey: values.imageApiKey,
-      fallbackBaseUrl: values.fallbackBaseUrl,
-      fallbackApiKey: values.fallbackApiKey,
-      fallbackImageBaseUrl: values.fallbackImageBaseUrl,
-      fallbackImageApiKey: values.fallbackImageApiKey,
       maxConcurrency: values.maxConcurrency,
       monthlyBudgetCny: values.monthlyBudgetCny,
       disabledByDefault: values.disabledByDefault,
@@ -273,8 +242,6 @@ export function AiRoutingControlPanel() {
     setTestOutput('')
     form.setFieldValue('apiKey', '')
     form.setFieldValue('imageApiKey', '')
-    form.setFieldValue('fallbackApiKey', '')
-    form.setFieldValue('fallbackImageApiKey', '')
     await queryClient.invalidateQueries({ queryKey: serverStateQueryKeys.adminAiProviderSettings })
   }
 
@@ -287,8 +254,6 @@ export function AiRoutingControlPanel() {
       inputJson: '',
       baseUrlOverride: values.baseUrl,
       imageBaseUrlOverride: values.imageBaseUrl,
-      fallbackBaseUrlOverride: values.fallbackBaseUrl,
-      fallbackImageBaseUrlOverride: values.fallbackImageBaseUrl,
       routingMode: 'balanced',
       useModelRouting: true,
     })
@@ -374,7 +339,7 @@ export function AiRoutingControlPanel() {
         <div>
           <Typography.Title level={2}>AI 路由配置</Typography.Title>
           <Typography.Text type="secondary">
-            普通教师只看离线优先、Cockpit 本地 API 增强、本地增强等简化模式；provider profile、预算、fallback 和 secret 引用仅管理员可见。
+            普通教师只看离线优先与 Cockpit 本地 API 增强等简化模式；管理员只能使用固定本地网关，模型故障由 Sol/Terra/Luna preset 切换处理。
           </Typography.Text>
         </div>
         <Space size="small" wrap>
@@ -464,7 +429,7 @@ export function AiRoutingControlPanel() {
         <div className="ai-provider-head">
           <span>
             <strong>管理员 AI 设置</strong>
-            <small>这里是真正录入 API 参数、保存本机密钥、并做主 responses smoke 与图片链路双探针的入口。</small>
+            <small>这里保存 Cockpit 本机密钥，并通过固定本地网关做 preset 级 responses smoke 与图片链路探针。</small>
           </span>
           <Button
             icon={<SettingOutlined />}
@@ -480,8 +445,6 @@ export function AiRoutingControlPanel() {
           <span><Typography.Text type="secondary">secret</Typography.Text><code>{providerSettingsCard.maskedSecret || '未配置'}</code></span>
           <span><Typography.Text type="secondary">imageBaseUrl</Typography.Text><code>{providerSettingsCard.imageBaseUrl || providerSettingsCard.baseUrl}</code></span>
           <span><Typography.Text type="secondary">imageSecret</Typography.Text><code>{providerSettingsCard.maskedImageSecret || (providerSettingsCard.imageUsesPrimarySecret ? '复用主 key' : '未配置')}</code></span>
-          <span><Typography.Text type="secondary">fallbackBaseUrl</Typography.Text><code>{providerSettingsCard.fallbackBaseUrl || '未配置'}</code></span>
-          <span><Typography.Text type="secondary">fallbackSecret</Typography.Text><code>{providerSettingsCard.maskedFallbackSecret || '未配置'}</code></span>
           <span><Typography.Text type="secondary">并发</Typography.Text><strong>{providerSettingsCard.maxConcurrency}</strong></span>
           <span><Typography.Text type="secondary">预算</Typography.Text><strong>{providerSettingsCard.monthlyBudgetCny} 元 / 月</strong></span>
           <span><Typography.Text type="secondary">默认试跑</Typography.Text><code>{providerSettingsCard.defaultSmokeTaskType} / {providerSettingsCard.defaultSmokeModel}</code></span>
@@ -506,8 +469,8 @@ export function AiRoutingControlPanel() {
         ) : null}
         <Alert
           showIcon
-          type={providerSettingsCard.secretConfigured || providerSettingsCard.fallbackSecretConfigured ? 'info' : 'warning'}
-          title={providerSettingsCard.secretConfigured || providerSettingsCard.fallbackSecretConfigured ? '至少一个文本 key 已配置' : '尚未配置文本 key'}
+          type={providerSettingsCard.secretConfigured ? 'info' : 'warning'}
+          title={providerSettingsCard.secretConfigured ? 'Cockpit 本地文本 key 已配置' : '尚未配置 Cockpit 本地文本 key'}
           description={testSummary}
           data-contract="ai-provider-structured-smoke-test"
         />
@@ -571,11 +534,11 @@ export function AiRoutingControlPanel() {
         destroyOnHidden={false}
       >
         <Form form={form} layout="vertical">
-          <Form.Item label="provider profile" name="providerProfileId" rules={[{ required: true }]}>
-            <Input />
+          <Form.Item label="provider profile" name="providerProfileId" rules={[{ required: true }]} extra="固定为 Cockpit 本地 API 网关 profile。">
+            <Input readOnly />
           </Form.Item>
-          <Form.Item label="base URL" name="baseUrl" rules={[{ required: true }]}>
-            <Input />
+          <Form.Item label="Cockpit 本地 base URL" name="baseUrl" rules={[{ required: true }]} extra="固定为 http://127.0.0.1:45335/v1；不得将本机 Cockpit key 发送到外部网关。">
+            <Input readOnly />
           </Form.Item>
           <Form.Item
             label="主 API Key"
@@ -599,41 +562,10 @@ export function AiRoutingControlPanel() {
           >
             <Input.Password placeholder="留空则复用主 key" />
           </Form.Item>
-          <div data-contract="ai-provider-fallback-settings">
-            <Typography.Title level={5}>备用网关</Typography.Title>
-            <Form.Item
-              label="备用 base URL"
-              name="fallbackBaseUrl"
-              extra="主 responses 路由失败后才会尝试；留空则不启用备用文本路由。"
-            >
-              <Input placeholder="留空：使用同一 Cockpit 网关做模型级切换" />
-            </Form.Item>
-            <Form.Item
-              label="备用 API Key"
-              name="fallbackApiKey"
-              extra={`当前仅显示掩码：${providerSettingsCard.maskedFallbackSecret || '未配置'}；留空则保留现有备用密钥。`}
-            >
-              <Input.Password placeholder="sk-..." />
-            </Form.Item>
-            <Form.Item
-              label="备用图片 base URL"
-              name="fallbackImageBaseUrl"
-              extra="留空时复用备用 base URL；只有备用网关把图片链路挂到另一路径时才需要填写。"
-            >
-              <Input placeholder="留空：使用同一 Cockpit 网关" />
-            </Form.Item>
-            <Form.Item
-              label="备用图片 API Key"
-              name="fallbackImageApiKey"
-              extra={`当前仅显示掩码：${providerSettingsCard.maskedFallbackImageSecret || (providerSettingsCard.fallbackImageUsesPrimarySecret ? '复用备用 key' : '未配置')}；留空则复用备用 API Key。`}
-            >
-              <Input.Password placeholder="留空则复用备用 API Key" />
-            </Form.Item>
-          </div>
           <Form.Item label="最大并发" name="maxConcurrency" rules={[{ required: true }]}>
             <InputNumber min={1} max={8} style={{ width: '100%' }} />
           </Form.Item>
-          <Form.Item label="月预算（元）" name="monthlyBudgetCny" rules={[{ required: true }]}>
+          <Form.Item label="月预算上限（元）" name="monthlyBudgetCny" rules={[{ required: true }]} extra="当前用于运营规划；实际 CNY 扣减需以 Cockpit 账单/计价真源接入后才可强制。">
             <InputNumber min={0} max={100000} style={{ width: '100%' }} />
           </Form.Item>
           <Form.Item label="默认试跑任务" name="defaultSmokeTaskType" rules={[{ required: true }]}>
@@ -646,8 +578,8 @@ export function AiRoutingControlPanel() {
               </option>
             ))}
           </datalist>
-          <Form.Item label="默认试跑模型" name="defaultSmokeModel" rules={[{ required: true }]}>
-            <Input />
+          <Form.Item label="默认试跑 preset" name="defaultSmokeModel" rules={[{ required: true }]} extra="固定为 Sol-only 的 gpt-5.6-sol；实际故障切换由当前完整 preset 决定。">
+            <Input readOnly />
           </Form.Item>
           <Form.Item label="操作说明" name="operatorNote">
             <Input.TextArea autoSize={{ minRows: 2, maxRows: 4 }} />

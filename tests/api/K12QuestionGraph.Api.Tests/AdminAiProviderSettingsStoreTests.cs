@@ -22,7 +22,7 @@ public sealed class AdminAiProviderSettingsStoreTests : IDisposable
         Assert.True(File.Exists(settingsPath));
         Assert.True(File.Exists(settingsPath + ".bak"));
         Assert.DoesNotContain("secret-two", await File.ReadAllTextAsync(settingsPath), StringComparison.Ordinal);
-        Assert.Equal("second", (await store.GetAsync(CancellationToken.None)).ProviderProfileId);
+        Assert.Equal("cloud_openai_candidate", (await store.GetAsync(CancellationToken.None)).ProviderProfileId);
     }
 
     [Fact]
@@ -46,6 +46,42 @@ public sealed class AdminAiProviderSettingsStoreTests : IDisposable
 
         await Assert.ThrowsAsync<System.Security.Cryptography.CryptographicException>(
             () => driftedStore.GetAsync(CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task SaveAsync_RejectsRemoteGatewayBeforePersistingCockpitCredential()
+    {
+        var store = CreateStore("keys-remote");
+        var request = CreateRequest("remote", "secret") with { BaseUrl = "https://api.example.test/v1" };
+
+        var exception = await Assert.ThrowsAsync<AiProviderSettingsException>(() => store.SaveAsync(request, CancellationToken.None));
+
+        Assert.Equal("cockpit_local_gateway_required", exception.Message);
+        Assert.False(File.Exists(GetSettingsPath()));
+    }
+
+    [Fact]
+    public async Task SaveAsync_RejectsEndpointFallbackBecausePresetFailoverOwnsRecovery()
+    {
+        var store = CreateStore("keys-fallback");
+        var request = CreateRequest("fallback", "secret") with { FallbackBaseUrl = CockpitGatewayPolicy.LocalBaseUrl };
+
+        var exception = await Assert.ThrowsAsync<AiProviderSettingsException>(() => store.SaveAsync(request, CancellationToken.None));
+
+        Assert.Equal("cockpit_endpoint_fallback_not_supported", exception.Message);
+        Assert.False(File.Exists(GetSettingsPath()));
+    }
+
+    [Fact]
+    public async Task SaveAsync_RejectsManualSmokeModelOutsideTheSolPresetDefault()
+    {
+        var store = CreateStore("keys-manual-model");
+        var request = CreateRequest("manual-model", "secret") with { DefaultSmokeModel = "manual-model" };
+
+        var exception = await Assert.ThrowsAsync<AiProviderSettingsException>(() => store.SaveAsync(request, CancellationToken.None));
+
+        Assert.Equal("single_model_preset_required", exception.Message);
+        Assert.False(File.Exists(GetSettingsPath()));
     }
 
     public void Dispose()
@@ -78,7 +114,7 @@ public sealed class AdminAiProviderSettingsStoreTests : IDisposable
     private static AdminAiProviderSettingsSaveRequest CreateRequest(string profileId, string secret) =>
         new(
             profileId,
-            "https://api.example.test/v1",
+            CockpitGatewayPolicy.LocalBaseUrl,
             secret,
             null,
             null,
@@ -91,7 +127,7 @@ public sealed class AdminAiProviderSettingsStoreTests : IDisposable
             true,
             false,
             "knowledge_tagging",
-            "test-model",
+            "gpt-5.6-sol",
             "test");
 
     private sealed class TestWebHostEnvironment : IWebHostEnvironment
