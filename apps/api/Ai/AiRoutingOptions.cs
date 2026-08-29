@@ -82,6 +82,8 @@ public sealed class AiModelFailoverOptions
 
     public string[] PreferredPresetOrder { get; set; } = ["sol", "terra", "luna"];
 
+    public string? PinnedPresetId { get; set; }
+
     public string AvailabilityProbePath { get; set; } = "/models";
 
     public int FailureCooldownSeconds { get; set; } = 30;

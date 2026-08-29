@@ -58,6 +58,7 @@ model_presets:
 model_failover:
   enabled: true
   preferred_preset_order: [sol, terra, luna]
+  pinned_preset_id: null
   availability_probe_path: /models
   failure_cooldown_seconds: 30
 execution_slots:

@@ -62,6 +62,27 @@ public sealed class AiModelRouterTests
     }
 
     [Fact]
+    public void PinnedLunaPresetResolvesEveryRouteToLunaOnly()
+    {
+        var router = CreateRouter(pinnedPresetId: "luna");
+
+        var route = router.Route(new("knowledge_tagging", "balanced", "draft", 0.95m));
+        var candidates = router.GetFailoverCandidates(
+            "gpt-5.6-sol",
+            "medium",
+            "bulk_prefilter",
+            "balanced");
+
+        Assert.Equal("luna", route.Preset);
+        Assert.Equal("gpt-5.6-luna", route.ModelName);
+        Assert.Equal("high", route.ReasoningEffort);
+        Assert.Single(candidates);
+        Assert.Equal("luna", candidates[0].PresetId);
+        Assert.Equal("gpt-5.6-luna", candidates[0].ModelName);
+        Assert.Equal("high", candidates[0].ReasoningEffort);
+    }
+
+    [Fact]
     public void HighAccuracyEscalatesOnlyOptedInRoutes()
     {
         var optedIn = CreateRouter().Route(new("knowledge_tagging", "high_accuracy", "draft", 0.95m));
@@ -221,7 +242,9 @@ public sealed class AiModelRouterTests
         });
     }
 
-    private static AiModelRouter CreateRouter(string? knowledgeTaggingExecutionSlot = null)
+    private static AiModelRouter CreateRouter(
+        string? knowledgeTaggingExecutionSlot = null,
+        string? pinnedPresetId = null)
     {
         var routes = new Dictionary<string, AiRouteOptions>(StringComparer.OrdinalIgnoreCase)
         {
@@ -295,7 +318,7 @@ public sealed class AiModelRouterTests
                     ["visual_review"] = new() { DefaultGrade = "quality" },
                     ["high_risk_adjudication"] = new() { DefaultGrade = "quality" }
                 },
-                ModelFailover = new() { PreferredPresetOrder = ["sol", "terra", "luna"] }
+                ModelFailover = new() { PreferredPresetOrder = ["sol", "terra", "luna"], PinnedPresetId = pinnedPresetId }
             }),
             new TestWebHostEnvironment());
     }

@@ -37,6 +37,12 @@ public sealed class AiPresetAvailabilityCoordinator(IOptions<AiRoutingOptions> o
         lock (gate)
         {
             EnsureValidConfiguration();
+            var pinnedPresetId = GetPinnedPresetId();
+            if (pinnedPresetId is not null)
+            {
+                return pinnedPresetId;
+            }
+
             var anchor = IsKnownPreset(activePresetId)
                 ? activePresetId!
                 : routing.ModelFailover.PreferredPresetOrder.First();
@@ -52,6 +58,12 @@ public sealed class AiPresetAvailabilityCoordinator(IOptions<AiRoutingOptions> o
         lock (gate)
         {
             EnsureValidConfiguration();
+            var pinnedPresetId = GetPinnedPresetId();
+            if (pinnedPresetId is not null)
+            {
+                return [pinnedPresetId];
+            }
+
             if (!IsKnownPreset(requestedPresetId))
             {
                 throw new AiRouteException("unknown_model_preset");
@@ -129,6 +141,12 @@ public sealed class AiPresetAvailabilityCoordinator(IOptions<AiRoutingOptions> o
             }
         }
 
+        if (!string.IsNullOrWhiteSpace(routing.ModelFailover.PinnedPresetId)
+            && !IsKnownPreset(routing.ModelFailover.PinnedPresetId))
+        {
+            throw new AiRouteException("invalid_single_model_preset_configuration");
+        }
+
         if (routing.ModelFailover.FailureCooldownSeconds is < 1 or > 300
             || routing.ExecutionSlots.Count != RequiredExecutionSlots.Count
             || !routing.ExecutionSlots.Keys.ToHashSet(StringComparer.OrdinalIgnoreCase).SetEquals(RequiredExecutionSlots)
@@ -136,6 +154,17 @@ public sealed class AiPresetAvailabilityCoordinator(IOptions<AiRoutingOptions> o
         {
             throw new AiRouteException("invalid_execution_slot_configuration");
         }
+    }
+
+    private string? GetPinnedPresetId()
+    {
+        if (string.IsNullOrWhiteSpace(routing.ModelFailover.PinnedPresetId))
+        {
+            return null;
+        }
+
+        return routing.ModelPresets.Keys.First(id =>
+            string.Equals(id, routing.ModelFailover.PinnedPresetId.Trim(), StringComparison.OrdinalIgnoreCase));
     }
 
     private static bool ShouldOpenCooldown(int httpStatusCode)

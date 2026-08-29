@@ -34,6 +34,34 @@ public sealed class AiPresetAvailabilityCoordinatorTests
         Assert.Equal("invalid_single_model_preset_configuration", exception.Message);
     }
 
+    [Fact]
+    public void PinnedLunaOnlySuppressesAllOtherPresetsUntilTheOverrideIsRemoved()
+    {
+        var options = CreateOptions();
+        options.ModelFailover.PinnedPresetId = "luna";
+        var coordinator = new AiPresetAvailabilityCoordinator(Options.Create(options));
+
+        Assert.Equal("luna", coordinator.SelectActivePresetId());
+        Assert.Equal(["luna"], coordinator.GetCandidatePresetIds("sol"));
+
+        coordinator.RecordAvailabilityFailure("luna", 503);
+
+        Assert.Equal("luna", coordinator.SelectActivePresetId());
+        Assert.Equal(["luna"], coordinator.GetCandidatePresetIds("terra"));
+    }
+
+    [Fact]
+    public void RejectsPinnedPresetThatDoesNotExist()
+    {
+        var options = CreateOptions();
+        options.ModelFailover.PinnedPresetId = "unknown";
+        var coordinator = new AiPresetAvailabilityCoordinator(Options.Create(options));
+
+        var exception = Assert.Throws<AiRouteException>(() => coordinator.SelectActivePresetId());
+
+        Assert.Equal("invalid_single_model_preset_configuration", exception.Message);
+    }
+
     private static AiRoutingOptions CreateOptions() => new()
     {
         ModelPresets = new Dictionary<string, AiModelPresetOptions>(StringComparer.OrdinalIgnoreCase)
