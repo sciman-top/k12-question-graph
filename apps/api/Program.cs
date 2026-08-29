@@ -77,6 +77,7 @@ builder.Services.AddSingleton<AiProviderInvocationGate>();
 builder.Services.AddSingleton<StubAiProvider>();
 builder.Services.AddSingleton<FileAiProviderSettingsStore>();
 builder.Services.AddHttpClient<OpenAiCompatibleSmokeTestService>();
+builder.Services.AddHostedService<AiPresetRecoveryProbeService>();
 
 var app = builder.Build();
 

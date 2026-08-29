@@ -110,6 +110,10 @@ public sealed class ModelRoutingProjectionParityTests
         Assert.Equal(ReadYamlValue(yamlFailover, "availability_probe_path"), ReadJsonValue(jsonFailover, "AvailabilityProbePath"));
         Assert.Equal(ReadYamlValue(yamlFailover, "failure_cooldown_seconds"), ReadJsonValue(jsonFailover, "FailureCooldownSeconds"));
         Assert.Equal(ReadYamlValue(yamlFailover, "pinned_preset_id"), ReadJsonValue(jsonFailover, "PinnedPresetId"));
+        Assert.Equal(ReadYamlValue(yamlFailover, "recovery_probe_enabled"), ReadJsonValue(jsonFailover, "RecoveryProbeEnabled"));
+        Assert.Equal(ReadYamlValue(yamlFailover, "recovery_probe_interval_seconds"), ReadJsonValue(jsonFailover, "RecoveryProbeIntervalSeconds"));
+        Assert.Equal(ReadYamlValue(yamlFailover, "recovery_probe_failure_backoff_seconds"), ReadJsonValue(jsonFailover, "RecoveryProbeFailureBackoffSeconds"));
+        Assert.Equal(ReadYamlValue(yamlFailover, "recovery_probe_successes_required"), ReadJsonValue(jsonFailover, "RecoveryProbeSuccessesRequired"));
 
         var yamlSlots = (YamlMappingNode)GetYamlChild(root, "execution_slots");
         var jsonSlots = aiRouting.GetProperty("ExecutionSlots");
@@ -138,6 +142,14 @@ public sealed class ModelRoutingProjectionParityTests
         }
     }
 
+    [Fact]
+    public void KnowledgeMappingStrictSchemaGivesEveryConstConstraintAnExplicitType()
+    {
+        using var schema = JsonDocument.Parse(File.ReadAllText(Path.Combine(RepoRoot, "schemas", "ai", "knowledge_mapping.schema.json")));
+
+        AssertConstConstraintsHaveTypes(schema.RootElement, "$", []);
+    }
+
     private static Dictionary<string, YamlMappingNode> ReadYamlRoutes(string path)
     {
         using var reader = new StringReader(File.ReadAllText(path));
@@ -162,6 +174,36 @@ public sealed class ModelRoutingProjectionParityTests
             YamlSequenceNode sequence => string.Join("|", sequence.Children.OfType<YamlScalarNode>().Select(x => NormalizeScalar(x.Value))),
             _ => child.ToString()
         };
+    }
+
+    private static void AssertConstConstraintsHaveTypes(
+        JsonElement element,
+        string path,
+        List<string> missingTypePaths)
+    {
+        if (element.ValueKind == JsonValueKind.Object)
+        {
+            if (element.TryGetProperty("const", out _) && !element.TryGetProperty("type", out _))
+            {
+                missingTypePaths.Add(path);
+            }
+
+            foreach (var property in element.EnumerateObject())
+            {
+                AssertConstConstraintsHaveTypes(property.Value, $"{path}/{property.Name}", missingTypePaths);
+            }
+        }
+        else if (element.ValueKind == JsonValueKind.Array)
+        {
+            var index = 0;
+            foreach (var item in element.EnumerateArray())
+            {
+                AssertConstConstraintsHaveTypes(item, $"{path}/{index++}", missingTypePaths);
+            }
+        }
+
+        Assert.True(missingTypePaths.Count == 0,
+            $"Cockpit strict JSON Schema requires explicit types for const constraints: {string.Join(", ", missingTypePaths)}");
     }
 
     private static string? ReadJsonValue(JsonElement route, string name)

@@ -94,6 +94,8 @@ L0 不调用外部 AI。能由 CSV parser、JSON/YAML/schema、SQL、hash、rege
 
 本机临时运行时投影可通过 `.env` 的 `AiRouting__ModelFailover__PinnedPresetId=luna` 锁定 Luna-only：所有五个执行槽位仍保留原档位，只能解析为 `gpt-5.6-luna` 及其对应 effort；Luna 故障时保持 Luna-only 并 fail-closed，不会切换到 Sol/Terra。该 pin 不会把 Luna 写入永久策略，也不修改、停用或要求永久关闭现有 watchdog；watchdog 继续按原配置运行。删除该变量或置空后，恢复默认的 Sol→Terra→Luna 预设级切换。该变量由本地启动脚本注入，已运行的 API 进程不会热加载，重新启动本项目 API 后才进入 `host_loaded`。
 
+当当前 active preset 为 Terra-only 或 Luna-only，且不存在临时 pin 时，API 内的低优先级恢复探测会每 180 秒检查更高优先级 preset：Terra 只检查 Sol；Luna 依次检查 Sol、Terra。每次检查要求同一 Cockpit 本地网关的 `/models` 与最小 `store=false` `/responses` 都成功；连续 2 次成功才回切，失败后 600 秒退避。恢复探测不走图片接口、不提交教师数据、不写业务数据，也不会因探测失败把当前 Terra/Luna 标为故障或中断业务请求。
+
 运行时同时返回默认路线和最终生效路线。`low_cost` 仅在当前任务声明的显式风险信号命中时升级；`balanced` 还会在置信度低于任务阈值时升级；`high_accuracy` 可对显式 opt-in 的普通路线预防性提前一级。风险信号按任务 allowlist 过滤，未知 mode fail-closed，确定性任务和没有升级目标的最高档任务永不隐式升级。题目难度和复杂度只影响槽位/档位及复核优先级，不得在同一 preset 内直接换到另一种模型。当前信号包括 `cross_page`、`shared_visual`、`formula_or_table`、`semantic_conflict`、`multiple_constraints`、`formal_exam` 和 `source_evidence_conflict`。返回值中的 `effectiveExecutionSlot`、`effectiveExecutionGrade`、`effectivePreset`、`effectiveModelRole`、`effectiveModelName`、`effectiveReasoningEffort`、`escalated` 和 `escalationReasons` 是实际执行选择；原 `model*` 字段保留默认路线用于审计。
 
 ## 3.2 Codex 外层校验模型矩阵

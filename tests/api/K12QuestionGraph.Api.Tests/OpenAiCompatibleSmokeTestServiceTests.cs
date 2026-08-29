@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
 namespace K12QuestionGraph.Api.Tests;
@@ -26,7 +27,6 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
         var service = new OpenAiCompatibleSmokeTestService(
             httpClient,
             store,
-            CreateEnvironment(),
             CreateRouter());
 
         var result = await service.RunAsync(
@@ -57,6 +57,9 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
         Assert.NotNull(handler.ResponsesPayload);
         Assert.Equal("gpt-5.6-sol", handler.ResponsesPayload!.Value.GetProperty("model").GetString());
         Assert.Equal("xhigh", handler.ResponsesPayload.Value.GetProperty("reasoning").GetProperty("effort").GetString());
+        var format = handler.ResponsesPayload.Value.GetProperty("text").GetProperty("format");
+        Assert.Equal("cockpit_connectivity_smoke_result", format.GetProperty("name").GetString());
+        Assert.Equal("object", format.GetProperty("schema").GetProperty("type").GetString());
     }
 
     [Fact]
@@ -70,7 +73,6 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
         var service = new OpenAiCompatibleSmokeTestService(
             httpClient,
             store,
-            CreateEnvironment(),
             CreateRouter());
 
         var result = await service.RunAsync(
@@ -105,7 +107,6 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
         var service = new OpenAiCompatibleSmokeTestService(
             httpClient,
             store,
-            CreateEnvironment(),
             CreateRouter(allowRealModelCalls: false));
 
         var result = await service.RunAsync(
@@ -135,7 +136,7 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
         var store = CreateStore();
         await store.SaveAsync(CreateSaveRequest(), CancellationToken.None);
         var settings = await store.GetAsync(CancellationToken.None);
-        var service = new OpenAiCompatibleSmokeTestService(httpClient, store, CreateEnvironment(), CreateRouter());
+        var service = new OpenAiCompatibleSmokeTestService(httpClient, store, CreateRouter());
 
         var request = new AdminAiProviderSettingsTestRequest(
             TaskType: "knowledge_tagging",
@@ -161,7 +162,7 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
         var store = CreateStore();
         await store.SaveAsync(CreateSaveRequest(), CancellationToken.None);
         var settings = await store.GetAsync(CancellationToken.None);
-        var service = new OpenAiCompatibleSmokeTestService(httpClient, store, CreateEnvironment(), CreateRouter());
+        var service = new OpenAiCompatibleSmokeTestService(httpClient, store, CreateRouter());
         using var cancellation = new CancellationTokenSource(TimeSpan.FromMilliseconds(100));
 
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => service.RunAsync(
@@ -192,7 +193,6 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
         var service = new OpenAiCompatibleSmokeTestService(
             httpClient,
             store,
-            CreateEnvironment(),
             CreateRouter());
 
         var result = await service.RunAsync(
@@ -258,7 +258,6 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
         var service = new OpenAiCompatibleSmokeTestService(
             httpClient,
             store,
-            CreateEnvironment(),
             CreateRouter());
 
         var result = await service.RunAsync(
@@ -292,6 +291,45 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
             ],
             handler.RequestTrace);
         Assert.Contains("selected_model_preset=luna", result.AuditTrail);
+    }
+
+    [Fact]
+    public async Task RecoveryProbePromotesSolOnlyAfterTwoSuccessfulLowPriorityChecks()
+    {
+        var handler = new RecordingProviderHandler();
+        using var httpClient = new HttpClient(handler);
+        var store = CreateStore();
+        await store.SaveAsync(CreateSaveRequest(), CancellationToken.None);
+        var routing = CreateRoutingOptions();
+        var availability = new AiPresetAvailabilityCoordinator(Options.Create(routing));
+        availability.RecordExecutionSuccess("terra");
+        var router = new AiModelRouter(Options.Create(routing), CreateEnvironment(), availability);
+        var smoke = new OpenAiCompatibleSmokeTestService(httpClient, store, router);
+        var recovery = new AiPresetRecoveryProbeService(
+            Options.Create(routing),
+            router,
+            smoke,
+            NullLogger<AiPresetRecoveryProbeService>.Instance);
+
+        var first = await recovery.ProbeOnceAsync(CancellationToken.None);
+
+        Assert.Equal("stability_wait", first.Status);
+        Assert.False(first.Promoted);
+        Assert.Equal("terra", router.SelectActivePresetId());
+
+        var second = await recovery.ProbeOnceAsync(CancellationToken.None);
+
+        Assert.Equal("promoted", second.Status);
+        Assert.True(second.Promoted);
+        Assert.Equal("sol", router.SelectActivePresetId());
+        Assert.Equal(
+            [
+                "models:gpt-5.6-sol",
+                "responses:gpt-5.6-sol",
+                "models:gpt-5.6-sol",
+                "responses:gpt-5.6-sol"
+            ],
+            handler.RequestTrace);
     }
 
     public void Dispose()
@@ -337,6 +375,9 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
         OperatorNote: "test");
 
     private static AiModelRouter CreateRouter(bool allowRealModelCalls = true)
+        => new(Options.Create(CreateRoutingOptions(allowRealModelCalls)), CreateEnvironment());
+
+    private static AiRoutingOptions CreateRoutingOptions(bool allowRealModelCalls = true)
     {
         var routes = new Dictionary<string, AiRouteOptions>(StringComparer.OrdinalIgnoreCase)
         {
@@ -366,28 +407,26 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
             }
         };
 
-        return new AiModelRouter(
-            Options.Create(new AiRoutingOptions
+        return new AiRoutingOptions
+        {
+            AllowRealModelCalls = allowRealModelCalls,
+            Routes = routes,
+            ModelPresets = new Dictionary<string, AiModelPresetOptions>(StringComparer.OrdinalIgnoreCase)
             {
-                AllowRealModelCalls = allowRealModelCalls,
-                Routes = routes,
-                ModelPresets = new Dictionary<string, AiModelPresetOptions>(StringComparer.OrdinalIgnoreCase)
-                {
-                    ["sol"] = new() { ModelName = "gpt-5.6-sol", ReasoningEfforts = ["xhigh", "medium", "low"], GradeToReasoningEffort = new() { ["quality"] = "xhigh", ["balanced"] = "medium", ["economy"] = "low" } },
-                    ["terra"] = new() { ModelName = "gpt-5.6-terra", ReasoningEfforts = ["xhigh", "high", "medium"], GradeToReasoningEffort = new() { ["quality"] = "xhigh", ["balanced"] = "high", ["economy"] = "medium" } },
-                    ["luna"] = new() { ModelName = "gpt-5.6-luna", ReasoningEfforts = ["xhigh", "high", "medium"], GradeToReasoningEffort = new() { ["quality"] = "xhigh", ["balanced"] = "high", ["economy"] = "medium" } }
-                },
-                ExecutionSlots = new Dictionary<string, AiExecutionSlotOptions>(StringComparer.OrdinalIgnoreCase)
-                {
-                    ["mechanical_cleanup"] = new() { DefaultGrade = "economy" },
-                    ["bulk_prefilter"] = new() { DefaultGrade = "balanced" },
-                    ["engineering_review"] = new() { DefaultGrade = "balanced" },
-                    ["visual_review"] = new() { DefaultGrade = "quality" },
-                    ["high_risk_adjudication"] = new() { DefaultGrade = "quality" }
-                },
-                ModelFailover = new() { PreferredPresetOrder = ["sol", "terra", "luna"] }
-            }),
-            CreateEnvironment());
+                ["sol"] = new() { ModelName = "gpt-5.6-sol", ReasoningEfforts = ["xhigh", "medium", "low"], GradeToReasoningEffort = new() { ["quality"] = "xhigh", ["balanced"] = "medium", ["economy"] = "low" } },
+                ["terra"] = new() { ModelName = "gpt-5.6-terra", ReasoningEfforts = ["xhigh", "high", "medium"], GradeToReasoningEffort = new() { ["quality"] = "xhigh", ["balanced"] = "high", ["economy"] = "medium" } },
+                ["luna"] = new() { ModelName = "gpt-5.6-luna", ReasoningEfforts = ["xhigh", "high", "medium"], GradeToReasoningEffort = new() { ["quality"] = "xhigh", ["balanced"] = "high", ["economy"] = "medium" } }
+            },
+            ExecutionSlots = new Dictionary<string, AiExecutionSlotOptions>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["mechanical_cleanup"] = new() { DefaultGrade = "economy" },
+                ["bulk_prefilter"] = new() { DefaultGrade = "balanced" },
+                ["engineering_review"] = new() { DefaultGrade = "balanced" },
+                ["visual_review"] = new() { DefaultGrade = "quality" },
+                ["high_risk_adjudication"] = new() { DefaultGrade = "quality" }
+            },
+            ModelFailover = new() { PreferredPresetOrder = ["sol", "terra", "luna"] }
+        };
     }
 
     private static IWebHostEnvironment CreateEnvironment() => new TestWebHostEnvironment();

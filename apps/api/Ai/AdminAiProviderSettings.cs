@@ -172,6 +172,17 @@ public sealed record AdminAiProviderSettingsTestResult(
     AdminAiProviderImageProbeResult ImageProbe,
     IReadOnlyList<string> AuditTrail);
 
+public sealed record AiPresetConnectivityProbeResult(
+    string Status,
+    string PresetId,
+    string ModelName,
+    string ReasoningEffort,
+    bool Passed,
+    bool Skipped,
+    int HttpStatusCode,
+    string Message,
+    AiModelFailoverCandidate? Candidate);
+
 internal sealed record StoredAdminAiProviderSettings(
     string SchemaVersion,
     string ProviderProfileId,
@@ -712,7 +723,6 @@ public sealed class FileAiProviderSettingsStore(
 public sealed class OpenAiCompatibleSmokeTestService(
     HttpClient httpClient,
     FileAiProviderSettingsStore settingsStore,
-    IWebHostEnvironment environment,
     AiModelRouter modelRouter,
     AiProviderInvocationGate? invocationGate = null)
 {
@@ -722,6 +732,114 @@ public sealed class OpenAiCompatibleSmokeTestService(
     private const string GatewayAcceptHeader = "application/json, text/event-stream";
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
     private readonly AiProviderInvocationGate invocationGate = invocationGate ?? new AiProviderInvocationGate();
+
+    public async Task<AiPresetConnectivityProbeResult> ProbePresetAsync(
+        string presetId,
+        CancellationToken cancellationToken)
+    {
+        var settings = await settingsStore.GetAsync(cancellationToken);
+        if (settings.DisabledByDefault || !settings.AllowRealModelCalls || !modelRouter.AllowsRealModelCalls)
+        {
+            return new(
+                Status: "skipped",
+                PresetId: presetId,
+                ModelName: string.Empty,
+                ReasoningEffort: string.Empty,
+                Passed: false,
+                Skipped: true,
+                HttpStatusCode: 0,
+                Message: "恢复探测受真实 provider 门禁阻止。",
+                Candidate: null);
+        }
+
+        if (modelRouter.GetPinnedPresetId() is not null)
+        {
+            return new(
+                Status: "skipped",
+                PresetId: presetId,
+                ModelName: string.Empty,
+                ReasoningEffort: string.Empty,
+                Passed: false,
+                Skipped: true,
+                HttpStatusCode: 0,
+                Message: "临时 preset pin 生效，恢复探测不跨模型族切换。",
+                Candidate: null);
+        }
+
+        var candidate = modelRouter.GetFailoverCandidates(
+                presetId,
+                reasoningEffort: "medium",
+                executionSlot: "bulk_prefilter",
+                executionGrade: "balanced")
+            .FirstOrDefault(item => string.Equals(item.PresetId, presetId, StringComparison.OrdinalIgnoreCase));
+        if (candidate is null)
+        {
+            return new(
+                Status: "skipped",
+                PresetId: presetId,
+                ModelName: string.Empty,
+                ReasoningEffort: string.Empty,
+                Passed: false,
+                Skipped: true,
+                HttpStatusCode: 0,
+                Message: "恢复探测目标 preset 不可解析。",
+                Candidate: null);
+        }
+
+        var endpoints = await settingsStore.GetRuntimeEndpointsAsync(cancellationToken);
+        foreach (var endpoint in endpoints)
+        {
+            if (string.IsNullOrWhiteSpace(endpoint.BaseUrl) || string.IsNullOrWhiteSpace(endpoint.Secret))
+            {
+                continue;
+            }
+
+            var availability = await ProbeModelAvailabilityAsync(endpoint, candidate, cancellationToken);
+            if (!availability.Passed)
+            {
+                return new(
+                    Status: "failed",
+                    PresetId: candidate.PresetId,
+                    ModelName: candidate.ModelName,
+                    ReasoningEffort: candidate.ReasoningEffort,
+                    Passed: false,
+                    Skipped: false,
+                    HttpStatusCode: availability.HttpStatusCode,
+                    Message: availability.Message,
+                    Candidate: candidate);
+            }
+
+            using var providerPermit = await invocationGate.EnterAsync(settings.MaxConcurrency, cancellationToken);
+            var response = await RunStructuredSmokeAsync(
+                endpoint,
+                candidate,
+                taskType: "knowledge_tagging",
+                inputJson: "恢复探测：仅返回 status。",
+                routingAudit: ["recovery_probe=true", $"recovery_probe_target_preset={candidate.PresetId}"],
+                cancellationToken: cancellationToken);
+            return new(
+                Status: response.Passed ? "ok" : "failed",
+                PresetId: candidate.PresetId,
+                ModelName: candidate.ModelName,
+                ReasoningEffort: candidate.ReasoningEffort,
+                Passed: response.Passed,
+                Skipped: false,
+                HttpStatusCode: response.HttpStatusCode,
+                Message: response.Message,
+                Candidate: candidate);
+        }
+
+        return new(
+            Status: "skipped",
+            PresetId: candidate.PresetId,
+            ModelName: candidate.ModelName,
+            ReasoningEffort: candidate.ReasoningEffort,
+            Passed: false,
+            Skipped: true,
+            HttpStatusCode: 0,
+            Message: "恢复探测没有可用的本地 Cockpit endpoint。",
+            Candidate: candidate);
+    }
 
     public async Task<AdminAiProviderSettingsTestResult> RunAsync(
         AdminAiProviderSettingsContract settings,
@@ -1127,7 +1245,7 @@ public sealed class OpenAiCompatibleSmokeTestService(
         IReadOnlyList<string> routingAudit,
         CancellationToken cancellationToken)
     {
-        using var schema = LoadSchemaForTaskType(taskType);
+        using var schema = CreateConnectivitySmokeSchema();
         var payload = new
         {
             model = candidate.ModelName,
@@ -1142,7 +1260,7 @@ public sealed class OpenAiCompatibleSmokeTestService(
                 format = new
                 {
                     type = "json_schema",
-                    name = $"{taskType}_smoke_result",
+                    name = "cockpit_connectivity_smoke_result",
                     strict = true,
                     schema
                 }
@@ -1566,20 +1684,16 @@ public sealed class OpenAiCompatibleSmokeTestService(
         };
     }
 
-    private JsonDocument LoadSchemaForTaskType(string taskType)
+    private static JsonDocument CreateConnectivitySmokeSchema() => JsonDocument.Parse("""
     {
-        var repoRoot = Path.GetFullPath(Path.Combine(environment.ContentRootPath, "..", ".."));
-        var schemaRelativePath = taskType switch
-        {
-            "question_extraction" => Path.Combine("schemas", "ai", "question_extraction.schema.json"),
-            "natural_language_paper_request" => Path.Combine("schemas", "ai", "natural_language_paper_request.schema.json"),
-            "question_solving" => Path.Combine("schemas", "ai", "answer_verification.schema.json"),
-            "answer_verification" => Path.Combine("schemas", "ai", "answer_verification.schema.json"),
-            _ => Path.Combine("schemas", "ai", "knowledge_mapping.schema.json")
-        };
-        var schemaText = File.ReadAllText(Path.Combine(repoRoot, schemaRelativePath), Encoding.UTF8);
-        return JsonDocument.Parse(schemaText);
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": { "type": "string" }
+      }
     }
+    """);
 
     private static (string outputJson, int inputTokens, int outputTokens, int cachedTokens) ParseSmokeResponse(string body)
     {

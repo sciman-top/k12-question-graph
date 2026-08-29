@@ -61,6 +61,10 @@ model_failover:
   pinned_preset_id: null
   availability_probe_path: /models
   failure_cooldown_seconds: 30
+  recovery_probe_enabled: true
+  recovery_probe_interval_seconds: 180
+  recovery_probe_failure_backoff_seconds: 600
+  recovery_probe_successes_required: 2
 execution_slots:
   mechanical_cleanup:
     default_grade: economy

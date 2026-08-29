@@ -80,13 +80,23 @@ public sealed class AiModelFailoverOptions
 {
     public bool Enabled { get; set; } = true;
 
-    public string[] PreferredPresetOrder { get; set; } = ["sol", "terra", "luna"];
+    // ConfigurationBinder appends JSON entries to an initialized array. Keep the
+    // default empty so the explicit runtime projection remains the sole order.
+    public string[] PreferredPresetOrder { get; set; } = [];
 
     public string? PinnedPresetId { get; set; }
 
     public string AvailabilityProbePath { get; set; } = "/models";
 
     public int FailureCooldownSeconds { get; set; } = 30;
+
+    public bool RecoveryProbeEnabled { get; set; } = true;
+
+    public int RecoveryProbeIntervalSeconds { get; set; } = 180;
+
+    public int RecoveryProbeFailureBackoffSeconds { get; set; } = 600;
+
+    public int RecoveryProbeSuccessesRequired { get; set; } = 2;
 }
 
 public sealed record AiModelFailoverCandidate(

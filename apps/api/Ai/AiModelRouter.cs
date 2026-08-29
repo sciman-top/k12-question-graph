@@ -186,6 +186,12 @@ public sealed class AiModelRouter(
 
     public string ModelAvailabilityProbePath => NormalizeProbePath(options.ModelFailover.AvailabilityProbePath);
 
+    public bool AllowsRealModelCalls => options.AllowRealModelCalls;
+
+    public string? GetPinnedPresetId() => presetAvailability.GetPinnedPresetId();
+
+    public string SelectActivePresetId() => presetAvailability.SelectActivePresetId();
+
     private static IReadOnlyList<string> ResolveEscalationReasons(
         AiRouteRequest request,
         AiRouteOptions route,

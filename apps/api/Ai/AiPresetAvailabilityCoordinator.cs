@@ -37,7 +37,7 @@ public sealed class AiPresetAvailabilityCoordinator(IOptions<AiRoutingOptions> o
         lock (gate)
         {
             EnsureValidConfiguration();
-            var pinnedPresetId = GetPinnedPresetId();
+            var pinnedPresetId = ResolvePinnedPresetId();
             if (pinnedPresetId is not null)
             {
                 return pinnedPresetId;
@@ -58,7 +58,7 @@ public sealed class AiPresetAvailabilityCoordinator(IOptions<AiRoutingOptions> o
         lock (gate)
         {
             EnsureValidConfiguration();
-            var pinnedPresetId = GetPinnedPresetId();
+            var pinnedPresetId = ResolvePinnedPresetId();
             if (pinnedPresetId is not null)
             {
                 return [pinnedPresetId];
@@ -105,6 +105,15 @@ public sealed class AiPresetAvailabilityCoordinator(IOptions<AiRoutingOptions> o
         }
     }
 
+    public string? GetPinnedPresetId()
+    {
+        lock (gate)
+        {
+            EnsureValidConfiguration();
+            return ResolvePinnedPresetId();
+        }
+    }
+
     private IReadOnlyList<string> GetCandidatePresetIdsCore(string anchor)
     {
         return new[] { anchor }
@@ -148,6 +157,9 @@ public sealed class AiPresetAvailabilityCoordinator(IOptions<AiRoutingOptions> o
         }
 
         if (routing.ModelFailover.FailureCooldownSeconds is < 1 or > 300
+            || routing.ModelFailover.RecoveryProbeIntervalSeconds is < 60 or > 3600
+            || routing.ModelFailover.RecoveryProbeFailureBackoffSeconds is < 60 or > 86400
+            || routing.ModelFailover.RecoveryProbeSuccessesRequired is < 1 or > 3
             || routing.ExecutionSlots.Count != RequiredExecutionSlots.Count
             || !routing.ExecutionSlots.Keys.ToHashSet(StringComparer.OrdinalIgnoreCase).SetEquals(RequiredExecutionSlots)
             || routing.ExecutionSlots.Values.Any(slot => slot.DefaultGrade is not ("economy" or "balanced" or "quality")))
@@ -156,7 +168,7 @@ public sealed class AiPresetAvailabilityCoordinator(IOptions<AiRoutingOptions> o
         }
     }
 
-    private string? GetPinnedPresetId()
+    private string? ResolvePinnedPresetId()
     {
         if (string.IsNullOrWhiteSpace(routing.ModelFailover.PinnedPresetId))
         {
