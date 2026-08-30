@@ -61,11 +61,11 @@ L0 不调用外部 AI。能由 CSV parser、JSON/YAML/schema、SQL、hash、rege
 
 | 预设 | 模型 | reasoning 等级 |
 |---|---|---|
-| `sol`（默认优选） | `gpt-5.6-sol` | `xhigh` / `medium` / `low` |
+| `sol`（默认优选） | `gpt-5.6-sol` | `high` / `medium` / `low` |
 | `terra`（次选） | `gpt-5.6-terra` | `xhigh` / `high` / `medium` |
 | `luna`（末选） | `gpt-5.6-luna` | `xhigh` / `high` / `medium` |
 
-三套预设的三档固定映射为：`Sol-only: quality=sol/xhigh, balanced=sol/medium, economy=sol/low`；`Terra-only: quality=terra/xhigh, balanced=terra/high, economy=terra/medium`；`Luna-only: quality=luna/xhigh, balanced=luna/high, economy=luna/medium`。预设是完整的单模型模型+effort 集合：同一预设内绝不混合 Sol、Terra、Luna。故障切换只换完整 preset，不改变执行槽位和档位。
+三套预设的三档固定映射为：`Sol-only: quality=sol/high, balanced=sol/medium, economy=sol/low`；`Terra-only: quality=terra/xhigh, balanced=terra/high, economy=terra/medium`；`Luna-only: quality=luna/xhigh, balanced=luna/high, economy=luna/medium`。预设是完整的单模型模型+effort 集合：同一预设内绝不混合 Sol、Terra、Luna。故障切换只换完整 preset，不改变执行槽位和档位。
 
 执行槽位是工作性质，不是模型名称。当前五个槽位及其三档 preset 编排如下：
 

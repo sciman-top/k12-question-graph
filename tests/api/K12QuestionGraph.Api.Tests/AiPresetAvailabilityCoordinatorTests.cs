@@ -87,7 +87,7 @@ public sealed class AiPresetAvailabilityCoordinatorTests
     {
         ModelPresets = new Dictionary<string, AiModelPresetOptions>(StringComparer.OrdinalIgnoreCase)
         {
-            ["sol"] = new() { ModelName = "gpt-5.6-sol", ReasoningEfforts = ["xhigh", "medium", "low"], GradeToReasoningEffort = new() { ["quality"] = "xhigh", ["balanced"] = "medium", ["economy"] = "low" } },
+            ["sol"] = new() { ModelName = "gpt-5.6-sol", ReasoningEfforts = ["high", "medium", "low"], GradeToReasoningEffort = new() { ["quality"] = "high", ["balanced"] = "medium", ["economy"] = "low" } },
             ["terra"] = new() { ModelName = "gpt-5.6-terra", ReasoningEfforts = ["xhigh", "high", "medium"], GradeToReasoningEffort = new() { ["quality"] = "xhigh", ["balanced"] = "high", ["economy"] = "medium" } },
             ["luna"] = new() { ModelName = "gpt-5.6-luna", ReasoningEfforts = ["xhigh", "high", "medium"], GradeToReasoningEffort = new() { ["quality"] = "xhigh", ["balanced"] = "high", ["economy"] = "medium" } }
         },

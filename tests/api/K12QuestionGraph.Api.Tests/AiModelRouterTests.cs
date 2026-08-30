@@ -107,7 +107,7 @@ public sealed class AiModelRouterTests
     [InlineData("low_cost")]
     [InlineData("balanced")]
     [InlineData("high_accuracy")]
-    public void QuestionSolvingRemainsPinnedToSolXhighForEveryMode(string mode)
+    public void QuestionSolvingRemainsPinnedToSolHighForEveryMode(string mode)
     {
         var route = CreateRouter().Route(new(
             "question_solving",
@@ -128,7 +128,7 @@ public sealed class AiModelRouterTests
         Assert.Equal("quality", route.ExecutionGrade);
         Assert.Equal("sol", route.Preset);
         Assert.Equal("gpt-5.6-sol", route.ModelName);
-        Assert.Equal("xhigh", route.ReasoningEffort);
+        Assert.Equal("high", route.ReasoningEffort);
         Assert.Equal(route.ModelRole, route.EffectiveModelRole);
         Assert.Equal(route.ModelName, route.EffectiveModelName);
         Assert.Equal(route.ReasoningEffort, route.EffectiveReasoningEffort);
@@ -158,7 +158,7 @@ public sealed class AiModelRouterTests
         Assert.Equal(
             ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"],
             candidates.Select(x => x.ModelName).ToArray());
-        Assert.Equal(["xhigh", "xhigh", "xhigh"], candidates.Select(x => x.ReasoningEffort).ToArray());
+        Assert.Equal(["medium", "xhigh", "xhigh"], candidates.Select(x => x.ReasoningEffort).ToArray());
         Assert.False(candidates[0].IsFallback);
         Assert.All(candidates.Skip(1), candidate => Assert.True(candidate.IsFallback));
     }
@@ -208,15 +208,15 @@ public sealed class AiModelRouterTests
             Assert.Equal("sol", route.Preset);
             Assert.Equal("gpt-5.6-sol", route.ModelName);
         });
-        Assert.Equal(["medium", "xhigh", "xhigh"], routes.Select(route => route.ReasoningEffort).ToArray());
+        Assert.Equal(["medium", "high", "high"], routes.Select(route => route.ReasoningEffort).ToArray());
     }
 
     [Theory]
     [InlineData("mechanical_cleanup", "economy", "low", "medium", "medium")]
     [InlineData("bulk_prefilter", "balanced", "medium", "high", "high")]
     [InlineData("engineering_review", "balanced", "medium", "high", "high")]
-    [InlineData("visual_review", "quality", "xhigh", "xhigh", "xhigh")]
-    [InlineData("high_risk_adjudication", "quality", "xhigh", "xhigh", "xhigh")]
+    [InlineData("visual_review", "quality", "high", "xhigh", "xhigh")]
+    [InlineData("high_risk_adjudication", "quality", "high", "xhigh", "xhigh")]
     public void EverySlotKeepsItsGradeAcrossSingleModelPresetFailover(
         string slot,
         string grade,
@@ -306,7 +306,7 @@ public sealed class AiModelRouterTests
                 Routes = routes,
                 ModelPresets = new Dictionary<string, AiModelPresetOptions>(StringComparer.OrdinalIgnoreCase)
                 {
-                    ["sol"] = new() { ModelName = "gpt-5.6-sol", ReasoningEfforts = ["xhigh", "medium", "low"], GradeToReasoningEffort = new() { ["quality"] = "xhigh", ["balanced"] = "medium", ["economy"] = "low" } },
+                    ["sol"] = new() { ModelName = "gpt-5.6-sol", ReasoningEfforts = ["high", "medium", "low"], GradeToReasoningEffort = new() { ["quality"] = "high", ["balanced"] = "medium", ["economy"] = "low" } },
                     ["terra"] = new() { ModelName = "gpt-5.6-terra", ReasoningEfforts = ["xhigh", "high", "medium"], GradeToReasoningEffort = new() { ["quality"] = "xhigh", ["balanced"] = "high", ["economy"] = "medium" } },
                     ["luna"] = new() { ModelName = "gpt-5.6-luna", ReasoningEfforts = ["xhigh", "high", "medium"], GradeToReasoningEffort = new() { ["quality"] = "xhigh", ["balanced"] = "high", ["economy"] = "medium" } }
                 },

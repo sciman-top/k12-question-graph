@@ -12,7 +12,7 @@ public sealed class AiPresetAvailabilityCoordinator(IOptions<AiRoutingOptions> o
     private static readonly IReadOnlyDictionary<string, PresetContract> RequiredPresets =
         new Dictionary<string, PresetContract>(StringComparer.OrdinalIgnoreCase)
         {
-            ["sol"] = new("gpt-5.6-sol", ["xhigh", "medium", "low"], new() { ["quality"] = "xhigh", ["balanced"] = "medium", ["economy"] = "low" }),
+            ["sol"] = new("gpt-5.6-sol", ["high", "medium", "low"], new() { ["quality"] = "high", ["balanced"] = "medium", ["economy"] = "low" }),
             ["terra"] = new("gpt-5.6-terra", ["xhigh", "high", "medium"], new() { ["quality"] = "xhigh", ["balanced"] = "high", ["economy"] = "medium" }),
             ["luna"] = new("gpt-5.6-luna", ["xhigh", "high", "medium"], new() { ["quality"] = "xhigh", ["balanced"] = "high", ["economy"] = "medium" })
         };

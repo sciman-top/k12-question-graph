@@ -65,7 +65,7 @@ const modelPresets = [
   {
     id: 'sol',
     model: 'Sol-only · gpt-5.6-sol',
-    reasoningEfforts: 'quality=sol·xhigh / balanced=sol·medium / economy=sol·low',
+    reasoningEfforts: 'quality=sol·high / balanced=sol·medium / economy=sol·low',
     fallback: '首选；故障后 Terra -> Luna',
   },
   {

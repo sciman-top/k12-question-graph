@@ -48,7 +48,7 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
         Assert.True(result.Passed);
         Assert.True(result.CombinedPassed);
         Assert.Equal("gpt-5.6-sol", result.Model);
-        Assert.Equal("xhigh", result.EffectiveReasoningEffort);
+        Assert.Equal("high", result.EffectiveReasoningEffort);
         Assert.Equal("high_risk_adjudication", result.EffectiveExecutionSlot);
         Assert.Equal("quality", result.EffectiveExecutionGrade);
         Assert.Equal("sol", result.EffectivePreset);
@@ -56,7 +56,7 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
         Assert.Contains("routing_source=effective_route", result.AuditTrail);
         Assert.NotNull(handler.ResponsesPayload);
         Assert.Equal("gpt-5.6-sol", handler.ResponsesPayload!.Value.GetProperty("model").GetString());
-        Assert.Equal("xhigh", handler.ResponsesPayload.Value.GetProperty("reasoning").GetProperty("effort").GetString());
+        Assert.Equal("high", handler.ResponsesPayload.Value.GetProperty("reasoning").GetProperty("effort").GetString());
         var format = handler.ResponsesPayload.Value.GetProperty("text").GetProperty("format");
         Assert.Equal("cockpit_connectivity_smoke_result", format.GetProperty("name").GetString());
         Assert.Equal("object", format.GetProperty("schema").GetProperty("type").GetString());
@@ -413,7 +413,7 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
             Routes = routes,
             ModelPresets = new Dictionary<string, AiModelPresetOptions>(StringComparer.OrdinalIgnoreCase)
             {
-                ["sol"] = new() { ModelName = "gpt-5.6-sol", ReasoningEfforts = ["xhigh", "medium", "low"], GradeToReasoningEffort = new() { ["quality"] = "xhigh", ["balanced"] = "medium", ["economy"] = "low" } },
+                ["sol"] = new() { ModelName = "gpt-5.6-sol", ReasoningEfforts = ["high", "medium", "low"], GradeToReasoningEffort = new() { ["quality"] = "high", ["balanced"] = "medium", ["economy"] = "low" } },
                 ["terra"] = new() { ModelName = "gpt-5.6-terra", ReasoningEfforts = ["xhigh", "high", "medium"], GradeToReasoningEffort = new() { ["quality"] = "xhigh", ["balanced"] = "high", ["economy"] = "medium" } },
                 ["luna"] = new() { ModelName = "gpt-5.6-luna", ReasoningEfforts = ["xhigh", "high", "medium"], GradeToReasoningEffort = new() { ["quality"] = "xhigh", ["balanced"] = "high", ["economy"] = "medium" } }
             },
