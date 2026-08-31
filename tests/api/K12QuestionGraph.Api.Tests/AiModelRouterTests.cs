@@ -75,11 +75,11 @@ public sealed class AiModelRouterTests
 
         Assert.Equal("luna", route.Preset);
         Assert.Equal("gpt-5.6-luna", route.ModelName);
-        Assert.Equal("high", route.ReasoningEffort);
+        Assert.Equal("xhigh", route.ReasoningEffort);
         Assert.Single(candidates);
         Assert.Equal("luna", candidates[0].PresetId);
         Assert.Equal("gpt-5.6-luna", candidates[0].ModelName);
-        Assert.Equal("high", candidates[0].ReasoningEffort);
+        Assert.Equal("xhigh", candidates[0].ReasoningEffort);
     }
 
     [Fact]
@@ -164,14 +164,14 @@ public sealed class AiModelRouterTests
     }
 
     [Fact]
-    public void TerraFailureOrderChecksSolBeforeLunaAndFallsBackUnsupportedEffortToMedium()
+    public void TerraFailureOrderChecksSolBeforeLunaAndFallsBackUnsupportedEffortToHighestSupported()
     {
         var candidates = CreateRouter().GetFailoverCandidates("gpt-5.6-terra", "low");
 
         Assert.Equal(
             ["gpt-5.6-terra", "gpt-5.6-sol", "gpt-5.6-luna"],
             candidates.Select(x => x.ModelName).ToArray());
-        Assert.Equal(["medium", "low", "medium"], candidates.Select(x => x.ReasoningEffort).ToArray());
+        Assert.Equal(["max", "low", "max"], candidates.Select(x => x.ReasoningEffort).ToArray());
     }
 
     [Fact]
@@ -184,7 +184,7 @@ public sealed class AiModelRouterTests
             "balanced");
 
         Assert.Equal(["terra", "sol", "luna"], candidates.Select(x => x.PresetId).ToArray());
-        Assert.Equal(["high", "medium", "high"], candidates.Select(x => x.ReasoningEffort).ToArray());
+        Assert.Equal(["xhigh", "medium", "xhigh"], candidates.Select(x => x.ReasoningEffort).ToArray());
         Assert.All(candidates, candidate =>
         {
             Assert.Equal("bulk_prefilter", candidate.ExecutionSlot);
@@ -212,11 +212,11 @@ public sealed class AiModelRouterTests
     }
 
     [Theory]
-    [InlineData("mechanical_cleanup", "economy", "low", "medium", "medium")]
-    [InlineData("bulk_prefilter", "balanced", "medium", "high", "high")]
-    [InlineData("engineering_review", "balanced", "medium", "high", "high")]
-    [InlineData("visual_review", "quality", "high", "xhigh", "xhigh")]
-    [InlineData("high_risk_adjudication", "quality", "high", "xhigh", "xhigh")]
+    [InlineData("mechanical_cleanup", "economy", "low", "high", "high")]
+    [InlineData("bulk_prefilter", "balanced", "medium", "xhigh", "xhigh")]
+    [InlineData("engineering_review", "balanced", "medium", "xhigh", "xhigh")]
+    [InlineData("visual_review", "quality", "high", "max", "max")]
+    [InlineData("high_risk_adjudication", "quality", "high", "max", "max")]
     public void EverySlotKeepsItsGradeAcrossSingleModelPresetFailover(
         string slot,
         string grade,
@@ -307,8 +307,8 @@ public sealed class AiModelRouterTests
                 ModelPresets = new Dictionary<string, AiModelPresetOptions>(StringComparer.OrdinalIgnoreCase)
                 {
                     ["sol"] = new() { ModelName = "gpt-5.6-sol", ReasoningEfforts = ["high", "medium", "low"], GradeToReasoningEffort = new() { ["quality"] = "high", ["balanced"] = "medium", ["economy"] = "low" } },
-                    ["terra"] = new() { ModelName = "gpt-5.6-terra", ReasoningEfforts = ["xhigh", "high", "medium"], GradeToReasoningEffort = new() { ["quality"] = "xhigh", ["balanced"] = "high", ["economy"] = "medium" } },
-                    ["luna"] = new() { ModelName = "gpt-5.6-luna", ReasoningEfforts = ["xhigh", "high", "medium"], GradeToReasoningEffort = new() { ["quality"] = "xhigh", ["balanced"] = "high", ["economy"] = "medium" } }
+                    ["terra"] = new() { ModelName = "gpt-5.6-terra", ReasoningEfforts = ["max", "xhigh", "high"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "xhigh", ["economy"] = "high" } },
+                    ["luna"] = new() { ModelName = "gpt-5.6-luna", ReasoningEfforts = ["max", "xhigh", "high"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "xhigh", ["economy"] = "high" } }
                 },
                 ExecutionSlots = new Dictionary<string, AiExecutionSlotOptions>(StringComparer.OrdinalIgnoreCase)
                 {

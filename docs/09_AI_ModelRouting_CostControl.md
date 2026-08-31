@@ -62,20 +62,20 @@ L0 不调用外部 AI。能由 CSV parser、JSON/YAML/schema、SQL、hash、rege
 | 预设 | 模型 | reasoning 等级 |
 |---|---|---|
 | `sol`（默认优选） | `gpt-5.6-sol` | `high` / `medium` / `low` |
-| `terra`（次选） | `gpt-5.6-terra` | `xhigh` / `high` / `medium` |
-| `luna`（末选） | `gpt-5.6-luna` | `xhigh` / `high` / `medium` |
+| `terra`（次选） | `gpt-5.6-terra` | `max` / `xhigh` / `high` |
+| `luna`（末选） | `gpt-5.6-luna` | `max` / `xhigh` / `high` |
 
-三套预设的三档固定映射为：`Sol-only: quality=sol/high, balanced=sol/medium, economy=sol/low`；`Terra-only: quality=terra/xhigh, balanced=terra/high, economy=terra/medium`；`Luna-only: quality=luna/xhigh, balanced=luna/high, economy=luna/medium`。预设是完整的单模型模型+effort 集合：同一预设内绝不混合 Sol、Terra、Luna。故障切换只换完整 preset，不改变执行槽位和档位。
+三套预设的三档固定映射为：`Sol-only: quality=sol/high, balanced=sol/medium, economy=sol/low`；`Terra-only: quality=terra/max, balanced=terra/xhigh, economy=terra/high`；`Luna-only: quality=luna/max, balanced=luna/xhigh, economy=luna/high`。预设是完整的单模型模型+effort 集合：同一预设内绝不混合 Sol、Terra、Luna。故障切换只换完整 preset，不改变执行槽位和档位。
 
 执行槽位是工作性质，不是模型名称。当前五个槽位及其三档 preset 编排如下：
 
 | 执行槽位 | 默认档位 | 切到 Sol-only | 切到 Terra-only | 切到 Luna-only |
 | --- | --- | --- | --- | --- |
-| `mechanical_cleanup` | `economy` | `sol / low` | `terra / medium` | `luna / medium` |
-| `bulk_prefilter` | `balanced` | `sol / medium` | `terra / high` | `luna / high` |
-| `engineering_review` | `balanced` | `sol / medium` | `terra / high` | `luna / high` |
-| `visual_review` | `quality` | `sol / xhigh` | `terra / xhigh` | `luna / xhigh` |
-| `high_risk_adjudication` | `quality` | `sol / xhigh` | `terra / xhigh` | `luna / xhigh` |
+| `mechanical_cleanup` | `economy` | `sol / low` | `terra / high` | `luna / high` |
+| `bulk_prefilter` | `balanced` | `sol / medium` | `terra / xhigh` | `luna / xhigh` |
+| `engineering_review` | `balanced` | `sol / medium` | `terra / xhigh` | `luna / xhigh` |
+| `visual_review` | `quality` | `sol / high` | `terra / max` | `luna / max` |
+| `high_risk_adjudication` | `quality` | `sol / high` | `terra / max` | `luna / max` |
 
 任务路由先选择 `executionSlot + executionGrade`，再由当前完整 preset 解析模型和 effort；`execution_slots` 不再保存或选择任何模型。默认优选 Sol-only；只有连接故障才整套切到 Terra-only，再到 Luna-only。
 

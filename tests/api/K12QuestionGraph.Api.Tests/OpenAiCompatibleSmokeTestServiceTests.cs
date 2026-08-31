@@ -211,7 +211,7 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
 
         Assert.True(result.Passed);
         Assert.Equal("gpt-5.6-terra", result.Model);
-        Assert.Equal("xhigh", result.EffectiveReasoningEffort);
+        Assert.Equal("max", result.EffectiveReasoningEffort);
         Assert.Equal("high_risk_adjudication", result.EffectiveExecutionSlot);
         Assert.Equal("quality", result.EffectiveExecutionGrade);
         Assert.Equal("terra", result.EffectivePreset);
@@ -414,8 +414,8 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
             ModelPresets = new Dictionary<string, AiModelPresetOptions>(StringComparer.OrdinalIgnoreCase)
             {
                 ["sol"] = new() { ModelName = "gpt-5.6-sol", ReasoningEfforts = ["high", "medium", "low"], GradeToReasoningEffort = new() { ["quality"] = "high", ["balanced"] = "medium", ["economy"] = "low" } },
-                ["terra"] = new() { ModelName = "gpt-5.6-terra", ReasoningEfforts = ["xhigh", "high", "medium"], GradeToReasoningEffort = new() { ["quality"] = "xhigh", ["balanced"] = "high", ["economy"] = "medium" } },
-                ["luna"] = new() { ModelName = "gpt-5.6-luna", ReasoningEfforts = ["xhigh", "high", "medium"], GradeToReasoningEffort = new() { ["quality"] = "xhigh", ["balanced"] = "high", ["economy"] = "medium" } }
+                ["terra"] = new() { ModelName = "gpt-5.6-terra", ReasoningEfforts = ["max", "xhigh", "high"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "xhigh", ["economy"] = "high" } },
+                ["luna"] = new() { ModelName = "gpt-5.6-luna", ReasoningEfforts = ["max", "xhigh", "high"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "xhigh", ["economy"] = "high" } }
             },
             ExecutionSlots = new Dictionary<string, AiExecutionSlotOptions>(StringComparer.OrdinalIgnoreCase)
             {

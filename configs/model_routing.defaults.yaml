@@ -39,21 +39,21 @@ model_presets:
     description: "首选高质量本地 Cockpit API 模型预设。"
   terra:
     model_name: gpt-5.6-terra
-    reasoning_efforts: [xhigh, high, medium]
+    reasoning_efforts: [max, xhigh, high]
     grade_to_reasoning_effort:
-      quality: xhigh
-      balanced: high
-      economy: medium
-    fallback_reasoning_effort: medium
+      quality: max
+      balanced: xhigh
+      economy: high
+    fallback_reasoning_effort: high
     description: "Sol 故障时的次选 Cockpit API 模型预设。"
   luna:
     model_name: gpt-5.6-luna
-    reasoning_efforts: [xhigh, high, medium]
+    reasoning_efforts: [max, xhigh, high]
     grade_to_reasoning_effort:
-      quality: xhigh
-      balanced: high
-      economy: medium
-    fallback_reasoning_effort: medium
+      quality: max
+      balanced: xhigh
+      economy: high
+    fallback_reasoning_effort: high
     description: "Sol 与 Terra 均不可用时的末选 Cockpit API 模型预设。"
 model_failover:
   enabled: true

@@ -13,8 +13,8 @@ public sealed class AiPresetAvailabilityCoordinator(IOptions<AiRoutingOptions> o
         new Dictionary<string, PresetContract>(StringComparer.OrdinalIgnoreCase)
         {
             ["sol"] = new("gpt-5.6-sol", ["high", "medium", "low"], new() { ["quality"] = "high", ["balanced"] = "medium", ["economy"] = "low" }),
-            ["terra"] = new("gpt-5.6-terra", ["xhigh", "high", "medium"], new() { ["quality"] = "xhigh", ["balanced"] = "high", ["economy"] = "medium" }),
-            ["luna"] = new("gpt-5.6-luna", ["xhigh", "high", "medium"], new() { ["quality"] = "xhigh", ["balanced"] = "high", ["economy"] = "medium" })
+            ["terra"] = new("gpt-5.6-terra", ["max", "xhigh", "high"], new() { ["quality"] = "max", ["balanced"] = "xhigh", ["economy"] = "high" }),
+            ["luna"] = new("gpt-5.6-luna", ["max", "xhigh", "high"], new() { ["quality"] = "max", ["balanced"] = "xhigh", ["economy"] = "high" })
         };
     private static readonly HashSet<string> RequiredExecutionSlots =
         new(StringComparer.OrdinalIgnoreCase)

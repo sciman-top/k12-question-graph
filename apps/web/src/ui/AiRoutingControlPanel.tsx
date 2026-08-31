@@ -71,13 +71,13 @@ const modelPresets = [
   {
     id: 'terra',
     model: 'Terra-only · gpt-5.6-terra',
-    reasoningEfforts: 'quality=terra·xhigh / balanced=terra·high / economy=terra·medium',
+    reasoningEfforts: 'quality=terra·max / balanced=terra·xhigh / economy=terra·high',
     fallback: '次选；故障后 Sol -> Luna',
   },
   {
     id: 'luna',
     model: 'Luna-only · gpt-5.6-luna',
-    reasoningEfforts: 'quality=luna·xhigh / balanced=luna·high / economy=luna·medium',
+    reasoningEfforts: 'quality=luna·max / balanced=luna·xhigh / economy=luna·high',
     fallback: '末选；故障后 Sol -> Terra',
   },
 ]
