@@ -10,7 +10,7 @@ teacherSimpleModes:
     routePolicy: "local_first_rules_then_stub_llm_pending_review"
   - id: "cockpit_enhanced"
     label: "Cockpit 本地 API 增强"
-    summary: "管理员可选启用固定 Cockpit 本地网关，模型只按 Sol、Terra、Luna preset 受控切换。"
+    summary: "管理员可选启用固定 Cockpit 本地网关，默认模型按 Sol、Terra、Luna preset 受控切换；GLM/DeepSeek 仅作显式 pin 候选。"
     visibleToTeacher: true
     defaultProviderProfile: "cloud_openai_candidate"
     routePolicy: "role_routed_cloud_candidate_pending_review"

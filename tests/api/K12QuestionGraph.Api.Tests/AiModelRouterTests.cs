@@ -82,6 +82,39 @@ public sealed class AiModelRouterTests
         Assert.Equal("xhigh", candidates[0].ReasoningEffort);
     }
 
+    [Theory]
+    [InlineData("glm_flash", "glm-5.3-flash", "quality", "max")]
+    [InlineData("glm_flash", "glm-5.3-flash", "balanced", "high")]
+    [InlineData("glm_flash", "glm-5.3-flash", "economy", "low")]
+    [InlineData("deepseek_flash", "deepseek-v4-flash", "quality", "max")]
+    [InlineData("deepseek_flash", "deepseek-v4-flash", "balanced", "high")]
+    [InlineData("deepseek_flash", "deepseek-v4-flash", "economy", "high")]
+    [InlineData("deepseek_pro", "deepseek-v4-pro", "quality", "max")]
+    [InlineData("deepseek_pro", "deepseek-v4-pro", "balanced", "max")]
+    [InlineData("deepseek_pro", "deepseek-v4-pro", "economy", "max")]
+    public void ExplicitlyPinnedCandidatePreservesItsDeclaredModelAndEffort(
+        string presetId,
+        string modelName,
+        string grade,
+        string expectedEffort)
+    {
+        var router = CreateRouter(pinnedPresetId: presetId);
+
+        var route = router.Route(new AiRouteRequest("knowledge_tagging", "balanced", "draft", 0.95m) with
+        {
+            ExecutionGrade = grade
+        });
+        var candidates = router.GetFailoverCandidates(modelName, "low", "engineering_review", grade);
+
+        Assert.Equal(presetId, route.Preset);
+        Assert.Equal(modelName, route.ModelName);
+        Assert.Equal(expectedEffort, route.ReasoningEffort);
+        Assert.Single(candidates);
+        Assert.Equal(presetId, candidates[0].PresetId);
+        Assert.Equal(modelName, candidates[0].ModelName);
+        Assert.Equal(expectedEffort, candidates[0].ReasoningEffort);
+    }
+
     [Fact]
     public void HighAccuracyEscalatesOnlyOptedInRoutes()
     {
@@ -308,7 +341,10 @@ public sealed class AiModelRouterTests
                 {
                     ["sol"] = new() { ModelName = "gpt-5.6-sol", ReasoningEfforts = ["high", "medium", "low"], GradeToReasoningEffort = new() { ["quality"] = "high", ["balanced"] = "medium", ["economy"] = "low" } },
                     ["terra"] = new() { ModelName = "gpt-5.6-terra", ReasoningEfforts = ["max", "xhigh", "high"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "xhigh", ["economy"] = "high" } },
-                    ["luna"] = new() { ModelName = "gpt-5.6-luna", ReasoningEfforts = ["max", "xhigh", "high"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "xhigh", ["economy"] = "high" } }
+                    ["luna"] = new() { ModelName = "gpt-5.6-luna", ReasoningEfforts = ["max", "xhigh", "high"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "xhigh", ["economy"] = "high" } },
+                    ["glm_flash"] = new() { ModelName = "glm-5.3-flash", ReasoningEfforts = ["max", "high", "low"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "high", ["economy"] = "low" } },
+                    ["deepseek_flash"] = new() { ModelName = "deepseek-v4-flash", ReasoningEfforts = ["max", "high"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "high", ["economy"] = "high" } },
+                    ["deepseek_pro"] = new() { ModelName = "deepseek-v4-pro", ReasoningEfforts = ["max"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "max", ["economy"] = "max" } }
                 },
                 ExecutionSlots = new Dictionary<string, AiExecutionSlotOptions>(StringComparer.OrdinalIgnoreCase)
                 {

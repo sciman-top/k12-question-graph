@@ -57,15 +57,20 @@ L0 不调用外部 AI。能由 CSV parser、JSON/YAML/schema、SQL、hash、rege
 | 解题 | AI 独立求解并生成答案、关键步骤和依据 | 当前预设 / `quality` | 风险信号只影响复核优先级，不更改此槽位档位 | 保持 `pending_review`，结构化校验和人工复核仍必需 |
 | 校验 | 普通答案和解析一致性 | 当前预设 / `balanced` | 正式题、分支条件或评分点冲突时转 `quality` | 保持 `pending_review` |
 
-运行时模型使用三套完整预设。每套预设同时固定模型名和可用的 reasoning 等级，路由切换时切换整套预设：
+运行时模型使用三套默认故障预设和三套显式候选预设。每套预设同时固定模型名和可用的 reasoning 等级，路由切换时切换整套预设：
 
-| 预设 | 模型 | reasoning 等级 |
-|---|---|---|
-| `sol`（默认优选） | `gpt-5.6-sol` | `high` / `medium` / `low` |
-| `terra`（次选） | `gpt-5.6-terra` | `max` / `xhigh` / `high` |
-| `luna`（末选） | `gpt-5.6-luna` | `max` / `xhigh` / `high` |
+| 预设 | 模型 | reasoning 等级 | 档位映射 |
+|---|---|---|---|
+| `sol`（默认优选） | `gpt-5.6-sol` | `high` / `medium` / `low` | `quality=high` / `balanced=medium` / `economy=low` |
+| `terra`（次选） | `gpt-5.6-terra` | `max` / `xhigh` / `high` | `quality=max` / `balanced=xhigh` / `economy=high` |
+| `luna`（末选） | `gpt-5.6-luna` | `max` / `xhigh` / `high` | `quality=max` / `balanced=xhigh` / `economy=high` |
+| `glm_flash`（显式候选） | `glm-5.3-flash` | `max` / `high` / `low` | `quality=max` / `balanced=high` / `economy=low` |
+| `deepseek_flash`（显式候选） | `deepseek-v4-flash` | `max` / `high` | `quality=max` / `balanced=high` / `economy=high` |
+| `deepseek_pro`（显式候选） | `deepseek-v4-pro` | `max` | `quality=max` / `balanced=max` / `economy=max` |
 
-三套预设的三档固定映射为：`Sol-only: quality=sol/high, balanced=sol/medium, economy=sol/low`；`Terra-only: quality=terra/max, balanced=terra/xhigh, economy=terra/high`；`Luna-only: quality=luna/max, balanced=luna/xhigh, economy=luna/high`。预设是完整的单模型模型+effort 集合：同一预设内绝不混合 Sol、Terra、Luna。故障切换只换完整 preset，不改变执行槽位和档位。
+默认三套预设的三档固定映射为：`Sol-only: quality=sol/high, balanced=sol/medium, economy=sol/low`；`Terra-only: quality=terra/max, balanced=terra/xhigh, economy=terra/high`；`Luna-only: quality=luna/max, balanced=luna/xhigh, economy=luna/high`。预设是完整的单模型模型+effort 集合：同一预设内绝不混合不同模型族。故障切换只换完整 preset，不改变执行槽位和档位。
+
+GLM 与 DeepSeek 预设是显式候选，不加入默认 `preferred_preset_order`，因此不会改变现有 `Sol -> Terra -> Luna` 故障切换。需要验证某个候选时，可临时 pin `glm_flash`、`deepseek_flash` 或 `deepseek_pro`；pin 只改变本机运行时选择，解除后恢复默认链。DeepSeek V4 未提供 `low` 组合，Flash 的 `economy` 保持 `high`，Pro 的三个业务档位均固定为 `max`。这些配置只证明仓库/运行时路由可表达，不证明对应 provider 已加载、请求成功或 `live_accepted`。
 
 执行槽位是工作性质，不是模型名称。当前五个槽位及其三档 preset 编排如下：
 
@@ -82,9 +87,8 @@ L0 不调用外部 AI。能由 CSV parser、JSON/YAML/schema、SQL、hash、rege
 ```text
 本地确定性处理
   -> 当前任务预设及 reasoning 等级
-  -> 当前预设不可用时：Sol -> Terra -> Luna
-  -> Terra 当前不可用时：Sol -> Luna
-  -> Luna 当前不可用时：Sol -> Terra
+  -> 默认预设不可用时：Sol -> Terra -> Luna
+  -> 显式 pin 候选时：GLM Flash / DeepSeek Flash / DeepSeek Pro（不跨候选自动切换）
   -> pending_review / 人工确认
 ```
 

@@ -28,7 +28,7 @@ const teacherSimpleModes = [
   {
     id: 'cockpit_enhanced',
     label: 'Cockpit 本地 API 增强',
-    summary: '管理员单独启用 Cockpit 本地 API 网关，模型可用性按 Sol、Terra、Luna 受控切换。',
+    summary: '管理员单独启用 Cockpit 本地 API 网关，默认按 Sol、Terra、Luna 受控切换；GLM 与 DeepSeek 仅可显式 pin。',
     providerProfile: 'cloud_openai_candidate',
     icon: <CloudServerOutlined />,
   },
@@ -79,6 +79,24 @@ const modelPresets = [
     model: 'Luna-only · gpt-5.6-luna',
     reasoningEfforts: 'quality=luna·max / balanced=luna·xhigh / economy=luna·high',
     fallback: '末选；故障后 Sol -> Terra',
+  },
+  {
+    id: 'glm_flash',
+    model: 'GLM Flash · glm-5.3-flash',
+    reasoningEfforts: 'quality=GLM·max / balanced=GLM·high / economy=GLM·low',
+    fallback: '候选；仅显式 pin，不加入默认故障链',
+  },
+  {
+    id: 'deepseek_flash',
+    model: 'DeepSeek V4 Flash · deepseek-v4-flash',
+    reasoningEfforts: 'quality=Flash·max / balanced=Flash·high / economy=Flash·high',
+    fallback: '候选；仅显式 pin，economy 保持 high',
+  },
+  {
+    id: 'deepseek_pro',
+    model: 'DeepSeek V4 Pro · deepseek-v4-pro',
+    reasoningEfforts: 'quality=Pro·max / balanced=Pro·max / economy=Pro·max',
+    fallback: '候选；仅显式 pin，所有档位固定 max',
   },
 ]
 
@@ -339,7 +357,7 @@ export function AiRoutingControlPanel() {
         <div>
           <Typography.Title level={2}>AI 路由配置</Typography.Title>
           <Typography.Text type="secondary">
-            普通教师只看离线优先与 Cockpit 本地 API 增强等简化模式；管理员只能使用固定本地网关，模型故障由 Sol/Terra/Luna preset 切换处理。
+            普通教师只看离线优先与 Cockpit 本地 API 增强等简化模式；管理员只能使用固定本地网关，默认故障由 Sol/Terra/Luna preset 切换，GLM/DeepSeek 需显式 pin。
           </Typography.Text>
         </div>
         <Space size="small" wrap>

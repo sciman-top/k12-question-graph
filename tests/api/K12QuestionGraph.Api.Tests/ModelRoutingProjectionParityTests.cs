@@ -102,6 +102,9 @@ public sealed class ModelRoutingProjectionParityTests
         Assert.Equal("gpt-5.6-sol", jsonPresets.GetProperty("sol").GetProperty("ModelName").GetString());
         Assert.Equal("gpt-5.6-terra", jsonPresets.GetProperty("terra").GetProperty("ModelName").GetString());
         Assert.Equal("gpt-5.6-luna", jsonPresets.GetProperty("luna").GetProperty("ModelName").GetString());
+        Assert.Equal("glm-5.3-flash", jsonPresets.GetProperty("glm_flash").GetProperty("ModelName").GetString());
+        Assert.Equal("deepseek-v4-flash", jsonPresets.GetProperty("deepseek_flash").GetProperty("ModelName").GetString());
+        Assert.Equal("deepseek-v4-pro", jsonPresets.GetProperty("deepseek_pro").GetProperty("ModelName").GetString());
 
         var yamlFailover = (YamlMappingNode)GetYamlChild(root, "model_failover");
         var jsonFailover = aiRouting.GetProperty("ModelFailover");

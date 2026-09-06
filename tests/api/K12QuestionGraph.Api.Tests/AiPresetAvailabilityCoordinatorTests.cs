@@ -78,9 +78,32 @@ public sealed class AiPresetAvailabilityCoordinatorTests
         var coordinator = new AiPresetAvailabilityCoordinator(Options.Create(options));
 
         Assert.Equal(["sol", "terra", "luna"], options.ModelFailover.PreferredPresetOrder);
-        Assert.Equal(3, options.ModelPresets.Count);
+        Assert.Equal(6, options.ModelPresets.Count);
         Assert.Equal(5, options.ExecutionSlots.Count);
         Assert.Equal("sol", coordinator.SelectActivePresetId());
+    }
+
+    [Theory]
+    [InlineData("glm_flash", "glm-5.3-flash", "quality", "max")]
+    [InlineData("glm_flash", "glm-5.3-flash", "balanced", "high")]
+    [InlineData("glm_flash", "glm-5.3-flash", "economy", "low")]
+    [InlineData("deepseek_flash", "deepseek-v4-flash", "quality", "max")]
+    [InlineData("deepseek_flash", "deepseek-v4-flash", "balanced", "high")]
+    [InlineData("deepseek_pro", "deepseek-v4-pro", "quality", "max")]
+    public void OptionalModelPresetsCanBePinnedWithTheirDeclaredEffortMapping(
+        string presetId,
+        string modelName,
+        string grade,
+        string expectedEffort)
+    {
+        var options = CreateOptions();
+        options.ModelFailover.PinnedPresetId = presetId;
+        var coordinator = new AiPresetAvailabilityCoordinator(Options.Create(options));
+
+        Assert.Equal(presetId, coordinator.SelectActivePresetId());
+        Assert.Equal([presetId], coordinator.GetCandidatePresetIds("sol"));
+        Assert.Equal(modelName, options.ModelPresets[presetId].ModelName);
+        Assert.Equal(expectedEffort, options.ModelPresets[presetId].GradeToReasoningEffort[grade]);
     }
 
     private static AiRoutingOptions CreateOptions() => new()
@@ -89,7 +112,10 @@ public sealed class AiPresetAvailabilityCoordinatorTests
         {
             ["sol"] = new() { ModelName = "gpt-5.6-sol", ReasoningEfforts = ["high", "medium", "low"], GradeToReasoningEffort = new() { ["quality"] = "high", ["balanced"] = "medium", ["economy"] = "low" } },
             ["terra"] = new() { ModelName = "gpt-5.6-terra", ReasoningEfforts = ["max", "xhigh", "high"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "xhigh", ["economy"] = "high" } },
-            ["luna"] = new() { ModelName = "gpt-5.6-luna", ReasoningEfforts = ["max", "xhigh", "high"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "xhigh", ["economy"] = "high" } }
+            ["luna"] = new() { ModelName = "gpt-5.6-luna", ReasoningEfforts = ["max", "xhigh", "high"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "xhigh", ["economy"] = "high" } },
+            ["glm_flash"] = new() { ModelName = "glm-5.3-flash", ReasoningEfforts = ["max", "high", "low"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "high", ["economy"] = "low" } },
+            ["deepseek_flash"] = new() { ModelName = "deepseek-v4-flash", ReasoningEfforts = ["max", "high"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "high", ["economy"] = "high" } },
+            ["deepseek_pro"] = new() { ModelName = "deepseek-v4-pro", ReasoningEfforts = ["max"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "max", ["economy"] = "max" } }
         },
         ExecutionSlots = new Dictionary<string, AiExecutionSlotOptions>(StringComparer.OrdinalIgnoreCase)
         {

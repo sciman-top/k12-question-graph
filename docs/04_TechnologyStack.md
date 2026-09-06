@@ -105,7 +105,7 @@ Worker 环境按官方文档和当前主机约束分档，不把大型 OCR/公�
 
 2026-06-07 当前仓内先用管理员 staging 面板中的 `service-control-panel` contract 固化控制面板信息结构：只汇总 Windows Service 包、content/data root、health/readiness、备份恢复、升级演练和打开 Web 工作台入口，不复制教师导入/组卷/成绩分析页面。未来若切到独立 Windows shell，仍必须复用同一组字段、动作和 evidence 边界。
 
-2026-08-29 当前仓内用 `configs/ai-provider-profiles.defaults.yaml` + `AiRoutingControlPanel` contract 固化 `NS1305` 的角色路由和 provider profile 语义：普通教师只看到离线优先与 Cockpit 本地 API 增强两种简化模式；管理员只能查看固定 Cockpit 本地网关的 env 引用、并发、规划预算和禁用开关，模型故障只在 Sol/Terra/Luna preset 间切换。业务代码继续按 role / tier 路由，不在 `AiModelRouter` 或 `appsettings.json` 中混用模型族；所有 provider secret 只允许用 env 引用，任何真实 key、调用启用或生产默认切换都必须走 no-active-write、schema/eval 和人工确认门禁。
+2026-08-29 当前仓内用 `configs/ai-provider-profiles.defaults.yaml` + `AiRoutingControlPanel` contract 固化 `NS1305` 的角色路由和 provider profile 语义：普通教师只看到离线优先与 Cockpit 本地 API 增强两种简化模式；管理员只能查看固定 Cockpit 本地网关的 env 引用、并发、规划预算和禁用开关，默认模型故障只在 Sol/Terra/Luna preset 间切换，GLM/DeepSeek 作为显式 pin 候选。业务代码继续按 role / tier 路由，不在 `AiModelRouter` 或 `appsettings.json` 中混用模型族；所有 provider secret 只允许用 env 引用，任何真实 key、调用启用或生产默认切换都必须走 no-active-write、schema/eval 和人工确认门禁。
 
 技术栈推荐必须可随外部生态变化更新，但不能让 AI 自由改生产配置。`O008` 后续通过 `configs/technology-refresh.sources.yaml`、`configs/capability-taxonomy.yaml`、`configs/model-admission.catalog.yaml` 和 `configs/ocr-engine-admission.catalog.yaml` 维护可信来源、能力标签和候选准入。AI API 只允许在 `report_only` 模式摘要官方文档、release notes、model card 和候选差异；新硬件、新 OCR/公式识别引擎、本地推理 runtime 或模型权重进入默认配置前，必须先通过本机 diagnostic、golden set eval、no active write、成本/延迟、人工接管和回滚证据。
 

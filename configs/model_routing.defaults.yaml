@@ -55,6 +55,33 @@ model_presets:
       economy: high
     fallback_reasoning_effort: high
     description: "Sol 与 Terra 均不可用时的末选 Cockpit API 模型预设。"
+  glm_flash:
+    model_name: glm-5.3-flash
+    reasoning_efforts: [max, high, low]
+    grade_to_reasoning_effort:
+      quality: max
+      balanced: high
+      economy: low
+    fallback_reasoning_effort: low
+    description: "可显式 pin 的 GLM-5.3-Flash 候选预设；默认不加入 Sol/Terra/Luna 故障链。"
+  deepseek_flash:
+    model_name: deepseek-v4-flash
+    reasoning_efforts: [max, high]
+    grade_to_reasoning_effort:
+      quality: max
+      balanced: high
+      economy: high
+    fallback_reasoning_effort: high
+    description: "可显式 pin 的 DeepSeek V4 Flash 候选预设；economy 因未提供 low 而保持 high。"
+  deepseek_pro:
+    model_name: deepseek-v4-pro
+    reasoning_efforts: [max]
+    grade_to_reasoning_effort:
+      quality: max
+      balanced: max
+      economy: max
+    fallback_reasoning_effort: max
+    description: "可显式 pin 的 DeepSeek V4 Pro 候选预设；所有执行档位均固定使用 max。"
 model_failover:
   enabled: true
   preferred_preset_order: [sol, terra, luna]
