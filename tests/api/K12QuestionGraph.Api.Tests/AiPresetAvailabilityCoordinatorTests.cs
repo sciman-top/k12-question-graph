@@ -14,13 +14,19 @@ public sealed class AiPresetAvailabilityCoordinatorTests
         Assert.Equal("sol", coordinator.SelectActivePresetId());
         coordinator.RecordExecutionSuccess("terra");
         Assert.Equal("terra", coordinator.SelectActivePresetId());
-        Assert.Equal(["terra", "sol", "luna"], coordinator.GetCandidatePresetIds("terra"));
+        Assert.Equal(["terra", "sol", "luna", "glm_flash", "deepseek_flash", "deepseek_pro"], coordinator.GetCandidatePresetIds("terra"));
 
         coordinator.RecordAvailabilityFailure("terra", 503);
         Assert.Equal("sol", coordinator.SelectActivePresetId());
         coordinator.RecordAvailabilityFailure("sol", 503);
         Assert.Equal("luna", coordinator.SelectActivePresetId());
-        Assert.Equal(["luna", "sol", "terra"], coordinator.GetCandidatePresetIds("luna"));
+        coordinator.RecordAvailabilityFailure("luna", 503);
+        Assert.Equal("glm_flash", coordinator.SelectActivePresetId());
+        coordinator.RecordAvailabilityFailure("glm_flash", 503);
+        Assert.Equal("deepseek_flash", coordinator.SelectActivePresetId());
+        coordinator.RecordAvailabilityFailure("deepseek_flash", 503);
+        Assert.Equal("deepseek_pro", coordinator.SelectActivePresetId());
+        Assert.Equal(["luna", "sol", "terra", "glm_flash", "deepseek_flash", "deepseek_pro"], coordinator.GetCandidatePresetIds("luna"));
     }
 
     [Fact]
@@ -77,7 +83,7 @@ public sealed class AiPresetAvailabilityCoordinatorTests
             .Get<AiRoutingOptions>()!;
         var coordinator = new AiPresetAvailabilityCoordinator(Options.Create(options));
 
-        Assert.Equal(["sol", "terra", "luna"], options.ModelFailover.PreferredPresetOrder);
+        Assert.Equal(["sol", "terra", "luna", "glm_flash", "deepseek_flash", "deepseek_pro"], options.ModelFailover.PreferredPresetOrder);
         Assert.Equal(6, options.ModelPresets.Count);
         Assert.Equal(5, options.ExecutionSlots.Count);
         Assert.Equal("sol", coordinator.SelectActivePresetId());
@@ -90,7 +96,7 @@ public sealed class AiPresetAvailabilityCoordinatorTests
     [InlineData("deepseek_flash", "deepseek-v4-flash", "quality", "max")]
     [InlineData("deepseek_flash", "deepseek-v4-flash", "balanced", "high")]
     [InlineData("deepseek_pro", "deepseek-v4-pro", "quality", "max")]
-    public void OptionalModelPresetsCanBePinnedWithTheirDeclaredEffortMapping(
+    public void DefaultModelPresetsCanBePinnedWithTheirDeclaredEffortMapping(
         string presetId,
         string modelName,
         string grade,
@@ -125,7 +131,7 @@ public sealed class AiPresetAvailabilityCoordinatorTests
             ["visual_review"] = new() { DefaultGrade = "quality" },
             ["high_risk_adjudication"] = new() { DefaultGrade = "quality" }
         },
-        ModelFailover = new() { PreferredPresetOrder = ["sol", "terra", "luna"], FailureCooldownSeconds = 60 }
+        ModelFailover = new() { PreferredPresetOrder = ["sol", "terra", "luna", "glm_flash", "deepseek_flash", "deepseek_pro"], FailureCooldownSeconds = 60 }
     };
 
     private static string RepoRoot

@@ -57,48 +57,48 @@ L0 不调用外部 AI。能由 CSV parser、JSON/YAML/schema、SQL、hash、rege
 | 解题 | AI 独立求解并生成答案、关键步骤和依据 | 当前预设 / `quality` | 风险信号只影响复核优先级，不更改此槽位档位 | 保持 `pending_review`，结构化校验和人工复核仍必需 |
 | 校验 | 普通答案和解析一致性 | 当前预设 / `balanced` | 正式题、分支条件或评分点冲突时转 `quality` | 保持 `pending_review` |
 
-运行时模型使用三套默认故障预设和三套显式候选预设。每套预设同时固定模型名和可用的 reasoning 等级，路由切换时切换整套预设：
+运行时模型使用六套默认故障预设。每套预设同时固定模型名和可用的 reasoning 等级，路由切换时切换整套预设：
 
 | 预设 | 模型 | reasoning 等级 | 档位映射 |
 |---|---|---|---|
 | `sol`（默认优选） | `gpt-5.6-sol` | `high` / `medium` / `low` | `quality=high` / `balanced=medium` / `economy=low` |
 | `terra`（次选） | `gpt-5.6-terra` | `max` / `xhigh` / `high` | `quality=max` / `balanced=xhigh` / `economy=high` |
 | `luna`（末选） | `gpt-5.6-luna` | `max` / `xhigh` / `high` | `quality=max` / `balanced=xhigh` / `economy=high` |
-| `glm_flash`（显式候选） | `glm-5.3-flash` | `max` / `high` / `low` | `quality=max` / `balanced=high` / `economy=low` |
-| `deepseek_flash`（显式候选） | `deepseek-v4-flash` | `max` / `high` | `quality=max` / `balanced=high` / `economy=high` |
-| `deepseek_pro`（显式候选） | `deepseek-v4-pro` | `max` | `quality=max` / `balanced=max` / `economy=max` |
+| `glm_flash`（第四顺位） | `glm-5.3-flash` | `max` / `high` / `low` | `quality=max` / `balanced=high` / `economy=low` |
+| `deepseek_flash`（第五顺位） | `deepseek-v4-flash` | `max` / `high` | `quality=max` / `balanced=high` / `economy=high` |
+| `deepseek_pro`（末位） | `deepseek-v4-pro` | `max` | `quality=max` / `balanced=max` / `economy=max` |
 
-默认三套预设的三档固定映射为：`Sol-only: quality=sol/high, balanced=sol/medium, economy=sol/low`；`Terra-only: quality=terra/max, balanced=terra/xhigh, economy=terra/high`；`Luna-only: quality=luna/max, balanced=luna/xhigh, economy=luna/high`。预设是完整的单模型模型+effort 集合：同一预设内绝不混合不同模型族。故障切换只换完整 preset，不改变执行槽位和档位。
+六套预设的三档固定映射见上表。预设是完整的单模型模型+effort 集合：同一预设内绝不混合不同模型族。故障切换只换完整 preset，不改变执行槽位和档位。
 
-GLM 与 DeepSeek 预设是显式候选，不加入默认 `preferred_preset_order`，因此不会改变现有 `Sol -> Terra -> Luna` 故障切换。需要验证某个候选时，可临时 pin `glm_flash`、`deepseek_flash` 或 `deepseek_pro`；pin 只改变本机运行时选择，解除后恢复默认链。DeepSeek V4 未提供 `low` 组合，Flash 的 `economy` 保持 `high`，Pro 的三个业务档位均固定为 `max`。这些配置只证明仓库/运行时路由可表达，不证明对应 provider 已加载、请求成功或 `live_accepted`。
+GLM 与 DeepSeek 已加入默认 `preferred_preset_order`：`sol -> terra -> luna -> glm_flash -> deepseek_flash -> deepseek_pro`。任一 preset 故障后，系统按该顺序尝试尚未进入 cooldown 的候选；失败链耗尽后进入 `pending_review`。也可以临时 pin 任一 preset，pin 会将请求限制在该 preset，不跨 preset 自动切换，解除后恢复六项默认链。DeepSeek V4 未提供 `low` 组合，Flash 的 `economy` 保持 `high`，Pro 的三个业务档位均固定为 `max`。这些配置只证明仓库/运行时路由可表达，不证明对应 provider 已加载、请求成功或 `live_accepted`。
 
 执行槽位是工作性质，不是模型名称。当前五个槽位及其三档 preset 编排如下：
 
-| 执行槽位 | 默认档位 | 切到 Sol-only | 切到 Terra-only | 切到 Luna-only |
-| --- | --- | --- | --- | --- |
-| `mechanical_cleanup` | `economy` | `sol / low` | `terra / high` | `luna / high` |
-| `bulk_prefilter` | `balanced` | `sol / medium` | `terra / xhigh` | `luna / xhigh` |
-| `engineering_review` | `balanced` | `sol / medium` | `terra / xhigh` | `luna / xhigh` |
-| `visual_review` | `quality` | `sol / high` | `terra / max` | `luna / max` |
-| `high_risk_adjudication` | `quality` | `sol / high` | `terra / max` | `luna / max` |
+| 执行槽位 | 默认档位 | `sol` | `terra` | `luna` | `glm_flash` | `deepseek_flash` | `deepseek_pro` |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `mechanical_cleanup` | `economy` | `sol / low` | `terra / high` | `luna / high` | `glm_flash / low` | `deepseek_flash / high` | `deepseek_pro / max` |
+| `bulk_prefilter` | `balanced` | `sol / medium` | `terra / xhigh` | `luna / xhigh` | `glm_flash / high` | `deepseek_flash / high` | `deepseek_pro / max` |
+| `engineering_review` | `balanced` | `sol / medium` | `terra / xhigh` | `luna / xhigh` | `glm_flash / high` | `deepseek_flash / high` | `deepseek_pro / max` |
+| `visual_review` | `quality` | `sol / high` | `terra / max` | `luna / max` | `glm_flash / max` | `deepseek_flash / max` | `deepseek_pro / max` |
+| `high_risk_adjudication` | `quality` | `sol / high` | `terra / max` | `luna / max` | `glm_flash / max` | `deepseek_flash / max` | `deepseek_pro / max` |
 
-任务路由先选择 `executionSlot + executionGrade`，再由当前完整 preset 解析模型和 effort；`execution_slots` 不再保存或选择任何模型。默认优选 Sol-only；只有连接故障才整套切到 Terra-only，再到 Luna-only。
+任务路由先选择 `executionSlot + executionGrade`，再由当前完整 preset 解析模型和 effort；`execution_slots` 不再保存或选择任何模型。默认优选 `sol`；连接故障时按 `sol`、`terra`、`luna`、`glm_flash`、`deepseek_flash`、`deepseek_pro` 依次切换。
 
 ```text
 本地确定性处理
   -> 当前任务预设及 reasoning 等级
-  -> 默认预设不可用时：Sol -> Terra -> Luna
-  -> 显式 pin 候选时：GLM Flash / DeepSeek Flash / DeepSeek Pro（不跨候选自动切换）
+  -> 默认预设不可用时：Sol -> Terra -> Luna -> GLM Flash -> DeepSeek Flash -> DeepSeek Pro
+  -> 显式 pin 时：固定当前 preset，不跨 preset 自动切换
   -> pending_review / 人工确认
 ```
 
 配置真源为 `configs/model_routing.defaults.yaml`，运行时投影为 `apps/api/appsettings.json`。provider 网关被强制锁定为 Cockpit 本地 API 服务 `http://127.0.0.1:45335/v1`，由 `.env` 的 `KQG_AI_OPENAI_BASE_URL` 和 `KQG_AI_OPENAI_KEY` 注入；保存、旧本机设置归一化与管理员试跑 override 都拒绝远端 URL 和 endpoint fallback，避免将 Cockpit key 发往其他地址。配置存在不等于 live accepted。路由结果必须记录 `stage`、`executionSlot`、`executionGrade`、`preset`、`modelRole`、`modelName`、`reasoningEffort`、升级目标、prompt/schema 版本和输入证据。模型输出默认保持 `candidate/pending_review/productionEligible=false`，不得直接改变 active 资产。
 
-管理员 provider smoke 与后续真实 Cockpit adapter 共用 preset 可用性状态：成功的 `/responses` 执行将其完整 preset 设为 active；连通、限流或 5xx 故障才会让该 preset 进入短暂 cooldown。故障发生时保持同一 `executionSlot + executionGrade`，只切换完整 preset：Sol→Terra→Luna，Terra→Sol→Luna，Luna→Sol→Terra。每个候选先做 `/models` 可用性探测，再向同一 Cockpit 网关发送 `/responses`；最终 `effectiveExecutionSlot`、`effectiveExecutionGrade`、`effectivePreset`、`effectiveModelName` 和 `effectiveReasoningEffort` 写入结果及审计记录。手动模型 override 被拒绝，避免绕开单 preset 不变量。管理员真实调用经配置的进程内并发闸门后执行；`MonthlyBudgetCny` 目前仅是运营规划上限，尚未接入 Cockpit 的可核验计价/账单账本，不得误报为实际 CNY 扣减门禁。任一全局/管理员真实调用门禁未满足时，探针 fail-closed，不发起 provider 请求。
+管理员 provider smoke 与后续真实 Cockpit adapter 共用 preset 可用性状态：成功的 `/responses` 执行将其完整 preset 设为 active；连通、限流或 5xx 故障才会让该 preset 进入短暂 cooldown。故障发生时保持同一 `executionSlot + executionGrade`，只切换完整 preset：默认顺序为 Sol→Terra→Luna→GLM Flash→DeepSeek Flash→DeepSeek Pro；从任一当前 preset 出发时，先尝试当前 preset，再按默认顺序回绕。每个候选先做 `/models` 可用性探测，再向同一 Cockpit 网关发送 `/responses`；最终 `effectiveExecutionSlot`、`effectiveExecutionGrade`、`effectivePreset`、`effectiveModelName` 和 `effectiveReasoningEffort` 写入结果及审计记录。手动模型 override 被拒绝，避免绕开单 preset 不变量。管理员真实调用经配置的进程内并发闸门后执行；`MonthlyBudgetCny` 目前仅是运营规划上限，尚未接入 Cockpit 的可核验计价/账单账本，不得误报为实际 CNY 扣减门禁。任一全局/管理员真实调用门禁未满足时，探针 fail-closed，不发起 provider 请求。
 
-本机临时运行时投影可通过 `.env` 的 `AiRouting__ModelFailover__PinnedPresetId=luna` 锁定 Luna-only：所有五个执行槽位仍保留原档位，只能解析为 `gpt-5.6-luna` 及其对应 effort；Luna 故障时保持 Luna-only 并 fail-closed，不会切换到 Sol/Terra。该 pin 不会把 Luna 写入永久策略，也不修改、停用或要求永久关闭现有 watchdog；watchdog 继续按原配置运行。删除该变量或置空后，恢复默认的 Sol→Terra→Luna 预设级切换。该变量由本地启动脚本注入，已运行的 API 进程不会热加载，重新启动本项目 API 后才进入 `host_loaded`。
+本机临时运行时投影可通过 `.env` 的 `AiRouting__ModelFailover__PinnedPresetId` 锁定任一 preset，例如 `luna`、`glm_flash`、`deepseek_flash` 或 `deepseek_pro`：所有五个执行槽位仍保留原档位，只能解析为当前 preset 及其对应 effort；当前 preset 故障时保持 pin 并 fail-closed，不会切换到其他 preset。该 pin 不会写入永久策略，也不修改、停用或要求永久关闭现有 watchdog；watchdog 继续按原配置运行。删除该变量或置空后，恢复默认的 Sol→Terra→Luna→GLM Flash→DeepSeek Flash→DeepSeek Pro 预设级切换。该变量由本地启动脚本注入，已运行的 API 进程不会热加载，重新启动本项目 API 后才进入 `host_loaded`。
 
-当当前 active preset 为 Terra-only 或 Luna-only，且不存在临时 pin 时，API 内的低优先级恢复探测会每 180 秒检查更高优先级 preset：Terra 只检查 Sol；Luna 依次检查 Sol、Terra。每次检查要求同一 Cockpit 本地网关的 `/models` 与最小 `store=false` `/responses` 都成功；连续 2 次成功才回切，失败后 600 秒退避。恢复探测不走图片接口、不提交教师数据、不写业务数据，也不会因探测失败把当前 Terra/Luna 标为故障或中断业务请求。
+当当前 active preset 不是默认链首项，且不存在临时 pin 时，API 内的低优先级恢复探测会每 180 秒按默认链检查当前 active preset 之前的更高优先级 preset：例如 Terra 检查 Sol，Luna 检查 Sol/Terra，GLM 检查 Sol/Terra/Luna，DeepSeek Flash 检查前四项，DeepSeek Pro 检查前五项。每次检查要求同一 Cockpit 本地网关的 `/models` 与最小 `store=false` `/responses` 都成功；连续 2 次成功才回切，失败后 600 秒退避。恢复探测不走图片接口、不提交教师数据、不写业务数据，也不会因探测失败把当前 preset 标为故障或中断业务请求。
 
 运行时同时返回默认路线和最终生效路线。`low_cost` 仅在当前任务声明的显式风险信号命中时升级；`balanced` 还会在置信度低于任务阈值时升级；`high_accuracy` 可对显式 opt-in 的普通路线预防性提前一级。风险信号按任务 allowlist 过滤，未知 mode fail-closed，确定性任务和没有升级目标的最高档任务永不隐式升级。题目难度和复杂度只影响槽位/档位及复核优先级，不得在同一 preset 内直接换到另一种模型。当前信号包括 `cross_page`、`shared_visual`、`formula_or_table`、`semantic_conflict`、`multiple_constraints`、`formal_exam` 和 `source_evidence_conflict`。返回值中的 `effectiveExecutionSlot`、`effectiveExecutionGrade`、`effectivePreset`、`effectiveModelRole`、`effectiveModelName`、`effectiveReasoningEffort`、`escalated` 和 `escalationReasons` 是实际执行选择；原 `model*` 字段保留默认路线用于审计。
 
@@ -139,7 +139,7 @@ GLM 与 DeepSeek 预设是显式候选，不加入默认 `preferred_preset_order
 第四层 gpt-5.6-sol / xhigh：高风险语义、政策边界和不可轻易回滚裁决
 ```
 
-三套预设和其中 `medium/high/xhigh/low` 等级不是质量承诺：等级提升必须由代表性 paired eval 证明，真实 provider 默认关闭；配置与 parity 通过只证明 `repo_verified`/`filesystem_projected`，不等于 `host_loaded` 或 `live_accepted`。凡是可用规则、schema、SQL、CSV parser 或本地脚本解决的任务，不升级模型。
+六套预设和其中 `medium/high/xhigh/low/max` 等级不是质量承诺：等级提升必须由代表性 paired eval 证明，真实 provider 默认关闭；配置与 parity 通过只证明 `repo_verified`/`filesystem_projected`，不等于 `host_loaded` 或 `live_accepted`。凡是可用规则、schema、SQL、CSV parser 或本地脚本解决的任务，不升级模型。
 
 来源核验不得只依赖更强模型。进入正式激活链路的来源证据必须可追溯到 `source_id`、页码/题号/章节、原文片段或 hash；模型只辅助判断一致性和风险，不替代证据锚点。
 

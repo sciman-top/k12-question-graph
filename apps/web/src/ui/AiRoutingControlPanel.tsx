@@ -28,7 +28,7 @@ const teacherSimpleModes = [
   {
     id: 'cockpit_enhanced',
     label: 'Cockpit 本地 API 增强',
-    summary: '管理员单独启用 Cockpit 本地 API 网关，默认按 Sol、Terra、Luna 受控切换；GLM 与 DeepSeek 仅可显式 pin。',
+    summary: '管理员单独启用 Cockpit 本地 API 网关，模型按 Sol、Terra、Luna、GLM Flash、DeepSeek Flash、DeepSeek Pro 受控切换。',
     providerProfile: 'cloud_openai_candidate',
     icon: <CloudServerOutlined />,
   },
@@ -55,7 +55,7 @@ const providerProfiles = [
     baseUrl: 'http://127.0.0.1:45335/v1',
     concurrency: '2',
     budget: '0 元 / 月',
-    fallback: 'Sol -> Terra -> Luna -> pending_review',
+    fallback: 'Sol -> Terra -> Luna -> GLM Flash -> DeepSeek Flash -> DeepSeek Pro -> pending_review',
     status: '默认关闭',
     disabledByDefault: true,
   },
@@ -66,37 +66,37 @@ const modelPresets = [
     id: 'sol',
     model: 'Sol-only · gpt-5.6-sol',
     reasoningEfforts: 'quality=sol·high / balanced=sol·medium / economy=sol·low',
-    fallback: '首选；故障后 Terra -> Luna',
+    fallback: '首选；故障后 Terra -> Luna -> GLM Flash -> DeepSeek Flash -> DeepSeek Pro',
   },
   {
     id: 'terra',
     model: 'Terra-only · gpt-5.6-terra',
     reasoningEfforts: 'quality=terra·max / balanced=terra·xhigh / economy=terra·high',
-    fallback: '次选；故障后 Sol -> Luna',
+    fallback: '次选；故障后 Sol -> Luna -> GLM Flash -> DeepSeek Flash -> DeepSeek Pro',
   },
   {
     id: 'luna',
     model: 'Luna-only · gpt-5.6-luna',
     reasoningEfforts: 'quality=luna·max / balanced=luna·xhigh / economy=luna·high',
-    fallback: '末选；故障后 Sol -> Terra',
+    fallback: '第三顺位；故障后 Sol -> Terra -> GLM Flash -> DeepSeek Flash -> DeepSeek Pro',
   },
   {
     id: 'glm_flash',
     model: 'GLM Flash · glm-5.3-flash',
     reasoningEfforts: 'quality=GLM·max / balanced=GLM·high / economy=GLM·low',
-    fallback: '候选；仅显式 pin，不加入默认故障链',
+    fallback: '默认链第四顺位；故障后 DeepSeek Flash -> DeepSeek Pro',
   },
   {
     id: 'deepseek_flash',
     model: 'DeepSeek V4 Flash · deepseek-v4-flash',
     reasoningEfforts: 'quality=Flash·max / balanced=Flash·high / economy=Flash·high',
-    fallback: '候选；仅显式 pin，economy 保持 high',
+    fallback: '默认链第五顺位；故障后 DeepSeek Pro',
   },
   {
     id: 'deepseek_pro',
     model: 'DeepSeek V4 Pro · deepseek-v4-pro',
     reasoningEfforts: 'quality=Pro·max / balanced=Pro·max / economy=Pro·max',
-    fallback: '候选；仅显式 pin，所有档位固定 max',
+    fallback: '默认链末位；故障后 pending_review',
   },
 ]
 
@@ -357,7 +357,7 @@ export function AiRoutingControlPanel() {
         <div>
           <Typography.Title level={2}>AI 路由配置</Typography.Title>
           <Typography.Text type="secondary">
-            普通教师只看离线优先与 Cockpit 本地 API 增强等简化模式；管理员只能使用固定本地网关，默认故障由 Sol/Terra/Luna preset 切换，GLM/DeepSeek 需显式 pin。
+            普通教师只看离线优先与 Cockpit 本地 API 增强等简化模式；管理员只能使用固定本地网关，模型故障按 Sol/Terra/Luna/GLM/DeepSeek preset 顺序切换。
           </Typography.Text>
         </div>
         <Space size="small" wrap>
@@ -596,7 +596,7 @@ export function AiRoutingControlPanel() {
               </option>
             ))}
           </datalist>
-          <Form.Item label="默认试跑 preset" name="defaultSmokeModel" rules={[{ required: true }]} extra="固定为 Sol-only 的 gpt-5.6-sol；实际故障切换由当前完整 preset 决定。">
+          <Form.Item label="默认试跑 preset" name="defaultSmokeModel" rules={[{ required: true }]} extra="默认以 Sol 的 gpt-5.6-sol 为首选；实际故障切换由当前完整 preset 决定。">
             <Input readOnly />
           </Form.Item>
           <Form.Item label="操作说明" name="operatorNote">

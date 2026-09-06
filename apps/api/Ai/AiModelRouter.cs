@@ -348,8 +348,8 @@ public sealed class AiModelRouter(
         string reasoningEffort)
     {
         // Execution slots select a grade only. The active preset selects the
-        // model for every slot, so a Sol-only/Terra-only/Luna-only preset can
-        // never be mixed by a slot-specific model binding.
+        // model for every slot, so a single-model preset can never be mixed by
+        // a slot-specific model binding.
         var presetId = presetAvailability.SelectActivePresetId();
         if (options.ModelPresets.TryGetValue(presetId, out var preset)
             && !string.IsNullOrWhiteSpace(preset.ModelName))

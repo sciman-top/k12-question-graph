@@ -184,27 +184,27 @@ public sealed class AiModelRouterTests
     }
 
     [Fact]
-    public void FailoverCandidatesPreferSolThenTerraThenLuna()
+    public void FailoverCandidatesPreferTheConfiguredSixPresetChain()
     {
         var candidates = CreateRouter().GetFailoverCandidates("gpt-5.6-sol", "xhigh");
 
         Assert.Equal(
-            ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"],
+            ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "glm-5.3-flash", "deepseek-v4-flash", "deepseek-v4-pro"],
             candidates.Select(x => x.ModelName).ToArray());
-        Assert.Equal(["medium", "xhigh", "xhigh"], candidates.Select(x => x.ReasoningEffort).ToArray());
+        Assert.Equal(["medium", "xhigh", "xhigh", "low", "high", "max"], candidates.Select(x => x.ReasoningEffort).ToArray());
         Assert.False(candidates[0].IsFallback);
         Assert.All(candidates.Skip(1), candidate => Assert.True(candidate.IsFallback));
     }
 
     [Fact]
-    public void TerraFailureOrderChecksSolBeforeLunaAndFallsBackUnsupportedEffortToHighestSupported()
+    public void TerraFailureOrderChecksTheConfiguredChainAndPreservesFallbackEfforts()
     {
         var candidates = CreateRouter().GetFailoverCandidates("gpt-5.6-terra", "low");
 
         Assert.Equal(
-            ["gpt-5.6-terra", "gpt-5.6-sol", "gpt-5.6-luna"],
+            ["gpt-5.6-terra", "gpt-5.6-sol", "gpt-5.6-luna", "glm-5.3-flash", "deepseek-v4-flash", "deepseek-v4-pro"],
             candidates.Select(x => x.ModelName).ToArray());
-        Assert.Equal(["max", "low", "max"], candidates.Select(x => x.ReasoningEffort).ToArray());
+        Assert.Equal(["high", "low", "high", "low", "high", "max"], candidates.Select(x => x.ReasoningEffort).ToArray());
     }
 
     [Fact]
@@ -216,8 +216,8 @@ public sealed class AiModelRouterTests
             "bulk_prefilter",
             "balanced");
 
-        Assert.Equal(["terra", "sol", "luna"], candidates.Select(x => x.PresetId).ToArray());
-        Assert.Equal(["xhigh", "medium", "xhigh"], candidates.Select(x => x.ReasoningEffort).ToArray());
+        Assert.Equal(["terra", "sol", "luna", "glm_flash", "deepseek_flash", "deepseek_pro"], candidates.Select(x => x.PresetId).ToArray());
+        Assert.Equal(["xhigh", "medium", "xhigh", "high", "high", "max"], candidates.Select(x => x.ReasoningEffort).ToArray());
         Assert.All(candidates, candidate =>
         {
             Assert.Equal("bulk_prefilter", candidate.ExecutionSlot);
@@ -245,17 +245,20 @@ public sealed class AiModelRouterTests
     }
 
     [Theory]
-    [InlineData("mechanical_cleanup", "economy", "low", "high", "high")]
-    [InlineData("bulk_prefilter", "balanced", "medium", "xhigh", "xhigh")]
-    [InlineData("engineering_review", "balanced", "medium", "xhigh", "xhigh")]
-    [InlineData("visual_review", "quality", "high", "max", "max")]
-    [InlineData("high_risk_adjudication", "quality", "high", "max", "max")]
+    [InlineData("mechanical_cleanup", "economy", "low", "high", "high", "low", "high", "max")]
+    [InlineData("bulk_prefilter", "balanced", "medium", "xhigh", "xhigh", "high", "high", "max")]
+    [InlineData("engineering_review", "balanced", "medium", "xhigh", "xhigh", "high", "high", "max")]
+    [InlineData("visual_review", "quality", "high", "max", "max", "max", "max", "max")]
+    [InlineData("high_risk_adjudication", "quality", "high", "max", "max", "max", "max", "max")]
     public void EverySlotKeepsItsGradeAcrossSingleModelPresetFailover(
         string slot,
         string grade,
         string solEffort,
         string terraEffort,
-        string lunaEffort)
+        string lunaEffort,
+        string glmEffort,
+        string deepSeekFlashEffort,
+        string deepSeekProEffort)
     {
         var candidates = CreateRouter().GetFailoverCandidates(
             "gpt-5.6-sol",
@@ -263,11 +266,13 @@ public sealed class AiModelRouterTests
             slot,
             grade);
 
-        Assert.Equal(["sol", "terra", "luna"], candidates.Select(candidate => candidate.PresetId).ToArray());
+        Assert.Equal(["sol", "terra", "luna", "glm_flash", "deepseek_flash", "deepseek_pro"], candidates.Select(candidate => candidate.PresetId).ToArray());
         Assert.Equal(
-            ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"],
+            ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "glm-5.3-flash", "deepseek-v4-flash", "deepseek-v4-pro"],
             candidates.Select(candidate => candidate.ModelName).ToArray());
-        Assert.Equal([solEffort, terraEffort, lunaEffort], candidates.Select(candidate => candidate.ReasoningEffort).ToArray());
+        Assert.Equal(
+            [solEffort, terraEffort, lunaEffort, glmEffort, deepSeekFlashEffort, deepSeekProEffort],
+            candidates.Select(candidate => candidate.ReasoningEffort).ToArray());
         Assert.All(candidates, candidate =>
         {
             Assert.Equal(slot, candidate.ExecutionSlot);
@@ -339,12 +344,12 @@ public sealed class AiModelRouterTests
                 Routes = routes,
                 ModelPresets = new Dictionary<string, AiModelPresetOptions>(StringComparer.OrdinalIgnoreCase)
                 {
-                    ["sol"] = new() { ModelName = "gpt-5.6-sol", ReasoningEfforts = ["high", "medium", "low"], GradeToReasoningEffort = new() { ["quality"] = "high", ["balanced"] = "medium", ["economy"] = "low" } },
-                    ["terra"] = new() { ModelName = "gpt-5.6-terra", ReasoningEfforts = ["max", "xhigh", "high"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "xhigh", ["economy"] = "high" } },
-                    ["luna"] = new() { ModelName = "gpt-5.6-luna", ReasoningEfforts = ["max", "xhigh", "high"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "xhigh", ["economy"] = "high" } },
-                    ["glm_flash"] = new() { ModelName = "glm-5.3-flash", ReasoningEfforts = ["max", "high", "low"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "high", ["economy"] = "low" } },
-                    ["deepseek_flash"] = new() { ModelName = "deepseek-v4-flash", ReasoningEfforts = ["max", "high"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "high", ["economy"] = "high" } },
-                    ["deepseek_pro"] = new() { ModelName = "deepseek-v4-pro", ReasoningEfforts = ["max"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "max", ["economy"] = "max" } }
+                    ["sol"] = new() { ModelName = "gpt-5.6-sol", ReasoningEfforts = ["high", "medium", "low"], GradeToReasoningEffort = new() { ["quality"] = "high", ["balanced"] = "medium", ["economy"] = "low" }, FallbackReasoningEffort = "medium" },
+                    ["terra"] = new() { ModelName = "gpt-5.6-terra", ReasoningEfforts = ["max", "xhigh", "high"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "xhigh", ["economy"] = "high" }, FallbackReasoningEffort = "high" },
+                    ["luna"] = new() { ModelName = "gpt-5.6-luna", ReasoningEfforts = ["max", "xhigh", "high"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "xhigh", ["economy"] = "high" }, FallbackReasoningEffort = "high" },
+                    ["glm_flash"] = new() { ModelName = "glm-5.3-flash", ReasoningEfforts = ["max", "high", "low"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "high", ["economy"] = "low" }, FallbackReasoningEffort = "low" },
+                    ["deepseek_flash"] = new() { ModelName = "deepseek-v4-flash", ReasoningEfforts = ["max", "high"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "high", ["economy"] = "high" }, FallbackReasoningEffort = "high" },
+                    ["deepseek_pro"] = new() { ModelName = "deepseek-v4-pro", ReasoningEfforts = ["max"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "max", ["economy"] = "max" }, FallbackReasoningEffort = "max" }
                 },
                 ExecutionSlots = new Dictionary<string, AiExecutionSlotOptions>(StringComparer.OrdinalIgnoreCase)
                 {
@@ -354,7 +359,7 @@ public sealed class AiModelRouterTests
                     ["visual_review"] = new() { DefaultGrade = "quality" },
                     ["high_risk_adjudication"] = new() { DefaultGrade = "quality" }
                 },
-                ModelFailover = new() { PreferredPresetOrder = ["sol", "terra", "luna"], PinnedPresetId = pinnedPresetId }
+                ModelFailover = new() { PreferredPresetOrder = ["sol", "terra", "luna", "glm_flash", "deepseek_flash", "deepseek_pro"], PinnedPresetId = pinnedPresetId }
             }),
             new TestWebHostEnvironment());
     }

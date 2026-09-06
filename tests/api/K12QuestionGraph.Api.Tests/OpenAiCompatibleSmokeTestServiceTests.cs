@@ -294,6 +294,62 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
     }
 
     [Fact]
+    public async Task RoutedSmokeContinuesThroughGlmAndDeepSeekAfterTheDefaultGptPresetsFail()
+    {
+        var handler = new RecordingProviderHandler(
+            "gpt-5.6-sol",
+            "gpt-5.6-terra",
+            "gpt-5.6-luna",
+            "glm-5.3-flash",
+            "deepseek-v4-flash");
+        using var httpClient = new HttpClient(handler);
+        var store = CreateStore();
+        await store.SaveAsync(CreateSaveRequest(), CancellationToken.None);
+        var settings = await store.GetAsync(CancellationToken.None);
+        var service = new OpenAiCompatibleSmokeTestService(
+            httpClient,
+            store,
+            CreateRouter());
+
+        var result = await service.RunAsync(
+            settings,
+            new AdminAiProviderSettingsTestRequest(
+                TaskType: "knowledge_tagging",
+                InputJson: "tag this with every fallback",
+                Model: null,
+                BaseUrlOverride: null,
+                ImageBaseUrlOverride: null,
+                FallbackBaseUrlOverride: null,
+                FallbackImageBaseUrlOverride: null,
+                RoutingMode: "balanced",
+                UseModelRouting: true),
+            CancellationToken.None);
+
+        Assert.True(result.Passed);
+        Assert.Equal("deepseek-v4-pro", result.Model);
+        Assert.Equal("max", result.EffectiveReasoningEffort);
+        Assert.Equal("deepseek_pro", result.EffectivePreset);
+        Assert.Equal(
+            [
+                "models:gpt-5.6-sol",
+                "responses:gpt-5.6-sol",
+                "models:gpt-5.6-terra",
+                "responses:gpt-5.6-terra",
+                "models:gpt-5.6-luna",
+                "responses:gpt-5.6-luna",
+                "models:glm-5.3-flash",
+                "responses:glm-5.3-flash",
+                "models:deepseek-v4-flash",
+                "responses:deepseek-v4-flash",
+                "models:deepseek-v4-pro",
+                "responses:deepseek-v4-pro",
+                "images"
+            ],
+            handler.RequestTrace);
+        Assert.Contains("selected_model_preset=deepseek_pro", result.AuditTrail);
+    }
+
+    [Fact]
     public async Task RecoveryProbePromotesSolOnlyAfterTwoSuccessfulLowPriorityChecks()
     {
         var handler = new RecordingProviderHandler();
@@ -428,7 +484,7 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
                 ["visual_review"] = new() { DefaultGrade = "quality" },
                 ["high_risk_adjudication"] = new() { DefaultGrade = "quality" }
             },
-            ModelFailover = new() { PreferredPresetOrder = ["sol", "terra", "luna"] }
+            ModelFailover = new() { PreferredPresetOrder = ["sol", "terra", "luna", "glm_flash", "deepseek_flash", "deepseek_pro"] }
         };
     }
 
@@ -459,7 +515,7 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
                     ? probeValues.Single()
                     : string.Empty;
                 RequestTrace.Add($"models:{model}");
-                return JsonResponse("{\"data\":[{\"id\":\"gpt-5.6-sol\"},{\"id\":\"gpt-5.6-terra\"},{\"id\":\"gpt-5.6-luna\"}]}");
+                return JsonResponse("{\"data\":[{\"id\":\"gpt-5.6-sol\"},{\"id\":\"gpt-5.6-terra\"},{\"id\":\"gpt-5.6-luna\"},{\"id\":\"glm-5.3-flash\"},{\"id\":\"deepseek-v4-flash\"},{\"id\":\"deepseek-v4-pro\"}]}");
             }
 
             if (request.RequestUri!.AbsolutePath.EndsWith("/responses", StringComparison.Ordinal))

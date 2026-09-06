@@ -42,6 +42,6 @@ public sealed class AiFailoverClassificationTests
             ["visual_review"] = new() { DefaultGrade = "quality" },
             ["high_risk_adjudication"] = new() { DefaultGrade = "quality" }
         },
-        ModelFailover = new() { PreferredPresetOrder = ["sol", "terra", "luna"], FailureCooldownSeconds = 60 }
+        ModelFailover = new() { PreferredPresetOrder = ["sol", "terra", "luna", "glm_flash", "deepseek_flash", "deepseek_pro"], FailureCooldownSeconds = 60 }
     };
 }

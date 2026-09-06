@@ -110,6 +110,9 @@ public sealed class ModelRoutingProjectionParityTests
         var jsonFailover = aiRouting.GetProperty("ModelFailover");
         Assert.Equal(ReadYamlValue(yamlFailover, "enabled"), ReadJsonValue(jsonFailover, "Enabled"));
         Assert.Equal(ReadYamlValue(yamlFailover, "preferred_preset_order"), ReadJsonValue(jsonFailover, "PreferredPresetOrder"));
+        Assert.Equal(
+            ["sol", "terra", "luna", "glm_flash", "deepseek_flash", "deepseek_pro"],
+            jsonFailover.GetProperty("PreferredPresetOrder").EnumerateArray().Select(value => value.GetString()!).ToArray());
         Assert.Equal(ReadYamlValue(yamlFailover, "availability_probe_path"), ReadJsonValue(jsonFailover, "AvailabilityProbePath"));
         Assert.Equal(ReadYamlValue(yamlFailover, "failure_cooldown_seconds"), ReadJsonValue(jsonFailover, "FailureCooldownSeconds"));
         Assert.Equal(ReadYamlValue(yamlFailover, "pinned_preset_id"), ReadJsonValue(jsonFailover, "PinnedPresetId"));

@@ -14,17 +14,11 @@ public sealed class AiPresetAvailabilityCoordinator(IOptions<AiRoutingOptions> o
         {
             ["sol"] = new("gpt-5.6-sol", ["high", "medium", "low"], new() { ["quality"] = "high", ["balanced"] = "medium", ["economy"] = "low" }),
             ["terra"] = new("gpt-5.6-terra", ["max", "xhigh", "high"], new() { ["quality"] = "max", ["balanced"] = "xhigh", ["economy"] = "high" }),
-            ["luna"] = new("gpt-5.6-luna", ["max", "xhigh", "high"], new() { ["quality"] = "max", ["balanced"] = "xhigh", ["economy"] = "high" })
-        };
-    private static readonly IReadOnlyDictionary<string, PresetContract> OptionalPresets =
-        new Dictionary<string, PresetContract>(StringComparer.OrdinalIgnoreCase)
-        {
+            ["luna"] = new("gpt-5.6-luna", ["max", "xhigh", "high"], new() { ["quality"] = "max", ["balanced"] = "xhigh", ["economy"] = "high" }),
             ["glm_flash"] = new("glm-5.3-flash", ["max", "high", "low"], new() { ["quality"] = "max", ["balanced"] = "high", ["economy"] = "low" }),
             ["deepseek_flash"] = new("deepseek-v4-flash", ["max", "high"], new() { ["quality"] = "max", ["balanced"] = "high", ["economy"] = "high" }),
             ["deepseek_pro"] = new("deepseek-v4-pro", ["max"], new() { ["quality"] = "max", ["balanced"] = "max", ["economy"] = "max" })
         };
-    // Optional presets are deliberately not part of PreferredPresetOrder. They
-    // can be selected by an explicit pin without changing the default chain.
     private static readonly HashSet<string> RequiredExecutionSlots =
         new(StringComparer.OrdinalIgnoreCase)
         {
@@ -139,14 +133,14 @@ public sealed class AiPresetAvailabilityCoordinator(IOptions<AiRoutingOptions> o
 
     private void EnsureValidConfiguration()
     {
-        if (routing.ModelPresets.Count != RequiredPresets.Count + OptionalPresets.Count
+        if (routing.ModelPresets.Count != RequiredPresets.Count
             || routing.ModelFailover.PreferredPresetOrder.Length != RequiredPresets.Count
             || !routing.ModelFailover.PreferredPresetOrder.SequenceEqual(RequiredPresets.Keys, StringComparer.OrdinalIgnoreCase))
         {
             throw new AiRouteException("invalid_single_model_preset_configuration");
         }
 
-        foreach (var (presetId, contract) in RequiredPresets.Concat(OptionalPresets))
+        foreach (var (presetId, contract) in RequiredPresets)
         {
             if (!routing.ModelPresets.TryGetValue(presetId, out var configured)
                 || !string.Equals(configured.ModelName, contract.ModelName, StringComparison.OrdinalIgnoreCase)

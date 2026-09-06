@@ -63,7 +63,7 @@ model_presets:
       balanced: high
       economy: low
     fallback_reasoning_effort: low
-    description: "可显式 pin 的 GLM-5.3-Flash 候选预设；默认不加入 Sol/Terra/Luna 故障链。"
+    description: "GLM-5.3-Flash 默认故障切换候选。"
   deepseek_flash:
     model_name: deepseek-v4-flash
     reasoning_efforts: [max, high]
@@ -72,7 +72,7 @@ model_presets:
       balanced: high
       economy: high
     fallback_reasoning_effort: high
-    description: "可显式 pin 的 DeepSeek V4 Flash 候选预设；economy 因未提供 low 而保持 high。"
+    description: "DeepSeek V4 Flash 默认故障切换候选；economy 因未提供 low 而保持 high。"
   deepseek_pro:
     model_name: deepseek-v4-pro
     reasoning_efforts: [max]
@@ -81,10 +81,10 @@ model_presets:
       balanced: max
       economy: max
     fallback_reasoning_effort: max
-    description: "可显式 pin 的 DeepSeek V4 Pro 候选预设；所有执行档位均固定使用 max。"
+    description: "DeepSeek V4 Pro 默认故障切换候选；所有执行档位均固定使用 max。"
 model_failover:
   enabled: true
-  preferred_preset_order: [sol, terra, luna]
+  preferred_preset_order: [sol, terra, luna, glm_flash, deepseek_flash, deepseek_pro]
   pinned_preset_id: null
   availability_probe_path: /models
   failure_cooldown_seconds: 30
