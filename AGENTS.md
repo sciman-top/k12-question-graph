@@ -1,14 +1,13 @@
 # AGENTS.md - k12-question-graph
 **项目契约**: 2.0
-**全局规则复核**: 9.77
+**全局规则复核**: 9.81
 **类型**: K-12 teacher-first question graph platform
-**最后更新**: 2026-08-20
+**最后更新**: 2026-09-12
 
 ## 1. 当前落点与目标归宿
 - 当前落点：本仓是校本题谱平台，当前聚焦初中物理，已有 API、Web、Worker、PostgreSQL、FileStore、备份与版本化领域资产。
 - 目标归宿：以 teacher-first vertical slice 降低题库、组卷、导入和学情诊断工作量，同时保持 Word/Excel 兼容、数据可迁移与生产切换可回滚。
-- 下一最小里程碑：按 `tasks/backlog.csv` 与当前证据真相交付首个未闭合切片；候选或本地证据不得写成 onsite/live 验收。
-- task 状态、active 版本、部署和 onsite/live 结论从 backlog、数据库/运行探针及 `docs/evidence/index.json` 指向的 current evidence fresh read；除定点历史取证外不全量扫描 evidence，根规则不复制计数或阶段快照。
+- task 状态、active 版本、部署和 onsite/live 结论从 `tasks/backlog.csv`、数据库/运行探针及 `docs/evidence/index.json` 指向的 current evidence fresh read；候选或本地证据不得写成 onsite/live 验收，除定点历史取证外不全量扫描 evidence，根规则不复制计数或阶段快照。
 
 ## A. 仓库事实与模块边界
 - `apps/`：API 与 Web；`workers/document`：文档、OCR 和 AI adapter；`tools/`：gate、backup 和 restore；`tests/`：回归；`schemas/`：结构合同。
@@ -40,7 +39,6 @@
 - contract/invariant 仅在当前变更触发相应风险时运行；不以历史任务、固定行数预算或迁移对账作为永久门禁。
 - 进程或 DB 授权缺失时，Release 按全局 A.4 临时缺口字段记录，不能改写门禁顺序或伪称 full gate。
 - 证据放 `docs/evidence/`，区分 repo-side、onsite/manual、deployed 与 live accepted。
-- 回滚只撤销本任务；schema、data 或 active 变化必须附 migration down、snapshot/restore 与兼容读取证明。
 
 ## D. Git 与回滚
 - Git baseline=`main`; upstream=`origin/main`; closeout=`proportional_slice_or_authorized_release`。
