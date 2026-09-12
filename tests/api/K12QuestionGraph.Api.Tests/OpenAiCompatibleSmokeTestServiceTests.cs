@@ -47,15 +47,15 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
 
         Assert.True(result.Passed);
         Assert.True(result.CombinedPassed);
-        Assert.Equal("gpt-5.6-sol", result.Model);
+        Assert.Equal("gpt-6-astra", result.Model);
         Assert.Equal("high", result.EffectiveReasoningEffort);
         Assert.Equal("high_risk_adjudication", result.EffectiveExecutionSlot);
         Assert.Equal("quality", result.EffectiveExecutionGrade);
-        Assert.Equal("sol", result.EffectivePreset);
+        Assert.Equal("astra", result.EffectivePreset);
         Assert.True(result.UsedModelRouting);
         Assert.Contains("routing_source=effective_route", result.AuditTrail);
         Assert.NotNull(handler.ResponsesPayload);
-        Assert.Equal("gpt-5.6-sol", handler.ResponsesPayload!.Value.GetProperty("model").GetString());
+        Assert.Equal("gpt-6-astra", handler.ResponsesPayload!.Value.GetProperty("model").GetString());
         Assert.Equal("high", handler.ResponsesPayload.Value.GetProperty("reasoning").GetProperty("effort").GetString());
         var format = handler.ResponsesPayload.Value.GetProperty("text").GetProperty("format");
         Assert.Equal("cockpit_connectivity_smoke_result", format.GetProperty("name").GetString());
@@ -183,9 +183,9 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task RoutedSmokeFailsOverFromSolToTerraAfterAvailabilityAndResponseFailure()
+    public async Task RoutedSmokeFailsOverFromAstraToSolAfterAvailabilityAndResponseFailure()
     {
-        var handler = new RecordingProviderHandler("gpt-5.6-sol");
+        var handler = new RecordingProviderHandler("gpt-6-astra");
         using var httpClient = new HttpClient(handler);
         var store = CreateStore();
         await store.SaveAsync(CreateSaveRequest(), CancellationToken.None);
@@ -210,21 +210,21 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
             CancellationToken.None);
 
         Assert.True(result.Passed);
-        Assert.Equal("gpt-5.6-terra", result.Model);
-        Assert.Equal("max", result.EffectiveReasoningEffort);
+        Assert.Equal("gpt-5.6-sol", result.Model);
+        Assert.Equal("high", result.EffectiveReasoningEffort);
         Assert.Equal("high_risk_adjudication", result.EffectiveExecutionSlot);
         Assert.Equal("quality", result.EffectiveExecutionGrade);
-        Assert.Equal("terra", result.EffectivePreset);
+        Assert.Equal("sol", result.EffectivePreset);
         Assert.Equal(
             [
+                "models:gpt-6-astra",
+                "responses:gpt-6-astra",
                 "models:gpt-5.6-sol",
                 "responses:gpt-5.6-sol",
-                "models:gpt-5.6-terra",
-                "responses:gpt-5.6-terra",
                 "images"
             ],
             handler.RequestTrace);
-        Assert.Contains("selected_model_preset=terra", result.AuditTrail);
+        Assert.Contains("selected_model_preset=sol", result.AuditTrail);
 
         var steadyState = await service.RunAsync(
             settings,
@@ -241,16 +241,16 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
             CancellationToken.None);
 
         Assert.True(steadyState.Passed);
-        Assert.Equal("terra", steadyState.EffectivePreset);
+        Assert.Equal("sol", steadyState.EffectivePreset);
         Assert.Equal(
-            ["models:gpt-5.6-terra", "responses:gpt-5.6-terra", "images"],
+            ["models:gpt-5.6-sol", "responses:gpt-5.6-sol", "images"],
             handler.RequestTrace.Skip(5).ToArray());
     }
 
     [Fact]
-    public async Task RoutedSmokeFallsBackFromSolThroughTerraToLuna()
+    public async Task RoutedSmokeFallsBackFromAstraThroughSolToTerra()
     {
-        var handler = new RecordingProviderHandler("gpt-5.6-sol", "gpt-5.6-terra");
+        var handler = new RecordingProviderHandler("gpt-6-astra", "gpt-5.6-sol");
         using var httpClient = new HttpClient(handler);
         var store = CreateStore();
         await store.SaveAsync(CreateSaveRequest(), CancellationToken.None);
@@ -275,33 +275,34 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
             CancellationToken.None);
 
         Assert.True(result.Passed);
-        Assert.Equal("gpt-5.6-luna", result.Model);
+        Assert.Equal("gpt-5.6-terra", result.Model);
+        Assert.Equal("xhigh", result.EffectiveReasoningEffort);
         Assert.Equal("bulk_prefilter", result.EffectiveExecutionSlot);
         Assert.Equal("balanced", result.EffectiveExecutionGrade);
-        Assert.Equal("luna", result.EffectivePreset);
+        Assert.Equal("terra", result.EffectivePreset);
         Assert.Equal(
             [
+                "models:gpt-6-astra",
+                "responses:gpt-6-astra",
                 "models:gpt-5.6-sol",
                 "responses:gpt-5.6-sol",
                 "models:gpt-5.6-terra",
                 "responses:gpt-5.6-terra",
-                "models:gpt-5.6-luna",
-                "responses:gpt-5.6-luna",
                 "images"
             ],
             handler.RequestTrace);
-        Assert.Contains("selected_model_preset=luna", result.AuditTrail);
+        Assert.Contains("selected_model_preset=terra", result.AuditTrail);
     }
 
     [Fact]
     public async Task RoutedSmokeContinuesThroughGlmAndDeepSeekAfterTheDefaultGptPresetsFail()
     {
         var handler = new RecordingProviderHandler(
+            "gpt-6-astra",
             "gpt-5.6-sol",
             "gpt-5.6-terra",
             "gpt-5.6-luna",
-            "glm-5.3-flash",
-            "deepseek-v4-flash");
+            "glm-5.3-flash");
         using var httpClient = new HttpClient(handler);
         var store = CreateStore();
         await store.SaveAsync(CreateSaveRequest(), CancellationToken.None);
@@ -326,11 +327,13 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
             CancellationToken.None);
 
         Assert.True(result.Passed);
-        Assert.Equal("deepseek-v4-pro", result.Model);
-        Assert.Equal("max", result.EffectiveReasoningEffort);
-        Assert.Equal("deepseek_pro", result.EffectivePreset);
+        Assert.Equal("deepseek-v4.1-flash", result.Model);
+        Assert.Equal("high", result.EffectiveReasoningEffort);
+        Assert.Equal("deepseek_flash", result.EffectivePreset);
         Assert.Equal(
             [
+                "models:gpt-6-astra",
+                "responses:gpt-6-astra",
                 "models:gpt-5.6-sol",
                 "responses:gpt-5.6-sol",
                 "models:gpt-5.6-terra",
@@ -339,18 +342,16 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
                 "responses:gpt-5.6-luna",
                 "models:glm-5.3-flash",
                 "responses:glm-5.3-flash",
-                "models:deepseek-v4-flash",
-                "responses:deepseek-v4-flash",
-                "models:deepseek-v4-pro",
-                "responses:deepseek-v4-pro",
+                "models:deepseek-v4.1-flash",
+                "responses:deepseek-v4.1-flash",
                 "images"
             ],
             handler.RequestTrace);
-        Assert.Contains("selected_model_preset=deepseek_pro", result.AuditTrail);
+        Assert.Contains("selected_model_preset=deepseek_flash", result.AuditTrail);
     }
 
     [Fact]
-    public async Task RecoveryProbePromotesSolOnlyAfterTwoSuccessfulLowPriorityChecks()
+    public async Task RecoveryProbePromotesAstraOnlyAfterTwoSuccessfulLowPriorityChecks()
     {
         var handler = new RecordingProviderHandler();
         using var httpClient = new HttpClient(handler);
@@ -377,13 +378,13 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
 
         Assert.Equal("promoted", second.Status);
         Assert.True(second.Promoted);
-        Assert.Equal("sol", router.SelectActivePresetId());
+        Assert.Equal("astra", router.SelectActivePresetId());
         Assert.Equal(
             [
-                "models:gpt-5.6-sol",
-                "responses:gpt-5.6-sol",
-                "models:gpt-5.6-sol",
-                "responses:gpt-5.6-sol"
+                "models:gpt-6-astra",
+                "responses:gpt-6-astra",
+                "models:gpt-6-astra",
+                "responses:gpt-6-astra"
             ],
             handler.RequestTrace);
     }
@@ -427,7 +428,7 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
         DisabledByDefault: false,
         AllowRealModelCalls: true,
         DefaultSmokeTaskType: "question_solving",
-        DefaultSmokeModel: "gpt-5.6-sol",
+        DefaultSmokeModel: "gpt-6-astra",
         OperatorNote: "test");
 
     private static AiModelRouter CreateRouter(bool allowRealModelCalls = true)
@@ -444,8 +445,8 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
                 ModelRole = "semantic_decision",
                 ExecutionSlot = "high_risk_adjudication",
                 ExecutionGrade = "quality",
-                ModelName = "gpt-5.6-sol",
-                ReasoningEffort = "xhigh",
+                ModelName = "gpt-6-astra",
+                ReasoningEffort = "high",
                 ModelTier = "strong",
                 StructuredOutputSchema = "schemas/ai/answer_verification.schema.json",
                 RequireHumanReviewBelowConfidence = 1.0m
@@ -457,7 +458,7 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
                 ModelRole = "bulk_structuring",
                 ExecutionSlot = "bulk_prefilter",
                 ExecutionGrade = "balanced",
-                ModelName = "gpt-5.6-sol",
+                ModelName = "gpt-6-astra",
                 ReasoningEffort = "medium",
                 ModelTier = "medium"
             }
@@ -469,12 +470,12 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
             Routes = routes,
             ModelPresets = new Dictionary<string, AiModelPresetOptions>(StringComparer.OrdinalIgnoreCase)
             {
+                ["astra"] = new() { ModelName = "gpt-6-astra", ReasoningEfforts = ["high", "medium", "low"], GradeToReasoningEffort = new() { ["quality"] = "high", ["balanced"] = "medium", ["economy"] = "low" } },
                 ["sol"] = new() { ModelName = "gpt-5.6-sol", ReasoningEfforts = ["high", "medium", "low"], GradeToReasoningEffort = new() { ["quality"] = "high", ["balanced"] = "medium", ["economy"] = "low" } },
                 ["terra"] = new() { ModelName = "gpt-5.6-terra", ReasoningEfforts = ["max", "xhigh", "high"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "xhigh", ["economy"] = "high" } },
                 ["luna"] = new() { ModelName = "gpt-5.6-luna", ReasoningEfforts = ["max", "xhigh", "high"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "xhigh", ["economy"] = "high" } },
                 ["glm_flash"] = new() { ModelName = "glm-5.3-flash", ReasoningEfforts = ["max", "high", "low"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "high", ["economy"] = "low" } },
-                ["deepseek_flash"] = new() { ModelName = "deepseek-v4-flash", ReasoningEfforts = ["max", "high"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "high", ["economy"] = "high" } },
-                ["deepseek_pro"] = new() { ModelName = "deepseek-v4-pro", ReasoningEfforts = ["max"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "max", ["economy"] = "max" } }
+                ["deepseek_flash"] = new() { ModelName = "deepseek-v4.1-flash", ReasoningEfforts = ["max", "high"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "high", ["economy"] = "high" } },
             },
             ExecutionSlots = new Dictionary<string, AiExecutionSlotOptions>(StringComparer.OrdinalIgnoreCase)
             {
@@ -484,7 +485,7 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
                 ["visual_review"] = new() { DefaultGrade = "quality" },
                 ["high_risk_adjudication"] = new() { DefaultGrade = "quality" }
             },
-            ModelFailover = new() { PreferredPresetOrder = ["sol", "terra", "luna", "glm_flash", "deepseek_flash", "deepseek_pro"] }
+            ModelFailover = new() { PreferredPresetOrder = ["astra", "sol", "terra", "luna", "glm_flash", "deepseek_flash"] }
         };
     }
 
@@ -515,7 +516,7 @@ public sealed class OpenAiCompatibleSmokeTestServiceTests : IDisposable
                     ? probeValues.Single()
                     : string.Empty;
                 RequestTrace.Add($"models:{model}");
-                return JsonResponse("{\"data\":[{\"id\":\"gpt-5.6-sol\"},{\"id\":\"gpt-5.6-terra\"},{\"id\":\"gpt-5.6-luna\"},{\"id\":\"glm-5.3-flash\"},{\"id\":\"deepseek-v4-flash\"},{\"id\":\"deepseek-v4-pro\"}]}");
+                return JsonResponse("{\"data\":[{\"id\":\"gpt-6-astra\"},{\"id\":\"gpt-5.6-sol\"},{\"id\":\"gpt-5.6-terra\"},{\"id\":\"gpt-5.6-luna\"},{\"id\":\"glm-5.3-flash\"},{\"id\":\"deepseek-v4.1-flash\"}]}");
             }
 
             if (request.RequestUri!.AbsolutePath.EndsWith("/responses", StringComparison.Ordinal))

@@ -224,7 +224,7 @@ public sealed class FileAiProviderSettingsStore(
     private const string DefaultProviderType = "openai_compatible";
     private const string DefaultCredentialMode = "dialog_secret_local_machine";
     private const string DefaultSmokeTaskType = "knowledge_tagging";
-    private const string DefaultSmokeModel = "gpt-5.6-sol";
+    private const string DefaultSmokeModel = "gpt-6-astra";
     private const string DefaultGatewayBaseUrl = CockpitGatewayPolicy.LocalBaseUrl;
     private const string PrimaryEnvSecretName = "KQG_AI_OPENAI_KEY";
     private const string PrimaryEnvBaseUrlName = "KQG_AI_OPENAI_BASE_URL";

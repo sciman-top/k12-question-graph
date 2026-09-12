@@ -12,12 +12,12 @@ public sealed class AiPresetAvailabilityCoordinator(IOptions<AiRoutingOptions> o
     private static readonly IReadOnlyDictionary<string, PresetContract> RequiredPresets =
         new Dictionary<string, PresetContract>(StringComparer.OrdinalIgnoreCase)
         {
+            ["astra"] = new("gpt-6-astra", ["high", "medium", "low"], new() { ["quality"] = "high", ["balanced"] = "medium", ["economy"] = "low" }),
             ["sol"] = new("gpt-5.6-sol", ["high", "medium", "low"], new() { ["quality"] = "high", ["balanced"] = "medium", ["economy"] = "low" }),
             ["terra"] = new("gpt-5.6-terra", ["max", "xhigh", "high"], new() { ["quality"] = "max", ["balanced"] = "xhigh", ["economy"] = "high" }),
             ["luna"] = new("gpt-5.6-luna", ["max", "xhigh", "high"], new() { ["quality"] = "max", ["balanced"] = "xhigh", ["economy"] = "high" }),
             ["glm_flash"] = new("glm-5.3-flash", ["max", "high", "low"], new() { ["quality"] = "max", ["balanced"] = "high", ["economy"] = "low" }),
-            ["deepseek_flash"] = new("deepseek-v4-flash", ["max", "high"], new() { ["quality"] = "max", ["balanced"] = "high", ["economy"] = "high" }),
-            ["deepseek_pro"] = new("deepseek-v4-pro", ["max"], new() { ["quality"] = "max", ["balanced"] = "max", ["economy"] = "max" })
+            ["deepseek_flash"] = new("deepseek-v4.1-flash", ["max", "high"], new() { ["quality"] = "max", ["balanced"] = "high", ["economy"] = "high" })
         };
     private static readonly HashSet<string> RequiredExecutionSlots =
         new(StringComparer.OrdinalIgnoreCase)

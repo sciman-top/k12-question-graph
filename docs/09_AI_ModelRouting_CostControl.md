@@ -32,10 +32,10 @@ L0 不调用外部 AI。能由 CSV parser、JSON/YAML/schema、SQL、hash、rege
 | 总分/题号连续检查 | 程序规则 |
 | 普通 OCR | 本地 OCR |
 | 版面初解析 | Docling/PaddleOCR |
-| 知识点候选与普通标签 | `gpt-5.6-terra / high`，复杂语义升 `gpt-5.6-sol / medium` |
-| 自然语言组卷需求解析 | `gpt-5.6-terra / high`，歧义需求升 `gpt-5.6-sol / medium` |
-| 答案校验与复杂组卷复核 | `gpt-5.6-sol / xhigh` |
-| 疑难图文关系、切图候选和导出视觉复核 | `gpt-5.6-terra / xhigh` |
+| 知识点候选与普通标签 | 当前预设 / `balanced`，复杂语义升 `quality` |
+| 自然语言组卷需求解析 | 当前预设 / `balanced`，歧义需求升 `quality` |
+| 答案校验与复杂组卷复核 | 当前预设 / `quality` |
+| 疑难图文关系、切图候选和导出视觉复核 | 当前预设 / `quality` |
 | 批量标注 | Batch |
 | Embedding | 批量、缓存、去重 |
 
@@ -61,44 +61,44 @@ L0 不调用外部 AI。能由 CSV parser、JSON/YAML/schema、SQL、hash、rege
 
 | 预设 | 模型 | reasoning 等级 | 档位映射 |
 |---|---|---|---|
-| `sol`（默认优选） | `gpt-5.6-sol` | `high` / `medium` / `low` | `quality=high` / `balanced=medium` / `economy=low` |
-| `terra`（次选） | `gpt-5.6-terra` | `max` / `xhigh` / `high` | `quality=max` / `balanced=xhigh` / `economy=high` |
-| `luna`（末选） | `gpt-5.6-luna` | `max` / `xhigh` / `high` | `quality=max` / `balanced=xhigh` / `economy=high` |
-| `glm_flash`（第四顺位） | `glm-5.3-flash` | `max` / `high` / `low` | `quality=max` / `balanced=high` / `economy=low` |
-| `deepseek_flash`（第五顺位） | `deepseek-v4-flash` | `max` / `high` | `quality=max` / `balanced=high` / `economy=high` |
-| `deepseek_pro`（末位） | `deepseek-v4-pro` | `max` | `quality=max` / `balanced=max` / `economy=max` |
+| `astra`（默认优选） | `gpt-6-astra` | `high` / `medium` / `low` | `quality=high` / `balanced=medium` / `economy=low` |
+| `sol`（次选） | `gpt-5.6-sol` | `high` / `medium` / `low` | `quality=high` / `balanced=medium` / `economy=low` |
+| `terra`（第三顺位） | `gpt-5.6-terra` | `max` / `xhigh` / `high` | `quality=max` / `balanced=xhigh` / `economy=high` |
+| `luna`（第四顺位） | `gpt-5.6-luna` | `max` / `xhigh` / `high` | `quality=max` / `balanced=xhigh` / `economy=high` |
+| `glm_flash`（第五顺位） | `glm-5.3-flash` | `max` / `high` / `low` | `quality=max` / `balanced=high` / `economy=low` |
+| `deepseek_flash`（末位） | `deepseek-v4.1-flash` | `max` / `high` | `quality=max` / `balanced=high` / `economy=high` |
 
-六套预设的三档固定映射见上表。预设是完整的单模型模型+effort 集合：同一预设内绝不混合不同模型族。故障切换只换完整 preset，不改变执行槽位和档位。
+六套预设的档位固定映射见上表。预设是完整的单模型模型+effort 集合：同一预设内绝不混合不同模型族；任一时刻只激活一套 preset，所有执行槽位的模型都取自该 preset，槽位只从该 preset 的 2/3 个档位中映射（允许重复）。例如启用 `sol` 时，任何槽位不得解析为 Terra 或 Luna。故障切换只换完整 preset，不改变执行槽位和档位。
 
-GLM 与 DeepSeek 已加入默认 `preferred_preset_order`：`sol -> terra -> luna -> glm_flash -> deepseek_flash -> deepseek_pro`。任一 preset 故障后，系统按该顺序尝试尚未进入 cooldown 的候选；失败链耗尽后进入 `pending_review`。也可以临时 pin 任一 preset，pin 会将请求限制在该 preset，不跨 preset 自动切换，解除后恢复六项默认链。DeepSeek V4 未提供 `low` 组合，Flash 的 `economy` 保持 `high`，Pro 的三个业务档位均固定为 `max`。这些配置只证明仓库/运行时路由可表达，不证明对应 provider 已加载、请求成功或 `live_accepted`。
+默认 `preferred_preset_order`：`astra -> sol -> terra -> luna -> glm_flash -> deepseek_flash`。任一 preset 故障后，系统按该顺序尝试尚未进入 cooldown 的候选；失败链耗尽后进入 `pending_review`。也可以临时 pin 任一 preset，pin 会将请求限制在该 preset，不跨 preset 自动切换，解除后恢复六项默认链。DeepSeek V4.1 未提供 `low` 组合，Flash 的 `economy` 保持 `high`。这些配置只证明仓库/运行时路由可表达，不证明对应 provider 已加载、请求成功或 `live_accepted`。
 
 执行槽位是工作性质，不是模型名称。当前五个槽位及其三档 preset 编排如下：
 
-| 执行槽位 | 默认档位 | `sol` | `terra` | `luna` | `glm_flash` | `deepseek_flash` | `deepseek_pro` |
+| 执行槽位 | 默认档位 | `astra` | `sol` | `terra` | `luna` | `glm_flash` | `deepseek_flash` |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `mechanical_cleanup` | `economy` | `sol / low` | `terra / high` | `luna / high` | `glm_flash / low` | `deepseek_flash / high` | `deepseek_pro / max` |
-| `bulk_prefilter` | `balanced` | `sol / medium` | `terra / xhigh` | `luna / xhigh` | `glm_flash / high` | `deepseek_flash / high` | `deepseek_pro / max` |
-| `engineering_review` | `balanced` | `sol / medium` | `terra / xhigh` | `luna / xhigh` | `glm_flash / high` | `deepseek_flash / high` | `deepseek_pro / max` |
-| `visual_review` | `quality` | `sol / high` | `terra / max` | `luna / max` | `glm_flash / max` | `deepseek_flash / max` | `deepseek_pro / max` |
-| `high_risk_adjudication` | `quality` | `sol / high` | `terra / max` | `luna / max` | `glm_flash / max` | `deepseek_flash / max` | `deepseek_pro / max` |
+| `mechanical_cleanup` | `economy` | `astra / low` | `sol / low` | `terra / high` | `luna / high` | `glm_flash / low` | `deepseek_flash / high` |
+| `bulk_prefilter` | `balanced` | `astra / medium` | `sol / medium` | `terra / xhigh` | `luna / xhigh` | `glm_flash / high` | `deepseek_flash / high` |
+| `engineering_review` | `balanced` | `astra / medium` | `sol / medium` | `terra / xhigh` | `luna / xhigh` | `glm_flash / high` | `deepseek_flash / high` |
+| `visual_review` | `quality` | `astra / high` | `sol / high` | `terra / max` | `luna / max` | `glm_flash / max` | `deepseek_flash / max` |
+| `high_risk_adjudication` | `quality` | `astra / high` | `sol / high` | `terra / max` | `luna / max` | `glm_flash / max` | `deepseek_flash / max` |
 
-任务路由先选择 `executionSlot + executionGrade`，再由当前完整 preset 解析模型和 effort；`execution_slots` 不再保存或选择任何模型。默认优选 `sol`；连接故障时按 `sol`、`terra`、`luna`、`glm_flash`、`deepseek_flash`、`deepseek_pro` 依次切换。
+任务路由先选择 `executionSlot + executionGrade`，再由当前完整 preset 解析模型和 effort；`execution_slots` 不再保存或选择任何模型。默认优选 `astra`；连接故障时按 `astra`、`sol`、`terra`、`luna`、`glm_flash`、`deepseek_flash` 依次切换。
 
 ```text
 本地确定性处理
   -> 当前任务预设及 reasoning 等级
-  -> 默认预设不可用时：Sol -> Terra -> Luna -> GLM Flash -> DeepSeek Flash -> DeepSeek Pro
+  -> 默认预设不可用时：Astra -> Sol -> Terra -> Luna -> GLM Flash -> DeepSeek V4.1 Flash
   -> 显式 pin 时：固定当前 preset，不跨 preset 自动切换
   -> pending_review / 人工确认
 ```
 
 配置真源为 `configs/model_routing.defaults.yaml`，运行时投影为 `apps/api/appsettings.json`。provider 网关被强制锁定为 Cockpit 本地 API 服务 `http://127.0.0.1:45335/v1`，由 `.env` 的 `KQG_AI_OPENAI_BASE_URL` 和 `KQG_AI_OPENAI_KEY` 注入；保存、旧本机设置归一化与管理员试跑 override 都拒绝远端 URL 和 endpoint fallback，避免将 Cockpit key 发往其他地址。配置存在不等于 live accepted。路由结果必须记录 `stage`、`executionSlot`、`executionGrade`、`preset`、`modelRole`、`modelName`、`reasoningEffort`、升级目标、prompt/schema 版本和输入证据。模型输出默认保持 `candidate/pending_review/productionEligible=false`，不得直接改变 active 资产。
 
-管理员 provider smoke 与后续真实 Cockpit adapter 共用 preset 可用性状态：成功的 `/responses` 执行将其完整 preset 设为 active；连通、限流或 5xx 故障才会让该 preset 进入短暂 cooldown。故障发生时保持同一 `executionSlot + executionGrade`，只切换完整 preset：默认顺序为 Sol→Terra→Luna→GLM Flash→DeepSeek Flash→DeepSeek Pro；从任一当前 preset 出发时，先尝试当前 preset，再按默认顺序回绕。每个候选先做 `/models` 可用性探测，再向同一 Cockpit 网关发送 `/responses`；最终 `effectiveExecutionSlot`、`effectiveExecutionGrade`、`effectivePreset`、`effectiveModelName` 和 `effectiveReasoningEffort` 写入结果及审计记录。手动模型 override 被拒绝，避免绕开单 preset 不变量。管理员真实调用经配置的进程内并发闸门后执行；`MonthlyBudgetCny` 目前仅是运营规划上限，尚未接入 Cockpit 的可核验计价/账单账本，不得误报为实际 CNY 扣减门禁。任一全局/管理员真实调用门禁未满足时，探针 fail-closed，不发起 provider 请求。
+管理员 provider smoke 与后续真实 Cockpit adapter 共用 preset 可用性状态：成功的 `/responses` 执行将其完整 preset 设为 active；连通、限流或 5xx 故障才会让该 preset 进入短暂 cooldown。故障发生时保持同一 `executionSlot + executionGrade`，只切换完整 preset：默认顺序为 Astra→Sol→Terra→Luna→GLM Flash→DeepSeek V4.1 Flash；从任一当前 preset 出发时，先尝试当前 preset，再按默认顺序回绕。每个候选先做 `/models` 可用性探测，再向同一 Cockpit 网关发送 `/responses`；最终 `effectiveExecutionSlot`、`effectiveExecutionGrade`、`effectivePreset`、`effectiveModelName` 和 `effectiveReasoningEffort` 写入结果及审计记录。手动模型 override 被拒绝，避免绕开单 preset 不变量。管理员真实调用经配置的进程内并发闸门后执行；`MonthlyBudgetCny` 目前仅是运营规划上限，尚未接入 Cockpit 的可核验计价/账单账本，不得误报为实际 CNY 扣减门禁。任一全局/管理员真实调用门禁未满足时，探针 fail-closed，不发起 provider 请求。
 
-本机临时运行时投影可通过 `.env` 的 `AiRouting__ModelFailover__PinnedPresetId` 锁定任一 preset，例如 `luna`、`glm_flash`、`deepseek_flash` 或 `deepseek_pro`：所有五个执行槽位仍保留原档位，只能解析为当前 preset 及其对应 effort；当前 preset 故障时保持 pin 并 fail-closed，不会切换到其他 preset。该 pin 不会写入永久策略，也不修改、停用或要求永久关闭现有 watchdog；watchdog 继续按原配置运行。删除该变量或置空后，恢复默认的 Sol→Terra→Luna→GLM Flash→DeepSeek Flash→DeepSeek Pro 预设级切换。该变量由本地启动脚本注入，已运行的 API 进程不会热加载，重新启动本项目 API 后才进入 `host_loaded`。
+本机临时运行时投影可通过 `.env` 的 `AiRouting__ModelFailover__PinnedPresetId` 锁定任一 preset，例如 `sol`、`luna`、`glm_flash` 或 `deepseek_flash`：所有五个执行槽位仍保留原档位，只能解析为当前 preset 及其对应 effort；当前 preset 故障时保持 pin 并 fail-closed，不会切换到其他 preset。该 pin 不会写入永久策略，也不修改、停用或要求永久关闭现有 watchdog；watchdog 继续按原配置运行。删除该变量或置空后，恢复默认的 Astra→Sol→Terra→Luna→GLM Flash→DeepSeek V4.1 Flash 预设级切换。该变量由本地启动脚本注入，已运行的 API 进程不会热加载，重新启动本项目 API 后才进入 `host_loaded`。
 
-当当前 active preset 不是默认链首项，且不存在临时 pin 时，API 内的低优先级恢复探测会每 180 秒按默认链检查当前 active preset 之前的更高优先级 preset：例如 Terra 检查 Sol，Luna 检查 Sol/Terra，GLM 检查 Sol/Terra/Luna，DeepSeek Flash 检查前四项，DeepSeek Pro 检查前五项。每次检查要求同一 Cockpit 本地网关的 `/models` 与最小 `store=false` `/responses` 都成功；连续 2 次成功才回切，失败后 600 秒退避。恢复探测不走图片接口、不提交教师数据、不写业务数据，也不会因探测失败把当前 preset 标为故障或中断业务请求。
+当当前 active preset 不是默认链首项，且不存在临时 pin 时，API 内的低优先级恢复探测会每 180 秒按默认链检查当前 active preset 之前的更高优先级 preset：例如 Sol 检查 Astra，Terra 检查 Astra/Sol，Luna 检查 Astra/Sol/Terra，GLM 检查前四项，DeepSeek V4.1 Flash 检查前五项。每次检查要求同一 Cockpit 本地网关的 `/models` 与最小 `store=false` `/responses` 都成功；连续 2 次成功才回切，失败后 600 秒退避。恢复探测不走图片接口、不提交教师数据、不写业务数据，也不会因探测失败把当前 preset 标为故障或中断业务请求。
 
 运行时同时返回默认路线和最终生效路线。`low_cost` 仅在当前任务声明的显式风险信号命中时升级；`balanced` 还会在置信度低于任务阈值时升级；`high_accuracy` 可对显式 opt-in 的普通路线预防性提前一级。风险信号按任务 allowlist 过滤，未知 mode fail-closed，确定性任务和没有升级目标的最高档任务永不隐式升级。题目难度和复杂度只影响槽位/档位及复核优先级，不得在同一 preset 内直接换到另一种模型。当前信号包括 `cross_page`、`shared_visual`、`formula_or_table`、`semantic_conflict`、`multiple_constraints`、`formal_exam` 和 `source_evidence_conflict`。返回值中的 `effectiveExecutionSlot`、`effectiveExecutionGrade`、`effectivePreset`、`effectiveModelRole`、`effectiveModelName`、`effectiveReasoningEffort`、`escalated` 和 `escalationReasons` 是实际执行选择；原 `model*` 字段保留默认路线用于审计。
 
@@ -117,26 +117,26 @@ GLM 与 DeepSeek 已加入默认 `preferred_preset_order`：`sol -> terra -> lun
 → 正式激活仍必须保留人工审核
 ```
 
-当前外层任务先绑定五个 `execution_slots`，再由 `economy/balanced/quality` 解析 `model_presets`；旧 `role_to_model` 与 `role_to_reasoning_effort` 仅保留为外层角色兼容映射，不是运行时故障 fallback 链的真源。模型价格、可用性或质量变化时，应更新 `model_presets`、`execution_slots` 及对应 route，并通过代表性 eval 与 YAML→`appsettings.json` parity guard；不得改变“规则优先、按任务风险路由、槽位/档位稳定、预设级可用性切换、人工兜底”的策略语义。
+当前外层任务先绑定五个 `execution_slots`，再由 `economy/balanced/quality` 解析当前唯一活动 `model_presets`；旧 `role_to_model` 与 `role_to_reasoning_effort` 已收敛为 `role_to_execution_grade` 档位映射，不是运行时故障 fallback 链的真源。外层与运行时遵守同一不变量：任一时刻只激活一套 preset，所有外层角色的模型都取自该 preset，effort 由角色档位从该 preset 的 2/3 个等级映射；同一 preset 内禁止混用模型族。模型价格、可用性或质量变化时，应更新 `model_presets`、`execution_slots` 及对应 route，并通过代表性 eval 与 YAML→`appsettings.json` parity guard；不得改变“规则优先、按任务风险路由、槽位/档位稳定、预设级可用性切换、人工兜底”的策略语义。
 
-| 任务 | 默认模型 | 升级条件 | 成本口径 |
+| 任务 | 默认档位 | 升级条件 | 成本口径 |
 |---|---|---|---|
-| CSV/Excel 格式检查、字段完整性、枚举、重复 ID、空来源字段 | 本地脚本/schema；异常批筛 `gpt-5.6-terra / high` | 批量失败原因不清时升 `gpt-5.6-sol / medium` | 低 |
-| ChatGPT Web 输出的候选表批量初筛 | `gpt-5.6-terra / high` | 出现知识点/考点/章节/课标混淆时抽样升 `gpt-5.6-sol / medium` | 低 |
-| 来源证据抽样核验、页码/题号/章节一致性复核 | `gpt-5.6-sol / medium` | 高价值正式激活前抽样争议升 `gpt-5.6-sol / xhigh` | 中 |
-| 知识点、考点、教材章节、课标条目的复杂映射判断 | `gpt-5.6-sol / medium` | 一拆多、多合一、多对多、低置信度且影响组卷/学情时升 `gpt-5.6-sol / xhigh` | 中 |
-| 大批量 CSV 清洗、拆分、重命名、机械格式转换 | 本地确定性 / `none` | 出现语义判断需求时升 `gpt-5.6-terra / high` | 低 |
-| 导入脚本、gate、migration impact、回滚脚本实现 | `gpt-5.6-sol / medium` | 跨模块架构或数据迁移风险高时升 `gpt-5.6-sol / xhigh` | 中 |
-| 正式激活前的高风险最终复核报告 | `gpt-5.6-sol / xhigh` | 仍存在长期口径争议时保留人工裁决，不自动越过审批 | 高 |
-| 架构级争议、跨学科通用模型、重大 schema/路由策略重构 | `gpt-5.6-sol / xhigh` | 需要外部决策或不可逆口径时停止并请求人工决定 | 高 |
+| CSV/Excel 格式检查、字段完整性、枚举、重复 ID、空来源字段 | 本地脚本/schema；异常批筛 当前预设 / `economy` | 批量失败原因不清时升 当前预设 / `balanced` | 低 |
+| ChatGPT Web 输出的候选表批量初筛 | 当前预设 / `economy` | 出现知识点/考点/章节/课标混淆时抽样升 当前预设 / `balanced` | 低 |
+| 来源证据抽样核验、页码/题号/章节一致性复核 | 当前预设 / `balanced` | 高价值正式激活前抽样争议升 当前预设 / `quality` | 中 |
+| 知识点、考点、教材章节、课标条目的复杂映射判断 | 当前预设 / `balanced` | 一拆多、多合一、多对多、低置信度且影响组卷/学情时升 当前预设 / `quality` | 中 |
+| 大批量 CSV 清洗、拆分、重命名、机械格式转换 | 本地确定性 / `none` | 出现语义判断需求时升 当前预设 / `economy` | 低 |
+| 导入脚本、gate、migration impact、回滚脚本实现 | 当前预设 / `balanced` | 跨模块架构或数据迁移风险高时升 当前预设 / `quality` | 中 |
+| 正式激活前的高风险最终复核报告 | 当前预设 / `quality` | 仍存在长期口径争议时保留人工裁决，不自动越过审批 | 高 |
+| 架构级争议、跨学科通用模型、重大 schema/路由策略重构 | 当前预设 / `quality` | 需要外部决策或不可逆口径时停止并请求人工决定 | 高 |
 
-默认组合：
+默认组合（档位均从当前唯一活动 preset 的 2/3 个等级解析，允许重复）：
 
 ```text
-第一层 gpt-5.6-terra / high：批量初筛和普通结构化
-第二层 gpt-5.6-sol / medium：工程导入、抽样核验、常规复杂映射
-第三层 gpt-5.6-terra / xhigh：视觉、图表、版面专项复核
-第四层 gpt-5.6-sol / xhigh：高风险语义、政策边界和不可轻易回滚裁决
+第一层 当前预设 / economy：批量初筛和普通结构化
+第二层 当前预设 / balanced：工程导入、抽样核验、常规复杂映射
+第三层 当前预设 / quality：视觉、图表、版面专项复核
+第四层 当前预设 / quality：高风险语义、政策边界和不可轻易回滚裁决
 ```
 
 六套预设和其中 `medium/high/xhigh/low/max` 等级不是质量承诺：等级提升必须由代表性 paired eval 证明，真实 provider 默认关闭；配置与 parity 通过只证明 `repo_verified`/`filesystem_projected`，不等于 `host_loaded` 或 `live_accepted`。凡是可用规则、schema、SQL、CSV parser 或本地脚本解决的任务，不升级模型。

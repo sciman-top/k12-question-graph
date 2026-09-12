@@ -99,19 +99,20 @@ public sealed class ModelRoutingProjectionParityTests
                     StringComparer.OrdinalIgnoreCase));
         }
 
+        Assert.Equal("gpt-6-astra", jsonPresets.GetProperty("astra").GetProperty("ModelName").GetString());
         Assert.Equal("gpt-5.6-sol", jsonPresets.GetProperty("sol").GetProperty("ModelName").GetString());
         Assert.Equal("gpt-5.6-terra", jsonPresets.GetProperty("terra").GetProperty("ModelName").GetString());
         Assert.Equal("gpt-5.6-luna", jsonPresets.GetProperty("luna").GetProperty("ModelName").GetString());
         Assert.Equal("glm-5.3-flash", jsonPresets.GetProperty("glm_flash").GetProperty("ModelName").GetString());
-        Assert.Equal("deepseek-v4-flash", jsonPresets.GetProperty("deepseek_flash").GetProperty("ModelName").GetString());
-        Assert.Equal("deepseek-v4-pro", jsonPresets.GetProperty("deepseek_pro").GetProperty("ModelName").GetString());
+        Assert.Equal("deepseek-v4.1-flash", jsonPresets.GetProperty("deepseek_flash").GetProperty("ModelName").GetString());
+        Assert.Equal(6, jsonPresets.EnumerateObject().Count());
 
         var yamlFailover = (YamlMappingNode)GetYamlChild(root, "model_failover");
         var jsonFailover = aiRouting.GetProperty("ModelFailover");
         Assert.Equal(ReadYamlValue(yamlFailover, "enabled"), ReadJsonValue(jsonFailover, "Enabled"));
         Assert.Equal(ReadYamlValue(yamlFailover, "preferred_preset_order"), ReadJsonValue(jsonFailover, "PreferredPresetOrder"));
         Assert.Equal(
-            ["sol", "terra", "luna", "glm_flash", "deepseek_flash", "deepseek_pro"],
+            ["astra", "sol", "terra", "luna", "glm_flash", "deepseek_flash"],
             jsonFailover.GetProperty("PreferredPresetOrder").EnumerateArray().Select(value => value.GetString()!).ToArray());
         Assert.Equal(ReadYamlValue(yamlFailover, "availability_probe_path"), ReadJsonValue(jsonFailover, "AvailabilityProbePath"));
         Assert.Equal(ReadYamlValue(yamlFailover, "failure_cooldown_seconds"), ReadJsonValue(jsonFailover, "FailureCooldownSeconds"));

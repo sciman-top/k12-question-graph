@@ -127,7 +127,7 @@ public sealed class AdminAiProviderSettingsStoreTests : IDisposable
             true,
             false,
             "knowledge_tagging",
-            "gpt-5.6-sol",
+            "gpt-6-astra",
             "test");
 
     private sealed class TestWebHostEnvironment : IWebHostEnvironment

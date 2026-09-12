@@ -11,12 +11,14 @@ public sealed class AiPresetAvailabilityCoordinatorTests
     {
         var coordinator = new AiPresetAvailabilityCoordinator(Options.Create(CreateOptions()));
 
-        Assert.Equal("sol", coordinator.SelectActivePresetId());
+        Assert.Equal("astra", coordinator.SelectActivePresetId());
         coordinator.RecordExecutionSuccess("terra");
         Assert.Equal("terra", coordinator.SelectActivePresetId());
-        Assert.Equal(["terra", "sol", "luna", "glm_flash", "deepseek_flash", "deepseek_pro"], coordinator.GetCandidatePresetIds("terra"));
+        Assert.Equal(["terra", "astra", "sol", "luna", "glm_flash", "deepseek_flash"], coordinator.GetCandidatePresetIds("terra"));
 
         coordinator.RecordAvailabilityFailure("terra", 503);
+        Assert.Equal("astra", coordinator.SelectActivePresetId());
+        coordinator.RecordAvailabilityFailure("astra", 503);
         Assert.Equal("sol", coordinator.SelectActivePresetId());
         coordinator.RecordAvailabilityFailure("sol", 503);
         Assert.Equal("luna", coordinator.SelectActivePresetId());
@@ -24,9 +26,7 @@ public sealed class AiPresetAvailabilityCoordinatorTests
         Assert.Equal("glm_flash", coordinator.SelectActivePresetId());
         coordinator.RecordAvailabilityFailure("glm_flash", 503);
         Assert.Equal("deepseek_flash", coordinator.SelectActivePresetId());
-        coordinator.RecordAvailabilityFailure("deepseek_flash", 503);
-        Assert.Equal("deepseek_pro", coordinator.SelectActivePresetId());
-        Assert.Equal(["luna", "sol", "terra", "glm_flash", "deepseek_flash", "deepseek_pro"], coordinator.GetCandidatePresetIds("luna"));
+        Assert.Equal(["luna", "astra", "sol", "terra", "glm_flash", "deepseek_flash"], coordinator.GetCandidatePresetIds("luna"));
     }
 
     [Fact]
@@ -83,19 +83,21 @@ public sealed class AiPresetAvailabilityCoordinatorTests
             .Get<AiRoutingOptions>()!;
         var coordinator = new AiPresetAvailabilityCoordinator(Options.Create(options));
 
-        Assert.Equal(["sol", "terra", "luna", "glm_flash", "deepseek_flash", "deepseek_pro"], options.ModelFailover.PreferredPresetOrder);
+        Assert.Equal(["astra", "sol", "terra", "luna", "glm_flash", "deepseek_flash"], options.ModelFailover.PreferredPresetOrder);
         Assert.Equal(6, options.ModelPresets.Count);
         Assert.Equal(5, options.ExecutionSlots.Count);
-        Assert.Equal("sol", coordinator.SelectActivePresetId());
+        Assert.Equal("astra", coordinator.SelectActivePresetId());
     }
 
     [Theory]
+    [InlineData("astra", "gpt-6-astra", "quality", "high")]
+    [InlineData("astra", "gpt-6-astra", "balanced", "medium")]
+    [InlineData("astra", "gpt-6-astra", "economy", "low")]
     [InlineData("glm_flash", "glm-5.3-flash", "quality", "max")]
     [InlineData("glm_flash", "glm-5.3-flash", "balanced", "high")]
     [InlineData("glm_flash", "glm-5.3-flash", "economy", "low")]
-    [InlineData("deepseek_flash", "deepseek-v4-flash", "quality", "max")]
-    [InlineData("deepseek_flash", "deepseek-v4-flash", "balanced", "high")]
-    [InlineData("deepseek_pro", "deepseek-v4-pro", "quality", "max")]
+    [InlineData("deepseek_flash", "deepseek-v4.1-flash", "quality", "max")]
+    [InlineData("deepseek_flash", "deepseek-v4.1-flash", "balanced", "high")]
     public void DefaultModelPresetsCanBePinnedWithTheirDeclaredEffortMapping(
         string presetId,
         string modelName,
@@ -116,12 +118,12 @@ public sealed class AiPresetAvailabilityCoordinatorTests
     {
         ModelPresets = new Dictionary<string, AiModelPresetOptions>(StringComparer.OrdinalIgnoreCase)
         {
+            ["astra"] = new() { ModelName = "gpt-6-astra", ReasoningEfforts = ["high", "medium", "low"], GradeToReasoningEffort = new() { ["quality"] = "high", ["balanced"] = "medium", ["economy"] = "low" } },
             ["sol"] = new() { ModelName = "gpt-5.6-sol", ReasoningEfforts = ["high", "medium", "low"], GradeToReasoningEffort = new() { ["quality"] = "high", ["balanced"] = "medium", ["economy"] = "low" } },
             ["terra"] = new() { ModelName = "gpt-5.6-terra", ReasoningEfforts = ["max", "xhigh", "high"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "xhigh", ["economy"] = "high" } },
             ["luna"] = new() { ModelName = "gpt-5.6-luna", ReasoningEfforts = ["max", "xhigh", "high"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "xhigh", ["economy"] = "high" } },
             ["glm_flash"] = new() { ModelName = "glm-5.3-flash", ReasoningEfforts = ["max", "high", "low"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "high", ["economy"] = "low" } },
-            ["deepseek_flash"] = new() { ModelName = "deepseek-v4-flash", ReasoningEfforts = ["max", "high"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "high", ["economy"] = "high" } },
-            ["deepseek_pro"] = new() { ModelName = "deepseek-v4-pro", ReasoningEfforts = ["max"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "max", ["economy"] = "max" } }
+            ["deepseek_flash"] = new() { ModelName = "deepseek-v4.1-flash", ReasoningEfforts = ["max", "high"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "high", ["economy"] = "high" } },
         },
         ExecutionSlots = new Dictionary<string, AiExecutionSlotOptions>(StringComparer.OrdinalIgnoreCase)
         {
@@ -131,7 +133,7 @@ public sealed class AiPresetAvailabilityCoordinatorTests
             ["visual_review"] = new() { DefaultGrade = "quality" },
             ["high_risk_adjudication"] = new() { DefaultGrade = "quality" }
         },
-        ModelFailover = new() { PreferredPresetOrder = ["sol", "terra", "luna", "glm_flash", "deepseek_flash", "deepseek_pro"], FailureCooldownSeconds = 60 }
+        ModelFailover = new() { PreferredPresetOrder = ["astra", "sol", "terra", "luna", "glm_flash", "deepseek_flash"], FailureCooldownSeconds = 60 }
     };
 
     private static string RepoRoot

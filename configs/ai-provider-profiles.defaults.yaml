@@ -10,7 +10,7 @@ teacherSimpleModes:
     routePolicy: "local_first_rules_then_stub_llm_pending_review"
   - id: "cockpit_enhanced"
     label: "Cockpit 本地 API 增强"
-    summary: "管理员可选启用固定 Cockpit 本地网关，模型按 Sol、Terra、Luna、GLM Flash、DeepSeek Flash、DeepSeek Pro preset 受控切换。"
+    summary: "管理员可选启用固定 Cockpit 本地网关，模型按 Astra、Sol、Terra、Luna、GLM Flash、DeepSeek V4.1 Flash preset 受控切换。"
     visibleToTeacher: true
     defaultProviderProfile: "cloud_openai_candidate"
     routePolicy: "role_routed_cloud_candidate_pending_review"
@@ -38,7 +38,7 @@ providerProfiles:
     baseUrl: "http://127.0.0.1:45335/v1"
     maxConcurrency: 2
     monthlyBudgetCny: 0
-    fallbackPolicy: "gpt-5.6-sol_then_gpt-5.6-terra_then_gpt-5.6-luna_then_glm-5.3-flash_then_deepseek-v4-flash_then_deepseek-v4-pro_then_pending_review"
+    fallbackPolicy: "gpt-6-astra_then_gpt-5.6-sol_then_gpt-5.6-terra_then_gpt-5.6-luna_then_glm-5.3-flash_then_deepseek-v4.1-flash_then_pending_review"
     disabledByDefault: true
     adminOnly: true
     secretRedaction: "always_masked"

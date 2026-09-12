@@ -1,4 +1,4 @@
-version: 0.5
+version: 0.6
 modes:
   low_cost:
     description: "本地工具和小模型优先，强模型只处理高风险异常。"
@@ -6,28 +6,38 @@ modes:
     description: "默认模式，兼顾准确率和成本。"
   high_accuracy:
     description: "正式试卷、答案校验、重要导入使用。"
+# 模型目录只声明角色与档位；模型名与 reasoning 等级始终由当前唯一活动 preset 解析，同一 preset 内禁止混用模型族。
 model_catalog:
   local_deterministic:
     model: none
     reasoning_effort: none
     description: "文件、版面、裁切执行和硬约束由本地规则/工具完成，不调用外部模型。"
   bulk_structuring:
-    model: gpt-5.6-sol
-    reasoning_effort: medium
+    model: active_preset
+    execution_grade: balanced
     description: "批量入库结构化、普通题目拆分、常规标签初筛和普通组卷需求解析。"
   general_semantics:
-    model: gpt-5.6-sol
-    reasoning_effort: medium
+    model: active_preset
+    execution_grade: balanced
     description: "较复杂题目结构确认、一般答案校验和组卷候选语义复核。"
   visual_document:
-    model: gpt-5.6-sol
-    reasoning_effort: xhigh
+    model: active_preset
+    execution_grade: quality
     description: "疑难视觉、版面、图表、公式区域、共享题图和导出视觉复核。"
   semantic_decision:
-    model: gpt-5.6-sol
-    reasoning_effort: xhigh
+    model: active_preset
+    execution_grade: quality
     description: "复杂映射、跨页语义冲突、组卷软约束和答案一致性裁决。"
 model_presets:
+  astra:
+    model_name: gpt-6-astra
+    reasoning_efforts: [high, medium, low]
+    grade_to_reasoning_effort:
+      quality: high
+      balanced: medium
+      economy: low
+    fallback_reasoning_effort: medium
+    description: "首选高质量本地 Cockpit API 模型预设。"
   sol:
     model_name: gpt-5.6-sol
     reasoning_efforts: [high, medium, low]
@@ -36,7 +46,7 @@ model_presets:
       balanced: medium
       economy: low
     fallback_reasoning_effort: medium
-    description: "首选高质量本地 Cockpit API 模型预设。"
+    description: "Astra 故障时的次选 Cockpit API 模型预设。"
   terra:
     model_name: gpt-5.6-terra
     reasoning_efforts: [max, xhigh, high]
@@ -45,7 +55,7 @@ model_presets:
       balanced: xhigh
       economy: high
     fallback_reasoning_effort: high
-    description: "Sol 故障时的次选 Cockpit API 模型预设。"
+    description: "Astra 与 Sol 均不可用时的第三顺位 Cockpit API 模型预设。"
   luna:
     model_name: gpt-5.6-luna
     reasoning_efforts: [max, xhigh, high]
@@ -54,7 +64,7 @@ model_presets:
       balanced: xhigh
       economy: high
     fallback_reasoning_effort: high
-    description: "Sol 与 Terra 均不可用时的末选 Cockpit API 模型预设。"
+    description: "Astra、Sol 与 Terra 均不可用时的第四顺位 Cockpit API 模型预设。"
   glm_flash:
     model_name: glm-5.3-flash
     reasoning_efforts: [max, high, low]
@@ -63,28 +73,19 @@ model_presets:
       balanced: high
       economy: low
     fallback_reasoning_effort: low
-    description: "GLM-5.3-Flash 默认故障切换候选。"
+    description: "GLM-5.3-Flash 默认故障切换候选，第五顺位。"
   deepseek_flash:
-    model_name: deepseek-v4-flash
+    model_name: deepseek-v4.1-flash
     reasoning_efforts: [max, high]
     grade_to_reasoning_effort:
       quality: max
       balanced: high
       economy: high
     fallback_reasoning_effort: high
-    description: "DeepSeek V4 Flash 默认故障切换候选；economy 因未提供 low 而保持 high。"
-  deepseek_pro:
-    model_name: deepseek-v4-pro
-    reasoning_efforts: [max]
-    grade_to_reasoning_effort:
-      quality: max
-      balanced: max
-      economy: max
-    fallback_reasoning_effort: max
-    description: "DeepSeek V4 Pro 默认故障切换候选；所有执行档位均固定使用 max。"
+    description: "DeepSeek V4.1 Flash 默认故障切换候选，末位；economy 因未提供 low 而保持 high。"
 model_failover:
   enabled: true
-  preferred_preset_order: [sol, terra, luna, glm_flash, deepseek_flash, deepseek_pro]
+  preferred_preset_order: [astra, sol, terra, luna, glm_flash, deepseek_flash]
   pinned_preset_id: null
   availability_probe_path: /models
   failure_cooldown_seconds: 30
@@ -153,14 +154,14 @@ routes:
     model_role: bulk_structuring
     execution_slot: bulk_prefilter
     execution_grade: balanced
-    model: gpt-5.6-sol
+    model: gpt-6-astra
     reasoning_effort: medium
     model_tier: medium
     escalate_to_role: visual_document
     escalate_to_execution_slot: visual_review
     escalate_to_execution_grade: quality
-    escalate_to: gpt-5.6-sol
-    escalate_reasoning_effort: xhigh
+    escalate_to: gpt-6-astra
+    escalate_reasoning_effort: high
     escalate_in_high_accuracy: true
     escalation_signals: [cross_page, shared_visual, formula_or_table]
     structured_output_schema: schemas/ai/crop_candidate_generation.schema.json
@@ -171,14 +172,14 @@ routes:
     model_role: visual_document
     execution_slot: visual_review
     execution_grade: quality
-    model: gpt-5.6-sol
-    reasoning_effort: xhigh
+    model: gpt-6-astra
+    reasoning_effort: high
     model_tier: strong
     escalate_to_role: semantic_decision
     escalate_to_execution_slot: high_risk_adjudication
     escalate_to_execution_grade: quality
-    escalate_to: gpt-5.6-sol
-    escalate_reasoning_effort: xhigh
+    escalate_to: gpt-6-astra
+    escalate_reasoning_effort: high
     escalation_signals: [semantic_conflict, source_evidence_conflict]
     structured_output_schema: schemas/ai/crop_candidate_generation.schema.json
     require_human_review_below_confidence: 0.9
@@ -194,13 +195,13 @@ routes:
     model_role: bulk_structuring
     execution_slot: bulk_prefilter
     execution_grade: balanced
-    model: gpt-5.6-sol
+    model: gpt-6-astra
     reasoning_effort: medium
     model_tier: medium
     escalate_to_role: general_semantics
     escalate_to_execution_slot: engineering_review
     escalate_to_execution_grade: balanced
-    escalate_to: gpt-5.6-sol
+    escalate_to: gpt-6-astra
     escalate_reasoning_effort: medium
     escalate_in_high_accuracy: true
     escalation_signals: [cross_page, semantic_conflict, source_evidence_conflict]
@@ -212,13 +213,13 @@ routes:
     model_role: bulk_structuring
     execution_slot: bulk_prefilter
     execution_grade: balanced
-    model: gpt-5.6-sol
+    model: gpt-6-astra
     reasoning_effort: medium
     model_tier: medium
     escalate_to_role: general_semantics
     escalate_to_execution_slot: engineering_review
     escalate_to_execution_grade: balanced
-    escalate_to: gpt-5.6-sol
+    escalate_to: gpt-6-astra
     escalate_reasoning_effort: medium
     escalate_in_high_accuracy: true
     escalation_signals: [semantic_conflict, source_evidence_conflict]
@@ -231,8 +232,8 @@ routes:
     model_role: semantic_decision
     execution_slot: high_risk_adjudication
     execution_grade: quality
-    model: gpt-5.6-sol
-    reasoning_effort: xhigh
+    model: gpt-6-astra
+    reasoning_effort: high
     model_tier: strong
     structured_output_schema: schemas/ai/knowledge_mapping.schema.json
     require_human_review_below_confidence: 0.95
@@ -242,13 +243,13 @@ routes:
     model_role: bulk_structuring
     execution_slot: bulk_prefilter
     execution_grade: balanced
-    model: gpt-5.6-sol
+    model: gpt-6-astra
     reasoning_effort: medium
     model_tier: medium
     escalate_to_role: general_semantics
     escalate_to_execution_slot: engineering_review
     escalate_to_execution_grade: balanced
-    escalate_to: gpt-5.6-sol
+    escalate_to: gpt-6-astra
     escalate_reasoning_effort: medium
     escalate_in_high_accuracy: true
     escalation_signals: [multiple_constraints, semantic_conflict]
@@ -266,8 +267,8 @@ routes:
     model_role: semantic_decision
     execution_slot: high_risk_adjudication
     execution_grade: quality
-    model: gpt-5.6-sol
-    reasoning_effort: xhigh
+    model: gpt-6-astra
+    reasoning_effort: high
     model_tier: strong
     structured_output_schema: schemas/ai/paper_composition_review.schema.json
     require_human_review_below_confidence: 0.95
@@ -277,8 +278,8 @@ routes:
     model_role: visual_document
     execution_slot: visual_review
     execution_grade: quality
-    model: gpt-5.6-sol
-    reasoning_effort: xhigh
+    model: gpt-6-astra
+    reasoning_effort: high
     model_tier: strong
     structured_output_schema: schemas/ai/visual_asset_review.schema.json
     require_human_review_below_confidence: 0.95
@@ -288,8 +289,8 @@ routes:
     model_role: visual_document
     execution_slot: visual_review
     execution_grade: quality
-    model: gpt-5.6-sol
-    reasoning_effort: xhigh
+    model: gpt-6-astra
+    reasoning_effort: high
     model_tier: strong
     structured_output_schema: schemas/ai/visual_asset_review.schema.json
     require_human_review_below_confidence: 0.95
@@ -299,8 +300,8 @@ routes:
     model_role: semantic_decision
     execution_slot: high_risk_adjudication
     execution_grade: quality
-    model: gpt-5.6-sol
-    reasoning_effort: xhigh
+    model: gpt-6-astra
+    reasoning_effort: high
     model_tier: strong
     structured_output_schema: schemas/ai/answer_verification.schema.json
     require_human_review_below_confidence: 1.0
@@ -310,14 +311,14 @@ routes:
     model_role: general_semantics
     execution_slot: engineering_review
     execution_grade: balanced
-    model: gpt-5.6-sol
+    model: gpt-6-astra
     reasoning_effort: medium
     model_tier: medium
     escalate_to_role: semantic_decision
     escalate_to_execution_slot: high_risk_adjudication
     escalate_to_execution_grade: quality
-    escalate_to: gpt-5.6-sol
-    escalate_reasoning_effort: xhigh
+    escalate_to: gpt-6-astra
+    escalate_reasoning_effort: high
     escalate_in_high_accuracy: true
     escalation_signals: [formal_exam, semantic_conflict, source_evidence_conflict]
     structured_output_schema: schemas/ai/answer_verification.schema.json
@@ -334,88 +335,83 @@ outer_ai_validation:
   strategy_contract:
     stable_principle: "模型名会变化；稳定的是规则优先、低成本批筛、中强模型抽样/复杂判断、高风险升级、人工审核兜底。"
     model_names_are_current_mapping_only: true
-    update_rule: "模型价格、质量或可用性变化时，同时替换 role_to_model 与 role_to_reasoning_effort 的当前映射；必须通过代表性 paired eval 和 YAML→appsettings parity guard，不改变升级语义。"
-  role_to_model:
-    bulk_prefilter_model: gpt-5.6-terra
+    single_active_preset: "外层校验与运行时共用同一套 model_presets：任一时刻只激活一套 preset，所有外层角色的模型都取自该 preset，effort 由角色档位从该 preset 的 2/3 个等级映射；同一 preset 内禁止混用模型族。"
+    update_rule: "模型价格、质量或可用性变化时，更新 model_presets 与 execution_slots 的当前映射；必须通过代表性 paired eval 和 YAML→appsettings parity guard，不改变升级语义。"
+  role_to_execution_grade:
     mechanical_cleanup_model: none
-    engineering_review_model: gpt-5.6-sol
-    high_risk_review_model: gpt-5.6-sol
-    highest_risk_decision_model: gpt-5.6-sol
-  role_to_reasoning_effort:
-    bulk_prefilter_model: high
-    mechanical_cleanup_model: none
-    engineering_review_model: medium
-    high_risk_review_model: xhigh
-    highest_risk_decision_model: xhigh
+    bulk_prefilter_model: economy
+    engineering_review_model: balanced
+    high_risk_review_model: quality
+    highest_risk_decision_model: quality
   models:
     bulk_format_check:
       model_role: bulk_prefilter_model
-      recommended_model: gpt-5.6-terra
+      default_grade: economy
       escalate_to_role: engineering_review_model
-      escalate_to: gpt-5.6-sol
+      escalate_to_grade: balanced
       default_sample_rate: "script_100_percent_ai_failed_rows_only"
       escalation_threshold: "unclear_failure_reason_or_repeated_error_class_or_import_gate_impact"
       evidence_anchor_fields: [input_artifact, failed_row_ids, error_class, gate_output]
       reason: "字段、枚举、重复 ID、空来源证据属于规则型批量检查。"
     candidate_batch_prefilter:
       model_role: bulk_prefilter_model
-      recommended_model: gpt-5.6-terra
+      default_grade: economy
       escalate_to_role: engineering_review_model
-      escalate_to: gpt-5.6-sol
+      escalate_to_grade: balanced
       default_sample_rate: "low_risk_5_to_10_percent_abnormal_100_percent"
       escalation_threshold: "knowledge_exam_chapter_standard_confusion_or_pending_review_spike"
       evidence_anchor_fields: [source_id, candidate_id, confidence, anomaly_reason]
       reason: "先低成本识别 obvious 混淆和低置信度行。"
     source_evidence_sample_review:
       model_role: engineering_review_model
-      recommended_model: gpt-5.6-sol
+      default_grade: balanced
       escalate_to_role: high_risk_review_model
-      escalate_to: gpt-5.6-sol
+      escalate_to_grade: quality
       default_sample_rate: "draft_test_5_to_10_percent_activation_10_to_20_percent_disputed_100_percent"
       escalation_threshold: "source_page_question_chapter_excerpt_or_hash_mismatch"
       evidence_anchor_fields: [source_id, source_type, source_title, page, question_number, chapter_or_standard_ref, evidence_excerpt, source_hash]
       reason: "需要结合来源字段、映射和项目导入门禁。"
     complex_mapping_review:
       model_role: engineering_review_model
-      recommended_model: gpt-5.6-sol
+      default_grade: balanced
       escalate_to_role: high_risk_review_model
-      escalate_to: gpt-5.6-sol
+      escalate_to_grade: quality
       default_sample_rate: "100_percent"
       escalation_threshold: "split_merge_many_to_many_low_confidence_or_learning_analytics_impact"
       evidence_anchor_fields: [mapping_id, source_id, from_asset_id, to_asset_id, migration_impact_report, rollback_plan]
       reason: "一拆多、多合一、多对多会影响组卷和学情口径。"
     mechanical_csv_cleanup:
       model_role: mechanical_cleanup_model
-      recommended_model: none
+      default_grade: none
       escalate_to_role: bulk_prefilter_model
-      escalate_to: gpt-5.6-terra
+      escalate_to_grade: economy
       default_sample_rate: "diff_and_gate_100_percent_semantic_rows_manual_review"
       escalation_threshold: "semantic_judgment_required_or_non_mechanical_diff"
       evidence_anchor_fields: [input_artifact, output_artifact, diff_summary, gate_output]
       reason: "仅限格式转换、拆分、重命名等机械任务。"
     import_gate_migration_work:
       model_role: engineering_review_model
-      recommended_model: gpt-5.6-sol
+      default_grade: balanced
       escalate_to_role: high_risk_review_model
-      escalate_to: gpt-5.6-sol
+      escalate_to_grade: quality
       default_sample_rate: "code_diff_gate_rollback_100_percent"
       escalation_threshold: "cross_module_change_or_data_migration_or_backup_restore_risk"
       evidence_anchor_fields: [changed_files, gate_output, migration_impact_report, rollback_plan]
       reason: "工程实现、门禁和回滚脚本需要代码可靠性。"
     final_activation_review:
       model_role: high_risk_review_model
-      recommended_model: gpt-5.6-sol
+      default_grade: quality
       escalate_to_role: highest_risk_decision_model
-      escalate_to: gpt-5.6-sol
+      escalate_to_grade: quality
       default_sample_rate: "high_risk_100_percent_normal_by_evidence_risk"
       escalation_threshold: "long_term_policy_or_learning_analytics_impact_high_dispute_or_hard_to_rollback"
       evidence_anchor_fields: [activation_batch_id, source_hash, mapping_impact_report, reviewer_decision, rollback_snapshot]
       reason: "正式激活前的高风险少量复核需要更强推理。"
     architecture_policy_decision:
       model_role: high_risk_review_model
-      recommended_model: gpt-5.6-sol
+      default_grade: quality
       escalate_to_role: highest_risk_decision_model
-      escalate_to: gpt-5.6-sol
+      escalate_to_grade: quality
       default_sample_rate: "decision_materials_100_percent"
       escalation_threshold: "cross_subject_dynamic_asset_model_or_long_term_policy_boundary"
       evidence_anchor_fields: [decision_record, alternatives_considered, compatibility_impact, rollback_plan]
@@ -452,45 +448,41 @@ local_first_contract:
     L0:
       model_role: local_deterministic
       model: none
-      reasoning_effort: none
+      execution_grade: none
       escalation_allowed: false
     L1:
       model_role: bulk_prefilter_model
-      model: gpt-5.6-terra
-      reasoning_effort: high
+      model: active_preset
+      execution_grade: economy
       escalate_to_role: engineering_review_model
-      escalate_to: gpt-5.6-sol
-      escalate_reasoning_effort: medium
+      escalate_to_grade: balanced
       escalation_reason: "异常类型不清、低置信度集中或来源分类混淆。"
     L2:
       model_role: bulk_prefilter_model
-      model: gpt-5.6-terra
-      reasoning_effort: high
+      model: active_preset
+      execution_grade: economy
       escalate_to_role: engineering_review_model
-      escalate_to: gpt-5.6-sol
-      escalate_reasoning_effort: medium
+      escalate_to_grade: balanced
       escalation_reason: "候选知识点语义提炼需要结合多来源锚点或 schema 失败。"
     L3:
       model_role: engineering_review_model
-      model: gpt-5.6-sol
-      reasoning_effort: medium
+      model: active_preset
+      execution_grade: balanced
       escalate_to_role: high_risk_review_model
-      escalate_to: gpt-5.6-sol
-      escalate_reasoning_effort: xhigh
+      escalate_to_grade: quality
       escalation_reason: "一拆多、多合一、多对多映射影响组卷、检索或学情口径。"
     L4:
       model_role: high_risk_review_model
-      model: gpt-5.6-sol
-      reasoning_effort: xhigh
+      model: active_preset
+      execution_grade: quality
       escalate_to_role: highest_risk_decision_model
-      escalate_to: gpt-5.6-sol
-      escalate_reasoning_effort: xhigh
+      escalate_to_grade: quality
       escalation_reason: "正式激活前仍存在长期口径争议或难回滚裁决。"
   c002_extraction_layers:
     L0:
       name: local_deterministic_extraction
       external_ai_allowed: false
-      reasoning_effort: none
+      execution_grade: none
       responsibilities:
         - page_text_or_placeholder_extract
         - source_id_page_location_anchor
@@ -500,30 +492,30 @@ local_first_contract:
     L1:
       name: low_cost_prefilter
       model_role: bulk_prefilter_model
-      model: gpt-5.6-terra
+      model: active_preset
       external_ai_allowed: true
-      reasoning_effort: high
+      execution_grade: economy
       input_policy: abnormal_or_low_confidence_chunks_only
     L2:
       name: structured_candidate_extraction
       model_role: bulk_prefilter_model
-      model: gpt-5.6-terra
+      model: active_preset
       external_ai_allowed: true
-      reasoning_effort: high
+      execution_grade: economy
       input_policy: necessary_chunks_with_schema_and_source_anchors
     L3:
       name: taxonomy_merge_and_mapping_review
       model_role: engineering_review_model
-      model: gpt-5.6-sol
+      model: active_preset
       external_ai_allowed: true
-      reasoning_effort: medium
+      execution_grade: balanced
       input_policy: mapping_conflicts_and_split_merge_cases
     L4:
       name: high_risk_arbitration
       model_role: high_risk_review_model
-      model: gpt-5.6-sol
+      model: active_preset
       external_ai_allowed: true
-      reasoning_effort: xhigh
+      execution_grade: quality
       input_policy: disputed_activation_or_long_term_policy_only
   c002_budget_controls:
     forbid_full_source_bulk_submission: true

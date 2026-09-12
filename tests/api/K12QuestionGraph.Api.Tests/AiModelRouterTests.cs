@@ -19,7 +19,7 @@ public sealed class AiModelRouterTests
         Assert.False(noRisk.Escalated);
         Assert.False(unrelatedRisk.Escalated);
         Assert.True(semanticRisk.Escalated);
-        Assert.Equal("gpt-5.6-sol", semanticRisk.EffectiveModelName);
+        Assert.Equal("gpt-6-astra", semanticRisk.EffectiveModelName);
         Assert.Equal("medium", semanticRisk.EffectiveReasoningEffort);
         Assert.Equal(["semantic_conflict"], semanticRisk.EscalationReasons);
     }
@@ -30,9 +30,9 @@ public sealed class AiModelRouterTests
         var route = CreateRouter().Route(new("knowledge_tagging", "balanced", "draft", 0.79m));
 
         Assert.True(route.Escalated);
-        Assert.Equal("gpt-5.6-sol", route.ModelName);
+        Assert.Equal("gpt-6-astra", route.ModelName);
         Assert.Equal("medium", route.ReasoningEffort);
-        Assert.Equal("gpt-5.6-sol", route.EffectiveModelName);
+        Assert.Equal("gpt-6-astra", route.EffectiveModelName);
         Assert.Equal("medium", route.EffectiveReasoningEffort);
         Assert.Contains("low_confidence", route.EscalationReasons);
     }
@@ -44,12 +44,12 @@ public sealed class AiModelRouterTests
 
         Assert.Equal("bulk_prefilter", route.ExecutionSlot);
         Assert.Equal("balanced", route.ExecutionGrade);
-        Assert.Equal("sol", route.Preset);
-        Assert.Equal("gpt-5.6-sol", route.ModelName);
+        Assert.Equal("astra", route.Preset);
+        Assert.Equal("gpt-6-astra", route.ModelName);
         Assert.Equal("medium", route.ReasoningEffort);
         Assert.Equal("engineering_review", route.EffectiveExecutionSlot);
         Assert.Equal("balanced", route.EffectiveExecutionGrade);
-        Assert.Equal("sol", route.EffectivePreset);
+        Assert.Equal("astra", route.EffectivePreset);
     }
 
     [Fact]
@@ -86,12 +86,12 @@ public sealed class AiModelRouterTests
     [InlineData("glm_flash", "glm-5.3-flash", "quality", "max")]
     [InlineData("glm_flash", "glm-5.3-flash", "balanced", "high")]
     [InlineData("glm_flash", "glm-5.3-flash", "economy", "low")]
-    [InlineData("deepseek_flash", "deepseek-v4-flash", "quality", "max")]
-    [InlineData("deepseek_flash", "deepseek-v4-flash", "balanced", "high")]
-    [InlineData("deepseek_flash", "deepseek-v4-flash", "economy", "high")]
-    [InlineData("deepseek_pro", "deepseek-v4-pro", "quality", "max")]
-    [InlineData("deepseek_pro", "deepseek-v4-pro", "balanced", "max")]
-    [InlineData("deepseek_pro", "deepseek-v4-pro", "economy", "max")]
+    [InlineData("deepseek_flash", "deepseek-v4.1-flash", "quality", "max")]
+    [InlineData("deepseek_flash", "deepseek-v4.1-flash", "balanced", "high")]
+    [InlineData("deepseek_flash", "deepseek-v4.1-flash", "economy", "high")]
+    [InlineData("astra", "gpt-6-astra", "quality", "high")]
+    [InlineData("astra", "gpt-6-astra", "balanced", "medium")]
+    [InlineData("astra", "gpt-6-astra", "economy", "low")]
     public void ExplicitlyPinnedCandidatePreservesItsDeclaredModelAndEffort(
         string presetId,
         string modelName,
@@ -140,7 +140,7 @@ public sealed class AiModelRouterTests
     [InlineData("low_cost")]
     [InlineData("balanced")]
     [InlineData("high_accuracy")]
-    public void QuestionSolvingRemainsPinnedToSolHighForEveryMode(string mode)
+    public void QuestionSolvingRemainsPinnedToAstraHighForEveryMode(string mode)
     {
         var route = CreateRouter().Route(new(
             "question_solving",
@@ -159,8 +159,8 @@ public sealed class AiModelRouterTests
         Assert.Equal("semantic_decision", route.ModelRole);
         Assert.Equal("high_risk_adjudication", route.ExecutionSlot);
         Assert.Equal("quality", route.ExecutionGrade);
-        Assert.Equal("sol", route.Preset);
-        Assert.Equal("gpt-5.6-sol", route.ModelName);
+        Assert.Equal("astra", route.Preset);
+        Assert.Equal("gpt-6-astra", route.ModelName);
         Assert.Equal("high", route.ReasoningEffort);
         Assert.Equal(route.ModelRole, route.EffectiveModelRole);
         Assert.Equal(route.ModelName, route.EffectiveModelName);
@@ -189,9 +189,9 @@ public sealed class AiModelRouterTests
         var candidates = CreateRouter().GetFailoverCandidates("gpt-5.6-sol", "xhigh");
 
         Assert.Equal(
-            ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "glm-5.3-flash", "deepseek-v4-flash", "deepseek-v4-pro"],
+            ["gpt-5.6-sol", "gpt-6-astra", "gpt-5.6-terra", "gpt-5.6-luna", "glm-5.3-flash", "deepseek-v4.1-flash"],
             candidates.Select(x => x.ModelName).ToArray());
-        Assert.Equal(["medium", "xhigh", "xhigh", "low", "high", "max"], candidates.Select(x => x.ReasoningEffort).ToArray());
+        Assert.Equal(["medium", "medium", "xhigh", "xhigh", "low", "high"], candidates.Select(x => x.ReasoningEffort).ToArray());
         Assert.False(candidates[0].IsFallback);
         Assert.All(candidates.Skip(1), candidate => Assert.True(candidate.IsFallback));
     }
@@ -202,9 +202,9 @@ public sealed class AiModelRouterTests
         var candidates = CreateRouter().GetFailoverCandidates("gpt-5.6-terra", "low");
 
         Assert.Equal(
-            ["gpt-5.6-terra", "gpt-5.6-sol", "gpt-5.6-luna", "glm-5.3-flash", "deepseek-v4-flash", "deepseek-v4-pro"],
+            ["gpt-5.6-terra", "gpt-6-astra", "gpt-5.6-sol", "gpt-5.6-luna", "glm-5.3-flash", "deepseek-v4.1-flash"],
             candidates.Select(x => x.ModelName).ToArray());
-        Assert.Equal(["high", "low", "high", "low", "high", "max"], candidates.Select(x => x.ReasoningEffort).ToArray());
+        Assert.Equal(["high", "low", "low", "high", "low", "high"], candidates.Select(x => x.ReasoningEffort).ToArray());
     }
 
     [Fact]
@@ -216,8 +216,8 @@ public sealed class AiModelRouterTests
             "bulk_prefilter",
             "balanced");
 
-        Assert.Equal(["terra", "sol", "luna", "glm_flash", "deepseek_flash", "deepseek_pro"], candidates.Select(x => x.PresetId).ToArray());
-        Assert.Equal(["xhigh", "medium", "xhigh", "high", "high", "max"], candidates.Select(x => x.ReasoningEffort).ToArray());
+        Assert.Equal(["terra", "astra", "sol", "luna", "glm_flash", "deepseek_flash"], candidates.Select(x => x.PresetId).ToArray());
+        Assert.Equal(["xhigh", "medium", "medium", "xhigh", "high", "high"], candidates.Select(x => x.ReasoningEffort).ToArray());
         Assert.All(candidates, candidate =>
         {
             Assert.Equal("bulk_prefilter", candidate.ExecutionSlot);
@@ -226,7 +226,7 @@ public sealed class AiModelRouterTests
     }
 
     [Fact]
-    public void EveryExecutionSlotUsesOnlyTheActiveSolPreset()
+    public void EveryExecutionSlotUsesOnlyTheActiveAstraPreset()
     {
         var router = CreateRouter();
         var routes = new[]
@@ -238,40 +238,40 @@ public sealed class AiModelRouterTests
 
         Assert.All(routes, route =>
         {
-            Assert.Equal("sol", route.Preset);
-            Assert.Equal("gpt-5.6-sol", route.ModelName);
+            Assert.Equal("astra", route.Preset);
+            Assert.Equal("gpt-6-astra", route.ModelName);
         });
         Assert.Equal(["medium", "high", "high"], routes.Select(route => route.ReasoningEffort).ToArray());
     }
 
     [Theory]
-    [InlineData("mechanical_cleanup", "economy", "low", "high", "high", "low", "high", "max")]
-    [InlineData("bulk_prefilter", "balanced", "medium", "xhigh", "xhigh", "high", "high", "max")]
-    [InlineData("engineering_review", "balanced", "medium", "xhigh", "xhigh", "high", "high", "max")]
-    [InlineData("visual_review", "quality", "high", "max", "max", "max", "max", "max")]
-    [InlineData("high_risk_adjudication", "quality", "high", "max", "max", "max", "max", "max")]
+    [InlineData("mechanical_cleanup", "economy", "low", "low", "high", "high", "low", "high")]
+    [InlineData("bulk_prefilter", "balanced", "medium", "medium", "xhigh", "xhigh", "high", "high")]
+    [InlineData("engineering_review", "balanced", "medium", "medium", "xhigh", "xhigh", "high", "high")]
+    [InlineData("visual_review", "quality", "high", "high", "max", "max", "max", "max")]
+    [InlineData("high_risk_adjudication", "quality", "high", "high", "max", "max", "max", "max")]
     public void EverySlotKeepsItsGradeAcrossSingleModelPresetFailover(
         string slot,
         string grade,
+        string astraEffort,
         string solEffort,
         string terraEffort,
         string lunaEffort,
         string glmEffort,
-        string deepSeekFlashEffort,
-        string deepSeekProEffort)
+        string deepSeekFlashEffort)
     {
         var candidates = CreateRouter().GetFailoverCandidates(
-            "gpt-5.6-sol",
+            "gpt-6-astra",
             "medium",
             slot,
             grade);
 
-        Assert.Equal(["sol", "terra", "luna", "glm_flash", "deepseek_flash", "deepseek_pro"], candidates.Select(candidate => candidate.PresetId).ToArray());
+        Assert.Equal(["astra", "sol", "terra", "luna", "glm_flash", "deepseek_flash"], candidates.Select(candidate => candidate.PresetId).ToArray());
         Assert.Equal(
-            ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "glm-5.3-flash", "deepseek-v4-flash", "deepseek-v4-pro"],
+            ["gpt-6-astra", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "glm-5.3-flash", "deepseek-v4.1-flash"],
             candidates.Select(candidate => candidate.ModelName).ToArray());
         Assert.Equal(
-            [solEffort, terraEffort, lunaEffort, glmEffort, deepSeekFlashEffort, deepSeekProEffort],
+            [astraEffort, solEffort, terraEffort, lunaEffort, glmEffort, deepSeekFlashEffort],
             candidates.Select(candidate => candidate.ReasoningEffort).ToArray());
         Assert.All(candidates, candidate =>
         {
@@ -299,12 +299,12 @@ public sealed class AiModelRouterTests
                 ModelRole = "bulk_structuring",
                 ExecutionSlot = knowledgeTaggingExecutionSlot ?? "bulk_prefilter",
                 ExecutionGrade = "balanced",
-                ModelName = "gpt-5.6-sol",
+                ModelName = "gpt-6-astra",
                 ReasoningEffort = "medium",
                 EscalateToRole = "general_semantics",
                 EscalateToExecutionSlot = "engineering_review",
                 EscalateToExecutionGrade = "balanced",
-                EscalateToModel = "gpt-5.6-sol",
+                EscalateToModel = "gpt-6-astra",
                 EscalateReasoningEffort = "medium",
                 EscalateInHighAccuracy = true,
                 EscalationSignals = ["semantic_conflict", "source_evidence_conflict"],
@@ -316,13 +316,13 @@ public sealed class AiModelRouterTests
                 ModelRole = "visual_document",
                 ExecutionSlot = "visual_review",
                 ExecutionGrade = "quality",
-                ModelName = "gpt-5.6-sol",
-                ReasoningEffort = "xhigh",
+                ModelName = "gpt-6-astra",
+                ReasoningEffort = "high",
                 EscalateToRole = "semantic_decision",
                 EscalateToExecutionSlot = "high_risk_adjudication",
                 EscalateToExecutionGrade = "quality",
-                EscalateToModel = "gpt-5.6-sol",
-                EscalateReasoningEffort = "xhigh",
+                EscalateToModel = "gpt-6-astra",
+                EscalateReasoningEffort = "high",
                 EscalationSignals = ["semantic_conflict"]
             },
             ["question_solving"] = new()
@@ -331,8 +331,8 @@ public sealed class AiModelRouterTests
                 ModelRole = "semantic_decision",
                 ExecutionSlot = "high_risk_adjudication",
                 ExecutionGrade = "quality",
-                ModelName = "gpt-5.6-sol",
-                ReasoningEffort = "xhigh",
+                ModelName = "gpt-6-astra",
+                ReasoningEffort = "high",
                 ModelTier = "strong",
                 RequireHumanReviewBelowConfidence = 1.0m
             }
@@ -344,12 +344,12 @@ public sealed class AiModelRouterTests
                 Routes = routes,
                 ModelPresets = new Dictionary<string, AiModelPresetOptions>(StringComparer.OrdinalIgnoreCase)
                 {
+                    ["astra"] = new() { ModelName = "gpt-6-astra", ReasoningEfforts = ["high", "medium", "low"], GradeToReasoningEffort = new() { ["quality"] = "high", ["balanced"] = "medium", ["economy"] = "low" }, FallbackReasoningEffort = "medium" },
                     ["sol"] = new() { ModelName = "gpt-5.6-sol", ReasoningEfforts = ["high", "medium", "low"], GradeToReasoningEffort = new() { ["quality"] = "high", ["balanced"] = "medium", ["economy"] = "low" }, FallbackReasoningEffort = "medium" },
                     ["terra"] = new() { ModelName = "gpt-5.6-terra", ReasoningEfforts = ["max", "xhigh", "high"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "xhigh", ["economy"] = "high" }, FallbackReasoningEffort = "high" },
                     ["luna"] = new() { ModelName = "gpt-5.6-luna", ReasoningEfforts = ["max", "xhigh", "high"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "xhigh", ["economy"] = "high" }, FallbackReasoningEffort = "high" },
                     ["glm_flash"] = new() { ModelName = "glm-5.3-flash", ReasoningEfforts = ["max", "high", "low"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "high", ["economy"] = "low" }, FallbackReasoningEffort = "low" },
-                    ["deepseek_flash"] = new() { ModelName = "deepseek-v4-flash", ReasoningEfforts = ["max", "high"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "high", ["economy"] = "high" }, FallbackReasoningEffort = "high" },
-                    ["deepseek_pro"] = new() { ModelName = "deepseek-v4-pro", ReasoningEfforts = ["max"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "max", ["economy"] = "max" }, FallbackReasoningEffort = "max" }
+                    ["deepseek_flash"] = new() { ModelName = "deepseek-v4.1-flash", ReasoningEfforts = ["max", "high"], GradeToReasoningEffort = new() { ["quality"] = "max", ["balanced"] = "high", ["economy"] = "high" }, FallbackReasoningEffort = "high" },
                 },
                 ExecutionSlots = new Dictionary<string, AiExecutionSlotOptions>(StringComparer.OrdinalIgnoreCase)
                 {
@@ -359,7 +359,7 @@ public sealed class AiModelRouterTests
                     ["visual_review"] = new() { DefaultGrade = "quality" },
                     ["high_risk_adjudication"] = new() { DefaultGrade = "quality" }
                 },
-                ModelFailover = new() { PreferredPresetOrder = ["sol", "terra", "luna", "glm_flash", "deepseek_flash", "deepseek_pro"], PinnedPresetId = pinnedPresetId }
+                ModelFailover = new() { PreferredPresetOrder = ["astra", "sol", "terra", "luna", "glm_flash", "deepseek_flash"], PinnedPresetId = pinnedPresetId }
             }),
             new TestWebHostEnvironment());
     }
