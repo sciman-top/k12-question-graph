@@ -53,6 +53,14 @@ P005 反馈摘要（只做确定性去重/聚类/统计，不自动裁决）：
 .\tools\start-local-web.ps1 -Status
 ```
 
+一键启动（API + Web + 打开登录页，密钥自动进剪贴板，浏览器里只需粘贴密钥登录）：
+
+```powershell
+.\tools\start-local-dev.ps1
+```
+
+资源管理器中可直接双击 `tools\start-local-dev.cmd`，效果相同。加 `-NoBrowser` / `-NoClipboard` 可分别跳过打开浏览器或写剪贴板。
+
 未经当前任务授权，不停止、重启或替换已有 API/Web 进程。
 
 ## 参考依据
