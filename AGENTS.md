@@ -1,6 +1,6 @@
 # AGENTS.md - k12-question-graph
 **项目契约**: 2.0
-**全局规则复核**: 9.87
+**全局规则复核**: 9.88
 **类型**: K-12 teacher-first question graph platform
 **最后更新**: 2026-10-17
 
@@ -18,7 +18,7 @@
 - 真实主链是“教师导入/建题 -> 题谱映射 -> 组卷或诊断 -> Word/Excel 交付 -> 教师复核”；先证明一条最薄 vertical slice，再扩平台能力。
 
 ## B. 执行与风险边界
-- 默认主代理串行完成；子代理须有用户或适用项目/技能规则的明确委派授权，并限定独立切片、互斥 write set、最低证明与 stop；“继续”或要求深入分析不构成授权。
+- 默认主代理串行完成；子代理委派与并行已获用户常驻授权（见全局规则 A.2），每次委派仍须限定独立切片、互斥 write set、最低证明与 stop。
 - DB migration、active 切换、备份恢复、权限、外部 AI、真实数据与生产统计口径属于中高风险，先说明 snapshot/restore 与验收证据。
 - AI 输出默认 `draft/test/pending_review`，不得自动写生产或绕过人工审核。
 - 大文件与程序分离，数据库只存 metadata、path、hash 和 status。
