@@ -1,6 +1,6 @@
 # AGENTS.md - k12-question-graph
 **项目契约**: 2.0
-**全局规则复核**: 9.89
+**全局规则复核**: 9.90
 **类型**: K-12 teacher-first question graph platform
 **最后更新**: 2026-10-17
 
