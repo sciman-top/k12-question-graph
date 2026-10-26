@@ -19,7 +19,7 @@
 - `AI as candidate/draft pipeline only`
 - `profile-map-first interoperability`
 - `backup / restore / upgrade / release evidence before live`
-- `automation-first + reference-basis + live-closeout guards`
+- `automation-first + reference-basis + current-truth closeout`
 
 ## 2. 默认先问自己
 

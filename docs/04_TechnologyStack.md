@@ -4,7 +4,7 @@
 
 当前推荐技术栈整体正确，应保留“Windows-first + ASP.NET Core + React/TypeScript + PostgreSQL + Python Worker + 本地文件仓库”。需要优化的是把部分“二选一”收敛成默认决策，并明确后置条件。2026-06-04 起，发布形态进一步收束为“Windows Service 主进程 + 安装初始化向导 + 服务端控制面板 + 浏览器教师工作台”；不做一套固定重环境，而是先诊断硬件和工具链，再生成本机 profile/config。
 
-长期默认路线与禁止提前做事项，见 `docs/decisions/ADR-014-recommended-engineering-endstate-and-stack-boundary.md` 与 `docs/110_EngineeringEndStateChecklist.md`。
+长期默认路线与禁止提前做事项，见 `docs/decisions/ADR-014-recommended-engineering-endstate-and-stack-boundary.md` 与 `docs/110_EngineeringEndStateChecklist.md`。验证分层与 current evidence 生命周期见 `docs/decisions/ADR-015-proportionate-verification-and-curated-current-evidence.md`。
 
 AI 推荐默认栈：
 

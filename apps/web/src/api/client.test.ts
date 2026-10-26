@@ -436,6 +436,7 @@ describe('binary teacher workflow clients', () => {
   })
 
   it('downloads a generated paper and preserves the server filename', async () => {
+    const timeoutSpy = vi.spyOn(globalThis, 'setTimeout').mockClear()
     const fetchMock = vi.fn().mockResolvedValue(new Response('pdf-bytes', {
       headers: { 'Content-Disposition': "attachment; filename*=UTF-8''%E6%B5%8B%E8%AF%95%E5%8D%B7.pdf" },
     }))
@@ -445,7 +446,10 @@ describe('binary teacher workflow clients', () => {
 
     expect(result.ok && result.data.fileName).toBe('测试卷.pdf')
     expect(result.ok && result.data.blob.size).toBeGreaterThan(0)
-    expect(fetchMock.mock.calls[0][0]).toBe('/paper-baskets/basket-1/export?format=pdf&variant=teacher')
+    const [downloadUrl, downloadInit] = fetchMock.mock.calls[0]
+    expect(downloadUrl).toBe('/paper-baskets/basket-1/export?format=pdf&variant=teacher')
+    expect(downloadInit.signal).toBeInstanceOf(AbortSignal)
+    expect(timeoutSpy).toHaveBeenCalledWith(expect.any(Function), 120_000)
   })
 })
 

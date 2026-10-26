@@ -16,7 +16,8 @@ param(
     [string] $AdmissionCardPath = '',
     [string] $FeedbackTriagePath = '',
     [string] $ReleaseDecisionPath = '',
-    [string] $AcceptanceBundleReportPath = ''
+    [string] $AcceptanceBundleReportPath = '',
+    [string] $CurrentTruthPath = ''
 )
 
 Set-StrictMode -Version Latest
@@ -143,6 +144,13 @@ foreach ($requiredId in @('reference-basis', 'real005-closure-standard', 'p001-r
 
 $verification = Read-JsonEvidence 'release-verification' $VerificationSummaryPath 'Repo-side Release verification only; it does not prove target-site or live acceptance.'
 $roadmap = Read-JsonEvidence 'roadmap-guard' $RoadmapGuardReportPath 'Backlog structure and closeout truth only; historical completed-task evidence is not re-audited.'
+Import-Module (Join-Path $PSScriptRoot 'verification/CurrentTruth.psm1') -Force
+$currentTruthReceipt = if ([string]::IsNullOrWhiteSpace($CurrentTruthPath)) {
+    Get-CurrentTruth -RepoRoot $repoRoot
+}
+else {
+    Assert-CurrentTruthReceipt -RepoRoot $repoRoot -ReceiptPath $CurrentTruthPath
+}
 $releaseCardFullPath = Resolve-InputPath $ReleaseCardPath
 $releaseCardText = $null
 if (Test-Path -LiteralPath $releaseCardFullPath -PathType Leaf) {
@@ -182,34 +190,8 @@ if ($null -ne $verification) {
     }
 }
 
-if ($currentEvidence.ContainsKey('real005-closure-standard') -and $null -ne $currentEvidence['real005-closure-standard']) {
-    $real005 = $currentEvidence['real005-closure-standard'].data
-    Require-True ([string] $real005.status -eq 'pass') 'real005_receipt_not_pass'
-    Require-True ([string] $real005.closureStatus -eq 'not_closed') 'real005_closure_boundary_drift'
-    Require-True (-not [bool] $real005.fullClosureAllowed) 'real005_full_closure_must_remain_disallowed'
-}
-if ($currentEvidence.ContainsKey('p001-readiness') -and $null -ne $currentEvidence['p001-readiness']) {
-    $p001 = $currentEvidence['p001-readiness'].data
-    Require-True ([string] $p001.status -eq 'pass') 'p001_readiness_not_pass'
-    Require-True ([bool] $p001.readyForIsolatedMachineRun) 'p001_not_ready_for_target_machine_run'
-    Require-True (-not [bool] $p001.p001CanClose) 'p001_preflight_must_not_auto_close_task'
-}
-if ($currentEvidence.ContainsKey('p006-release-decision') -and $null -ne $currentEvidence['p006-release-decision']) {
-    $p006 = $currentEvidence['p006-release-decision'].data
-    Require-True (-not [bool] $p006.closeTaskAllowed) 'p006_preflight_must_not_allow_auto_close'
-}
-if ($currentEvidence.ContainsKey('live-pilot-closeout-plan') -and $null -ne $currentEvidence['live-pilot-closeout-plan']) {
-    $live = $currentEvidence['live-pilot-closeout-plan'].data
-    Require-True ([string] $live.status -eq 'pass') 'live_closeout_guard_not_pass'
-    Require-True ([string] $live.real005ClosureStatus -eq 'not_closed') 'live_closeout_real005_boundary_drift'
-    Require-True (-not [bool] $live.fullClosureAllowed) 'live_closeout_full_closure_must_remain_disallowed'
-    Require-True ($releaseCardText -match '(?m)^\*\*No-Go\*\*') 'release_card_must_remain_no_go'
-}
 if ($null -ne $roadmap) {
     Require-True ([string] $roadmap.data.status -eq 'pass') 'roadmap_guard_not_pass'
-    Require-True ([string] $roadmap.data.closeout.real005ClosureStatus -eq 'not_closed') 'roadmap_real005_boundary_drift'
-    Require-True ([string] $roadmap.data.closeout.releaseDecision -eq 'No-Go') 'roadmap_release_decision_must_remain_no_go'
-    Require-True ((@($roadmap.data.closeout.open) -join ',') -eq 'P001,P002,P003,P004,P005,P006') 'p001_p006_open_sequence_drift'
 }
 if ($null -ne $hostCapability) {
     Require-True ([string] $hostCapability.data.schemaVersion -eq 'host-capability-diagnostic.v1') 'host_capability_schema_mismatch'
@@ -295,10 +277,10 @@ $report = [ordered]@{
     commandReceipts = $commandReceipts.ToArray()
     sideEffectBoundary = 'DryRun writes nothing. Collect writes only OutputPath. No DB, FileStore, process, backlog, active-state, release-card, signoff, tag, or external-service write is performed.'
     truthBoundary = [ordered]@{
-        real005ClosureStatus = 'not_closed'
-        fullClosureAllowed = $false
-        p001ThroughP006 = '待办'
-        releaseDecision = 'No-Go'
+        real005ClosureStatus = [string]$currentTruthReceipt.real005.closureStatus
+        fullClosureAllowed = [bool]$currentTruthReceipt.real005.fullClosureAllowed
+        p001ThroughP006 = [string]$currentTruthReceipt.p001ThroughP006
+        releaseDecision = [string]$currentTruthReceipt.releaseDecision
         liveAccepted = $false
     }
 }

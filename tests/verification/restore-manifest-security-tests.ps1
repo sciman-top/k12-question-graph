@@ -67,8 +67,11 @@ if (Test-Path -LiteralPath $testRoot) {
 try {
     New-Item -ItemType Directory -Path $testRoot -Force | Out-Null
     Write-TestManifest -Root $testRoot -FilePath 'safe.txt'
+    $validTargetRoot = Join-Path $testRoot 'valid-target'
+    New-Item -ItemType Directory -Path $validTargetRoot -Force | Out-Null
     $validOutput = & pwsh -NoProfile -ExecutionPolicy Bypass -File $restoreScript `
         -ManifestPath (Join-Path $testRoot 'manifest.json') `
+        -TargetDataRoot $validTargetRoot `
         -ApplyFileStore `
         -DryRun 2>&1 | Out-String
     if ($LASTEXITCODE -ne 0 -or $validOutput -notmatch '"status":\s*"ok"') {
@@ -97,6 +100,7 @@ try {
     Write-TestManifest -Root $testRoot -FilePath 'safe.txt' -LegacyNoRuntimeConfig
     $legacyRestoreOutput = & pwsh -NoProfile -ExecutionPolicy Bypass -File $restoreScript `
         -ManifestPath (Join-Path $testRoot 'manifest.json') `
+        -TargetDataRoot $validTargetRoot `
         -ApplyFileStore `
         -DryRun 2>&1 | Out-String
     if ($LASTEXITCODE -eq 0 -or $legacyRestoreOutput -notmatch 'unsupported_legacy_manifest') {
@@ -120,6 +124,7 @@ try {
 
     $output = & pwsh -NoProfile -ExecutionPolicy Bypass -File $restoreScript `
         -ManifestPath (Join-Path $testRoot 'manifest.json') `
+        -TargetDataRoot $validTargetRoot `
         -ApplyFileStore `
         -DryRun 2>&1 | Out-String
     if ($LASTEXITCODE -eq 0 -or $output -notmatch 'escapes its allowed root') {
@@ -137,6 +142,7 @@ try {
     Write-TestManifest -Root $testRoot -FilePath 'C:outside.txt'
     $driveRelativeOutput = & pwsh -NoProfile -ExecutionPolicy Bypass -File $restoreScript `
         -ManifestPath (Join-Path $testRoot 'manifest.json') `
+        -TargetDataRoot $validTargetRoot `
         -ApplyFileStore `
         -DryRun 2>&1 | Out-String
     if ($LASTEXITCODE -eq 0) {

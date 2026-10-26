@@ -69,7 +69,6 @@ jobs:
               $base = git rev-list --max-parents=0 HEAD | Select-Object -First 1
             }
             $paths = @(git diff --name-only --diff-filter=ACMRD $base $env:HEAD_SHA)
-            if ($paths.Count -eq 0) { $paths = @('README.md') }
             $changedPaths = $paths -join '|'
             .\tools\run-verification.ps1 `
               -Profile Slice `
@@ -85,6 +84,7 @@ jobs:
           "backend=$(('backend-tests' -in $selected).ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
           "frontend=$(('frontend-tests' -in $selected).ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
           "worker=$(('worker-tests' -in $selected).ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
+          "focused=$(((('backend-tests' -in $selected) -or ('frontend-tests' -in $selected)).ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
 
       - name: Setup .NET
         if: steps.scope.outputs.backend == 'true'
@@ -124,26 +124,56 @@ jobs:
         run: |
           python -m pip install --disable-pip-version-check -r workers/document/requirements.txt pip-audit
           python -m compileall -q workers/document tests/workers
-          python -c "import pdfplumber, pypdf, rapidocr_onnxruntime"
+          python -c "import rapidocr_onnxruntime"
           python -m pip check
           python -m pip_audit -r workers/document/requirements.txt
 
       - name: Run selected stateless verification
+        id: verify
+        shell: pwsh
+        env:
+          PROFILE: ${{ steps.scope.outputs.profile }}
+          CHANGED_PATHS: ${{ steps.scope.outputs.changed_paths }}
+          FOCUSED: ${{ steps.scope.outputs.focused }}
+        run: |
+          $fallback = 'false'
+          $ErrorActionPreference = 'Continue'
+          if ($env:PROFILE -eq 'Quick') {
+            .\tools\run-verification.ps1 -Profile Quick -ReportRoot tmp\ci\repo-preflight
+          }
+          else {
+            $paths = @($env:CHANGED_PATHS -split '\|' | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+            $arguments = @('-Profile', 'Slice', '-ChangedPaths', $paths, '-ReportRoot', 'tmp\ci\repo-preflight')
+            if ($env:FOCUSED -eq 'true') { $arguments += '-FocusedTests' }
+            & .\tools\run-verification.ps1 @arguments
+          }
+          $exitCode = $LASTEXITCODE
+          $hasVerificationReport = Test-Path -LiteralPath 'tmp\ci\repo-preflight\verification-summary.json' -PathType Leaf
+          if ($exitCode -ne 0 -and $env:FOCUSED -eq 'true' -and $hasVerificationReport) {
+            $summary = Get-Content -LiteralPath 'tmp\ci\repo-preflight\verification-summary.json' -Raw | ConvertFrom-Json
+            $failedIds = @($summary.steps | Where-Object status -eq 'fail' | ForEach-Object { [string]$_.id })
+            if ($failedIds.Count -gt 0 -and @($failedIds | Where-Object { $_ -in @('slice-backend-tests', 'slice-frontend-tests') }).Count -eq $failedIds.Count) {
+              $fallback = 'true'
+            }
+          }
+          "fallback=$fallback" >> $env:GITHUB_OUTPUT
+          exit $exitCode
+
+      - name: Run stateless verification fallback
+        if: failure() && steps.verify.outputs.fallback == 'true'
         shell: pwsh
         env:
           PROFILE: ${{ steps.scope.outputs.profile }}
           CHANGED_PATHS: ${{ steps.scope.outputs.changed_paths }}
         run: |
           if ($env:PROFILE -eq 'Quick') {
-            .\tools\run-verification.ps1 -Profile Quick -ReportRoot tmp\ci\repo-preflight
+            .\tools\run-verification.ps1 -Profile Quick -ReportRoot tmp\ci\repo-preflight-fallback
           }
           else {
             $paths = @($env:CHANGED_PATHS -split '\|' | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
-            .\tools\run-verification.ps1 `
-              -Profile Slice `
-              -ChangedPaths $paths `
-              -ReportRoot tmp\ci\repo-preflight
+            .\tools\run-verification.ps1 -Profile Slice -ChangedPaths $paths -ReportRoot tmp\ci\repo-preflight-fallback
           }
+          exit $LASTEXITCODE
 
       - name: Upload preflight report
         if: always()
@@ -152,4 +182,5 @@ jobs:
           name: repo-preflight-report
           path: |
             tmp/ci/repo-preflight/**
+            tmp/ci/repo-preflight-fallback/**
           if-no-files-found: error

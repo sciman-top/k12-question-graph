@@ -13,17 +13,12 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+. (Join-Path $PSScriptRoot 'preflight-helpers.ps1')
 
-function Assert-True([bool]$Condition, [string]$Message) {
-    if (-not $Condition) { throw $Message }
-}
 
-function Resolve-InRepoPath([string]$RelativePath) {
-    return Join-Path $repoRoot $RelativePath
-}
 
 function Read-JsonFile([string]$RelativePath) {
-    $fullPath = Resolve-InRepoPath $RelativePath
+    $fullPath = Resolve-RepoPath $RelativePath
     Assert-True (Test-Path -LiteralPath $fullPath) "JSON evidence missing: $RelativePath"
     return Get-Content -LiteralPath $fullPath -Raw | ConvertFrom-Json
 }
@@ -33,7 +28,7 @@ function Resolve-LatestReal005ReportPath([string]$PreferredPath) {
         return $PreferredPath
     }
 
-    $evidenceRoot = Resolve-InRepoPath 'docs/evidence'
+    $evidenceRoot = Resolve-RepoPath 'docs/evidence'
     Assert-True (Test-Path -LiteralPath $evidenceRoot) 'missing docs/evidence directory'
     $latest = @(
         Get-ChildItem -LiteralPath $evidenceRoot -Filter '*-real005-guangzhou-2015-2025-closure-standard-report.json' -File |
@@ -45,7 +40,7 @@ function Resolve-LatestReal005ReportPath([string]$PreferredPath) {
 }
 
 function Resolve-LatestEvidencePath([string]$Filter, [string]$Label) {
-    $evidenceRoot = Resolve-InRepoPath 'docs/evidence'
+    $evidenceRoot = Resolve-RepoPath 'docs/evidence'
     Assert-True (Test-Path -LiteralPath $evidenceRoot) 'missing docs/evidence directory'
     $latest = @(
         Get-ChildItem -LiteralPath $evidenceRoot -Filter $Filter -File |
@@ -56,24 +51,17 @@ function Resolve-LatestEvidencePath([string]$Filter, [string]$Label) {
     return [System.IO.Path]::GetRelativePath($repoRoot, $latest[0].FullName).Replace('\', '/')
 }
 
-function Write-ContentIfChanged([string]$Path, [string]$Content) {
-    if (Test-Path -LiteralPath $Path) {
-        $existing = Get-Content -LiteralPath $Path -Raw
-        if ($existing -eq $Content) { return }
-    }
-    Set-Content -LiteralPath $Path -Value $Content -Encoding UTF8
-}
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = ('docs/evidence/{0}-p001-live-pilot-readiness-preflight-report.json' -f (Get-Date -Format 'yyyyMMdd'))
 }
 
-$backlogFullPath = Resolve-InRepoPath $BacklogPath
-$liveCloseoutPlanFullPath = Resolve-InRepoPath $LiveCloseoutPlanPath
-$checklistFullPath = Resolve-InRepoPath $ChecklistPath
-$isolatedMachineEvidenceTemplateFullPath = Resolve-InRepoPath $IsolatedMachineEvidenceTemplatePath
-$evidenceFullPath = Resolve-InRepoPath $EvidencePath
-$reportFullPath = Resolve-InRepoPath $ReportPath
+$backlogFullPath = Resolve-RepoPath $BacklogPath
+$liveCloseoutPlanFullPath = Resolve-RepoPath $LiveCloseoutPlanPath
+$checklistFullPath = Resolve-RepoPath $ChecklistPath
+$isolatedMachineEvidenceTemplateFullPath = Resolve-RepoPath $IsolatedMachineEvidenceTemplatePath
+$evidenceFullPath = Resolve-RepoPath $EvidencePath
+$reportFullPath = Resolve-RepoPath $ReportPath
 
 Assert-True (Test-Path -LiteralPath $backlogFullPath) "P001 backlog file missing: $BacklogPath"
 Assert-True (Test-Path -LiteralPath $liveCloseoutPlanFullPath) "live closeout plan missing: $LiveCloseoutPlanPath"

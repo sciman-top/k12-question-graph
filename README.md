@@ -62,7 +62,7 @@ Web：
 .\tools\run-verification.ps1 -Profile Quick
 ```
 
-`Slice` 只运行受影响产品 build/test 或 changed-script 解析；纯文档返回 `gate_na`。`Quick` 运行 API、Web 和核心 Worker，不扫描全部历史工具。两者只写 `tmp/verification/`，不访问 PostgreSQL、不停止常驻进程、不写 FileStore 或 tracked evidence。
+`Slice` 运行受影响产品 build/test 或 changed-script 回归；加 `-FocusedTests` 时只运行直接相关测试，无法封闭映射时自动回退模块全量。纯文档返回 `gate_na`。`Quick` 运行 API、Web 和核心 Worker，不扫描全部历史工具。两者只写 `tmp/verification/`，不访问 PostgreSQL、不停止常驻进程、不写 FileStore 或 tracked evidence。
 
 数据库 migration、备份恢复和发布前状态对账只在明确授权后运行：
 
@@ -71,6 +71,8 @@ Web：
 ```
 
 Release 只增加 migration/privacy/no-active-write、隔离备份恢复、reference/current-evidence/closeout 检查；不会重新审计全部历史任务或生成日期化 tracked evidence。
+
+验证策略和 current evidence 生命周期已收口到 `docs/decisions/ADR-015-proportionate-verification-and-curated-current-evidence.md`。
 
 ## 数据与运维
 

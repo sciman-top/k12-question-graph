@@ -30,14 +30,8 @@ foreach ($entry in @($index.entries)) {
     if ([string]::IsNullOrWhiteSpace($entry.claimBoundary)) { throw "claim boundary is required: $($entry.id)" }
 }
 
-$real005Entry = @($index.entries | Where-Object id -eq 'real005-closure-standard')
-if ($real005Entry.Count -ne 1) { throw 'REAL005 current evidence entry is required' }
-$real005 = Get-Content -LiteralPath (Join-Path $repoRoot $real005Entry[0].currentPath) -Raw -Encoding UTF8 | ConvertFrom-Json
-
-$releaseCard = Get-Content -LiteralPath (Join-Path $repoRoot 'docs/109_ReleaseGoNoGoCard.md') -Raw -Encoding UTF8
-$closureSummary = Get-Content -LiteralPath (Join-Path $repoRoot 'docs/CurrentClosureStatus.md') -Raw -Encoding UTF8
-Import-Module (Join-Path $PSScriptRoot 'verification/CloseoutInvariants.psm1') -Force
-Test-ReleaseCloseoutInvariants -Real005Evidence $real005 -ReleaseCardText $releaseCard -ClosureSummaryText $closureSummary
+Import-Module (Join-Path $PSScriptRoot 'verification/CurrentTruth.psm1') -Force
+$currentTruth = Get-CurrentTruth -RepoRoot $repoRoot -IndexPath $IndexPath
 
 $report = [ordered]@{
     schemaVersion = 2
@@ -50,7 +44,7 @@ $report = [ordered]@{
         onsiteManual = @($index.entries | Where-Object authorityLevel -eq 'onsite-manual').Count
         liveAccepted = @($index.entries | Where-Object authorityLevel -eq 'live-accepted').Count
     }
-    real005ClosureStatus = $real005.closureStatus
+    real005ClosureStatus = $currentTruth.real005.closureStatus
     policy = $index.policy
 }
 $fullReportPath = Join-Path $repoRoot $JsonReportPath

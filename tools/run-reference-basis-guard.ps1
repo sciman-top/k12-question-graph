@@ -167,6 +167,7 @@ $snapshotManifestPaths = @($snapshotManifest.entries | ForEach-Object { [string]
 $externalManifestAvailable = Test-Path -LiteralPath $ExternalManifestPath
 $externalManifestPaths = @()
 $manifestParity = 'external_unavailable'
+$missingOnDisk = @()
 
 if ($externalManifestAvailable) {
     $externalManifest = Get-Content -LiteralPath $ExternalManifestPath -Raw | ConvertFrom-Json
@@ -178,6 +179,14 @@ if ($externalManifestAvailable) {
     Assert-True ((Get-ItemCount $missingFromSnapshot) -eq 0) ("snapshot manifest is missing external reference entries: {0}. run tools/sync-reference-shelf-snapshot.ps1" -f ($missingFromSnapshot -join ', '))
     Assert-True ((Get-ItemCount $extraInSnapshot) -eq 0) ("snapshot manifest has entries not present in external manifest: {0}. run tools/sync-reference-shelf-snapshot.ps1" -f ($extraInSnapshot -join ', '))
     $manifestParity = 'match'
+
+    if ($checkExternalDisk) {
+        foreach ($relativePath in $externalManifestPaths) {
+            if (-not (Test-Path -LiteralPath (Join-Path $ExternalReferenceRoot $relativePath))) {
+                $missingOnDisk += [string]$relativePath
+            }
+        }
+    }
 }
 
 $referenceManifestPaths = if ($ValidationMode -eq 'Ci') {
@@ -232,7 +241,7 @@ for ($i = 0; $i -lt (Get-ItemCount $expectedTaskIds); $i++) {
 
     foreach ($relativePath in (@($localPaths) + @($communityPaths))) {
         Assert-True ($referenceManifestPaths -contains $relativePath) "${expectedId} local/community reference missing from manifest or snapshot: $relativePath"
-        if ($checkExternalDisk) {
+        if ($checkExternalDisk -and $missingOnDisk -notcontains $relativePath) {
             $fullPath = Join-Path $ExternalReferenceRoot $relativePath
             Assert-True (Test-Path -LiteralPath $fullPath) "${expectedId} local/community reference path missing on disk: $relativePath"
         }
@@ -280,7 +289,7 @@ for ($i = 0; $i -lt (Get-ItemCount $expectedModuleIds); $i++) {
     }
     foreach ($relativePath in (@($localPaths) + @($communityPaths))) {
         Assert-True ($referenceManifestPaths -contains $relativePath) "${actualId} local/community reference missing from manifest or snapshot: $relativePath"
-        if ($checkExternalDisk) {
+        if ($checkExternalDisk -and $missingOnDisk -notcontains $relativePath) {
             $fullPath = Join-Path $ExternalReferenceRoot $relativePath
             Assert-True (Test-Path -LiteralPath $fullPath) "${actualId} local/community reference path missing on disk: $relativePath"
         }
@@ -346,6 +355,7 @@ $report = [ordered]@{
     externalEntryCount = Get-ItemCount $externalManifestPaths
     snapshotParity = $manifestParity
     physicalExternalCheck = $checkExternalDisk
+    externalMissingOnDisk = @($missingOnDisk)
     changedPathCount = Get-ItemCount $normalizedChangedPaths
     changedPaths = $normalizedChangedPaths
     impactedModuleIds = @($impactedModuleIds)

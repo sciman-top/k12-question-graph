@@ -116,8 +116,8 @@ public sealed class PaperArtifactService
                 FileName = converter,
                 UseShellExecute = false,
                 CreateNoWindow = true,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true
+                RedirectStandardOutput = false,
+                RedirectStandardError = false
             };
             startInfo.ArgumentList.Add("--headless");
             startInfo.ArgumentList.Add("--convert-to");
