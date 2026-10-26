@@ -54,6 +54,35 @@ public static class JsonElementReaders
     }
 }
 
+public static class JsonArrayReaders
+{
+    public static IReadOnlyList<string> ReadStringArray(JsonElement element, string propertyName)
+    {
+        if (element.ValueKind != JsonValueKind.Object
+            || !element.TryGetProperty(propertyName, out var value)
+            || value.ValueKind != JsonValueKind.Array)
+        {
+            return [];
+        }
+
+        return value.EnumerateArray()
+            .Where(item => item.ValueKind == JsonValueKind.String)
+            .Select(item => item.GetString()?.Trim())
+            .Where(item => !string.IsNullOrWhiteSpace(item))
+            .Select(item => item!)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+    }
+
+    public static IReadOnlyList<Guid> ReadGuidArray(JsonElement element, string propertyName) =>
+        ReadStringArray(element, propertyName)
+            .Select(value => Guid.TryParse(value, out var id) ? (Guid?)id : null)
+            .Where(value => value.HasValue)
+            .Select(value => value!.Value)
+            .Distinct()
+            .ToArray();
+}
+
 public static class ReviewQueuePayloadHelpers
 {
     public static string ResolveRiskLevel(string payloadJson)

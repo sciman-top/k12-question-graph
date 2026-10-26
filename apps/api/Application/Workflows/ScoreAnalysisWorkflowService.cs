@@ -1,5 +1,6 @@
 using K12QuestionGraph.Api.Data;
 using K12QuestionGraph.Api.Domain;
+using K12QuestionGraph.Api.Infrastructure.Json;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
@@ -421,7 +422,7 @@ public sealed class ScoreAnalysisWorkflowService(KqgDbContext dbContext)
                     && (x.Status == DomainAssetStatuses.Reviewed || x.Status == DomainAssetStatuses.Active))
                 .ToListAsync(cancellationToken))
             .Where(IsReviewedErrorPattern)
-            .SelectMany(asset => ReadGuidArray(asset.Metadata, "evidenceTargetIds")
+            .SelectMany(asset => JsonArrayReaders.ReadGuidArray(JsonHelpers.ParseJsonElement(asset.Metadata), "evidenceTargetIds")
                 .Select(targetId => new ScoreEvidenceErrorPatternInput(
                     targetId,
                     asset.Id,
@@ -494,7 +495,7 @@ public sealed class ScoreAnalysisWorkflowService(KqgDbContext dbContext)
                 issues.Add("knowledge_version_ambiguous");
             }
 
-            var metadata = target is null ? default : ParseJson(target.Metadata);
+            var metadata = target is null ? default : JsonHelpers.ParseJsonElement(target.Metadata);
             itemInputs.Add(new ScoreEvidenceAnalysisItemInput(
                 scoreGroup.Key,
                 scoreGroup.Count(),
@@ -503,8 +504,8 @@ public sealed class ScoreAnalysisWorkflowService(KqgDbContext dbContext)
                 target?.Id,
                 target?.StableKey,
                 target?.TargetStatement,
-                target is null ? [] : ReadStringArray(metadata, "abilityDimensions"),
-                target is null ? [] : ReadStringArray(metadata, "cognitiveDemands"),
+                target is null ? [] : JsonArrayReaders.ReadStringArray(metadata, "abilityDimensions"),
+                target is null ? [] : JsonArrayReaders.ReadStringArray(metadata, "cognitiveDemands"),
                 knowledge.Length == 1 ? knowledge[0] : null,
                 target is null
                     ? []
@@ -812,23 +813,10 @@ public sealed class ScoreAnalysisWorkflowService(KqgDbContext dbContext)
 
     private static bool IsReviewedErrorPattern(DomainAssetVersion asset)
     {
-        var metadata = ParseJson(asset.Metadata);
+        var metadata = JsonHelpers.ParseJsonElement(asset.Metadata);
         var reviewStatus = ReadString(metadata, "reviewerStatus") ?? ReadString(metadata, "review_status");
         var productionEligible = ReadBoolean(metadata, "productionEligible") ?? ReadBoolean(metadata, "production_eligible");
         return reviewStatus == DomainAssetReviewStatuses.Approved && productionEligible is false;
-    }
-
-    private static JsonElement ParseJson(string? value)
-    {
-        try
-        {
-            using var document = JsonDocument.Parse(string.IsNullOrWhiteSpace(value) ? "{}" : value);
-            return document.RootElement.Clone();
-        }
-        catch (JsonException)
-        {
-            return JsonSerializer.SerializeToElement(new { });
-        }
     }
 
     private static string? ReadString(JsonElement element, string propertyName) =>
@@ -844,24 +832,6 @@ public sealed class ScoreAnalysisWorkflowService(KqgDbContext dbContext)
         && value.ValueKind is JsonValueKind.True or JsonValueKind.False
             ? value.GetBoolean()
             : null;
-
-    private static IReadOnlyList<string> ReadStringArray(JsonElement element, string propertyName) =>
-        element.ValueKind == JsonValueKind.Object
-        && element.TryGetProperty(propertyName, out var value)
-        && value.ValueKind == JsonValueKind.Array
-            ? value.EnumerateArray()
-                .Where(x => x.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(x.GetString()))
-                .Select(x => x.GetString()!.Trim())
-                .Distinct(StringComparer.Ordinal)
-                .ToArray()
-            : [];
-
-    private static IReadOnlyList<Guid> ReadGuidArray(string json, string propertyName) =>
-        ReadStringArray(ParseJson(json), propertyName)
-            .Select(value => Guid.TryParse(value, out var parsed) ? parsed : Guid.Empty)
-            .Where(value => value != Guid.Empty)
-            .Distinct()
-            .ToArray();
 
     private static ScoreImportServiceResult Blocked(ScoreImportServiceRequest request, IReadOnlyList<ScoreImportRowError> errors)
     {

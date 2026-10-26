@@ -1,6 +1,7 @@
 using K12QuestionGraph.Api.Application.Workflows.Contracts;
 using K12QuestionGraph.Api.Data;
 using K12QuestionGraph.Api.Domain;
+using K12QuestionGraph.Api.Infrastructure.Json;
 using K12QuestionGraph.Api.Infrastructure.Queries;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
@@ -175,7 +176,7 @@ public sealed class KnowledgeEvidenceWorkflowService(KqgDbContext dbContext)
                 StringComparison.OrdinalIgnoreCase));
             IReadOnlyList<Guid> targetIds = profile is null
                 ? []
-                : ReadGuidArray(ParseJsonElement(profile.SourceEvidence), "evidenceTargetIds");
+                : JsonArrayReaders.ReadGuidArray(JsonHelpers.ParseJsonElement(profile.SourceEvidence), "evidenceTargetIds");
             targetQuery = targetQuery.Where(target => targetIds.Contains(target.Id));
         }
 
@@ -266,7 +267,7 @@ public sealed class KnowledgeEvidenceWorkflowService(KqgDbContext dbContext)
         var alignmentLookup = alignments.ToLookup(alignment => alignment.AssessmentTargetId);
         var observedLookup = observedRows.ToLookup(evidence => evidence.AssessmentTargetId);
         var profileLookup = profileAssets
-            .SelectMany(profile => ReadGuidArray(ParseJsonElement(profile.SourceEvidence), "evidenceTargetIds")
+            .SelectMany(profile => JsonArrayReaders.ReadGuidArray(JsonHelpers.ParseJsonElement(profile.SourceEvidence), "evidenceTargetIds")
                 .Select(targetId => new { targetId, profile }))
             .Where(entry => targetIdsForPage.Contains(entry.targetId))
             .ToLookup(entry => entry.targetId, entry => entry.profile);
@@ -274,7 +275,7 @@ public sealed class KnowledgeEvidenceWorkflowService(KqgDbContext dbContext)
 
         var cards = questions.Select(question => new QuestionEvidenceCardDto(
             question.Id,
-            ReadInt(ParseJsonElement(question.CustomFields), "questionNo"),
+            ReadInt(JsonHelpers.ParseJsonElement(question.CustomFields), "questionNo"),
             question.Subject,
             question.Stage,
             question.Grade,
@@ -284,7 +285,7 @@ public sealed class KnowledgeEvidenceWorkflowService(KqgDbContext dbContext)
             "question_estimated",
             targetLookup[question.Id].Select(target =>
             {
-                var metadata = ParseJsonElement(target.Metadata);
+                var metadata = JsonHelpers.ParseJsonElement(target.Metadata);
                 var knowledge = knowledgeLookup[target.Id]
                     .Where(mapping => knowledgeAssets.ContainsKey(mapping.DomainAssetVersionId))
                     .Select(mapping =>
@@ -331,7 +332,7 @@ public sealed class KnowledgeEvidenceWorkflowService(KqgDbContext dbContext)
                         profile.StableId,
                         profile.DisplayName,
                         profile.Status,
-                        ReadNestedString(ParseJsonElement(profile.Metadata), "trend", "status")))
+                        ReadNestedString(JsonHelpers.ParseJsonElement(profile.Metadata), "trend", "status")))
                     .ToArray();
                 return new QuestionAssessmentTargetEvidenceDto(
                     target.Id,
@@ -343,11 +344,11 @@ public sealed class KnowledgeEvidenceWorkflowService(KqgDbContext dbContext)
                     target.Status,
                     target.ReviewStatus,
                     target.ProductionEligible,
-                    ReadStringArray(metadata, "abilityDimensions"),
-                    ReadStringArray(metadata, "cognitiveDemands"),
-                    ReadStringArray(metadata, "methodModelExperimentIds"),
+                    JsonArrayReaders.ReadStringArray(metadata, "abilityDimensions"),
+                    JsonArrayReaders.ReadStringArray(metadata, "cognitiveDemands"),
+                    JsonArrayReaders.ReadStringArray(metadata, "methodModelExperimentIds"),
                     ReadString(metadata, "contextType"),
-                    ReadStringArray(metadata, "representationTypes"),
+                    JsonArrayReaders.ReadStringArray(metadata, "representationTypes"),
                     knowledge,
                     requirements,
                     observed,
@@ -926,7 +927,7 @@ public sealed class KnowledgeEvidenceWorkflowService(KqgDbContext dbContext)
                     asset.Status,
                     semanticType,
                 }),
-                ParseJsonElement(asset.SourceEvidence)));
+                JsonHelpers.ParseJsonElement(asset.SourceEvidence)));
         }
 
         var targets = await dbContext.AssessmentTargets.AsNoTracking().ToArrayAsync(cancellationToken);
@@ -1009,7 +1010,7 @@ public sealed class KnowledgeEvidenceWorkflowService(KqgDbContext dbContext)
                      })
                      .ToArray(),
             }),
-            ParseJsonElement(target.Metadata))));
+            JsonHelpers.ParseJsonElement(target.Metadata))));
 
         var alignments = await dbContext.CurriculumAlignments.AsNoTracking().ToArrayAsync(cancellationToken);
         items.AddRange(alignments
@@ -1038,7 +1039,7 @@ public sealed class KnowledgeEvidenceWorkflowService(KqgDbContext dbContext)
                 alignment.Status,
                 retrospective = !alignment.OriginalBasis,
             }),
-            ParseJsonElement(alignment.Evidence))));
+            JsonHelpers.ParseJsonElement(alignment.Evidence))));
 
         var mappings = (await dbContext.DomainAssetMappings.AsNoTracking().ToArrayAsync(cancellationToken))
             .Where(IsMappingReviewEligible)
@@ -1079,7 +1080,7 @@ public sealed class KnowledgeEvidenceWorkflowService(KqgDbContext dbContext)
                     mapping.MappingType,
                     mapping.AutoApplied,
                 }),
-                ParseJsonElement(mapping.Evidence));
+                JsonHelpers.ParseJsonElement(mapping.Evidence));
             items.Add(item with { BatchApprovalEligible = IsBatchApprovalEligible(item) });
         }
 
@@ -1132,7 +1133,7 @@ public sealed class KnowledgeEvidenceWorkflowService(KqgDbContext dbContext)
                 productionEligible = target.ProductionEligible,
                 updatedAt = target.UpdatedAt,
             });
-            return new CurriculumEvidenceMutation(before, after, ParseJsonElement(target.Metadata));
+            return new CurriculumEvidenceMutation(before, after, JsonHelpers.ParseJsonElement(target.Metadata));
         }
 
         if (candidateType == "alignment")
@@ -1189,7 +1190,7 @@ public sealed class KnowledgeEvidenceWorkflowService(KqgDbContext dbContext)
                     productionEligible = curriculumAlignment.ProductionEligible,
                     curriculumAssetVersionId = curriculumAlignment.CurriculumAssetVersionId,
                 });
-                return new CurriculumEvidenceMutation(before, after, ParseJsonElement(curriculumAlignment.Evidence));
+                return new CurriculumEvidenceMutation(before, after, JsonHelpers.ParseJsonElement(curriculumAlignment.Evidence));
             }
 
             var mapping = await dbContext.DomainAssetMappings.FirstOrDefaultAsync(row => row.Id == candidateId, cancellationToken)
@@ -1250,7 +1251,7 @@ public sealed class KnowledgeEvidenceWorkflowService(KqgDbContext dbContext)
                 reviewedAt = NormalizeDatabaseTimestamp(mapping.ReviewedAt),
                 autoApplied = mapping.AutoApplied,
             });
-            return new CurriculumEvidenceMutation(mappingBefore, mappingAfter, ParseJsonElement(mapping.Evidence));
+            return new CurriculumEvidenceMutation(mappingBefore, mappingAfter, JsonHelpers.ParseJsonElement(mapping.Evidence));
         }
 
         throw new ArgumentException("invalid_candidate_type", nameof(candidateType));
@@ -1285,7 +1286,7 @@ public sealed class KnowledgeEvidenceWorkflowService(KqgDbContext dbContext)
         {
             entityKind = "domain_asset_version",
             status = asset.Status,
-            metadata = ParseJsonElement(asset.Metadata),
+            metadata = JsonHelpers.ParseJsonElement(asset.Metadata),
             updatedAt = asset.UpdatedAt,
         });
         if (decision != "keep_pending")
@@ -1302,10 +1303,10 @@ public sealed class KnowledgeEvidenceWorkflowService(KqgDbContext dbContext)
         {
             entityKind = "domain_asset_version",
             status = asset.Status,
-            metadata = ParseJsonElement(asset.Metadata),
+            metadata = JsonHelpers.ParseJsonElement(asset.Metadata),
             updatedAt = asset.UpdatedAt,
         });
-        return new CurriculumEvidenceMutation(before, after, ParseJsonElement(asset.SourceEvidence));
+        return new CurriculumEvidenceMutation(before, after, JsonHelpers.ParseJsonElement(asset.SourceEvidence));
     }
 
     private async Task RestoreCurriculumEvidenceSnapshotAsync(
@@ -1327,14 +1328,14 @@ public sealed class KnowledgeEvidenceWorkflowService(KqgDbContext dbContext)
                         {
                             entityKind = "domain_asset_version",
                             status = asset.Status,
-                            metadata = ParseJsonElement(asset.Metadata),
+                            metadata = JsonHelpers.ParseJsonElement(asset.Metadata),
                             updatedAt = asset.UpdatedAt,
                         })
                         : JsonSerializer.SerializeToElement(new
                         {
                             entityKind = "domain_asset_version",
                             status = asset.Status,
-                            metadata = ParseJsonElement(asset.Metadata),
+                            metadata = JsonHelpers.ParseJsonElement(asset.Metadata),
                         });
                     if (ShouldRestoreSnapshot(expectedAfter, before, current))
                     {
@@ -1517,7 +1518,7 @@ public sealed class KnowledgeEvidenceWorkflowService(KqgDbContext dbContext)
 
     internal static CurriculumEvidenceDecisionResponse BuildDecisionResponse(ReviewQueueItem audit)
     {
-        var payload = ParseJsonElement(audit.Payload);
+        var payload = JsonHelpers.ParseJsonElement(audit.Payload);
         var undo = payload.GetProperty("undo");
         var state = undo.TryGetProperty("restored", out var restored)
             ? restored
@@ -1546,22 +1547,9 @@ public sealed class KnowledgeEvidenceWorkflowService(KqgDbContext dbContext)
         _ => 0,
     };
 
-    private static JsonElement ParseJsonElement(string json)
-    {
-        try
-        {
-            using var document = JsonDocument.Parse(string.IsNullOrWhiteSpace(json) ? "{}" : json);
-            return document.RootElement.Clone();
-        }
-        catch (JsonException)
-        {
-            return JsonSerializer.SerializeToElement(new { });
-        }
-    }
-
     private static JsonElement ParseJsonObject(string json)
     {
-        var element = ParseJsonElement(json);
+        var element = JsonHelpers.ParseJsonElement(json);
         return element.ValueKind == JsonValueKind.Object ? element : JsonSerializer.SerializeToElement(new { });
     }
 
@@ -1579,32 +1567,6 @@ public sealed class KnowledgeEvidenceWorkflowService(KqgDbContext dbContext)
 
         return null;
     }
-
-    private static IReadOnlyList<string> ReadStringArray(JsonElement element, string propertyName)
-    {
-        if (element.ValueKind != JsonValueKind.Object
-            || !element.TryGetProperty(propertyName, out var value)
-            || value.ValueKind != JsonValueKind.Array)
-        {
-            return [];
-        }
-
-        return value.EnumerateArray()
-            .Where(item => item.ValueKind == JsonValueKind.String)
-            .Select(item => item.GetString()?.Trim())
-            .Where(item => !string.IsNullOrWhiteSpace(item))
-            .Select(item => item!)
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToArray();
-    }
-
-    private static IReadOnlyList<Guid> ReadGuidArray(JsonElement element, string propertyName) =>
-        ReadStringArray(element, propertyName)
-            .Select(value => Guid.TryParse(value, out var id) ? id : (Guid?)null)
-            .Where(value => value.HasValue)
-            .Select(value => value!.Value)
-            .Distinct()
-            .ToArray();
 
     private static int? ReadInt(JsonElement element, string propertyName)
     {
@@ -1683,7 +1645,7 @@ public sealed class KnowledgeEvidenceWorkflowService(KqgDbContext dbContext)
 
     private static bool HasImportKey(string json, string expected)
     {
-        var element = ParseJsonElement(json);
+        var element = JsonHelpers.ParseJsonElement(json);
         return string.Equals(ReadString(element, "importKey"), expected, StringComparison.Ordinal);
     }
 
