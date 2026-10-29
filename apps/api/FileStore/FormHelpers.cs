@@ -118,22 +118,21 @@ public static class FormHelpers
     }
 
     public static string ResolveAuditedActor(HttpContext httpContext) =>
-    AdminInternalEndpointGuard.ResolveActorIdentity(httpContext.User).OperatorId;
-
+        AdminInternalEndpointGuard.ResolveActorIdentity(httpContext.User).OperatorId;
 
     public static string? ValidateSourceRegionRequest(SourceRegionCreateRequest request)
-{
-    if (request.PageNumber < 1)
     {
-        return "invalid_page_number";
-    }
+        if (request.PageNumber < 1)
+        {
+            return "invalid_page_number";
+        }
 
-    if (request.X < 0 || request.Y < 0 || request.Width <= 0 || request.Height <= 0)
-    {
-        return "invalid_bbox";
-    }
+        if (request.X < 0 || request.Y < 0 || request.Width <= 0 || request.Height <= 0)
+        {
+            return "invalid_bbox";
+        }
 
-    var unit = NormalizeToken(request.CoordinateUnit, "percent");
-    return unit is "pixel" or "point" or "percent" ? null : "invalid_coordinate_unit";
-}
+        var unit = NormalizeToken(request.CoordinateUnit, "percent");
+        return unit is "pixel" or "point" or "percent" ? null : "invalid_coordinate_unit";
+    }
 }

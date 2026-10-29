@@ -174,12 +174,6 @@ app.MapGet("/health/ready", async (
 })
 .WithName("ReadinessHealth");
 
-
-
-
-
-
-
 app.MapGet("/api/admin/storage/summary", (IConfiguration configuration) =>
 {
     var paths = configuration.GetSection("KqgPaths").Get<KqgPathsOptions>() ?? new KqgPathsOptions();
@@ -225,41 +219,7 @@ app.MapPost("/internal/ai/model-route", (AiRouteRequest request, AiModelRouter r
 })
 .WithName("RouteAiModel");
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 app.MapScoreEndpoints();
-
-
-
-
-
-
 
 app.MapPost("/knowledge-version-explanations/resolve", (KnowledgeVersionExplanationRequest request, PaperWorkflowService workflowService) =>
 {
@@ -327,19 +287,11 @@ app.MapPost("/knowledge-version-explanations/resolve", (KnowledgeVersionExplanat
 })
 .WithName("ResolveKnowledgeVersionExplanation");
 
-
-
 app.MapFallbackToFile("index.html").AllowAnonymous();
 
 app.Run();
 
 // 业务审计的 reviewedBy 统一取认证 actor 身份;请求体 ReviewedBy 仅兼容保留,
 // 不再作为身份来源(2026-08-23 审计 M1 定案)。
-
-
-
-
-
-
 
 public partial class Program;
