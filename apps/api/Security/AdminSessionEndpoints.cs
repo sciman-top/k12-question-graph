@@ -18,8 +18,8 @@ public static class AdminSessionEndpoints
 {
     public static WebApplication MapAdminSessionEndpoints(this WebApplication app)
     {
-        app.MapGet("/auth/session", (HttpContext context) =>
-            Results.Ok(CurrentSession(context)))
+        app.MapGet("/auth/session", async Task<IResult> (HttpContext context) =>
+            Results.Ok(await CurrentSessionAsync(context)))
             .AllowAnonymous()
             .WithName("GetAdminSession");
 
@@ -168,18 +168,21 @@ public static class AdminSessionEndpoints
         }
     }
 
-    private static AdminSessionResponse CurrentSession(HttpContext context)
+    private static async Task<AdminSessionResponse> CurrentSessionAsync(HttpContext context)
     {
         if (context.User.Identity?.IsAuthenticated != true)
         {
             return new AdminSessionResponse(false, null, null, null);
         }
 
+        // guard 因密钥轮换清空 principal 时上面已返回未认证;这里仅对仍认证的
+        // 会话补读票据过期时间,不重新建立认证态。
+        var authenticateResult = await context.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return new AdminSessionResponse(
             true,
             context.User.FindFirstValue(ClaimTypes.NameIdentifier),
             context.User.FindFirstValue(ClaimTypes.Role),
-            null);
+            authenticateResult.Ticket?.Properties?.ExpiresUtc);
     }
 }
 

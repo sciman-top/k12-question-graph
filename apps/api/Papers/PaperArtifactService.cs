@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
@@ -82,7 +83,7 @@ public sealed class PaperArtifactService
         body.Append($"<w:p><w:r><w:t>{Xml(title)}</w:t></w:r></w:p>");
         foreach (var line in lines)
         {
-            body.Append($"<w:p><w:r><w:t>{line.No}. {Xml(line.Text)}（{line.Score:0.##}分）</w:t></w:r></w:p>");
+            body.Append($"<w:p><w:r><w:t>{line.No}. {Xml(line.Text)}（{line.Score.ToString("0.##", CultureInfo.InvariantCulture)}分）</w:t></w:r></w:p>");
             if (line.Answer is not null) body.Append($"<w:p><w:r><w:t>答案：{Xml(line.Answer)}</w:t></w:r></w:p>");
         }
         var document = $"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><w:document xmlns:w=\"http://schemas.openxmlformats.org/wordprocessingml/2006/main\"><w:body>{body}<w:sectPr/></w:body></w:document>";
@@ -135,16 +136,12 @@ public sealed class PaperArtifactService
             }
             catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
             {
-                process.Kill(entireProcessTree: true);
+                TryKillProcessTree(process);
                 throw new PaperArtifactGenerationException("pdf_converter_timeout", "PDF 转换超过 30 秒，已安全终止。");
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
-                if (!process.HasExited)
-                {
-                    process.Kill(entireProcessTree: true);
-                }
-
+                TryKillProcessTree(process);
                 throw;
             }
 
@@ -162,6 +159,21 @@ public sealed class PaperArtifactService
     }
 
     private static void Add(ZipArchive zip, string name, string content) { using var writer = new StreamWriter(zip.CreateEntry(name).Open(), new UTF8Encoding(false)); writer.Write(content); }
+
+    private static void TryKillProcessTree(System.Diagnostics.Process process)
+    {
+        try
+        {
+            if (!process.HasExited)
+            {
+                process.Kill(entireProcessTree: true);
+            }
+        }
+        catch (InvalidOperationException)
+        {
+            // 进程在检查与终止之间自行退出,属预期竞态,不应把转换失败升级为未分类异常。
+        }
+    }
     private static string Preview(QuestionBlock block) => ReadCustom(block.Content, "text") ?? ReadCustom(block.Content, "answer") ?? block.Content;
     private static string? ReadCustom(string? json, string key)
     {
