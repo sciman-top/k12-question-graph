@@ -84,7 +84,8 @@ jobs:
           "backend=$(('backend-tests' -in $selected).ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
           "frontend=$(('frontend-tests' -in $selected).ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
           "worker=$(('worker-tests' -in $selected).ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
-          "focused=$(((('backend-tests' -in $selected) -or ('frontend-tests' -in $selected)).ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
+          $focused = ('backend-tests' -in $selected) -or ('frontend-tests' -in $selected)
+          "focused=$($focused.ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
 
       - name: Setup .NET
         if: steps.scope.outputs.backend == 'true'

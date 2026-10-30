@@ -25,6 +25,7 @@
     { "pattern": "tests/verification/backup-manifest-reissue-tests.ps1", "owner": "operations", "profile": "Slice", "commands": ["backup-restore-regressions"], "reason": "legacy reissue regression changed" },
     { "pattern": "tests/verification/run-accountable-acceptance-bundle-smoke.ps1", "owner": "release", "profile": "Slice", "commands": ["acceptance-regressions"], "reason": "accountable acceptance smoke changed" },
     { "pattern": "tests/verification/run-test-selection-regression-tests.ps1", "owner": "verification", "profile": "Slice", "commands": ["test-selection", "script-quality"], "reason": "focused test selection regression changed" },
+    { "pattern": "tests/verification/run-workflow-ps1-parse-tests.ps1", "owner": "verification", "profile": "Slice", "commands": ["verification-routing", "script-quality"], "reason": "workflow PowerShell syntax regression changed" },
     { "pattern": "tools/run-p005-feedback-summary.ps1", "owner": "release", "profile": "Slice", "commands": ["acceptance-regressions", "script-quality"], "reason": "feedback summary behavior changed" },
     { "pattern": "apps/api/*", "owner": "api", "profile": "Slice", "commands": ["backend-tests"], "reason": "API implementation or contract changed" },
     { "pattern": "tests/api/*", "owner": "api", "profile": "Slice", "commands": ["backend-tests"], "reason": "API regression coverage changed" },

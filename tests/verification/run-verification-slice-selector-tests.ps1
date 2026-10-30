@@ -28,6 +28,7 @@ Assert-Selection 'backup-policy' @('tools/backup-manifest-policy.ps1') 'pass' @(
 Assert-Selection 'backup-restore-regression' @('tests/verification/restore-manifest-security-tests.ps1') 'pass' @('backup-restore-regressions') | Out-Null
 Assert-Selection 'acceptance-regression' @('tests/verification/run-accountable-acceptance-bundle-smoke.ps1') 'pass' @('acceptance-regressions') | Out-Null
 Assert-Selection 'test-selection-regression' @('tests/verification/run-test-selection-regression-tests.ps1') 'pass' @('test-selection') | Out-Null
+Assert-Selection 'workflow-parse-regression' @('tests/verification/run-workflow-ps1-parse-tests.ps1') 'pass' @('verification-routing') | Out-Null
 Assert-Selection 'test-selection-module' @('tools/verification/TestSelection.psm1') 'pass' @('test-selection') | Out-Null
 Assert-Selection 'current-truth-module' @('tools/verification/CurrentTruth.psm1') 'pass' @('evidence-index', 'roadmap') | Out-Null
 Assert-Selection 'current-evidence-reader' @('tools/get-current-evidence.ps1') 'pass' @('evidence-index') | Out-Null

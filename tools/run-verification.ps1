@@ -238,6 +238,7 @@ function Invoke-SliceFocusedCommand {
         'verification-routing' {
             Invoke-SliceStep -Id 'slice-verification-routing' -Results $Results -Action {
                 & (Join-Path $repoRoot 'tests/verification/run-verification-slice-selector-tests.ps1') | Out-Null
+                & (Join-Path $repoRoot 'tests/verification/run-workflow-ps1-parse-tests.ps1') | Out-Null
             }
         }
         'roadmap' {
