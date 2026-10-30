@@ -6,6 +6,8 @@
 
 长期工程终态和技术栈裁决已沉淀到 `docs/decisions/ADR-014-recommended-engineering-endstate-and-stack-boundary.md`；后续只要出现“要不要换栈、换架构、提前做平台化能力”的讨论，先回看该 ADR。
 
+验证分层、聚焦测试回退和 current evidence 生命周期见 `docs/decisions/ADR-015-proportionate-verification-and-curated-current-evidence.md`。
+
 ## 0. 本地浅克隆参考库
 
 2026-06-06 已把高信号官方文档、同栈样例、教育测评平台、文档/OCR/AI 和 PostgreSQL 检索项目浅克隆到仓库外目录：

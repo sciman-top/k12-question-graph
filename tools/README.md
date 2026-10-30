@@ -8,15 +8,18 @@
 
 ```powershell
 .\tools\run-verification.ps1 -Profile Slice -ChangedPaths apps/api/Program.cs
+.\tools\run-verification.ps1 -Profile Slice -ChangedPaths apps/api/Ai/AiModelRouter.cs -FocusedTests
 .\tools\run-verification.ps1 -Profile Quick
 .\tools\run-verification.ps1 -Profile Release -AuthorizeStateful
 ```
 
-- `Slice`：按 changed paths 运行对应 API/Web/Worker build/test；工具变更只做脚本质量；纯文档为 `gate_na`。
+- `Slice`：按 changed paths 运行对应 API/Web/Worker build/test；`-FocusedTests` 使用直接测试选择，共享契约和未知映射自动回退模块全量；工具变更只做对应脚本质量或回归；纯文档为 `gate_na`。
 - `Quick`：无状态跨栈基线，不连接 PostgreSQL、不停止仓库进程、不写 FileStore 或 tracked evidence。
 - `Release`：只在当前任务明确授权后运行；包含 PostgreSQL/migration、隐私、no-active-write、隔离备份恢复和状态对账。
 - onsite/live acceptance 不提供可执行 profile，只接受外部真实证据。
 - 旧 full-gate monolith、兼容 wrapper、gate group、inventory/parser 与覆盖对账已退役；历史只从 Git 读取。
+- `CurrentTruth.psm1` 是当前 REAL005/P001-P006/No-Go 边界的唯一读取器；下游 guard 和证据包消费同一 receipt，不各自复述。
+- 备份恢复、确认包与聚焦选择回归已接入对应 changed-path 路由；未知路径仍 fail-closed。
 
 远程优先证据包（默认 DryRun；`Collect` 只写指定的 `tmp/verification` 输出）：
 
@@ -52,6 +55,14 @@ P005 反馈摘要（只做确定性去重/聚类/统计，不自动裁决）：
 .\tools\start-local-web.ps1
 .\tools\start-local-web.ps1 -Status
 ```
+
+一键启动（API + Web + 打开登录页，密钥自动进剪贴板，浏览器里只需粘贴密钥登录）：
+
+```powershell
+.\tools\start-local-dev.ps1
+```
+
+资源管理器中可直接双击 `tools\start-local-dev.cmd`，效果相同。加 `-NoBrowser` / `-NoClipboard` 可分别跳过打开浏览器或写剪贴板。
 
 未经当前任务授权，不停止、重启或替换已有 API/Web 进程。
 

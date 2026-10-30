@@ -21,6 +21,21 @@ Assert-Selection 'ai' @('configs/ai/provider.json') 'pass' @('script-quality') |
 Assert-Selection 'dependabot' @('.github/dependabot.yml') 'pass' @('verification-routing') | Out-Null
 Assert-Selection 'global-json' @('global.json') 'pass' @('backend-tests') | Out-Null
 Assert-Selection 'dotnet-tools' @('dotnet-tools.json') 'pass' @('backend-tests') | Out-Null
+Assert-Selection 'package-lock' @('apps/web/package-lock.json') 'pass' @('frontend-tests') | Out-Null
+Assert-Selection 'package-json' @('apps/web/package.json') 'pass' @('frontend-tests') | Out-Null
+Assert-Selection 'python-requirements' @('workers/document/requirements.txt') 'pass' @('worker-tests') | Out-Null
+Assert-Selection 'backup-policy' @('tools/backup-manifest-policy.ps1') 'pass' @('backup-restore-regressions') | Out-Null
+Assert-Selection 'backup-restore-regression' @('tests/verification/restore-manifest-security-tests.ps1') 'pass' @('backup-restore-regressions') | Out-Null
+Assert-Selection 'acceptance-regression' @('tests/verification/run-accountable-acceptance-bundle-smoke.ps1') 'pass' @('acceptance-regressions') | Out-Null
+Assert-Selection 'test-selection-regression' @('tests/verification/run-test-selection-regression-tests.ps1') 'pass' @('test-selection') | Out-Null
+Assert-Selection 'workflow-parse-regression' @('tests/verification/run-workflow-ps1-parse-tests.ps1') 'pass' @('verification-routing') | Out-Null
+Assert-Selection 'test-selection-module' @('tools/verification/TestSelection.psm1') 'pass' @('test-selection') | Out-Null
+Assert-Selection 'current-truth-module' @('tools/verification/CurrentTruth.psm1') 'pass' @('evidence-index', 'roadmap') | Out-Null
+Assert-Selection 'current-evidence-reader' @('tools/get-current-evidence.ps1') 'pass' @('evidence-index') | Out-Null
+Assert-Selection 'agents-md' @('AGENTS.md') 'pass' @() | Out-Null
+Assert-Selection 'gemini-md' @('GEMINI.md') 'pass' @() | Out-Null
+Assert-Selection 'agent-rules' @('.agents/rules/00-project.md') 'pass' @() | Out-Null
+Assert-Selection 'csproj' @('apps/api/K12QuestionGraph.Api.csproj') 'pass' @('backend-tests') | Out-Null
 
 foreach ($gateNaCase in @(
     [pscustomobject]@{ name = 'env-template'; path = '.env.example' },
@@ -109,7 +124,7 @@ if (($workerStepIds -join ',') -ne 'slice-worker-compile,slice-worker-tests') {
 
 [ordered]@{
     status = 'pass'
-    cases = @('api', 'web', 'worker', 'docs-gate-na', 'export', 'ai', 'dependabot', 'global-json', 'dotnet-tools', 'env-template-gate-na', 'diagram-gate-na', 'migration', 'unknown', 'unknown-runner', 'empty', 'quoted-comma-bundle', 'docs-execution-plan', 'api-execution-plan', 'web-execution-plan', 'worker-execution-plan')
+    cases = @('api', 'web', 'worker', 'docs-gate-na', 'export', 'ai', 'dependabot', 'global-json', 'dotnet-tools', 'package-lock', 'package-json', 'python-requirements', 'backup-policy', 'backup-restore-regression', 'acceptance-regression', 'test-selection-regression', 'test-selection-module', 'current-truth-module', 'current-evidence-reader', 'agents-md', 'gemini-md', 'agent-rules', 'csproj', 'env-template-gate-na', 'diagram-gate-na', 'migration', 'unknown', 'unknown-runner', 'empty', 'quoted-comma-bundle', 'docs-execution-plan', 'api-execution-plan', 'web-execution-plan', 'worker-execution-plan')
     unknownPolicy = 'fail-closed'
     migrationProfile = 'Slice'
 } | ConvertTo-Json -Depth 5

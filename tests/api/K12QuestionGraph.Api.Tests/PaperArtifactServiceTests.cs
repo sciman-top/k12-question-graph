@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.IO.Compression;
 using System.Text;
 using K12QuestionGraph.Api.Papers;
@@ -19,6 +20,28 @@ public sealed class PaperArtifactServiceTests
         var xml = reader.ReadToEnd();
         Assert.Contains("惯性测试题", xml);
         Assert.DoesNotContain("答案：", xml);
+    }
+
+    [Fact]
+    public void BuildDocx_FormatsScoresWithInvariantCulture()
+    {
+        var previousCulture = CultureInfo.CurrentCulture;
+        try
+        {
+            CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("de-DE");
+            var bytes = PaperArtifactService.BuildDocx("合成测试卷", [(1, 3.5m, "惯性测试题", null)]);
+
+            using var archive = new ZipArchive(new MemoryStream(bytes), ZipArchiveMode.Read);
+            using var reader = new StreamReader(archive.GetEntry("word/document.xml")!.Open(), Encoding.UTF8);
+            var xml = reader.ReadToEnd();
+
+            Assert.Contains("3.5分", xml);
+            Assert.DoesNotContain("3,5分", xml);
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = previousCulture;
+        }
     }
 
     [Fact]

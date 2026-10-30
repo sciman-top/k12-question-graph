@@ -47,6 +47,45 @@ public sealed class AdminAuthenticationHttpTests : IClassFixture<AdminAuthentica
     }
 
     [Fact]
+    public async Task SessionStatus_ReportsCookieExpiryForAuthenticatedSession()
+    {
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            HandleCookies = true,
+            BaseAddress = new Uri("https://localhost")
+        });
+
+        var login = await client.PostAsJsonAsync("/auth/session", new { apiKey = KqgWebFactory.ApiKey });
+        Assert.Equal(HttpStatusCode.OK, login.StatusCode);
+
+        var status = await client.GetAsync("/auth/session");
+        var body = await status.Content.ReadAsStringAsync();
+        Assert.True(status.IsSuccessStatusCode, $"GET /auth/session returned {(int)status.StatusCode}: {body}");
+        using var payload = System.Text.Json.JsonDocument.Parse(body);
+        Assert.True(payload.RootElement.GetProperty("authenticated").GetBoolean());
+        Assert.True(
+            payload.RootElement.TryGetProperty("expiresAt", out var expiresAt) &&
+            expiresAt.ValueKind == System.Text.Json.JsonValueKind.String &&
+            DateTimeOffset.TryParse(expiresAt.GetString(), out _),
+            $"authenticated session must report its cookie expiry, body: {body}");
+    }
+
+    [Fact]
+    public async Task SessionStatus_ReportsAnonymousWithoutExpiry()
+    {
+        using var client = factory.CreateClient();
+
+        var status = await client.GetAsync("/auth/session");
+        var body = await status.Content.ReadAsStringAsync();
+        Assert.True(status.IsSuccessStatusCode, $"GET /auth/session returned {(int)status.StatusCode}: {body}");
+        using var payload = System.Text.Json.JsonDocument.Parse(body);
+        Assert.False(payload.RootElement.GetProperty("authenticated").GetBoolean());
+        Assert.Equal(
+            System.Text.Json.JsonValueKind.Null,
+            payload.RootElement.GetProperty("expiresAt").ValueKind);
+    }
+
+    [Fact]
     public async Task TeacherCredential_CannotReachCurriculumReviewWriteEndpoint()
     {
         using var client = factory.WithWebHostBuilder(builder =>

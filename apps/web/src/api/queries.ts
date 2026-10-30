@@ -30,11 +30,12 @@ export const readyHealthQueryPolicy = {
   refetchIntervalInBackground: false,
 } as const
 
-export function useReadyHealthQuery() {
+export function useReadyHealthQuery(enabled = true) {
   return useQuery({
     queryKey: serverStateQueryKeys.readyHealth,
     queryFn: getReadyHealth,
     ...readyHealthQueryPolicy,
+    enabled,
   })
 }
 

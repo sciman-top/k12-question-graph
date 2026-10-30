@@ -321,16 +321,16 @@ public sealed class CurriculumEvidenceReviewTests
         string status,
         string importKey,
         string assetType = "knowledge_point") => new()
-    {
-        Id = Guid.NewGuid(),
-        AssetType = assetType,
-        StableId = $"KPHY-{Guid.NewGuid():N}",
-        Version = 1,
-        DisplayName = "Fixture knowledge point",
-        Status = status,
-        Metadata = "{}",
-        SourceEvidence = JsonSerializer.Serialize(new { importKey }),
-    };
+        {
+            Id = Guid.NewGuid(),
+            AssetType = assetType,
+            StableId = $"KPHY-{Guid.NewGuid():N}",
+            Version = 1,
+            DisplayName = "Fixture knowledge point",
+            Status = status,
+            Metadata = "{}",
+            SourceEvidence = JsonSerializer.Serialize(new { importKey }),
+        };
 
     private static CurriculumEvidenceDecisionRequest DecisionRequest(
         string candidateType,

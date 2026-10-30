@@ -30,8 +30,6 @@ public static class AdminInternalEndpointGuard
     private static readonly SemaphoreSlim AuditWriteLock = new(1, 1);
 
     public const string HeaderName = "X-KQG-Admin-Key";
-    public const string RoleHeaderName = "X-KQG-Operator-Role";
-    public const string OperatorIdHeaderName = "X-KQG-Operator-Id";
     public const string RollbackRefHeaderName = "X-KQG-Rollback-Ref";
     public const string DraftTestHeaderName = "X-KQG-Auth-Boundary";
     public const string DraftTestHeaderValue = "draft-test-unguarded-admin-internal";
@@ -216,7 +214,15 @@ public static class AdminInternalEndpointGuard
                 return;
             }
 
-            var rotatedPath = logPath + "." + DateTime.UtcNow.ToString("yyyyMMddHHmmss") + ".rotated";
+            // 目标已存在(同秒多次轮转或残留)时递增后缀,保证总能换出新文件,
+            // 否则当前日志会越过上限继续追加。
+            var stamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+            var rotatedPath = $"{logPath}.{stamp}.rotated";
+            for (var attempt = 1; File.Exists(rotatedPath) && attempt <= 16; attempt++)
+            {
+                rotatedPath = $"{logPath}.{stamp}.{attempt}.rotated";
+            }
+
             if (!File.Exists(rotatedPath))
             {
                 File.Move(logPath, rotatedPath);
@@ -236,6 +242,13 @@ public static class AdminInternalEndpointGuard
         if (string.IsNullOrWhiteSpace(role))
         {
             return false;
+        }
+
+        // /health/details 暴露 content/data/file_store/backup/logs 绝对路径,
+        // 仅限 admin;其余受守卫的 /health/* 保持全部角色可读。
+        if (path.StartsWithSegments("/health/details", StringComparison.OrdinalIgnoreCase))
+        {
+            return role == "admin";
         }
 
         if (IsSourceAuthorizationPath(path) ||

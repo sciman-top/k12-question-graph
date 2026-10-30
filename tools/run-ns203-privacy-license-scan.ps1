@@ -40,7 +40,16 @@ function New-Hit([string] $Kind, [string] $Path, [int] $Line, [string] $Excerpt,
     }
 }
 
-function Test-AllowlistedCredentialLine([string] $Line) {
+function Test-AllowlistedCredentialLine([string] $Line, [string] $MatchedValue = '') {
+    $credentialContext = $Line -match '(?i)(api[_-]?key|secret|token|password|pwd)\s*[:=]'
+    if (-not $credentialContext) { return $false }
+    # A camelCase identifier such as `cancellationToken` is code, not a secret
+    # literal. Real credential assignments start with a separator or quote.
+    if (-not [string]::IsNullOrWhiteSpace($MatchedValue) -and
+        $MatchedValue -cmatch '^[A-Za-z]+[A-Z][A-Za-z0-9]*$') {
+        return $true
+    }
+
     return $Line -match '(?i)(redacted|placeholder|sample|example|contract-secret|ns202-contract-secret|o004-contract-secret|o004b-contract-secret|test-secret|your-|your_|dummy|fake|stub|changeme)' -or
         $Line -match '(?i)\$reasonToken\s*=\s*["''][a-z0-9_]+_(smoke|audit|report)["'']' -or
         $Line -match '(?i)(Use-KqgDatabasePassword|Resolve-KqgDatabasePassword|args\.password|\$DatabasePassword\s*=)' -or
@@ -186,7 +195,7 @@ try {
         foreach ($match in $regexes.credentialAssignment.Matches($text)) {
             $lineNumber = Get-LineNumber $text $match.Index
             $line = $lines[$lineNumber - 1].Trim()
-            $allowed = Test-AllowlistedCredentialLine $line
+            $allowed = Test-AllowlistedCredentialLine $line $match.Groups[2].Value
             $secretHits.Add((New-Hit 'credential_assignment_like' $relativePath $lineNumber $line $allowed $(if ($allowed) { 'placeholder/test contract value or header constant' } else { 'possible tracked credential assignment' })))
         }
 

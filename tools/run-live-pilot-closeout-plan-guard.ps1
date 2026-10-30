@@ -4,6 +4,7 @@ param(
     [string] $ReleaseCardPath = 'docs/109_ReleaseGoNoGoCard.md',
     [string] $ClosureSummaryPath = 'docs/CurrentClosureStatus.md',
     [string] $Real005ReportPath = '',
+    [string] $CurrentTruthPath = '',
     [string] $JsonReportPath = 'tmp/verification/live-pilot-closeout-plan.json',
     [string] $MarkdownReportPath = 'tmp/verification/live-pilot-closeout-plan.md'
 )
@@ -17,16 +18,22 @@ function Resolve-RepoPath([string] $Path) {
     return $fullPath
 }
 
-if ([string]::IsNullOrWhiteSpace($Real005ReportPath)) {
-    $entry = & (Join-Path $PSScriptRoot 'get-current-evidence.ps1') -Id 'real005-closure-standard' | ConvertFrom-Json
-    $Real005ReportPath = [string]$entry.currentPath
+Import-Module (Join-Path $PSScriptRoot 'verification/CurrentTruth.psm1') -Force
+$currentTruth = if ([string]::IsNullOrWhiteSpace($CurrentTruthPath)) {
+    Get-CurrentTruth -RepoRoot $repoRoot -ReleaseCardPath $ReleaseCardPath -ClosureSummaryPath $ClosureSummaryPath
 }
+else {
+    Assert-CurrentTruthReceipt -RepoRoot $repoRoot -ReceiptPath $CurrentTruthPath `
+        -ReleaseCardPath $ReleaseCardPath -ClosureSummaryPath $ClosureSummaryPath
+}
+$Real005ReportPath = [string]$currentTruth.real005.currentPath
 
 $plan = @(Import-Csv -LiteralPath (Resolve-RepoPath $PlanPath) -Encoding UTF8)
 $backlog = @(Import-Csv -LiteralPath (Resolve-RepoPath $BacklogPath) -Encoding UTF8)
-$real005 = Get-Content -LiteralPath (Resolve-RepoPath $Real005ReportPath) -Raw -Encoding UTF8 | ConvertFrom-Json
-$releaseCard = Get-Content -LiteralPath (Resolve-RepoPath $ReleaseCardPath) -Raw -Encoding UTF8
-$closureSummary = Get-Content -LiteralPath (Resolve-RepoPath $ClosureSummaryPath) -Raw -Encoding UTF8
+if (-not [string]::IsNullOrWhiteSpace($PSBoundParameters['Real005ReportPath']) -and
+    [string]$PSBoundParameters['Real005ReportPath'] -ne $Real005ReportPath) {
+    throw "Real005 report path contradicts current evidence: expected=$Real005ReportPath"
+}
 
 $requiredColumns = @('id', 'parent_id', 'wave', 'category', 'slice', 'status', 'depends_on', 'acceptance', 'verification', 'evidence_anchor', 'owner_role')
 $actualColumns = @($plan[0].PSObject.Properties.Name)
@@ -53,8 +60,11 @@ if ($unexpectedCompleted.Count -gt 0) {
 
 $backlogById = @{}
 foreach ($row in $backlog) { $backlogById[[string]$row.id] = $row }
-Import-Module (Join-Path $PSScriptRoot 'verification/CloseoutInvariants.psm1') -Force
-Test-ReleaseCloseoutInvariants -BacklogById $backlogById -Real005Evidence $real005 -ReleaseCardText $releaseCard -ClosureSummaryText $closureSummary
+foreach ($id in @('P001', 'P002', 'P003', 'P004', 'P005', 'P006')) {
+    if (-not $backlogById.ContainsKey($id) -or [string]$backlogById[$id].status -ne '待办') {
+        throw "$id must remain open until onsite/manual evidence closes it"
+    }
+}
 
 $nextOpen = [ordered]@{}
 foreach ($parent in $expectedParents) {
@@ -72,8 +82,8 @@ $report = [ordered]@{
     openCount = $openCount
     real005 = [ordered]@{
         currentPath = $Real005ReportPath
-        closureStatus = [string]$real005.closureStatus
-        fullClosureAllowed = [bool]$real005.fullClosureAllowed
+        closureStatus = [string]$currentTruth.real005.closureStatus
+        fullClosureAllowed = [bool]$currentTruth.real005.fullClosureAllowed
     }
     nextOpen = $nextOpen
     releaseDecision = 'No-Go'

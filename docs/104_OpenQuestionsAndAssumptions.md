@@ -11,12 +11,12 @@
 | ID | 议题 | 当前默认假设 | 影响面 | 关闭所需证据 | 负责人角色 | 最迟关闭点 | 状态 |
 |---|---|---|---|---|---|---|---|
 | `OQ01` | v0.1 最终发布门槛 | 只有 `P006` 发布裁决关闭后才能宣称 release-ready；`teacher_validated` 不是自动发布许可 | 发布、对外承诺、试点节奏 | `docs/109_ReleaseGoNoGoCard.md` + `P006` 证据 | 产品负责人 + 发布负责人 | `P006` | open |
-| `OQ02` | 高风险动作最终审批链 | `active switch`、restore、provider 默认切换、release decision 必须至少双角色复核 | 安全、治理、回滚 | `docs/105_RoleApprovalAndExceptionMatrix.md` 落地到流程和证据 | 管理员负责人 + 数据责任方代表 | `P001` | open |
-| `OQ03` | 首个试点默认运行模式 | 默认 `离线优先`；云 API 增强和本地增强都不是首个试点默认值 | 安装、硬件、成本、培训 | 主机诊断、worker profile、AI profile、试点环境记录 | 发布负责人 + 试点支持负责人 | `P001` | open |
+| `OQ02` | 高风险动作最终审批链 | `active switch`、restore、provider 默认切换、release decision 必须至少双角色复核 | 安全、治理、回滚 | `docs/105_RoleApprovalAndExceptionMatrix.md` 角色边界已由 O004B 承接；每次高风险动作仍需真实双角色证据 | 管理员负责人 + 数据责任方代表 | `P001` | resolved_repo_side_onsite |
+| `OQ03` | 首个试点默认运行模式 | 默认 `离线优先`；云 API 增强和本地增强都不是首个试点默认值 | 安装、硬件、成本、培训 | profile 与配置投影已由 NS1303/NS1305 承接；目标机实际画质、网络和 AI profile 由 P001 现场事实验收 | 发布负责人 + 试点支持负责人 | `P001` | resolved_repo_side_onsite |
 | `OQ04` | 教师代理验证与真实教师验证差异 | 非现场代理 + AI 视觉代理可证明流程、客观界面/工件/回滚；仍不能替代真实教师效率与理解性结论 | 验收、对外宣称 | 现场教师试点记录 | 产品负责人 + 试点支持负责人 | `P004` | open |
-| `OQ05` | 教师可见元数据预算 | 维持四入口、任务语言、最小字段和隐藏治理语义 | UX、范围控制、培训成本 | `docs/106_TeacherVisibleMetadataBudget.md` 进入 UI 合同 | UX 负责人 + 前端负责人 | `NS1301` | open |
+| `OQ05` | 教师可见元数据预算 | 维持四入口、任务语言、最小字段和隐藏治理语义 | UX、范围控制、培训成本 | `docs/106_TeacherVisibleMetadataBudget.md` 进入 UI 合同；NS1301 已完成 repo-side 收口 | UX 负责人 + 前端负责人 | `NS1301` | resolved_repo_side |
 | `OQ06` | v0.1 互操作承诺面 | v0.1 不承诺 QTI/CASE/OneRoster/Caliper；真实对接需求只在 P006 后重新立项 | 范围、销售承诺、对接预期 | `R007` 在 `P006` 后取得真实对接需求与授权样本 | 架构负责人 | `P006` | open |
-| `OQ07` | 本地小模型准入边界 | 本地小模型只做 draft/candidate，不做默认生产路由 | 成本、硬件、AI 风险 | host/worker/AI profile 诊断 + eval + no-active-write 证据 | AI 负责人 + 发布负责人 | `NS1305` | open |
+| `OQ07` | 本地小模型准入边界 | 本地小模型只做 draft/candidate，不做默认生产路由 | 成本、硬件、AI 风险 | host/worker/AI profile 诊断、eval 和 no-active-write 配置已由 NS1303/NS1305/O008 承接；目标机 AI profile 仍需 P001 现场事实 | AI 负责人 + 发布负责人 | `NS1305` | resolved_repo_side_onsite |
 | `OQ08` | 现场试点数据授权与支持负责人 | 未有明确授权记录和 support owner 前，现场试点保持阻断 | 合规、发布、回滚 | `P003` admission evidence | 数据责任方代表 + 试点支持负责人 | `P003` | blocked_by_onsite |
 
 ## 2.1 CSV 处理结论
@@ -46,7 +46,7 @@
 当前更需要做的是：
 
 1. 保持 `docs/104` 作为治理入口，避免同一未决事项在多个文档里漂移。
-2. 在对应任务关闭时，同步把本表状态改为 `closed` 并补证据链接。
+2. 在对应任务关闭时，同步把本表状态改为 `closed` 或 `resolved_repo_side` 并补证据链接；需要目标机事实的项保留 `*_onsite` 后缀。
 3. 若只是把既有 `P001/P003/P005/P006/REAL005` 拆成更细执行项，应优先使用 `tasks/live-pilot-closeout-plan.csv` 这类子计划，而不是新增新的顶层主线任务。
 4. 若未来出现**现有任务无法承接的新裁决动作**，才允许新增 CSV 任务。
 

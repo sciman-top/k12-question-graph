@@ -356,7 +356,10 @@ export async function downloadPaperArtifact(
 ): Promise<ApiResult<{ blob: Blob; fileName: string }>> {
   const response = await requestResponse(
     `/paper-baskets/${encodeURIComponent(paperBasketId)}/export?format=${format}&variant=teacher`,
-    { headers: { Accept: format === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' } },
+    {
+      headers: { Accept: format === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' },
+      timeoutMs: longRunningRequestTimeoutMs,
+    },
   )
   if (!response.ok) return response
   const disposition = response.data.headers.get('content-disposition') ?? ''

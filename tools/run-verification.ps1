@@ -4,7 +4,8 @@ param(
     [string[]] $ChangedPaths = @(),
     [string] $ReportRoot = 'tmp/verification/current',
     [switch] $DryRun,
-    [switch] $AuthorizeStateful
+    [switch] $AuthorizeStateful,
+    [switch] $FocusedTests
 )
 
 $ErrorActionPreference = 'Stop'
@@ -98,7 +99,7 @@ function Invoke-QuickProfile([AllowEmptyCollection()][System.Collections.Generic
             if ($LASTEXITCODE -ne 0) { throw 'frontend tests failed' }
         } },
         [pscustomobject]@{ id = 'worker-tests'; action = {
-            & python -m unittest discover -s tests/workers -p 'test_worker.py'
+            & python -m unittest discover -s tests/workers
             if ($LASTEXITCODE -ne 0) { throw 'worker tests failed' }
         } }
     )
@@ -129,12 +130,6 @@ function Invoke-SliceStep {
 }
 
 function Invoke-ReleaseCoreProfile([AllowEmptyCollection()][System.Collections.Generic.List[object]] $Results) {
-    $real005Entry = & (Join-Path $PSScriptRoot 'get-current-evidence.ps1') -Id 'real005-closure-standard' | ConvertFrom-Json
-    $real005ReportPath = [string]$real005Entry.currentPath
-    if ([string]::IsNullOrWhiteSpace($real005ReportPath)) {
-        throw 'REAL005 current evidence path is missing'
-    }
-
     $steps = @(
         [pscustomobject]@{ id = 'release-contracts'; action = {
             & (Join-Path $PSScriptRoot 'run-ns102-migration-baseline.ps1') -NoBuild -ReportPath (Join-Path $ReportRoot 'ns102-migration-baseline.json') | Out-Null
@@ -148,10 +143,14 @@ function Invoke-ReleaseCoreProfile([AllowEmptyCollection()][System.Collections.G
                 -O007RecoveryReportPath (Join-Path $ReportRoot 'ns806-o003-recovery-drill.json') | Out-Null
         } },
         [pscustomobject]@{ id = 'release-closure-invariants'; action = {
+            Import-Module (Join-Path $PSScriptRoot 'verification/CurrentTruth.psm1') -Force
+            $currentTruthPath = Join-Path $ReportRoot 'current-truth.json'
+            $currentTruth = Get-CurrentTruth -RepoRoot $repoRoot
+            $currentTruth | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $reportRootFullPath 'current-truth.json') -Encoding UTF8
             & (Join-Path $PSScriptRoot 'run-reference-basis-guard.ps1') -ValidationMode Local -JsonReportPath (Join-Path $ReportRoot 'reference-basis.json') -MarkdownReportPath (Join-Path $ReportRoot 'reference-basis.md') | Out-Null
             & (Join-Path $PSScriptRoot 'run-evidence-index-guard.ps1') -JsonReportPath (Join-Path $ReportRoot 'evidence-index.json') | Out-Null
             & (Join-Path $PSScriptRoot 'run-live-pilot-closeout-plan-guard.ps1') `
-                -Real005ReportPath $real005ReportPath `
+                -CurrentTruthPath $currentTruthPath `
                 -JsonReportPath (Join-Path $ReportRoot 'live-pilot-closeout-plan.json') `
                 -MarkdownReportPath (Join-Path $ReportRoot 'live-pilot-closeout-plan.md') | Out-Null
         } }
@@ -170,33 +169,56 @@ function Invoke-ReleaseCoreProfile([AllowEmptyCollection()][System.Collections.G
 function Invoke-SliceFocusedCommand {
     param(
         [Parameter(Mandatory = $true)][string] $Id,
-        [Parameter(Mandatory = $true)][AllowEmptyCollection()][System.Collections.Generic.List[object]] $Results
+        [Parameter(Mandatory = $true)][AllowEmptyCollection()][System.Collections.Generic.List[object]] $Results,
+        [string] $ApiTestFilter = '',
+        [string[]] $FrontendTestFiles = @()
     )
 
     switch ($Id) {
         'backend-tests' {
-            Invoke-SliceStep -Id 'slice-backend-build' -Results $Results -Action {
+            $backendBuildAction = {
                 & dotnet build tests/api/K12QuestionGraph.Api.Tests/K12QuestionGraph.Api.Tests.csproj --artifacts-path $dotnetArtifactsPath
                 if ($LASTEXITCODE -ne 0) { throw 'slice backend build failed' }
             }
-            Invoke-SliceStep -Id 'slice-backend-tests' -Results $Results -Action {
-                & dotnet test tests/api/K12QuestionGraph.Api.Tests/K12QuestionGraph.Api.Tests.csproj --no-restore --no-build --artifacts-path $dotnetArtifactsPath
+            $backendTestAction = {
+                $testArguments = @(
+                    'test',
+                    'tests/api/K12QuestionGraph.Api.Tests/K12QuestionGraph.Api.Tests.csproj',
+                    '--no-restore',
+                    '--no-build',
+                    '--artifacts-path',
+                    $dotnetArtifactsPath
+                )
+                if (-not [string]::IsNullOrWhiteSpace($ApiTestFilter)) {
+                    $testArguments += @('--filter', $ApiTestFilter)
+                }
+                & dotnet @testArguments
                 if ($LASTEXITCODE -ne 0) { throw 'slice backend tests failed' }
             }
+            Invoke-SliceStep -Id 'slice-backend-build' -Results $Results -Action $backendBuildAction
+            Invoke-SliceStep -Id 'slice-backend-tests' -Results $Results -Action $backendTestAction
         }
         'frontend-tests' {
-            Invoke-SliceStep -Id 'slice-frontend-build' -Results $Results -Action {
+            $frontendBuildAction = {
                 & npm --prefix apps/web run build
                 if ($LASTEXITCODE -ne 0) { throw 'slice frontend build failed' }
             }
-            Invoke-SliceStep -Id 'slice-frontend-lint' -Results $Results -Action {
+            $frontendLintAction = {
                 & npm --prefix apps/web run lint
                 if ($LASTEXITCODE -ne 0) { throw 'slice frontend lint failed' }
             }
-            Invoke-SliceStep -Id 'slice-frontend-tests' -Results $Results -Action {
-                & npm --prefix apps/web run test
+            $frontendTestAction = {
+                $frontendArguments = @('--prefix', 'apps/web', 'run', 'test')
+                if ($FrontendTestFiles.Count -gt 0) {
+                    $frontendArguments += '--'
+                    $frontendArguments += $FrontendTestFiles
+                }
+                & npm @frontendArguments
                 if ($LASTEXITCODE -ne 0) { throw 'slice frontend tests failed' }
             }
+            Invoke-SliceStep -Id 'slice-frontend-build' -Results $Results -Action $frontendBuildAction
+            Invoke-SliceStep -Id 'slice-frontend-lint' -Results $Results -Action $frontendLintAction
+            Invoke-SliceStep -Id 'slice-frontend-tests' -Results $Results -Action $frontendTestAction
         }
         'worker-tests' {
             Invoke-SliceStep -Id 'slice-worker-compile' -Results $Results -Action {
@@ -204,7 +226,7 @@ function Invoke-SliceFocusedCommand {
                 if ($LASTEXITCODE -ne 0) { throw 'slice worker compile failed' }
             }
             Invoke-SliceStep -Id 'slice-worker-tests' -Results $Results -Action {
-                & python -m unittest discover -s tests/workers -p 'test_worker.py'
+                & python -m unittest discover -s tests/workers
                 if ($LASTEXITCODE -ne 0) { throw 'slice worker tests failed' }
             }
         }
@@ -216,6 +238,7 @@ function Invoke-SliceFocusedCommand {
         'verification-routing' {
             Invoke-SliceStep -Id 'slice-verification-routing' -Results $Results -Action {
                 & (Join-Path $repoRoot 'tests/verification/run-verification-slice-selector-tests.ps1') | Out-Null
+                & (Join-Path $repoRoot 'tests/verification/run-workflow-ps1-parse-tests.ps1') | Out-Null
             }
         }
         'roadmap' {
@@ -235,6 +258,25 @@ function Invoke-SliceFocusedCommand {
                 & $guard -JsonReportPath (Join-Path $ReportRoot 'evidence-index.json') | Out-Null
             }
         }
+        'backup-restore-regressions' {
+            Invoke-SliceStep -Id 'slice-backup-restore-regressions' -Results $Results -Action {
+                & (Join-Path $repoRoot 'tests/verification/restore-manifest-security-tests.ps1') | Out-Null
+                & (Join-Path $repoRoot 'tests/verification/backup-manifest-reissue-tests.ps1') | Out-Null
+            }
+        }
+        'acceptance-regressions' {
+            Invoke-SliceStep -Id 'slice-acceptance-regressions' -Results $Results -Action {
+                $p005InputPath = Join-Path $repoRoot 'tests/verification/fixtures/p005-feedback-summary-smoke.json'
+                $p005SummaryPath = Join-Path $ReportRoot 'p005-feedback-summary-smoke.json'
+                & (Join-Path $PSScriptRoot 'run-p005-feedback-summary.ps1') -Mode Collect -InputPath $p005InputPath -OutputPath $p005SummaryPath | Out-Null
+                & (Join-Path $repoRoot 'tests/verification/run-accountable-acceptance-bundle-smoke.ps1') | Out-Null
+            }
+        }
+        'test-selection' {
+            Invoke-SliceStep -Id 'slice-test-selection' -Results $Results -Action {
+                & (Join-Path $repoRoot 'tests/verification/run-test-selection-regression-tests.ps1') | Out-Null
+            }
+        }
         default { throw "unknown focused Slice command: $Id" }
     }
 }
@@ -245,6 +287,8 @@ $beforeProcesses = if ($monitorProcesses) { @(Get-RepoProcessSnapshot) } else { 
 $results = New-Object System.Collections.Generic.List[object]
 $selection = $null
 $releaseStateReconciliation = $null
+$apiTestFilter = ''
+$frontendTestFiles = [string[]]::new(0)
 $status = 'pass'
 $failure = $null
 
@@ -271,8 +315,29 @@ try {
                     }
                     throw "Slice selection requires $($selection.escalatedProfile): release=$($selection.releasePaths.Count)"
                 }
+                $selectedIds = @($selection.selected | ForEach-Object { [string]$_.id })
+                $apiTestFilter = ''
+                $frontendTestFiles = @()
+                if ($FocusedTests -and ($selectedIds -contains 'backend-tests' -or $selectedIds -contains 'frontend-tests')) {
+                    Import-Module (Join-Path $PSScriptRoot 'verification/TestSelection.psm1') -Force
+                    if ($selectedIds -contains 'backend-tests') {
+                        $apiSelection = Get-ApiTestSelection -RepoRoot $repoRoot -ChangedPaths $ChangedPaths
+                        $apiSelection | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $reportRootFullPath 'backend-test-selection.json') -Encoding UTF8
+                        if ($apiSelection.status -eq 'focused') {
+                            $apiTestFilter = [string]$apiSelection.testFilterExpression
+                        }
+                    }
+                    if ($selectedIds -contains 'frontend-tests') {
+                        $frontendSelection = Get-FrontendTestSelection -RepoRoot $repoRoot -ChangedPaths $ChangedPaths
+                        $frontendSelection | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $reportRootFullPath 'frontend-test-selection.json') -Encoding UTF8
+                        if ($frontendSelection.status -eq 'focused') {
+                            $frontendTestFiles = @($frontendSelection.vitestPaths)
+                        }
+                    }
+                }
                 foreach ($selected in $selection.selected) {
-                    Invoke-SliceFocusedCommand -Id ([string]$selected.id) -Results $results
+                    Invoke-SliceFocusedCommand -Id ([string]$selected.id) -Results $results `
+                        -ApiTestFilter $apiTestFilter -FrontendTestFiles $frontendTestFiles
                 }
             }
             'Release' {
@@ -351,6 +416,9 @@ $report = [ordered]@{
     skipped = if ($null -eq $selection -or $null -eq $selection.skipped) { ,([object[]]::new(0)) } else { ,([object[]]@($selection.skipped)) }
     sideEffectSummary = if ($null -eq $selection -or $null -eq $selection.sideEffectSummary) { ,([object[]]::new(0)) } else { ,([object[]]@($selection.sideEffectSummary)) }
     releaseCoreIncluded = $Profile -eq 'Release'
+    focusedTestsEnabled = $Profile -eq 'Slice' -and [bool]$FocusedTests -and ($apiTestFilter -ne '' -or $frontendTestFiles.Count -gt 0)
+    backendTestFilter = $apiTestFilter
+    frontendTestFiles = @($frontendTestFiles)
     releaseStateReconciliation = $releaseStateReconciliation
     steps = $results.ToArray()
     failure = $failure

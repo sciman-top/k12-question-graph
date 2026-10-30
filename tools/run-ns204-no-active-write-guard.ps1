@@ -17,12 +17,8 @@ function Read-RepoJson([string] $Path) {
 $readiness = Read-RepoJson 'configs/ai-evals/c002q0-outer-ai-readiness.sample.json'
 $dryRun = Read-RepoJson 'configs/ai-evals/c002q-ai-extract-dry-run.sample.json'
 $appSettings = Read-RepoJson 'apps/api/appsettings.json'
-$index = Read-RepoJson $EvidenceIndexPath
-$real005Entry = @($index.entries | Where-Object id -eq 'real005-closure-standard')
-if ($real005Entry.Count -ne 1) {
-    throw 'evidence index must contain exactly one REAL005 current entry'
-}
-$real005 = Read-RepoJson ([string]$real005Entry[0].currentPath)
+Import-Module (Join-Path $PSScriptRoot 'verification/CurrentTruth.psm1') -Force
+$currentTruth = Get-CurrentTruth -RepoRoot $repoRoot -IndexPath $EvidenceIndexPath
 
 if ($readiness.allowProjectRuntimeRealModelCalls -ne $false -or
     $readiness.noActiveWrite -ne $true -or
@@ -40,10 +36,6 @@ if ($dryRun.allowRealModelCalls -ne $false -or
 if ($appSettings.AiRouting.AllowRealModelCalls -ne $false) {
     throw 'appsettings AiRouting.AllowRealModelCalls must default to false'
 }
-if ([string]$real005.closureStatus -ne 'not_closed' -or $real005.fullClosureAllowed -ne $false) {
-    throw 'REAL005 current evidence must remain not_closed and disallow full closure'
-}
-
 $report = [ordered]@{
     status = 'pass'
     checkedAt = (Get-Date).ToString('s')
@@ -54,9 +46,9 @@ $report = [ordered]@{
         productionEligible = $false
     }
     real005 = [ordered]@{
-        currentPath = [string]$real005Entry[0].currentPath
-        closureStatus = [string]$real005.closureStatus
-        fullClosureAllowed = [bool]$real005.fullClosureAllowed
+        currentPath = [string]$currentTruth.real005.currentPath
+        closureStatus = [string]$currentTruth.real005.closureStatus
+        fullClosureAllowed = [bool]$currentTruth.real005.fullClosureAllowed
     }
     boundary = 'Focused configuration/current-evidence guard; product behavior is verified by the API tests run before this Release stage.'
 }

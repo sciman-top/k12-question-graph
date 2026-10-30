@@ -6,6 +6,7 @@ import {
   getAdminSession,
   type AdminSessionContract,
 } from '../api/client'
+import { AdminSessionContext } from './adminSessionContext'
 
 type AdminSessionGateProps = {
   children: ReactNode
@@ -105,7 +106,9 @@ export function AdminSessionGate({ children }: AdminSessionGateProps) {
         <span>已认证：{session.operatorId ?? 'local-operator'}（{session.role ?? 'admin'}）</span>
         <Button type="link" size="small" loading={submitting} onClick={signOut}>退出</Button>
       </div>
-      {children}
+      <AdminSessionContext.Provider value={session}>
+        {children}
+      </AdminSessionContext.Provider>
     </>
   )
 }

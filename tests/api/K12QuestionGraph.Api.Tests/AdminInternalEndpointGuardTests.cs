@@ -35,6 +35,9 @@ public class AdminInternalEndpointGuardTests
     [InlineData("/knowledge-evidence/reviews/decisions", "POST", "group_lead", true)]
     [InlineData("/imports/27f5ad82-0ee9-4920-b4b8-b844551f35c6/status", "POST", "teacher", false)]
     [InlineData("/imports/27f5ad82-0ee9-4920-b4b8-b844551f35c6/status", "POST", "admin", true)]
+    [InlineData("/health/details", "GET", "admin", true)]
+    [InlineData("/health/details", "GET", "group_lead", false)]
+    [InlineData("/health/details", "GET", "teacher", false)]
     public void IsRoleAuthorized_UsesServerPrincipalAndRouteRisk(
         string path,
         string method,
@@ -173,5 +176,29 @@ public class AdminInternalEndpointGuardTests
         var missing = Path.Combine(Path.GetTempPath(), $"kqg-missing-{Guid.NewGuid():N}.jsonl");
         AdminInternalEndpointGuard.RotateAuditLogIfOversized(missing, maxBytes: 1);
         Assert.False(File.Exists(missing));
+    }
+
+    [Fact]
+    public void RotateAuditLog_PicksSuffixedNameWhenStampTargetAlreadyExists()
+    {
+        var directory = Path.Combine(Path.GetTempPath(), $"kqg-audit-rotate-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(directory);
+        try
+        {
+            var logPath = Path.Combine(directory, "admin-internal-audit.jsonl");
+            var stamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+            File.WriteAllText(Path.Combine(directory, $"admin-internal-audit.jsonl.{stamp}.rotated"), "older");
+            File.WriteAllText(logPath, "current");
+
+            AdminInternalEndpointGuard.RotateAuditLogIfOversized(logPath, maxBytes: 1);
+
+            // 同一秒内二次轮转不得因目标已存在而放弃:主日志必须换出。
+            Assert.False(File.Exists(logPath));
+            Assert.Equal(2, Directory.GetFiles(directory, "admin-internal-audit.jsonl.*.rotated").Length);
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
     }
 }

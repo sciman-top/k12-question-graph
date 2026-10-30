@@ -10,7 +10,7 @@
 | canonical | `docs/01_PRD.md` | 稳定产品目标和成功指标 |
 | canonical | `docs/02_MVP_Scope_and_ScopeControl.md` | v0.1 范围 |
 | canonical | `tasks/backlog.csv` | 任务顺序和状态 |
-| canonical | 当前 task spec | AI 可执行合同 |
+| canonical | `configs/verification/slice-selection.rules.json` | changed-path 验证路由；聚焦测试由 `tools/verification/TestSelection.psm1` 选择 |
 | projection | `docs/103_ExecutionControlBoard.md` | Now/Next/Later/Blocked |
 | projection | `docs/CurrentClosureStatus.md` | closure 边界 |
 | authority | `docs/109_ReleaseGoNoGoCard.md` | 发布裁决 |
@@ -23,8 +23,7 @@
 1. `AGENTS.md`
 2. `docs/103_ExecutionControlBoard.md`
 3. `tasks/backlog.csv` 当前行
-4. 当前 task spec
-5. 相关代码和测试
+4. 相关代码、测试和 `configs/verification/slice-selection.rules.json`
 
 只有以下情况再扩读：
 

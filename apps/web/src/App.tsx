@@ -1,4 +1,4 @@
-import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Suspense, lazy, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Alert,
   Badge,
@@ -49,6 +49,7 @@ import {
   uploadImportFile,
 } from './api/client'
 import { triggerBrowserDownload } from './api/download'
+import { AdminSessionContext } from './auth/adminSessionContext'
 import type {
   QuestionDetailContract,
   QuestionEvidenceCardContract,
@@ -106,7 +107,10 @@ const AdminGovernancePanels = lazy(async () => {
 
 
 function App() {
-  const readyHealthQuery = useReadyHealthQuery()
+  // /health/ready 是受保护端点(O001 契约:未认证必须 401),登录前不轮询,
+  // 避免 401 循环与审计日志膨胀;会话由 AdminSessionGate 通过 context 下发。
+  const adminSession = useContext(AdminSessionContext)
+  const readyHealthQuery = useReadyHealthQuery(adminSession?.authenticated === true)
   const [adminWorkspaceVisible, setAdminWorkspaceVisible] = useState<boolean>(() => {
     if (typeof window === 'undefined') {
       return false

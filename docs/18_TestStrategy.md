@@ -25,7 +25,7 @@ build -> test -> contract/invariant -> hotspot
 
 ### Slice
 
-适用于当前变更：不先跑整套 Quick，而是根据 changed paths 选择最小链。API、Web、Worker 各自保留 build/test 闭环；工具只做脚本质量；纯 docs 为 `gate_na`。unknown path、空选择必须 fail-closed 或提升 profile。
+适用于当前变更：不先跑整套 Quick，而是根据 changed paths 选择最小链。默认按模块保留 build/test 闭环；传入 `-FocusedTests` 时，用 `tools/verification/TestSelection.psm1` 选择直接关联测试，无法形成封闭映射的共享契约、入口和未知改动回退模块全量。工具只做对应脚本质量；纯 docs 为 `gate_na`。unknown path、空选择必须 fail-closed 或提升 profile。
 
 ### Release
 
@@ -39,15 +39,9 @@ build -> test -> contract/invariant -> hotspot
 
 ## 4. 选择规则
 
-每个 task spec 必须声明：
+机器真源只有一个：`configs/verification/slice-selection.rules.json` 的 changed-path 路由和对应 focused-test selector。路径决定模块和聚焦测试，不另维护一份逐 task 验证字段。
 
-- `verification_profile`
-- `focused_verifiers`
-- `stateful_verifiers`
-- `requires_database`
-- `stops_process`
-- `writes_filestore`
-- `evidence_policy`
+聚焦选择失败时回退模块全量；测试断言失败不会被“自动补齐选择”掩盖。`-FocusedTests` 选择本身由 `tests/verification/run-test-selection-regression-tests.ps1` 守护。
 
 Q001-Q005 和 R001-R007 在 P006 前不进入默认 Quick；仅在 changed paths、当前 task 或 Release 显式命中时运行。
 
@@ -85,10 +79,10 @@ Q001-Q005 和 R001-R007 在 P006 前不进入默认 Quick；仅在 changed paths
 | Quick/Slice | `tmp/verification/<run-id>/` | no |
 | 临时诊断 | `tmp/` | no |
 | 默认 Release/migration/restore rehearsal | `tmp/verification/<run-id>/` | no |
-| 稳定 release reconciliation / onsite acceptance | `docs/evidence/` | yes |
+| 稳定 release reconciliation / onsite acceptance | `docs/evidence/`（current receipt 或真正新增的验收事实） | yes |
 | Onsite/live | 签收报告与附件 | yes |
 
-同一未变化 guard 不应每天生成新的 tracked 快照。后续由 `docs/evidence/index.json` 标识 current/superseded/authority。
+同一未变化 guard 不应每天生成新的 tracked 快照。`docs/evidence/index.json` 是唯一 current 路由；同结论的重复执行更新 current receipt，只有来源、commit、环境或验收边界实质变化时才保留新的历史记录。历史事实从 Git 定点取证。
 
 ## 9. 完成声明
 
@@ -101,7 +95,7 @@ Q001-Q005 和 R001-R007 在 P006 前不进入默认 Quick；仅在 changed paths
 
 当前迁移状态：
 
-- `tools/run-verification.ps1 -Profile Quick|Slice` 是普通入口；Quick 是全栈无状态基线，Slice 是 task/path 聚焦链，报告只进入 `tmp/verification/`；
-- 默认 Release 通过 `tools/run-verification.ps1 -Profile Release -AuthorizeStateful` 执行聚焦 core；仓库不再保留第二套 full gate；
+- `tools/run-verification.ps1 -Profile Quick|Slice` 是普通入口；Quick 是全栈无状态基线，Slice 是 path 聚焦链，`-FocusedTests` 启用直接测试选择，报告只进入 `tmp/verification/`；
+- 默认 Release 通过 `tools/run-verification.ps1 -Profile Release -AuthorizeStateful` 执行聚焦 core；仓库不再保留第二套 full gate；`release-closure-invariants` 先写单一 `current-truth.json`，closeout 只消费并校验该 receipt；
 - 默认 Release 必须记录 DB/FileStore/进程前后指纹，`sharedFileStoreWriteExpected=false`；状态 pass 不得掩盖 FileStore 变化或数据库 row-level 未比较的边界；
 - Onsite 仍只接受真实环境、操作者、输入、时间与签字证据。

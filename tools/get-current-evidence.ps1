@@ -5,6 +5,12 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+if ($Id -eq 'current-truth') {
+    Import-Module (Join-Path $PSScriptRoot 'verification/CurrentTruth.psm1') -Force
+    Get-CurrentTruth -RepoRoot $repoRoot -IndexPath $IndexPath | ConvertTo-Json -Depth 8
+    exit 0
+}
+
 $index = Get-Content -LiteralPath (Join-Path $repoRoot $IndexPath) -Raw -Encoding UTF8 | ConvertFrom-Json
 $entries = if ([string]::IsNullOrWhiteSpace($Id)) {
     @($index.entries)
