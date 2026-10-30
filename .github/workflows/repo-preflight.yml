@@ -68,7 +68,9 @@ jobs:
             if ([string]::IsNullOrWhiteSpace($base) -or $base -match '^0+$') {
               $base = git rev-list --max-parents=0 HEAD | Select-Object -First 1
             }
-            $paths = @(git diff --name-only --diff-filter=ACMRD $base $env:HEAD_SHA)
+          $paths = @(git diff --name-only --diff-filter=ACMRD $base $env:HEAD_SHA)
+          # Changed paths are passed to PowerShell as one comma-separated string.
+          # Splatting a nested array would bind the whole array as the first value.
             $changedPaths = $paths -join '|'
             .\tools\run-verification.ps1 `
               -Profile Slice `
@@ -144,8 +146,12 @@ jobs:
           }
           else {
             $paths = @($env:CHANGED_PATHS -split '\|' | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
-            $arguments = @('-Profile', 'Slice', '-ChangedPaths', $paths, '-ReportRoot', 'tmp\ci\repo-preflight')
-            if ($env:FOCUSED -eq 'true') { $arguments += '-FocusedTests' }
+            $arguments = @{
+              Profile = 'Slice'
+              ChangedPaths = ($paths -join ',')
+              ReportRoot = 'tmp\ci\repo-preflight'
+            }
+            if ($env:FOCUSED -eq 'true') { $arguments.FocusedTests = $true }
             & .\tools\run-verification.ps1 @arguments
           }
           $exitCode = $LASTEXITCODE
@@ -158,23 +164,17 @@ jobs:
             }
           }
           "fallback=$fallback" >> $env:GITHUB_OUTPUT
+          if ($exitCode -ne 0 -and $fallback -eq 'true') {
+            if ($env:PROFILE -eq 'Quick') {
+              .\tools\run-verification.ps1 -Profile Quick -ReportRoot tmp\ci\repo-preflight-fallback
+            }
+            else {
+              $paths = @($env:CHANGED_PATHS -split '\|' | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+              .\tools\run-verification.ps1 -Profile Slice -ChangedPaths ($paths -join ',') -ReportRoot tmp\ci\repo-preflight-fallback
+            }
+            $exitCode = $LASTEXITCODE
+          }
           exit $exitCode
-
-      - name: Run stateless verification fallback
-        if: failure() && steps.verify.outputs.fallback == 'true'
-        shell: pwsh
-        env:
-          PROFILE: ${{ steps.scope.outputs.profile }}
-          CHANGED_PATHS: ${{ steps.scope.outputs.changed_paths }}
-        run: |
-          if ($env:PROFILE -eq 'Quick') {
-            .\tools\run-verification.ps1 -Profile Quick -ReportRoot tmp\ci\repo-preflight-fallback
-          }
-          else {
-            $paths = @($env:CHANGED_PATHS -split '\|' | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
-            .\tools\run-verification.ps1 -Profile Slice -ChangedPaths $paths -ReportRoot tmp\ci\repo-preflight-fallback
-          }
-          exit $LASTEXITCODE
 
       - name: Upload preflight report
         if: always()
